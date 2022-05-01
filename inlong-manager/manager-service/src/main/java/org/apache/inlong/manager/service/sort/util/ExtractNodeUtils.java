@@ -42,6 +42,7 @@ import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -78,14 +79,14 @@ public class ExtractNodeUtils {
      * @return
      */
     public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
-        String id = binlogSourceResponse.getSourceName();
-        String name = binlogSourceResponse.getSourceName();
-        String database = binlogSourceResponse.getDatabaseWhiteList();
-        String primaryKey = binlogSourceResponse.getPrimaryKey();
-        String hostName = binlogSourceResponse.getHostname();
-        String userName = binlogSourceResponse.getUser();
-        String password = binlogSourceResponse.getPassword();
-        Integer port = binlogSourceResponse.getPort();
+        final String id = binlogSourceResponse.getSourceName();
+        final String name = binlogSourceResponse.getSourceName();
+        final String database = binlogSourceResponse.getDatabaseWhiteList();
+        final String primaryKey = binlogSourceResponse.getPrimaryKey();
+        final String hostName = binlogSourceResponse.getHostname();
+        final String userName = binlogSourceResponse.getUser();
+        final String password = binlogSourceResponse.getPassword();
+        final Integer port = binlogSourceResponse.getPort();
         Integer serverId = null;
         if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
             serverId = binlogSourceResponse.getServerId();
@@ -97,11 +98,21 @@ public class ExtractNodeUtils {
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        boolean incrementalSnapshotEnabled = true;
+        
+        // TODO Needs to be configurable for those parameters
+        Map<String, String> properties = Maps.newHashMap();
+        if (binlogSourceResponse.isAllMigration()) {
+            // Unique properties when migrate all tables in database
+            incrementalSnapshotEnabled = false;
+            properties.put("migrate-all", "true");
+        }
+        properties.put("append-mode", "true");
         return new MySqlExtractNode(id,
                 name,
                 fieldInfos,
                 null,
-                Maps.newHashMap(),
+                properties,
                 primaryKey,
                 tableNames,
                 hostName,
@@ -110,7 +121,7 @@ public class ExtractNodeUtils {
                 database,
                 port,
                 serverId,
-                true,
+                incrementalSnapshotEnabled,
                 serverTimeZone);
     }
 

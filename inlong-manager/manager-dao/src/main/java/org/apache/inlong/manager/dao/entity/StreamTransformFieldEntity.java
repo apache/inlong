@@ -53,4 +53,6 @@ public class StreamTransformFieldEntity implements Serializable {
     private Integer isDeleted;
 
     private String originNodeName;
+
+    private String originFieldName;
 }

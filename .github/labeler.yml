@@ -44,7 +44,6 @@ inlong-sdk:
 
 ci:
   - '.github/workflows/**/*'
-  - '.github/actions/**/*'
 
 docker:
   - '**/Dockerfile'
@@ -64,6 +63,5 @@ k8s:
 
 github:
   - '.github/labeler.yml'
-  - '.github/dependabot.yml'
   - '.github/PULL_REQUEST_TEMPLATE.md'
   - '.github/ISSUE_TEMPLATE/**/*'

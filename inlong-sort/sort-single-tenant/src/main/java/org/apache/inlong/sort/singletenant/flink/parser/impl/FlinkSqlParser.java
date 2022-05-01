@@ -41,6 +41,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelationShip;
+import org.apache.inlong.sort.singletenant.flink.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.singletenant.flink.parser.Parser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
 import org.slf4j.Logger;
@@ -80,6 +81,7 @@ public class FlinkSqlParser implements Parser {
     public FlinkSqlParser(TableEnvironment tableEnv, GroupInfo groupInfo) {
         this.tableEnv = tableEnv;
         this.groupInfo = groupInfo;
+        registerUDF();
     }
 
     /**
@@ -91,6 +93,13 @@ public class FlinkSqlParser implements Parser {
      */
     public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo) {
         return new FlinkSqlParser(tableEnv, groupInfo);
+    }
+
+    /**
+     * Register udf
+     */
+    private void registerUDF() {
+        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
     }
 
     /**

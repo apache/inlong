@@ -36,12 +36,13 @@
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="origin_node_name" jdbcType="VARCHAR" property="originNodeName"/>
+        <result column="origin_field_name" jdbcType="VARCHAR" property="originFieldName"/>
     </resultMap>
     <sql id="Base_Column_List">
         id
         , inlong_group_id, inlong_stream_id, transform_id, transform_type, field_name,
     field_value, pre_expression, field_type, field_comment, is_meta_field, field_format, 
-    rank_num, is_deleted, origin_node_name
+    rank_num, is_deleted, origin_node_name, origin_field_name
     </sql>
     <select id="selectByTransformId" resultType="org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity">
         select
@@ -77,12 +78,14 @@
                                             transform_id, transform_type, field_name,
                                             field_value, pre_expression, field_type,
                                             field_comment, is_meta_field, field_format,
-                                            rank_num, is_deleted, origin_node_name)
+                                            rank_num, is_deleted, origin_node_name,
+                                            origin_field_name)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{transformId,jdbcType=INTEGER}, #{transformType,jdbcType=VARCHAR}, #{fieldName,jdbcType=VARCHAR},
                 #{fieldValue,jdbcType=VARCHAR}, #{preExpression,jdbcType=VARCHAR}, #{fieldType,jdbcType=VARCHAR},
                 #{fieldComment,jdbcType=VARCHAR}, #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
-                #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER}, #{originNodeName,jdbcType=VARCHAR})
+                #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER}, #{originNodeName,jdbcType=VARCHAR},
+                #{originFieldName,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity">
@@ -133,6 +136,9 @@
             <if test="originNodeName != null">
                 origin_node_name,
             </if>
+            <if test="originFieldName != null">
+                origin_field_name,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -179,6 +185,9 @@
             </if>
             <if test="originNodeName != null">
                 #{originNodeName,jdbcType=VARCHAR},
+            </if>
+            <if test="originFieldName != null">
+                #{originFieldName,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -228,25 +237,29 @@
             <if test="originNodeName != null">
                 origin_node_name = #{originNodeName,jdbcType=VARCHAR},
             </if>
+            <if test="originFieldName != null">
+                origin_field_name = #{originFieldName,jdbcType=VARCHAR},
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity">
         update stream_transform_field
-        set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
-            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
-            transform_id     = #{transformId,jdbcType=INTEGER},
-            transform_type   = #{transformType,jdbcType=VARCHAR},
-            field_name       = #{fieldName,jdbcType=VARCHAR},
-            field_value      = #{fieldValue,jdbcType=VARCHAR},
-            pre_expression   = #{preExpression,jdbcType=VARCHAR},
-            field_type       = #{fieldType,jdbcType=VARCHAR},
-            field_comment    = #{fieldComment,jdbcType=VARCHAR},
-            is_meta_field    = #{isMetaField,jdbcType=SMALLINT},
-            field_format     = #{fieldFormat,jdbcType=VARCHAR},
-            rank_num         = #{rankNum,jdbcType=SMALLINT},
-            is_deleted       = #{isDeleted,jdbcType=INTEGER},
-            origin_node_name = #{originNodeName,jdbcType=VARCHAR}
+        set inlong_group_id   = #{inlongGroupId,jdbcType=VARCHAR},
+            inlong_stream_id  = #{inlongStreamId,jdbcType=VARCHAR},
+            transform_id      = #{transformId,jdbcType=INTEGER},
+            transform_type    = #{transformType,jdbcType=VARCHAR},
+            field_name        = #{fieldName,jdbcType=VARCHAR},
+            field_value       = #{fieldValue,jdbcType=VARCHAR},
+            pre_expression    = #{preExpression,jdbcType=VARCHAR},
+            field_type        = #{fieldType,jdbcType=VARCHAR},
+            field_comment     = #{fieldComment,jdbcType=VARCHAR},
+            is_meta_field     = #{isMetaField,jdbcType=SMALLINT},
+            field_format      = #{fieldFormat,jdbcType=VARCHAR},
+            rank_num          = #{rankNum,jdbcType=SMALLINT},
+            is_deleted        = #{isDeleted,jdbcType=INTEGER},
+            origin_node_name  = #{originNodeName,jdbcType=VARCHAR},
+            origin_field_name = #{originFieldName,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
 
@@ -255,7 +268,8 @@
         transform_id, transform_type, field_name,
         field_value, pre_expression, field_type,
         field_comment, is_meta_field, field_format,
-        rank_num, is_deleted, origin_node_name)
+        rank_num, is_deleted, origin_node_name,
+        origin_field_name)
         values
         <foreach collection="list" index="index" item="item" separator=",">
             (#{item.id,jdbcType=INTEGER}, #{item.inlongGroupId,jdbcType=VARCHAR},
@@ -267,7 +281,7 @@
             #{item.fieldComment,jdbcType=VARCHAR}, #{item.isMetaField,jdbcType=SMALLINT},
             #{item.fieldFormat,jdbcType=VARCHAR},
             #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER},
-            #{item.originNodeName,jdbcType=VARCHAR})
+            #{item.originNodeName,jdbcType=VARCHAR}, #{item.originFieldName,jdbcType=VARCHAR})
         </foreach>
     </insert>
 
