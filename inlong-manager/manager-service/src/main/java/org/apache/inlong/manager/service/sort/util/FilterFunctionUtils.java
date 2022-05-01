@@ -122,6 +122,9 @@ public class FilterFunctionUtils {
     }
 
     private static FunctionParam parseTargetValue(TargetValue value, String transformName) {
+        if (value == null) {
+            return new ConstantParam("");
+        }
         boolean isConstant = value.isConstant();
         if (isConstant) {
             String constant = value.getTargetConstant();

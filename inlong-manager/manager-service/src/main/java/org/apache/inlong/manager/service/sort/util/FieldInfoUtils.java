@@ -134,14 +134,24 @@ public class FieldInfoUtils {
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
         if (isBuiltin && builtInField != null) {
-            fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+            return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
             if (isBuiltin) {
+                // Check if fieldName contains buildInFieldName, such as left_database
+                // TODO The buildin field needs to be selectable and cannot be filled in by the user
+                for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
+                    if (fieldName.contains(buildInFieldName)) {
+                        builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
+                        break;
+                    }
+                }
+                if (builtInField != null) {
+                    return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+                }
                 log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
             }
-            fieldInfo = new FieldInfo(fieldName, formatInfo);
+            return new FieldInfo(fieldName, formatInfo);
         }
-        return fieldInfo;
     }
 
     /**
