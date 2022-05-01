@@ -32,7 +32,6 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +61,6 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     private String database;
 
     @JsonProperty("hiveConfDir")
-    @Nonnull
     private String hiveConfDir;
 
     @JsonProperty("hiveVersion")
@@ -81,20 +79,20 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
             @JsonProperty("filters") List<FilterFunction> filters,
-            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+            @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("catalogName") String catalogName,
-            @Nullable @JsonProperty("database") String database,
-            @Nullable @JsonProperty("tableName") String tableName,
-            @Nullable @JsonProperty("hiveConfDir") String hiveConfDir,
-            @Nullable @JsonProperty("hiveVersion") String hiveVersion,
+            @JsonProperty("database") String database,
+            @JsonProperty("tableName") String tableName,
+            @JsonProperty("hiveConfDir") String hiveConfDir,
+            @JsonProperty("hiveVersion") String hiveVersion,
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
             @JsonProperty("parFields") List<FieldInfo> partitionFields) {
         super(id, name, fields, fieldRelationShips, filters, sinkParallelism, properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
-        this.hiveConfDir = Preconditions.checkNotNull(hiveConfDir, "hive config path is null");
         this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
+        this.hiveConfDir = hiveConfDir;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
@@ -121,10 +119,12 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         Map<String, String> map = super.tableOptions();
         map.put("connector", "hive");
         map.put("default-database", database);
-        map.put("hive-conf-dir", hiveConfDir);
         map.put("hive-version", hiveVersion);
         if (null != hadoopConfDir) {
             map.put("hadoop-conf-dir", hadoopConfDir);
+        }
+        if (null != hiveConfDir) {
+            map.put("hive-conf-dir", hiveConfDir);
         }
         if (null != partitionFields) {
             Map<String, String> properties = super.getProperties();
