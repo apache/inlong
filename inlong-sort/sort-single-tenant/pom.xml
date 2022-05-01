@@ -125,17 +125,7 @@
         <!--flink-->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-hive_${flink.scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge_${flink.scala.binary.version}</artifactId>
         </dependency>
 
         <dependency>
@@ -166,13 +156,13 @@
                     <artifactId>calcite-druid</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
 
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

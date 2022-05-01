@@ -119,6 +119,7 @@ public class NodeRelationShipUtils {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
+        List<String> preNodes = Lists.newArrayList(leftNode, rightNode);
         List<StreamField> leftJoinFields = joinerDefinition.getLeftJoinFields();
         List<StreamField> rightJoinFields = joinerDefinition.getRightJoinFields();
         List<FilterFunction> filterFunctions = Lists.newArrayList();
@@ -132,19 +133,19 @@ public class NodeRelationShipUtils {
                 operator = EmptyOperator.getInstance();
             }
             filterFunctions.add(
-                    createFilterFunction(leftField, rightField, leftNode, rightNode, AndOperator.getInstance()));
+                    createFilterFunction(leftField, rightField, operator));
         }
         Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
-                return new LeftOuterJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case INNER_JOIN:
-                return new RightOuterJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case RIGHT_JOIN:
-                return new InnerJoinNodeRelationShip(nodeRelationShip.getInputs(), nodeRelationShip.getOutputs(),
+                return new InnerJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
@@ -152,10 +153,10 @@ public class NodeRelationShipUtils {
     }
 
     private static SingleValueFilterFunction createFilterFunction(StreamField leftField, StreamField rightField,
-            String leftNode, String rightNode, LogicOperator operator) {
-        FieldInfo sourceField = new FieldInfo(leftField.getFieldName(), leftNode,
+            LogicOperator operator) {
+        FieldInfo sourceField = new FieldInfo(leftField.getOriginFieldName(), leftField.getOriginNodeName(),
                 FieldInfoUtils.convertFieldFormat(leftField.getFieldType().name(), leftField.getFieldFormat()));
-        FieldInfo targetField = new FieldInfo(rightField.getFieldName(), rightNode,
+        FieldInfo targetField = new FieldInfo(rightField.getOriginFieldName(), rightField.getOriginNodeName(),
                 FieldInfoUtils.convertFieldFormat(rightField.getFieldType().name(), rightField.getFieldFormat()));
         return new SingleValueFilterFunction(operator, sourceField, EqualOperator.getInstance(), targetField);
     }

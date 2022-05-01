@@ -56,6 +56,14 @@ public class StreamField {
         this.originNodeName = originNodeName;
     }
 
+    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String originNodeName, String originFieldName) {
+        this(index, fieldType, fieldName, fieldComment, fieldValue);
+        this.isMetaField = isMetaField;
+        this.originNodeName = originNodeName;
+        this.originFieldName = originFieldName;
+    }
+
     @ApiModelProperty("Field index")
     private Integer id;
 
@@ -80,5 +88,8 @@ public class StreamField {
 
     @ApiModelProperty("Origin Node name which stream field belongs")
     private String originNodeName;
+
+    @ApiModelProperty("Origin field name before transform operation")
+    private String originFieldName;
 
 }

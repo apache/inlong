@@ -31,11 +31,11 @@ public interface InlongClusterEntityMapper {
 
     int insertSelective(InlongClusterEntity record);
 
-    List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
+    InlongClusterEntity selectById(Integer id);
 
     InlongClusterEntity selectByUniqueKey(InlongClusterRequest request);
 
-    InlongClusterEntity selectById(Integer id);
+    List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
 
     int updateByIdSelective(InlongClusterEntity record);
 
