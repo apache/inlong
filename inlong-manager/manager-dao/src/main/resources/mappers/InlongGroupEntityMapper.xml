@@ -107,13 +107,25 @@
         from inlong_group
         <where>
             is_deleted = 0
-            <if test="currentUser != null and currentUser != ''">
+            <if test="isAdminRole == false">
                 and (
                 creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
                 )
             </if>
             <if test="keyWord != null and keyWord != ''">
-                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or id like CONCAT('%',#{keyWord},'%'))
+                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or name like CONCAT('%',#{keyWord},'%'))
+            </if>
+            <if test="groupIdList != null and groupIdList.size() > 0">
+                and inlong_group_id in
+                <foreach collection="groupIdList" item="inlongGroupId" index="index" open="(" close=")" separator=",">
+                    #{inlongGroupId}
+                </foreach>
+            </if>
+            <if test="nameList != null and nameList.size() > 0">
+                and name in
+                <foreach collection="nameList" item="name" index="index" open="(" close=")" separator=",">
+                    #{name}
+                </foreach>
             </if>
             <if test="middlewareType != null and middlewareType != ''">
                 and middleware_type = #{middlewareType, jdbcType=VARCHAR}
@@ -152,7 +164,8 @@
                                   peak_records, max_length, schema_name,
                                   in_charges, followers, status,
                                   is_deleted, creator, modifier,
-                                  create_time, modify_time, temp_view, zookeeper_enabled, proxy_cluster_id)
+                                  create_time, modify_time, temp_view,
+                                  zookeeper_enabled, proxy_cluster_id)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
                 #{cnName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{middlewareType,jdbcType=VARCHAR},
                 #{queueModule,jdbcType=VARCHAR}, #{topicPartitionNum,jdbcType=INTEGER},
@@ -161,7 +174,7 @@
                 #{inCharges,jdbcType=VARCHAR}, #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{tempView,jdbcType=LONGVARCHAR},
-                #{zookeeperEnabled,jdbcType=INTEGER}), #{proxyClusterId,jdbcType=INTEGER})
+                #{zookeeperEnabled,jdbcType=INTEGER}, #{proxyClusterId,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">

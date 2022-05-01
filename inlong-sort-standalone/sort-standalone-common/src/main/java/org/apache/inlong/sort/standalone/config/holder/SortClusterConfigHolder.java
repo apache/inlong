@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sort.standalone.config.holder;
 
-import static org.apache.inlong.sort.standalone.config.loader.SortClusterConfigLoader.SORT_CLUSTER_CONFIG_TYPE;
 import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 import java.util.Date;
@@ -27,10 +26,11 @@ import java.util.TimerTask;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceSortClusterConfigLoader;
+import org.apache.inlong.sort.standalone.config.loader.ManagerSortClusterConfigLoader;
 import org.apache.inlong.sort.standalone.config.loader.SortClusterConfigLoader;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
@@ -68,16 +68,24 @@ public final class SortClusterConfigHolder {
         synchronized (SortClusterConfigHolder.class) {
             instance = new SortClusterConfigHolder();
             instance.reloadInterval = CommonPropertiesHolder.getLong(RELOAD_INTERVAL, 60000L);
-            String loaderType = CommonPropertiesHolder.getString(SORT_CLUSTER_CONFIG_TYPE,
-                    ClassResourceSortClusterConfigLoader.class.getName());
-            try {
-                Class<?> loaderClass = ClassUtils.getClass(loaderType);
-                Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
-                if (loaderObject instanceof SortClusterConfigLoader) {
-                    instance.loader = (SortClusterConfigLoader) loaderObject;
+            String loaderType = CommonPropertiesHolder
+                    .getString(SortClusterConfigType.KEY_TYPE, SortClusterConfigType.MANAGER.name());
+
+            if (SortClusterConfigType.FILE.name().equalsIgnoreCase(loaderType)) {
+                instance.loader = new ClassResourceSortClusterConfigLoader();
+            } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(loaderType)) {
+                instance.loader = new ManagerSortClusterConfigLoader();
+            } else {
+                // user-defined
+                try {
+                    Class<?> loaderClass = ClassUtils.getClass(loaderType);
+                    Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
+                    if (loaderObject instanceof SortClusterConfigLoader) {
+                        instance.loader = (SortClusterConfigLoader) loaderObject;
+                    }
+                } catch (Throwable t) {
+                    LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
                 }
-            } catch (Throwable t) {
-                LOG.error("Fail to init loader,loaderType:{},error:{}", loaderType, t.getMessage());
             }
             if (instance.loader == null) {
                 instance.loader = new ClassResourceSortClusterConfigLoader();
@@ -141,7 +149,7 @@ public final class SortClusterConfigHolder {
      */
     public static SortTaskConfig getTaskConfig(String sortTaskName) {
         SortClusterConfig config = get().config;
-        if (config != null) {
+        if (config != null && config.getSortTasks() != null) {
             for (SortTaskConfig task : config.getSortTasks()) {
                 if (StringUtils.equals(sortTaskName, task.getName())) {
                     return task;

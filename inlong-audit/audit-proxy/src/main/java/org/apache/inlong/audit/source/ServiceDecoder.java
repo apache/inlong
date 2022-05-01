@@ -17,21 +17,17 @@
 
 package org.apache.inlong.audit.source;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
 
 /**
  * decoder interface definition
- *
  */
 public interface ServiceDecoder {
 
     /**
      * extract data from buffer and convert it into map.
-     * @param cb
-     * @param channel
-     * @return
      */
-    BaseCommand extractData(ChannelBuffer cb, Channel channel) throws Exception;
+    BaseCommand extractData(ByteBuf cb, Channel channel) throws Exception;
 }

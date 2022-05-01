@@ -17,18 +17,18 @@
 
 package org.apache.inlong.audit.send;
 
-import org.apache.inlong.audit.util.Encoder;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import java.util.concurrent.ThreadFactory;
+import org.apache.inlong.audit.util.EventLoopUtil;
 import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class SenderGroup {
@@ -48,8 +47,10 @@ public class SenderGroup {
     public static final int DEFAULT_WAIT_TIMES = 10000;
     public static final int WAIT_INTERVAL = 1;
     public static final int DEFAULT_SYNCH_REQUESTS = 1;
+    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
+    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
 
-    private ClientBootstrap client = new ClientBootstrap();
+    private Bootstrap client;
     private List<LinkedBlockingQueue<SenderChannel>> channelGroups = new ArrayList<>();
     private int mIndex = 0;
     private List<SenderChannel> deleteChannels = new ArrayList<>();
@@ -65,31 +66,29 @@ public class SenderGroup {
      * constructor
      *
      * @param senderThreadNum
-     * @param decoder
      * @param clientHandler
      */
-    public SenderGroup(int senderThreadNum, ChannelUpstreamHandler decoder,
-                       SimpleChannelHandler clientHandler) {
+    public SenderGroup(int senderThreadNum, SimpleChannelInboundHandler clientHandler) {
         this.senderThreadNum = senderThreadNum;
 
-        client.setFactory(new NioClientSocketChannelFactory(
-                Executors.newCachedThreadPool(),
-                Executors.newCachedThreadPool(),
-                this.senderThreadNum));
+        ThreadFactory selfDefineFactory  = new DefaultThreadFactory("audit-client-io",
+                Thread.currentThread().isDaemon());
 
-        client.setPipelineFactory(() -> {
-            ChannelPipeline pipeline = Channels.pipeline();
-            pipeline.addLast("decoder", decoder);
-            pipeline.addLast("encoder", new Encoder());
-            pipeline.addLast("handler", clientHandler);
-            return pipeline;
-        });
-        client.setOption("tcpNoDelay", true);
-        client.setOption("child.tcpNoDelay", true);
-        client.setOption("keepAlive", true);
-        client.setOption("child.keepAlive", true);
-        client.setOption("reuseAddr", true);
+        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(this.senderThreadNum,
+                false, selfDefineFactory);
+        client = new Bootstrap();
+        client.group(eventLoopGroup);
+        client.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
+        client.option(ChannelOption.SO_KEEPALIVE, true);
+        client.option(ChannelOption.TCP_NODELAY, true);
+        client.option(ChannelOption.SO_REUSEADDR, true);
+        client.option(ChannelOption.SO_RCVBUF, DEFAULT_RECEIVE_BUFFER_SIZE);
+        client.option(ChannelOption.SO_SNDBUF, DEFAULT_SEND_BUFFER_SIZE);
+        client.handler(new ClientPipelineFactory(clientHandler));
 
+        /*
+         * init add two list for update config
+         */
         channelGroups.add(new LinkedBlockingQueue<>());
         channelGroups.add(new LinkedBlockingQueue<>());
     }
@@ -100,7 +99,7 @@ public class SenderGroup {
      * @param dataBuf
      * @return
      */
-    public SenderResult send(ChannelBuffer dataBuf) {
+    public SenderResult send(ByteBuf dataBuf) {
         LinkedBlockingQueue<SenderChannel> channels = channelGroups.get(mIndex);
         SenderChannel channel = null;
         try {
@@ -113,13 +112,7 @@ public class SenderGroup {
                 channels = channelGroups.get(mIndex);
                 for (int i = 0; i < channels.size(); i++) {
                     channel = channels.poll();
-                    boolean ret = channel.tryAcquire();
                     if (channel.tryAcquire()) {
-                        isOk = true;
-                        break;
-                    }
-
-                    if (ret) {
                         isOk = true;
                         break;
                     }
@@ -140,17 +133,17 @@ public class SenderGroup {
                 return new SenderResult("can not get a channel", 0, false);
             }
             ChannelFuture t = null;
-            if (channel.getChannel().isConnected()) {
-                t = channel.getChannel().write(dataBuf).sync().await();
+            if (channel.getChannel().isWritable()) {
+                t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 if (!t.isSuccess()) {
-                    if (!channel.getChannel().isConnected()) {
+                    if (!channel.getChannel().isActive()) {
                         reconnect(channel);
                     }
-                    t = channel.getChannel().write(dataBuf).sync().await();
+                    t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
             } else {
                 reconnect(channel);
-                t = channel.getChannel().write(dataBuf).sync().await();
+                t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
             }
             return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
         } catch (Throwable ex) {
@@ -215,7 +208,7 @@ public class SenderGroup {
                         continue;
                     }
                     ChannelFuture future = client.connect(ipPortObj.addr).await();
-                    channel = new SenderChannel(future.getChannel(), ipPortObj, maxSynchRequest);
+                    channel = new SenderChannel(future.channel(), ipPortObj, maxSynchRequest);
                     newChannels.add(channel);
                     totalChannels.put(ipPort, channel);
                 } catch (Exception e) {
@@ -251,7 +244,7 @@ public class SenderGroup {
 
                 Channel oldChannel = channel.getChannel();
                 ChannelFuture future = client.connect(channel.getIpPort().addr).await();
-                Channel newChannel = future.getChannel();
+                Channel newChannel = future.channel();
                 channel.setChannel(newChannel);
                 oldChannel.disconnect();
                 oldChannel.close();

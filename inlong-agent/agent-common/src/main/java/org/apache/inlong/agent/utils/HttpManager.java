@@ -84,7 +84,9 @@ public class HttpManager {
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
                     && response.getStatusLine().getStatusCode() == 200) {
-                LOGGER.info("request url {}, dto: {}, return str {}", url, dto, returnStr);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("request url {}, dto: {}, return str {}", url, dto, returnStr);
+                }
                 return returnStr;
             }
         } catch (Exception e) {

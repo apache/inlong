@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import org.apache.inlong.manager.common.util.InLongCollectionUtils;
+import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 
 /**
  * Approvers filter key of workflow
@@ -32,7 +32,7 @@ public enum FilterKey {
     DEFAULT;
 
     private static final List<FilterKey> FILTER_KEY_ORDER = ImmutableList.of(DEFAULT);
-    private static final Map<String, FilterKey> NAME_MAP = InLongCollectionUtils.transformToImmutableMap(
+    private static final Map<String, FilterKey> NAME_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(FilterKey.values()),
             FilterKey::name,
             Function.identity()

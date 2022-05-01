@@ -17,41 +17,55 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import com.google.common.base.Preconditions;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
+import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.api.SortClientConfig;
 import org.apache.inlong.sdk.sort.api.SortClientFactory;
+import org.apache.inlong.sdk.sort.impl.ManagerReportHandlerImpl;
+import org.apache.inlong.sdk.sort.impl.MetricReporterImpl;
+import org.apache.inlong.sort.standalone.admin.ConsumerServiceMBean;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.ManagerUrlHandler;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
+import org.apache.inlong.sort.standalone.config.holder.SortSourceConfigType;
+import org.apache.inlong.sort.standalone.config.loader.ClassResourceQueryConsumeConfig;
+import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Default Source implementation of InLong.
  *
- * <p> SortSdkSource acquired msg from different upstream data store by register {@link SortClient} for each
- * sort task. The only things SortSdkSource should do is to get one client by the sort task id, or remove one client
- * when the task is finished or schedule to other source instance. </p>
+ * <p>
+ * SortSdkSource acquired msg from different upstream data store by register {@link SortClient} for each sort task. The
+ * only things SortSdkSource should do is to get one client by the sort task id, or remove one client when the task is
+ * finished or schedule to other source instance.
+ * </p>
  *
- * <p> The Default Manager of InLong will schedule the partition and topic automatically. </p>
+ * <p>
+ * The Default Manager of InLong will schedule the partition and topic automatically.
+ * </p>
  *
- * <p> Because all sources should implement {@link Configurable}, the SortSdkSource should have
- * default constructor <b>WITHOUT</b> any arguments, and parameters will be configured by
- * {@link Configurable#configure(Context)}. </p>
+ * <p>
+ * Because all sources should implement {@link Configurable}, the SortSdkSource should have default constructor
+ * <b>WITHOUT</b> any arguments, and parameters will be configured by {@link Configurable#configure(Context)}.
+ * </p>
  */
-public final class SortSdkSource extends AbstractSource implements Configurable, Runnable, EventDrivenSource {
+public final class SortSdkSource extends AbstractSource
+        implements Configurable, Runnable, EventDrivenSource, ConsumerServiceMBean {
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
@@ -62,8 +76,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     // Default consume strategy of {@link SortClient}.
     private static final SortClientConfig.ConsumeStrategy defaultStrategy = SortClientConfig.ConsumeStrategy.lastest;
 
-    // Map of {@link SortClient}.
-    private Map<String, SortClient> clients;
+    private String taskName;
+
+    // Context of SortSdkSource.
+    private SortSdkSourceContext context;
 
     // The cluster name of sort.
     private String sortClusterName;
@@ -71,18 +87,19 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     // Reload config interval.
     private long reloadInterval;
 
-    // Context of SortSdkSource.
-    private SortSdkSourceContext context;
-
     // Executor for config reloading.
     private ScheduledExecutorService pool;
+
+    // {@link SortClient}.
+    private SortClient sortClient;
 
     /**
      * Start SortSdkSource.
      */
     @Override
     public synchronized void start() {
-        this.reload();
+        LOG.info("start to SortSdkSource:{}", taskName);
+        this.sortClient = this.newClient(taskName);
     }
 
     /**
@@ -91,7 +108,11 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     @Override
     public void stop() {
         pool.shutdownNow();
-        clients.forEach((sortId, client) -> client.close());
+        LOG.info("Close sort client {}.", taskName);
+        if (sortClient != null) {
+            sortClient.getConfig().setStopConsume(true);
+            sortClient.close();
+        }
     }
 
     /**
@@ -99,7 +120,10 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      */
     @Override
     public void run() {
-        this.reload();
+        LOG.info("start to reload SortSdkSource:{}", taskName);
+        if (sortClient != null) {
+            sortClient.getConfig().setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
+        }
     }
 
     /**
@@ -109,12 +133,13 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
      */
     @Override
     public void configure(Context context) {
-        this.clients = new ConcurrentHashMap<>();
-        this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
-        Preconditions.checkState(context != null, "No context, configure failed");
+        this.taskName = context.getString(FlumeConfigGenerator.KEY_TASK_NAME);
         this.context = new SortSdkSourceContext(getName(), context);
+        this.sortClusterName = SortClusterConfigHolder.getClusterConfig().getClusterName();
         this.reloadInterval = this.context.getReloadInterval();
         this.initReloadExecutor();
+        // register
+        AdminServiceRegister.register(ConsumerServiceMBean.MBEAN_TYPE, taskName, this);
     }
 
     /**
@@ -126,65 +151,86 @@ public final class SortSdkSource extends AbstractSource implements Configurable,
     }
 
     /**
-     * Reload clients by current {@link SortTaskConfig}.
-     *
-     * <p> Create new clients with new sort task id, and remove the finished or scheduled ones. </p>
-     *
-     * <p> Current version of SortSdk <b>DO NOT</b> support to get the corresponding sort id of {@link SortClient}.
-     * Hence, the maintenance of mapping of <SortId, SortClient> should be done by Source itself. Which is not elegant,
-     * the <b>REMOVE</b> of expire clients will <b>NOT</b> be supported right now. </p>
-     */
-    private void reload() {
-
-        final List<SortTaskConfig> configs = SortClusterConfigHolder.getClusterConfig().getSortTasks();
-        LOG.info("start to reload SortSdkSource");
-
-        // Start new clients
-        for (SortTaskConfig taskConfig : configs) {
-
-            // If exits, skip.
-            final String sortId = taskConfig.getName();
-            SortClient client = this.clients.get(sortId);
-            if (client != null) {
-                continue;
-            }
-
-            // Otherwise, new one client.
-            client = this.newClient(sortId);
-            if (client != null) {
-                this.clients.put(sortId, client);
-            }
-        }
-    }
-
-    /**
      * Create one {@link SortClient} with specific sort id.
      *
-     * <p> In current version, the {@link FetchCallback} will hold the client to ACK.
-     * For more details see {@link FetchCallback#onFinished(MessageRecord)}</p>
+     * <p>
+     * In current version, the {@link FetchCallback} will hold the client to ACK. For more details see
+     * {@link FetchCallback#onFinished}
+     * </p>
      *
-     * @param sortId Sort in of new client.
-     * @return New sort client.
+     * @param  sortId Sort in of new client.
+     * @return        New sort client.
      */
     private SortClient newClient(final String sortId) {
         LOG.info("Start to new sort client for id: {}", sortId);
         try {
-            final SortClientConfig clientConfig =
-                    new SortClientConfig(sortId, this.sortClusterName, new DefaultTopicChangeListener(),
-                            SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
+            final SortClientConfig clientConfig = new SortClientConfig(sortId, this.sortClusterName,
+                    new DefaultTopicChangeListener(),
+                    SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
             final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
-            SortClient client = SortClientFactory.createSortClient(clientConfig);
+
+            // create SortClient
+            String configType = CommonPropertiesHolder
+                    .getString(SortSourceConfigType.KEY_TYPE, SortSourceConfigType.MANAGER.name());
+            SortClient client = null;
+            if (SortClusterConfigType.FILE.name().equalsIgnoreCase(configType)) {
+                LOG.info("Create sort sdk client in file way:{}", configType);
+                ClassResourceQueryConsumeConfig queryConfig = new ClassResourceQueryConsumeConfig();
+                client = SortClientFactory.createSortClient(clientConfig,
+                        queryConfig,
+                        new MetricReporterImpl(clientConfig),
+                        new ManagerReportHandlerImpl());
+            } else if (SortClusterConfigType.MANAGER.name().equalsIgnoreCase(configType)) {
+                LOG.info("Create sort sdk client in manager way:{}", configType);
+                clientConfig.setManagerApiUrl(ManagerUrlHandler.getSortSourceConfigUrl());
+                client = SortClientFactory.createSortClient(clientConfig);
+            } else {
+                LOG.info("Create sort sdk client in custom way:{}", configType);
+                // user-defined
+                Class<?> loaderClass = ClassUtils.getClass(configType);
+                Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();
+                if (loaderObject instanceof Configurable) {
+                    ((Configurable) loaderObject).configure(new Context(CommonPropertiesHolder.get()));
+                }
+                if (!(loaderObject instanceof QueryConsumeConfig)) {
+                    LOG.error("Got exception when create QueryConsumeConfig instance,config key:{},config class:{}",
+                            SortSourceConfigType.KEY_TYPE, configType);
+                    return null;
+                }
+                // if it specifies the type of QueryConsumeConfig.
+                client = SortClientFactory.createSortClient(clientConfig,
+                        (QueryConsumeConfig) loaderObject,
+                        new MetricReporterImpl(clientConfig),
+                        new ManagerReportHandlerImpl());
+            }
+
+            // init
             client.init();
             // temporary use to ACK fetched msg.
             callback.setClient(client);
             return client;
         } catch (UnknownHostException ex) {
-            LOG.error("Got one UnknownHostException when init client of id: " + sortId, ex);
+            LOG.error("Got one UnknownHostException when init client of id:{}", sortId, ex);
         } catch (Throwable th) {
-            LOG.error("Got one throwable when init client of id: " + sortId, th);
+            LOG.error("Got one throwable when init client of id:{}", sortId, th);
         }
         return null;
     }
 
+    /**
+     * stopConsumer
+     */
+    @Override
+    public void stopConsumer() {
+        sortClient.getConfig().setStopConsume(true);
+    }
+
+    /**
+     * recoverConsumer
+     */
+    @Override
+    public void recoverConsumer() {
+        sortClient.getConfig().setStopConsume(false);
+    }
 }

@@ -44,7 +44,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-        logger.info("*- in ralance:onPartitionsRevoked");
+        logger.debug("*- in ralance:onPartitionsRevoked");
         while (!commitOffsetMap.isEmpty()) {
             consumer.commitSync(commitOffsetMap);
         }
@@ -52,7 +52,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
-        logger.info("*- in ralance:onPartitionsAssigned  ");
+        logger.debug("*- in ralance:onPartitionsAssigned  ");
         Map<TopicPartition, OffsetAndMetadata> committed = consumer.committed(new HashSet<>(collection));
         for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : committed.entrySet()) {
             consumer.seek(entry.getKey(), entry.getValue().offset());

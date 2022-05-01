@@ -23,6 +23,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+import java.util.List;
+
 /**
  * Inlong group query request
  */
@@ -34,6 +36,12 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Keywords")
     private String keyWord;
 
+    @ApiModelProperty(value = "Inlong group name list")
+    private List<String> nameList;
+
+    @ApiModelProperty(value = "Inlong group id list")
+    private List<String> groupIdList;
+
     @ApiModelProperty(value = "MQ resource object")
     private String middlewareType;
 
@@ -43,4 +51,9 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "Whether the current user is in the administrator role", hidden = true)
+    private Boolean isAdminRole;
+
+    @ApiModelProperty(value = "If list streamSource for group", hidden = true)
+    private boolean listSources = false;
 }

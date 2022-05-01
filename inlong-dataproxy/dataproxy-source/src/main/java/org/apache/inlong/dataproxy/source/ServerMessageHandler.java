@@ -87,20 +87,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             .trimResults().withKeyValueSeparator(AttributeConstants.KEY_VALUE_SEPARATOR);
 
     private static final ThreadLocal<SimpleDateFormat> dateFormator =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMddHHmm");
-                }
-            };
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMddHHmm"));
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormator4Transfer =
-            new ThreadLocal<SimpleDateFormat>() {
-                @Override
-                protected SimpleDateFormat initialValue() {
-                    return new SimpleDateFormat("yyyyMMddHHmmss");
-                }
-            };
     private AbstractSource source;
 
     private final ChannelGroup allChannels;
@@ -129,6 +117,21 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     //
     private final DataProxyMetricItemSet metricItemSet;
 
+    /**
+     * Constructor
+     *
+     * @param source AbstractSource
+     * @param serviceDecoder ServiceDecoder
+     * @param allChannels ChannelGroup
+     * @param topic Topic
+     * @param attr String
+     * @param filterEmptyMsg Boolean
+     * @param maxCons maxCons
+     * @param isCompressed Is compressed
+     * @param monitorIndex MonitorIndex
+     * @param monitorIndexExt MonitorIndexExt
+     * @param protocolType protocolType
+     */
     public ServerMessageHandler(AbstractSource source, ServiceDecoder serviceDecoder,
             ChannelGroup allChannels,
             String topic, String attr, Boolean filterEmptyMsg,
@@ -254,7 +257,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         logger.error("channel inactive {}", ctx.channel());
         ctx.fireChannelInactive();
         allChannels.remove(ctx.channel());
@@ -277,7 +280,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 
-            String value = getTopic(groupId, streamId);
+            String value = MessageUtils.getTopic(configManager.getTopicProperties(), groupId,
+                    streamId);
             if (StringUtils.isNotEmpty(value)) {
                 topicInfo.set(value.trim());
             }
@@ -313,7 +317,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     message.setGroupId(groupId);
                     message.setStreamId(streamId);
 
-                    String value = getTopic(groupId, streamId);
+                    String value = MessageUtils.getTopic(configManager.getTopicProperties(),
+                            groupId, streamId);
                     if (StringUtils.isNotEmpty(value)) {
                         topicInfo.set(value.trim());
                     }
@@ -322,7 +327,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
+    private boolean updateMsgList(List<ProxyMessage> msgList, Map<String, String> commonAttrMap,
             Map<String, HashMap<String, List<ProxyMessage>>> messageMap,
             String strRemoteIP, MsgType msgType) {
         for (ProxyMessage message : msgList) {
@@ -332,15 +337,17 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
             AtomicReference<String> topicInfo = new AtomicReference<>(topic);
             checkGroupIdInfo(message, commonAttrMap, attrMap, topicInfo);
+            String groupId = message.getGroupId();
+            String streamId = message.getStreamId();
             topic = topicInfo.get();
-
+            if (StringUtils.isEmpty(topic)) {
+                logger.warn("Topic for message is null , inlongGroupId = {}, inlongStreamId = {}",
+                        groupId, streamId);
+            }
             //                if(groupId==null)groupId="b_test";//default groupId
 
             message.setTopic(topic);
             commonAttrMap.put(AttributeConstants.NODE_IP, strRemoteIP);
-
-            String groupId = message.getGroupId();
-            String streamId = message.getStreamId();
 
             // whether sla
             if (SLA_METRIC_GROUPID.equals(groupId)) {
@@ -381,6 +388,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     .computeIfAbsent(streamId, k -> new ArrayList<>());
             streamIdMsgList.add(message);
         }
+        return true;
     }
 
     private void formatMessagesAndSend(ChannelHandlerContext ctx, Map<String, String> commonAttrMap,
@@ -427,6 +435,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                     headers.put(AttributeConstants.DATA_TIME, String.valueOf(System.currentTimeMillis()));
                 }
 
+                if ("false".equals(commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK))) {
+                    headers.put(AttributeConstants.MESSAGE_IS_ACK, "false");
+                }
+
                 String syncSend = commonAttrMap.get(AttributeConstants.MESSAGE_SYNC_SEND);
                 if (StringUtils.isNotEmpty(syncSend)) {
                     headers.put(AttributeConstants.MESSAGE_SYNC_SEND, syncSend);
@@ -462,8 +474,10 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
                 headers.put(ConfigConstants.PKG_TIME_KEY, pkgTimeStr);
                 Event event = EventBuilder.withBody(data, headers);
+                String orderType = "non-order";
                 if (MessageUtils.isSyncSendForOrder(event)) {
                     event = new OrderEvent(ctx, event);
+                    orderType = "order";
                 }
                 long dtten = 0;
                 try {
@@ -485,6 +499,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         .append(streamIdEntry.getKey()).append(SEPARATOR)
                         .append(strRemoteIP).append(SEPARATOR)
                         .append(NetworkUtils.getLocalIp()).append(SEPARATOR)
+                        .append(orderType).append(SEPARATOR)
                         .append(new SimpleDateFormat("yyyyMMddHHmm")
                                 .format(dtten)).append(SEPARATOR).append(pkgTimeStr);
                 try {
@@ -510,7 +525,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             Channel remoteChannel,
             SocketAddress remoteSocketAddress,
             MsgType msgType) throws Exception {
-        if (!commonAttrMap.containsKey("isAck") || "true".equals(commonAttrMap.get("isAck"))) {
+        String isAck = commonAttrMap.get(AttributeConstants.MESSAGE_IS_ACK);
+        if (isAck == null || "true".equals(isAck)) {
             if (MsgType.MSG_ACK_SERVICE.equals(msgType) || MsgType.MSG_ORIGINAL_RETURN
                     .equals(msgType)
                     || MsgType.MSG_MULTI_BODY.equals(msgType) || MsgType.MSG_MULTI_BODY_ATTR
@@ -630,6 +646,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             }
 
             List<ProxyMessage> msgList = (List<ProxyMessage>) resultMap.get(ConfigConstants.MSG_LIST);
+
+            boolean checkMessageTopic = true;
             if (msgList != null
                     && !commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)
                     && !commonAttrMap.containsKey(ConfigConstants.MINUTE_CHECK_DATA)) {
@@ -637,11 +655,12 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                         new HashMap<String, HashMap<String, List<ProxyMessage>>>(
                                 msgList.size());
 
-                updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP, msgType);
-
-                formatMessagesAndSend(ctx, commonAttrMap, messageMap,
-                        strRemoteIP, msgType);
-
+                checkMessageTopic = updateMsgList(msgList, commonAttrMap, messageMap, strRemoteIP,
+                        msgType);
+                if (checkMessageTopic) {
+                    formatMessagesAndSend(ctx, commonAttrMap, messageMap,
+                            strRemoteIP, msgType);
+                }
             } else if (msgList != null && commonAttrMap.containsKey(ConfigConstants.FILE_CHECK_DATA)) {
                 Map<String, String> headers = new HashMap<String, String>();
                 headers.put("msgtype", "filestatus");
@@ -694,7 +713,7 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             SocketAddress remoteSocketAddress = remoteChannel.remoteAddress();
-            if (!MessageUtils.isSyncSendForOrder(commonAttrMap
+            if (!checkMessageTopic || !MessageUtils.isSyncSendForOrder(commonAttrMap
                     .get(AttributeConstants.MESSAGE_SYNC_SEND))) {
                 responsePackage(ctx, commonAttrMap, resultMap, remoteChannel,
                         remoteSocketAddress, msgType);
@@ -709,32 +728,6 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         logger.error("exception caught cause = {}", cause);
         monitorIndexExt.incrementAndGet("EVENT_OTHEREXP");
         ctx.close();
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId) {
-        return getTopic(groupId, null);
-    }
-
-    /**
-     * get topic
-     */
-    private String getTopic(String groupId, String streamId) {
-        String topic = null;
-        if (StringUtils.isNotEmpty(groupId)) {
-            if (StringUtils.isNotEmpty(streamId)) {
-                topic = configManager.getTopicProperties().get(groupId + "/" + streamId);
-            }
-            if (StringUtils.isEmpty(topic)) {
-                topic = configManager.getTopicProperties().get(groupId);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Get topic by groupId = {} , streamId = {}", groupId, streamId);
-        }
-        return topic;
     }
 
     /**
@@ -755,7 +748,11 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
         if (result) {
             metricItem.readSuccessCount.incrementAndGet();
             metricItem.readSuccessSize.addAndGet(size);
-            AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            try {
+                AuditUtils.add(AuditUtils.AUDIT_ID_DATAPROXY_READ_SUCCESS, event);
+            } catch (Exception e) {
+                logger.error("add metric has exception e= {}", e);
+            }
         } else {
             metricItem.readFailCount.incrementAndGet();
             metricItem.readFailSize.addAndGet(size);

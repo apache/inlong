@@ -17,7 +17,14 @@
 
 package org.apache.inlong.sort.standalone;
 
-import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
+import org.apache.flume.Context;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.commons.admin.AdminTask;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,12 +35,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+import static org.apache.inlong.sort.standalone.utils.Constants.RELOAD_INTERVAL;
 
 /**
  * 
@@ -46,6 +48,7 @@ public class SortCluster {
     private Timer reloadTimer;
     private Map<String, SortTask> taskMap = new ConcurrentHashMap<>();
     private List<SortTask> deletingTasks = new ArrayList<>();
+    private AdminTask adminTask;
 
     /**
      * start
@@ -54,6 +57,9 @@ public class SortCluster {
         try {
             this.reload();
             this.setReloadTimer();
+            // start admin task
+            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
+            this.adminTask.start();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
@@ -65,6 +71,14 @@ public class SortCluster {
     public void close() {
         try {
             this.reloadTimer.cancel();
+            // stop sort task
+            for (Entry<String, SortTask> entry : this.taskMap.entrySet()) {
+                entry.getValue().stop();
+            }
+            // stop admin task
+            if (this.adminTask != null) {
+                this.adminTask.stop();
+            }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }

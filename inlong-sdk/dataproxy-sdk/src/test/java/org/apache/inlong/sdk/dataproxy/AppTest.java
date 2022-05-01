@@ -25,8 +25,8 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class AppTest
-        extends TestCase {
+public class AppTest extends TestCase {
+
     /**
      * Create the test case
      *
@@ -38,6 +38,7 @@ public class AppTest
 
     /**
      * suite
+     *
      * @return the suite of tests being tested
      */
     public static Test suite() {
@@ -45,9 +46,10 @@ public class AppTest
     }
 
     /**
-     * Rigourous Test :-)
+     * Rigorous Test :-)
      */
     public void testApp() {
         assertTrue(true);
     }
+
 }

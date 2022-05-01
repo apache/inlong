@@ -168,6 +168,11 @@ public class SqlReader extends AbstractReader {
         destroy();
     }
 
+    @Override
+    public boolean isSourceExist() {
+        return true;
+    }
+
     /**
      * Init column meta data.
      *

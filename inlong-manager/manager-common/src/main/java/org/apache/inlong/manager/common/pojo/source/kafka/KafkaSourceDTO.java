@@ -32,10 +32,10 @@ import javax.validation.constraints.NotNull;
 /**
  * kafka source information data transfer object.
  */
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class KafkaSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -62,6 +62,8 @@ public class KafkaSourceDTO {
     private String topicPartitionOffset;
 
     /**
+     * The strategy of auto offset reset.
+     *
      * @see <a href="https://docs.confluent.io/platform/current/clients/consumer.html">Kafka_consumer_config</a>
      */
     @ApiModelProperty(value = "The strategy of auto offset reset",
@@ -70,6 +72,18 @@ public class KafkaSourceDTO {
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
     private String serializationType;
+
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard;
 
     /**
      * Get the dto instance from the request
@@ -84,6 +98,10 @@ public class KafkaSourceDTO {
                 .topicPartitionOffset(request.getTopicPartitionOffset())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
+                .databasePattern(request.getDatabasePattern())
+                .tablePattern(request.getTablePattern())
+                .ignoreParseErrors(request.isIgnoreParseErrors())
+                .timestampFormatStandard(request.getTimestampFormatStandard())
                 .build();
     }
 

@@ -162,12 +162,6 @@ public class InLongPulsarFetcherImplTest {
     }
 
     @Test
-    public void isValidState() {
-        InLongPulsarFetcherImpl inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
-        inLongTopicFetcher.isValidState();
-    }
-
-    @Test
     public void pause() {
         InLongTopicFetcher inLongTopicFetcher = new InLongPulsarFetcherImpl(inLongTopic, clientContext);
         inLongTopicFetcher.pause();

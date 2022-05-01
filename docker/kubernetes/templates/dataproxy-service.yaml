@@ -24,10 +24,28 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.dataproxy.component }}
 spec:
+  type: {{ .Values.dataproxy.service.type }}
+  {{- if and (eq .Values.dataproxy.service.type "ClusterIP") .Values.dataproxy.service.clusterIP }}
+  clusterIP: {{ .Values.dataproxy.service.clusterIP }}
+  {{- end }}
   ports:
     - name: {{ .Values.dataproxy.component }}-port
-      port: {{ .Values.dataproxy.containerPort }}
-  type: ClusterIP
+      protocol: TCP
+      port: {{ .Values.dataproxy.port }}
+      targetPort: 46801
+      {{- if and (eq .Values.dataproxy.service.type "NodePort") .Values.dataproxy.service.nodePort }}
+      nodePort: {{ .Values.dataproxy.service.nodePort }}
+      {{- end }}
+  {{- if and (eq .Values.dataproxy.service.type "LoadBalancer") .Values.dataproxy.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.dataproxy.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.dataproxy.service.type "ExternalName") .Values.dataproxy.service.externalName }}
+  externalName: {{ .Values.dataproxy.service.externalName }}
+  {{- end }}
+  {{- if .Values.dataproxy.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.dataproxy.service.externalIPs | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.dataproxy.component }}

@@ -23,14 +23,24 @@ public class LocalZonedTimestampFormatInfo implements FormatInfo {
 
     private static final long serialVersionUID = -7501810151856898046L;
 
+    // to support avro format, precision must be less than 3
+    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
+
     private final String format;
 
-    public LocalZonedTimestampFormatInfo(String format) {
+    private int precision;
+
+    public LocalZonedTimestampFormatInfo(String format, int precision) {
         this.format = format;
+        this.precision = precision;
     }
 
     public LocalZonedTimestampFormatInfo() {
-        this("yyyy-MM-dd HH:mm:ss");
+        this("yyyy-MM-dd HH:mm:ss", DEFAULT_PRECISION_FOR_TIMESTAMP);
+    }
+
+    public LocalZonedTimestampFormatInfo(int precision) {
+        this("yyyy-MM-dd HH:mm:ss", precision);
     }
 
     public String getFormat() {
@@ -66,4 +76,11 @@ public class LocalZonedTimestampFormatInfo implements FormatInfo {
                 + '}';
     }
 
+    public int getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
 }

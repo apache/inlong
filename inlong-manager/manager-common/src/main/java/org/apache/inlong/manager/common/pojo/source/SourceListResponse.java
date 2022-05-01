@@ -32,9 +32,6 @@ public class SourceListResponse {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
-
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
@@ -47,17 +44,20 @@ public class SourceListResponse {
     @ApiModelProperty("Source name, unique in one stream.")
     private String sourceName;
 
+    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    private String serializationType;
+
     @ApiModelProperty("Id of the source server")
     private Integer serverId;
-
-    @ApiModelProperty("Name of the source server")
-    private String serverName;
 
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
 
-    @ApiModelProperty("Name of the cluster that collected this source")
-    private String clusterName;
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty("Version")
+    private Integer version;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;

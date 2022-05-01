@@ -17,9 +17,11 @@
 
 package org.apache.inlong.manager.client.api;
 
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An interface to manipulate Inlong Cluster
@@ -65,7 +67,6 @@ public interface InlongClient {
      */
     InlongGroup forGroup(InlongGroupConf groupConf) throws Exception;
 
-
     /**
      * List group list.
      *
@@ -73,6 +74,15 @@ public interface InlongClient {
      * @throws Exception the exception
      */
     List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
+
+    /**
+     * List group state
+     *
+     * @param groupNames
+     * @return
+     * @throws Exception
+     */
+    Map<String, InlongGroupState> listGroupState(List<String> groupNames) throws Exception;
 
     /**
      * Gets group.

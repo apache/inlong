@@ -23,9 +23,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.SinkField;
-import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class KafkaSink extends StreamSink {
     private SinkType sinkType = SinkType.KAFKA;
 
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
@@ -54,4 +54,7 @@ public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Field definitions for kafka")
     private List<SinkField> sinkFields;
+
+    @ApiModelProperty("Primary key is required when dataFormat is json, avro")
+    private String primaryKey;
 }

@@ -18,16 +18,13 @@
 package org.apache.inlong.sort.standalone.config.loader;
 
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 
 /**
  * 
  * SortClusterConfigLoader
  */
 public interface SortClusterConfigLoader extends Configurable {
-
-    String SORT_CLUSTER_CONFIG_TYPE = "sortClusterConfig.type";
-    String SORT_CLUSTER_CONFIG_MANAGER = "sortClusterConfig.managerUrl";
 
     /**
      * load

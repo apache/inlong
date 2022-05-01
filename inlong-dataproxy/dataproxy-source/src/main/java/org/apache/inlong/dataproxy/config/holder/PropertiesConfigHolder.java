@@ -17,10 +17,15 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.dataproxy.config.ConfigHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +34,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.dataproxy.config.ConfigHolder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * properties to map
@@ -62,21 +62,17 @@ public class PropertiesConfigHolder extends ConfigHolder {
 
     /**
      * holder
-     *
-     * @return
      */
     public Map<String, String> forkHolder() {
-        Map<String, String> tmpHolder = new HashMap<String, String>();
+        Map<String, String> tmpHolder = new HashMap<>();
         if (holder != null) {
-            for (Map.Entry<String, String> entry : holder.entrySet()) {
-                tmpHolder.put(entry.getKey(), entry.getValue());
-            }
+            tmpHolder.putAll(holder);
         }
         return tmpHolder;
     }
 
     private List<String> getStringListFromHolder(Map<String, String> tmpHolder) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Map.Entry<String, String> entry : tmpHolder.entrySet()) {
             result.add(entry.getKey() + "=" + entry.getValue());
         }
@@ -85,14 +81,16 @@ public class PropertiesConfigHolder extends ConfigHolder {
 
     /**
      * load from holder
-     * @param tmpHolder
-     * @return
      */
     public boolean loadFromHolderToFile(Map<String, String> tmpHolder) {
         readWriteLock.writeLock().lock();
         boolean isSuccess = false;
+        String filePath = getFilePath();
+        if (StringUtils.isBlank(filePath)) {
+            LOG.error("error in writing file as the file path is null.");
+        }
         try {
-            File sourceFile = new File(getFilePath());
+            File sourceFile = new File(filePath);
             File targetFile = new File(getNextBackupFileName());
             File tmpNewFile = new File(getFileName() + ".tmp");
 
@@ -115,30 +113,35 @@ public class PropertiesConfigHolder extends ConfigHolder {
     }
 
     protected Map<String, String> loadProperties() {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
+        String fileName = getFileName();
+        if (StringUtils.isBlank(fileName)) {
+            LOG.error("fail to load properties as the file name is null.");
+            return result;
+        }
+
         InputStream inStream = null;
         try {
-            URL url = getClass().getClassLoader().getResource(getFileName());
+            URL url = getClass().getClassLoader().getResource(fileName);
             inStream = url != null ? url.openStream() : null;
-
             if (inStream == null) {
-                LOG.error("InputStream {} is null!", getFileName());
+                LOG.error("fail to load properties from {} as the input stream is null", fileName);
+                return result;
             }
+
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 result.put((String) entry.getKey(), (String) entry.getValue());
             }
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", getFileName(), e);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", getFileName(), e);
+            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
         } finally {
             if (null != inStream) {
                 try {
                     inStream.close();
                 } catch (IOException e) {
-                    LOG.error("fail to loadTopics, inStream.close ,and e= {}", getFileName(), e);
+                    LOG.error("fail to close input stream at loadTopics from {}, err {}", fileName, e);
                 }
             }
         }

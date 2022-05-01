@@ -29,7 +29,7 @@ import lombok.Data;
 @ApiModel("File source list")
 public class CommonDbServerListVo {
 
-    private int id;
+    private Integer id;
 
     @ApiModelProperty("Collection type, Agent, DataProxy Client, LoadProxy")
     private String accessType;
@@ -44,7 +44,7 @@ public class CommonDbServerListVo {
     private String dbServerIp;
 
     @ApiModelProperty("Port Number")
-    private int port;
+    private Integer port;
 
     @ApiModelProperty("Target database name")
     private String dbName;

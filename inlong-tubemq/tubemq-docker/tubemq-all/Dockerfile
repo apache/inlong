@@ -17,12 +17,14 @@
 FROM zookeeper:3.4
 # install tools for debug
 RUN apt-get update \
-    && apt-get install iputils-ping curl procps -y
+    && apt-get install -y net-tools vim curl procps \
+    && rm -rf /var/lib/apt/lists/*
 # add tarball from target output
 ARG TUBEMQ_TARBALL
 ADD ${TUBEMQ_TARBALL} /opt/tubemq-server
 # overwrite default jvm size
-ENV MASTER_JVM_SIZE="-Xmx1g -Xms1g" BROKER_JVM_SIZE="-Xmx1g -Xms1g"
+ENV MASTER_JVM_SIZE="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
+ENV BROKER_JVM_SIZE="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 # support using diffent port mapping
 ENV USE_WEB_PROXY=true
 ADD tubemq-docker.sh /opt/tubemq-server/bin/

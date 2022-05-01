@@ -31,7 +31,6 @@ import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,16 +55,16 @@ public class TestEsSinkContext {
     /**
      * mock
      * 
-     * @param  dispatchQueue
-     * @return
-     * @throws Exception
+     * @param dispatchQueue
+     * @return EsSinkContext
+     * @throws Exception exception
      */
     public static EsSinkContext mock(LinkedBlockingQueue<EsIndexRequest> dispatchQueue) throws Exception {
         PowerMockito.mockStatic(MetricRegister.class);
         PowerMockito.doNothing().when(MetricRegister.class, "register", any());
         Context context = CommonPropertiesHolder.getContext();
         String sinkName = CommonPropertiesHolder.getClusterId() + "Sink";
-        context.put(SortTaskConfig.KEY_TASK_NAME, "sid_es_es-rmrv7g7a_v3");
+        context.put("taskName", "sid_es_es-rmrv7g7a_v3");
         Channel channel = new BufferQueueChannel();
         EsSinkContext esSinkContext = new EsSinkContext(sinkName, context, channel, dispatchQueue);
         esSinkContext.reload();
@@ -87,7 +86,7 @@ public class TestEsSinkContext {
         headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(System.currentTimeMillis()));
         headers.put(Constants.HEADER_KEY_SOURCE_IP, "127.0.0.1");
         byte[] body = content.getBytes(Charset.defaultCharset());
-        return new ProfileEvent(body, headers);
+        return new ProfileEvent(body, headers, null);
     }
 
     /**

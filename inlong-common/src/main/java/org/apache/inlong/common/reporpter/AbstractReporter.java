@@ -101,14 +101,15 @@ public class AbstractReporter<T> {
             return null;
         }
         HttpPost httpPost = new HttpPost(serverUrl);
+        String returnStr = null;
         try {
             StringEntity stringEntity = new StringEntity(gson.toJson(data));
             stringEntity.setContentType(AGENT_HTTP_APPLICATION_JSON);
             httpPost.setEntity(stringEntity);
-            String returnStr = executeHttpPost(httpPost);
+            returnStr = executeHttpPost(httpPost);
             return parse(returnStr);
         } catch (Exception e) {
-            LOGGER.error("syncReportData has exception e = {}", e);
+            LOGGER.error("syncReportData has exception returnStr = {}, e:", returnStr, e);
             throw e;
         }
     }

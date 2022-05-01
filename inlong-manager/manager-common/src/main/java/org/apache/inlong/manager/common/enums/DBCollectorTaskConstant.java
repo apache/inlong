@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.enums;
 /**
  * Constant for db collector task
  */
+@Deprecated
 public class DBCollectorTaskConstant {
 
     public static final String INTERFACE_VERSION = "1.0";

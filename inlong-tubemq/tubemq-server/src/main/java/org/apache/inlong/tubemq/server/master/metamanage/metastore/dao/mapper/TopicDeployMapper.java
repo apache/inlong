@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.TopicDeployEntity;
 
 public interface TopicDeployMapper extends AbstractMapper {
@@ -33,8 +35,8 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @param result   the process result
      * @return         whether success
      */
-    boolean addTopicConf(TopicDeployEntity entity,
-                         StringBuilder strBuff, ProcessResult result);
+    boolean addTopicDeployConf(TopicDeployEntity entity,
+                               StringBuilder strBuff, ProcessResult result);
 
     /**
      * Update the topic deploy configure info from store
@@ -44,8 +46,23 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @param result   the process result
      * @return         whether success
      */
-    boolean updTopicConf(TopicDeployEntity entity,
-                         StringBuilder strBuff, ProcessResult result);
+    boolean updTopicDeployConf(TopicDeployEntity entity,
+                               StringBuilder strBuff, ProcessResult result);
+
+    /**
+     * Update topic deploy status info from store
+     *
+     * @param opEntity    the operator info
+     * @param brokerId    the broker id
+     * @param topicName   the topic name
+     * @param topicStatus the new topic status
+     * @param strBuff     the string buffer
+     * @param result      the process result
+     * @return            whether success
+     */
+    boolean updTopicDeployStatus(BaseEntity opEntity, int brokerId,
+                                 String topicName, TopicStatus topicStatus,
+                                 StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store
@@ -55,7 +72,7 @@ public interface TopicDeployMapper extends AbstractMapper {
      * @param result     the process result
      * @return           whether success
      */
-    boolean delTopicConf(String recordKey, StringBuilder strBuff, ProcessResult result);
+    boolean delTopicDeployConf(String recordKey, StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete topic deploy configure info from store

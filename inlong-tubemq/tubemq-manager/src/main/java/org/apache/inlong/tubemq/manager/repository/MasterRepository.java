@@ -48,4 +48,19 @@ public interface MasterRepository extends JpaRepository<MasterEntry, Long> {
      * @return
      */
     List<MasterEntry> findAll();
+
+    /**
+     *
+     * find all nodes in ip
+     *
+     * @return
+     */
+    List<MasterEntry> findMasterEntryByIpEquals(String masterIp);
+
+    /**
+     * delete master by cluster id
+     *
+     * @return
+     */
+    Integer deleteByClusterId(Long clusterId);
 }

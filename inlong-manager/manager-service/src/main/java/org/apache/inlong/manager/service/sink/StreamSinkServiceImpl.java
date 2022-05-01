@@ -25,29 +25,22 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
-import org.apache.inlong.manager.common.enums.EntityStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupState;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowService;
-import org.apache.inlong.manager.service.workflow.stream.CreateStreamWorkflowDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,15 +82,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
-    @Autowired
-    private WorkflowService workflowService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(SinkRequest request, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to save sink info=" + request);
-        }
+        LOGGER.info("begin to save sink info: {}", request);
         this.checkParams(request);
 
         // Check if it can be added
@@ -116,20 +105,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // If the inlong group status is [Configuration Successful], then asynchronously initiate
         // the [Single inlong stream Resource Creation] workflow
-        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
-        }
+//        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+//            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
+//        }
 
-        LOGGER.info("success to save sink info");
+        LOGGER.info("success to save sink info: {}", request);
         return id;
     }
 
     @Override
     public SinkResponse get(Integer id, String sinkType) {
-        LOGGER.debug("begin to get sink by id={}, sinkType={}", id, sinkType);
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         SinkResponse sinkResponse = operation.getById(sinkType, id);
-        LOGGER.debug("success to get sink info");
+        LOGGER.debug("success to get sink by id={}, sinkType={}", id, sinkType);
         return sinkResponse;
     }
 
@@ -142,9 +130,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<SinkResponse> listSink(String groupId, String streamId) {
-        LOGGER.debug("begin to list sink by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
@@ -152,30 +138,25 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<SinkResponse> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSinkType())));
 
-        LOGGER.info("success to list sink");
+        LOGGER.debug("success to list sink by groupId={}, streamId={}", groupId, streamId);
         return responseList;
     }
 
     @Override
     public List<SinkBriefResponse> listBrief(String groupId, String streamId) {
-        LOGGER.debug("begin to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Query all sink information and encapsulate it in the result set
         List<SinkBriefResponse> summaryList = sinkMapper.selectSummary(groupId, streamId);
 
-        LOGGER.debug("success to list sink summary");
+        LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         return summaryList;
     }
 
     @Override
     public PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to list sink page by " + request);
-        }
-        Preconditions.checkNotNull(request.getInlongGroupId(), Constant.GROUP_ID_IS_EMPTY);
-
+        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
         Map<SinkType, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
@@ -193,16 +174,16 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
         PageInfo<? extends SinkListResponse> pageInfo = PageInfo.of(sinkListResponses);
 
-        LOGGER.debug("success to list sink page");
+        LOGGER.debug("success to list sink page, result size {}", pageInfo.getSize());
         return pageInfo;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean update(SinkRequest request, String operator) {
-        LOGGER.info("begin to update sink info={}", request);
+        LOGGER.info("begin to update sink info: {}", request);
         this.checkParams(request);
-        Preconditions.checkNotNull(request.getId(), Constant.ID_IS_EMPTY);
+        Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
@@ -216,34 +197,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // The inlong group status is [Configuration successful], then asynchronously initiate
         // the [Single inlong stream resource creation] workflow
-        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
-        }
-        LOGGER.info("success to update sink info");
-        return true;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public Boolean delete(Integer id, String sinkType, String operator) {
-        LOGGER.info("begin to delete sink by id={}, sinkType={}", id, sinkType);
-        Preconditions.checkNotNull(id, Constant.ID_IS_EMPTY);
-        // Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
-
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
-
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(EntityStatus.DELETED.getCode());
-        entity.setIsDeleted(id);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        sinkMapper.updateByPrimaryKeySelective(entity);
-
-        sinkFieldMapper.logicDeleteAll(id);
-
-        LOGGER.info("success to delete sink info");
+//        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+//            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
+//        }
+        LOGGER.info("success to update sink info: {}", request);
         return true;
     }
 
@@ -254,14 +211,39 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setStatus(status);
         entity.setOperateLog(log);
         sinkMapper.updateStatus(entity);
+
+        LOGGER.info("success to update sink status={} for id={} with log: {}", status, id, log);
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public Boolean delete(Integer id, String sinkType, String operator) {
+        LOGGER.info("begin to delete sink by id={}, sinkType={}", id, sinkType);
+        Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        // Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
+
+        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
+        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+
+        entity.setPreviousStatus(entity.getStatus());
+        entity.setStatus(GlobalConstants.DELETED_STATUS);
+        entity.setIsDeleted(id);
+        entity.setModifier(operator);
+        entity.setModifyTime(new Date());
+        sinkMapper.updateByPrimaryKeySelective(entity);
+        sinkFieldMapper.logicDeleteAll(id);
+
+        LOGGER.info("success to delete sink info: {}", entity);
+        return true;
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all sink info by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
@@ -272,7 +254,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
                 entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(EntityStatus.DELETED.getCode());
+                entity.setStatus(GlobalConstants.DELETED_STATUS);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
@@ -290,8 +272,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Transactional(rollbackFor = Throwable.class)
     public Boolean deleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all sink by groupId={}, streamId={}", groupId, streamId);
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
@@ -322,21 +304,18 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     public List<String> getSinkTypeList(String groupId, String streamId) {
-        LOGGER.debug("begin to get sink type list by groupId={}, streamId={}", groupId, streamId);
         if (StringUtils.isEmpty(streamId)) {
             return Collections.emptyList();
         }
 
         List<String> resultList = sinkMapper.selectSinkType(groupId, streamId);
-        LOGGER.debug("success to get sink type list, result sinkType={}", resultList);
+        LOGGER.debug("success to get sink type by groupId={}, streamId={}, result={}", groupId, streamId, resultList);
         return resultList;
     }
 
     @Override
     public Boolean updateAfterApprove(List<SinkApproveDTO> approveList, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to update sink after approve={}", approveList);
-        }
+        LOGGER.info("begin to update sink after approve: {}", approveList);
         if (CollectionUtils.isEmpty(approveList)) {
             return true;
         }
@@ -345,12 +324,12 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         for (SinkApproveDTO dto : approveList) {
             // According to the sink type, save sink information
             String sinkType = dto.getSinkType();
-            Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
+            Preconditions.checkNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
 
             StreamSinkEntity entity = new StreamSinkEntity();
             entity.setId(dto.getId());
 
-            int status = (dto.getStatus() == null) ? EntityStatus.SINK_CONFIG_ING.getCode() : dto.getStatus();
+            int status = (dto.getStatus() == null) ? SinkStatus.CONFIG_ING.getCode() : dto.getStatus();
             entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(status);
             entity.setModifier(operator);
@@ -358,18 +337,20 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             sinkMapper.updateByPrimaryKeySelective(entity);
         }
 
-        LOGGER.info("success to update sink after approve");
+        LOGGER.info("success to update sink after approve: {}", approveList);
         return true;
     }
 
     private void checkParams(SinkRequest request) {
-        Preconditions.checkNotNull(request, Constant.REQUEST_IS_EMPTY);
+        Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, Constant.GROUP_ID_IS_EMPTY);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         String streamId = request.getInlongStreamId();
-        Preconditions.checkNotNull(streamId, Constant.STREAM_ID_IS_EMPTY);
+        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         String sinkType = request.getSinkType();
-        Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
+        Preconditions.checkNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+        String sinkName = request.getSinkName();
+        Preconditions.checkNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
     }
 
     /**
@@ -377,39 +358,39 @@ public class StreamSinkServiceImpl implements StreamSinkService {
      *
      * @see CreateStreamWorkflowDefinition
      */
-    class WorkflowStartRunnable implements Runnable {
-
-        private final String operator;
-        private final InlongGroupEntity inlongGroupEntity;
-        private final String streamId;
-
-        public WorkflowStartRunnable(String operator, InlongGroupEntity inlongGroupEntity, String streamId) {
-            this.operator = operator;
-            this.inlongGroupEntity = inlongGroupEntity;
-            this.streamId = streamId;
-        }
-
-        @Override
-        public void run() {
-            String groupId = inlongGroupEntity.getInlongGroupId();
-            LOGGER.info("begin start inlong stream workflow, groupId={}, streamId={}", groupId, streamId);
-
-            InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
-            GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
-
-            workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
-            LOGGER.info("success start inlong stream workflow, groupId={}, streamId={}", groupId, streamId);
-        }
-
-        /**
-         * Generate [Group Resource] form
-         */
-        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupInfo groupInfo, String streamId) {
-            GroupResourceProcessForm form = new GroupResourceProcessForm();
-            form.setGroupInfo(groupInfo);
-            form.setInlongStreamId(streamId);
-            return form;
-        }
-    }
+//    class WorkflowStartRunnable implements Runnable {
+//
+//        private final String operator;
+//        private final InlongGroupEntity inlongGroupEntity;
+//        private final String streamId;
+//
+//        public WorkflowStartRunnable(String operator, InlongGroupEntity inlongGroupEntity, String streamId) {
+//            this.operator = operator;
+//            this.inlongGroupEntity = inlongGroupEntity;
+//            this.streamId = streamId;
+//        }
+//
+//        @Override
+//        public void run() {
+//            String groupId = inlongGroupEntity.getInlongGroupId();
+//            LOGGER.info("begin start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
+//
+//            InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
+//            GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
+//
+//            workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
+//            LOGGER.info("success start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
+//        }
+//
+//        /**
+//         * Generate [Group Resource] form
+//         */
+//        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupInfo groupInfo, String streamId) {
+//            GroupResourceProcessForm form = new GroupResourceProcessForm();
+//            form.setGroupInfo(groupInfo);
+//            form.setInlongStreamId(streamId);
+//            return form;
+//        }
+//    }
 
 }

@@ -28,8 +28,9 @@ import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.flume.lifecycle.LifecycleSupervisor;
 import org.apache.flume.lifecycle.LifecycleSupervisor.SupervisorPolicy;
 import org.apache.flume.node.MaterializedConfiguration;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
+import org.apache.inlong.sort.standalone.utils.FlumeConfigGenerator;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
@@ -77,7 +78,7 @@ public class SortTask {
         }
 
         //
-        Map<String, String> flumeConfiguration = config.generateFlumeConfiguration();
+        Map<String, String> flumeConfiguration = FlumeConfigGenerator.generateFlumeConfiguration(config);
         LOG.info("Start sort task:{},config:{}", taskName, flumeConfiguration);
         PropertiesConfigurationProvider configurationProvider = new PropertiesConfigurationProvider(
                 config.getName(), flumeConfiguration);

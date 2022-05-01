@@ -84,16 +84,6 @@ public interface StreamSourceService {
     boolean update(SourceRequest sourceRequest, String operator);
 
     /**
-     * Update source status.
-     *
-     * @param id The source id.
-     * @param targetStatus The target status.
-     * @param operator The operator name.
-     * @return whether succeed
-     */
-    boolean updateStatus(Integer id, Integer targetStatus, String operator);
-
-    /**
      * Update source status by the given groupId and streamId
      *
      * @param groupId The belongs group id.

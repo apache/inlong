@@ -69,7 +69,7 @@ public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
                     logger.warn("[BDB Impl] found Null data while loading consume control configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new GroupConsumeCtrlEntity(bdbEntity));
+                putRecord2Caches(new GroupConsumeCtrlEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {
@@ -94,7 +94,7 @@ public class BdbConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
         } catch (Throwable e) {
             logger.error("[BDB Impl] put consume control configure failure ", e);
             result.setFailResult(DataOpErrCode.DERR_STORE_ABNORMAL.getCode(),
-                    strBuff.append("Put consume control  configure failure: ")
+                    strBuff.append("Put consume control configure failure: ")
                             .append(e.getMessage()).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();

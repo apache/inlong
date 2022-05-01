@@ -263,9 +263,6 @@
             <bind name="consumerGroupIdLike" value="'%' + _parameter.consumerGroupIdLike + '%'"/>
             and c.consumer_group_id like #{consumerGroupIdLike,jdbcType=VARCHAR}
         </if>
-        <if test="inCharges != null and inCharges != ''">
-            and FIND_IN_SET(#{inCharges,jdbcType=VARCHAR}, c.in_charges)
-        </if>
         <if test="inlongGroupId != null and inlongGroupId != ''">
             and c.inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
         </if>
@@ -294,7 +291,7 @@
         <if test="modifier != null and modifier != ''">
             and c.modifier = #{modifier,jdbcType=VARCHAR}
         </if>
-        <if test="userName != null and userName !=''">
+        <if test="isAdminRole == false">
             and (
             FIND_IN_SET(#{userName,jdbcType=VARCHAR},c.in_charges)
             or

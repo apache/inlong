@@ -18,10 +18,21 @@
 
 package org.apache.inlong.sort.singletenant.flink.deserialization;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.BinaryFormatInfo;
+import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
@@ -30,22 +41,12 @@ import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class CanalDeserializationTest {
 
@@ -62,27 +63,40 @@ public class CanalDeserializationTest {
                     new MapFormatInfo(StringFormatInfo.INSTANCE, IntFormatInfo.INSTANCE)))
     };
 
+    private final FieldInfo[] fieldInfosWithBuiltinField = new FieldInfo[]{
+            new FieldInfo("id", IntFormatInfo.INSTANCE),
+            new FieldInfo("name", StringFormatInfo.INSTANCE),
+            new FieldInfo("description", StringFormatInfo.INSTANCE),
+            new FieldInfo("weight", FloatFormatInfo.INSTANCE),
+            new BuiltInFieldInfo("database", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_DATABASE),
+            new BuiltInFieldInfo("table", StringFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_TABLE),
+            new BuiltInFieldInfo(
+                    "event-timestamp", LongFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_EVENT_TIME),
+            new BuiltInFieldInfo("is-ddl", BooleanFormatInfo.INSTANCE, BuiltInField.MYSQL_METADATA_IS_DDL),
+    };
+
     private Row generateTestRow() {
-        Row testRow = new Row(8);
-        testRow.setField(0, 1238123899121L);
-        testRow.setField(1, "testName");
+        Row testRow = new Row(9);
+        testRow.setField(0, new HashMap<>());
+        testRow.setField(1, 1238123899121L);
+        testRow.setField(2, "testName");
 
         byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
-        testRow.setField(2, bytes);
+        testRow.setField(3, bytes);
 
-        testRow.setField(3, Date.valueOf("1990-10-14"));
-        testRow.setField(4, Time.valueOf("12:12:43"));
-        testRow.setField(5, Timestamp.valueOf("1990-10-14 12:12:43"));
+        testRow.setField(4, Date.valueOf("1990-10-14"));
+        testRow.setField(5, Time.valueOf("12:12:43"));
+        testRow.setField(6, Timestamp.valueOf("1990-10-14 12:12:43"));
 
         Map<String, Long> map = new HashMap<>();
         map.put("flink", 123L);
-        testRow.setField(6, map);
+        testRow.setField(7, map);
 
         Map<String, Map<String, Integer>> nestedMap = new HashMap<>();
         Map<String, Integer> innerMap = new HashMap<>();
         innerMap.put("key", 234);
         nestedMap.put("inner_map", innerMap);
-        testRow.setField(7, nestedMap);
+        testRow.setField(8, nestedMap);
 
         return testRow;
     }
@@ -170,40 +184,41 @@ public class CanalDeserializationTest {
                 + "}";
 
         byte[] testBytes = testCanalData.getBytes(StandardCharsets.UTF_8);
-        FieldInfo[] fieldInfos = new FieldInfo[]{
-                new FieldInfo("id", IntFormatInfo.INSTANCE),
-                new FieldInfo("name", StringFormatInfo.INSTANCE),
-                new FieldInfo("description", StringFormatInfo.INSTANCE),
-                new FieldInfo("weight", FloatFormatInfo.INSTANCE)
-        };
-
         DeserializationSchema<Row> schemaWithoutFilter = DeserializationSchemaFactory.build(
-                fieldInfos,
+                fieldInfosWithBuiltinField,
                 new CanalDeserializationInfo(null, null, false, "ISO_8601", true)
         );
         ListCollector<Row> collector1 = new ListCollector<>();
         schemaWithoutFilter.deserialize(testBytes, collector1);
         List<Row> innerList = collector1.getInnerList();
         assertEquals(3, innerList.size());
-        Row row = innerList.get(0);
-        assertEquals(101, row.getField(0));
-        assertEquals("scooter", row.getField(1).toString());
-        assertEquals("Small 2-wheel scooter", row.getField(2).toString());
-        assertEquals(3.14f, (Float) row.getField(3), 0);
-        assertEquals("inventory", row.getField(4).toString());
-        assertEquals("products2", row.getField(5).toString());
-        assertEquals(4, ((Map<?, ?>) row.getField(6)).size());
-        assertEquals("id", ((String[]) row.getField(7))[0]);
-        // "es" and "ts" are treated as local in flink-canal
-        assertEquals(1589373515477L, TimestampData.fromLocalDateTime((LocalDateTime) row.getField(8)).getMillisecond());
-        assertEquals(1589373515000L, TimestampData.fromLocalDateTime((LocalDateTime) row.getField(9)).getMillisecond());
+        assertEquals(generateTestRowWithMetadata(), innerList.get(0));
 
         DeserializationSchema<Row> schemaWithFilter = DeserializationSchemaFactory.build(
-                fieldInfos,
+                fieldInfosWithBuiltinField,
                 new CanalDeserializationInfo("NoExistDB", null, false, "ISO_8601", true)
         );
         ListCollector<Row> collector2 = new ListCollector<>();
         schemaWithFilter.deserialize(testBytes, collector2);
         assertTrue(collector2.getInnerList().isEmpty());
+    }
+
+    private Row generateTestRowWithMetadata() {
+        Row testRow = new Row(5);
+        testRow.setField(0, new HashMap<String, String>() {
+            {
+                put(MysqlBinLogData.MYSQL_METADATA_DATABASE, "inventory");
+                put(MysqlBinLogData.MYSQL_METADATA_TABLE, "products2");
+                put(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME, "1589373515000");
+                put(MysqlBinLogData.MYSQL_METADATA_IS_DDL, "false");
+            }
+        });
+
+        testRow.setField(1, 101);
+        testRow.setField(2, "scooter");
+        testRow.setField(3, "Small 2-wheel scooter");
+        testRow.setField(4, 3.14f);
+
+        return testRow;
     }
 }

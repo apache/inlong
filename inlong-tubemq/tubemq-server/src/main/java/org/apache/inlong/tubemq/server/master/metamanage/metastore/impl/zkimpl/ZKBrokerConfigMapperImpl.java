@@ -32,12 +32,8 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsBrokerConfigMapperImpl;
 import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ZKBrokerConfigMapperImpl.class);
     private final ZooKeeperWatcher zkWatcher;
     private final String brokerCfgRootDir;
 
@@ -89,7 +85,7 @@ public class ZKBrokerConfigMapperImpl extends AbsBrokerConfigMapperImpl {
             if (confStr == null) {
                 continue;
             }
-            addOrUpdCacheRecord(gson.fromJson(confStr, type));
+            putRecord2Caches(gson.fromJson(confStr, type));
             totalCnt++;
         }
         logger.info(strBuff.append("[ZK Impl] loaded ").append(totalCnt)

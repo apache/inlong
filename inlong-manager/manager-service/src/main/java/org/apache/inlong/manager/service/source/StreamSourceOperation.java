@@ -79,9 +79,10 @@ public interface StreamSourceOperation {
      * Update the source info.
      *
      * @param request Request of update.
+     * @param groupStatus The belongs group status.
      * @param operator Operator's name.
      */
-    void updateOpt(SourceRequest request, String operator);
+    void updateOpt(SourceRequest request, Integer groupStatus, String operator);
 
     /**
      * Stop the source collecting.

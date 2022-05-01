@@ -39,6 +39,7 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ManagerOpEnum;
+import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
@@ -227,11 +228,11 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      */
     public void fetchCommand() {
         List<CommandEntity> unackedCommands = commandDb.getUnackedCommands();
-        String resultStr = httpManager.doSentPost(managerTaskUrl, getFileCmdFetchRequest(unackedCommands));
+        String resultStr = httpManager.doSentPost(managerTaskUrl, getFetchRequest(unackedCommands));
         JsonObject resultData = getResultData(resultStr);
         JsonElement element = resultData.get(AGENT_MANAGER_RETURN_PARAM_DATA);
         if (element != null) {
-            dealWithFileTaskResult(GSON.fromJson(element.getAsJsonObject(), TaskResult.class));
+            dealWithFetchResult(GSON.fromJson(element.getAsJsonObject(), TaskResult.class));
         }
         ackCommands(unackedCommands);
     }
@@ -256,7 +257,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     }
 
     private void dealWithSqlTaskResult(DbCollectorTaskResult taskResult) {
-        LOGGER.info("deal with sql task result {}", taskResult);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("deal with sql task result {}", taskResult);
+        }
         if (!taskResult.getVersion().equals(VERSION)) {
             LOGGER.error("invalid version {} != {}", taskResult.getVersion(), VERSION);
             return;
@@ -271,7 +274,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * the fetch file command can be normal or special
      */
-    private void dealWithFileTaskResult(TaskResult taskResult) {
+    private void dealWithFetchResult(TaskResult taskResult) {
         LOGGER.info("deal with fetch result {}", taskResult);
         for (DataConfig dataConfig : taskResult.getDataConfigs()) {
             TriggerProfile profile = TriggerProfile.getTriggerProfiles(dataConfig);
@@ -291,10 +294,16 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * form file command fetch request
      */
-    public TaskRequest getFileCmdFetchRequest(List<CommandEntity> unackedCommands) {
+    public TaskRequest getFetchRequest(List<CommandEntity> unackedCommands) {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
+        // when job size is over limit, require no new job
+        if (agentManager.getJobManager().isJobOverLimit()) {
+            request.setPullJobType(PullJobTypeEnum.NEVER.getType());
+        } else {
+            request.setPullJobType(PullJobTypeEnum.NEW.getType());
+        }
         request.setCommandInfo(unackedCommands);
         return request;
     }

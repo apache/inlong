@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;

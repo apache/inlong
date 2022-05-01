@@ -102,14 +102,14 @@ public enum CliArgDef {
     FILEPATH("f", "file",
             "String: file path.",
             "File path."),
-    METAFILEPATH(null, "meta-file-path",
+    METAFILEPATH("path", "meta-file-path",
             "String: backup or recovery file path.",
             "File path to backup or restore metadata."
                     + " Defaults value is the current path where the program is running."),
-    OPERATIONTYPE(null, "operation-type",
+    OPERATIONTYPE("type", "operation-type",
             "String: operation type, include [backup, recovery]",
             "Types of operations on metadata"),
-    AUTHTOKEN(null, "auth-token",
+    AUTHTOKEN("token", "auth-token",
             "String: API operation authorization code",
             "API operation authorization code,"
                     + " required when adding or modifying, optional when querying");

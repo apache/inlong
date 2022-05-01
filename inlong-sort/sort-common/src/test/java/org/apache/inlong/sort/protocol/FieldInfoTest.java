@@ -17,19 +17,35 @@
 
 package org.apache.inlong.sort.protocol;
 
-import static org.junit.Assert.assertEquals;
-
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.sort.SerializeBaseTest;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.junit.Test;
 
-public class FieldInfoTest {
+import static org.junit.Assert.assertEquals;
+
+public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
+
+    @Override
+    public FieldInfo getTestObject() {
+        return new FieldInfo("field_name", StringFormatInfo.INSTANCE);
+    }
+
+
+    /**
+     * Test deserialize with nodeId
+     *
+     * @throws JsonProcessingException The exception may throws when execute the method
+     */
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testDeserializeWithNodeId() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
+        fieldInfo.setNodeId("1L");
         ObjectMapper objectMapper = new ObjectMapper();
-        String expected = "{\"type\":\"base\",\"name\":\"field_name\",\"format_info\":{\"type\":\"string\"}}";
-        assertEquals(expected, objectMapper.writeValueAsString(fieldInfo));
+        String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\","
+                + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
+        FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
+        assertEquals(expected, fieldInfo);
     }
 }

@@ -88,6 +88,7 @@ public class Transformer extends ProcessFunction<Row, Row> {
             return row -> {
                 final int sinkFieldsLength = sinkFieldInfos.length;
                 Row sinkRow = new Row(sinkFieldsLength);
+                sinkRow.setKind(row.getKind());
                 for (int i = 0; i < sinkFieldsLength; i++) {
                     String sinkFieldName = sinkFieldInfos[i].getName();
                     String sourceFieldName = sinkFieldNameToSourceFieldName.get(sinkFieldName);

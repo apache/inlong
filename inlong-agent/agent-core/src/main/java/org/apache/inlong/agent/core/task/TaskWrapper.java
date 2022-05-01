@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.core.task;
 
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -32,6 +35,7 @@ import org.apache.inlong.agent.message.EndMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +47,7 @@ public class TaskWrapper extends AbstractStateWrapper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     public static final int WAIT_FINISH_TIME_OUT = 1;
+    public static final int WAIT_BEGIN_TIME_MINUTE = 1;
 
     private final TaskManager taskManager;
     private final Task task;
@@ -51,6 +56,7 @@ public class TaskWrapper extends AbstractStateWrapper {
     private final int maxRetryTime;
     private final int pushMaxWaitTime;
     private final int pullMaxWaitTime;
+    private final int readWaitTime;
     private ExecutorService executorService;
 
     public TaskWrapper(AgentManager manager, Task task) {
@@ -64,6 +70,7 @@ public class TaskWrapper extends AbstractStateWrapper {
                 AgentConstants.TASK_PUSH_MAX_SECOND, AgentConstants.DEFAULT_TASK_PUSH_MAX_SECOND);
         pullMaxWaitTime = conf.getInt(
                 AgentConstants.TASK_PULL_MAX_SECOND, AgentConstants.DEFAULT_TASK_PULL_MAX_SECOND);
+        readWaitTime = conf.getInt(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
         if (executorService == null) {
             executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                     60L, TimeUnit.SECONDS,
@@ -82,13 +89,19 @@ public class TaskWrapper extends AbstractStateWrapper {
         return CompletableFuture.runAsync(() -> {
             Message message = null;
             while (!isException() && !task.isReadFinished()) {
-                if (message == null || task.getChannel()
-                        .push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
-                    message = task.getReader().read();
+                // if source deleted,then failed
+                if (!task.getReader().isSourceExist()) {
+                    doChangeState(State.FAILED);
+                } else {
+                    if (message == null
+                            || task.getChannel().push(message, pushMaxWaitTime, TimeUnit.SECONDS)) {
+                        message = task.getReader().read();
+                    }
                 }
+                AgentUtils.silenceSleepInMs(readWaitTime);
             }
-            LOGGER.info("read end, task exception status is {}, read finish status is {}",
-                    isException(), task.isReadFinished());
+            LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
+                            task.isReadFinished());
             // write end message
             task.getChannel().push(new EndMessage());
             task.getReader().destroy();
@@ -192,6 +205,7 @@ public class TaskWrapper extends AbstractStateWrapper {
     public void run() {
         try {
             LOGGER.info("start to run {}, retry time is {}", task.getTaskId(), retryTime.get());
+            AgentUtils.silenceSleepInMinute(WAIT_BEGIN_TIME_MINUTE);
             doChangeState(State.RUNNING);
             task.init();
             submitThreadsAndWait();

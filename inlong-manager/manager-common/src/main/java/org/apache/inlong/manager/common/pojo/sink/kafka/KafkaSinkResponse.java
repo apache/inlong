@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 /**
@@ -34,17 +34,27 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Kafka sink")
 public class KafkaSinkResponse extends SinkResponse {
 
-    public KafkaSinkResponse() {
-        this.sinkType = Constant.SINK_KAFKA;
-    }
-
     @ApiModelProperty("Kafka bootstrap servers")
-    private String address;
+    private String bootstrapServers;
 
     @ApiModelProperty("Kafka topicName")
     private String topicName;
 
+    @ApiModelProperty("Partition number of the topic")
+    private String partitionNum;
+
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
     private String serializationType;
+
+    @ApiModelProperty(value = "The strategy of auto offset reset",
+            notes = "including earliest, latest (the default), none")
+    private String autoOffsetReset;
+
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    private String primaryKey;
+
+    public KafkaSinkResponse() {
+        this.sinkType = SinkType.SINK_KAFKA;
+    }
 
 }

@@ -31,6 +31,7 @@ import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.repository.ClusterRepository;
 import org.apache.inlong.tubemq.manager.service.interfaces.ClusterService;
+import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.interfaces.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,6 +45,9 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Autowired
     NodeService nodeService;
+
+    @Autowired
+    MasterService masterService;
 
     @Override
     @Transactional(rollbackOn = Exception.class)
@@ -64,6 +68,7 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public void deleteCluster(Long clusterId) {
+        masterService.deleteMaster(clusterId);
         Integer successCode = clusterRepository.deleteByClusterId(clusterId);
         if (successCode.equals(DELETE_FAIL)) {
             throw new RuntimeException("no such cluster with clusterId = " + clusterId);
@@ -77,6 +82,12 @@ public class ClusterServiceImpl implements ClusterService {
     }
 
     @Override
+    public ClusterEntry getOneCluster(String clusterName) {
+        return clusterRepository
+                .findClusterEntryByClusterName(clusterName);
+    }
+
+    @Override
     public List<ClusterEntry> getAllClusters() {
         return clusterRepository.findAll();
     }
@@ -87,6 +98,7 @@ public class ClusterServiceImpl implements ClusterService {
             ClusterEntry cluster = clusterRepository
                     .findClusterEntryByClusterId(clusterDto.getClusterId());
             cluster.setClusterName(clusterDto.getClusterName());
+            cluster.setReloadBrokerSize(clusterDto.getReloadBrokerSize());
             clusterRepository.save(cluster);
         } catch (Exception e) {
             return TubeMQResult.errorResult(e.getMessage());

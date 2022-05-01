@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 /**
  * Cluster paging query conditions
  */
+@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Cluster paging query conditions")

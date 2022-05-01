@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.dto.MasterDto;
 import org.apache.inlong.tubemq.manager.controller.node.request.AddTopicReq;
-import org.apache.inlong.tubemq.manager.controller.node.request.BatchAddTopicReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
@@ -46,7 +45,7 @@ public interface NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult cloneBrokersWithTopic(CloneBrokersReq req) throws Exception;
 
@@ -67,7 +66,7 @@ public interface NodeService {
      * @param req
      * @param masterEntry
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult addTopicToBrokers(AddTopicReq req, MasterEntry masterEntry) throws Exception;
 
@@ -92,17 +91,9 @@ public interface NodeService {
      *
      * @param req
      * @return
-     * @throws Exception
+     * @throws Exception exception
      */
     TubeMQResult cloneTopicToBrokers(CloneTopicReq req) throws Exception;
-
-    /**
-     * batch add topic to master
-     *
-     * @param req
-     * @return
-     */
-    TubeMQResult batchAddTopic(BatchAddTopicReq req);
 
     /**
      * add one node to node repository

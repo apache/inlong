@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.workflow.consumption.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
@@ -32,9 +32,9 @@ import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
-import org.apache.inlong.manager.service.thirdparty.mq.PulsarOptService;
-import org.apache.inlong.manager.service.thirdparty.mq.TubeMqOptService;
-import org.apache.inlong.manager.service.thirdparty.mq.util.PulsarUtils;
+import org.apache.inlong.manager.service.mq.PulsarOptService;
+import org.apache.inlong.manager.service.mq.TubeMqOptService;
+import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -84,14 +84,14 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             throw new WorkflowListenerException("consumption not exits for id=" + consumptionId);
         }
 
-        String middlewareType = entity.getMiddlewareType();
-        if (Constant.MIDDLEWARE_TUBE.equalsIgnoreCase(middlewareType)) {
+        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        if (mqType == MQType.TUBE) {
             this.createTubeConsumerGroup(entity);
             return ListenerResult.success("Create Tube consumer group successful");
-        } else if (Constant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
+        } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             this.createPulsarTopicMessage(entity);
         } else {
-            throw new WorkflowListenerException("middleware type [" + middlewareType + "] not supported");
+            throw new WorkflowListenerException("middleware type [" + mqType + "] not supported");
         }
 
         this.updateConsumerInfo(consumptionId, entity.getConsumerGroupId());
@@ -119,7 +119,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
         String mqResourceObj = groupInfo.getMqResourceObj();
         Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMiddlewareType());
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();

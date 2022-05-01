@@ -69,7 +69,7 @@ public class BdbGroupResCtrlMapperImpl extends AbsGroupResCtrlMapperImpl {
                     logger.warn("[BDB Impl] null data while loading group control configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new GroupResCtrlEntity(bdbEntity));
+                putRecord2Caches(new GroupResCtrlEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {

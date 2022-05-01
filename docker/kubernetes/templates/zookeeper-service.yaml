@@ -24,16 +24,22 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
   annotations:
-{{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
+    {{- toYaml .Values.zookeeper.service.annotations | nindent 4 }}
 spec:
-  ports:
-    - name: follower
-      port: {{ .Values.zookeeper.ports.follower }}
-    - name: leader-election
-      port: {{ .Values.zookeeper.ports.leaderElection }}
-    - name: client
-      port: {{ .Values.zookeeper.ports.client }}
   clusterIP: None
+  ports:
+    - name: zk-client-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.client }}
+      targetPort: 2181
+    - name: zk-comm-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.follower }}
+      targetPort: 2888
+    - name: zk-elect-port
+      protocol: TCP
+      port: {{ .Values.zookeeper.ports.leaderElection }}
+      targetPort: 3888
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}

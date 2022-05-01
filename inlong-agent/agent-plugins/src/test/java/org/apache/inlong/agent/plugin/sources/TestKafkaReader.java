@@ -39,7 +39,7 @@ public class TestKafkaReader {
         conf.set("job.kafkaJob.recordspeed.limit", "1");
         conf.set("job.kafkaJob.bytespeed.limit", "1");
         conf.set("job.kafkaJob.partition.offset", "0#0");
-        conf.set("job.kafkaJob.auto.offsetReset", "latest");
+        conf.set("job.kafkaJob.autoOffsetReset", "latest");
         conf.set("proxy.inlongGroupId", "");
         conf.set("proxy.inlongStreamId", "");
 

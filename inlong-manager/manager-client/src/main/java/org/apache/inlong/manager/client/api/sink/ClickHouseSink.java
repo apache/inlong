@@ -23,9 +23,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
-import org.apache.inlong.manager.client.api.SinkField;
-import org.apache.inlong.manager.client.api.StreamSink;
+import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.SinkType;
 
@@ -45,7 +45,7 @@ public class ClickHouseSink extends StreamSink {
     private String jdbcUrl;
 
     @ApiModelProperty("Target database name")
-    private String databaseName;
+    private String dbName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
@@ -53,26 +53,27 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Authentication for clickhouse")
     private DefaultAuthentication authentication;
 
-    @ApiModelProperty("Whether distributed table")
-    private Boolean distributedTable;
+    @ApiModelProperty("Flush interval, unit: second, default is 1s")
+    private Integer flushInterval;
+
+    @ApiModelProperty("Flush when record number reaches flushRecord")
+    private Integer flushRecord;
+
+    @ApiModelProperty("Write max retry times, default is 3")
+    private Integer retryTimes;
+
+    @ApiModelProperty("Whether distributed table? 0: no, 1: yes")
+    private Integer isDistributed;
 
     @ApiModelProperty("Partition strategy,support: BALANCE, RANDOM, HASH")
     private String partitionStrategy;
 
-    @ApiModelProperty("Partition key")
-    private String partitionKey;
+    @ApiModelProperty(value = "Partition files, separate with commas",
+            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    private String partitionFields;
 
-    @ApiModelProperty("Key field names")
-    private String[] keyFieldNames;
-
-    @ApiModelProperty("Flush interval")
-    private Integer flushInterval;
-
-    @ApiModelProperty("Flush record number")
-    private Integer flushRecordNumber;
-
-    @ApiModelProperty("Write max retry times")
-    private Integer writeMaxRetryTimes;
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
 
     @ApiModelProperty("Create topic or not")
     private boolean needCreated;

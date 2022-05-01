@@ -27,15 +27,12 @@ public class FileJob  {
     private Dir dir;
     private Thread thread;
     private int id;
-    private String pattern;
-    private String cycleUnit;
     private String timeOffset;
     private String addictiveString;
 
     @Data
     public static class Dir {
 
-        private String path;
         private String pattern;
     }
 
@@ -54,12 +51,13 @@ public class FileJob  {
     @Data
     public static class FileJobTaskConfig {
 
-        private String dataName;
-        private String path;
-        private int taskId;
         private String pattern;
-        private String cycleUnit;
+        // '1m' means one minute after, '-1m' means one minute before
+        // '1h' means one hour after, '-1h' means one hour before
+        // '1d' means one day after, '-1d' means one day before
+        // Null means from current timestamp
         private String timeOffset;
+        //For example: a=b&c=b&e=f
         private String additionalAttr;
     }
 

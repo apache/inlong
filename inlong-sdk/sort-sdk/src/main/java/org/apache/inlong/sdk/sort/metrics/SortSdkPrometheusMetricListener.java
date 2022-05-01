@@ -41,7 +41,7 @@ public class SortSdkPrometheusMetricListener {
 
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortSdkCounter");
+        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortSdk").append(",name=").append(sortTaskId);
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);

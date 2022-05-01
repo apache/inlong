@@ -20,32 +20,34 @@ package org.apache.inlong.manager.service.workflow;
 import com.google.common.collect.Lists;
 import lombok.Setter;
 import org.apache.commons.collections.MapUtils;
+import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
+import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
+import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
+import org.apache.inlong.manager.service.mq.PulsarEventSelector;
+import org.apache.inlong.manager.service.mq.TubeEventSelector;
+import org.apache.inlong.manager.service.resource.CreateSinkResourceListener;
+import org.apache.inlong.manager.service.resource.hive.HiveSinkEventSelector;
+import org.apache.inlong.manager.service.sort.CreateSortConfigListener;
+import org.apache.inlong.manager.service.sort.PushSortConfigListener;
+import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
+import org.apache.inlong.manager.service.sort.ZookeeperEnabledSelector;
+import org.apache.inlong.manager.service.sort.light.LightGroupSortListener;
+import org.apache.inlong.manager.service.sort.light.LightGroupSortSelector;
 import org.apache.inlong.manager.service.source.listener.SourceDeleteEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceDeleteListener;
 import org.apache.inlong.manager.service.source.listener.SourceRestartEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceRestartListener;
 import org.apache.inlong.manager.service.source.listener.SourceStopEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceStopListener;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableEventSelector;
-import org.apache.inlong.manager.service.thirdparty.hive.CreateHiveTableListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.thirdparty.mq.PulsarEventSelector;
-import org.apache.inlong.manager.service.thirdparty.mq.TubeEventSelector;
-import org.apache.inlong.manager.service.thirdparty.sort.CreateSortConfigListener;
-import org.apache.inlong.manager.service.thirdparty.sort.PushSortConfigListener;
-import org.apache.inlong.manager.service.thirdparty.sort.ZkDisabledEventSelector;
-import org.apache.inlong.manager.service.thirdparty.sort.ZkEnabledEventSelector;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginBinder;
@@ -97,20 +99,23 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     @Autowired
     @Setter
-    private CreateHiveTableListener createHiveTableListener;
+    private CreateSinkResourceListener createSinkResourceListener;
     @Autowired
-    private CreateHiveTableEventSelector createHiveTableEventSelector;
+    private HiveSinkEventSelector hiveSinkEventSelector;
 
     @Autowired
     @Setter
     private PushSortConfigListener pushSortConfigListener;
     @Autowired
-    private ZkEnabledEventSelector zkEnabledEventSelector;
+    private ZookeeperEnabledSelector zookeeperEnabledSelector;
 
     @Autowired
-    private ZkDisabledEventSelector zkDisabledEventSelector;
+    private ZookeeperDisabledSelector zookeeperDisabledSelector;
     @Autowired
     private CreateSortConfigListener createSortConfigListener;
+
+    @Autowired
+    private LightGroupSortListener lightGroupSortListener;
 
     @PostConstruct
     public void init() {
@@ -119,15 +124,16 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         sourceOperateListeners.put(sourceDeleteListener, new SourceDeleteEventSelector());
         sourceOperateListeners.put(sourceRestartListener, new SourceRestartEventSelector());
         sinkOperateListeners = new LinkedHashMap<>();
-        sinkOperateListeners.put(createHiveTableListener, createHiveTableEventSelector);
+        sinkOperateListeners.put(createSinkResourceListener, hiveSinkEventSelector);
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
         queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(pushSortConfigListener, zkEnabledEventSelector);
-        sortOperateListeners.put(createSortConfigListener, zkDisabledEventSelector);
+        sortOperateListeners.put(pushSortConfigListener, zookeeperEnabledSelector);
+        sortOperateListeners.put(createSortConfigListener, zookeeperDisabledSelector);
+        sortOperateListeners.put(lightGroupSortListener, new LightGroupSortSelector());
     }
 
     public void clearListeners() {

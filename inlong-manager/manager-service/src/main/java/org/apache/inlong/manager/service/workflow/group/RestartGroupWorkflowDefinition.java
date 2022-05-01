@@ -22,8 +22,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessFor
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
+import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -40,10 +41,13 @@ import org.springframework.stereotype.Component;
 public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private UpdateGroupListener updateGroupListener;
+    private GroupUpdateListener groupUpdateListener;
 
     @Autowired
-    private UpdateGroupCompleteListener updateGroupCompleteListener;
+    private GroupUpdateCompleteListener groupUpdateCompleteListener;
+
+    @Autowired
+    private GroupUpdateFailedListener groupUpdateFailedListener;
 
     @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
@@ -52,8 +56,9 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(updateGroupListener);
-        process.addListener(updateGroupCompleteListener);
+        process.addListener(groupUpdateListener);
+        process.addListener(groupUpdateCompleteListener);
+        process.addListener(groupUpdateFailedListener);
         process.setType("Group Resource Restart");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());

@@ -47,7 +47,7 @@ public class AgentConstants {
     public static final String DEFAULT_AGENT_DB_INSTANCE_NAME = "agent";
 
     public static final String AGENT_DB_CLASSNAME = "agent.db.classname";
-    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.BerkeleyDbImp";
+    public static final String DEFAULT_AGENT_DB_CLASSNAME = "org.apache.inlong.agent.db.RocksDbImp";
 
     // default is empty.
     public static final String AGENT_FETCHER_CLASSNAME = "agent.fetcher.classname";
@@ -145,7 +145,7 @@ public class AgentConstants {
     public static final int DEFAULT_TASK_PULL_MAX_SECOND = 2;
 
     public static final String CHANNEL_MEMORY_CAPACITY = "channel.memory.capacity";
-    public static final int DEFAULT_CHANNEL_MEMORY_CAPACITY = 10000;
+    public static final int DEFAULT_CHANNEL_MEMORY_CAPACITY = 1000;
 
     public static final String TRIGGER_CHECK_INTERVAL = "trigger.check.interval";
     public static final int DEFAULT_TRIGGER_CHECK_INTERVAL = 2;
@@ -159,6 +159,9 @@ public class AgentConstants {
 
     public static final String JOB_DB_CACHE_CHECK_INTERVAL = "job.db.cache.check.interval";
     public static final int DEFAULT_JOB_DB_CACHE_CHECK_INTERVAL = 60 * 60;
+
+    public static final String JOB_NUMBER_LIMIT = "job.number.limit";
+    public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
 
@@ -181,5 +184,8 @@ public class AgentConstants {
 
     public static final String AGENT_HISTORY_PATH = "agent.history.path";
     public static final String DEFAULT_AGENT_HISTORY_PATH = ".history";
+
+    public static final String JOB_VERSION = "job.version";
+    public static final Integer DEFAULT_JOB_VERSION = 1;
 
 }

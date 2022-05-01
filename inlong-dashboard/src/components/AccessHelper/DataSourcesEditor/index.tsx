@@ -22,7 +22,7 @@ import { Button, Table, Modal, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
 import { useUpdateEffect, usePrevious } from '@/hooks';
-import { dataSourcesDbColumns as dbColumns } from '@/components/MetaData/DataSourcesDb';
+import { dataSourcesBinLogColumns as binLogColumns } from '@/components/MetaData/DataSourcesBinLog';
 import { dataSourcesFileColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
 import CreateModal from './CreateModal';
 
@@ -30,7 +30,7 @@ export interface DataSourcesEditorProps {
   value?: Record<string, any>[];
   onChange?: Function;
   readonly?: boolean;
-  type?: 'DB' | 'FILE';
+  type?: 'BINLOG' | 'FILE';
   // Whether to use real operations (for example, to call the background interface when deleting/newing, etc.)
   useActionRequest?: boolean;
   inlongGroupId?: string;
@@ -58,7 +58,7 @@ const Comp = ({
   value,
   onChange,
   readonly = false,
-  type = 'DB',
+  type = 'FILE',
   useActionRequest,
   inlongGroupId,
   inlongStreamId,
@@ -94,10 +94,11 @@ const Comp = ({
       ...values,
       inlongGroupId,
       inlongStreamId,
+      sourceType: type,
     };
     if (isUpdate) submitData.id = createModal.id;
     const newId = await request({
-      url: `/datasource/${type.toLowerCase()}/${isUpdate ? 'updateDetail' : 'saveDetail'}`,
+      url: `/source/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -116,8 +117,11 @@ const Comp = ({
         title: t('basic.DeleteConfirm'),
         onOk: async () => {
           await request({
-            url: `/datasource/${type.toLowerCase()}/deleteDetail/${id}`,
+            url: `/source/delete/${id}`,
             method: 'DELETE',
+            params: {
+              sourceType: type,
+            },
           });
           resolve(true);
           message.success(t('DeleteSuccess'));
@@ -158,7 +162,7 @@ const Comp = ({
     setData(newData);
   };
 
-  const columns = (type === 'DB' ? dbColumns : fileColumns).concat(
+  const columns = (type === 'BINLOG' ? binLogColumns : fileColumns).concat(
     readonly
       ? []
       : [

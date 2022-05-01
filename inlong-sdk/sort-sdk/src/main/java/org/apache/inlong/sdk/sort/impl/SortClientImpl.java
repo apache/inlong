@@ -101,7 +101,7 @@ public class SortClientImpl extends SortClient {
     @Override
     public void ack(String msgKey, String msgOffset)
             throws Exception {
-        logger.info("ack:{} offset:{}", msgKey, msgOffset);
+        logger.debug("ack:{} offset:{}", msgKey, msgOffset);
         InLongTopicFetcher inLongTopicFetcher = getFetcher(msgKey);
         inLongTopicFetcher.ack(msgOffset);
     }
@@ -121,6 +121,11 @@ public class SortClientImpl extends SortClient {
                 + "|cleanInLongTopicManager=" + cleanInLongTopicManager
                 + "|cleanContext=" + cleanContext);
         return (cleanInLongTopicManager && cleanContext);
+    }
+
+    @Override
+    public SortClientConfig getConfig() {
+        return this.sortClientConfig;
     }
 
     private InLongTopicFetcher getFetcher(String msgKey) throws NotExistException {

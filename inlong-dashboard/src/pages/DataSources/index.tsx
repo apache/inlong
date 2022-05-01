@@ -71,7 +71,7 @@ const Comp: React.FC = () => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: `/commonserver/list`,
+      url: `/commonserver/db/list`,
       method: 'POST',
       params: {
         ...options,
@@ -93,7 +93,7 @@ const Comp: React.FC = () => {
       title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/commonserver/delete/${id}`,
+          url: `/commonserver/db/deleteById/${id}`,
           method: 'DELETE',
           params: {
             serverType: options.type,

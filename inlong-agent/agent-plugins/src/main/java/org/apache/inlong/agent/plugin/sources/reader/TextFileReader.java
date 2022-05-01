@@ -150,6 +150,11 @@ public class TextFileReader extends AbstractReader {
         destroy();
     }
 
+    @Override
+    public boolean isSourceExist() {
+        return true;
+    }
+
     public void addPatternValidator(String pattern) {
         if (pattern.isEmpty()) {
             return;
@@ -187,8 +192,11 @@ public class TextFileReader extends AbstractReader {
 
     @Override
     public void destroy() {
+        if (stream == null) {
+            return;
+        }
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                streamMetric.getTagName(), streamMetric.getReadNum());
+            streamMetric.getTagName(), streamMetric.getReadNum());
     }
 }

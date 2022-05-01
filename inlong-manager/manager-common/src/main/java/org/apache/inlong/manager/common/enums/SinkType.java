@@ -21,7 +21,12 @@ import java.util.Locale;
 
 public enum SinkType {
 
-    HIVE, ES, CLICKHOUSE, ICEBERG, KAFKA;
+    HIVE, KAFKA, ICEBERG, CLICKHOUSE;
+
+    public static final String SINK_HIVE = "HIVE";
+    public static final String SINK_KAFKA = "KAFKA";
+    public static final String SINK_ICEBERG = "ICEBERG";
+    public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
 
     /**
      * Get the SinkType enum via the given sinkType string

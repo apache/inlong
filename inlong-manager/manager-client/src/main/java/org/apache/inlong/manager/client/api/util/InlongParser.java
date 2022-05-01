@@ -24,7 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
@@ -39,21 +39,24 @@ import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 import java.util.List;
-
-import static org.apache.inlong.manager.common.enums.SourceType.BINLOG;
-import static org.apache.inlong.manager.common.enums.SourceType.KAFKA;
 
 /**
  * Parser for Inlong entity
@@ -85,7 +88,8 @@ public class InlongParser {
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
             }
@@ -111,8 +115,8 @@ public class InlongParser {
         JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
         JsonArray fullStreamArray = pageInfoJson.getAsJsonArray("list");
         List<FullStreamResponse> list = Lists.newArrayList();
-        for (int i = 0; i < fullStreamArray.size(); i++) {
-            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(i);
+        for (int streamIndex = 0; streamIndex < fullStreamArray.size(); streamIndex++) {
+            JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(streamIndex);
             FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
@@ -120,8 +124,8 @@ public class InlongParser {
             JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
             List<SourceResponse> sourceResponses = Lists.newArrayList();
             fullStreamResponse.setSourceInfo(sourceResponses);
-            for (int j = 0; j < sourceJsonArr.size(); j++) {
-                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(i);
+            for (int sourceIndex = 0; sourceIndex < sourceJsonArr.size(); sourceIndex++) {
+                JsonObject sourceJson = (JsonObject) sourceJsonArr.get(sourceIndex);
                 String type = sourceJson.get(SOURCE_TYPE).getAsString();
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
@@ -135,8 +139,18 @@ public class InlongParser {
                                 KafkaSourceResponse.class);
                         sourceResponses.add(kafkaSourceResponse);
                         break;
+                    case FILE:
+                        FileSourceResponse fileSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                FileSourceResponse.class);
+                        sourceResponses.add(fileSourceResponse);
+                        break;
+                    case AUTO_PUSH:
+                        AutoPushSourceResponse autoPushSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                AutoPushSourceRequest.class);
+                        sourceResponses.add(autoPushSourceResponse);
+                        break;
                     default:
-                        throw new RuntimeException(String.format("Unsupport sourceType=%s for Inlong", sourceType));
+                        throw new RuntimeException(String.format("Unsupported sourceType=%s for Inlong", sourceType));
                 }
             }
 
@@ -144,8 +158,8 @@ public class InlongParser {
             JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
             List<SinkResponse> sinkResponses = Lists.newArrayList();
             fullStreamResponse.setSinkInfo(sinkResponses);
-            for (int j = 0; j < sinkJsonArr.size(); j++) {
-                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(i);
+            for (int sinkIndex = 0; sinkIndex < sinkJsonArr.size(); sinkIndex++) {
+                JsonObject sinkJson = (JsonObject) sinkJsonArr.get(sinkIndex);
                 String type = sinkJson.get(SINK_TYPE).getAsString();
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
@@ -170,7 +184,7 @@ public class InlongParser {
                         sinkResponses.add(clickHouseSinkResponse);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupport sinkType=%s for Inlong", sinkType));
+                        throw new RuntimeException(String.format("Unsupported sinkType=%s for Inlong", sinkType));
                 }
             }
         }
@@ -186,21 +200,38 @@ public class InlongParser {
         if (pageInfo.getList() != null && !pageInfo.getList().isEmpty()) {
             SourceListResponse sourceListResponse = pageInfo.getList().get(0);
             SourceType sourceType = SourceType.forType(sourceListResponse.getSourceType());
-            if (sourceType == BINLOG) {
-                return GsonUtil.fromJson(pageInfoJson,
-                        new TypeToken<PageInfo<BinlogSourceListResponse>>() {
-                        }.getType());
+            switch (sourceType) {
+                case BINLOG:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<BinlogSourceListResponse>>() {
+                            }.getType());
+                case KAFKA:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<KafkaSourceListResponse>>() {
+                            }.getType());
+                case FILE:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<FileSourceListResponse>>() {
+                            }.getType());
+                case AUTO_PUSH:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<AutoPushSourceListResponse>>() {
+                            }.getType());
+                default:
+                    throw new IllegalArgumentException(
+                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
             }
-            if (sourceType == KAFKA) {
-                return GsonUtil.fromJson(pageInfoJson,
-                        new TypeToken<PageInfo<KafkaSourceListResponse>>() {
-                        }.getType());
-            }
-            throw new IllegalArgumentException(
-                    String.format("Unsupported sourceType=%s for Inlong", sourceType));
         } else {
             return new PageInfo<>();
         }
+    }
+
+    public static List<TransformResponse> parseTransformList(Response response) {
+        Object data = response.getData();
+        String pageInfoJson = GsonUtil.toJson(data);
+        return GsonUtil.fromJson(pageInfoJson,
+                new TypeToken<List<TransformResponse>>() {
+                }.getType());
     }
 
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
@@ -218,8 +249,10 @@ public class InlongParser {
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            if (Constant.MIDDLEWARE_PULSAR.equals(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString())) {
-                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
+            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
+                        InlongGroupPulsarInfo.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
                 groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());

@@ -18,12 +18,17 @@ package org.apache.inlong.dataproxy.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.source.MsgType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(MessageUtils.class);
 
     /**
      *  is or not sync send for order message
@@ -47,6 +52,14 @@ public class MessageUtils {
         return isSyncSendForOrder(syncSend);
     }
 
+    /**
+     * Convert String to ByteBuf
+     *
+     * @param backattrs
+     * @param msgType message type
+     * @param sequenceId sequence Id
+     * @return ByteBuf
+     */
     public static ByteBuf getResponsePackage(String backattrs, MsgType msgType, String sequenceId) {
         int binTotalLen = 1 + 4 + 2 + 2;
         if (null != backattrs) {
@@ -72,6 +85,26 @@ public class MessageUtils {
         }
         binBuffer.writeShort(0xee01);
         return binBuffer;
+    }
+
+    /**
+     * get topic
+     */
+    public static String getTopic(Map<String, String> topicsMap, String groupId, String streamId) {
+        String topic = null;
+        if (topicsMap != null && StringUtils.isNotEmpty(groupId)) {
+            if (StringUtils.isNotEmpty(streamId)) {
+                topic = topicsMap.get(groupId + "/" + streamId);
+            }
+            if (StringUtils.isEmpty(topic)) {
+                topic = topicsMap.get(groupId);
+            }
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("Get topic by groupId = {}, streamId = {}, topic = {}", groupId, streamId,
+                    topic);
+        }
+        return topic;
     }
 
 }

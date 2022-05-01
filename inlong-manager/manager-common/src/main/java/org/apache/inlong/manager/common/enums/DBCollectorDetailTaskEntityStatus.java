@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.enums;
 /**
  * Entity status enum
  */
+@Deprecated
 public enum DBCollectorDetailTaskEntityStatus {
 
     INIT(0, "first inserted"),

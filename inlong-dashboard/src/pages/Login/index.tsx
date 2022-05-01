@@ -79,7 +79,7 @@ const Comp: React.FC = () => {
   return (
     <div className={styles.wrap} onKeyUp={onEnter}>
       <div className={styles['form-wrap']}>
-        <div className={styles.title}>InLong</div>
+        <img className={styles.logo} src={require('../../components/Icons/logo.svg')} alt="" />
         <div>
           <FormGenerator
             form={form}

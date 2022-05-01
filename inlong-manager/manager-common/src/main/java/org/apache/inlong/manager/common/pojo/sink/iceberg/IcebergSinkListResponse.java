@@ -31,6 +31,22 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 @ApiModel("Response of Iceberg sink paging list")
 public class IcebergSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("table Location like hdfs://")
-    private String tableLocation;
+    @ApiModelProperty("target database name")
+    private String dbName;
+
+    @ApiModelProperty("target table name")
+    private String tableName;
+
+    @ApiModelProperty("username")
+    private String username;
+
+    @ApiModelProperty("JDBC URL")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
+
+    @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
+    private String partitionType;
+
 }

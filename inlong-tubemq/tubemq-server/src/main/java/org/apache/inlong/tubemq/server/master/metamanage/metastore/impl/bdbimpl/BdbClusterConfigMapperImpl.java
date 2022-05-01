@@ -73,7 +73,7 @@ public class BdbClusterConfigMapperImpl extends AbsClusterConfigMapperImpl {
                     logger.warn("[BDB Impl] found Null data while loading cluster configure!");
                     continue;
                 }
-                addOrUpdCacheRecord(new ClusterSettingEntity(bdbEntity));
+                putRecord2Caches(new ClusterSettingEntity(bdbEntity));
                 totalCnt++;
             }
         } catch (Exception e) {

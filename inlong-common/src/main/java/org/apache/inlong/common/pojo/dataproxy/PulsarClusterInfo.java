@@ -25,13 +25,15 @@ import lombok.NoArgsConstructor;
 import java.util.Map;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class PulsarClusterInfo {
+
     private String type;
     private String adminUrl;
     private String token;
     private String brokerServiceUrl;
     private Map<String, String> ext;
+
 }

@@ -36,9 +36,9 @@ public interface ConsumeCtrlMapper extends AbstractMapper {
     boolean delGroupConsumeCtrlConf(String groupName, String topicName,
                                     StringBuilder strBuff, ProcessResult result);
 
-    boolean isTopicNameInUsed(String topicName);
+    boolean isTopicNameInUse(String topicName);
 
-    boolean hasGroupConsumeCtrlConf(String groupName);
+    boolean isGroupNameInUse(String groupName);
 
     GroupConsumeCtrlEntity getGroupConsumeCtrlConfByRecKey(String recordKey);
 

@@ -32,12 +32,8 @@ import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.impl.AbsConsumeCtrlMapperImpl;
 import org.apache.zookeeper.KeeperException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZKConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
-    private static final Logger logger =
-            LoggerFactory.getLogger(ZKConsumeCtrlMapperImpl.class);
     private final ZooKeeperWatcher zkWatcher;
     private final String csmCtrlRootDir;
 
@@ -85,7 +81,7 @@ public class ZKConsumeCtrlMapperImpl extends AbsConsumeCtrlMapperImpl {
             if (recordStr == null) {
                 continue;
             }
-            addOrUpdCacheRecord(gson.fromJson(recordStr, type));
+            putRecord2Caches(gson.fromJson(recordStr, type));
             totalCnt++;
         }
         logger.info(strBuff.append("[ZK Impl] loaded ").append(totalCnt)

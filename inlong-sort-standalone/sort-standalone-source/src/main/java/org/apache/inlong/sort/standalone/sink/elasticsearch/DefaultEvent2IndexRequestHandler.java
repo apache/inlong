@@ -23,9 +23,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
@@ -34,6 +34,8 @@ import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
  * DefaultEvent2IndexRequestHandler
  */
 public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHandler {
+
+    public static final String KEY_EXTINFO = "extinfo";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private AtomicLong esIndexIndex = new AtomicLong(System.currentTimeMillis());
@@ -110,16 +112,11 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
      * @return
      */
     public static String getExtInfo(ProfileEvent event) {
-        if (event.getHeaders().size() > 0) {
-            StringBuilder sBuilder = new StringBuilder();
-            for (Entry<String, String> extInfo : event.getHeaders().entrySet()) {
-                String key = extInfo.getKey();
-                String value = extInfo.getValue();
-                sBuilder.append(key).append('=').append(value).append('&');
-            }
-            String extinfo = sBuilder.substring(0, sBuilder.length() - 1);
-            return extinfo;
+        String extinfoValue = event.getHeaders().get(KEY_EXTINFO);
+        if (extinfoValue != null) {
+            return KEY_EXTINFO + "=" + extinfoValue;
         }
-        return "";
+        extinfoValue = KEY_EXTINFO + "=" + event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
+        return extinfoValue;
     }
 }

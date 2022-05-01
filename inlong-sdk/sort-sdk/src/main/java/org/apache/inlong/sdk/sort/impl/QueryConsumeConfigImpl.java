@@ -17,12 +17,8 @@
 
 package org.apache.inlong.sdk.sort.impl;
 
-import com.google.gson.Gson;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -31,17 +27,23 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.sdk.CacheZone;
+import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
-import org.apache.inlong.sdk.sort.entity.CacheZone;
 import org.apache.inlong.sdk.sort.entity.CacheZoneCluster;
-import org.apache.inlong.sdk.sort.entity.CacheZoneConfig;
 import org.apache.inlong.sdk.sort.entity.ConsumeConfig;
 import org.apache.inlong.sdk.sort.entity.InLongTopic;
-import org.apache.inlong.sdk.sort.entity.ManagerResponse;
-import org.apache.inlong.sdk.sort.entity.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class QueryConsumeConfigImpl implements QueryConsumeConfig {
 
@@ -61,15 +63,15 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     }
 
     private String getRequestUrlWithParam() {
-        return clientContext.getConfig().getManagerApiUrl() + "?sortClusterName=" + clientContext.getConfig()
-                .getSortClusterName() + "&sortId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
-                + "&apiVersioin=" + clientContext.getConfig().getManagerApiVersion();
+        return clientContext.getConfig().getManagerApiUrl() + "?clusterName=" + clientContext.getConfig()
+                .getSortClusterName() + "&sortTaskId=" + clientContext.getConfig().getSortTaskId() + "&md5=" + md5
+                + "&apiVersion=" + clientContext.getConfig().getManagerApiVersion();
     }
 
     // HTTP GET
-    private ManagerResponse doGetRequest() throws Exception {
-        ManagerResponse managerResponse;
-        HttpGet request = getHttpGet();
+    private SortSourceConfigResponse doGetRequest(String getUrl) throws Exception {
+        SortSourceConfigResponse managerResponse;
+        HttpGet request = getHttpGet(getUrl);
 
         try (CloseableHttpResponse response = httpClient.execute(request)) {
 
@@ -82,7 +84,7 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
             String result = EntityUtils.toString(entity);
             logger.debug("response String result:{}", result);
             try {
-                managerResponse = new Gson().fromJson(result, ManagerResponse.class);
+                managerResponse = new ObjectMapper().readValue(result, SortSourceConfigResponse.class);
                 return managerResponse;
             } catch (Exception e) {
                 logger.error("parse json to ManagerResponse error:{}", e.getMessage(), e);
@@ -93,8 +95,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         return null;
     }
 
-    private HttpGet getHttpGet() {
-        HttpGet request = new HttpGet(getRequestUrlWithParam());
+    private HttpGet getHttpGet(String getUrl) {
+        HttpGet request = new HttpGet(getUrl);
         // add request headers
         request.addHeader("custom-key", "inlong-readapi");
         request.addHeader(HttpHeaders.USER_AGENT, "Googlebot");
@@ -107,12 +109,13 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     public void reload() {
         logger.debug("start to reload sort task config.");
         try {
-            ManagerResponse managerResponse = doGetRequest();
+            String getUrl = getRequestUrlWithParam();
+            SortSourceConfigResponse managerResponse = doGetRequest(getUrl);
             if (managerResponse == null) {
                 logger.info("## reload managerResponse == null");
                 return;
             }
-            if (handleSortTaskConfResult(managerResponse, managerResponse.getErrCode())) {
+            if (handleSortTaskConfResult(getUrl, managerResponse, managerResponse.getCode())) {
                 return;
             }
         } catch (Throwable e) {
@@ -121,40 +124,40 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
                             e.getMessage());
             logger.error(msg, e);
         }
-        logger.debug("end to reload manager config.");
     }
 
     /**
      * handle request response
      *
-     * UPDATE_VALUE = 0; conf update
-     * NOUPDATE_VALUE = 1; conf no update, md5 is same
-     * REQ_PARAMS_ERROR = -101; request params error
-     * FAIL = -1; common error
+     * UPDATE_VALUE = 0; conf update NOUPDATE_VALUE = 1; conf no update, md5 is same REQ_PARAMS_ERROR = -101; request
+     * params error FAIL = -1; common error
      *
-     * @param response ManagerResponse
-     * @param respCodeValue int
-     * @return true/false
+     * @param  getUrl
+     * @param  response      ManagerResponse
+     * @param  respCodeValue int
+     * @return               true/false
      */
-    private boolean handleSortTaskConfResult(ManagerResponse response, int respCodeValue) throws Exception {
+    private boolean handleSortTaskConfResult(String getUrl, SortSourceConfigResponse response, int respCodeValue)
+            throws Exception {
         switch (respCodeValue) {
-            case NOUPDATE_VALUE:
+            case NOUPDATE_VALUE :
                 logger.debug("manager conf noupdate");
                 return true;
-            case UPDATE_VALUE:
+            case UPDATE_VALUE :
                 logger.info("manager conf update");
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addManagerConfChangedTimes(1);
                 this.md5 = response.getMd5();
                 updateSortTaskConf(response);
                 break;
-            case REQ_PARAMS_ERROR:
+            case REQ_PARAMS_ERROR :
                 logger.error("return code error:{}", respCodeValue);
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerParamErrorTimes(1);
                 break;
-            default:
-                logger.error("return code error:{}", respCodeValue);
+            default :
+                logger.error("return code error:{},request:{},response:{}",
+                        respCodeValue, getUrl, new ObjectMapper().writeValueAsString(response));
                 clientContext.getStatManager().getStatistics(clientContext.getConfig().getSortTaskId())
                         .addRequestManagerCommonErrorTimes(1);
                 return true;
@@ -162,15 +165,14 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
         return false;
     }
 
-    private void updateSortTaskConf(ManagerResponse response) {
+    private void updateSortTaskConf(SortSourceConfigResponse response) {
         CacheZoneConfig cacheZoneConfig = response.getData();
         Map<String, List<InLongTopic>> newGroupTopicsMap = new HashMap<>();
         for (Map.Entry<String, CacheZone> entry : cacheZoneConfig.getCacheZones().entrySet()) {
-            String sortId = entry.getKey();
             CacheZone cacheZone = entry.getValue();
 
-            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(sortId, k -> new ArrayList<>());
-
+            List<InLongTopic> topics = newGroupTopicsMap.computeIfAbsent(cacheZoneConfig.getSortTaskId(),
+                    k -> new ArrayList<>());
             CacheZoneCluster cacheZoneCluster = new CacheZoneCluster(cacheZone.getZoneName(),
                     cacheZone.getServiceUrl(), cacheZone.getAuthentication());
             for (Topic topicInfo : cacheZone.getTopics()) {
@@ -188,8 +190,8 @@ public class QueryConsumeConfigImpl implements QueryConsumeConfig {
     /**
      * query ConsumeConfig
      *
-     * @param sortTaskId String
-     * @return ConsumeConfig
+     * @param  sortTaskId String
+     * @return            ConsumeConfig
      */
     @Override
     public ConsumeConfig queryCurrentConsumeConfig(String sortTaskId) {

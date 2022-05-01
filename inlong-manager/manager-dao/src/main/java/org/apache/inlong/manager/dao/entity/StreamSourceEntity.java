@@ -35,15 +35,15 @@ public class StreamSourceEntity implements Serializable {
     private String uuid;
 
     private Integer serverId;
-    private String serverName;
     private Integer clusterId;
-    private String clusterName;
+    private String serializationType;
     private String snapshot;
     private Date reportTime;
 
     // extParams saved filePath, fileRollingType, dbName, tableName, etc.
     private String extParams;
 
+    private Integer version;
     private Integer status;
     private Integer previousStatus;
     private Integer isDeleted;

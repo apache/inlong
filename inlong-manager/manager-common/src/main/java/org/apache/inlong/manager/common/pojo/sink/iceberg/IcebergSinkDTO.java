@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.sink.iceberg;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Iceberg sink info
@@ -41,8 +41,35 @@ public class IcebergSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("table Location like hdfs://")
-    private String tableLocation;
+    @ApiModelProperty("Hive JDBC URL")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Target database name")
+    private String dbName;
+
+    @ApiModelProperty("Target table name")
+    private String tableName;
+
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
+
+    @ApiModelProperty("File format, support: Parquet, Orc, Avro")
+    private String fileFormat;
+
+    @ApiModelProperty("Data encoding type")
+    private String dataEncoding;
+
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
+
+    @ApiModelProperty("Data consistency strategy, support: EXACTLY_ONCE(default), AT_LEAST_ONCE")
+    private String dataConsistency;
 
     @ApiModelProperty("Properties for iceberg")
     private Map<String, Object> properties;
@@ -52,7 +79,16 @@ public class IcebergSinkDTO {
      */
     public static IcebergSinkDTO getFromRequest(IcebergSinkRequest request) {
         return IcebergSinkDTO.builder()
-                .tableLocation(request.getTableLocation())
+                .jdbcUrl(request.getJdbcUrl())
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .dbName(request.getDbName())
+                .tableName(request.getTableName())
+                .dataPath(request.getDataPath())
+                .fileFormat(request.getFileFormat())
+                .dataEncoding(request.getDataEncoding())
+                .dataSeparator(request.getDataSeparator())
+                .dataConsistency(request.getDataConsistency())
                 .properties(request.getProperties())
                 .build();
     }

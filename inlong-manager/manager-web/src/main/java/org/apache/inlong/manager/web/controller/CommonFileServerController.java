@@ -67,6 +67,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("commonserver/file")
 @Api(tags = "Common Server - File")
+@Deprecated
 public class CommonFileServerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonFileServerController.class);

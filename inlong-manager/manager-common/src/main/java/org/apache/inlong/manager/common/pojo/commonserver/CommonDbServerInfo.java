@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @ApiModel("Common DB server info")
 public class CommonDbServerInfo {
 
-    private int id;
+    private Integer id;
 
     @ApiModelProperty("access type, support: Agent, DataProxy Client, LoadProxy")
     private String accessType;
@@ -47,7 +47,7 @@ public class CommonDbServerInfo {
     private String dbServerIp;
 
     @ApiModelProperty("DB Server port")
-    private int port;
+    private Integer port;
 
     @ApiModelProperty("target database name")
     private String dbName;
@@ -80,7 +80,7 @@ public class CommonDbServerInfo {
     private String backupDbServerIp;
 
     @ApiModelProperty("backup DB host port")
-    private int backupDbPort;
+    private Integer backupDbPort;
 
     @ApiModelProperty("status, 0: invalid, 1: normal")
     private Integer status;

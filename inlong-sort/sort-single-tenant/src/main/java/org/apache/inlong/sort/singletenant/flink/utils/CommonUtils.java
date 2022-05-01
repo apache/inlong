@@ -18,8 +18,12 @@
 
 package org.apache.inlong.sort.singletenant.flink.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
 import org.apache.flink.table.api.TableSchema;
@@ -28,15 +32,18 @@ import org.apache.flink.table.data.util.DataFormatConverters;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.DateFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
+import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 import java.io.ByteArrayInputStream;
@@ -45,6 +52,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
+import org.apache.inlong.sort.protocol.deserialization.InLongMsgDeserializationInfo;
 
 import static org.apache.flink.formats.avro.typeutils.AvroSchemaConverter.convertToSchema;
 import static org.apache.flink.table.types.utils.LogicalTypeDataTypeConverter.toDataType;
@@ -212,6 +221,37 @@ public class CommonUtils {
         }
 
         return false;
+    }
+
+    public static FieldInfo[] getProducedFieldInfos(FieldInfo[] physicalFieldInfos) {
+        List<FieldInfo> results = new ArrayList<>();
+        results.add(new FieldInfo(
+                "metadata",
+                new MapFormatInfo(StringFormatInfo.INSTANCE, StringFormatInfo.INSTANCE)));
+        results.addAll(Arrays.asList(physicalFieldInfos));
+        return results.toArray(new FieldInfo[0]);
+    }
+
+    public static Pair<String, String> getInLongGroupIdAndStreamId(DataFlowInfo dataFlowInfo) {
+        String groupId = "";
+        String streamId = "";
+
+        if (dataFlowInfo != null) {
+            // Get group id
+            Map<String, Object> properties = dataFlowInfo.getProperties();
+            if (properties != null) {
+                groupId = properties.getOrDefault(Constants.INLONG_GROUP_ID, "").toString();
+            }
+
+            // Get stream id
+            final DeserializationInfo deserializationInfo = dataFlowInfo.getSourceInfo().getDeserializationInfo();
+            if (deserializationInfo instanceof InLongMsgDeserializationInfo) {
+                streamId = ((InLongMsgDeserializationInfo) deserializationInfo).getTid();
+            }
+
+        }
+
+        return Pair.of(groupId, streamId);
     }
 
 }

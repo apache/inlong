@@ -26,6 +26,7 @@ import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,18 +103,20 @@ public class FetchCallback implements ReadCallback {
     public void onFinished(final MessageRecord messageRecord) {
         try {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
+            CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client);
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
                 //TODO fix here
                 final SubscribeFetchResult result = SubscribeFetchResult.Factory
                         .create(sortId, messageRecord.getMsgKey(), messageRecord.getOffset(),
                                 inLongMessage.getParams(), messageRecord.getRecTime(),
                                 inLongMessage.getBody());
-                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders());
+                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), 
+                        cacheRecord);
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }
 
-            client.ack(messageRecord.getMsgKey(), messageRecord.getMsgKey());
+//            client.ack(messageRecord.getMsgKey(), messageRecord.getOffset());
         } catch (NullPointerException npe) {
             LOG.error("Got a null pointer exception for sortId " + sortId, npe);
             context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
@@ -125,7 +128,7 @@ public class FetchCallback implements ReadCallback {
     /**
      * The callback function that SortSDK invoke when fetch messages batch
      *
-     * @param messageRecordList {@link List<MessageRecord>}
+     * @param messageRecordList List
      */
     @Override
     public void onFinishedBatch(List<MessageRecord> messageRecordList) {

@@ -32,7 +32,8 @@ public class ReporterTest {
 
     @Test
     public void streamConfigLogReporterTest() throws Exception {
-        String serverUrl = "http://127.0.0.1:/8080/openapi/stream/log/reportConfigLogStatus";
+        String serverUrl = "http://127.0.0.1:8083/api/inlong/manager/openapi/stream/log"
+                + "/reportConfigLogStatus";
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         StreamConfigLogReporter streamConfigLogReporter = new StreamConfigLogReporter(httpClient,
                 serverUrl);

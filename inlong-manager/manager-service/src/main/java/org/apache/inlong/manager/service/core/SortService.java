@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.sort.SortClusterConfigResponse;
-import org.apache.inlong.manager.common.pojo.sort.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 
 /**
  * Sort Service
@@ -36,9 +36,9 @@ public interface SortService {
      *
      * @param clusterName Name of sort cluster.
      * @param md5 Last update md5.
-     * @return Response of sort cluster config {@link SortClusterConfigResponse}
+     * @return Response of sort cluster config {@link SortClusterResponse}
      */
-    SortClusterConfigResponse getClusterConfig(String clusterName, String md5);
+    SortClusterResponse getClusterConfig(String clusterName, String md5);
 
     /**
      * Get sort source config.

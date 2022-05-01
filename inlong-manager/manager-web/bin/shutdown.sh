@@ -27,15 +27,16 @@
 
 # Project name
 APPLICATION="InLong-Manager-Web"
+echo stop ${APPLICATION} Application...
 
 # Project startup jar package name
 APPLICATION_JAR="manager-web.jar"
-
 PID=$(ps -ef | grep "${APPLICATION_JAR}" | grep -v grep | awk '{ print $2 }')
+
 if [[ -z "$PID" ]]; then
-  echo ${APPLICATION} is already stopped
+  echo ${APPLICATION} was already stopped
 else
-  echo kill ${PID}
+  echo ${APPLICATION} running with PID ${PID}, begin to stop...
   kill -9 ${PID}
   echo ${APPLICATION} stopped successfully
 fi

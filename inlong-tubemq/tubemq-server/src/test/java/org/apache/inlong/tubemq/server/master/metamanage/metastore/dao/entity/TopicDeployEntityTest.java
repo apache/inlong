@@ -102,7 +102,7 @@ public class TopicDeployEntityTest {
         topicProps2.setDeletePolicy(deletePolicy2);
         topicProps2.setDataStoreInfo(dataStoreType2, dataPath2);
         TopicDeployEntity deployEntity2 = deployEntity1.clone();
-        Assert.assertTrue(deployEntity2.isMatched(deployEntity1));
+        Assert.assertTrue(deployEntity2.isMatched(deployEntity1, true));
         Assert.assertTrue(deployEntity2.updModifyInfo(dataVerId2,
                 topicNameId2, brokerPort2, brokerIp2, deployStatus2, topicProps2));
         TopicDeployEntity deployEntity31 = deployEntity2.clone();

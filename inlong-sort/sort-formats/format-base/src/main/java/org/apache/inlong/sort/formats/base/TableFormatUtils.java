@@ -18,14 +18,6 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
-import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -96,14 +88,20 @@ import org.apache.inlong.sort.formats.common.TimeTypeInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
+import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
+import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
 
 /**
  * A utility class for table formats.
  */
 public class TableFormatUtils {
-
-    // to support avro format, precision must be less than 3
-    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
 
     /**
      * Returns the {@link DeserializationSchema} described by the given
@@ -174,7 +172,7 @@ public class TableFormatUtils {
                 );
 
         return deserializationSchemaFactory
-                       .createProjectedDeserializationSchema(properties, fields);
+                .createProjectedDeserializationSchema(properties, fields);
     }
 
     /**
@@ -199,7 +197,7 @@ public class TableFormatUtils {
                 );
 
         return serializationSchemaFactory
-                       .createProjectedSerializationSchema(properties, fields);
+                .createProjectedSerializationSchema(properties, fields);
     }
 
     /**
@@ -222,7 +220,7 @@ public class TableFormatUtils {
                 );
 
         return tableFormatSerializerFactory
-                       .createFormatSerializer(properties);
+                .createFormatSerializer(properties);
     }
 
     /**
@@ -245,7 +243,7 @@ public class TableFormatUtils {
                 );
 
         return tableFormatDeserializerFactory
-                       .createFormatDeserializer(properties);
+                .createFormatDeserializer(properties);
     }
 
     /**
@@ -326,7 +324,9 @@ public class TableFormatUtils {
      */
     public static LogicalType deriveLogicalType(FormatInfo formatInfo) {
         if (formatInfo instanceof StringFormatInfo) {
-            return new VarCharType();
+            return new VarCharType(VarCharType.MAX_LENGTH);
+        } else if (formatInfo instanceof VarCharFormatInfo) {
+            return new VarCharType(((VarCharFormatInfo) formatInfo).getLength());
         } else if (formatInfo instanceof BooleanFormatInfo) {
             return new BooleanType();
         } else if (formatInfo instanceof ByteFormatInfo) {
@@ -348,9 +348,9 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof DateFormatInfo) {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {
-            return new TimestampType(DEFAULT_PRECISION_FOR_TIMESTAMP);
+            return new TimestampType(((TimestampFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof LocalZonedTimestampFormatInfo) {
-            return new LocalZonedTimestampType();
+            return new LocalZonedTimestampType(((LocalZonedTimestampFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));

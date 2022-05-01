@@ -71,6 +71,7 @@ public class WriteHdfsFileRunnable implements Runnable {
                 }
                 output.flush();
                 context.addSendResultMetric(profile, context.getTaskName(), true, sendTime);
+                profile.ack();
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
                 context.addSendResultMetric(profile, context.getTaskName(), false, sendTime);

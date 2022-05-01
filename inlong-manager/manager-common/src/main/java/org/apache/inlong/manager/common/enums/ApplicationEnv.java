@@ -19,7 +19,7 @@ package org.apache.inlong.manager.common.enums;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.util.InLongCollectionUtils;
+import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -43,7 +43,7 @@ public enum ApplicationEnv {
      */
     PROD;
 
-    private static final Map<String, ApplicationEnv> NAME_MAP = InLongCollectionUtils.transformToImmutableMap(
+    private static final Map<String, ApplicationEnv> NAME_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(ApplicationEnv.values()),
             ApplicationEnv::name,
             Function.identity()

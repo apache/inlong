@@ -22,8 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+
+import java.util.List;
 
 /**
  * Response of the Hive sink
@@ -33,10 +35,6 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Response of the Hive sink")
 public class HiveSinkResponse extends SinkResponse {
-
-    public HiveSinkResponse() {
-        this.sinkType = Constant.SINK_HIVE;
-    }
 
     @ApiModelProperty("Hive JDBC URL")
     private String jdbcUrl;
@@ -53,28 +51,19 @@ public class HiveSinkResponse extends SinkResponse {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS")
-    private String hdfsDefaultFs;
-
-    @ApiModelProperty("Warehouse directory")
-    private String warehouseDir;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("Partition interval, support: 1 H, 1 D, 30 I, 10 I")
     private Integer partitionInterval;
 
-    @ApiModelProperty("Partition type, support: D-day, H-hour, I-minute")
-    private String partitionUnit;
-
-    @ApiModelProperty("Primary partition field")
-    private String primaryPartition;
-
-    @ApiModelProperty("Secondary partition field")
-    private String secondaryPartition;
+    @ApiModelProperty("Partition field list")
+    private List<HivePartitionField> partitionFieldList;
 
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, SequenceFile, Avro")
     private String fileFormat;
 
     @ApiModelProperty("Data encoding type")
@@ -82,5 +71,15 @@ public class HiveSinkResponse extends SinkResponse {
 
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
+
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
+
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
+
+    public HiveSinkResponse() {
+        this.sinkType = SinkType.SINK_HIVE;
+    }
 
 }

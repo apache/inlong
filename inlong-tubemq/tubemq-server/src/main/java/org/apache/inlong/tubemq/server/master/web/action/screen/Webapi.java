@@ -27,7 +27,7 @@ import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.common.webbase.WebCallStatsHolder;
 import org.apache.inlong.tubemq.server.common.webbase.WebMethodMapper;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
 import org.apache.inlong.tubemq.server.master.web.handler.AbstractWebHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebAdminFlowRuleHandler;
 import org.apache.inlong.tubemq.server.master.web.handler.WebAdminGroupCtrlHandler;
@@ -50,7 +50,7 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
  */
 public class Webapi implements Action {
 
-    private TMaster master;
+    private final TMaster master;
 
     public Webapi(TMaster master) {
         this.master = master;
@@ -77,8 +77,8 @@ public class Webapi implements Action {
             if (this.master.isStopped()) {
                 throw new Exception("Server is stopping...");
             }
-            MetaDataManager metaDataManager = this.master.getDefMetaDataManager();
-            if (!metaDataManager.isSelfMaster()) {
+            MetaDataService defMetaDataService = this.master.getMetaDataService();
+            if (!defMetaDataService.isSelfMaster()) {
                 throw new StandbyException("Please send your request to the master Node.");
             }
             method = req.getParameter("method");
@@ -97,7 +97,7 @@ public class Webapi implements Action {
             }
             // check master is current node
             if (webApiRegInfo.onlyMasterOp
-                    && metaDataManager.isPrimaryNodeActive()) {
+                    && defMetaDataService.isPrimaryNodeActive()) {
                 throw new Exception(
                         "DesignatedPrimary happened...please check if the other member is down");
             }

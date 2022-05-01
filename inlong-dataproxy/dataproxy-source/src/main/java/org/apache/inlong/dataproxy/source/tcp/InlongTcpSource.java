@@ -17,27 +17,30 @@
 
 package org.apache.inlong.dataproxy.source.tcp;
 
-import io.netty.channel.ChannelInitializer;
-import java.lang.reflect.Constructor;
+import com.google.common.base.Preconditions;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.FlumeException;
 import org.apache.flume.conf.Configurable;
+import org.apache.inlong.dataproxy.admin.ProxyServiceMBean;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.source.SimpleTcpSource;
 import org.apache.inlong.dataproxy.source.SourceContext;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import java.lang.reflect.Constructor;
+
+import io.netty.channel.ChannelInitializer;
 
 /**
  * Inlong tcp source
  */
 public class InlongTcpSource extends SimpleTcpSource
-        implements Configurable, EventDrivenSource {
+        implements Configurable, EventDrivenSource, ProxyServiceMBean {
 
     public static final Logger LOG = LoggerFactory.getLogger(InlongTcpSource.class);
 
@@ -101,19 +104,26 @@ public class InlongTcpSource extends SimpleTcpSource
             if (this.pipelineFactoryConfigurable != null) {
                 this.pipelineFactoryConfigurable.configure(context);
             }
+            // register
+            AdminServiceRegister.register(ProxyServiceMBean.MBEAN_TYPE, this.getName(), this);
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
         }
     }
 
+    /**
+     * get ChannelInitializerFactory
+     *
+     * @return ChannelInitializer
+     */
     public ChannelInitializer getChannelInitializerFactory() {
         LOG.info(new StringBuffer("load msgFactory=").append(msgFactoryName)
                 .append(" and serviceDecoderName=").append(serviceDecoderName).toString());
 
         ChannelInitializer fac = null;
         try {
-            Class<? extends ChannelInitializer> clazz =
-                    (Class<? extends ChannelInitializer>) Class.forName(msgFactoryName);
+            Class<? extends ChannelInitializer> clazz = (Class<? extends ChannelInitializer>) Class
+                    .forName(msgFactoryName);
 
             Constructor ctor = clazz.getConstructor(SourceContext.class, String.class);
 
@@ -134,7 +144,28 @@ public class InlongTcpSource extends SimpleTcpSource
         return fac;
     }
 
+    /**
+     * getProtocolName
+     * 
+     * @return
+     */
     public String getProtocolName() {
         return "tcp";
+    }
+
+    /**
+     * stopService
+     */
+    @Override
+    public void stopService() {
+        this.sourceContext.setRejectService(true);
+    }
+
+    /**
+     * recoverService
+     */
+    @Override
+    public void recoverService() {
+        this.sourceContext.setRejectService(false);
     }
 }

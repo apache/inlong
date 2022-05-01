@@ -17,21 +17,19 @@
 
 package org.apache.inlong.audit.source;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import org.apache.inlong.audit.consts.ConfigConstants;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.inlong.audit.protocol.AuditApi.BaseCommand;
 
 public class DefaultServiceDecoder implements ServiceDecoder {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(DefaultServiceDecoder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultServiceDecoder.class);
 
     @Override
-    public BaseCommand extractData(ChannelBuffer cb, Channel channel) throws Exception {
-
+    public BaseCommand extractData(ByteBuf cb, Channel channel) throws Exception {
         /*[cmd size] | [cmd]*/
         if (null == cb) {
             LOG.error("cb == null");

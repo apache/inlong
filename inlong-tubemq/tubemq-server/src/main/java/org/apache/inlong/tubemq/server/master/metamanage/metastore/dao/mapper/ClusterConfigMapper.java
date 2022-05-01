@@ -23,33 +23,15 @@ import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.Cl
 public interface ClusterConfigMapper extends AbstractMapper {
 
     /**
-     * Add a new cluster setting info into store
+     * Add or replace cluster setting info into store
      *
      * @param entity   need add record
      * @param strBuff  the string buffer
      * @param result   process result with old value
      * @return  the process result
      */
-    boolean addClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
-
-    /**
-     * Update cluster setting info in store
-     *
-     * @param entity   need add record
-     * @param strBuff  the string buffer
-     * @param result   process result with old value
-     * @return  the process result
-     */
-    boolean updClusterConfig(ClusterSettingEntity entity,
-                             StringBuilder strBuff, ProcessResult result);
-
-    /**
-     * get current cluster setting from store
-     *
-     * @return current cluster setting, null or object, only read
-     */
-    ClusterSettingEntity getClusterConfig();
+    boolean addUpdClusterConfig(ClusterSettingEntity entity,
+                                StringBuilder strBuff, ProcessResult result);
 
     /**
      * delete current cluster setting from store
@@ -59,4 +41,11 @@ public interface ClusterConfigMapper extends AbstractMapper {
      * @return  the process result
      */
     boolean delClusterConfig(StringBuilder strBuff, ProcessResult result);
+
+    /**
+     * get current cluster setting from store
+     *
+     * @return current cluster setting, null or object, only read
+     */
+    ClusterSettingEntity getClusterConfig();
 }

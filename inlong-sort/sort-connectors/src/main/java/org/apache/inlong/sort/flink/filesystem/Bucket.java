@@ -51,6 +51,8 @@ public class Bucket<IN, BucketID> {
 
     private static final String PART_PREFIX = "part";
 
+    private final long dataFlowId;
+
     private final BucketID bucketId;
 
     private final Path bucketPath;
@@ -78,6 +80,7 @@ public class Bucket<IN, BucketID> {
      * Constructor to create a new empty bucket.
      */
     private Bucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final BucketID bucketId,
@@ -86,6 +89,7 @@ public class Bucket<IN, BucketID> {
             final PartFileWriter.PartFileFactory<IN, BucketID> partFileFactory,
             final RollingPolicy<IN, BucketID> rollingPolicy) {
 
+        this.dataFlowId = dataFlowId;
         this.fsWriter = checkNotNull(fsWriter);
         this.subtaskIndex = subtaskIndex;
         this.bucketId = checkNotNull(bucketId);
@@ -109,6 +113,7 @@ public class Bucket<IN, BucketID> {
      * Constructor to restore a bucket from checkpointed state.
      */
     private Bucket(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final long initialPartCounter,
@@ -117,6 +122,7 @@ public class Bucket<IN, BucketID> {
             final BucketState<BucketID> bucketState) throws IOException {
 
         this(
+                dataFlowId,
                 fsWriter,
                 subtaskIndex,
                 bucketState.getBucketId(),
@@ -222,7 +228,13 @@ public class Bucket<IN, BucketID> {
     }
 
     private Path assembleNewPartPath() {
-        return new Path(bucketPath, PART_PREFIX + '-' + subtaskIndex + '-' + partCounter);
+        // Use dataFlowId to distinguish files written by different jobs
+        // and use timestamp to distinguish files written by
+        // different attempts(which doesn't restore from checkpoint) of the same job
+        return new Path(
+                bucketPath,
+                PART_PREFIX + '-' + dataFlowId + '-' + subtaskIndex + '-'
+                        + partCounter + '-' + System.currentTimeMillis());
     }
 
     private CommitRecoverable closePartFile() throws IOException {
@@ -370,6 +382,7 @@ public class Bucket<IN, BucketID> {
      * @return The new Bucket.
      */
     static <I, B> Bucket<I, B> getNew(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final B bucketId,
@@ -377,7 +390,14 @@ public class Bucket<IN, BucketID> {
             final long initialPartCounter,
             final PartFileWriter.PartFileFactory<I, B> partFileFactory,
             final RollingPolicy<I, B> rollingPolicy) {
-        return new Bucket<>(fsWriter, subtaskIndex, bucketId, bucketPath, initialPartCounter, partFileFactory,
+        return new Bucket<>(
+                dataFlowId,
+                fsWriter,
+                subtaskIndex,
+                bucketId,
+                bucketPath,
+                initialPartCounter,
+                partFileFactory,
                 rollingPolicy);
     }
 
@@ -394,12 +414,20 @@ public class Bucket<IN, BucketID> {
      * @return The restored Bucket.
      */
     static <I, B> Bucket<I, B> restore(
+            final long dataFlowId,
             final RecoverableWriter fsWriter,
             final int subtaskIndex,
             final long initialPartCounter,
             final PartFileWriter.PartFileFactory<I, B> partFileFactory,
             final RollingPolicy<I, B> rollingPolicy,
             final BucketState<B> bucketState) throws IOException {
-        return new Bucket<>(fsWriter, subtaskIndex, initialPartCounter, partFileFactory, rollingPolicy, bucketState);
+        return new Bucket<>(
+                dataFlowId,
+                fsWriter,
+                subtaskIndex,
+                initialPartCounter,
+                partFileFactory,
+                rollingPolicy,
+                bucketState);
     }
 }

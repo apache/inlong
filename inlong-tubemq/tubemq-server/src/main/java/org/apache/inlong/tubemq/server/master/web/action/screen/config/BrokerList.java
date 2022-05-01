@@ -36,7 +36,7 @@ import org.apache.inlong.tubemq.server.master.web.simplemvc.RequestContext;
 
 public class BrokerList implements Action {
 
-    private TMaster master;
+    private final TMaster master;
 
     public BrokerList(TMaster master) {
         this.master = master;

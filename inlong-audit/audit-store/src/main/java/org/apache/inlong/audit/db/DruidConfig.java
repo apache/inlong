@@ -41,7 +41,6 @@ public class DruidConfig {
     @Bean
     @ConditionalOnMissingBean
     public DataSource druidDataSource() {
-
         LOGGER.info("druidDataSource url = {} ", properties.getUrl());
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.setDriverClassName(properties.getDriverClassName());
@@ -66,7 +65,7 @@ public class DruidConfig {
             druidDataSource.setFilters(properties.getFilters());
             druidDataSource.init();
         } catch (SQLException e) {
-            LOGGER.error("druidDataSource has error e = {}", e);
+            LOGGER.error("init druidDataSource failed: ", e);
         }
         return druidDataSource;
     }

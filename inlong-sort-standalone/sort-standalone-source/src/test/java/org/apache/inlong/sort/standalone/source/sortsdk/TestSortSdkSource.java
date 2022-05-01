@@ -19,15 +19,17 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
@@ -36,8 +38,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class})
+@PowerMockIgnore("javax.management.*")
+@PrepareForTest({SortClusterConfigHolder.class, LoggerFactory.class, Logger.class, MetricRegister.class,
+        AdminServiceRegister.class})
 public class TestSortSdkSource {
 
     private Context mockContext;
@@ -57,6 +64,12 @@ public class TestSortSdkSource {
 
     @Test
     public void testRun() {
+        PowerMockito.mockStatic(AdminServiceRegister.class);
+        try {
+            PowerMockito.doNothing().when(AdminServiceRegister.class, "register", anyString(), anyString(), any());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         SortSdkSource testSource = new SortSdkSource();
         testSource.configure(mockContext);
         testSource.run();
@@ -64,7 +77,7 @@ public class TestSortSdkSource {
     }
 
     private SortClusterConfig prepareSortClusterConfig(final int size) {
-        final SortClusterConfig testConfig = new SortClusterConfig();
+        final SortClusterConfig testConfig = SortClusterConfig.builder().build();
         testConfig.setClusterName("testConfig");
         testConfig.setSortTasks(prepareSortTaskConfig(size));
         return testConfig;
@@ -74,7 +87,7 @@ public class TestSortSdkSource {
         List<SortTaskConfig> configs = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            SortTaskConfig config = new SortTaskConfig();
+            SortTaskConfig config = SortTaskConfig.builder().build();
             config.setName("testConfig" + i);
             configs.add(config);
         }

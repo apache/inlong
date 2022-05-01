@@ -19,9 +19,38 @@ name: InLong Build
 
 on:
   push:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_build.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
+
   pull_request:
-    branches: [ master, 'INLONG-*' ]
+    paths:
+      - '.github/workflows/ci_build.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
 
 jobs:
   build:
@@ -32,17 +61,18 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: 8
           distribution: adopt
 
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
             !~/.m2/repository/org/apache/inlong
+            !~/.m2/repository/com/github/eirslett
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
@@ -59,7 +89,7 @@ jobs:
 
       - name: Upload binary package
         if: ${{ success() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
           path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz

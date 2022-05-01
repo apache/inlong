@@ -51,7 +51,7 @@ public class DeserializationSchemaFactory {
             return buildAvroDeserializationSchema(extractNonBuiltInFieldInfos(fieldInfos, false));
         } else if (deserializationInfo instanceof CanalDeserializationInfo) {
             return CanalDeserializationSchemaBuilder.build(
-                    extractNonBuiltInFieldInfos(fieldInfos, false),
+                    fieldInfos,
                     (CanalDeserializationInfo) deserializationInfo);
         } else if (deserializationInfo instanceof DebeziumDeserializationInfo) {
             return DebeziumDeserializationSchemaBuilder.build(

@@ -27,6 +27,7 @@ import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.json.MysqlBinLogData;
+import org.apache.inlong.sort.formats.json.canal.CanalJsonSerializationSchema;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.util.DefaultValueStrategy;
@@ -98,16 +99,18 @@ public class FieldMappingTransformer implements Serializable {
             case MYSQL_METADATA_TABLE:
                 return attributes.get(MysqlBinLogData.MYSQL_METADATA_TABLE);
             case MYSQL_METADATA_IS_DDL:
-                return BooleanFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_IS_DDL));
+                String isDdlStr = attributes.get(MysqlBinLogData.MYSQL_METADATA_IS_DDL);
+                return isDdlStr == null ? null : BooleanFormatInfo.INSTANCE.deserialize(isDdlStr);
             case MYSQL_METADATA_EVENT_TIME:
-                return LongFormatInfo.INSTANCE.deserialize(attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME));
+                String eventTimeStr = attributes.get(MysqlBinLogData.MYSQL_METADATA_EVENT_TIME);
+                return eventTimeStr == null ? null : LongFormatInfo.INSTANCE.deserialize(eventTimeStr);
             case MYSQL_METADATA_EVENT_TYPE:
-                return kind.shortString();
+                return CanalJsonSerializationSchema.rowKind2String(kind);
             case MYSQL_METADATA_DATA:
                 return attributes.get(MysqlBinLogData.MYSQL_METADATA_DATA);
+            default:
+                return null;
         }
-
-        return null;
     }
 
     /**

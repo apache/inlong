@@ -43,10 +43,16 @@ public class HiveSinkListResponse extends SinkListResponse {
     @ApiModelProperty("JDBC URL")
     private String jdbcUrl;
 
-    @ApiModelProperty("HDFS defaultFS")
-    private String hdfsDefaultFs;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
     private String partitionType;
+
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
+
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
 
 }

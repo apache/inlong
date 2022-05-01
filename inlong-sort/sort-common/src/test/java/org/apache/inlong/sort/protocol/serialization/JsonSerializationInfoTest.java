@@ -18,22 +18,15 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-import java.io.IOException;
+/**
+ * Test for {@link JsonSerializationInfo}
+ */
+public class JsonSerializationInfoTest extends SerializeBaseTest<JsonSerializationInfo> {
 
-import static org.junit.Assert.assertEquals;
-
-public class JsonSerializationInfoTest {
-
-    @Test
-    public void testJson() throws IOException {
-        String expectedJson = "{\"type\":\"json\"}";
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonSerializationInfo info = new JsonSerializationInfo();
-        String infoJson = objectMapper.writeValueAsString(info);
-        assertEquals(expectedJson, infoJson);
+    @Override
+    public JsonSerializationInfo getTestObject() {
+        return new JsonSerializationInfo();
     }
 }

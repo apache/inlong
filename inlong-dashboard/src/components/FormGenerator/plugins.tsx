@@ -18,6 +18,7 @@
  */
 
 import React from 'react';
+import dayjs from 'dayjs';
 import {
   Input,
   DatePicker,
@@ -36,17 +37,22 @@ import HighSelect from '@/components/HighSelect';
 import i18n from '@/i18n';
 
 const text: React.FC<Record<string, any>> = ({ value, options }) => {
-  if (!Array.isArray(options)) return <span>{value}</span>;
+  if (dayjs.isDayjs[value]) {
+    return value.format('YYYY-MM-DD HH:mm');
+  }
+  if (Array.isArray(value) && value.every(dayjs.isDayjs)) {
+    return value.map(item => item.format('YYYY-MM-DD HH:mm')).join(' ~ ');
+  }
+  if (!Array.isArray(options) || !options) {
+    return <span>{Array.isArray(value) ? value.join(', ') : value}</span>;
+  }
 
-  return (
-    (options &&
-      (Array.isArray(value)
-        ? options
-            .filter(item => value.includes(item.value))
-            .map(item => item.label)
-            .join(', ')
-        : options.find(item => item.value === value)?.label)) || <span>{value}</span>
-  );
+  return Array.isArray(value)
+    ? options
+        .filter(item => value.includes(item.value))
+        .map(item => item.label)
+        .join(', ')
+    : options.find(item => item.value === value)?.label || value || null;
 };
 
 const select = props => (

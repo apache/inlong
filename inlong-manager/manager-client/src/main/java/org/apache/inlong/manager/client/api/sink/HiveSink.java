@@ -23,12 +23,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.SinkField;
-import org.apache.inlong.manager.client.api.StreamSink;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -56,11 +58,8 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("HDFS defaultFS, etc hdfs://${ip}:${port}")
-    private String hdfsDefaultFs;
-
-    @ApiModelProperty("Warehouse directory, etc /usr/hive/warehouse")
-    private String warehouseDir;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
+    private String dataPath;
 
     @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private Charset charset = StandardCharsets.UTF_8;
@@ -68,17 +67,14 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Data separator, stored as ASCII code")
     private DataSeparator dataSeparator = DataSeparator.SOH;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, SequenceFile, Parquet")
     private FileFormat fileFormat;
 
     @ApiModelProperty("Create table or not")
     private boolean needCreated;
 
-    @ApiModelProperty("Primary partition field, default null")
-    private String primaryPartition;
-
-    @ApiModelProperty("Secondary partition field, default null")
-    private String secondaryPartition;
+    @ApiModelProperty("Partition field list")
+    private List<HivePartitionField> partitionFieldList;
 
     @ApiModelProperty("Field definitions for hive")
     private List<SinkField> sinkFields;
@@ -86,17 +82,10 @@ public class HiveSink extends StreamSink {
     @ApiModelProperty("Data format type for stream sink")
     private DataFormat dataFormat;
 
-    public enum FileFormat {
-        TextFile, RCFile, SequenceFile, Avro;
+    @ApiModelProperty("Version for hive")
+    private String hiveVersion;
 
-        public static FileFormat forName(String name) {
-            for (FileFormat value : values()) {
-                if (value.name().equals(name)) {
-                    return value;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Unsupport FileFormat:%s", name));
-        }
-    }
+    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    private String hiveConfDir;
 }
 

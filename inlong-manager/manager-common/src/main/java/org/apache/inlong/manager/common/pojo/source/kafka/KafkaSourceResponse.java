@@ -55,6 +55,18 @@ public class KafkaSourceResponse extends SourceResponse {
     @ApiModelProperty(value = "The strategy of auto offset reset")
     private String autoOffsetReset;
 
+    @ApiModelProperty("database pattern used for filter in canal format")
+    private String databasePattern;
+
+    @ApiModelProperty("table pattern used for filter in canal format")
+    private String tablePattern;
+
+    @ApiModelProperty("ignore parse errors, true: ignore parse error; false: not ignore parse error; default true")
+    private boolean ignoreParseErrors;
+
+    @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    private String timestampFormatStandard;
+
     public KafkaSourceResponse() {
         this.setSourceType(SourceType.KAFKA.name());
     }

@@ -23,6 +23,7 @@ import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.checkW
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertDateToStringFormatInfo;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.convertFieldInfosToDataType;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.extractFormatInfos;
+import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getProducedFieldInfos;
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.getTimestampFormatStandard;
 
 import java.io.IOException;
@@ -39,7 +40,6 @@ import org.apache.flink.table.runtime.typeutils.InternalTypeInfo;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat;
 import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.ReadableMetadata;
@@ -128,14 +128,5 @@ public class DebeziumDeserializationSchemaBuilder {
                 });
 
         return metadataFieldInfos.toArray(new FieldInfo[0]);
-    }
-
-    public static FieldInfo[] getProducedFieldInfos(FieldInfo[] physicalFieldInfos) {
-        List<FieldInfo> results = new ArrayList<>();
-        results.add(new FieldInfo(
-                "metadata",
-                new MapFormatInfo(StringFormatInfo.INSTANCE, StringFormatInfo.INSTANCE)));
-        results.addAll(Arrays.asList(physicalFieldInfos));
-        return results.toArray(new FieldInfo[0]);
     }
 }

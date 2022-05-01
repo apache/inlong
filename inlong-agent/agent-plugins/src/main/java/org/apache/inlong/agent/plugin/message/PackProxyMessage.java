@@ -101,7 +101,6 @@ public class PackProxyMessage {
         } catch (Exception ex) {
             LOGGER.error("exception caught", ex);
         }
-        messageQueue.offer(message);
     }
 
     /**

@@ -227,9 +227,9 @@ public class TopicPropGroup implements Serializable, Cloneable {
                 && (target.getMemCacheFlushIntvl() == TBaseConstants.META_VALUE_UNDEFINED
                 || target.getMemCacheFlushIntvl() == this.memCacheFlushIntvl)
                 && (target.getAcceptPublish() == null
-                || target.getAcceptPublish() == this.acceptPublish)
+                || Objects.equals(target.getAcceptPublish(), this.acceptPublish))
                 && (target.getAcceptSubscribe() == null
-                || target.getAcceptSubscribe() == this.acceptSubscribe)
+                || Objects.equals(target.getAcceptSubscribe(), this.acceptSubscribe))
                 && (TStringUtils.isBlank(target.getDeletePolicy())
                 || target.getDeletePolicy().equals(this.deletePolicy));
     }

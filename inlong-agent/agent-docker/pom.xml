@@ -23,7 +23,7 @@
   <parent>
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong-agent</artifactId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.2.0-incubating-SNAPSHOT</version>
   </parent>
   <artifactId>agent-docker</artifactId>
   <modelVersion>4.0.0</modelVersion>
@@ -57,7 +57,7 @@
           <plugin>
             <groupId>com.spotify</groupId>
             <artifactId>dockerfile-maven-plugin</artifactId>
-            <version>${dockerfile-maven.version}</version>
+            <version>${dockerfile.maven.version}</version>
             <executions>
               <execution>
                 <id>default</id>

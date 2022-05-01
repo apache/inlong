@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Request of source
@@ -51,27 +53,25 @@ public class SourceRequest {
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 
-    @ApiModelProperty("Ip of the agent running the task")
-    private String agentIp;
-
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
     @ApiModelProperty("Id of the source server")
-    private Integer serverId;
-
-    @ApiModelProperty("Name of the source server")
-    private String serverName;
+    private Integer serverId = 0;
 
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
 
-    @ApiModelProperty("Name of the cluster that collected this source")
-    private String clusterName;
+    @ApiModelProperty("Serialization type, support: csv, json, canal, avro, etc")
+    private String serializationType;
 
     @ApiModelProperty("Snapshot of the source task")
     private String snapshot;
 
-    @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
-    private String serializationType;
+    @ApiModelProperty("Version")
+    private Integer version;
+
+    @ApiModelProperty("Field list, only support when inlong group in light weight mode")
+    private List<InlongStreamFieldInfo> fieldList;
+
 }

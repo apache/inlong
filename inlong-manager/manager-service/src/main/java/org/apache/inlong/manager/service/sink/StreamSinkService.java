@@ -95,6 +95,15 @@ public interface StreamSinkService {
     Boolean update(SinkRequest sinkRequest, String operator);
 
     /**
+     * Modify sink data status.
+     *
+     * @param id Sink id.
+     * @param status Target status.
+     * @param log Modify the log.
+     */
+    void updateStatus(int id, int status, String log);
+
+    /**
      * Delete the stream sink by the given id and sink type.
      *
      * @param id The primary key of the sink.
@@ -103,15 +112,6 @@ public interface StreamSinkService {
      * @return Whether succeed
      */
     Boolean delete(Integer id, String sinkType, String operator);
-
-    /**
-     * Modify sink data status.
-     *
-     * @param id Sink id.
-     * @param status Target status.
-     * @param log Modify the log.
-     */
-    void updateStatus(int id, int status, String log);
 
     /**
      * Logically delete stream sink with the given conditions.

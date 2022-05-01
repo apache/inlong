@@ -66,6 +66,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("commonserver/db")
 @Api(tags = "Common Server - DB")
+@Deprecated
 public class CommonDBServerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonDBServerController.class);

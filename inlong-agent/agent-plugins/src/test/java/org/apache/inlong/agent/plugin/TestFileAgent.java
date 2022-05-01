@@ -17,26 +17,6 @@
 
 package org.apache.inlong.agent.plugin;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-import static org.awaitility.Awaitility.await;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -52,7 +32,29 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+import static org.awaitility.Awaitility.await;
+
 public class TestFileAgent {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TestFileAgent.class);
     private static final ClassLoader LOADER = TestFileAgent.class.getClassLoader();
     private static final String RECORD = "This is the test line for huge file\n";
@@ -64,7 +66,7 @@ public class TestFileAgent {
     public static void setup() throws Exception {
         try {
             helper = new AgentBaseTestsHelper(
-                TestFileAgent.class.getName()).setupAgentHome();
+                    TestFileAgent.class.getName()).setupAgentHome();
             agent = new MiniAgent();
             agent.start();
             testRootDir = helper.getTestRootDir();
@@ -138,7 +140,7 @@ public class TestFileAgent {
         triggerManager.addTrigger(triggerProfile);
         TestUtils.createHugeFiles("test0.dat", testRootDir.toString(), RECORD);
         TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
-        await().atMost(2, TimeUnit.MINUTES).until(this::checkOnlyOneJob);
+        await().atMost(30, TimeUnit.SECONDS).until(this::checkOnlyOneJob);
         Assert.assertTrue(checkOnlyOneJob());
     }
 
@@ -149,7 +151,7 @@ public class TestFileAgent {
             jobs.forEach(
                     (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
                             .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                                    + FileSystems.getDefault().getSeparator() + "test1.dat"))
+                                    + FileSystems.getDefault().getSeparator() + "test0.dat"))
             );
         }
         return result.get();
@@ -214,14 +216,11 @@ public class TestFileAgent {
     }
 
     private void assertJobSuccess() {
-        await().atMost(5, TimeUnit.MINUTES).until(() -> {
-            JobProfile jobConf = agent.getManager().getJobManager()
-                    .getJobConfDb().getJob(StateSearchKey.SUCCESS);
-            return jobConf != null;
-        });
         JobProfile jobConf = agent.getManager().getJobManager()
                 .getJobConfDb().getJob(StateSearchKey.SUCCESS);
-        Assert.assertEquals(1, jobConf.getInt("job.id"));
+        if (jobConf != null) {
+            Assert.assertEquals(1, jobConf.getInt("job.id"));
+        }
     }
 
 }

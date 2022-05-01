@@ -26,10 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
-import org.anarres.lzo.LzoAlgorithm;
-import org.anarres.lzo.LzoCompressor;
-import org.anarres.lzo.LzoLibrary;
-import org.anarres.lzo.LzopOutputStream;
 import org.apache.flink.api.common.serialization.BulkWriter;
 import org.apache.flink.core.fs.FSDataOutputStream;
 import org.apache.flink.shaded.guava18.com.google.common.annotations.VisibleForTesting;
@@ -295,9 +291,7 @@ public class TextRowWriter implements BulkWriter<Row> {
             case GZIP:
                 return new GZIPOutputStream(outputStream, bufferSize, false);
             case LZO:
-                LzoAlgorithm algorithm = LzoAlgorithm.LZO1X;
-                LzoCompressor compressor = LzoLibrary.getInstance().newCompressor(algorithm, null);
-                return new LzopOutputStream(outputStream, compressor, bufferSize);
+                throw new IllegalArgumentException("LZO compression is not supported yet!");
             default:
                 // TODO, should be wrapped with a buffered stream? we need a performance testing
                 return outputStream;

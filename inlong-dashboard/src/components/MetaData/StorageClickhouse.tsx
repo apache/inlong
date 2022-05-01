@@ -28,88 +28,100 @@ import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
 
-// CLICK_HOUSE targetType
+// ClickHouse targetType
 const clickhouseTargetTypes = [
-  'string',
-  'boolean',
-  'byte',
-  'short',
-  'int',
-  'long',
-  'float',
-  'double',
-  'decimal',
-  // 'time',
-  // 'date',
-  // 'timestamp',
-  // 'map<string,string>',
-  // 'map<string,map<string,string>>',
-  // 'map<string,map<string,map<string,string>>>',
+  'String',
+  'Int8',
+  'Int16',
+  'Int32',
+  'Int64',
+  'Float32',
+  'Float64',
+  'DateTime',
+  'Date',
 ].map(item => ({
   label: item,
   value: item,
 }));
 
-// Auto map to source fieldType
-export const fieldTypeMap = {
-  int: 'int',
-  long: 'long',
-  float: 'float',
-  double: 'double',
-  string: 'string',
-  date: 'string',
-  timestamp: 'string',
-};
-
-export const getClickhouseForm: GetStorageFormFieldsType = (
+const getForm: GetStorageFormFieldsType = (
   type: 'form' | 'col' = 'form',
   { currentValues, inlongGroupId, isEdit, dataType } = {} as any,
 ) => {
   const fileds = [
     {
-      name: 'clusterId',
-      type: 'select',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Cluster'),
-      rules: [{ required: true }],
-      props: {
-        options: {
-          requestService: {
-            url: '/sink/listStorageCluster',
-            params: {
-              sinkType: 'CLICK_HOUSE',
-            },
-          },
-          requestParams: {
-            formatResult: result =>
-              result.clickHouseClusterList?.map(item => ({
-                label: item.name,
-                value: item.id,
-              })),
-          },
-          requestAuto: isEdit,
-        },
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
       name: 'dbName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Db'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.DbName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      _col: true,
+      _inTable: true,
     },
     {
       name: 'tableName',
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Table'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.TableName'),
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      _col: true,
+      _inTable: true,
+    },
+    {
+      name: 'enableCreateResource',
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
+      },
+    },
+    {
+      name: 'username',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      name: 'password',
+      type: 'password',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: {
+          maxWidth: 500,
+        },
+      },
+    },
+    {
+      type: 'input',
+      label: 'JDBC URL',
+      name: 'jdbcUrl',
+      rules: [{ required: true }],
+      props: {
+        placeholder: 'jdbc:clickhouse://127.0.0.1:8123',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        style: { width: 500 },
+      },
     },
     {
       name: 'flushInterval',
@@ -124,51 +136,33 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushIntervalUnit'),
     },
     {
-      name: 'packageSize',
+      name: 'flushRecord',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PackageSize'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecord'),
       initialValue: 1000,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PackageSizeUnit'),
+      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.FlushRecordUnit'),
     },
     {
       name: 'retryTime',
       type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTime'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimes'),
       initialValue: 3,
       props: {
         min: 1,
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimeUnit'),
+      suffix: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.RetryTimesUnit'),
     },
     {
-      name: 'username',
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Username'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'password',
-      type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Password'),
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-    },
-    {
-      name: 'isDistribute',
+      name: 'isDistributed',
       type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.IsDistribute'),
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.IsDistributed'),
       initialValue: 0,
       props: {
         options: [
@@ -208,15 +202,15 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
         ],
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
-      visible: values => values.isDistribute,
-      _col: true,
+      visible: values => values.isDistributed,
+      _inTable: true,
     },
     {
       name: 'partitionFields',
       type: 'input',
       label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionFields'),
       rules: [{ required: true }],
-      visible: values => values.isDistribute && values.partitionStrategy === 'HASH',
+      visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
@@ -227,17 +221,17 @@ export const getClickhouseForm: GetStorageFormFieldsType = (
       props: {
         size: 'small',
         editing: ![110, 130].includes(currentValues?.status),
-        columns: getClickhouseColumns(dataType, currentValues),
+        columns: getFieldListColumns(dataType, currentValues),
       },
     },
   ];
 
   return type === 'col'
     ? getColsFromFields(fileds)
-    : fileds.map(item => excludeObject(['_col'], item));
+    : fileds.map(item => excludeObject(['_inTable'], item));
 };
 
-export const getClickhouseColumns: GetStorageColumnsType = (dataType, currentValues) => {
+const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => {
   return [
     ...sourceDataFields,
     {
@@ -277,4 +271,10 @@ export const getClickhouseColumns: GetStorageColumnsType = (dataType, currentVal
   ];
 };
 
-export const clickhouseTableColumns = getClickhouseForm('col') as ColumnsType;
+const tableColumns = getForm('col') as ColumnsType;
+
+export const StorageClickhouse = {
+  getForm,
+  getFieldListColumns,
+  tableColumns,
+};

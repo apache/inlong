@@ -53,10 +53,10 @@ public class BinlogSourceResponse extends SourceResponse {
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
 
-    @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions")
+    @ApiModelProperty(value = "List of DBs to be collected, seperated by ',', supporting regular expressions")
     private String databaseWhiteList;
 
-    @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions")
+    @ApiModelProperty(value = "List of tables to be collected, seperated by ',',supporting regular expressions")
     private String tableWhiteList;
 
     @ApiModelProperty("Database time zone, Default is UTC")
@@ -82,4 +82,7 @@ public class BinlogSourceResponse extends SourceResponse {
 
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration;
+
+    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    private String primaryKey;
 }

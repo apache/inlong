@@ -127,6 +127,12 @@ public class ClsChannelWorker extends Thread {
     private void send(Event rowEvent, Transaction tx) throws ProducerException, InterruptedException {
         ProfileEvent event = (ProfileEvent) rowEvent;
         ClsIdConfig idConfig = context.getIdConfig(event.getUid());
+        if (idConfig == null) {
+            event.ack();
+            LOG.error("There is no cls id config for uid {}, discard it", event.getUid());
+            context.addSendResultMetric(event, context.getTaskName(), false, System.currentTimeMillis());
+            return;
+        }
         event.getHeaders().put(ClsSinkContext.KEY_TOPIC_ID, idConfig.getTopicId());
         AsyncProducerClient client = context.getClient(idConfig.getSecretId());
         List<LogItem> record = handler.parse(context, event);

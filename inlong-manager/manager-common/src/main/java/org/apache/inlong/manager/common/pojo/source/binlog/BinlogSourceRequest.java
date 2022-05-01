@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -34,7 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the binlog source info")
-@JsonTypeDefine(value = Constant.SOURCE_BINLOG)
+@JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
 public class BinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Username of the DB server")
@@ -53,12 +52,12 @@ public class BinlogSourceRequest extends SourceRequest {
     private String includeSchema;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: db1,test_db*",
+            + "separate them with ',', for example: db1,test_db*",
             notes = "DBs not in this list are excluded. If not set, all DBs are monitored")
     private String databaseWhiteList;
 
     @ApiModelProperty(value = "List of tables to be collected, supporting regular expressions, "
-            + "separate them with commas, for example: tb1,user*",
+            + "separate them with ',', for example: tb1,user*",
             notes = "Tables not in this list are excluded. By default, all tables are monitored")
     private String tableWhiteList;
 
@@ -84,7 +83,7 @@ public class BinlogSourceRequest extends SourceRequest {
      * generally not used.
      */
     @ApiModelProperty("Snapshot mode, supports: initial, when_needed, never, schema_only, schema_only_recovery")
-    private String snapshotMode;
+    private String snapshotMode = "initial";
 
     @ApiModelProperty("The file path to store offset info")
     private String offsetFilename;
@@ -100,6 +99,9 @@ public class BinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration = false;
+
+    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    private String primaryKey;
 
     public BinlogSourceRequest() {
         this.setSourceType(SourceType.BINLOG.toString());

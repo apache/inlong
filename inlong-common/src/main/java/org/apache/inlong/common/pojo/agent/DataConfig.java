@@ -37,6 +37,10 @@ public class DataConfig {
     private Integer syncSend;
     private String extParams;
     /**
+     * The task version.
+     */
+    private Integer version;
+    /**
      * The task delivery time, format is 'yyyy-MM-dd HH:mm:ss'.
      */
     private String deliveryTime;

@@ -18,6 +18,9 @@
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import com.google.protobuf.ByteString;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -29,9 +32,6 @@ import org.apache.inlong.tubemq.corerpc.ResponseWrapper;
 import org.apache.inlong.tubemq.corerpc.RpcDataPack;
 import org.apache.inlong.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.inlong.tubemq.corerpc.server.RequestContext;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class NettyRequestContext implements RequestContext {
 
     @Override
     public SocketAddress getRemoteAddress() {
-        return this.ctx.getChannel().getRemoteAddress();
+        return this.ctx.channel().remoteAddress();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class NettyRequestContext implements RequestContext {
                 logger.debug(new StringBuilder(512)
                         .append("Timeout,so give up send response to client.RequestId:")
                         .append(request.getSerialNo()).append(".client:")
-                        .append(ctx.getChannel().getRemoteAddress())
+                        .append(ctx.channel().remoteAddress())
                         .append(",process time:")
                         .append(System.currentTimeMillis() - receiveTime)
                         .append(",timeout:").append(request.getTimeout()).toString());
@@ -78,26 +78,26 @@ public class NettyRequestContext implements RequestContext {
             return;
         }
         dataPack = new RpcDataPack(response.getSerialNo(), prepareResponse(response));
-        ChannelFuture wf = ctx.getChannel().write(dataPack);
+        ChannelFuture wf = ctx.channel().writeAndFlush(dataPack);
         wf.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
-                    Throwable exception = future.getCause();
+                    Throwable exception = future.cause();
                     if (exception != null) {
                         if (logger.isDebugEnabled()) {
                             if (IOException.class.isAssignableFrom(exception.getClass())) {
                                 logger.debug(new StringBuilder(512)
                                         .append("server write response error.")
                                         .append("reason: ")
-                                        .append(future.getChannel().toString())
+                                        .append(future.channel().toString())
                                         .append(exception.toString()).toString());
                             } else {
                                 logger.debug(new StringBuilder(512)
                                         .append("server write response error.")
                                         .append("reason: ")
-                                        .append(future.getChannel().toString())
-                                        .append(future.getCause()).toString());
+                                        .append(future.channel().toString())
+                                        .append(future.cause()).toString());
                             }
                         }
                     }

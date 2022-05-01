@@ -26,52 +26,5 @@ CREATE EXTERNAL TABLE t_inlong_v1_0fc00000046(
 PARTITIONED BY (dt STRING)
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY '\|'
-STORED AS SEQUENCEFILE;
-CREATE EXTERNAL TABLE t_inlong_v1_03600000045(
-    tdbank_imp_date STRING COMMENT 'partition fields',
-    ftime STRING COMMENT 'default ',
-    t1 STRING COMMENT 'default ',
-    t2 STRING COMMENT 'default ',
-    t3 STRING COMMENT 'default ',
-    t4 STRING COMMENT 'default '
-)
-PARTITIONED BY (dt STRING)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '\|'
-STORED AS SEQUENCEFILE;
-CREATE EXTERNAL TABLE t_inlong_v1_05100054990(
-    tdbank_imp_date STRING COMMENT 'partition fields',
-    ftime STRING COMMENT 'default ',
-    field1 STRING COMMENT 'default ',
-    field2 STRING COMMENT 'default ',
-    field3 STRING COMMENT 'default ',
-    field4 STRING COMMENT 'default '
-)
-PARTITIONED BY (dt STRING)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '\|'
-STORED AS SEQUENCEFILE;
-CREATE EXTERNAL TABLE t_inlong_v1_09c00014434(
-    tdbank_imp_date STRING COMMENT 'partition fields',
-    ftime STRING COMMENT 'default ',
-    field1 STRING COMMENT 'default ',
-    field2 STRING COMMENT 'default ',
-    field3 STRING COMMENT 'default ',
-    field4 STRING COMMENT 'default '
-)
-PARTITIONED BY (dt STRING)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '\|'
-STORED AS SEQUENCEFILE;
-CREATE EXTERNAL TABLE t_inlong_v1_0c900035509(
-    tdbank_imp_date STRING COMMENT 'partition fields',
-    ftime STRING COMMENT 'default ',
-    field1 STRING COMMENT 'default ',
-    field2 STRING COMMENT 'default ',
-    field3 STRING COMMENT 'default ',
-    field4 STRING COMMENT 'default '
-)
-PARTITIONED BY (dt STRING)
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY '\|'
-STORED AS SEQUENCEFILE;
+STORED AS TEXTFILE;
+

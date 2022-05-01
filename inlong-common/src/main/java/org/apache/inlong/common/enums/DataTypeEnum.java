@@ -28,7 +28,7 @@ public enum DataTypeEnum {
     DEBEZIUM_JSON("debezium_json");
 
     @Getter
-    private String name;
+    private final String name;
 
     DataTypeEnum(String name) {
         this.name = name;

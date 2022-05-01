@@ -27,6 +27,7 @@ import java.util.Date;
 /**
  * Cluster response
  */
+@Deprecated
 @Data
 @ApiModel("Cluster response")
 public class ClusterResponse {

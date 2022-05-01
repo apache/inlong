@@ -24,17 +24,11 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-dataproxy</artifactId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.2.0-incubating-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - DataProxy Source</name>
     <artifactId>dataproxy-source</artifactId>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.source>1.8</compiler.source>
-        <compiler.target>1.8</compiler.target>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -52,6 +46,14 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sdk-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
         </dependency>
     </dependencies>
 </project>

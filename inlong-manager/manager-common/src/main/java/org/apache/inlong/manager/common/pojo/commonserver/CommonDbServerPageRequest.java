@@ -35,8 +35,11 @@ public class CommonDbServerPageRequest extends PageRequest {
     @ApiModelProperty(value = "DB Server IP")
     private String dbServerIp;
 
-    @ApiModelProperty(value = "current user")
+    @ApiModelProperty(value = "current user", hidden = true)
     private String currentUser;
+
+    @ApiModelProperty(value = "Weather current user have admin role", hidden = true)
+    private Boolean isAdminRole = false;
 
     @ApiModelProperty(value = "The group the current user belongs to")
     private List<String> userGroups;

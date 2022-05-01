@@ -18,6 +18,7 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
@@ -26,11 +27,9 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_
 import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
-
 import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -60,9 +59,11 @@ public class KafkaSource implements Source {
     private static final String JOB_KAFKAJOB_PARAM_PREFIX = "job.kafkaJob.";
     private static final String JOB_KAFKAJOB_WAIT_TIMEOUT = "job.kafkajob.wait.timeout";
     private static final String KAFKA_COMMIT_AUTO = "enable.auto.commit";
-    private static final String KAFKA_DESERIALIZER_METHOD = "org.apache.kafka.common.serialization.StringDeserializer";
+    private static final String KAFKA_DESERIALIZER_METHOD =
+                                    "org.apache.kafka.common.serialization.ByteArrayDeserializer";
     private static final String KAFKA_KEY_DESERIALIZER = "key.deserializer";
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
+    private static final String KAFKA_SESSION_TIMEOUT = "session.timeout.ms";
     private static final Gson gson = new Gson();
     private static AtomicLong metricsIndex = new AtomicLong(0);
     private final SourceMetrics sourceMetrics;
@@ -85,15 +86,9 @@ public class KafkaSource implements Source {
 
         Properties props = new Properties();
         Map<String, String> map = gson.fromJson(conf.toJsonStr(), Map.class);
-        Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
-        // begin build kafkaConsumer
-        while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            if (entry.getKey() != null && (entry.getKey().equals(JOB_KAFKA_BOOTSTRAP_SERVERS)
-                    || entry.getKey().equals(JOB_KAFKA_GROUP_ID))) {
-                props.put(entry.getKey().replace(JOB_KAFKAJOB_PARAM_PREFIX, ""), entry.getValue());
-            }
-        }
+        props.put(JOB_KAFKA_BOOTSTRAP_SERVERS.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                map.get(JOB_KAFKA_BOOTSTRAP_SERVERS));
+
         props.put(KAFKA_KEY_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         props.put(KAFKA_VALUE_DESERIALIZER, KAFKA_DESERIALIZER_METHOD);
         // set offset
@@ -110,10 +105,16 @@ public class KafkaSource implements Source {
             // example:0#110_1#666_2#222
             partitionOffsets = allPartitionOffsets.split(JOB_OFFSET_DELIMITER);
         }
+        // set consumer session timeout
+        props.put(KAFKA_SESSION_TIMEOUT, 30000);
         // spilt reader reduce to partition
         if (null != partitionInfoList) {
             for (PartitionInfo partitionInfo : partitionInfoList) {
-                KafkaConsumer<String, String> partitonConsumer = new KafkaConsumer<>(props);
+                props.put(JOB_KAFKA_GROUP_ID.replace(JOB_KAFKAJOB_PARAM_PREFIX, StringUtils.EMPTY),
+                        map.getOrDefault(JOB_KAFKA_GROUP_ID,
+                                map.get(JOB_ID) + JOB_OFFSET_DELIMITER
+                                        + "group" + partitionInfo.partition()));
+                KafkaConsumer<String, byte[]> partitonConsumer = new KafkaConsumer<>(props);
                 partitonConsumer.assign(Collections.singletonList(
                         new TopicPartition(partitionInfo.topic(), partitionInfo.partition())));
                 // if get offset,consume from offset; if not,consume from 0
@@ -131,7 +132,7 @@ public class KafkaSource implements Source {
                     // if offset not null,then consume from the offset
                     partitonConsumer.seek(new TopicPartition(partitionInfo.topic(), partitionInfo.partition()), offset);
                 }
-                KafkaReader<String, String> kafkaReader = new KafkaReader<>(partitonConsumer, map);
+                KafkaReader<String, byte[]> kafkaReader = new KafkaReader<>(partitonConsumer, map);
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }

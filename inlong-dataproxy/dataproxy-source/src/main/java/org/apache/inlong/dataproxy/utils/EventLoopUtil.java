@@ -84,6 +84,12 @@ public class EventLoopUtil {
         return toCompletableFutureVoid(eventLoopGroup.shutdownGracefully());
     }
 
+    /**
+     * get CompletableFuture<Void> by Future
+     *
+     * @param future Future
+     * @return CompletableFuture<Void>
+     */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {
         Objects.requireNonNull(future, "future cannot be null");
 

@@ -29,69 +29,59 @@ public interface StreamSourceEntityMapper {
 
     int insert(StreamSourceEntity record);
 
-    int insertSelective(StreamSourceEntity record);
+    StreamSourceEntity selectById(Integer id);
 
-    StreamSourceEntity selectByPrimaryKey(Integer id);
+    StreamSourceEntity selectByIdForUpdate(Integer id);
+
+    /**
+     * Query un-deleted sources by the given agentIp.
+     */
+    List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
 
     /**
      * According to the inlong group id and inlong stream id, query the number of valid source
-     *
-     * @param groupId inlong group id
-     * @param streamId inlong stream id
-     * @return Source entity size
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Paging query source list based on conditions
-     *
-     * @param request Paging query conditions
-     * @return Source entity list
      */
     List<StreamSourceEntity> selectByCondition(@Param("request") SourcePageRequest request);
 
     /**
-     * Query valid source list by the given group id and stream id.
-     *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @return Source entity list.
+     * Query valid source list by the given group id, stream id and source name.
      */
-    List<StreamSourceEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSourceEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("sourceName") String sourceName);
 
     /**
-     * According to the group id, stream id and source type, query valid source entity list.
-     *
-     * @param groupId Inlong group id.
-     * @param streamId Inlong stream id.
-     * @param sourceType Source type.
-     * @return Source entity list.
+     * Query the tasks by the given status list.
      */
-    List<StreamSourceEntity> selectByIdAndType(@Param("groupId") String groupId, @Param("streamId") String streamId,
-            @Param("sourceType") String sourceType);
+    List<StreamSourceEntity> selectByStatus(@Param("list") List<Integer> list, @Param("limit") int limit);
 
     /**
-     * Query the tasks that need to be added.
+     * Query the tasks by the given status list and type List.
      */
-    List<StreamSourceEntity> selectByStatusForUpdate(@Param("list") List<Integer> list);
+    List<StreamSourceEntity> selectByStatusAndType(@Param("list") List<Integer> list,
+            @Param("sourceType") List<String> sourceTypes, @Param("limit") int limit);
 
     /**
      * Query the sources with status 20x by the given agent IP and agent UUID.
+     *
+     * @apiNote Sources with is_deleted > 0 need to be filtered.
      */
-    List<StreamSourceEntity> selectByStatusAndIp(@Param("list") List<Integer> list,
+    List<StreamSourceEntity> selectByStatusAndIp(@Param("statusList") List<Integer> statusList,
             @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+
+    /**
+     * Select all sources by groupIds
+     */
+    List<StreamSourceEntity> selectByGroupIds(@Param("groupIds") List<String> groupIds);
 
     /**
      * Get the distinct source type from the given groupId and streamId
      */
     List<String> selectSourceType(@Param("groupId") String groupId, @Param("streamId") String streamId);
-
-    /**
-     * Get all sources in temporary status.
-     *
-     * @apiNote Do not need to filter sources that is_deleted > 0.
-     */
-    List<StreamSourceEntity> selectTempStatusSource();
 
     int updateByPrimaryKeySelective(StreamSourceEntity record);
 
@@ -99,10 +89,9 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Update the status to `nextStatus` by the given id.
-     *
-     * @apiNote Should not change the modify_time
      */
-    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus);
+    int updateStatus(@Param("id") Integer id, @Param("nextStatus") Integer nextStatus,
+            @Param("changeTime") Boolean changeModifyTime);
 
     /**
      * Update the status to `nextStatus` by the given group id and stream id.
@@ -114,13 +103,12 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Update the agentIp and uuid.
-     *
-     * @apiNote Should not change the modify_time
      */
-    int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid);
+    int updateIpAndUuid(@Param("id") Integer id, @Param("agentIp") String agentIp, @Param("uuid") String uuid,
+            @Param("changeTime") Boolean changeModifyTime);
 
     int updateSnapshot(StreamSourceEntity entity);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
 }

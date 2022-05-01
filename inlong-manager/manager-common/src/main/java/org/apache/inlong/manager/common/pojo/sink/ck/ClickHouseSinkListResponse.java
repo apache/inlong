@@ -34,37 +34,32 @@ public class ClickHouseSinkListResponse extends SinkListResponse {
     @ApiModelProperty("ClickHouse JDBC URL")
     private String jdbcUrl;
 
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
     @ApiModelProperty("Target database name")
-    private String databaseName;
+    private String dbName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
-
-    @ApiModelProperty("User password")
-    private String password;
-
-    @ApiModelProperty("Whether distributed table")
-    private Boolean distributedTable;
-
-    @ApiModelProperty("Partition strategy,support: BALANCE, RANDOM, HASH")
-    private String partitionStrategy;
-
-    @ApiModelProperty("Partition key")
-    private String partitionKey;
-
-    @ApiModelProperty("Key field names")
-    private String[] keyFieldNames;
-
-    @ApiModelProperty("Flush interval")
+    @ApiModelProperty("Flush interval, unit: second, default is 1s")
     private Integer flushInterval;
 
-    @ApiModelProperty("Flush record number")
-    private Integer flushRecordNumber;
+    @ApiModelProperty("Flush when record number reaches flushRecord")
+    private Integer flushRecord;
 
-    @ApiModelProperty("Write max retry times")
-    private Integer writeMaxRetryTimes;
+    @ApiModelProperty("Write max retry times, default is 3")
+    private Integer retryTimes;
+
+    @ApiModelProperty("Whether distributed table? 0: no, 1: yes")
+    private Integer isDistributed;
+
+    @ApiModelProperty("Partition strategy, support: BALANCE, RANDOM, HASH")
+    private String partitionStrategy;
+
+    @ApiModelProperty(value = "Partition files, separate with commas",
+            notes = "Necessary when partitionStrategy is HASH, must be one of the field list")
+    private String partitionFields;
 
 }

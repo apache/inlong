@@ -20,6 +20,7 @@ package org.apache.inlong.sort.standalone.source.sortsdk;
 import org.apache.flume.Context;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.metrics.audit.AuditUtils;
@@ -152,6 +153,9 @@ public final class SortSdkSourceContext extends SourceContext {
         dimensions.put(SortMetricItem.KEY_SOURCE_DATA_ID, topic);
         if (event != null) {
             SortMetricItem.fillInlongId(event, dimensions);
+            long msgTime = event.getRawLogTime();
+            long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
+            dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         }
         return dimensions;
     }
