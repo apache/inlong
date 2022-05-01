@@ -69,10 +69,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check if cluster already exist
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
         if (exist != null) {
-            String errmsg = String.format("inlong cluster already exist for name=%s, cluster tag=%s, type=%s)",
+            String errMsg = String.format("inlong cluster already exist for name=%s cluster tag=%s type=%s)",
                     request.getName(), request.getClusterTag(), request.getType());
-            LOGGER.error(errmsg);
-            throw new BusinessException(errmsg);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
         }
         InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
         entity.setCreator(operator);
@@ -123,10 +123,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkNotNull(id, "inlong cluster id is empty");
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errmsg = String.format("inlong cluster already exist for name=%s, cluster tag=%s, type=%s",
+            String errMsg = String.format("inlong cluster already exist for name=%s cluster tag=%s type=%s",
                     request.getName(), request.getClusterTag(), request.getType());
-            LOGGER.error(errmsg);
-            throw new BusinessException(errmsg);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
         }
 
         InlongClusterEntity entity = clusterMapper.selectById(id);
@@ -170,10 +170,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null) {
-            String errmsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s",
+            String errMsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s",
                     request.getType(), request.getIp(), request.getPort());
-            LOGGER.error(errmsg);
-            throw new BusinessException(errmsg);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
         }
 
         InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterNodeEntity::new);
@@ -228,10 +228,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errmsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s)",
+            String errMsg = String.format("inlong cluster node already exist for type=%s ip=%s port=%s)",
                     request.getType(), request.getIp(), request.getPort());
-            LOGGER.error(errmsg);
-            throw new BusinessException(errmsg);
+            LOGGER.error(errMsg);
+            throw new BusinessException(errMsg);
         }
 
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
