@@ -138,6 +138,7 @@ public class FieldInfoUtils {
         } else {
             if (isBuiltin) {
                 // Check if fieldName contains buildInFieldName, such as left_database
+                // TODO The buildin field needs to be selectable and cannot be filled in by the user
                 for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
                     if (fieldName.contains(buildInFieldName)) {
                         builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
