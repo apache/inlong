@@ -18,7 +18,6 @@
 <assembly>
     <id>demo</id>
     <formats>
-        <format>dir</format>
         <format>tar.gz</format>
     </formats>
     <dependencySets>
