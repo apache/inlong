@@ -63,6 +63,7 @@ public class SuspendSortListenerTest {
         inlongGroupInfo.setExtList(inlongGroupExtInfos);
 
         SuspendSortListener pauseSortListener = new SuspendSortListener();
-//        pauseSortListener.listen(context);
+        // This method temporarily fails the test, first comment
+        // pauseSortListener.listen(context);
     }
 }

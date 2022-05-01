@@ -190,6 +190,7 @@ public class StartupSortListenerTest {
         inlongGroupInfo.setExtList(inlongGroupExtInfos);
 
         StartupSortListener startupSortListener = new StartupSortListener();
-//        startupSortListener.listen(context);
+        // This method temporarily fails the test, first comment
+        // startupSortListener.listen(context);
     }
 }

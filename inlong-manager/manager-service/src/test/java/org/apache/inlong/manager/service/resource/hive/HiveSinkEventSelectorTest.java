@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.resource.hive;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.impl.InlongGroupServiceTest;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,16 +31,25 @@ public class HiveSinkEventSelectorTest extends ServiceBaseTest {
     @Autowired
     HiveSinkEventSelector hiveSinkEventSelector;
 
+    @Autowired
+    private InlongGroupServiceTest groupServiceTest;
+
     @Test
     public void testAccept() {
         WorkflowContext workflowContext = new WorkflowContext();
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
+        String groupName = "hiveGroup";
+        String operator = "admin";
+        String groupId = groupServiceTest.saveGroup(groupName, operator);
+        InlongGroupInfo inlongGroupInfo = groupServiceTest.groupService.get(groupId);
+        processForm.setGroupInfo(inlongGroupInfo);
         workflowContext.setProcessForm(processForm);
         Assert.assertFalse(hiveSinkEventSelector.accept(workflowContext));
         processForm.setGroupInfo(new InlongGroupInfo());
         Assert.assertFalse(hiveSinkEventSelector.accept(workflowContext));
         processForm.getGroupInfo().setInlongGroupId("test");
-//        Assert.assertTrue(hiveSinkEventSelector.accept(workflowContext));
+        // This method temporarily fails the test, first comment
+        // Assert.assertTrue(hiveSinkEventSelector.accept(workflowContext));
     }
 
 }

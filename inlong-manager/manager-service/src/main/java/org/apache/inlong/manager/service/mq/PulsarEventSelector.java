@@ -41,10 +41,6 @@ public class PulsarEventSelector implements EventSelector {
         MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
-            if (pulsarInfo == null) {
-                log.info("skip to create pulsar resource as the createResource was null");
-                return false;
-            }
             boolean enable = GlobalConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
             if (enable) {
                 log.info("need to create pulsar resource as the createResource was true for groupId [{}]", groupId);

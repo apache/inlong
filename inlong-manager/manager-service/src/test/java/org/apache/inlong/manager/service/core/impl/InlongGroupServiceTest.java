@@ -46,7 +46,7 @@ public class InlongGroupServiceTest {
     @Autowired
     InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
-    private InlongGroupService groupService;
+    public InlongGroupService groupService;
 
     /**
      * Test to save group

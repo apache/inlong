@@ -128,6 +128,7 @@ public class RestartSortListenerTest {
         inlongGroupInfo.setExtList(inlongGroupExtInfoList);
 
         RestartSortListener restartSortListener = new RestartSortListener();
-//        restartSortListener.listen(context);
+        // This method temporarily fails the test, first comment
+        // restartSortListener.listen(context);
     }
 }

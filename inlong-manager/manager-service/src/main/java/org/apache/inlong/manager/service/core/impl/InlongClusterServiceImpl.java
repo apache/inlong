@@ -78,10 +78,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
-        int entityId = clusterMapper.insert(entity);
+        clusterMapper.insert(entity);
 
         LOGGER.info("success to save inlong cluster={}", request);
-        return entityId;
+        return entity.getId();
     }
 
     @Override
