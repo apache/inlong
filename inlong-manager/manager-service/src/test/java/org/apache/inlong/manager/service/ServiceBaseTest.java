@@ -39,6 +39,6 @@ public class ServiceBaseTest extends BaseTest {
 
     @Test
     public void test() {
-        LOGGER.info("The test class cannot be empty, otherwise No runnable methods exception will be reported");
+        LOGGER.info("The test class cannot be empty, otherwise 'No runnable methods exception' will be reported");
     }
 }
