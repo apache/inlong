@@ -35,7 +35,10 @@ public class RegexpReplaceFirstFunction extends ScalarFunction {
      * @return replaced value
      */
     public String eval(String field, String regex, String replacement) {
-        return field.replaceFirst(regex, replacement);
+        if (field != null) {
+            return field.replaceFirst(regex, replacement);
+        }
+        return field;
     }
 
 }
