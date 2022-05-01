@@ -91,10 +91,9 @@ public class WorkflowServiceImpl implements WorkflowService {
                 workflowEngine.processDefinitionService().register(definition.defineProcess());
                 LOGGER.info("success register workflow definition: {}", definition.getProcessName());
             } catch (Exception e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.error("failed to register workflow definition {}", definition.getProcessName(), e);
             }
         });
-
         LOGGER.info("success init workflow service");
     }
 
