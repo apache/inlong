@@ -129,10 +129,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster info.
      */
-    public Boolean updateCluster(Integer clusterId, String clusterName, String type, String clusterTag) {
+    public Boolean updateCluster(Integer id, String name, String type, String clusterTag) {
         InlongClusterRequest request = new InlongClusterRequest();
-        request.setId(clusterId);
-        request.setName(clusterName);
+        request.setId(id);
+        request.setName(name);
         request.setType(type);
         request.setClusterTag(clusterTag);
         request.setInCharges(GLOBAL_OPERATOR);
@@ -174,10 +174,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster node list info.
      */
-    public PageInfo<ClusterNodeResponse> listNode(String type, String keyWord) {
+    public PageInfo<ClusterNodeResponse> listNode(String type, String keyword) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
-        request.setKeyword(keyWord);
+        request.setKeyword(keyword);
         return inlongClusterService.listNode(request);
     }
 
@@ -216,7 +216,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertTrue(updateSuccess);
 
         // save cluster node
-        Integer nodeId = this.saveClusterNode(id, type, ip, port);
+        Integer parentId = 1;
+        Integer nodeId = this.saveClusterNode(parentId, type, ip, port);
         Assert.assertNotNull(nodeId);
 
         // list cluster node
@@ -224,8 +225,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
-        Boolean updateNodeSuccess = this.updateClusterNode(id, listNode.getList().get(0).getParentId(), typeUpdate,
-                ipUpdate, portUpdate);
+        Boolean updateNodeSuccess = this.updateClusterNode(id, parentId, typeUpdate, ipUpdate, portUpdate);
         Assert.assertTrue(updateNodeSuccess);
 
         // delete cluster node
@@ -236,4 +236,5 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Boolean success = this.deleteCluster(id);
         Assert.assertTrue(success);
     }
+
 }
