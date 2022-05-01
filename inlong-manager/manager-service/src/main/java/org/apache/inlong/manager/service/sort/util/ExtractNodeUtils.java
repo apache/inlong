@@ -99,6 +99,8 @@ public class ExtractNodeUtils {
                 .collect(Collectors.toList());
         String serverTimeZone = binlogSourceResponse.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
+        
+        // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
         if (binlogSourceResponse.isAllMigration()) {
             // Unique properties when migrate all tables in database
