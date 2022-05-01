@@ -110,7 +110,7 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
                 options.putAll(format.generateOptions(true));
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
-            options.put("connector", "kafka");
+            options.put("connector", "kafka-inlong");
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
