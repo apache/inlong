@@ -25,6 +25,8 @@ import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -36,6 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SortControllerTest extends WebBaseTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(SortControllerTest.class);
 
     private MockMvc mockMvc;
 
@@ -52,7 +56,7 @@ public class SortControllerTest extends WebBaseTest {
     @Autowired
     private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
-//    @Before
+    // @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 1));
@@ -71,8 +75,8 @@ public class SortControllerTest extends WebBaseTest {
      *
      * @throws Exception Exceptions to request generating.
      */
-//    @Test
-//    @Transactional
+    // @Test
+    // @Transactional
     public void testGetSortClusterConfig() throws Exception {
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
@@ -81,8 +85,8 @@ public class SortControllerTest extends WebBaseTest {
         mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
-    //    @Test
-//    @Transactional
+    // @Test
+    // @Transactional
     public void testErrorSinkType() throws Exception {
         sortClusterConfgiEntityMapper.insert(
                 this.prepareClusterConfigEntity("testTask1", "error type"));
@@ -93,8 +97,8 @@ public class SortControllerTest extends WebBaseTest {
         mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
     }
 
-    //    @Test
-//    @Transactional
+    // @Test
+    // @Transactional
     public void testEmptyClusterNameWhenGet() throws Exception {
         RequestBuilder request =
                 get("/openapi/sort/getClusterConfig")
@@ -132,7 +136,7 @@ public class SortControllerTest extends WebBaseTest {
 
     @Test
     public void defaultTest() {
-        System.out.println("Online exception druid connection timeout cannot create transaction, "
+        logger.info("Online exception druid connection timeout cannot create transaction, "
                 + "add default test method.");
     }
 }
