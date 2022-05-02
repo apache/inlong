@@ -56,6 +56,7 @@ public class SinkInfoUtils {
     private static final String DATA_FORMAT = "yyyyMMddHH";
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
+    private static final String HIVE_DEFAULT_DB = "default";
     private static final String HIVE_DB_SUFFIX = ".db";
 
     /**
@@ -183,15 +184,20 @@ public class SinkInfoUtils {
             }).collect(Collectors.toList());
         }
 
-        // dataPath = dataPath + / + dbName + / + tableName
+        // dataPath = dataPath + / + tableName (default db)
+        //         or dataPath + / + dbName + / + tableName
         String dataPath = hiveInfo.getDataPath();
         StringBuilder dataPathBuilder = new StringBuilder(dataPath);
         if (!dataPath.endsWith("/")) {
             dataPathBuilder.append(dataPath).append("/");
         }
-        dataPath = dataPathBuilder.append(hiveInfo.getDbName()).append(HIVE_DB_SUFFIX).append("/")
-                .append(hiveInfo.getTableName())
-                .toString();
+        if (hiveInfo.getDbName().equals(HIVE_DEFAULT_DB)) {
+            dataPathBuilder.append(hiveInfo.getTableName());
+        } else {
+            dataPathBuilder.append(hiveInfo.getDbName()).append(HIVE_DB_SUFFIX).append("/")
+                    .append(hiveInfo.getTableName());
+        }
+        dataPath = dataPathBuilder.toString();
 
         return new HiveSinkInfo(sinkFields.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
