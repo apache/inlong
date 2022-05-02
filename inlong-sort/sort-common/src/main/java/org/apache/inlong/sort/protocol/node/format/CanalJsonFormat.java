@@ -76,7 +76,7 @@ public class CanalJsonFormat implements Format {
     @JsonIgnore
     @Override
     public String getFormat() {
-        return "canal-json";
+        return "canal-json-inlong";
     }
 
     /**
@@ -89,13 +89,13 @@ public class CanalJsonFormat implements Format {
         Map<String, String> options = new HashMap<>(16);
         options.put("format", getFormat());
         if (this.ignoreParseErrors != null) {
-            options.put("canal-json.ignore-parse-errors", this.ignoreParseErrors.toString());
+            options.put("canal-json-inlong.ignore-parse-errors", this.ignoreParseErrors.toString());
         }
-        options.put("canal-json.timestamp-format.standard", this.timestampFormatStandard);
-        options.put("canal-json.map-null-key.mode", this.mapNullKeyMode);
-        options.put("canal-json.map-null-key.literal", this.mapNullKeyLiteral);
+        options.put("canal-json-inlong.timestamp-format.standard", this.timestampFormatStandard);
+        options.put("canal-json-inlong.map-null-key.mode", this.mapNullKeyMode);
+        options.put("canal-json-inlong.map-null-key.literal", this.mapNullKeyLiteral);
         if (this.encodeDecimalAsPlainNumber != null) {
-            options.put("canal-json.encode.decimal-as-plain-number", this.encodeDecimalAsPlainNumber.toString());
+            options.put("canal-json-inlong.encode.decimal-as-plain-number", this.encodeDecimalAsPlainNumber.toString());
         }
         return options;
     }
