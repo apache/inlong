@@ -526,6 +526,7 @@ CREATE TABLE `stream_source`
 -- ----------------------------
 -- Table structure for stream_transform
 -- ----------------------------
+DROP TABLE IF EXISTS `stream_transform`;
 CREATE TABLE `stream_transform`
 (
     `id`                   int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
