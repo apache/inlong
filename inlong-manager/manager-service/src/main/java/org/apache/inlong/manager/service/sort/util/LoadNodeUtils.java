@@ -162,17 +162,19 @@ public class LoadNodeUtils {
         if (CollectionUtils.isEmpty(sinkFieldResponses)) {
             return Lists.newArrayList();
         }
-        return sinkFieldResponses.stream().map(sinkFieldResponse -> {
-            String fieldName = sinkFieldResponse.getFieldName();
-            String fieldType = sinkFieldResponse.getFieldType();
-            String fieldFormat = sinkFieldResponse.getFieldFormat();
-            FieldInfo sinkField = new FieldInfo(fieldName, sinkName,
-                    FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
-            String sourceFieldName = sinkFieldResponse.getSourceFieldName();
-            String sourceFieldType = sinkFieldResponse.getSourceFieldType();
-            FieldInfo sourceField = new FieldInfo(sourceFieldName, sinkName,
-                    FieldInfoUtils.convertFieldFormat(sourceFieldType));
-            return new FieldRelationShip(sourceField, sinkField);
-        }).collect(Collectors.toList());
+        return sinkFieldResponses.stream()
+                .filter(sinkFieldResponse -> StringUtils.isNotEmpty(sinkFieldResponse.getSourceFieldName()))
+                .map(sinkFieldResponse -> {
+                    String fieldName = sinkFieldResponse.getFieldName();
+                    String fieldType = sinkFieldResponse.getFieldType();
+                    String fieldFormat = sinkFieldResponse.getFieldFormat();
+                    FieldInfo sinkField = new FieldInfo(fieldName, sinkName,
+                            FieldInfoUtils.convertFieldFormat(fieldType, fieldFormat));
+                    String sourceFieldName = sinkFieldResponse.getSourceFieldName();
+                    String sourceFieldType = sinkFieldResponse.getSourceFieldType();
+                    FieldInfo sourceField = new FieldInfo(sourceFieldName, sinkName,
+                            FieldInfoUtils.convertFieldFormat(sourceFieldType));
+                    return new FieldRelationShip(sourceField, sinkField);
+                }).collect(Collectors.toList());
     }
 }
