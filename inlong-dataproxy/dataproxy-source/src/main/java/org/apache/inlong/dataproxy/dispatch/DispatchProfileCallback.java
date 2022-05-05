@@ -46,7 +46,7 @@ public class DispatchProfileCallback {
      * @param eventCount
      */
     public void ack(int eventCount) {
-        int currentCount = this.ackingCount.decrementAndGet();
+        int currentCount = this.ackingCount.addAndGet(-eventCount);
         if (currentCount <= 0) {
             this.callback.callback(ResultCode.SUCCUSS);
         }
