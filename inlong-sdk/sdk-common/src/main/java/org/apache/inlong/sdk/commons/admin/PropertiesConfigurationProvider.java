@@ -38,7 +38,7 @@ public class PropertiesConfigurationProvider extends
     /**
      * PropertiesConfigurationProvider
      * 
-     * @param agentName
+     * @param rootName
      * @param flumeConf
      */
     public PropertiesConfigurationProvider(String rootName, Map<String, String> flumeConf) {

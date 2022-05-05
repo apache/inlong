@@ -17,14 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.tubezone;
 
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -42,6 +34,14 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 /**
  * TubeClusterProducer
@@ -189,8 +189,7 @@ public class TubeClusterProducer implements LifecycleAware {
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.getDispatchQueue().offer(event);
-                sinkContext.addSendResultMetric(event, topic, false, 0);
+                sinkContext.processSendFail(event, topic, 0);
                 return false;
             }
             // headers
@@ -210,22 +209,21 @@ public class TubeClusterProducer implements LifecycleAware {
                 @Override
                 public void onMessageSent(MessageSentResult result) {
                     sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                    event.ack();
                 }
 
                 @Override
                 public void onException(Throwable ex) {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
-                    sinkContext.getDispatchQueue().offer(event);
-                    sinkContext.addSendResultMetric(event, topic, false, sendTime);
+                    sinkContext.processSendFail(event, topic, sendTime);
                 }
             };
             producer.sendMessage(message, callback);
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sinkContext.getDispatchQueue().offer(event);
-            sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+            sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
     }

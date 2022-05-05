@@ -17,16 +17,17 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.dataproxy.config.loader.CommonPropertiesLoader;
 import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -38,10 +39,16 @@ public class CommonPropertiesHolder {
     public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
     public static final String KEY_CLUSTER_ID = "proxy.cluster.name";
+    public static final String KEY_RESPONSE_AFTER_SAVE = "isResponseAfterSave";
+    public static final boolean DEFAULT_RESPONSE_AFTER_SAVE = false;
+    public static final String KEY_MAX_RESPONSE_TIMEOUT_MS = "maxResponseTimeoutMs";
+    public static final long DEFAULT_MAX_RESPONSE_TIMEOUT_MS = 10000L;
 
     private static Map<String, String> props;
 
     private static long auditFormatInterval = 60000L;
+    private static boolean isResponseAfterSave = DEFAULT_RESPONSE_AFTER_SAVE;
+    private static long maxResponseTimeout = DEFAULT_MAX_RESPONSE_TIMEOUT_MS;
 
     /**
      * init
@@ -61,6 +68,10 @@ public class CommonPropertiesHolder {
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
                         auditFormatInterval = NumberUtils
                                 .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
+                        isResponseAfterSave = BooleanUtils
+                                .toBoolean(CommonPropertiesHolder.getString(KEY_RESPONSE_AFTER_SAVE));
+                        maxResponseTimeout = CommonPropertiesHolder.getLong(KEY_MAX_RESPONSE_TIMEOUT_MS,
+                                DEFAULT_MAX_RESPONSE_TIMEOUT_MS);
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -151,12 +162,58 @@ public class CommonPropertiesHolder {
     }
 
     /**
+     * Gets value mapped to key, returning defaultValue if unmapped.
+     * 
+     * @param  key          to be found
+     * @param  defaultValue returned if key is unmapped
+     * @return              value associated with key
+     */
+    public static Long getLong(String key, Long defaultValue) {
+        String value = get().get(key);
+        if (value != null) {
+            return Long.valueOf(Long.parseLong(value.trim()));
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Gets value mapped to key, returning null if unmapped.
+     * <p>
+     * Note that this method returns an object as opposed to a primitive. The configuration key requested may not be
+     * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
+     * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
+     * </p>
+     * 
+     * @param  key to be found
+     * @return     value associated with key or null if unmapped
+     */
+    public static Long getLong(String key) {
+        return getLong(key, null);
+    }
+
+    /**
      * getAuditFormatInterval
      * 
      * @return
      */
     public static long getAuditFormatInterval() {
         return auditFormatInterval;
+    }
+
+    /**
+     * isResponseAfterSave
+     * @return
+     */
+    public static boolean isResponseAfterSave() {
+        return isResponseAfterSave;
+    }
+
+    /**
+     * get maxResponseTimeout
+     * @return the maxResponseTimeout
+     */
+    public static long getMaxResponseTimeout() {
+        return maxResponseTimeout;
     }
 
 }

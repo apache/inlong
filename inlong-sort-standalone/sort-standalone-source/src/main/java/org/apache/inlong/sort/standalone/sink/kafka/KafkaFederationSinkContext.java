@@ -141,7 +141,7 @@ public class KafkaFederationSinkContext extends SinkContext {
      * addSendMetric
      * 
      * @param currentRecord
-     * @param bid
+     * @param topic
      */
     public void addSendMetric(ProfileEvent currentRecord, String topic) {
         Map<String, String> dimensions = new HashMap<>();

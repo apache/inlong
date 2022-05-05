@@ -39,7 +39,7 @@ public interface AdminHttpSourceHandler extends Configurable {
      * <p>
      *
      * @param  request                 The request to be parsed into Flume events.
-     * @param  response.
+     * @param  response                The response to be parsed into Flume events.
      * @return                         List of Flume events generated from the request.
      * @throws HTTPBadRequestException If the was not parsed correctly into an event because the request was not in the
      *                                 expected format.
