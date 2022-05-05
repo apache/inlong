@@ -171,6 +171,7 @@ public class FieldRelationShipUtils {
             FieldInfo targetFieldInfo = new FieldInfo(
                     targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
             );
+            splitFields.add(targetSources.get(index));
             splitRelationShips.add(new FieldRelationShip(splitIndexFunction, targetFieldInfo));
         }
         return splitRelationShips;
