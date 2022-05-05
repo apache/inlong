@@ -165,7 +165,6 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
                         Collections.singletonList(hiveNode))));
         GroupInfo groupInfoMySqlToHive = new GroupInfo("1", Collections.singletonList(streamInfoMySqlToHive));
-        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoMySqlToHive);
         //mysql-->kafka--kafka-->hive
         StreamInfo streamInfoMySqlToKafkaToHive1 = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, kafkaNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
@@ -175,7 +174,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                         Collections.singletonList(hiveNode))));
         GroupInfo groupInfoMySqlToKafkaToHive = new GroupInfo("1",
                 Arrays.asList(streamInfoMySqlToKafkaToHive1, streamInfoMySqlToKafkaToHive2));
-        parser = FlinkSqlParser.getInstance(tableEnv, groupInfoMySqlToKafkaToHive);
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoMySqlToKafkaToHive);
         parser.parse();
     }
 
