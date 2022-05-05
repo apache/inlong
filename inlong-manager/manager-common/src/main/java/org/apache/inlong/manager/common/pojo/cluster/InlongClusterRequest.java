@@ -48,6 +48,9 @@ public class InlongClusterRequest {
     @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
 
+    @ApiModelProperty(value = "Extension tag")
+    private String extTag;
+
     @ApiModelProperty(value = "Cluster heartbeat info")
     private String heartbeat;
 
