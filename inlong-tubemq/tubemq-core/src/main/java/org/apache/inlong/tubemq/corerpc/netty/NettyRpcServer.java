@@ -137,13 +137,11 @@ public class NettyRpcServer implements ServiceRpcServer {
         bootstrap.childOption(ChannelOption.SO_REUSEADDR,
                 conf.getBoolean(RpcConstants.TCP_REUSEADDRESS, true));
         int nettyWriteHighMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, 64 * 1024);
         int nettyWriteLowMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
-        if (nettyWriteHighMark > 0 && nettyWriteLowMark > 0) {
-            bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
+        bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
                     new WriteBufferWaterMark(nettyWriteHighMark, nettyWriteLowMark));
-        }
         int nettySendBuf = conf.getInt(RpcConstants.NETTY_TCP_SENDBUF, -1);
         if (nettySendBuf > 0) {
             bootstrap.childOption(ChannelOption.SO_SNDBUF, nettySendBuf);

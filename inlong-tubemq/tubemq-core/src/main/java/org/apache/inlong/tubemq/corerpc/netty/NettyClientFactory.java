@@ -235,13 +235,11 @@ public class NettyClientFactory implements ClientFactory {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
 
         int nettyWriteHighMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, 64 * 1024);
         int nettyWriteLowMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
-        if (nettyWriteHighMark > 0 && nettyWriteLowMark > 0) {
-            clientBootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
+        clientBootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
                     new WriteBufferWaterMark(nettyWriteHighMark, nettyWriteLowMark));
-        }
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel socketChannel) throws Exception {
