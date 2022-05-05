@@ -481,6 +481,34 @@ public class InnerInlongManagerClient {
         }
     }
 
+    public boolean deleteSource(int id, String type) {
+        AssertUtil.isTrue(id > 0, "sourceId is illegal");
+        AssertUtil.notEmpty(type, "sourceType should not be null");
+        final String path = HTTP_PATH + "/source/delete/" + id;
+        String url = formatUrl(path);
+        url = String.format("%s&sourceType=%s", url, type);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .method("DELETE", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return Boolean.parseBoolean(responseBody.getData().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong source delete failed: %s", e.getMessage()), e);
+        }
+    }
+
     public String createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
         final String sink = GsonUtil.toJson(transformRequest);
@@ -608,6 +636,34 @@ public class InnerInlongManagerClient {
             return responseBody.getData().toString();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong sink save failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public boolean deleteSink(int id, String type) {
+        AssertUtil.isTrue(id > 0, "sinkId is illegal");
+        AssertUtil.notEmpty(type, "sinkType should not be null");
+        final String path = HTTP_PATH + "/sink/delete/" + id;
+        String url = formatUrl(path);
+        url = String.format("%s&sinkType=%s", url, type);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .method("DELETE", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return Boolean.parseBoolean(responseBody.getData().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong sink delete failed: %s", e.getMessage()), e);
         }
     }
 

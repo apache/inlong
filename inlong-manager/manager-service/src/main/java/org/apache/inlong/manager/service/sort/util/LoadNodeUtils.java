@@ -73,9 +73,8 @@ public class LoadNodeUtils {
         String bootstrapServers = kafkaSinkResponse.getBootstrapServers();
         List<SinkFieldResponse> sinkFieldResponses = kafkaSinkResponse.getFieldList();
         List<FieldInfo> fieldInfos = sinkFieldResponses.stream()
-                .map(sinkFieldResponse -> new FieldInfo(sinkFieldResponse.getFieldName(), name,
-                        FieldInfoUtils.convertFieldFormat(sinkFieldResponse.getFieldType(),
-                                sinkFieldResponse.getFieldFormat()))).collect(Collectors.toList());
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
         List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
         Map<String, String> properties = kafkaSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
@@ -127,9 +126,8 @@ public class LoadNodeUtils {
         String hiveVersion = hiveSinkResponse.getHiveVersion();
         List<SinkFieldResponse> sinkFieldResponses = hiveSinkResponse.getFieldList();
         List<FieldInfo> fields = sinkFieldResponses.stream()
-                .map(sinkFieldResponse -> new FieldInfo(sinkFieldResponse.getFieldName(), name,
-                        FieldInfoUtils.convertFieldFormat(sinkFieldResponse.getFieldType(),
-                                sinkFieldResponse.getFieldFormat()))).collect(Collectors.toList());
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
         List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
         Map<String, String> properties = hiveSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
