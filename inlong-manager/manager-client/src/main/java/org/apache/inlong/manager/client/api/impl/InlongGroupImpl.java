@@ -271,6 +271,8 @@ public class InlongGroupImpl implements InlongGroup {
         if (CollectionUtils.isEmpty(streamResponses)) {
             return null;
         }
-        return streamResponses.stream().map(InlongStreamImpl::new).collect(Collectors.toList());
+        return streamResponses.stream()
+                .map(fullStreamResponse -> new InlongStreamImpl(fullStreamResponse, managerClient))
+                .collect(Collectors.toList());
     }
 }

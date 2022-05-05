@@ -46,9 +46,5 @@ public abstract class InlongStream {
 
     public abstract StreamPipeline createPipeline();
 
-    @Deprecated
-    public abstract void updateSource(StreamSource source);
-
-    @Deprecated
-    public abstract void updateSink(StreamSink sink);
+    public abstract InlongStream update();
 }
