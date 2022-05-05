@@ -115,6 +115,7 @@ CREATE TABLE `inlong_cluster`
     `type`        varchar(20)       DEFAULT '' COMMENT 'Cluster type, such as: TUBE, PULSAR, DATA_PROXY, etc',
     `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
     `cluster_tag` varchar(128)      DEFAULT NULL COMMENT 'Cluster tag, the same tab indicates that cluster belongs to the same set',
+    `ext_tag`     varchar(128)      DEFAULT NULL COMMENT 'Extension tag, for extended use',
     `ext_params`  text              DEFAULT NULL COMMENT 'Extended params, will saved as JSON string',
     `heartbeat`   text              DEFAULT NULL COMMENT 'Cluster heartbeat info',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
@@ -125,7 +126,8 @@ CREATE TABLE `inlong_cluster`
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cluster_index` (`name`, `type`, `cluster_tag`, `is_deleted`)
+    UNIQUE KEY `unique_cluster_name_index` (`name`, `type`),
+    UNIQUE KEY `unique_cluster_tag_index` (`cluster_tag`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster table';
 

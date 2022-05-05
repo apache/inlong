@@ -26,6 +26,7 @@
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="ext_tag" jdbcType="VARCHAR" property="extTag"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="heartbeat" jdbcType="LONGVARCHAR" property="heartbeat"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
@@ -37,22 +38,22 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, cluster_tag, ext_params, heartbeat, in_charges,
+        id, name, type, url, cluster_tag, ext_tag, ext_params, heartbeat, in_charges,
         status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         insert into inlong_cluster (id, name, type,
-                                    url, cluster_tag, ext_params,
-                                    heartbeat, in_charges, status,
-                                    is_deleted, creator, modifier,
-                                    create_time, modify_time)
+                                    url, cluster_tag, ext_tag,
+                                    ext_params, heartbeat, in_charges,
+                                    status, is_deleted, creator,
+                                    modifier, create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{clusterTag,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
-                #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{url,jdbcType=VARCHAR}, #{clusterTag,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
+                #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
+                #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
@@ -72,6 +73,9 @@
             </if>
             <if test="clusterTag != null">
                 cluster_tag,
+            </if>
+            <if test="extTag != null">
+                ext_tag,
             </if>
             <if test="inCharges != null">
                 in_charges,
@@ -117,6 +121,9 @@
             <if test="clusterTag != null">
                 #{clusterTag,jdbcType=VARCHAR},
             </if>
+            <if test="extTag != null">
+                #{extTag,jdbcType=VARCHAR},
+            </if>
             <if test="inCharges != null">
                 #{inCharges,jdbcType=VARCHAR},
             </if>
@@ -160,6 +167,7 @@
             type        = #{type,jdbcType=VARCHAR},
             url         = #{url,jdbcType=VARCHAR},
             cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            ext_tag     = #{extTag,jdbcType=VARCHAR},
             ext_params  = #{extParams,jdbcType=LONGVARCHAR},
             heartbeat   = #{heartbeat,jdbcType=LONGVARCHAR},
             in_charges  = #{inCharges,jdbcType=VARCHAR},
@@ -176,18 +184,10 @@
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster
-        <where>
-            is_deleted = 0
-            <if test="name != null and name != ''">
-                and name = #{name, jdbcType=VARCHAR}
-            </if>
-            <if test="clusterTag != null and clusterTag != ''">
-                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-            </if>
-            <if test="type != null and type != ''">
-                and type = #{type, jdbcType=VARCHAR}
-            </if>
-        </where>
+        where is_deleted = 0
+        and name = #{name, jdbcType=VARCHAR}
+        and type = #{type, jdbcType=VARCHAR}
+        and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
@@ -197,17 +197,16 @@
         from inlong_cluster
         <where>
             is_deleted = 0
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
             <if test="type != null and type != ''">
                 and type = #{type, jdbcType=VARCHAR}
-            </if>
-            <if test="url != null and url != ''">
-                and url like CONCAT('%', #{url}, '%')
             </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
             </if>
             <if test="keyword != null and keyword != ''">
-                and (
                 name like CONCAT('%', #{keyword}, '%')
                 or cluster_tag like CONCAT('%', #{keyword}, '%')
                 or url like CONCAT('%', #{keyword}, '%')
@@ -233,6 +232,9 @@
             </if>
             <if test="clusterTag != null">
                 cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="extTag != null">
+                ext_tag = #{extTag,jdbcType=VARCHAR},
             </if>
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},

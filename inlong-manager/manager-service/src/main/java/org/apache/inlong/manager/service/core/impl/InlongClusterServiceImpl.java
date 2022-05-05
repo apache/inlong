@@ -215,9 +215,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
-
         Preconditions.checkNotNull(request, "inlong cluster node info is empty");
-        Preconditions.checkNotNull(request, "cluster is empty");
         Preconditions.checkNotNull(request.getParentId(), "inlong cluster node parent_id is empty");
         Preconditions.checkNotNull(request.getType(), "inlong cluster node type is empty");
         Preconditions.checkNotNull(request.getIp(), "inlong cluster node ip is empty");
