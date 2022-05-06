@@ -18,11 +18,6 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +29,12 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
@@ -120,7 +121,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
         if (port != null) {
             options.put("port", port.toString());
         }
-        if (dataNodeName != null) {
+        if (StringUtils.isNotBlank(dataNodeName)) {
             options.put("data-node-name", dataNodeName);
         }
         if (incrementalSnapshotEnabled != null) {
