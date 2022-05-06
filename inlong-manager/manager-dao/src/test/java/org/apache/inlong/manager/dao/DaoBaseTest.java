@@ -22,10 +22,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Transactional
 @Rollback
 @SpringBootApplication
 @SpringBootTest(classes = DaoBaseTest.class)
+@EnableWebMvc
 public abstract class DaoBaseTest extends BaseTest {
 }

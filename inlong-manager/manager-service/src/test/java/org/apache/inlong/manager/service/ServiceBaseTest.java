@@ -18,15 +18,27 @@
 package org.apache.inlong.manager.service;
 
 import org.apache.inlong.manager.test.BaseTest;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @SpringBootApplication
 @SpringBootTest(classes = ServiceBaseTest.class)
+@EnableWebMvc
 public class ServiceBaseTest extends BaseTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBaseTest.class);
+
+    public static final String GLOBAL_SOURCE_NAME = "sourceName1";
     public static final String GLOBAL_GROUP_ID = "b_group1";
     public static final String GLOBAL_STREAM_ID = "stream1";
     public static final String GLOBAL_OPERATOR = "admin";
 
+    @Test
+    public void test() {
+        LOGGER.info("The test class cannot be empty, otherwise 'No runnable methods exception' will be reported");
+    }
 }

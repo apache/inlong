@@ -41,6 +41,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelationShip;
+import org.apache.inlong.sort.singletenant.flink.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.singletenant.flink.parser.Parser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
 import org.slf4j.Logger;
@@ -80,6 +81,7 @@ public class FlinkSqlParser implements Parser {
     public FlinkSqlParser(TableEnvironment tableEnv, GroupInfo groupInfo) {
         this.tableEnv = tableEnv;
         this.groupInfo = groupInfo;
+        registerUDF();
     }
 
     /**
@@ -91,6 +93,13 @@ public class FlinkSqlParser implements Parser {
      */
     public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo) {
         return new FlinkSqlParser(tableEnv, groupInfo);
+    }
+
+    /**
+     * Register udf
+     */
+    private void registerUDF() {
+        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
     }
 
     /**
@@ -619,34 +628,34 @@ public class FlinkSqlParser implements Parser {
                 metaType = "STRING METADATA FROM 'value.database'";
                 break;
             case MYSQL_METADATA_EVENT_TIME:
-                metaType = "TIMESTAMP(3) METADATA FROM 'value.op_ts'";
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
                 break;
             case MYSQL_METADATA_EVENT_TYPE:
-                metaType = "STRING METADATA FROM 'value.op_type'";
+                metaType = "STRING METADATA FROM 'value.op-type'";
                 break;
             case MYSQL_METADATA_DATA:
                 metaType = "STRING METADATA FROM 'value.data'";
                 break;
             case MYSQL_METADATA_IS_DDL:
-                metaType = "BOOLEAN METADATA FROM 'value.is_ddl'";
+                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
                 break;
             case METADATA_TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ts'";
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
                 break;
             case METADATA_SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql_type'";
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
                 break;
             case METADATA_MYSQL_TYPE:
-                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql_type'";
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
                 break;
             case METADATA_PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'value.pk_names'";
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
                 break;
             case METADATA_BATCH_ID:
-                metaType = "BIGINT METADATA FROM 'value.batch_id'";
+                metaType = "BIGINT METADATA FROM 'value.batch-id'";
                 break;
             case METADATA_UPDATE_BEFORE:
-                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
                 break;
             default:
                 metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();

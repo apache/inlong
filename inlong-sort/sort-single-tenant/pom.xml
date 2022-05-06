@@ -19,8 +19,8 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort</artifactId>
@@ -244,11 +244,6 @@
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
-            <artifactId>debezium-connector-mysql</artifactId>
-            <version>1.5.4.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
             <version>1.5.4.Final</version>
             <type>test-jar</type>
@@ -267,30 +262,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <version>2.10.1</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-debezium</artifactId>
-            <version>${flink-connector-debezium.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>kafka-log4j-appender</artifactId>
-                    <groupId>org.apache.kafka</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
             <version>${debezium-connector-mysql.version}</version>
         </dependency>
-
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
@@ -331,11 +306,13 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.flink.formats.avro</pattern>
-                                    <shadedPattern>org.apache.inlong.shaded.flink.formats.avro</shadedPattern>
+                                    <shadedPattern>org.apache.inlong.shaded.flink.formats.avro
+                                    </shadedPattern>
                                 </relocation>
                             </relocations>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>

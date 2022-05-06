@@ -22,19 +22,23 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
+import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
+import org.apache.inlong.manager.client.api.util.InlongStreamTransformTransfer;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
@@ -42,6 +46,11 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNodeRelationship;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -50,8 +59,11 @@ import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 public class InlongStreamImpl extends InlongStream {
+
+    private InnerInlongManagerClient managerClient;
+
+    private String groupName;
 
     private String name;
 
@@ -63,9 +75,11 @@ public class InlongStreamImpl extends InlongStream {
 
     private List<StreamField> streamFields = Lists.newArrayList();
 
-    public InlongStreamImpl(FullStreamResponse fullStreamResponse) {
+    public InlongStreamImpl(FullStreamResponse fullStreamResponse, InnerInlongManagerClient managerClient) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
+        this.managerClient = managerClient;
         this.name = streamInfo.getName();
+        this.groupName = streamInfo.getInlongGroupId().substring(2);
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
             this.streamFields = streamFieldInfos.stream()
@@ -106,7 +120,9 @@ public class InlongStreamImpl extends InlongStream {
 
     }
 
-    public InlongStreamImpl(String name) {
+    public InlongStreamImpl(String group, String name, InnerInlongManagerClient managerClient) {
+        this.managerClient = managerClient;
+        this.groupName = group;
         this.name = name;
     }
 
@@ -158,6 +174,39 @@ public class InlongStreamImpl extends InlongStream {
             throw new IllegalArgumentException(String.format("TransformName=%s has already be set", transform));
         }
         streamTransforms.put(transformName, transform);
+    }
+
+    @Override
+    public void deleteSource(String sourceName) {
+        streamSources.remove(sourceName);
+    }
+
+    @Override
+    public void deleteSink(String sinkName) {
+        streamSinks.remove(sinkName);
+    }
+
+    @Override
+    public void deleteTransform(String transformName) {
+        streamTransforms.remove(transformName);
+    }
+
+    @Override
+    public void updateSource(StreamSource source) {
+        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        streamSources.put(source.getSourceName(), source);
+    }
+
+    @Override
+    public void updateSink(StreamSink sink) {
+        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        streamSinks.put(sink.getSinkName(), sink);
+    }
+
+    @Override
+    public void updateTransform(StreamTransform transform) {
+        AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
+        streamTransforms.put(transform.getTransformName(), transform);
     }
 
     @Override
@@ -234,15 +283,136 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     @Override
-    public void updateSource(StreamSource source) {
-        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
-        streamSources.put(source.getSourceName(), source);
+    public InlongStream update() {
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setInlongStreamId("b_" + name);
+        streamInfo.setInlongGroupId("b_" + groupName);
+        streamInfo = managerClient.getStreamInfo(streamInfo);
+        if (streamInfo == null) {
+            throw new IllegalArgumentException(
+                    String.format("Stream is not exists for group=%s and stream=%s", groupName, name));
+        }
+        streamInfo.setFieldList(InlongStreamTransfer.createStreamFields(this.streamFields, streamInfo));
+        StreamPipeline streamPipeline = createPipeline();
+        streamInfo.setTempView(GsonUtil.toJson(streamPipeline));
+        Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
+        if (!updateMsg.getKey()) {
+            throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
+        }
+        initOrUpdateTransform(streamInfo);
+        initOrUpdateSource(streamInfo);
+        initOrUpdateSink(streamInfo);
+        return this;
     }
 
-    @Override
-    public void updateSink(StreamSink sink) {
-        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
-        streamSinks.put(sink.getSinkName(), sink);
+    private void initOrUpdateTransform(InlongStreamInfo streamInfo) {
+        final String groupId = "b_" + groupName;
+        final String streamId = "b_" + name;
+        List<TransformResponse> transformResponses = managerClient.listTransform(groupId, streamId);
+        List<String> updateTransformNames = Lists.newArrayList();
+        for (TransformResponse transformResponse : transformResponses) {
+            StreamTransform transform = InlongStreamTransformTransfer.parseStreamTransform(transformResponse);
+            String transformName = transform.getTransformName();
+            if (this.streamTransforms.get(transformName) == null) {
+                TransformRequest transformRequest = InlongStreamTransformTransfer.createTransformRequest(transform,
+                        streamInfo);
+                boolean isDelete = managerClient.deleteTransform(transformRequest);
+                if (!isDelete) {
+                    throw new RuntimeException(String.format("Delete transform=%s failed", transformRequest));
+                }
+            } else {
+                StreamTransform newTransform = this.streamTransforms.get(transformName);
+                TransformRequest transformRequest = InlongStreamTransformTransfer.createTransformRequest(newTransform,
+                        streamInfo);
+                Pair<Boolean, String> updateState = managerClient.updateTransform(transformRequest);
+                if (!updateState.getKey()) {
+                    throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
+                            updateState.getValue()));
+                }
+                updateTransformNames.add(transformName);
+            }
+        }
+        for (Map.Entry<String, StreamTransform> transformEntry : this.streamTransforms.entrySet()) {
+            String transformName = transformEntry.getKey();
+            if (updateTransformNames.contains(transformName)) {
+                continue;
+            }
+            StreamTransform transform = transformEntry.getValue();
+            TransformRequest transformRequest = InlongStreamTransformTransfer.createTransformRequest(transform,
+                    streamInfo);
+            managerClient.createTransform(transformRequest);
+        }
     }
 
+    private void initOrUpdateSource(InlongStreamInfo streamInfo) {
+        final String groupId = "b_" + groupName;
+        final String streamId = "b_" + name;
+        List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId, streamId);
+        List<String> updateSourceNames = Lists.newArrayList();
+        for (SourceListResponse sourceListResponse : sourceListResponses) {
+            String sourceName = sourceListResponse.getSourceName();
+            int id = sourceListResponse.getId();
+            String type = sourceListResponse.getSourceType();
+            if (this.streamSources.get(sourceName) == null) {
+                boolean isDelete = managerClient.deleteSource(id, type);
+                if (!isDelete) {
+                    throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
+                }
+            } else {
+                StreamSource source = this.streamSources.get(sourceName);
+                SourceRequest sourceRequest = InlongStreamSourceTransfer.createSourceRequest(source, streamInfo);
+                Pair<Boolean, String> updateState = managerClient.updateSource(sourceRequest);
+                if (!updateState.getKey()) {
+                    throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
+                            updateState.getValue()));
+                }
+                updateSourceNames.add(sourceName);
+            }
+        }
+        for (Map.Entry<String, StreamSource> requestEntry : streamSources.entrySet()) {
+            String sourceName = requestEntry.getKey();
+            if (updateSourceNames.contains(sourceName)) {
+                continue;
+            }
+            StreamSource streamSource = requestEntry.getValue();
+            SourceRequest sourceRequest = InlongStreamSourceTransfer.createSourceRequest(streamSource, streamInfo);
+            managerClient.createSource(sourceRequest);
+        }
+    }
+
+    private void initOrUpdateSink(InlongStreamInfo streamInfo) {
+        final String groupId = "b_" + groupName;
+        final String streamId = "b_" + name;
+        List<SinkListResponse> sinkListResponses = managerClient.listSinks(groupId, streamId);
+        List<String> updateSinkNames = Lists.newArrayList();
+        for (SinkListResponse sinkListResponse : sinkListResponses) {
+            String sinkName = sinkListResponse.getSinkName();
+            int id = sinkListResponse.getId();
+            String type = sinkListResponse.getSinkType();
+            if (this.streamSinks.get(sinkName) == null) {
+                boolean isDelete = managerClient.deleteSink(id, type);
+                if (!isDelete) {
+                    throw new RuntimeException(String.format("Delete sink=%s failed", sinkListResponse));
+                }
+            } else {
+                StreamSink sink = this.streamSinks.get(sinkName);
+                SinkRequest sinkRequest = InlongStreamSinkTransfer.createSinkRequest(sink, streamInfo);
+                Pair<Boolean, String> updateState = managerClient.updateSink(sinkRequest);
+                if (!updateState.getKey()) {
+                    throw new RuntimeException(String.format("Update sink=%s failed with err=%s", sinkRequest,
+                            updateState.getValue()));
+                }
+                updateSinkNames.add(sinkName);
+            }
+        }
+        for (Map.Entry<String, StreamSink> requestEntry : streamSinks.entrySet()) {
+            String sinkName = requestEntry.getKey();
+            if (updateSinkNames.contains(sinkName)) {
+                continue;
+            }
+            StreamSink streamSink = requestEntry.getValue();
+            SinkRequest sinkRequest = InlongStreamSinkTransfer.createSinkRequest(streamSink, streamInfo);
+            managerClient.createSink(sinkRequest);
+        }
+    }
 }

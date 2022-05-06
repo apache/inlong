@@ -45,7 +45,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +58,7 @@ public class FieldInfoUtils {
     /**
      * Built in field map, key is field name, value is built in field name
      */
-    public static final Map<String, BuiltInField> BUILT_IN_FIELD_MAP = new HashMap<>();
+    public static final Map<String, BuiltInField> BUILT_IN_FIELD_MAP = new LinkedHashMap<>();
 
     static {
         BUILT_IN_FIELD_MAP.put(MetaFieldType.DATA_TIME.getName(), BuiltInField.DATA_TIME);
@@ -68,20 +68,28 @@ public class FieldInfoUtils {
         BUILT_IN_FIELD_MAP.put(MetaFieldType.IS_DDL.getName(), BuiltInField.MYSQL_METADATA_IS_DDL);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.EVENT_TYPE.getName(), BuiltInField.MYSQL_METADATA_EVENT_TYPE);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.PROCESSING_TIME.getName(), BuiltInField.PROCESS_TIME);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_DATA.getName(), BuiltInField.MYSQL_METADATA_DATA);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.UPDATE_BEFORE.getName(), BuiltInField.METADATA_UPDATE_BEFORE);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.BATCH_ID.getName(), BuiltInField.METADATA_BATCH_ID);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.SQL_TYPE.getName(), BuiltInField.METADATA_SQL_TYPE);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.TS.getName(), BuiltInField.METADATA_TS);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_TYPE.getName(), BuiltInField.METADATA_MYSQL_TYPE);
         BUILT_IN_FIELD_MAP.put(MetaFieldType.PK_NAMES.getName(), BuiltInField.METADATA_PK_NAMES);
+        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_DATA.getName(), BuiltInField.MYSQL_METADATA_DATA);
     }
 
-    public static FieldInfo parseStreamFieldInfo(InlongStreamFieldInfo streamField, String name) {
+    public static FieldInfo parseSinkFieldInfo(SinkFieldResponse sinkFieldResponse, String nodeId) {
+        boolean isBuiltIn = sinkFieldResponse.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(sinkFieldResponse.getFieldName(), sinkFieldResponse.getFieldType(),
+                isBuiltIn, sinkFieldResponse.getFieldFormat());
+        fieldInfo.setNodeId(nodeId);
+        return fieldInfo;
+    }
+
+    public static FieldInfo parseStreamFieldInfo(InlongStreamFieldInfo streamField, String nodeId) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
                 streamField.getFieldFormat());
-        fieldInfo.setNodeId(name);
+        fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
@@ -134,14 +142,24 @@ public class FieldInfoUtils {
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
         if (isBuiltin && builtInField != null) {
-            fieldInfo = new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+            return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
             if (isBuiltin) {
+                // Check if fieldName contains buildInFieldName, such as left_database
+                // TODO The buildin field needs to be selectable and cannot be filled in by the user
+                for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
+                    if (fieldName.contains(buildInFieldName)) {
+                        builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
+                        break;
+                    }
+                }
+                if (builtInField != null) {
+                    return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+                }
                 log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
             }
-            fieldInfo = new FieldInfo(fieldName, formatInfo);
+            return new FieldInfo(fieldName, formatInfo);
         }
-        return fieldInfo;
     }
 
     /**

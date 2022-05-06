@@ -46,8 +46,8 @@ public class InlongClusterResponse {
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String clusterTag;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
-    private String zoneTag;
+    @ApiModelProperty(value = "Extension tag")
+    private String extTag;
 
     @ApiModelProperty(value = "Cluster heartbeat info")
     private String heartbeat;

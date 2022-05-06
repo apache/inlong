@@ -34,17 +34,14 @@ public class InlongClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster URL")
-    private String url;
+    @ApiModelProperty(value = "Cluster name")
+    private String name;
 
-    @ApiModelProperty(value = "Keywords, name, cluster tag, etc.")
+    @ApiModelProperty(value = "Keywords, name, url, cluster tag, etc.")
     private String keyword;
 
     @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
-
-    @ApiModelProperty(value = "Cluster zone tag")
-    private String zoneTag;
 
     @ApiModelProperty(value = "Status")
     private Integer status;

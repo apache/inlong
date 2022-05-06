@@ -50,7 +50,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
-
+        sourceInfo.setSourceName(GLOBAL_SOURCE_NAME);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
