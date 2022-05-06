@@ -57,7 +57,7 @@ public class KafkaSourceListResponse extends SourceListResponse {
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
 
-    @ApiModelProperty("Field needed when serializationType is csv,json,avro")
+    @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
 
 }
