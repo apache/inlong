@@ -102,6 +102,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setIgnoreParseErrors(response.isIgnoreParseErrors());
         kafkaSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
         kafkaSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
+        kafkaSource.setPrimaryKey(response.getPrimaryKey());
         return kafkaSource;
     }
 
@@ -174,6 +175,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setTablePattern(kafkaSource.getTablePattern());
         sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
         sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
+        sourceRequest.setPrimaryKey(kafkaSource.getPrimaryKey());
         sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(kafkaSource.getFields(), streamInfo));
         return sourceRequest;
     }

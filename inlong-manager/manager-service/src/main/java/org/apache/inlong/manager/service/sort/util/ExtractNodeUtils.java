@@ -100,7 +100,7 @@ public class ExtractNodeUtils {
                 .collect(Collectors.toList());
         final String serverTimeZone = binlogSourceResponse.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
-        
+
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
         if (binlogSourceResponse.isAllMigration()) {
@@ -176,6 +176,7 @@ public class ExtractNodeUtils {
             default:
                 startupMode = ScanStartupMode.LATEST_OFFSET;
         }
+        final String primaryKey = kafkaSourceResponse.getPrimaryKey();
 
         return new KafkaExtractNode(id,
                 name,
@@ -186,6 +187,6 @@ public class ExtractNodeUtils {
                 bootstrapServers,
                 format,
                 startupMode,
-                null);
+                primaryKey);
     }
 }
