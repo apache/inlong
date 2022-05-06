@@ -28,35 +28,125 @@ import java.util.Map;
 
 public abstract class InlongStream {
 
+    /**
+     * Return name of stream.
+     *
+     * @return
+     */
     public abstract String getName();
 
+    /**
+     * Return field definitions of stream.
+     *
+     * @return
+     */
     public abstract List<StreamField> listFields();
 
+    /**
+     * Return data sources defined in stream, key is source name which must be unique within one stream scope.
+     *
+     * @return
+     */
     public abstract Map<String, StreamSource> getSources();
 
+    /**
+     * Return data sinks defined in stream, key is sink name which must be unique within one stream scope.
+     *
+     * @return
+     */
     public abstract Map<String, StreamSink> getSinks();
 
+    /**
+     * Return data transform node defined in stream(split,string replace etc)
+     * key is transform name which must be unique within one stream scope.
+     *
+     * @return
+     */
     public abstract Map<String, StreamTransform> getTransforms();
 
-    public abstract void addSource(StreamSource source);
+    /**
+     * Add data source to stream, this method will throw exception when source name already exists in stream.
+     *
+     * @param source
+     * @return
+     */
+    public abstract InlongStream addSource(StreamSource source);
 
-    public abstract void addSink(StreamSink sink);
+    /**
+     * Add data sink to stream, this method will throw exception when sink name already exists in stream.
+     *
+     * @param sink
+     * @return
+     */
+    public abstract InlongStream addSink(StreamSink sink);
 
-    public abstract void addTransform(StreamTransform transform);
+    /**
+     * Add data transform node to stream, this method will throw exception when transform name already exists in stream.
+     *
+     * @param transform
+     * @return
+     */
+    public abstract InlongStream addTransform(StreamTransform transform);
 
-    public abstract void deleteSource(String sourceName);
+    /**
+     * Delete data source by source name.
+     *
+     * @param sourceName
+     * @return
+     */
+    public abstract InlongStream deleteSource(String sourceName);
 
-    public abstract void deleteSink(String sinkName);
+    /**
+     * Delete data sink by sink name.
+     *
+     * @param sinkName
+     * @return
+     */
+    public abstract InlongStream deleteSink(String sinkName);
 
-    public abstract void deleteTransform(String transformName);
+    /**
+     * Delete data transform node by transform name.
+     *
+     * @param transformName
+     * @return
+     */
+    public abstract InlongStream deleteTransform(String transformName);
 
-    public abstract void updateSource(StreamSource source);
+    /**
+     * Update data source by source name, add new one if source name not exists.
+     *
+     * @param source
+     * @return
+     */
+    public abstract InlongStream updateSource(StreamSource source);
 
-    public abstract void updateSink(StreamSink sink);
+    /**
+     * Update data sink by sink name, add new one if sink name not exists.
+     *
+     * @param sink
+     * @return
+     */
+    public abstract InlongStream updateSink(StreamSink sink);
 
-    public abstract void updateTransform(StreamTransform transform);
+    /**
+     * Update data transform node by transform name, add new one if transform name not exists.
+     *
+     * @param transform
+     * @return
+     */
+    public abstract InlongStream updateTransform(StreamTransform transform);
 
+    /**
+     * Create stream pipeline by sources, transforms, sinks defined in stream.
+     *
+     * @return
+     */
     public abstract StreamPipeline createPipeline();
 
+    /**
+     * Update stream definition in manager service, which must be invoked after add/delete/update source/sink/transform.
+     *
+     * @return
+     */
     public abstract InlongStream update();
 }

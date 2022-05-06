@@ -147,66 +147,75 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     @Override
-    public void addSource(StreamSource source) {
+    public InlongStream addSource(StreamSource source) {
         AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
         String sourceName = source.getSourceName();
         if (streamSources.get(sourceName) != null) {
             throw new IllegalArgumentException(String.format("StreamSource=%s has already be set", source));
         }
         streamSources.put(sourceName, source);
+        return this;
     }
 
     @Override
-    public void addSink(StreamSink sink) {
+    public InlongStream addSink(StreamSink sink) {
         AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
         String sinkName = sink.getSinkName();
         if (streamSinks.get(sinkName) != null) {
             throw new IllegalArgumentException(String.format("StreamSink=%s has already be set", sink));
         }
         streamSinks.put(sinkName, sink);
+        return this;
     }
 
     @Override
-    public void addTransform(StreamTransform transform) {
+    public InlongStream addTransform(StreamTransform transform) {
         AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
         String transformName = transform.getTransformName();
         if (streamTransforms.get(transformName) != null) {
             throw new IllegalArgumentException(String.format("TransformName=%s has already be set", transform));
         }
         streamTransforms.put(transformName, transform);
+        return this;
     }
 
     @Override
-    public void deleteSource(String sourceName) {
+    public InlongStream deleteSource(String sourceName) {
         streamSources.remove(sourceName);
+        return this;
     }
 
     @Override
-    public void deleteSink(String sinkName) {
+    public InlongStream deleteSink(String sinkName) {
         streamSinks.remove(sinkName);
+        return this;
     }
 
     @Override
-    public void deleteTransform(String transformName) {
+    public InlongStream deleteTransform(String transformName) {
         streamTransforms.remove(transformName);
+        return this;
     }
 
     @Override
-    public void updateSource(StreamSource source) {
+    public InlongStream updateSource(StreamSource source) {
         AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
         streamSources.put(source.getSourceName(), source);
+        return this;
     }
 
     @Override
-    public void updateSink(StreamSink sink) {
+    public InlongStream updateSink(StreamSink sink) {
         AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
         streamSinks.put(sink.getSinkName(), sink);
+        return this;
     }
 
     @Override
-    public void updateTransform(StreamTransform transform) {
+    public InlongStream updateTransform(StreamTransform transform) {
         AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
         streamTransforms.put(transform.getTransformName(), transform);
+        return this;
     }
 
     @Override
