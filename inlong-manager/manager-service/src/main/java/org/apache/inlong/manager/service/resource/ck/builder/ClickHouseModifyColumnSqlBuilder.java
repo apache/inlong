@@ -24,42 +24,21 @@ import org.apache.inlong.manager.common.pojo.query.ck.ClickHouseTableQueryBean;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClickHouseCreateTableSqlBuilder extends SqlBuilder<ClickHouseTableQueryBean> {
-
-    private final int firstColumnIndex = 0;
+public class ClickHouseModifyColumnSqlBuilder extends SqlBuilder<ClickHouseTableQueryBean> {
 
     @Override
     public String buildDDL(ClickHouseTableQueryBean table) {
         // Support _ beginning with underscore
         String dbTableName = table.getDbName() + "." + table.getTableName();
-        ddl.append("CREATE TABLE ").append(dbTableName);
-        // Construct columns and partition columns
-        ddl.append(this.buildColumnsAndComments(table.getColumns()));
-        // Set TERMINATED symbol
-        if (StringUtils.isNotEmpty(table.getTableEngine())) { // set table comment
-            ddl.append(" ENGINE = ").append(table.getTableEngine());
-        } else {
-            ddl.append(" ENGINE = MergeTree()");
-        }
-        if (StringUtils.isNotEmpty(table.getOrderBy())) {
-            ddl.append(" ORDER BY ").append(table.getOrderBy());
-        } else if (StringUtils.isEmpty(table.getTableEngine())) {
-            ddl.append(" ORDER BY ").append(table.getColumns()
-                    .get(firstColumnIndex).getColumnName());
-        }
-        if (StringUtils.isNotEmpty(table.getPartitionBy())) {
-            ddl.append(" PARTITION BY ").append(table.getPartitionBy());
-        }
-        if (StringUtils.isNotEmpty(table.getPrimaryKey())) {
-            ddl.append(" PRIMARY KEY ").append(table.getPrimaryKey());
-        }
-        if (StringUtils.isNotEmpty(table.getTableDesc())) {
-            ddl.append(" COMMENT '").append(table.getTableDesc()).append("'");
+        List<String> columnInfoList = this.buildColumns(table.getColumns());
+        for (String columnInfo : columnInfoList) {
+            ddl.append("ALTER TABLE ").append(dbTableName).append(" MODIFY COLUMN ")
+                    .append(columnInfo).append("|");
         }
         return ddl.toString();
     }
 
-    private String buildColumnsAndComments(List<ClickHouseColumnQueryBean> columns) {
+    private List<String> buildColumns(List<ClickHouseColumnQueryBean> columns) {
         List<String> columnInfoList = new ArrayList<>();
         for (ClickHouseColumnQueryBean columnBean : columns) {
             // Construct columns and partition columns
@@ -81,13 +60,12 @@ public class ClickHouseCreateTableSqlBuilder extends SqlBuilder<ClickHouseTableQ
             }
             columnInfoList.add(columnInfo.toString());
         }
-        StringBuilder result = new StringBuilder().append("(").append(StringUtils.join(columnInfoList, ","))
-                .append(")");
-        return result.toString();
+        return columnInfoList;
     }
 
     @Override
     public String getOPT() {
-        return "CREATE_TABLE_CLICKHOUSE";
+        return null;
     }
+
 }

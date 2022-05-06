@@ -62,7 +62,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
     }
 
     /**
-     * Create hive table according to the groupId and hive config
+     * Create ClickHouse table according to the groupId and ClickHouse config
      */
     public void createSinkResource(String groupId, SinkInfo sinkInfo) {
         if (sinkInfo == null) {
@@ -83,7 +83,7 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
 
     private void createTable(String groupId, SinkInfo config) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin create hive table for inlong group={}, config={}", groupId, config);
+            LOGGER.debug("begin create ClickHouse table for inlong group={}, config={}", groupId, config);
         }
 
         // Get all info from config
@@ -99,7 +99,6 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
                 // no such table, create one
                 dataSourceService.createTable(tableBean);
             } else {
-                // set columns, skip the first columns already exist in hive
                 List<ClickHouseColumnQueryBean> columnsSkipHistory = tableBean.getColumns().stream()
                         .skip(columns.size()).collect(toList());
                 if (columnsSkipHistory.size() != 0) {
@@ -108,14 +107,14 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
                 }
             }
             sinkService.updateStatus(config.getId(),
-                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create hive table success");
+                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create ClickHouse table success");
         } catch (Throwable e) {
-            LOGGER.error("create hive table error, ", e);
+            LOGGER.error("create ClickHouse table error, ", e);
             sinkService.updateStatus(config.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
-            throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
+            throw new WorkflowException("create ClickHouse table failed, reason: " + e.getMessage());
         }
 
-        LOGGER.info("success create hive table for data group [" + groupId + "]");
+        LOGGER.info("success create ClickHouse table for data group [" + groupId + "]");
     }
 
     protected ClickHouseTableQueryBean getTableQueryBean(SinkInfo config, ClickHouseSinkDTO clickHouseInfo) {

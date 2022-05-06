@@ -35,7 +35,7 @@ import java.util.List;
 public class ClickHouseServerDao {
 
     private static final String CLICKHOUSE_DRIVER_CLASS = "ru.yandex.clickhouse.ClickHouseDriver";
-    private static final Logger LOG = LoggerFactory.getLogger(HiveServerDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClickHouseServerDao.class);
 
     public void executeDDL(String ddl, String url, String user, String password) throws Exception {
         try (Connection conn = this.getClickHouseConnection(url, user, password)) {
@@ -66,7 +66,7 @@ public class ClickHouseServerDao {
     }
 
     /**
-     * Get Hive tables
+     * Get ClickHouse tables
      */
     public List<String> getTables(String url, String user, String password, String dbname) throws Exception {
         List<String> tables = new ArrayList<>();
@@ -89,7 +89,7 @@ public class ClickHouseServerDao {
     }
 
     /**
-     * Get Hive connection from hive url and user
+     * Get ClickHouse connection from ClickHouse url and user
      */
     public Connection getClickHouseConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith("jdbc:clickhouse")) {
@@ -100,16 +100,16 @@ public class ClickHouseServerDao {
             Class.forName(CLICKHOUSE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            LOG.error("get clickhouse connection error, please check hive jdbc url, username or password", e);
+            LOG.error("get clickhouse connection error, please check clickhouse jdbc url, username or password", e);
             throw new Exception("get clickhouse connection error, please check jdbc url, username or password. "
                     + "other error msg: " + e.getMessage());
         }
 
         if (conn == null) {
-            throw new Exception("get hive connection failed, please contact administrator");
+            throw new Exception("get clickhouse connection failed, please contact administrator");
         }
 
-        LOG.info("get hive connection success, url={}", url);
+        LOG.info("get clickhouse connection success, url={}", url);
         return conn;
     }
 

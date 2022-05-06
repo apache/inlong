@@ -76,6 +76,7 @@ public enum ErrorCodeEnum {
     SOURCE_NAME_IS_NULL(1308, "Source name is null"),
 
     HIVE_OPERATION_FAILED(1311, "Hive operation failed"),
+    CLICKHOUSE_OPERATION_FAILED(1321, "ClickHouse operation failed"),
 
     SINK_TYPE_IS_NULL(1400, "Sink type is null"),
     SINK_TYPE_NOT_SUPPORT(1401, "Sink type '%s' not support"),
