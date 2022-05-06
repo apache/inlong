@@ -17,13 +17,14 @@
 
 package org.apache.inlong.manager.client.cli.util;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,10 +70,15 @@ public class PrintUtil {
                 try {
                     System.out.print(vertical);
                     if (fields[i].get(k) != null) {
+                        String fieldValue = fields[i].get(k).toString();
+                        int charNum = fieldValue.getBytes("GBK").length - fieldValue.length();
                         if (fields[i].getType().equals(Date.class)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             String dataFormat = sf.format(fields[i].get(k));
                             System.out.printf("%s", StringUtils.center(dataFormat, columnWidth[i]));
+                        } else if (charNum != 0) {
+                            System.out.printf("%s",
+                                    StringUtils.center(fields[i].get(k).toString(), columnWidth[i] - charNum));
                         } else {
                             System.out.printf("%s", StringUtils.center(fields[i].get(k).toString(), columnWidth[i]));
                         }
@@ -81,6 +87,8 @@ public class PrintUtil {
                     }
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
                 }
             }
             System.out.println(vertical);
@@ -91,13 +99,8 @@ public class PrintUtil {
     private static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
         item.forEach(t -> {
-            try {
-                K k = clazz.newInstance();
-                BeanUtils.copyProperties(t, k);
-                newList.add(k);
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            K k = JSONObject.parseObject(JSONObject.toJSONString(t), clazz);
+            newList.add(k);
         });
         return newList;
     }
@@ -113,12 +116,14 @@ public class PrintUtil {
                 for (int j = 0; j < fields.length; j++) {
                     fields[j].setAccessible(true);
                     if (fields[j].get(k) != null) {
-                        int length = fields[j].get(k).toString().length();
+                        int length = fields[j].get(k).toString().getBytes("GBK").length;
                         maxWidth[j] = Math.max(length, maxWidth[j]);
                     }
                 }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
             }
         });
         for (int i = 0; i < maxWidth.length; i++) {

@@ -23,6 +23,7 @@ import org.junit.Test;
 
 @Slf4j
 public class TestCommand {
+
     CommandToolMain inlongAdminTool = new CommandToolMain();
 
     @Test
