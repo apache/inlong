@@ -56,7 +56,7 @@ public class GroupInfoTest extends SerializeBaseTest<GroupInfo> {
         return new MySqlExtractNode("1", "mysql_input", fields,
                 wk, null, "id",
                 Collections.singletonList("table"), "localhost", "username", "username",
-                "test_database", 3306, "dataNode_test", true, null);
+                "test_database", 3306, "data_node_test", true, null);
     }
 
     private KafkaLoadNode buildKafkaNode() {

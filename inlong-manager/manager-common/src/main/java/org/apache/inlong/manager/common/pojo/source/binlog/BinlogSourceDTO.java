@@ -52,7 +52,7 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
-    @ApiModelProperty("data node name")
+    @ApiModelProperty("Data node name")
     private String dataNodeName;
 
     @ApiModelProperty("Whether include schema, default is 'false'")

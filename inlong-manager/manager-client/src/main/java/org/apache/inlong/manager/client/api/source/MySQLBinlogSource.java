@@ -58,7 +58,7 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Exposed port of the DB server")
     private int port = 3306;
 
-    @ApiModelProperty("data node name")
+    @ApiModelProperty("Data node name")
     private String dataNodeName;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "

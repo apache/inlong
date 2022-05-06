@@ -56,7 +56,7 @@ public class SourceRequest {
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @ApiModelProperty("data node name")
+    @ApiModelProperty("Data node name")
     private String dataNodeName;
 
     @ApiModelProperty("Id of the cluster that collected this source")
