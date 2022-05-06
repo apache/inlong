@@ -49,7 +49,7 @@ public class ClickHouseDropColumnSqlBuilder extends SqlBuilder<ClickHouseTableQu
 
     @Override
     public String getOPT() {
-        return "DROP_COLUMN_CLICKHOUSE";;
+        return "DROP_COLUMN_CLICKHOUSE";
     }
 
 }
