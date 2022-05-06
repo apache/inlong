@@ -73,7 +73,7 @@ public class KafkaSourceRequest extends SourceRequest {
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
 
-    @ApiModelProperty("Field needed when serializationType is csv,json,avro")
+    @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
 
     public KafkaSourceRequest() {
