@@ -154,6 +154,31 @@ CREATE TABLE `inlong_cluster_node`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong cluster node table';
 
 -- ----------------------------
+-- Table structure for data_node
+-- ----------------------------
+DROP TABLE IF EXISTS `data_node`;
+CREATE TABLE `data_node`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `name`        varchar(128) NOT NULL COMMENT 'Node name',
+    `type`        varchar(20)       DEFAULT '' COMMENT 'Node type, such as: MYSQL, HIVE, KAFKA, ES, etc',
+    `url`         varchar(512)      DEFAULT NULL COMMENT 'Node URL',
+    `username`    varchar(128)      DEFAULT NULL COMMENT 'Username for node if needed',
+    `password`    varchar(128)      DEFAULT NULL COMMENT 'Password for node',
+    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params, will saved as JSON string',
+    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
+    `status`      int(4)            DEFAULT '0' COMMENT 'Node status',
+    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_data_node_index` (`name`, `type`, `is_deleted`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Data node table';
+
+-- ----------------------------
 -- Table structure for third_party_cluster
 -- ----------------------------
 DROP TABLE IF EXISTS `third_party_cluster`;
