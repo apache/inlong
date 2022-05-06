@@ -177,6 +177,39 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     @Override
+    public void deleteSource(String sourceName) {
+        streamSources.remove(sourceName);
+    }
+
+    @Override
+    public void deleteSink(String sinkName) {
+        streamSinks.remove(sinkName);
+    }
+
+    @Override
+    public void deleteTransform(String transformName) {
+        streamTransforms.remove(transformName);
+    }
+
+    @Override
+    public void updateSource(StreamSource source) {
+        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        streamSources.put(source.getSourceName(), source);
+    }
+
+    @Override
+    public void updateSink(StreamSink sink) {
+        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        streamSinks.put(sink.getSinkName(), sink);
+    }
+
+    @Override
+    public void updateTransform(StreamTransform transform) {
+        AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
+        streamTransforms.put(transform.getTransformName(), transform);
+    }
+
+    @Override
     public StreamPipeline createPipeline() {
         StreamPipeline streamPipeline = new StreamPipeline();
         if (MapUtils.isEmpty(streamTransforms)) {

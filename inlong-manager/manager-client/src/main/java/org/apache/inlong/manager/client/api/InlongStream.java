@@ -44,6 +44,18 @@ public abstract class InlongStream {
 
     public abstract void addTransform(StreamTransform transform);
 
+    public abstract void deleteSource(String sourceName);
+
+    public abstract void deleteSink(String sinkName);
+
+    public abstract void deleteTransform(String transformName);
+
+    public abstract void updateSource(StreamSource source);
+
+    public abstract void updateSink(StreamSink sink);
+
+    public abstract void updateTransform(StreamTransform transform);
+
     public abstract StreamPipeline createPipeline();
 
     public abstract InlongStream update();
