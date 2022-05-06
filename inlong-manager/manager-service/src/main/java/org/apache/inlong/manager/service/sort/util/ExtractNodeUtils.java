@@ -88,9 +88,9 @@ public class ExtractNodeUtils {
         final String userName = binlogSourceResponse.getUser();
         final String password = binlogSourceResponse.getPassword();
         final Integer port = binlogSourceResponse.getPort();
-        Integer serverId = null;
-        if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
-            serverId = binlogSourceResponse.getServerId();
+        String dataNodeName = null;
+        if (binlogSourceResponse.getDataNodeName() != null) {
+            dataNodeName = binlogSourceResponse.getDataNodeName();
         }
         String tables = binlogSourceResponse.getTableWhiteList();
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
@@ -125,7 +125,7 @@ public class ExtractNodeUtils {
                 password,
                 database,
                 port,
-                serverId,
+                dataNodeName,
                 incrementalSnapshotEnabled,
                 serverTimeZone);
     }

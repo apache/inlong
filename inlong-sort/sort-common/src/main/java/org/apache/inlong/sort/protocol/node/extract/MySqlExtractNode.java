@@ -60,8 +60,8 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("port")
     private Integer port;
     @JsonInclude(Include.NON_NULL)
-    @JsonProperty("serverId")
-    private Integer serverId;
+    @JsonProperty("dataNodeName")
+    private String dataNodeName;
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("incrementalSnapshotEnabled")
     private Boolean incrementalSnapshotEnabled;
@@ -82,7 +82,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("database") String database,
             @JsonProperty("port") Integer port,
-            @JsonProperty("serverId") Integer serverId,
+            @JsonProperty("dataNodeName") String dataNodeName,
             @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @JsonProperty("serverTimeZone") String serverTimeZone) {
         super(id, name, fields, waterMarkField, properties);
@@ -94,7 +94,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
         this.database = Preconditions.checkNotNull(database, "database is null");
         this.primaryKey = primaryKey;
         this.port = port;
-        this.serverId = serverId;
+        this.dataNodeName = dataNodeName;
         this.incrementalSnapshotEnabled = incrementalSnapshotEnabled;
         this.serverTimeZone = serverTimeZone;
     }
@@ -120,8 +120,8 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
         if (port != null) {
             options.put("port", port.toString());
         }
-        if (serverId != null) {
-            options.put("server-id", serverId.toString());
+        if (dataNodeName != null) {
+            options.put("data-node-name", dataNodeName);
         }
         if (incrementalSnapshotEnabled != null) {
             options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());

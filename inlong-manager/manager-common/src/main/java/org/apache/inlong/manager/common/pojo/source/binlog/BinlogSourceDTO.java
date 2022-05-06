@@ -52,8 +52,8 @@ public class BinlogSourceDTO {
     @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
-    @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
-    private int serverId;
+    @ApiModelProperty("data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;
@@ -119,7 +119,7 @@ public class BinlogSourceDTO {
                 .password(request.getPassword())
                 .hostname(request.getHostname())
                 .port(request.getPort())
-                .serverId(request.getServerId())
+                .dataNodeName(request.getDataNodeName())
                 .includeSchema(request.getIncludeSchema())
                 .databaseWhiteList(request.getDatabaseWhiteList())
                 .tableWhiteList(request.getTableWhiteList())

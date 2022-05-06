@@ -32,6 +32,10 @@ public class StreamSinkEntity implements Serializable {
     private String sinkType;
     private String sinkName;
     private String description;
+    private String inlongClusterName;
+    private String dataNodeName;
+    private String sortTaskName;
+    private String sortConsumerGroup;
     private Integer enableCreateResource;
 
     private String operateLog;

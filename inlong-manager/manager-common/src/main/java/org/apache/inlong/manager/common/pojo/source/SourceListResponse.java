@@ -47,8 +47,8 @@ public class SourceListResponse {
     @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
     private String serializationType;
 
-    @ApiModelProperty("Id of the source server")
-    private Integer serverId;
+    @ApiModelProperty("data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
