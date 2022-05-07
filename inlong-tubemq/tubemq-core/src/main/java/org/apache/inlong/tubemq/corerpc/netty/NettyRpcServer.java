@@ -141,7 +141,7 @@ public class NettyRpcServer implements ServiceRpcServer {
         int nettyWriteLowMark =
                 conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
         bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
-                    new WriteBufferWaterMark(nettyWriteHighMark, nettyWriteLowMark));
+                new WriteBufferWaterMark(nettyWriteLowMark, nettyWriteHighMark));
         int nettySendBuf = conf.getInt(RpcConstants.NETTY_TCP_SENDBUF, -1);
         if (nettySendBuf > 0) {
             bootstrap.childOption(ChannelOption.SO_SNDBUF, nettySendBuf);
