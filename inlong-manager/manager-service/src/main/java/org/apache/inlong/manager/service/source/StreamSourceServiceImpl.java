@@ -75,12 +75,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        //InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
         // According to the source type, save source information
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
-        int id = operation.saveOpt(request, groupEntity.getStatus(), operator);
+        int id = operation.saveOpt(request, 130, operator);
 
         LOGGER.info("success to save source info: {}", request);
         return id;
@@ -179,7 +179,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        //commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         SourceRequest sourceRequest = new SourceRequest();
