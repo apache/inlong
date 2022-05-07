@@ -40,9 +40,7 @@ abstract class CommandUtil {
 
     public InlongClientImpl connect() {
         Properties properties = new Properties();
-        String path =
-                Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-
+        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
         try {
             InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
             properties.load(inputStream);
