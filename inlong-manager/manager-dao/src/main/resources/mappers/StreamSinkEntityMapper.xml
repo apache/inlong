@@ -19,7 +19,7 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
@@ -46,10 +46,9 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, sink_type, sink_name, description, enable_create_resource,
-        inlong_cluster_name, data_node_name, sort_task_name, sort_consumer_group, ext_params, operate_log, status,
-        previous_status, is_deleted, creator, modifier, create_time, modify_time
+        id, inlong_group_id, inlong_stream_id, sink_type, sink_name, description, enable_create_resource,
+        inlong_cluster_name, data_node_name, sort_task_name, sort_consumer_group, ext_params, operate_log,
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -71,8 +70,8 @@
         </where>
     </select>
     <select id="selectByCondition"
-        parameterType="org.apache.inlong.manager.common.pojo.sink.SinkPageRequest"
-        resultMap="BaseResultMap">
+            parameterType="org.apache.inlong.manager.common.pojo.sink.SinkPageRequest"
+            resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from stream_sink
@@ -112,7 +111,7 @@
         </where>
     </select>
     <select id="selectSummary"
-        resultType="org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse">
+            resultType="org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse">
         select s.id,
                s.inlong_group_id,
                s.inlong_stream_id,
@@ -215,7 +214,7 @@
     </delete>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-        parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         insert into stream_sink (id, inlong_group_id, inlong_stream_id,
                                  sink_type, sink_name, description,
                                  enable_create_resource, inlong_cluster_name, data_node_name, sort_task_name,
@@ -234,7 +233,7 @@
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
-        parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         insert into stream_sink
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -363,7 +362,7 @@
     </insert>
 
     <update id="updateByPrimaryKeySelective"
-        parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
+            parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         update stream_sink
         <set>
             <if test="inlongGroupId != null">
