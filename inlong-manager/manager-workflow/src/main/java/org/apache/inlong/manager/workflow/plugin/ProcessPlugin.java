@@ -21,17 +21,12 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 
 import java.util.Map;
 
 public interface ProcessPlugin extends Plugin {
 
     default Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
-        return null;
-    }
-
-    default Map<SinkOperateListener, EventSelector> createSinkOperateListeners() {
         return null;
     }
 
