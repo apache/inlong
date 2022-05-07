@@ -36,6 +36,25 @@ public interface SinkResourceOperator {
      * @param groupId The inlong group id.
      * @param sinkInfo The sink response info.
      */
-    void createSinkResource(String groupId, SinkInfo sinkInfo);
+    default void createSinkResource(String groupId, SinkInfo sinkInfo) {
+    }
+
+    /**
+     * Update sink resource.
+     *
+     * @param groupId The inlong group id.
+     * @param sinkInfo The sink response info.
+     */
+    default void updateSinkResource(String groupId, SinkInfo sinkInfo) {
+    }
+
+    /**
+     * Delete sink resource.
+     *
+     * @param groupId The inlong group id.
+     * @param sinkInfo The sink response info.
+     */
+    default void deleteSinkResource(String groupId, SinkInfo sinkInfo) {
+    }
 
 }

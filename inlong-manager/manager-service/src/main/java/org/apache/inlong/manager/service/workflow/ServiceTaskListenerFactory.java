@@ -26,7 +26,7 @@ import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.mq.PulsarEventSelector;
 import org.apache.inlong.manager.service.mq.TubeEventSelector;
-import org.apache.inlong.manager.service.resource.CreateSinkResourceListener;
+import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.CreateSortConfigListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
@@ -87,7 +87,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
     private CreatePulsarGroupTaskListener createPulsarGroupTaskListener;
 
     @Autowired
-    private CreateSinkResourceListener createSinkResourceListener;
+    private SinkResourceListener sinkResourceListener;
 
     @Autowired
     private PushSortConfigListener pushSortConfigListener;
@@ -142,7 +142,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
                 List<DataSourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
                 return Lists.newArrayList(sourceOperateListeners);
             case INIT_SINK:
-                return Collections.singletonList(createSinkResourceListener);
+                return Collections.singletonList(sinkResourceListener);
             default:
                 throw new IllegalArgumentException(String.format("UnSupport ServiceTaskType %s", serviceTaskType));
         }
