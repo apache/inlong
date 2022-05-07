@@ -19,11 +19,11 @@
 wait_port_to_listen() {
   service_name=$1
   service_port=$2
-  result=$(lsof -Pi :${service_port} -sTCP:LISTEN)
+  result=$(netstat -anp | grep ${service_port})
   while [[ -z "$result" ]]; do
     echo "waiting $service_name to start, sleep 3s ..."
     sleep 3
-    result=$(lsof -Pi :${service_port} -sTCP:LISTEN)
+    result=$(netstat -anp | grep ${service_port})
   done
 }
 
@@ -40,9 +40,8 @@ if [[ $TARGET == "standalone" ]]; then
   /docker-entrypoint.sh zkServer.sh start
   wait_port_to_listen zookeeper 2181
   # master start
-
   ./tubemq.sh master start
-  wait_port_to_listen zookeeper 8080
+  wait_port_to_listen master 8080
   # add broker
   curl -d "type=op_modify&method=admin_add_broker_configure&brokerId=1\
     &brokerIp=127.0.0.1&brokerPort=8123&deletePolicy=delete,168h&numPartitions=3\
