@@ -20,8 +20,8 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.cli.enums.InlongGroupState;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.pojo.SinkInfo;
 import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
@@ -96,7 +96,7 @@ public class CommandList extends CommandBase {
                 InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<InlongGroupListResponse> groupList = new ArrayList<>();
                 if (status != null) {
-                    List<Integer> stateList = InlongGroupState.parseStatus(status);
+                    List<Integer> stateList = InlongGroupState.parseStatusByStrState(status);
                     for (int state : stateList) {
                         PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, state, 1,
                                 pageSize);
