@@ -29,8 +29,11 @@ import org.apache.inlong.tubemq.manager.enums.ErrorCode;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TubeMQResult {
+    @Builder.Default
     private String errMsg = "";
+    @Builder.Default
     private int errCode = 0;
+    @Builder.Default
     private boolean result = true;
     private Object data;
 

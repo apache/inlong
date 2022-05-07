@@ -58,6 +58,7 @@
   "components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded": "Connection succeeded",
   "components.AccessHelper.StorageMetaData.Hive.ConnectionFailed": "Connection failed",
   "components.AccessHelper.StorageMetaData.Hive.DataPath": "DataPath",
+  "components.AccessHelper.StorageMetaData.DataPathHelp": "Storage path of the DB, excluding the table name, such as: hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "components.AccessHelper.StorageMetaData.Hive.FieldName": "FieldName",
   "components.AccessHelper.StorageMetaData.Hive.FieldType": "FieldType",
   "components.AccessHelper.StorageMetaData.Hive.FieldDescription": "Field description",

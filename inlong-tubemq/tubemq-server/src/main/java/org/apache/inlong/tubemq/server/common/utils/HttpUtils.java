@@ -81,7 +81,6 @@ public class HttpUtils {
         HttpPost httpPost1 = null;
         HttpPost httpPost2 = null;
         JsonObject jsonRes = null;
-        JsonParser jsonParser = new JsonParser();
         try {
             httpclient = HttpClients.custom()
                     .setDefaultRequestConfig(requestConfig).build();
@@ -103,7 +102,7 @@ public class HttpUtils {
             String returnStr = EntityUtils.toString(response.getEntity());
             if (TStringUtils.isNotBlank(returnStr)
                     && response.getStatusLine().getStatusCode() == 200) {
-                jsonRes = jsonParser.parse(returnStr).getAsJsonObject();
+                jsonRes = JsonParser.parseString(returnStr).getAsJsonObject();
             }
         } catch (Throwable e) {
             throw new Exception("Connecting " + url + " throw an error!", e);

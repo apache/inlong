@@ -70,7 +70,9 @@ public class KafkaSinkDTO {
         return KafkaSinkDTO.builder()
                 .bootstrapServers(request.getBootstrapServers())
                 .topicName(request.getTopicName())
+                .partitionNum(request.getPartitionNum())
                 .serializationType(request.getSerializationType())
+                .autoOffsetReset(request.getAutoOffsetReset())
                 .primaryKey(request.getPrimaryKey())
                 .properties(request.getProperties())
                 .build();
