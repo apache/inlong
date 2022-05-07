@@ -41,6 +41,12 @@ public class InlongStreamResponse {
     @ApiModelProperty(value = "Inlong stream name", required = true)
     private String name;
 
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
+
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
