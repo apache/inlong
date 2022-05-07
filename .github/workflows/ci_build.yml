@@ -93,3 +93,17 @@ jobs:
         with:
           name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
           path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz
+
+      - name: Comment with binary package path
+        if: ${{ success() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "🎉 Congratulations! The binary package of InLong was compiled successfully and you can download it on [this page](${{ env. ACTIONS_RUN_URL}})."
+            })
+        env:
+          ACTIONS_RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
