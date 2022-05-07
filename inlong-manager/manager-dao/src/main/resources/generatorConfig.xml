@@ -67,13 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <table tableName="inlong_cluster" domainObjectName="InlongClusterEntity"
-                enableInsert="true" enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true" enableDeleteByPrimaryKey="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false">
-        </table>
-        <table tableName="inlong_cluster_node" domainObjectName="InlongClusterNodeEntity"
+        <table tableName="data_node" domainObjectName="DataNodeEntity"
                 enableInsert="true" enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true" enableDeleteByPrimaryKey="true"
                 enableCountByExample="false" enableDeleteByExample="false"

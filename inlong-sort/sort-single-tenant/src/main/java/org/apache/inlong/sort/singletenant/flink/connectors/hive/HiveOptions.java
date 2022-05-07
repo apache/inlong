@@ -62,4 +62,9 @@ public class HiveOptions {
                                     + "If it is true, using hadoop mapred record writer to write "
                                     + "parquet and orc files.");
 
+    public static final ConfigOption<Boolean> HIVE_IGNORE_ALL_CHANGELOG =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Regard upsert delete as insert kind.");
 }

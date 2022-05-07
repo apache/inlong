@@ -79,4 +79,7 @@ public class KafkaSource extends StreamSource {
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
+
+    @ApiModelProperty("Primary key, needed when data format is csv, json, avro")
+    private String primaryKey;
 }

@@ -22,6 +22,7 @@ import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_P
 import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_FILE_SIZE;
 import static org.apache.flink.table.filesystem.FileSystemOptions.SINK_ROLLING_POLICY_ROLLOVER_INTERVAL;
 import static org.apache.flink.table.filesystem.stream.compact.CompactOperator.convertToUncompacted;
+import static org.apache.inlong.sort.singletenant.flink.connectors.hive.HiveOptions.HIVE_IGNORE_ALL_CHANGELOG;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -459,6 +460,12 @@ public class HiveTableSink implements DynamicTableSink, SupportsPartitioning, Su
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
+        if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
+                .get(HIVE_IGNORE_ALL_CHANGELOG)) {
+            LOG.warn("Hive sink receive all changelog record. "
+                    + "Regard any other record as insert-only record.");
+            return ChangelogMode.all();
+        }
         return ChangelogMode.insertOnly();
     }
 
