@@ -30,9 +30,6 @@ import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseAddColumnSqlBuilder;
 import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseCreateDbSqlBuilder;
 import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseCreateTableSqlBuilder;
-import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseDropColumnSqlBuilder;
-import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseDropDbSqlBuilder;
-import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseDropTableSqlBuilder;
 import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseModifyColumnSqlBuilder;
 import org.apache.inlong.manager.service.resource.ck.builder.ClickHouseQueryTableSqlBuilder;
 import org.slf4j.Logger;
@@ -67,11 +64,6 @@ public class ClickHouseSourceServiceImpl implements DataSourceService<DatabaseQu
 
     @Override
     public void dropDb(DatabaseQueryBean queryBean) throws Exception {
-        ClickHouseDropDbSqlBuilder builder = new ClickHouseDropDbSqlBuilder();
-        String dropDbSql = builder.buildDDL(queryBean);
-        LOGGER.info("drop database sql={}", dropDbSql);
-        clickHouseServerDao.executeDDL(dropDbSql, queryBean.getJdbcUrl(),
-                queryBean.getUserName(), queryBean.getPassword());
     }
 
     @Override
@@ -85,11 +77,6 @@ public class ClickHouseSourceServiceImpl implements DataSourceService<DatabaseQu
 
     @Override
     public void dropTable(ClickHouseTableQueryBean queryBean) throws Exception {
-        ClickHouseDropTableSqlBuilder builder = new ClickHouseDropTableSqlBuilder();
-        String dropTableSql = builder.buildDDL(queryBean);
-        LOGGER.info("drop table sql={}", dropTableSql);
-        clickHouseServerDao.executeDDL(dropTableSql, queryBean.getJdbcUrl(),
-                queryBean.getUsername(), queryBean.getPassword());
     }
 
     @Override
@@ -141,19 +128,7 @@ public class ClickHouseSourceServiceImpl implements DataSourceService<DatabaseQu
 
     @Override
     public void dropColumn(ClickHouseTableQueryBean queryBean) throws Exception {
-        if (queryBean == null) {
-            LOGGER.warn("update table column failed: change info is null");
-            return;
-        }
 
-        ClickHouseDropColumnSqlBuilder builder = new ClickHouseDropColumnSqlBuilder();
-        String dropColumnSql = builder.buildDDL(queryBean);
-        LOGGER.info("update table Column sql={}", dropColumnSql);
-        String[] dropColumnInfo = dropColumnSql.split("|");
-        for (String columnInfo : dropColumnInfo) {
-            clickHouseServerDao.executeDDL(columnInfo, queryBean.getJdbcUrl(),
-                    queryBean.getUsername(), queryBean.getPassword());
-        }
     }
 
     @Override
