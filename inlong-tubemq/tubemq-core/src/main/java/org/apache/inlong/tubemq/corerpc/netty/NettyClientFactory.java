@@ -239,7 +239,7 @@ public class NettyClientFactory implements ClientFactory {
         int nettyWriteLowMark =
                 conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
         clientBootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
-                    new WriteBufferWaterMark(nettyWriteHighMark, nettyWriteLowMark));
+                    new WriteBufferWaterMark(nettyWriteLowMark, nettyWriteHighMark));
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel socketChannel) throws Exception {
