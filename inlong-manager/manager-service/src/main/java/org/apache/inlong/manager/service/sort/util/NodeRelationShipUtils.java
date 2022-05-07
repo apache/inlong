@@ -142,10 +142,10 @@ public class NodeRelationShipUtils {
                 return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case INNER_JOIN:
-                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
+                return new InnerJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             case RIGHT_JOIN:
-                return new InnerJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
+                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
                         joinConditions);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
