@@ -26,6 +26,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
@@ -136,15 +137,11 @@ public class NettyRpcServer implements ServiceRpcServer {
         bootstrap.childOption(ChannelOption.SO_REUSEADDR,
                 conf.getBoolean(RpcConstants.TCP_REUSEADDRESS, true));
         int nettyWriteHighMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
-        if (nettyWriteHighMark > 0) {
-            bootstrap.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, nettyWriteHighMark);
-        }
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, 64 * 1024);
         int nettyWriteLowMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
-        if (nettyWriteLowMark > 0) {
-            bootstrap.childOption(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, nettyWriteLowMark);
-        }
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
+        bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                    new WriteBufferWaterMark(nettyWriteHighMark, nettyWriteLowMark));
         int nettySendBuf = conf.getInt(RpcConstants.NETTY_TCP_SENDBUF, -1);
         if (nettySendBuf > 0) {
             bootstrap.childOption(ChannelOption.SO_SNDBUF, nettySendBuf);
