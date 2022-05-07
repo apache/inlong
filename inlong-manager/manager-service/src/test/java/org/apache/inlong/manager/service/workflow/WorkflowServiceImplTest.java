@@ -48,7 +48,7 @@ import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.resource.CreateSinkResourceListener;
+import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
@@ -203,7 +203,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public void mockTaskListenerFactory() {
         CreateTubeGroupTaskListener createTubeGroupTaskListener = mock(CreateTubeGroupTaskListener.class);
         when(createTubeGroupTaskListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createTubeGroupTaskListener.name()).thenReturn(CreateSinkResourceListener.class.getSimpleName());
+        when(createTubeGroupTaskListener.name()).thenReturn(SinkResourceListener.class.getSimpleName());
         when(createTubeGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreateTubeGroupTaskListener(createTubeGroupTaskListener);
 
@@ -227,11 +227,11 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(createPulsarGroupTaskListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setCreatePulsarGroupTaskListener(createPulsarGroupTaskListener);
 
-        CreateSinkResourceListener createSinkResourceListener = mock(CreateSinkResourceListener.class);
-        when(createSinkResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(createSinkResourceListener.name()).thenReturn(CreateSinkResourceListener.class.getSimpleName());
-        when(createSinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setCreateSinkResourceListener(createSinkResourceListener);
+        SinkResourceListener sinkResourceListener = mock(SinkResourceListener.class);
+        when(sinkResourceListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
+        when(sinkResourceListener.name()).thenReturn(SinkResourceListener.class.getSimpleName());
+        when(sinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
+        taskListenerFactory.setSinkResourceListener(sinkResourceListener);
 
         PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
         when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
