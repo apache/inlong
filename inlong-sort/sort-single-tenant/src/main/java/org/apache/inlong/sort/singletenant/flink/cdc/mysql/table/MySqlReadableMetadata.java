@@ -114,7 +114,7 @@ public enum MySqlReadableMetadata {
 
             @Override
             public Object read(SourceRecord record,
-                @org.jetbrains.annotations.Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
                 // construct canal json
                 Struct messageStruct = (Struct) record.value();
                 Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
