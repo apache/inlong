@@ -159,8 +159,9 @@ const getForm: GetStorageFormFieldsType = (
       label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
       name: 'dataPath',
       rules: [{ required: true }],
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.DataPathHelp'),
       props: {
-        placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse',
+        placeholder: 'hdfs://127.0.0.1:9000/user/hive/warehouse/default',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
     },
