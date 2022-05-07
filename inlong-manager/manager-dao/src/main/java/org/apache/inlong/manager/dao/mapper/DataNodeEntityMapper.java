@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
@@ -30,16 +31,14 @@ public interface DataNodeEntityMapper {
 
     DataNodeEntity selectById(Integer id);
 
-    DataNodeEntity selectByNameAndType(String name, String type);
+    DataNodeEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
+
+    List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 
     int updateById(DataNodeEntity record);
 
     int updateByIdSelective(DataNodeEntity record);
 
     int deleteById(Integer id);
-
-    DataNodeEntity selectByUniqueKey(DataNodeRequest request);
-
-    List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 
 }

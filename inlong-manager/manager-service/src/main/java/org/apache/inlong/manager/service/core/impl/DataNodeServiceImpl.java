@@ -59,7 +59,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         Preconditions.checkNotEmpty(request.getType(), "data node type is empty");
 
         // check if data node already exist
-        DataNodeEntity exist = dataNodeMapper.selectByUniqueKey(request);
+        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(request.getName(), request.getType());
         if (exist != null) {
             String errMsg = String.format("data node already exist for name=%s type=%s)",
                     request.getName(), request.getType());
@@ -112,7 +112,7 @@ public class DataNodeServiceImpl implements DataNodeService {
 
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "data node id is empty");
-        DataNodeEntity exist = dataNodeMapper.selectByUniqueKey(request);
+        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(request.getName(), request.getType());
         if (exist != null && !Objects.equals(id, exist.getId())) {
             String errMsg = String.format("data node already exist for name=%s type=%s",
                     request.getName(), request.getType());
