@@ -27,7 +27,6 @@ import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.mq.PulsarEventSelector;
 import org.apache.inlong.manager.service.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.resource.CreateSinkResourceListener;
-import org.apache.inlong.manager.service.resource.hive.HiveSinkEventSelector;
 import org.apache.inlong.manager.service.sort.CreateSortConfigListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
@@ -100,8 +99,6 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
     @Autowired
     @Setter
     private CreateSinkResourceListener createSinkResourceListener;
-    @Autowired
-    private HiveSinkEventSelector hiveSinkEventSelector;
 
     @Autowired
     @Setter
@@ -124,7 +121,7 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         sourceOperateListeners.put(sourceDeleteListener, new SourceDeleteEventSelector());
         sourceOperateListeners.put(sourceRestartListener, new SourceRestartEventSelector());
         sinkOperateListeners = new LinkedHashMap<>();
-        sinkOperateListeners.put(createSinkResourceListener, hiveSinkEventSelector);
+        sinkOperateListeners.put(createSinkResourceListener, EventSelector.SELECT_ANY);
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
