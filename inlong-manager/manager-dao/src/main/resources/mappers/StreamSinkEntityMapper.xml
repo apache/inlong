@@ -95,7 +95,7 @@
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
             <if test="request.inlongClusterName != null and request.status != ''">
-                and inlong_cluster_name = #{request.inlongClusterName, jdbcType=INTEGER}
+                and inlong_cluster_name = #{request.inlongClusterName, jdbcType=VARCHAR}
             </if>
             <if test="request.dataNodeName != null and request.status != ''">
                 and data_node_name = #{request.dataNodeName, jdbcType=VARCHAR}
