@@ -101,10 +101,10 @@
                 and data_node_name = #{request.dataNodeName, jdbcType=VARCHAR}
             </if>
             <if test="request.sortTaskName != null and request.status != ''">
-                and sort_task_name = #{request.sortTaskName, jdbcType=INTEGER}
+                and sort_task_name = #{request.sortTaskName, jdbcType=VARCHAR}
             </if>
             <if test="request.sortConsumerGroup != null and request.status != ''">
-                and sort_consumer_group = #{request.sortConsumerGroup, jdbcType=INTEGER}
+                and sort_consumer_group = #{request.sortConsumerGroup, jdbcType=VARCHAR}
             </if>
             order by modify_time desc
         </where>
