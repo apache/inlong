@@ -37,8 +37,7 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , name, type, url, username, password, ext_params, in_charges, status, is_deleted,
+        id, name, type, url, username, password, ext_params, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time
     </sql>
 

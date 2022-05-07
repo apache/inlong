@@ -40,7 +40,6 @@ import org.apache.inlong.dataproxy.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class FailoverChannelProcessor
         extends ChannelProcessor {
 

@@ -89,5 +89,4 @@ public class DataNodeController {
     public Response<Boolean> delete(@PathVariable Integer id) {
         return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
-
 }

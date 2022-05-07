@@ -21,7 +21,6 @@ import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
