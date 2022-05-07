@@ -53,7 +53,7 @@ data:
       if [[ -n "$index" ]]; then
         # add broker
         curl -d "type=op_modify&method=admin_add_broker_configure&brokerId=$MY_POD_ID\
-        &brokerIp=$HOST&brokerPort=8123&deletePolicy=delete,168h&numPartitions=3\
+        &brokerIp=$MY_POD_IP&brokerPort=8123&deletePolicy=delete,168h&numPartitions=3\
         &unflushThreshold=1000&acceptPublish=true&acceptSubscribe=true&unflushInterval=10000\
         &createUser=docker&confModAuthToken=abc" http://$master:8080/webapi.htm
         # online
@@ -66,7 +66,7 @@ data:
     # generate config file
     cp /opt/tubemq-server/conf/broker.ini.raw /opt/tubemq-server/conf/broker.ini
     sed -i "s/REPLACE_BY_POD_ID/$MY_POD_ID/g" /opt/tubemq-server/conf/broker.ini
-    sed -i "s/REPLACE_BY_POD_HOSTNAME/$HOST/g" /opt/tubemq-server/conf/broker.ini
+    sed -i "s/REPLACE_BY_POD_IP/$MY_POD_IP/g" /opt/tubemq-server/conf/broker.ini
     sed -i "s/REPLACE_BY_MASTER_LIST/${MASTER_LIST%?}/g" /opt/tubemq-server/conf/broker.ini
     # start
     /opt/tubemq-server/bin/tubemq.sh broker start

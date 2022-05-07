@@ -38,7 +38,7 @@ data:
     metaDataPath=/data/meta_data
     useWebProxy=true
 
-    [zookeeper]
+    [meta_zookeeper]
     zkNodeRoot=/tubemq
     zkServerAddr={{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}:2181
     zkSessionTimeoutMs=30000
