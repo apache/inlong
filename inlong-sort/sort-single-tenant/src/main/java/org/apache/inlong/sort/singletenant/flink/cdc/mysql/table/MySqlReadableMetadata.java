@@ -23,6 +23,7 @@ import io.debezium.data.Envelope;
 import io.debezium.data.Envelope.FieldName;
 import io.debezium.relational.Table;
 import io.debezium.relational.history.TableChanges;
+import javax.annotation.Nullable;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.data.GenericArrayData;
@@ -37,7 +38,6 @@ import org.apache.inlong.sort.singletenant.flink.cdc.debezium.table.MetadataConv
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,7 +114,7 @@ public enum MySqlReadableMetadata {
 
             @Override
             public Object read(SourceRecord record,
-                @org.jetbrains.annotations.Nullable TableChanges.TableChange tableSchema, RowData rowData) {
+                @Nullable TableChanges.TableChange tableSchema, RowData rowData) {
                 // construct canal json
                 Struct messageStruct = (Struct) record.value();
                 Struct sourceStruct = messageStruct.getStruct(FieldName.SOURCE);
