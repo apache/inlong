@@ -151,7 +151,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public boolean delete(String groupId, String streamId, String transformName, String operator) {
-        log.info("begin to delete source by groupId={} streamId={}, transformName={}", groupId, streamId,
+        log.info("begin to delete transform by groupId={} streamId={}, transformName={}", groupId, streamId,
                 transformName);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
