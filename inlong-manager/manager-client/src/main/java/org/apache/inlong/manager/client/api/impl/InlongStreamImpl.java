@@ -135,8 +135,6 @@ public class InlongStreamImpl extends InlongStream {
     public InlongStreamImpl(String group, String name, InnerInlongManagerClient managerClient) {
         this.managerClient = managerClient;
         this.groupName = group;
-
-    public InlongStreamImpl(String name) {
         this.name = name;
     }
 
@@ -335,8 +333,7 @@ public class InlongStreamImpl extends InlongStream {
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
             StreamTransform transform = InlongStreamTransformTransfer.parseStreamTransform(transformResponse);
-            final String transformName = transform.getTransformName();
-            final int id = transformResponse.getId();
+            String transformName = transform.getTransformName();
             if (this.streamTransforms.get(transformName) == null) {
                 TransformRequest transformRequest = InlongStreamTransformTransfer.createTransformRequest(transform,
                         streamInfo);
@@ -348,7 +345,6 @@ public class InlongStreamImpl extends InlongStream {
                 StreamTransform newTransform = this.streamTransforms.get(transformName);
                 TransformRequest transformRequest = InlongStreamTransformTransfer.createTransformRequest(newTransform,
                         streamInfo);
-                transformRequest.setId(id);
                 Pair<Boolean, String> updateState = managerClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
@@ -375,9 +371,9 @@ public class InlongStreamImpl extends InlongStream {
         List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId, streamId);
         List<String> updateSourceNames = Lists.newArrayList();
         for (SourceListResponse sourceListResponse : sourceListResponses) {
-            final String sourceName = sourceListResponse.getSourceName();
-            final int id = sourceListResponse.getId();
-            final String type = sourceListResponse.getSourceType();
+            String sourceName = sourceListResponse.getSourceName();
+            int id = sourceListResponse.getId();
+            String type = sourceListResponse.getSourceType();
             if (this.streamSources.get(sourceName) == null) {
                 boolean isDelete = managerClient.deleteSource(id, type);
                 if (!isDelete) {
@@ -386,7 +382,6 @@ public class InlongStreamImpl extends InlongStream {
             } else {
                 StreamSource source = this.streamSources.get(sourceName);
                 SourceRequest sourceRequest = InlongStreamSourceTransfer.createSourceRequest(source, streamInfo);
-                sourceRequest.setId(id);
                 Pair<Boolean, String> updateState = managerClient.updateSource(sourceRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
@@ -412,9 +407,9 @@ public class InlongStreamImpl extends InlongStream {
         List<SinkListResponse> sinkListResponses = managerClient.listSinks(groupId, streamId);
         List<String> updateSinkNames = Lists.newArrayList();
         for (SinkListResponse sinkListResponse : sinkListResponses) {
-            final String sinkName = sinkListResponse.getSinkName();
-            final int id = sinkListResponse.getId();
-            final String type = sinkListResponse.getSinkType();
+            String sinkName = sinkListResponse.getSinkName();
+            int id = sinkListResponse.getId();
+            String type = sinkListResponse.getSinkType();
             if (this.streamSinks.get(sinkName) == null) {
                 boolean isDelete = managerClient.deleteSink(id, type);
                 if (!isDelete) {
@@ -423,7 +418,6 @@ public class InlongStreamImpl extends InlongStream {
             } else {
                 StreamSink sink = this.streamSinks.get(sinkName);
                 SinkRequest sinkRequest = InlongStreamSinkTransfer.createSinkRequest(sink, streamInfo);
-                sinkRequest.setId(id);
                 Pair<Boolean, String> updateState = managerClient.updateSink(sinkRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update sink=%s failed with err=%s", sinkRequest,

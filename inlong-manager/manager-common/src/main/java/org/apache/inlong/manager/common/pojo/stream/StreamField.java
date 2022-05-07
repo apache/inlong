@@ -64,12 +64,6 @@ public class StreamField {
         this.originFieldName = originFieldName;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String fieldFormat) {
-        this(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField);
-        this.fieldFormat = fieldFormat;
-    }
-
     @ApiModelProperty("Field index")
     private Integer id;
 
