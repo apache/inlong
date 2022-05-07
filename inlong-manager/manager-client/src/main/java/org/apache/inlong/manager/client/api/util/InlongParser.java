@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTotalMetricResponse;
 import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
 import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
 import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
@@ -91,10 +92,10 @@ public class InlongParser {
         return GsonUtil.fromJson(resultData, ComponentHeartbeatResponse.class);
     }
 
-    public static GroupHeartbeatResponse parseGroupHeartbeat(Response response) {
+    public static InlongGroupTotalMetricResponse parseGroupHeartbeat(Response response) {
         Object data = response.getData();
         String resultData = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(resultData, GroupHeartbeatResponse.class);
+        return GsonUtil.fromJson(resultData, InlongGroupTotalMetricResponse.class);
     }
 
     public static StreamHeartbeatResponse parseStreamHeartbeat(Response response) {

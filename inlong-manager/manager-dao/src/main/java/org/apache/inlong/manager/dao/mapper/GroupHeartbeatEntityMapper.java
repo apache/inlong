@@ -38,6 +38,9 @@ public interface GroupHeartbeatEntityMapper {
     GroupHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId);
 
+    GroupHeartbeatEntity selectByIds(@Param("component") String component,
+            @Param("inlongGroupId") String inlongGroupId);
+
     List<GroupHeartbeatEntity> selectByCondition(@Param("request") HeartbeatPageRequest request);
 
     int deleteByPrimaryKey(Integer id);

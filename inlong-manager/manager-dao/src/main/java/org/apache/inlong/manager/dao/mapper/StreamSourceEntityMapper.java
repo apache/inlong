@@ -39,6 +39,11 @@ public interface StreamSourceEntityMapper {
     List<StreamSourceEntity> selectByAgentIp(@Param("agentIp") String agentIp);
 
     /**
+     * Query un-deleted sources by the given groupId & streamId.
+     */
+    List<StreamSourceEntity> selectByIds(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    /**
      * According to the inlong group id and inlong stream id, query the number of valid source
      */
     int selectCount(@Param("groupId") String groupId, @Param("streamId") String streamId);

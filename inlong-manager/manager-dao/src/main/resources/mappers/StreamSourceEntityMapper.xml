@@ -95,6 +95,20 @@
             </if>
         </where>
     </select>
+    <select id="selectByIds" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_source
+        <where>
+            is_deleted = 0
+            <if test="groupId != null and groupId != ''">
+                and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+            </if>
+            <if test="streamId != null and streamId != ''">
+                and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">

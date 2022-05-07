@@ -35,6 +35,9 @@ public interface StreamHeartbeatEntityMapper {
 
     StreamHeartbeatEntity selectByPrimaryKey(Integer id);
 
+    List<StreamHeartbeatEntity> selectByIds(@Param("component") String component,
+            @Param("inlongGroupId") String inlongGroupId);
+
     StreamHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId, @Param("inlongStreamId") String inlongStreamId);
 
