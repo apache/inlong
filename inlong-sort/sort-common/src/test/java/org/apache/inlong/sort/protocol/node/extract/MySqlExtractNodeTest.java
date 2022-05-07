@@ -35,7 +35,7 @@ public class MySqlExtractNodeTest extends SerializeBaseTest<Node> {
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())), null, null,
                 "primary_key_field", Arrays.asList("table1", "table2"),
                 "localhost", "username",
-                "password", "dabasename", 3306, "data_node_test",
+                "password", "dabasename", 3306, 123,
                 true, null);
     }
 }

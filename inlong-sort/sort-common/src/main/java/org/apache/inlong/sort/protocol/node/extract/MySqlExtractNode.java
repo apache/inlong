@@ -61,8 +61,8 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("port")
     private Integer port;
     @JsonInclude(Include.NON_NULL)
-    @JsonProperty("dataNodeName")
-    private String dataNodeName;
+    @JsonProperty("serverId")
+    private Integer serverId;
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("incrementalSnapshotEnabled")
     private Boolean incrementalSnapshotEnabled;
@@ -83,7 +83,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("database") String database,
             @JsonProperty("port") Integer port,
-            @JsonProperty("dataNodeName") String dataNodeName,
+            @JsonProperty("serverId") Integer serverId,
             @JsonProperty("incrementalSnapshotEnabled") Boolean incrementalSnapshotEnabled,
             @JsonProperty("serverTimeZone") String serverTimeZone) {
         super(id, name, fields, waterMarkField, properties);
@@ -95,7 +95,7 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
         this.database = Preconditions.checkNotNull(database, "database is null");
         this.primaryKey = primaryKey;
         this.port = port;
-        this.dataNodeName = dataNodeName;
+        this.serverId = serverId;
         this.incrementalSnapshotEnabled = incrementalSnapshotEnabled;
         this.serverTimeZone = serverTimeZone;
     }
@@ -121,8 +121,8 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
         if (port != null) {
             options.put("port", port.toString());
         }
-        if (StringUtils.isNotBlank(dataNodeName)) {
-            options.put("data-node-name", dataNodeName);
+        if (serverId != null) {
+            options.put("server-id", serverId.toString());
         }
         if (incrementalSnapshotEnabled != null) {
             options.put("scan.incremental.snapshot.enabled", incrementalSnapshotEnabled.toString());
