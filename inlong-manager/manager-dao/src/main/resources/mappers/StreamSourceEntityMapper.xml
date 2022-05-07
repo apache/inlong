@@ -61,7 +61,7 @@
                                    creator, modifier, create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
-                #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=INTEGER}, #{clusterId,jdbcType=INTEGER},
+                #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{version,jdbcType=INTEGER},
                 #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
@@ -239,7 +239,7 @@
                 uuid = #{uuid,jdbcType=VARCHAR},
             </if>
             <if test="dataNodeName != null">
-                data_node_name = #{dataNodeName,jdbcType=INTEGER},
+                data_node_name = #{dataNodeName,jdbcType=VARCHAR},
             </if>
             <if test="clusterId != null">
                 cluster_id = #{clusterId,jdbcType=INTEGER},
@@ -291,7 +291,7 @@
             source_name        = #{sourceName,jdbcType=VARCHAR},
             agent_ip           = #{agentIp,jdbcType=VARCHAR},
             uuid               = #{uuid,jdbcType=VARCHAR},
-            data_node_name     = #{dataNodeName,jdbcType=INTEGER},
+            data_node_name     = #{dataNodeName,jdbcType=VARCHAR},
             cluster_id         = #{clusterId,jdbcType=INTEGER},
             serialization_type = #{serializationType,jdbcType=VARCHAR},
             snapshot           = #{snapshot,jdbcType=LONGVARCHAR},

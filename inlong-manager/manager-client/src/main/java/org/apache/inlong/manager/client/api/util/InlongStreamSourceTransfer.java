@@ -113,6 +113,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
         binlogSource.setState(State.parseByStatus(response.getStatus()));
+        binlogSource.setServerId(response.getServerId());
         binlogSource.setDataNodeName(response.getDataNodeName());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
@@ -190,6 +191,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setPassword(authentication.getPassword());
         sourceRequest.setHostname(binlogSource.getHostname());
         sourceRequest.setPort(binlogSource.getPort());
+        sourceRequest.setServerId(binlogSource.getServerId());
         sourceRequest.setDataNodeName(binlogSource.getDataNodeName());
         sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());

@@ -98,7 +98,7 @@
                 and inlong_cluster_name = #{request.inlongClusterName, jdbcType=INTEGER}
             </if>
             <if test="request.dataNodeName != null and request.status != ''">
-                and data_node_name = #{request.dataNodeName, jdbcType=INTEGER}
+                and data_node_name = #{request.dataNodeName, jdbcType=VARCHAR}
             </if>
             <if test="request.sortTaskName != null and request.status != ''">
                 and sort_task_name = #{request.sortTaskName, jdbcType=INTEGER}
@@ -106,7 +106,6 @@
             <if test="request.sortConsumerGroup != null and request.status != ''">
                 and sort_consumer_group = #{request.sortConsumerGroup, jdbcType=INTEGER}
             </if>
-
             order by modify_time desc
         </where>
     </select>
@@ -217,7 +216,8 @@
             parameterType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">
         insert into stream_sink (id, inlong_group_id, inlong_stream_id,
                                  sink_type, sink_name, description,
-                                 enable_create_resource, inlong_cluster_name, data_node_name, sort_task_name,
+                                 enable_create_resource, inlong_cluster_name,
+                                 data_node_name, sort_task_name,
                                  sort_consumer_group, ext_params,
                                  operate_log, status, previous_status,
                                  is_deleted, creator, modifier,
@@ -226,8 +226,7 @@
                 #{sinkType,jdbcType=VARCHAR}, #{sinkName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
                 #{enableCreateResource,jdbcType=TINYINT}, #{inlongClusterName,jdbcType=VARCHAR},
                 #{dataNodeName,jdbcType=VARCHAR}, #{sortTaskName,jdbcType=VARCHAR},
-                #{sortConsumerGroup,jdbcType=VARCHAR},
-                #{extParams,jdbcType=VARCHAR},
+                #{sortConsumerGroup,jdbcType=VARCHAR}, #{extParams,jdbcType=VARCHAR},
                 #{operateLog,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER},
                 #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})

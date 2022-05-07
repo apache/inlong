@@ -89,7 +89,7 @@ public class ExtractNodeUtils {
         final String password = binlogSourceResponse.getPassword();
         final Integer port = binlogSourceResponse.getPort();
         Integer serverId = null;
-        if (binlogSourceResponse.getServerId() != null) {
+        if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
             serverId = binlogSourceResponse.getServerId();
         }
         String tables = binlogSourceResponse.getTableWhiteList();
