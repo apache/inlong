@@ -59,7 +59,7 @@ public class MySQLBinlogSource extends StreamSource {
     private int port = 3306;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
-    private int serverId = 0;
+    private Integer serverId = 0;
 
     @ApiModelProperty(value = "List of DBs to be collected, supporting regular expressions, "
             + "separate them with commas, for example: db1,test_db*",

@@ -20,11 +20,13 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream source configuration")
 public abstract class StreamSource extends StreamNode {
 

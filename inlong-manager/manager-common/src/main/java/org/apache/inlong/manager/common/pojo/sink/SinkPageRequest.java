@@ -49,4 +49,16 @@ public class SinkPageRequest extends PageRequest {
     @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
+
+    @ApiModelProperty("Sort task name")
+    private String sortTaskName;
+
+    @ApiModelProperty("Sort consumer group")
+    private String sortConsumerGroup;
+
 }
