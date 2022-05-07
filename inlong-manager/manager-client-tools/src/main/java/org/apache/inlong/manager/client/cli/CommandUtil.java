@@ -36,10 +36,12 @@ import java.util.Properties;
 
 abstract class CommandUtil {
 
+    private static final String CONFIGURATION = "application.properties";
+
     public InlongClientImpl connect() {
         Properties properties = new Properties();
         String path =
-                Thread.currentThread().getContextClassLoader().getResource("").getPath() + "application.properties";
+                Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIGURATION;
 
         try {
             InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
