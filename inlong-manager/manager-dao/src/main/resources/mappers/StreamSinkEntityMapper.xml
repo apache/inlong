@@ -29,11 +29,6 @@
         <result column="sink_name" jdbcType="VARCHAR" property="sinkName"/>
         <result column="description" jdbcType="INTEGER" property="description"/>
         <result column="enable_create_resource" jdbcType="TINYINT" property="enableCreateResource"/>
-        <result column="inlong_cluster_name" jdbcType="VARCHAR" property="inlongClusterName"/>
-        <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
-        <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
-        <result column="sort_consumer_group" jdbcType="VARCHAR" property="sortConsumerGroup"/>
-
         <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
         <result column="operate_log" jdbcType="VARCHAR" property="operateLog"/>
 
