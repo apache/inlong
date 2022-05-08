@@ -36,7 +36,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     private DataNodeService dataNodeService;
 
     /**
-     * save data node info.
+     * Save data node info.
      */
     public Integer saveOpt(String dataNodeName, String type, String url, String userName,
             String password) {
@@ -51,14 +51,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * delete data node info.
-     */
-    public Boolean deleteOpt(Integer id) {
-        return dataNodeService.delete(id, GLOBAL_OPERATOR);
-    }
-
-    /**
-     * get data node list info.
+     * Get data node list info.
      */
     public PageInfo<DataNodeResponse> listDataNode(String type, String name) {
         DataNodePageRequest request = new DataNodePageRequest();
@@ -82,41 +75,47 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         return dataNodeService.update(request, GLOBAL_OPERATOR);
     }
 
+    /**
+     * Delete data node info.
+     */
+    public Boolean deleteOpt(Integer id) {
+        return dataNodeService.delete(id, GLOBAL_OPERATOR);
+    }
+
     @Test
     public void testDataService() {
-        String dataNodeName = "defaultNodeName";
-        String type = "PULSAR";
+        String nodeName = "hiveNode1";
+        String type = "HIVE";
         String url = "127.0.0.1:8080";
-        String useName = "admin";
+        String usename = "admin";
         String password = "123";
 
-        String newDataNodeName = "newDefaultNodeName";
-        String newType = "TUBE";
+        String newNodeName = "kafkaNode1";
+        String newType = "KAFKA";
         String newUrl = "127.0.0.1:8083";
-        String newUseName = "admin2";
+        String newUsename = "admin2";
         String newPassword = "456";
 
         // test save data node
-        Integer id = this.saveOpt(dataNodeName, type, url, useName, password);
+        Integer id = this.saveOpt(nodeName, type, url, usename, password);
         Assert.assertNotNull(id);
 
         // test get data node
-        Assert.assertEquals(type, dataNodeService.get(id).getType());
-
-        // test get data node
-        Assert.assertEquals(type, dataNodeService.get(id).getType());
-
-        // test update data node
-        Boolean updateNodeSuccess = this.updateDataNode(id, newDataNodeName, newType, newUrl, newUseName, newPassword);
-        Assert.assertTrue(updateNodeSuccess);
+        DataNodeResponse nodeResponse = dataNodeService.get(id);
+        Assert.assertNotNull(nodeResponse);
+        Assert.assertEquals(type, nodeResponse.getType());
 
         // test get data node list
         PageInfo<DataNodeResponse> listDataNode = this.listDataNode(newType, newDataNodeName);
         Assert.assertEquals(listDataNode.getTotal(), 1);
 
+        // test update data node
+        Boolean updateSuccess = this.updateDataNode(id, newNodeName, newType, newUrl, newUsename, newPassword);
+        Assert.assertTrue(updateSuccess);
+
         // test delete data node
-        Boolean success = this.deleteOpt(id);
-        Assert.assertTrue(success);
+        Boolean deleteSuccess = this.deleteOpt(id);
+        Assert.assertTrue(deleteSuccess);
     }
 
 }
