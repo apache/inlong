@@ -131,10 +131,11 @@ It runs a local Kubernetes cluster in Docker container. Therefore, it requires v
 
 You can install kind by following the [Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start) section of their official documentation.
 
-After installing kind, you can create a Kubernetes cluster with the [configuration file](../../.github/kind.yml), try:
+After installing kind, you can create a Kubernetes cluster with the [configuration file](../../.github/kind.yml).
+Try in the project root:
 
 ```shell
-kind create cluster --config ../../.github/kind.yml
+kind create cluster --config .github/kind.yml
 ```
 
 To specify another image use the `--image` flag – `kind create cluster --image=....`.
@@ -155,7 +156,7 @@ Please follow the [installation guide](https://helm.sh/docs/intro/install) in th
 
 ### Install the chart
 
-To create the namespace and Install the chart, try:
+To create the namespace and install the chart, in the [docker/kubernetes](.) folder, try:
 
 ```shell
 kubectl create namespace inlong
@@ -179,6 +180,58 @@ helm template ./ --output-dir ./result
 ```
 
 Then, you can check the rendered templates in the `result` directory.
+
+#### Quick start with Chart Testing
+
+Also, you can use the [helm/chart-testing](https://github.com/helm/chart-testing) tool to test your Helm chart.
+You can follow the [installation](https://github.com/helm/chart-testing#installation) section in the official documentation to install it.
+But for simplicity, their [Docker image](https://quay.io/repository/helmpack/chart-testing?tab=tags) is recommended.
+
+To list changed charts, in the project root, try:
+
+```shell
+docker run -it --rm \
+               --name ct \
+               --workdir=/data \
+               --volume "$(pwd)":/data \
+               quay.io/helmpack/chart-testing \
+               ct list-changed --chart-dirs docker --target-branch master
+```
+
+To lint and validate the chart, try:
+
+```shell
+docker run -it --rm \
+               --name ct \
+               --workdir=/data \
+               --volume "$(pwd)":/data \
+               quay.io/helmpack/chart-testing \
+               ct lint --chart-dirs docker
+```
+
+To install and test the chart, try:
+
+```shell
+docker run -it --rm \
+               --name ct \
+               --workdir=/data \
+               --volume "$(pwd)":/data \
+               quay.io/helmpack/chart-testing \
+               ct install --chart-dirs docker
+```
+
+> NOTE: If the charts have not changed, they will not be linted, validated, installed and tested.
+
+## Contribution
+
+When you decide to contribute, you should follow these steps:
+
+1. Develop the chart locally and verify your changes.
+2. Don't forget to bump up the version in [Chart.yaml](Chart.yaml).
+3. Feel free to make a [Pull Request](https://github.com/apache/incubator-inlong/compare)!
+4. Finally, you can view the status of the [lint and test workflow](https://github.com/apache/incubator-inlong/actions/workflows/ci_chart_test.yml).
+   > In this workflow, changes between your branch and the master branch will be checked and listed.
+   > All changed charts will be linted, validated, installed and tested.
 
 ## Troubleshooting
 
