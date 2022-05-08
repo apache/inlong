@@ -15,26 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.query;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.util.Locale;
 
-/**
- * Connection bean
- */
-@Data
-@ApiModel("Connection info")
-public class ConnectionInfo {
+public enum DataNodeType {
 
-    @ApiModelProperty("connection url")
-    private String jdbcUrl;
+    HIVE,
+    KAFKA,
+    ICEBERG,
+    CLICKHOUSE,
+    ES,
+    ;
 
-    @ApiModelProperty("connection username")
-    private String username;
-
-    @ApiModelProperty("user password")
-    private String password;
+    @Override
+    public String toString() {
+        return this.name().toUpperCase(Locale.ROOT);
+    }
 
 }
