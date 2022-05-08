@@ -20,7 +20,7 @@ name: inlong
 description: A Helm Chart for Apache InLong
 type: application
 version: 2.0.0
-appVersion: 0.10.0
+appVersion: 1.2.0
 home: https://inlong.apache.org
 icon: https://inlong.apache.org/img/first-page-bg.png
 sources:

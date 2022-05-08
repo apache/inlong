@@ -91,8 +91,8 @@ agent:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The agent service port
   port: 8008
   env:
@@ -137,8 +137,8 @@ dashboard:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The dashboard service port
   port: 80
   service:
@@ -189,8 +189,8 @@ dataproxy:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The dataproxy service port
   port: 46801
   service:
@@ -247,8 +247,8 @@ tubemqManager:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The tubemq manager service port
   port: 8089
   env:
@@ -292,8 +292,8 @@ manager:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The manager service port
   port: 8083
   service:
@@ -352,8 +352,8 @@ audit:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The audit service port
   port: 10081
   env:
@@ -397,8 +397,8 @@ mysql:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The mysql service port
   port: 3306
   username: "root"
@@ -443,8 +443,8 @@ zookeeper:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The zookeeper service ports
   ports:
     client: 2181
@@ -505,8 +505,8 @@ tubemqMaster:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The tubemq master service ports
   ports:
     rpcPort: 8715
@@ -586,8 +586,8 @@ tubemqBroker:
   # For more details, please check out https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   resources:
     requests:
-      cpu: 1
-      memory: "1Gi"
+      cpu: 0.5
+      memory: "512Mi"
   # The tubemq broker service ports
   ports:
     rpcPort: 8123

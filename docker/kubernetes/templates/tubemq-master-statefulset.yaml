@@ -145,8 +145,8 @@ spec:
             - name: config
               mountPath: /config-scripts
             - name: {{ .Values.tubemqMaster.component }}-ini
-              mountPath: /opt/tubemq-server/conf/{{ .Values.tubemqMaster.component }}.ini.raw
-              subPath: {{ .Values.tubemqMaster.component }}.ini.raw
+              mountPath: /opt/tubemq-server/conf/master.ini.raw
+              subPath: master.ini.raw
               readOnly: false
       volumes:
         - name: config
