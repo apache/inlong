@@ -36,6 +36,7 @@ public class PulsarTopicBean {
 
     private String queueModule;
 
+    @Builder.Default
     private Integer numPartitions = 0;
 
 }

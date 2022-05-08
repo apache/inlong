@@ -70,6 +70,7 @@ public class ConsumptionInfo {
     private String masterUrl;
 
     @ApiModelProperty(value = "whether to filter consumption, 0: not filter, 1: filter")
+    @Builder.Default
     private Integer filterEnabled = 0;
 
     @ApiModelProperty(value = "consumption target inlong stream id")

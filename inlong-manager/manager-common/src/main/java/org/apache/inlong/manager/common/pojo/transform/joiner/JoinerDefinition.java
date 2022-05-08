@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.transform.joiner;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
@@ -31,6 +32,7 @@ import java.util.List;
  * A class to define operations to join two streamNode in one with relation defined.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 public class JoinerDefinition extends TransformDefinition {
 
