@@ -18,13 +18,6 @@
 
 package org.apache.inlong.sort.formats.json.canal;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.formats.common.TimestampFormat;
@@ -40,6 +33,14 @@ import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.flink.types.RowKind;
 import org.apache.inlong.sort.formats.json.canal.CanalJsonEnhancedDeserializationSchema.MetadataConverter;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * {@link DecodingFormat} for Canal using JSON encoding.
  * different from flink:1.13.5. This support more metadata.
@@ -50,19 +51,17 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    private List<String> metadataKeys;
+    private final @Nullable
+    String database;
 
     // --------------------------------------------------------------------------------------------
     // Canal-specific attributes
     // --------------------------------------------------------------------------------------------
-
-    private final @Nullable String database;
-
-    private final @Nullable String table;
-
+    private final @Nullable
+    String table;
     private final boolean ignoreParseErrors;
-
     private final TimestampFormat timestampFormat;
+    private List<String> metadataKeys;
 
     public CanalJsonEnhancedDecodingFormat(
             String database,
@@ -97,7 +96,7 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
         final TypeInformation<RowData> producedTypeInfo =
                 context.createTypeInformation(producedDataType);
         return CanalJsonEnhancedDeserializationSchema.builder(
-                        physicalDataType, readableMetadata, producedTypeInfo)
+                physicalDataType, readableMetadata, producedTypeInfo)
                 .setDatabase(database)
                 .setTable(table)
                 .setIgnoreParseErrors(ignoreParseErrors)
@@ -132,7 +131,9 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    /** List of metadata that can be read with this format. */
+    /**
+     * List of metadata that can be read with this format.
+     */
     public enum ReadableMetadata {
         DATABASE(
                 "database",
@@ -143,6 +144,9 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
 
                     @Override
                     public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getString(pos);
                     }
                 }),
@@ -156,6 +160,9 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
 
                     @Override
                     public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getString(pos);
                     }
                 }),
@@ -171,6 +178,9 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
 
                     @Override
                     public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getMap(pos);
                     }
                 }),
@@ -184,6 +194,9 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
 
                     @Override
                     public Object convert(GenericRowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getArray(pos);
                     }
                 }),
