@@ -41,7 +41,8 @@
         creator, modifier, create_time, modify_time
     </sql>
 
-    <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+        parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         insert into data_node (id, name, type,
                                url, username, password,
                                in_charges, status, is_deleted,
@@ -68,7 +69,32 @@
         and name = #{name, jdbcType=VARCHAR}
         and type = #{type, jdbcType=VARCHAR}
     </select>
-
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.node.DataNodePageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from data_node
+        <where>
+            is_deleted = 0
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                name like CONCAT('%', #{keyword}, '%')
+                or type like CONCAT('%', #{keyword}, '%')
+                or url like CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
         set name        = #{name,jdbcType=VARCHAR},

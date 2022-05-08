@@ -17,8 +17,12 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface DataNodeEntityMapper {
@@ -27,7 +31,9 @@ public interface DataNodeEntityMapper {
 
     DataNodeEntity selectById(Integer id);
 
-    DataNodeEntity selectByNameAndType(String name, String type);
+    DataNodeEntity selectByNameAndType(@Param("name") String name, @Param("type") String type);
+
+    List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 
     int updateById(DataNodeEntity record);
 
