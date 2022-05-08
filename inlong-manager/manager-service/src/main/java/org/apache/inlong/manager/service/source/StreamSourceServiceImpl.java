@@ -132,7 +132,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             SourceType sourceType = entry.getKey();
             StreamSourceOperation operation = operationFactory.getInstance(sourceType);
             PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
-            responseList.addAll(pageInfo.getList());
+            if (null != pageInfo && CollectionUtils.isNotEmpty(pageInfo.getList())) {
+                responseList.addAll(pageInfo.getList());
+            }
         }
         PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responseList);
 
