@@ -48,17 +48,18 @@ import java.util.stream.Stream;
 public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     // --------------------------------------------------------------------------------------------
-    // Mutable attributes
-    // --------------------------------------------------------------------------------------------
-
-    private final @Nullable String database;
-
-    // --------------------------------------------------------------------------------------------
     // Canal-specific attributes
     // --------------------------------------------------------------------------------------------
-    private final @Nullable String table;
+    @Nullable
+    private final String database;
+    @Nullable
+    private final String table;
     private final boolean ignoreParseErrors;
     private final TimestampFormat timestampFormat;
+
+    // --------------------------------------------------------------------------------------------
+    // Mutable attributes
+    // --------------------------------------------------------------------------------------------
     private List<String> metadataKeys;
 
     public CanalJsonEnhancedDecodingFormat(
@@ -76,25 +77,18 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     @Override
     public DeserializationSchema<RowData> createRuntimeDecoder(
             DynamicTableSource.Context context, DataType physicalDataType) {
-        final List<ReadableMetadata> readableMetadata =
-                metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .<IllegalStateException>orElseThrow(IllegalStateException::new))
-                        .collect(Collectors.toList());
-        final List<DataTypes.Field> metadataFields =
-                readableMetadata.stream()
-                        .map(m -> DataTypes.FIELD(m.key, m.dataType))
-                        .collect(Collectors.toList());
-        final DataType producedDataType =
-                DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
-        final TypeInformation<RowData> producedTypeInfo =
-                context.createTypeInformation(producedDataType);
-        return CanalJsonEnhancedDeserializationSchema.builder(
-                physicalDataType, readableMetadata, producedTypeInfo)
+        final List<ReadableMetadata> readableMetadata = metadataKeys.stream()
+                .map(k -> Stream.of(ReadableMetadata.values())
+                        .filter(rm -> rm.key.equals(k))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new))
+                .collect(Collectors.toList());
+        final List<DataTypes.Field> metadataFields = readableMetadata.stream()
+                .map(m -> DataTypes.FIELD(m.key, m.dataType))
+                .collect(Collectors.toList());
+        final DataType producedDataType = DataTypeUtils.appendRowFields(physicalDataType, metadataFields);
+        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(producedDataType);
+        return CanalJsonEnhancedDeserializationSchema.builder(physicalDataType, readableMetadata, producedTypeInfo)
                 .setDatabase(database)
                 .setTable(table)
                 .setIgnoreParseErrors(ignoreParseErrors)
