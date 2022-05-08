@@ -38,13 +38,12 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     /**
      * Save data node info.
      */
-    public Integer saveOpt(String dataNodeName, String type, String url, String userName,
-            String password) {
+    public Integer saveOpt(String nodeName, String type, String url, String username, String password) {
         DataNodeRequest request = new DataNodeRequest();
-        request.setName(dataNodeName);
+        request.setName(nodeName);
         request.setType(type);
         request.setUrl(url);
-        request.setUsername(userName);
+        request.setUsername(username);
         request.setPassword(password);
         request.setInCharges(GLOBAL_OPERATOR);
         return dataNodeService.save(request, GLOBAL_OPERATOR);
@@ -53,7 +52,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     /**
      * Get data node list info.
      */
-    public PageInfo<DataNodeResponse> listDataNode(String type, String name) {
+    public PageInfo<DataNodeResponse> listOpt(String type, String name) {
         DataNodePageRequest request = new DataNodePageRequest();
         request.setType(type);
         request.setName(name);
@@ -63,14 +62,13 @@ public class DataNodeServiceTest extends ServiceBaseTest {
     /**
      * update data node info.
      */
-    public Boolean updateDataNode(Integer id, String dataNodeName, String type, String url, String userName,
-            String password) {
+    public Boolean updateOpt(Integer id, String nodeName, String type, String url, String username, String password) {
         DataNodeRequest request = new DataNodeRequest();
         request.setId(id);
-        request.setName(dataNodeName);
+        request.setName(nodeName);
         request.setType(type);
         request.setUrl(url);
-        request.setUsername(userName);
+        request.setUsername(username);
         request.setPassword(password);
         return dataNodeService.update(request, GLOBAL_OPERATOR);
     }
@@ -90,12 +88,6 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         String usename = "admin";
         String password = "123";
 
-        String newNodeName = "kafkaNode1";
-        String newType = "KAFKA";
-        String newUrl = "127.0.0.1:8083";
-        String newUsename = "admin2";
-        String newPassword = "456";
-
         // test save data node
         Integer id = this.saveOpt(nodeName, type, url, usename, password);
         Assert.assertNotNull(id);
@@ -106,11 +98,16 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assert.assertEquals(type, nodeResponse.getType());
 
         // test get data node list
-        PageInfo<DataNodeResponse> listDataNode = this.listDataNode(newType, newNodeName);
+        PageInfo<DataNodeResponse> listDataNode = this.listOpt(type, nodeName);
         Assert.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
-        Boolean updateSuccess = this.updateDataNode(id, newNodeName, newType, newUrl, newUsename, newPassword);
+        String newNodeName = "kafkaNode1";
+        String newType = "KAFKA";
+        String newUrl = "127.0.0.1:8083";
+        String newUsername = "admin2";
+        String newPassword = "456";
+        Boolean updateSuccess = this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword);
         Assert.assertTrue(updateSuccess);
 
         // test delete data node
