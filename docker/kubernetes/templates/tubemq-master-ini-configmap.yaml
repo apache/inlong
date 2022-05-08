@@ -40,7 +40,7 @@ data:
 
     [meta_zookeeper]
     zkNodeRoot=/tubemq
-    zkServerAddr={{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}:2181
+    zkServerAddr={{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}
     zkSessionTimeoutMs=30000
     zkConnectionTimeoutMs=30000
     zkSyncTimeMs=5000
