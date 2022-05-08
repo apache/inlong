@@ -106,7 +106,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         Assert.assertEquals(type, nodeResponse.getType());
 
         // test get data node list
-        PageInfo<DataNodeResponse> listDataNode = this.listDataNode(newType, newDataNodeName);
+        PageInfo<DataNodeResponse> listDataNode = this.listDataNode(newType, newNodeName);
         Assert.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
