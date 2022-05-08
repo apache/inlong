@@ -52,17 +52,17 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     @Override
     public Integer save(DataNodeRequest request, String operator) {
-        LOGGER.debug("begin to save data node ={}", request);
         // check request
-        Preconditions.checkNotNull(request, "data node info is empty");
-        Preconditions.checkNotEmpty(request.getName(), "data node name is empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type is empty");
+        Preconditions.checkNotNull(request, "data node info cannot be empty");
+        String name = request.getName();
+        String type = request.getType();
+        Preconditions.checkNotEmpty(name, "data node name cannot be empty");
+        Preconditions.checkNotEmpty(type, "data node type cannot be empty");
 
         // check if data node already exist
-        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(request.getName(), request.getType());
+        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(name, type);
         if (exist != null) {
-            String errMsg = String.format("data node already exist for name=%s type=%s)",
-                    request.getName(), request.getType());
+            String errMsg = String.format("data node already exist for name=%s type=%s)", name, type);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -72,13 +72,13 @@ public class DataNodeServiceImpl implements DataNodeService {
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         dataNodeMapper.insert(entity);
 
-        LOGGER.info("success to save data node={}", request);
+        LOGGER.debug("success to save data node={}", request);
         return entity.getId();
     }
 
     @Override
     public DataNodeResponse get(Integer id) {
-        Preconditions.checkNotNull(id, "data node id is empty");
+        Preconditions.checkNotNull(id, "data node id cannot be empty");
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("data node not found by id={}", id);
@@ -92,30 +92,28 @@ public class DataNodeServiceImpl implements DataNodeService {
     @Override
     public PageInfo<DataNodeResponse> list(DataNodePageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>)
-                dataNodeMapper.selectByCondition(request);
-        List<DataNodeResponse> dataNodeList = CommonBeanUtils.copyListProperties(entityPage,
-                DataNodeResponse::new);
-        PageInfo<DataNodeResponse> page = new PageInfo<>(dataNodeList);
-        page.setTotal(dataNodeList.size());
+        Page<DataNodeEntity> entityPage = (Page<DataNodeEntity>) dataNodeMapper.selectByCondition(request);
+        List<DataNodeResponse> responseList = CommonBeanUtils.copyListProperties(entityPage, DataNodeResponse::new);
+        PageInfo<DataNodeResponse> page = new PageInfo<>(responseList);
+        page.setTotal(responseList.size());
         LOGGER.debug("success to list data node by {}", request);
         return page;
     }
 
     @Override
     public Boolean update(DataNodeRequest request, String operator) {
-        LOGGER.debug("begin to update data node={}", request);
-
-        Preconditions.checkNotNull(request, "data node info is empty");
-        Preconditions.checkNotEmpty(request.getName(), "data node name is empty");
-        Preconditions.checkNotEmpty(request.getType(), "data node type is empty");
+        // check request
+        Preconditions.checkNotNull(request, "data node info cannot be empty");
+        String name = request.getName();
+        String type = request.getType();
+        Preconditions.checkNotEmpty(name, "data node name cannot be empty");
+        Preconditions.checkNotEmpty(type, "data node type cannot be empty");
 
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "data node id is empty");
-        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(request.getName(), request.getType());
+        DataNodeEntity exist = dataNodeMapper.selectByNameAndType(name, type);
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("data node already exist for name=%s type=%s",
-                    request.getName(), request.getType());
+            String errMsg = String.format("data node already exist for name=%s type=%s", name, type);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -123,7 +121,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("data node not found by id={}", id);
-            throw new BusinessException("data node not found");
+            throw new BusinessException(String.format("data node not found by id=%s", id));
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
@@ -135,10 +133,10 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     @Override
     public Boolean delete(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "data node id is empty");
+        Preconditions.checkNotNull(id, "data node id cannot be empty");
         DataNodeEntity entity = dataNodeMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
-            LOGGER.error("data node not found by id={}, or was already deleted", id);
+            LOGGER.error("data node not found or was already deleted for id={}", id);
             return false;
         }
 
