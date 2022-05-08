@@ -109,7 +109,7 @@ public class SqlBuilder {
      * For example: col_name data_type [COMMENT col_comment], col_name data_type [COMMENT col_comment]....
      */
     private static String getColumnsAndComments(List<HiveColumnInfo> columns, String tableComment) {
-        List<String> columnInfoList = new ArrayList<>();
+        List<String> columnList = new ArrayList<>();
         List<String> partitionList = new ArrayList<>();
         for (HiveColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
@@ -122,21 +122,20 @@ public class SqlBuilder {
             if (columnInfo.isPartition()) {
                 partitionList.add(columnStr.toString());
             } else {
-                columnInfoList.add(columnStr.toString());
+                columnList.add(columnStr.toString());
             }
         }
-        StringBuilder result = new StringBuilder().append(" (").append(StringUtils.join(columnInfoList, ","))
-                .append(") ");
+        StringBuilder result = new StringBuilder().append(" (").append(StringUtils.join(columnList, ",")).append(") ");
 
         // set table comment
         if (StringUtils.isNotEmpty(tableComment)) {
             result.append("COMMENT ").append("'").append(tableComment).append("' ");
         }
-
         // set partitions
         if (partitionList.size() > 0) {
             result.append("PARTITIONED BY (").append(StringUtils.join(partitionList, ",")).append(") ");
         }
+
         return result.toString();
     }
 
