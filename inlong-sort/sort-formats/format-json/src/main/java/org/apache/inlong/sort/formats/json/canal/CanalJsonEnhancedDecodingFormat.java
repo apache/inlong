@@ -51,14 +51,12 @@ public class CanalJsonEnhancedDecodingFormat implements DecodingFormat<Deseriali
     // Mutable attributes
     // --------------------------------------------------------------------------------------------
 
-    private final @Nullable
-    String database;
+    private final @Nullable String database;
 
     // --------------------------------------------------------------------------------------------
     // Canal-specific attributes
     // --------------------------------------------------------------------------------------------
-    private final @Nullable
-    String table;
+    private final @Nullable String table;
     private final boolean ignoreParseErrors;
     private final TimestampFormat timestampFormat;
     private List<String> metadataKeys;
