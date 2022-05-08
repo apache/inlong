@@ -38,8 +38,8 @@ public class ClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
-    @ApiModelProperty(value = "Keywords, name, description, etc.")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, name, description, etc.")
+    private String keyword;
 
     @ApiModelProperty(value = "Status")
     private Integer status;

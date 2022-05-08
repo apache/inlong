@@ -166,7 +166,7 @@ public class InnerInlongManagerClient {
             pageNum = 1;
         }
         JSONObject groupQuery = new JSONObject();
-        groupQuery.put("keyWord", keyword);
+        groupQuery.put("keyword", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
         groupQuery.put("pageSize", pageSize);

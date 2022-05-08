@@ -33,8 +33,8 @@ import java.util.List;
 @ApiModel("Inlong group query request")
 public class InlongGroupPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, can be group id or name")
+    private String keyword;
 
     @ApiModelProperty(value = "Inlong group name list")
     private List<String> nameList;

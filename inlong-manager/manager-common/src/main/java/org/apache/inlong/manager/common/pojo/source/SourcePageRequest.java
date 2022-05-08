@@ -43,8 +43,8 @@ public class SourcePageRequest extends PageRequest {
     @ApiModelProperty(value = "Source type, such as FILE")
     private String sourceType;
 
-    @ApiModelProperty(value = "Key word")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, can be group id, stream id or source name")
+    private String keyword;
 
     @ApiModelProperty(value = "Status")
     private Integer status;

@@ -34,8 +34,8 @@ public class InlongStreamPageRequest extends PageRequest {
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Key word")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, can be stream id or name")
+    private String keyword;
 
     @ApiModelProperty(value = "Source type, including: FILE, DB, AUTO_PUSH (DATA_PROXY_SDK, HTTP)")
     private String dataSourceType;

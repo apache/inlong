@@ -110,11 +110,11 @@
             <if test="request.sourceType != null and request.sourceType != ''">
                 and source_type = #{request.sourceType, jdbcType=VARCHAR}
             </if>
-            <if test="request.keyWord != null and request.keyWord != ''">
+            <if test="request.keyword != null and request.keyword != ''">
                 and (
-                inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
-                or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
-                or source_name like CONCAT('%', #{request.keyWord}, '%')
+                inlong_group_id like CONCAT('%', #{request.keyword}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyword}, '%')
+                or source_name like CONCAT('%', #{request.keyword}, '%')
                 )
             </if>
             <if test="request.status != null and request.status != ''">
