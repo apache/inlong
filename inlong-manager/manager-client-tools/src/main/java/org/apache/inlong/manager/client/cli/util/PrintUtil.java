@@ -47,8 +47,7 @@ public class PrintUtil {
 
     public static <T> void printJson(T item) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(gson.toJson(item)).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(gson.toJson(item)).getAsJsonObject();
         System.out.println(gson.toJson(jsonObject));
     }
 

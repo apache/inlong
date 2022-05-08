@@ -353,44 +353,4 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
     }
 
-    /**
-     * Asynchronously initiate a single inlong stream related workflow
-     *
-     * @see CreateStreamWorkflowDefinition
-     */
-//    class WorkflowStartRunnable implements Runnable {
-//
-//        private final String operator;
-//        private final InlongGroupEntity inlongGroupEntity;
-//        private final String streamId;
-//
-//        public WorkflowStartRunnable(String operator, InlongGroupEntity inlongGroupEntity, String streamId) {
-//            this.operator = operator;
-//            this.inlongGroupEntity = inlongGroupEntity;
-//            this.streamId = streamId;
-//        }
-//
-//        @Override
-//        public void run() {
-//            String groupId = inlongGroupEntity.getInlongGroupId();
-//            LOGGER.info("begin start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
-//
-//            InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
-//            GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
-//
-//            workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
-//            LOGGER.info("success start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
-//        }
-//
-//        /**
-//         * Generate [Group Resource] form
-//         */
-//        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupInfo groupInfo, String streamId) {
-//            GroupResourceProcessForm form = new GroupResourceProcessForm();
-//            form.setGroupInfo(groupInfo);
-//            form.setInlongStreamId(streamId);
-//            return form;
-//        }
-//    }
-
 }

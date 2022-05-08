@@ -55,9 +55,11 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
             + "messages; serial: single partition, low throughput, and orderly messages")
+    @Builder.Default
     private String queueModule = "parallel";
 
     @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
+    @Builder.Default
     private Integer topicPartitionNum = 3;
 
     @ApiModelProperty(value = "MQ resource object, in inlong group",
@@ -74,6 +76,7 @@ public class InlongGroupRequest {
     private String pulsarServiceUrl;
 
     @ApiModelProperty(value = "Whether zookeeper enabled? 0: disabled, 1: enabled")
+    @Builder.Default
     private Integer zookeeperEnabled = 0;
 
     @ApiModelProperty(value = "Data type name")

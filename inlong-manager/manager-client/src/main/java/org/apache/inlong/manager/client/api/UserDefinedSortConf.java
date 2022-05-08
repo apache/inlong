@@ -21,10 +21,12 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for user defined sort functions")
 public class UserDefinedSortConf extends SortBaseConf {
 
