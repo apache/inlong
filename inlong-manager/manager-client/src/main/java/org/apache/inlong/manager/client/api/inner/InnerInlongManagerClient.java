@@ -985,7 +985,7 @@ public class InnerInlongManagerClient {
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseGroupHeartbeat(responseBody);
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Get group heartbeat info failed: %s", e.getMessage()),
+            throw new RuntimeException(String.format("Get group metric info failed: %s", e.getMessage()),
                     e);
         }
     }
