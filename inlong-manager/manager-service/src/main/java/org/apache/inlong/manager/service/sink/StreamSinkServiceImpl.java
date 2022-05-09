@@ -212,8 +212,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check whether the sink have the same name under the same groupId and streamId
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId);
-        for (StreamSinkEntity sinkEntity : sinkList) {
-            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
+        for (StreamSinkEntity entity : sinkList) {
+            Integer sinkId = entity.getId();
+            if (!Objects.equals(request.getId(), sinkId) && Objects.equals(entity.getSinkName(), sinkName)) {
                 String err = "sink name have the same name = %s under the groupId = %s and streamId = %s";
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }

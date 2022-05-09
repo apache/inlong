@@ -139,7 +139,8 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         }
 
         String sourceName = entity.getSourceName();
-        if (sourceName != null && Objects.equals(sourceName, request.getSourceName())) {
+        Integer sourceId = entity.getId();
+        if (!Objects.equals(sourceId, request.getId()) && Objects.equals(sourceName, request.getSourceName())) {
             String err = "source have the same name = %s under the groupId = %s and streamId = %s";
             throw new BusinessException(String.format(err, sourceName, request.getInlongGroupId(),
                     request.getInlongStreamId()));
