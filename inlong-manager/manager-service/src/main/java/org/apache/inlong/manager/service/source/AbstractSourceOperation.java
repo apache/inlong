@@ -44,6 +44,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Default operation of stream source.
@@ -136,6 +137,14 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
             throw new BusinessException(String.format("Source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
+
+        String sourceName = entity.getSourceName();
+        if (sourceName != null && Objects.equals(sourceName, request.getSourceName())) {
+            String err = "source have the same name = %s under the groupId = %s and streamId = %s";
+            throw new BusinessException(String.format(err, sourceName, request.getInlongGroupId(),
+                    request.getInlongStreamId()));
+        }
+
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
         entity.setVersion(entity.getVersion() + 1);

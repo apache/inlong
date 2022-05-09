@@ -36,9 +36,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.slf4j.Logger;
@@ -54,7 +52,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Implementation of source service interface
@@ -70,8 +67,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private CommonOperateService commonOperateService;
-    @Autowired
-    private StreamSinkEntityMapper sinkMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -81,18 +76,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        String sourceName = request.getSourceName();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
-
-        // Check whether the sink and source have the same name under the same groupId and streamId
-        List<StreamSinkEntity> sinkExistList = sinkMapper.selectByRelatedId(groupId, streamId);
-        for (StreamSinkEntity sinkEntity : sinkExistList) {
-            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sourceName)) {
-                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
-                throw new BusinessException(String.format(err, sourceName, groupId, streamId));
-            }
-        }
 
         // According to the source type, save source information
         String sourceType = request.getSourceType();
@@ -177,18 +161,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        String sourceName = request.getSourceName();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
-
-        // Check whether the sink and source have the same name under the same groupId and streamId
-        List<StreamSinkEntity> sinkExistList = sinkMapper.selectByRelatedId(groupId, streamId);
-        for (StreamSinkEntity sinkEntity : sinkExistList) {
-            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sourceName)) {
-                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
-                throw new BusinessException(String.format(err, sourceName, groupId, streamId));
-            }
-        }
 
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
