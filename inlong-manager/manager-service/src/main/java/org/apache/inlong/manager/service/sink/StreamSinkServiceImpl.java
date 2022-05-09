@@ -173,7 +173,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(request.getSinkType(), ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);

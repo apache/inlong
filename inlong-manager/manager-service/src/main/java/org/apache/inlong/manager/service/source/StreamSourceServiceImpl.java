@@ -125,7 +125,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(request.getSourceType(), ErrorCodeEnum.SOURCE_TYPE_IS_NULL.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
