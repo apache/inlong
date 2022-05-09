@@ -26,8 +26,8 @@ import { Storages } from '@/components/MetaData';
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
-    initialValue: defaultValues.keyWord,
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
   },
 ];
 

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.transform.deduplication;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  * during which duplicate records is operated;
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 public class DeDuplicationDefinition extends TransformDefinition {
 

@@ -23,16 +23,17 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -179,6 +180,54 @@ public class InlongGroupContext implements Serializable {
                     return DELETED;
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported status %s for group", bizCode));
+            }
+        }
+
+        public static List<Integer> parseStatusByStrState(String state) {
+
+            InlongGroupState groupState;
+            try {
+                groupState = InlongGroupState.valueOf(state);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(String.format("Unsupported status %s for group", state));
+            }
+
+            List<Integer> stateList = new ArrayList<>();
+            switch (groupState) {
+                case CREATE:
+                    stateList.add(GroupStatus.DRAFT.getCode());
+                    return stateList;
+                case OPERATING:
+                    stateList.add(GroupStatus.DELETING.getCode());
+                    stateList.add(GroupStatus.SUSPENDING.getCode());
+                    stateList.add(GroupStatus.RESTARTING.getCode());
+                    return stateList;
+                case REJECTED:
+                    stateList.add(GroupStatus.APPROVE_REJECTED.getCode());
+                    return stateList;
+                case INITIALIZING:
+                    stateList.add(GroupStatus.TO_BE_APPROVAL.getCode());
+                    stateList.add(GroupStatus.APPROVE_PASSED.getCode());
+                    stateList.add(GroupStatus.CONFIG_ING.getCode());
+                    return stateList;
+                case FAILED:
+                    stateList.add(GroupStatus.CONFIG_FAILED.getCode());
+                    return stateList;
+                case STARTED:
+                    stateList.add(GroupStatus.RESTARTED.getCode());
+                    stateList.add(GroupStatus.CONFIG_SUCCESSFUL.getCode());
+                    return stateList;
+                case STOPPED:
+                    stateList.add(GroupStatus.SUSPENDED.getCode());
+                    return stateList;
+                case FINISHED:
+                    stateList.add(GroupStatus.FINISH.getCode());
+                    return stateList;
+                case DELETED:
+                    stateList.add(GroupStatus.DELETED.getCode());
+                    return stateList;
+                default:
+                    throw new IllegalArgumentException(String.format("Unsupported status %s for group", state));
             }
         }
     }

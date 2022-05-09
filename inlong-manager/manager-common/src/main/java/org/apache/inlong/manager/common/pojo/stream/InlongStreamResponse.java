@@ -99,6 +99,7 @@ public class InlongStreamResponse {
     private Integer previousStatus;
 
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
+    @Builder.Default
     private Integer isDeleted = 0;
 
     private String creator;

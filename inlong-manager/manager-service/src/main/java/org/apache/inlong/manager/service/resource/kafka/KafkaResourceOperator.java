@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkDTO;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.kafka.clients.admin.Admin;
@@ -39,6 +40,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 
+/**
+ * Kafka resource operator for creating Kafka topic
+ */
 @Service
 @Slf4j
 public class KafkaResourceOperator implements SinkResourceOperator {
@@ -54,17 +58,22 @@ public class KafkaResourceOperator implements SinkResourceOperator {
     @Override
     public void createSinkResource(String groupId, SinkInfo sinkInfo) {
         KafkaSinkDTO kafkaInfo = KafkaSinkDTO.getFromJson(sinkInfo.getExtParams());
-        try (Admin admin = getKafkaAdmin(kafkaInfo)) {
-            if (needCreateTopic(admin, kafkaInfo)) {
+        String topicName = kafkaInfo.getTopicName();
+        String partitionNum = kafkaInfo.getPartitionNum();
+        Preconditions.checkNotEmpty(topicName, "topic name cannot be empty");
+        Preconditions.checkNotEmpty(partitionNum, "partition cannot be empty");
+
+        try (Admin admin = getKafkaAdmin(kafkaInfo.getBootstrapServers())) {
+            boolean topicExists = isTopicExists(admin, topicName, partitionNum);
+            if (!topicExists) {
                 CreateTopicsResult result = admin.createTopics(Collections.singleton(
-                        new NewTopic(kafkaInfo.getTopicName(),
-                                Optional.of(Integer.parseInt(kafkaInfo.getPartitionNum())),
-                                Optional.empty())));
-                result.values().get(kafkaInfo.getTopicName()).get();
+                        new NewTopic(topicName, Optional.of(Integer.parseInt(partitionNum)), Optional.empty())));
+                result.values().get(topicName).get();
             }
+
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(),
                     "create kafka topic success");
-            log.info("success create kafka topic {} for data group [{}]", kafkaInfo.getTopicName(), groupId);
+            log.info("success to create kafka topic {} for group [{}]", topicName, groupId);
         } catch (Throwable e) {
             log.error("create kafka topic error, ", e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
@@ -72,30 +81,36 @@ public class KafkaResourceOperator implements SinkResourceOperator {
         }
     }
 
-    private Admin getKafkaAdmin(KafkaSinkDTO kafkaInfo) {
-        Properties props = new Properties();
-        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaInfo.getBootstrapServers());
-        return Admin.create(props);
-    }
-
-    private boolean needCreateTopic(Admin admin, KafkaSinkDTO kafkaInfo) throws Exception {
+    /**
+     * Check whether the topic exists in the Kafka MQ
+     */
+    private boolean isTopicExists(Admin admin, String topicName, String partitionNum) throws Exception {
         ListTopicsResult listResult = admin.listTopics();
-        if (!listResult.namesToListings().get().containsKey(kafkaInfo.getTopicName())) {
-            log.debug("kafka topic {} not existed, proceed to create", kafkaInfo.getTopicName());
-            return true;
+        if (!listResult.namesToListings().get().containsKey(topicName)) {
+            log.info("kafka topic {} not existed", topicName);
+            return false;
         }
-        DescribeTopicsResult result = admin.describeTopics(Collections.singletonList(kafkaInfo.getTopicName()));
-        TopicDescription desc = result.values().get(kafkaInfo.getTopicName()).get();
-        if (desc.partitions().size() != Integer.parseInt(kafkaInfo.getPartitionNum())) {
-            String errMsg = String.format(
-                    "kafka topic %s already existed with partition num %d <> requested partition num %s",
-                    kafkaInfo.getTopicName(), desc.partitions().size(), kafkaInfo.getPartitionNum());
+
+        DescribeTopicsResult result = admin.describeTopics(Collections.singletonList(topicName));
+        TopicDescription desc = result.values().get(topicName).get();
+        if (desc.partitions().size() != Integer.parseInt(partitionNum)) {
+            String errMsg = String.format("kafka topic %s already exist with partition num=%d, "
+                    + "but the requested partition num=%s", topicName, desc.partitions().size(), partitionNum);
             log.error(errMsg);
             throw new IllegalArgumentException(errMsg);
         } else {
-            log.debug("kafka topic {} with {} partitions already existed, no need to create",
-                    kafkaInfo.getTopicName(), kafkaInfo.getPartitionNum());
-            return false;
+            log.info("kafka topic {} with {} partitions already existed, no need to create", topicName, partitionNum);
+            return true;
         }
     }
+
+    /**
+     * Get Kafka admin from the given bootstrap servers
+     */
+    private Admin getKafkaAdmin(String bootstrapServers) {
+        Properties props = new Properties();
+        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        return Admin.create(props);
+    }
+
 }

@@ -37,11 +37,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Event listener of create sink resources, such as Hive table, Kafka topics, ES indices, etc.
+ * Event listener of operate sink resources, such as create or update Hive table, Kafka topics, ES indices, etc.
  */
-@Service
 @Slf4j
-public class CreateSinkResourceListener implements SinkOperateListener {
+@Service
+public class SinkResourceListener implements SinkOperateListener {
 
     @Autowired
     private StreamSinkEntityMapper sinkMapper;

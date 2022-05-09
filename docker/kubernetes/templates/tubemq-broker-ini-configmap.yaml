@@ -26,9 +26,9 @@ data:
   broker.ini.raw: |
     [broker]
     brokerId=REPLACE_BY_POD_ID
-    hostName=REPLACE_BY_POD_HOSTNAME
-    port=8123
-    webPort=8081
+    hostName=REPLACE_BY_POD_IP
+    port={{ .Values.tubemqBroker.ports.rpcPort }}
+    webPort={{ .Values.tubemqBroker.ports.webPort }}
     masterAddressList=REPLACE_BY_MASTER_LIST
     primaryPath=/data/stage/metadata_REPLACE_BY_POD_ID
     maxSegmentSize=1073741824
@@ -39,7 +39,7 @@ data:
 
     [zookeeper]
     zkNodeRoot=/tubemq
-    zkServerAddr={{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}:2181
+    zkServerAddr={{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}
     zkSessionTimeoutMs=30000
     zkConnectionTimeoutMs=30000
     zkSyncTimeMs=5000

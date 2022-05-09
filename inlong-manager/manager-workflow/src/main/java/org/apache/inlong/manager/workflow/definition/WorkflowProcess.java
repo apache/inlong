@@ -130,7 +130,7 @@ public class WorkflowProcess extends Element {
 
         StartEvent startEvent = cloneProcess.getStartEvent();
         Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap = startEvent.getActionToNextElementMap();
-        Queue<Map<WorkflowAction, List<ConditionNextElement>>> queue = new LinkedBlockingQueue();
+        Queue<Map<WorkflowAction, List<ConditionNextElement>>> queue = new LinkedBlockingQueue<>();
         if (MapUtils.isNotEmpty(workflowActionListMap)) {
             queue.add(workflowActionListMap);
         }

@@ -80,12 +80,15 @@ public class ProcessQuery extends PageRequest {
     private Date endTimeEnd;
 
     @ApiModelProperty("Whether to hide, 0: not hidden, 1: hidden")
+    @Builder.Default
     private Integer hidden = 0;
 
     @ApiModelProperty("Whether to include the current to-do task")
+    @Builder.Default
     private Boolean includeCurrentTask = false;
 
     @ApiModelProperty("Whether to include the form info displayed in the list")
+    @Builder.Default
     private Boolean includeShowInList = true;
 
 }

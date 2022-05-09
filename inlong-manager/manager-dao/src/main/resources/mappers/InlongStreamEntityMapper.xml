@@ -111,10 +111,10 @@
             <if test="request.dataSourceType != null and request.dataSourceType != ''">
                 and stream.data_source_type = #{request.dataSourceType, jdbcType=VARCHAR}
             </if>
-            <if test="request.keyWord != null and request.keyWord != ''">
-                and (stream.inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
-                or stream.name like CONCAT('%', #{request.keyWord}, '%')
-                or stream.description like CONCAT('%', #{request.keyWord}, '%')
+            <if test="request.keyword != null and request.keyword != ''">
+                and (
+                stream.inlong_stream_id like CONCAT('%', #{request.keyword}, '%')
+                or stream.name like CONCAT('%', #{request.keyword}, '%')
                 )
             </if>
             <if test="request.status != null and request.status != ''">

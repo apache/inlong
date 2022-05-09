@@ -44,14 +44,10 @@ import java.util.stream.Stream;
  */
 public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<SerializationSchema<RowData>> {
 
-    private List<String> metadataKeys;
-
     private final TimestampFormat timestampFormat;
-
     private final JsonOptions.MapNullKeyMode mapNullKeyMode;
-
     private final String mapNullKeyLiteral;
-
+    private List<String> metadataKeys;
     private boolean encodeDecimalAsPlainNumber;
 
     public CanalJsonEnhancedEncodingFormat(
@@ -126,6 +122,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getString(pos);
                     }
                 }),
@@ -138,6 +137,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getString(pos);
                     }
                 }),
@@ -152,6 +154,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getMap(pos);
                     }
                 }),
@@ -164,6 +169,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getArray(pos);
                     }
                 }),
@@ -176,6 +184,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getTimestamp(pos, 3).getMillisecond();
                     }
                 }),
@@ -188,6 +199,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getTimestamp(pos, 3).getMillisecond();
                     }
                 }),
@@ -201,6 +215,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getString(pos);
                     }
                 }),
@@ -213,6 +230,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getBoolean(pos);
                     }
                 }),
@@ -226,6 +246,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getMap(pos);
                     }
                 }),
@@ -238,6 +261,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getLong(pos);
                     }
                 }),
@@ -254,6 +280,9 @@ public class CanalJsonEnhancedEncodingFormat implements EncodingFormat<Serializa
 
                     @Override
                     public Object convert(RowData row, int pos) {
+                        if (row.isNullAt(pos)) {
+                            return null;
+                        }
                         return row.getArray(pos);
                     }
                 });

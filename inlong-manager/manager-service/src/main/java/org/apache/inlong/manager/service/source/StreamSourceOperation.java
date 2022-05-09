@@ -71,9 +71,7 @@ public interface StreamSourceOperation {
      * @param entityPage The given entity page.
      * @return Source list response.
      */
-    default PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        return new PageInfo<>();
-    }
+    PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage);
 
     /**
      * Update the source info.

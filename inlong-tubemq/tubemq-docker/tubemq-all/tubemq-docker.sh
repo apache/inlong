@@ -15,6 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# wait the service to start
+wait_port_to_listen() {
+  service_name=$1
+  service_port=$2
+  result=$(netstat -anp | grep ${service_port})
+  while [[ -z "$result" ]]; do
+    echo "waiting $service_name to start, sleep 3s ..."
+    sleep 3
+    result=$(netstat -anp | grep ${service_port})
+  done
+}
+
 cd /opt/tubemq-server/bin/
 # configure useWebProxy
 if [[ $USE_WEB_PROXY ]]; then
@@ -26,11 +38,10 @@ fi
 if [[ $TARGET == "standalone" ]]; then
   # zookeeper start
   /docker-entrypoint.sh zkServer.sh start
-  sleep 5
+  wait_port_to_listen zookeeper 2181
   # master start
-
   ./tubemq.sh master start
-  sleep 5
+  wait_port_to_listen master 8080
   # add broker
   curl -d "type=op_modify&method=admin_add_broker_configure&brokerId=1\
     &brokerIp=127.0.0.1&brokerPort=8123&deletePolicy=delete,168h&numPartitions=3\

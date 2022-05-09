@@ -43,6 +43,7 @@ inlong-sdk:
   - 'inlong-sdk/**/*'
 
 ci:
+  - '.github/actions/**/*'
   - '.github/workflows/**/*'
 
 docker:

@@ -118,7 +118,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
             throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
         }
 
-        LOGGER.info("success create hive table for data group [" + groupId + "]");
+        LOGGER.info("success to create hive table for group [" + groupId + "]");
     }
 
     protected HiveTableQueryBean getTableQueryBean(SinkInfo config, HiveSinkDTO hiveInfo) {

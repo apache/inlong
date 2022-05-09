@@ -112,8 +112,8 @@
                 creator = #{currentUser, jdbcType=VARCHAR} or find_in_set(#{currentUser, jdbcType=VARCHAR}, in_charges)
                 )
             </if>
-            <if test="keyWord != null and keyWord != ''">
-                and (inlong_group_id like CONCAT('%',#{keyWord},'%') or name like CONCAT('%',#{keyWord},'%'))
+            <if test="keyword != null and keyword != ''">
+                and (inlong_group_id like CONCAT('%',#{keyword},'%') or name like CONCAT('%',#{keyword},'%'))
             </if>
             <if test="groupIdList != null and groupIdList.size() > 0">
                 and inlong_group_id in

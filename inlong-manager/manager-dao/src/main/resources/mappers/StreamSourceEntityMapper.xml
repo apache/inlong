@@ -29,7 +29,7 @@
         <result column="source_name" jdbcType="VARCHAR" property="sourceName"/>
         <result column="agent_ip" jdbcType="VARCHAR" property="agentIp"/>
         <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
-        <result column="server_id" jdbcType="INTEGER" property="serverId"/>
+        <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
         <result column="cluster_id" jdbcType="INTEGER" property="clusterId"/>
         <result column="serialization_type" jdbcType="VARCHAR" property="serializationType"/>
         <result column="snapshot" jdbcType="LONGVARCHAR" property="snapshot"/>
@@ -46,7 +46,7 @@
     </resultMap>
     <sql id="Base_Column_List">
         id, inlong_group_id, inlong_stream_id, source_type, source_name, agent_ip, uuid,
-        server_id, cluster_id, serialization_type, snapshot, report_time, ext_params,
+        data_node_name, cluster_id, serialization_type, snapshot, report_time, ext_params,
         version, status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
@@ -54,14 +54,14 @@
             parameterType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         insert into stream_source (id, inlong_group_id, inlong_stream_id,
                                    source_type, source_name, agent_ip,
-                                   uuid, server_id, cluster_id,
+                                   uuid, data_node_name, cluster_id,
                                    serialization_type, snapshot,
                                    report_time, ext_params, version,
                                    status, previous_status, is_deleted,
                                    creator, modifier, create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
-                #{uuid,jdbcType=VARCHAR}, #{serverId,jdbcType=INTEGER}, #{clusterId,jdbcType=INTEGER},
+                #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{version,jdbcType=INTEGER},
                 #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
@@ -110,11 +110,11 @@
             <if test="request.sourceType != null and request.sourceType != ''">
                 and source_type = #{request.sourceType, jdbcType=VARCHAR}
             </if>
-            <if test="request.keyWord != null and request.keyWord != ''">
+            <if test="request.keyword != null and request.keyword != ''">
                 and (
-                inlong_group_id like CONCAT('%', #{request.keyWord}, '%')
-                or inlong_stream_id like CONCAT('%', #{request.keyWord}, '%')
-                or source_name like CONCAT('%', #{request.keyWord}, '%')
+                inlong_group_id like CONCAT('%', #{request.keyword}, '%')
+                or inlong_stream_id like CONCAT('%', #{request.keyword}, '%')
+                or source_name like CONCAT('%', #{request.keyword}, '%')
                 )
             </if>
             <if test="request.status != null and request.status != ''">
@@ -238,8 +238,8 @@
             <if test="uuid != null">
                 uuid = #{uuid,jdbcType=VARCHAR},
             </if>
-            <if test="serverId != null">
-                server_id = #{serverId,jdbcType=INTEGER},
+            <if test="dataNodeName != null">
+                data_node_name = #{dataNodeName,jdbcType=VARCHAR},
             </if>
             <if test="clusterId != null">
                 cluster_id = #{clusterId,jdbcType=INTEGER},
@@ -291,7 +291,7 @@
             source_name        = #{sourceName,jdbcType=VARCHAR},
             agent_ip           = #{agentIp,jdbcType=VARCHAR},
             uuid               = #{uuid,jdbcType=VARCHAR},
-            server_id          = #{serverId,jdbcType=INTEGER},
+            data_node_name     = #{dataNodeName,jdbcType=VARCHAR},
             cluster_id         = #{clusterId,jdbcType=INTEGER},
             serialization_type = #{serializationType,jdbcType=VARCHAR},
             snapshot           = #{snapshot,jdbcType=LONGVARCHAR},

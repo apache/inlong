@@ -25,22 +25,24 @@ import org.apache.inlong.manager.client.cli.util.GsonUtil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 abstract class CommandUtil {
 
+    private static final String CONFIG_FILE = "application.properties";
+
     public InlongClientImpl connect() {
         Properties properties = new Properties();
-        String path = System.getProperty("user.dir") + "/conf/application.properties";
-
+        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
         try {
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(path));
+            InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
             properties.load(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,16 +63,16 @@ abstract class CommandUtil {
         } else {
             try {
                 FileReader fileReader = new FileReader(file);
-                Reader reader = new InputStreamReader(new FileInputStream(file));
+                Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()));
                 int ch;
-                StringBuffer stringBuffer = new StringBuffer();
+                StringBuilder stringBuilder = new StringBuilder();
                 while ((ch = reader.read()) != -1) {
-                    stringBuffer.append((char) ch);
+                    stringBuilder.append((char) ch);
                 }
                 fileReader.close();
                 reader.close();
 
-                return stringBuffer.toString();
+                return stringBuilder.toString();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

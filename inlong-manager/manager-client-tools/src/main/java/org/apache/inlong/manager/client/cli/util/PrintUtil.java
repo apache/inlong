@@ -22,11 +22,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -47,8 +47,7 @@ public class PrintUtil {
 
     public static <T> void printJson(T item) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = jsonParser.parse(gson.toJson(item)).getAsJsonObject();
+        JsonObject jsonObject = JsonParser.parseString(gson.toJson(item)).getAsJsonObject();
         System.out.println(gson.toJson(jsonObject));
     }
 
@@ -69,10 +68,14 @@ public class PrintUtil {
                 try {
                     System.out.print(vertical);
                     if (fields[i].get(k) != null) {
+                        int charNum = getSpecialCharNum(fields[i].get(k).toString());
                         if (fields[i].getType().equals(Date.class)) {
                             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             String dataFormat = sf.format(fields[i].get(k));
                             System.out.printf("%s", StringUtils.center(dataFormat, columnWidth[i]));
+                        } else if (charNum > 0) {
+                            System.out.printf("%s",
+                                    StringUtils.center(fields[i].get(k).toString(), columnWidth[i] - charNum));
                         } else {
                             System.out.printf("%s", StringUtils.center(fields[i].get(k).toString(), columnWidth[i]));
                         }
@@ -90,14 +93,10 @@ public class PrintUtil {
 
     private static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
+        Gson gson = new Gson();
         item.forEach(t -> {
-            try {
-                K k = clazz.newInstance();
-                BeanUtils.copyProperties(t, k);
-                newList.add(k);
-            } catch (InstantiationException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            K k = gson.fromJson(gson.toJson(t), clazz);
+            newList.add(k);
         });
         return newList;
     }
@@ -113,7 +112,7 @@ public class PrintUtil {
                 for (int j = 0; j < fields.length; j++) {
                     fields[j].setAccessible(true);
                     if (fields[j].get(k) != null) {
-                        int length = fields[j].get(k).toString().length();
+                        int length = fields[j].get(k).toString().getBytes().length;
                         maxWidth[j] = Math.max(length, maxWidth[j]);
                     }
                 }
@@ -121,6 +120,7 @@ public class PrintUtil {
                 e.printStackTrace();
             }
         });
+        System.out.println(Arrays.toString(maxWidth));
         for (int i = 0; i < maxWidth.length; i++) {
             maxWidth[i] += 4;
         }
@@ -133,5 +133,10 @@ public class PrintUtil {
             System.out.printf("%s", StringUtils.leftPad(joint, columnWidth[i] + 1, horizontal));
         }
         System.out.println();
+    }
+
+    private static int getSpecialCharNum(String str) {
+        int i = str.getBytes().length - str.length();
+        return i / 2;
     }
 }

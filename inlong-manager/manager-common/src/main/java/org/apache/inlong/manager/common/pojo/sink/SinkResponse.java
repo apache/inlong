@@ -53,6 +53,18 @@ public class SinkResponse {
     @ApiModelProperty("Sink description")
     private String description;
 
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
+
+    @ApiModelProperty("Sort task name")
+    private String sortTaskName;
+
+    @ApiModelProperty("Sort consumer group")
+    private String sortConsumerGroup;
+
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
             notes = "Such as create Hive table")
     private Integer enableCreateResource = 1;

@@ -18,12 +18,17 @@
 package org.apache.inlong.manager.service.source.autopush;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -43,6 +48,14 @@ public class AutoPushSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Override
+    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, AutoPushSourceListResponse::new));
+    }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {

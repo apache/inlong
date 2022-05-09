@@ -19,10 +19,10 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Response of the sink list
@@ -50,6 +50,18 @@ public class SinkListResponse {
 
     @ApiModelProperty("Sink description")
     private String description;
+
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
+
+    @ApiModelProperty("Sort task name")
+    private String sortTaskName;
+
+    @ApiModelProperty("Sort consumer group")
+    private String sortConsumerGroup;
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1")
     private Integer enableCreateResource;
