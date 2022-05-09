@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
@@ -348,7 +348,7 @@ public class FieldInfoUtils {
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
             if (ch == ' ' || ch == ',' ||  ch == '<') {
-                stack.addFirst(new Pair<>(ch, i));
+                stack.addFirst( Pair.of(ch, i));
             }
             if (ch == '>' && !stack.isEmpty()) {
                 while (stack.peekFirst().getKey() != '<') {
@@ -374,7 +374,7 @@ public class FieldInfoUtils {
             }
         }
         fieldFormatInfos.add(str.substring(separationIndexs.get(separationIndexs.size() - 1) + 1));
-        return  new Pair<>(fieldNames, fieldFormatInfos);
+        return  Pair.of(fieldNames, fieldFormatInfos);
     }
 
     /**
@@ -398,7 +398,7 @@ public class FieldInfoUtils {
     private static Pair<String, String> parseMapType(String str) {
         Deque<Character> stack = new LinkedList<Character>();
         if (str.indexOf("<") == -1 || str.indexOf(">") == -1) {
-            return new Pair<>(str.substring(0, str.indexOf(",")),str.substring(str.indexOf(",") + 1));
+            return Pair.of(str.substring(0, str.indexOf(",")), str.substring(str.indexOf(",") + 1));
         } else {
             for (int i = 0; i < str.length(); i++) {
                 char ch = str.charAt(i);
@@ -411,7 +411,7 @@ public class FieldInfoUtils {
                     }
                     stack.pollFirst();
                     if (stack.isEmpty()) {
-                        return new Pair<>(str.substring(0, i + 1), str.substring(i + 2));
+                        return Pair.of(str.substring(0, i + 1), str.substring(i + 2));
                     }
                 }
             }
