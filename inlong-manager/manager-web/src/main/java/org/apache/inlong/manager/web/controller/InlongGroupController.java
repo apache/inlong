@@ -172,7 +172,4 @@ public class InlongGroupController {
     public Response<InlongGroupTotalMetricResponse> getMetric(@RequestBody InlongGroupMetricRequest request) {
         return Response.success(groupService.getMetric(request));
     }
-
-
-
 }

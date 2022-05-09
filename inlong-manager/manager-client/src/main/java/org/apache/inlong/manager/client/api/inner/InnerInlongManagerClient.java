@@ -1022,8 +1022,6 @@ public class InnerInlongManagerClient {
         }
     }
 
-
-
     protected void assertHttpSuccess(okhttp3.Response response, String body, String path) {
         AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request=%s failed: %s", path, body));
     }

@@ -353,11 +353,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
     }
 
-    /**
-     * Asynchronously initiate a single inlong stream related workflow
-     *
-     * @see CreateStreamWorkflowDefinition
-     */
+//    /**
+//     * Asynchronously initiate a single inlong stream related workflow
+//     *
+//     * @see CreateStreamWorkflowDefinition
+//     */
 //    class WorkflowStartRunnable implements Runnable {
 //
 //        private final String operator;

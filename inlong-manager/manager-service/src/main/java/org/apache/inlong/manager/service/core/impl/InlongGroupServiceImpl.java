@@ -469,6 +469,4 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return inlongGroupTotalMetricResponse;
     }
 
-
-
 }
