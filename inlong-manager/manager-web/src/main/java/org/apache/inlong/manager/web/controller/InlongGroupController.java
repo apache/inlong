@@ -26,10 +26,12 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMetricRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTotalMetricResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongGroupService;
@@ -164,4 +166,10 @@ public class InlongGroupController {
         return Response.success(groupService.getTopic(groupId));
     }
 
+    @RequestMapping(value = "/getMetric", method = RequestMethod.POST)
+    @ApiOperation(value = "Get inlong group metric")
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<InlongGroupTotalMetricResponse> getMetric(@RequestBody InlongGroupMetricRequest request) {
+        return Response.success(groupService.getMetric(request));
+    }
 }

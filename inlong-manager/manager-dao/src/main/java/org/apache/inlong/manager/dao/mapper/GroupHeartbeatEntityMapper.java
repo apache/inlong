@@ -35,6 +35,9 @@ public interface GroupHeartbeatEntityMapper {
 
     GroupHeartbeatEntity selectByPrimaryKey(Integer id);
 
+    GroupHeartbeatEntity selectByIds(@Param("component") String component,
+            @Param("inlongGroupId") String inlongGroupId);
+
     GroupHeartbeatEntity selectByKey(@Param("component") String component, @Param("instance") String instance,
             @Param("inlongGroupId") String inlongGroupId);
 

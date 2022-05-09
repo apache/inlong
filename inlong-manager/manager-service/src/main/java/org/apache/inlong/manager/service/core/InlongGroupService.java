@@ -21,11 +21,13 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMetricRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTotalMetricResponse;
 
 import java.util.List;
 
@@ -129,5 +131,13 @@ public interface InlongGroupService {
      * @param infoList Ext info list
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
+
+    /**
+     * According to the group id, query the metric of the group
+     *
+     * @param request
+     * @return
+     */
+    InlongGroupTotalMetricResponse getMetric(InlongGroupMetricRequest request);
 
 }

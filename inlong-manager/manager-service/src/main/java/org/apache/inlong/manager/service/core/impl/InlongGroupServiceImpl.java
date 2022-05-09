@@ -36,18 +36,27 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMetricRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMetricResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupMqExtBase;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTotalMetricResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamMetricResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
+import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -90,6 +99,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     private InlongStreamService streamService;
     @Autowired
     private MiddlewareFactory groupMqFactory;
+    @Autowired
+    private GroupHeartbeatEntityMapper groupHeartbeatMapper;
+    @Autowired
+    private StreamHeartbeatEntityMapper streamHeartbeatMapper;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -419,6 +432,41 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
         LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
+    }
+
+    @Override
+    public InlongGroupTotalMetricResponse getMetric(InlongGroupMetricRequest request) {
+        LOGGER.debug("begin to fetch inlong group metric by {}", request);
+
+        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        String component = request.getComponent();
+        String inlongGroupId = request.getInlongGroupId();
+        GroupHeartbeatEntity groupentity = groupHeartbeatMapper.selectByIds(component, inlongGroupId);
+        if (groupentity == null) {
+            LOGGER.error("inlong group metric not found by component={} groupId={}", component, inlongGroupId);
+            throw new BusinessException(ErrorCodeEnum.GROUP_METRIC_NOT_FOUND);
+        }
+        InlongGroupMetricResponse response = JsonUtils.parse(groupentity.getMetricHeartbeat(),
+                InlongGroupMetricResponse.class);
+
+        List<StreamHeartbeatEntity> streamEntitys = streamHeartbeatMapper.selectByIds(component, inlongGroupId);
+        if (streamEntitys.size() == 0) {
+            LOGGER.error("inlong stream metric not found by component={} groupId={}", component, inlongGroupId);
+            throw new BusinessException(ErrorCodeEnum.STREAM_METRIC_NOT_FOUND);
+        }
+        Map<String, List<InlongStreamMetricResponse>> streamMetricMap = Maps.newHashMap();
+        streamEntitys.forEach(streamEntity -> {
+            InlongStreamMetricResponse inlongStreamMetricResponse =
+                    JsonUtils.parse(streamEntity.getMetricHeartbeat(), InlongStreamMetricResponse.class);
+            streamMetricMap.computeIfAbsent(streamEntity.getInlongStreamId(), k -> Lists.newArrayList())
+                    .add(inlongStreamMetricResponse);
+        });
+
+        InlongGroupTotalMetricResponse inlongGroupTotalMetricResponse = new InlongGroupTotalMetricResponse();
+        inlongGroupTotalMetricResponse.setInlongGroupMetricResponse(response);
+        inlongGroupTotalMetricResponse.setStreamMetricMap(streamMetricMap);
+        LOGGER.info("success to fetch inlong group total metric response = {}", inlongGroupTotalMetricResponse);
+        return inlongGroupTotalMetricResponse;
     }
 
 }

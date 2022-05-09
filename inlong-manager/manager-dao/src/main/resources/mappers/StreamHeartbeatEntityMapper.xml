@@ -80,6 +80,13 @@
         and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
         and inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR}
     </select>
+    <select id="selectByIds" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from stream_heartbeat
+        where component = #{component,jdbcType=VARCHAR}
+        and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
+    </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity">

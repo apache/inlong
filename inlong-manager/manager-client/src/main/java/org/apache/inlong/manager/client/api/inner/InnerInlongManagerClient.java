@@ -39,9 +39,11 @@ import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupMetricRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTotalMetricResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -918,6 +920,38 @@ public class InnerInlongManagerClient {
             return pageInfo.getList();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Get inlong stream log failed: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * get group metric info response
+     *
+     * @param info
+     * @return
+     */
+    public InlongGroupTotalMetricResponse getGroupMetric(InlongGroupMetricRequest info) {
+        final String path = HTTP_PATH + "/group/getMetric";
+        final String url = formatUrl(path);
+        String infoRequest = GsonUtil.toJson(info);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), infoRequest);
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return InlongParser.parseGroupHeartbeat(responseBody);
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Get group metric info failed: %s", e.getMessage()),
+                    e);
         }
     }
 

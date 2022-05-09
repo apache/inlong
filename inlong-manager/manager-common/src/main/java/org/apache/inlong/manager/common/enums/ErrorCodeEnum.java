@@ -44,6 +44,7 @@ public enum ErrorCodeEnum {
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
+    GROUP_METRIC_NOT_FOUND(1015, "Inlong group heartbeat not exist/no operation authority"),
 
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),
@@ -64,6 +65,7 @@ public enum ErrorCodeEnum {
     STREAM_FIELD_SAVE_FAILED(1208, "Failed to save/update inlong stream field"),
     STREAM_DELETE_HAS_SOURCE(1209, "The inlong stream contains source info and is not allowed to be deleted"),
     STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains data sink info and is not allowed to be deleted"),
+    STREAM_METRIC_NOT_FOUND(1211, "Inlong stream heartbeat not exist/no operation authority"),
 
     SOURCE_TYPE_IS_NULL(1300, "Source type is null"),
     SOURCE_TYPE_NOT_SUPPORT(1301, "Source type '%s' not support"),
