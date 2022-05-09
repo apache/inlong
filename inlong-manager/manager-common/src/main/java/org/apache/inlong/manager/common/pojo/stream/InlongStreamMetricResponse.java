@@ -23,6 +23,8 @@ import lombok.Data;
 import org.apache.inlong.manager.common.pojo.sink.SinkNodeMetric;
 import org.apache.inlong.manager.common.pojo.source.SourceNodeMetric;
 
+import java.util.List;
+
 /**
  * Inlong stream metric
  */
@@ -31,9 +33,9 @@ import org.apache.inlong.manager.common.pojo.source.SourceNodeMetric;
 public class InlongStreamMetricResponse {
 
     @ApiModelProperty(value = "Source Node Metric")
-    private SourceNodeMetric sourceNodeMetric;
+    private List<SourceNodeMetric> sourceNodeMetrics;
 
     @ApiModelProperty(value = "sink Node Metric")
-    private SinkNodeMetric sinkNodeMetric;
+    private List<SinkNodeMetric> sinkNodeMetrics;
 
 }

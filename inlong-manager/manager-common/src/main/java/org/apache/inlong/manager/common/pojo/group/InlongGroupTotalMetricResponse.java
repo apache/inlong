@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamMetricResponse;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,5 +35,5 @@ public class InlongGroupTotalMetricResponse {
     private InlongGroupMetricResponse inlongGroupMetricResponse;
 
     @ApiModelProperty(value = "Stream metric map")
-    private Map<String, List<InlongStreamMetricResponse>> streamMetricMap;
+    private Map<String, InlongStreamMetricResponse> streamMetricMap;
 }

@@ -454,12 +454,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong stream metric not found by component={} groupId={}", component, inlongGroupId);
             throw new BusinessException(ErrorCodeEnum.STREAM_METRIC_NOT_FOUND);
         }
-        Map<String, List<InlongStreamMetricResponse>> streamMetricMap = Maps.newHashMap();
+        Map<String, InlongStreamMetricResponse> streamMetricMap = Maps.newHashMap();
         streamEntitys.forEach(streamEntity -> {
             InlongStreamMetricResponse inlongStreamMetricResponse =
                     JsonUtils.parse(streamEntity.getMetricHeartbeat(), InlongStreamMetricResponse.class);
-            streamMetricMap.computeIfAbsent(streamEntity.getInlongStreamId(), k -> Lists.newArrayList())
-                    .add(inlongStreamMetricResponse);
+            streamMetricMap.put(streamEntity.getInlongStreamId(), inlongStreamMetricResponse);
         });
 
         InlongGroupTotalMetricResponse inlongGroupTotalMetricResponse = new InlongGroupTotalMetricResponse();
