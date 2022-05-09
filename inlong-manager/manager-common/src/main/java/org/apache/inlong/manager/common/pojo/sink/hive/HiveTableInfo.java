@@ -15,27 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.query;
+package org.apache.inlong.manager.common.pojo.sink.hive;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.Map;
 
 /**
- * Database detail info
+ * Hive table info
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("Database detail info")
-public class DatabaseDetail {
+public class HiveTableInfo {
 
+    // Basic attributes
     private String dbName;
+    private String tableName;
+    private String tableDesc;
+    private String tableType;
+    // Dimension table type, fact table
+    private String dwTableType;
 
-    @ApiModelProperty("key is the table name, value is the column name")
-    private List<String> tableNameList;
+    private String serdeName;
+    private String serdeProperties;
+    private String fieldTerSymbol;
+    private String collectionTerSymbol;
+    private String mapTerSymbol;
+    private String linesTerSymbol;
+
+    private String fileFormat;
+    private String inputFormatClass;
+    private String outputFormatClass;
+
+    private String location;
+    private String loadPath;
+    private Map<String, String> tblProperties;
+
+    // Hive fields
+    private List<HiveColumnInfo> columns;
 
 }

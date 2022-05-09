@@ -24,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
@@ -110,6 +111,9 @@ public class HiveSinkDTO {
                 .build();
     }
 
+    /**
+     * Get Hive sink info from JSON string
+     */
     public static HiveSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -117,6 +121,35 @@ public class HiveSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * Get Hive table info
+     */
+    public static HiveTableInfo getHiveTableInfo(HiveSinkDTO hiveInfo, List<HiveColumnInfo> columnList) {
+        HiveTableInfo tableInfo = new HiveTableInfo();
+        tableInfo.setDbName(hiveInfo.getDbName());
+        tableInfo.setTableName(hiveInfo.getTableName());
+
+        // Set partition fields
+        if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
+            for (HivePartitionField field : hiveInfo.getPartitionFieldList()) {
+                HiveColumnInfo columnInfo = new HiveColumnInfo();
+                columnInfo.setName(field.getFieldName());
+                columnInfo.setPartition(true);
+                columnInfo.setType("string");
+                columnList.add(columnInfo);
+            }
+        }
+        tableInfo.setColumns(columnList);
+
+        // set terminated symbol
+        if (hiveInfo.getDataSeparator() != null) {
+            char ch = (char) Integer.parseInt(hiveInfo.getDataSeparator());
+            tableInfo.setFieldTerSymbol(String.valueOf(ch));
+        }
+
+        return tableInfo;
     }
 
 }

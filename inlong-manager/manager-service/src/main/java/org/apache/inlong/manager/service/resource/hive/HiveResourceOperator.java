@@ -22,16 +22,12 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
-import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
-import org.apache.inlong.manager.common.pojo.query.hive.HiveColumnQueryBean;
-import org.apache.inlong.manager.common.pojo.query.hive.HiveTableQueryBean;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveTableInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -51,13 +47,10 @@ import static java.util.stream.Collectors.toList;
 public class HiveResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HiveResourceOperator.class);
-
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
-    private StreamSinkFieldEntityMapper hiveFieldMapper;
-    @Autowired
-    private DataSourceService<DatabaseQueryBean, HiveTableQueryBean> dataSourceService;
+    private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(SinkType sinkType) {
@@ -67,7 +60,8 @@ public class HiveResourceOperator implements SinkResourceOperator {
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createSinkResource(String groupId, SinkInfo sinkInfo) {
+    @Override
+    public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
             return;
@@ -81,90 +75,67 @@ public class HiveResourceOperator implements SinkResourceOperator {
             return;
         }
 
-        this.createTable(groupId, sinkInfo);
+        this.createTable(sinkInfo);
     }
 
-    private void createTable(String groupId, SinkInfo config) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin create hive table for inlong group={}, config={}", groupId, config);
+    private void createTable(SinkInfo sinkInfo) {
+        LOGGER.info("begin to create hive table for sinkId={}", sinkInfo.getId());
+
+        List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
+        if (CollectionUtils.isEmpty(fieldList)) {
+            LOGGER.warn("no hive fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
-        // Get all info from config
-        HiveSinkDTO hiveInfo = HiveSinkDTO.getFromJson(config.getExtParams());
-        HiveTableQueryBean tableBean = getTableQueryBean(config, hiveInfo);
-        try {
-            // create database if not exists
-            dataSourceService.createDb(tableBean);
+        // set columns
+        List<HiveColumnInfo> columnList = new ArrayList<>();
+        for (StreamSinkFieldEntity field : fieldList) {
+            HiveColumnInfo columnInfo = new HiveColumnInfo();
+            columnInfo.setName(field.getFieldName());
+            columnInfo.setType(field.getFieldType());
+            columnInfo.setDesc(field.getFieldComment());
+            columnList.add(columnInfo);
+        }
 
-            // check if the table exists
-            List<ColumnInfoBean> columns = dataSourceService.queryColumns(tableBean);
-            if (columns.size() == 0) {
-                // no such table, create one
-                dataSourceService.createTable(tableBean);
+        try {
+            HiveSinkDTO hiveInfo = HiveSinkDTO.getFromJson(sinkInfo.getExtParams());
+            HiveTableInfo tableInfo = HiveSinkDTO.getHiveTableInfo(hiveInfo, columnList);
+            String url = hiveInfo.getJdbcUrl();
+            String user = hiveInfo.getUsername();
+            String password = hiveInfo.getPassword();
+
+            String dbName = tableInfo.getDbName();
+            String tableName = tableInfo.getTableName();
+
+            // 1. create database if not exists
+            HiveJdbcUtils.createDb(url, user, password, dbName);
+
+            // 2. check if the table exists
+            List<String> tables = HiveJdbcUtils.getTables(url, user, password, dbName);
+            boolean tableExists = tables.contains(tableName);
+
+            // 3. table not exists, create it
+            if (!tableExists) {
+                HiveJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
-                // set columns, skip the first columns already exist in hive
-                List<HiveColumnQueryBean> columnsSkipHistory = tableBean.getColumns().stream()
-                        .skip(columns.size()).collect(toList());
-                if (columnsSkipHistory.size() != 0) {
-                    tableBean.setColumns(columnsSkipHistory);
-                    dataSourceService.createColumn(tableBean);
+                // 4. table exists, add columns - skip the exists columns
+                List<HiveColumnInfo> existColumns = HiveJdbcUtils.getColumns(url, user, password, dbName, tableName);
+                List<HiveColumnInfo> needAddColumns = tableInfo.getColumns().stream()
+                        .skip(existColumns.size()).collect(toList());
+                if (CollectionUtils.isNotEmpty(needAddColumns)) {
+                    HiveJdbcUtils.addColumns(url, user, password, dbName, tableName, needAddColumns);
                 }
             }
-            sinkService.updateStatus(config.getId(),
-                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create hive table success");
+
+            // 5. update the sink status to success
+            String info = "success to create hive resource";
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            LOGGER.error("create hive table error, ", e);
-            sinkService.updateStatus(config.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
-            throw new WorkflowException("create hive table failed, reason: " + e.getMessage());
+            String errMsg = "create hive table failed: " + e.getMessage();
+            LOGGER.error(errMsg, e);
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
+            throw new WorkflowException(errMsg);
         }
-
-        LOGGER.info("success to create hive table for group [" + groupId + "]");
-    }
-
-    protected HiveTableQueryBean getTableQueryBean(SinkInfo config, HiveSinkDTO hiveInfo) {
-        String groupId = config.getInlongGroupId();
-        String streamId = config.getInlongStreamId();
-        LOGGER.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);
-
-        List<StreamSinkFieldEntity> fieldEntities = hiveFieldMapper.selectFields(groupId, streamId);
-
-        List<HiveColumnQueryBean> columnQueryBeans = new ArrayList<>();
-        for (StreamSinkFieldEntity field : fieldEntities) {
-            HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
-            columnBean.setColumnName(field.getFieldName());
-            columnBean.setColumnType(field.getFieldType());
-            columnBean.setColumnDesc(field.getFieldComment());
-            columnQueryBeans.add(columnBean);
-        }
-
-        // Set partition fields
-        if (CollectionUtils.isNotEmpty(hiveInfo.getPartitionFieldList())) {
-            for (HivePartitionField field : hiveInfo.getPartitionFieldList()) {
-                HiveColumnQueryBean columnBean = new HiveColumnQueryBean();
-                columnBean.setColumnName(field.getFieldName());
-                columnBean.setPartition(true);
-                columnBean.setColumnType("string");
-                columnQueryBeans.add(columnBean);
-            }
-        }
-
-        HiveTableQueryBean queryBean = new HiveTableQueryBean();
-        queryBean.setColumns(columnQueryBeans);
-        // set terminated symbol
-        if (hiveInfo.getDataSeparator() != null) {
-            char ch = (char) Integer.parseInt(hiveInfo.getDataSeparator());
-            queryBean.setFieldTerSymbol(String.valueOf(ch));
-        }
-        queryBean.setUsername(hiveInfo.getUsername());
-        queryBean.setPassword(hiveInfo.getPassword());
-        queryBean.setTableName(hiveInfo.getTableName());
-        queryBean.setDbName(hiveInfo.getDbName());
-        queryBean.setJdbcUrl(hiveInfo.getJdbcUrl());
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get table query bean={}", queryBean);
-        }
-        return queryBean;
     }
 
 }
