@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.kafka;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -33,6 +32,8 @@ import org.apache.kafka.clients.admin.DescribeTopicsResult;
 import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,8 +45,9 @@ import java.util.Properties;
  * Kafka resource operator for creating Kafka topic
  */
 @Service
-@Slf4j
 public class KafkaResourceOperator implements SinkResourceOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaResourceOperator.class);
 
     @Autowired
     private StreamSinkService sinkService;
@@ -56,7 +58,9 @@ public class KafkaResourceOperator implements SinkResourceOperator {
     }
 
     @Override
-    public void createSinkResource(String groupId, SinkInfo sinkInfo) {
+    public void createSinkResource(SinkInfo sinkInfo) {
+        LOGGER.info("begin to create kafka topic for sinkId={}", sinkInfo.getId());
+
         KafkaSinkDTO kafkaInfo = KafkaSinkDTO.getFromJson(sinkInfo.getExtParams());
         String topicName = kafkaInfo.getTopicName();
         String partitionNum = kafkaInfo.getPartitionNum();
@@ -73,9 +77,9 @@ public class KafkaResourceOperator implements SinkResourceOperator {
 
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(),
                     "create kafka topic success");
-            log.info("success to create kafka topic {} for group [{}]", topicName, groupId);
+            LOGGER.info("success to create kafka topic [{}] for sinkInfo={}", topicName, sinkInfo);
         } catch (Throwable e) {
-            log.error("create kafka topic error, ", e);
+            LOGGER.error("create kafka topic error, ", e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
             throw new WorkflowException("create kafka topic failed, reason: " + e.getMessage());
         }
@@ -87,19 +91,20 @@ public class KafkaResourceOperator implements SinkResourceOperator {
     private boolean isTopicExists(Admin admin, String topicName, String partitionNum) throws Exception {
         ListTopicsResult listResult = admin.listTopics();
         if (!listResult.namesToListings().get().containsKey(topicName)) {
-            log.info("kafka topic {} not existed", topicName);
+            LOGGER.info("kafka topic {} not existed", topicName);
             return false;
         }
 
         DescribeTopicsResult result = admin.describeTopics(Collections.singletonList(topicName));
         TopicDescription desc = result.values().get(topicName).get();
+        String info = "kafka topic=%s already exist with partition num=%s";
         if (desc.partitions().size() != Integer.parseInt(partitionNum)) {
-            String errMsg = String.format("kafka topic %s already exist with partition num=%d, "
-                    + "but the requested partition num=%s", topicName, desc.partitions().size(), partitionNum);
-            log.error(errMsg);
+            String errMsg = String.format(info + ", but the requested partition num=%s", topicName,
+                    desc.partitions().size(), partitionNum);
+            LOGGER.error(errMsg);
             throw new IllegalArgumentException(errMsg);
         } else {
-            log.info("kafka topic {} with {} partitions already existed, no need to create", topicName, partitionNum);
+            LOGGER.info(String.format(info + ", no need to create", topicName, partitionNum));
             return true;
         }
     }

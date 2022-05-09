@@ -50,7 +50,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
-    private StreamSinkFieldEntityMapper hiveFieldMapper;
+    private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(SinkType sinkType) {
@@ -60,7 +60,8 @@ public class HiveResourceOperator implements SinkResourceOperator {
     /**
      * Create hive table according to the groupId and hive config
      */
-    public void createSinkResource(String groupId, SinkInfo sinkInfo) {
+    @Override
+    public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
             return;
@@ -74,18 +75,15 @@ public class HiveResourceOperator implements SinkResourceOperator {
             return;
         }
 
-        this.createTable(groupId, sinkInfo);
+        this.createTable(sinkInfo);
     }
 
-    private void createTable(String groupId, SinkInfo sinkInfo) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to create hive table for group={}, sinkInfo={}", groupId, sinkInfo);
-        }
+    private void createTable(SinkInfo sinkInfo) {
+        LOGGER.info("begin to create hive table for sinkId={}", sinkInfo.getId());
 
-        String streamId = sinkInfo.getInlongStreamId();
-        List<StreamSinkFieldEntity> fieldList = hiveFieldMapper.selectFields(groupId, streamId);
+        List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no hive fields found, skip to create hive table for group={}, stream={}", groupId, streamId);
+            LOGGER.warn("no hive fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
         // set columns
@@ -131,7 +129,7 @@ public class HiveResourceOperator implements SinkResourceOperator {
             // 5. update the sink status to success
             String info = "success to create hive resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
-            LOGGER.info(info + " for group [" + groupId + "]");
+            LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
             String errMsg = "create hive table failed: " + e.getMessage();
             LOGGER.error(errMsg, e);
