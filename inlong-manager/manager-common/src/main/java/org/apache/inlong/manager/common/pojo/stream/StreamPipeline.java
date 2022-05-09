@@ -25,7 +25,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,10 +50,7 @@ public class StreamPipeline {
     }
 
     /**
-     * Check if pipeline has circle
-     * If has one, return circled node names;
-     *
-     * @return
+     * Check if a pipeline has a circle, if it has, return circled node names
      */
     public Pair<Boolean, Pair<String, String>> hasCircle() {
         Map<String, Set<String>> priorityMap = Maps.newHashMap();
@@ -82,9 +78,7 @@ public class StreamPipeline {
     }
 
     private boolean isReach(Map<String, Set<String>> paths, Set<String> inputs, String output) {
-        Queue<String> queue = new LinkedList<>();
-        queue.addAll(inputs);
-        Set<String> preNodes = new HashSet<>(inputs);
+        Queue<String> queue = new LinkedList<>(inputs);
         while (!queue.isEmpty()) {
             String node = queue.remove();
             if (paths.get(node) == null) {
@@ -96,7 +90,6 @@ public class StreamPipeline {
             }
             for (String postNode : postNodes) {
                 if (!inputs.contains(postNode)) {
-                    preNodes.add(postNode);
                     queue.add(postNode);
                 }
             }
