@@ -68,7 +68,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id, SourceType.BINLOG.getType());
+        SourceResponse source = sourceService.get(id);
         Assert.assertEquals(globalGroupId, source.getInlongGroupId());
 
         sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
@@ -77,7 +77,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id, SourceType.BINLOG.getType());
+        SourceResponse response = sourceService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;

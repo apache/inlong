@@ -40,13 +40,12 @@ public interface StreamSourceService {
     Integer save(SourceRequest request, String operator);
 
     /**
-     * Query source information based on id and type.
+     * Query source information based on id
      *
      * @param id source id.
-     * @param sourceType Source type.
      * @return Source info
      */
-    SourceResponse get(Integer id, String sourceType);
+    SourceResponse get(Integer id);
 
     /**
      * Query source information based on inlong group id and inlong stream id.

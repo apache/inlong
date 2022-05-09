@@ -42,13 +42,12 @@ public interface StreamSinkService {
     Integer save(SinkRequest request, String operator);
 
     /**
-     * Query sink information based on id and type.
+     * Query sink information based on id.
      *
      * @param id Sink id.
-     * @param sinkType Sink type.
      * @return Sink info.
      */
-    SinkResponse get(Integer id, String sinkType);
+    SinkResponse get(Integer id);
 
     /**
      * Query sink information based on inlong group id and inlong stream id.

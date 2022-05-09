@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -35,7 +36,9 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.slf4j.Logger;
@@ -51,6 +54,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Implementation of source service interface
@@ -66,6 +70,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
     private CommonOperateService commonOperateService;
+    @Autowired
+    private StreamSinkEntityMapper sinkMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -75,7 +81,18 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sourceName = request.getSourceName();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+
+        // Check whether the sink and source have the same name under the same groupId and streamId
+        List<StreamSinkEntity> sinkExistList = sinkMapper.selectByRelatedId(groupId, streamId);
+        for (StreamSinkEntity sinkEntity : sinkExistList) {
+            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sourceName)) {
+                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
+                throw new BusinessException(String.format(err, sourceName, groupId, streamId));
+            }
+        }
 
         // According to the source type, save source information
         String sourceType = request.getSourceType();
@@ -87,8 +104,14 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public SourceResponse get(Integer id, String sourceType) {
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+    public SourceResponse get(Integer id) {
+        Preconditions.checkNotNull(id, "source id is empty");
+        StreamSourceEntity entity = sourceMapper.selectById(id);
+        if (entity == null) {
+            LOGGER.error("source not found by id={}", id);
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
+        }
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
         SourceResponse sourceResponse = operation.getById(id);
         LOGGER.debug("success to get source by id={}", id);
         return sourceResponse;
@@ -109,7 +132,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             return Collections.emptyList();
         }
         List<SourceResponse> responseList = new ArrayList<>();
-        entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSourceType())));
+        entityList.forEach(entity -> responseList.add(this.get(entity.getId())));
 
         LOGGER.debug("success to list source by groupId={}, streamId={}", groupId, streamId);
         return responseList;
@@ -118,6 +141,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(request.getSourceType(), ErrorCodeEnum.SOURCE_TYPE_IS_NULL.getMessage());
+
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
 
@@ -152,7 +177,18 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sourceName = request.getSourceName();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+
+        // Check whether the sink and source have the same name under the same groupId and streamId
+        List<StreamSinkEntity> sinkExistList = sinkMapper.selectByRelatedId(groupId, streamId);
+        for (StreamSinkEntity sinkEntity : sinkExistList) {
+            if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sourceName)) {
+                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
+                throw new BusinessException(String.format(err, sourceName, groupId, streamId));
+            }
+        }
 
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));

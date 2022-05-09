@@ -60,12 +60,9 @@ public class StreamSourceController {
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Query stream source")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true),
-            @ApiImplicitParam(name = "sourceType", dataTypeClass = String.class, required = true)
-    })
-    public Response<SourceResponse> get(@PathVariable Integer id, @RequestParam String sourceType) {
-        return Response.success(sourceService.get(id, sourceType));
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<SourceResponse> get(@PathVariable Integer id) {
+        return Response.success(sourceService.get(id));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)

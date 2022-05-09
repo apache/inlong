@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -38,8 +39,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +55,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -82,6 +86,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    private StreamSourceEntityMapper sourceMapper;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -96,8 +102,18 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
+        String sinkName = request.getSinkName();
         List<StreamSinkEntity> sinkExist = sinkMapper.selectByIdAndType(groupId, streamId, sinkType);
         Preconditions.checkEmpty(sinkExist, ErrorCodeEnum.SINK_ALREADY_EXISTS.getMessage());
+
+        // Check whether the sink and source have the same name under the same groupId and streamId
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(groupId, streamId, sinkName);
+        for (StreamSourceEntity sourceEntity : sourceList) {
+            if (sourceEntity != null && Objects.equals(sourceEntity.getSourceName(), sinkName)) {
+                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
+                throw new BusinessException(String.format(err, sinkName, groupId, streamId));
+            }
+        }
 
         // According to the sink type, save sink information
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
@@ -114,10 +130,17 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public SinkResponse get(Integer id, String sinkType) {
+    public SinkResponse get(Integer id) {
+        Preconditions.checkNotNull(id, "sink id is empty");
+        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
+        if (entity == null) {
+            LOGGER.error("sink not found by id={}", id);
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
+        }
+        String sinkType = entity.getSinkType();
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         SinkResponse sinkResponse = operation.getById(sinkType, id);
-        LOGGER.debug("success to get sink by id={}, sinkType={}", id, sinkType);
+        LOGGER.debug("success to get sink info by id={}", id);
         return sinkResponse;
     }
 
@@ -136,7 +159,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             return Collections.emptyList();
         }
         List<SinkResponse> responseList = new ArrayList<>();
-        entityList.forEach(entity -> responseList.add(this.get(entity.getId(), entity.getSinkType())));
+        entityList.forEach(entity -> responseList.add(this.get(entity.getId())));
 
         LOGGER.debug("success to list sink by groupId={}, streamId={}", groupId, streamId);
         return responseList;
@@ -157,6 +180,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(request.getSinkType(), ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
+
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
         Map<SinkType, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
@@ -187,10 +212,19 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check if it can be modified
         String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sinkName = request.getSinkName();
+        String sinkType = request.getSinkType();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
-        String streamId = request.getInlongStreamId();
-        String sinkType = request.getSinkType();
+        // Check whether the sink and source have the same name under the same groupId and streamId
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(groupId, streamId, sinkName);
+        for (StreamSourceEntity sourceEntity : sourceList) {
+            if (sourceEntity != null && Objects.equals(sourceEntity.getSourceName(), sinkName)) {
+                String err = "sink and source name have the same name = %s under the groupId = %s and streamId = %s";
+                throw new BusinessException(String.format(err, sinkName, groupId, streamId));
+            }
+        }
 
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         operation.updateOpt(request, operator);

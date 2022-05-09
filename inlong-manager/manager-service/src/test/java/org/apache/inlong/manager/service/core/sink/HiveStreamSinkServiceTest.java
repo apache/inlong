@@ -70,7 +70,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSink();
 
-        SinkResponse sink = sinkService.get(id, SinkType.SINK_HIVE);
+        SinkResponse sink = sinkService.get(id);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
 
         sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
@@ -79,7 +79,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id, SinkType.SINK_HIVE);
+        SinkResponse response = sinkService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HiveSinkResponse hiveResponse = (HiveSinkResponse) response;

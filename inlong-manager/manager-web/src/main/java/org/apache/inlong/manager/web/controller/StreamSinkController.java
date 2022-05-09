@@ -69,12 +69,9 @@ public class StreamSinkController {
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Query sink information")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true),
-            @ApiImplicitParam(name = "sinkType", dataTypeClass = String.class, required = true)
-    })
-    public Response<SinkResponse> get(@PathVariable Integer id, @RequestParam String sinkType) {
-        return Response.success(sinkService.get(id, sinkType));
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<SinkResponse> get(@PathVariable Integer id) {
+        return Response.success(sinkService.get(id));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
