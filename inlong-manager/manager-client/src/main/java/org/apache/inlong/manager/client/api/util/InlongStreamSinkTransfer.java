@@ -47,7 +47,6 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
@@ -150,15 +149,33 @@ public class InlongStreamSinkTransfer {
     }
 
     private static List<SinkField> convertToSinkFields(List<SinkFieldResponse> sinkFieldResponses) {
-        return sinkFieldResponses.stream().map(sinkFieldResponse -> new SinkField(sinkFieldResponse.getId(),
-                FieldType.forName(sinkFieldResponse.getFieldType()),
-                sinkFieldResponse.getFieldName(),
-                sinkFieldResponse.getFieldComment(),
-                null, sinkFieldResponse.getSourceFieldName(),
-                StringUtils.isBlank(sinkFieldResponse.getSourceFieldType()) ? null :
-                        FieldType.forName(sinkFieldResponse.getSourceFieldType()),
-                sinkFieldResponse.getIsMetaField(),
-                sinkFieldResponse.getFieldFormat())).collect(Collectors.toList());
+        List<SinkField> sinkFields = Lists.newArrayList();
+        for (SinkFieldResponse sinkFieldResponse : sinkFieldResponses) {
+            SinkField sinkField = new SinkField();
+            if (sinkFieldResponse.getFieldType().startsWith("array")
+                    || sinkFieldResponse.getFieldType().startsWith("map")
+                    || sinkFieldResponse.getFieldType().startsWith("row")) {
+                String filedType =
+                        sinkFieldResponse.getFieldType().substring(0, sinkFieldResponse.getFieldType().indexOf("<"));
+                String subType =
+                        sinkFieldResponse.getFieldType().substring(sinkFieldResponse.getFieldType().indexOf("<"));
+                sinkField.setFieldType(FieldType.forName(filedType));
+                sinkField.setComplexSubType(subType);
+            } else {
+                sinkField.setFieldType(FieldType.forName(sinkFieldResponse.getFieldType()));
+            }
+            sinkField.setId(sinkFieldResponse.getId());
+            sinkField.setFieldName(sinkFieldResponse.getFieldName());
+            sinkField.setFieldComment(sinkFieldResponse.getFieldComment());
+            sinkField.setFieldValue(null);
+            sinkField.setSourceFieldName(sinkFieldResponse.getSourceFieldName());
+            sinkField.setSourceFieldType(StringUtils.isBlank(sinkFieldResponse.getSourceFieldType()) ? null :
+                    FieldType.forName(sinkFieldResponse.getSourceFieldType()));
+            sinkField.setIsMetaField(sinkFieldResponse.getIsMetaField());
+            sinkField.setFieldFormat(sinkFieldResponse.getFieldFormat());
+            sinkFields.add(sinkField);
+        }
+        return sinkFields;
 
     }
 
@@ -243,7 +260,11 @@ public class InlongStreamSinkTransfer {
         for (SinkField sinkField : sinkFields) {
             SinkFieldRequest request = new SinkFieldRequest();
             request.setFieldName(sinkField.getFieldName());
-            request.setFieldType(sinkField.getFieldType().toString());
+            if (StringUtils.isNotEmpty(sinkField.getComplexSubType())) {
+                request.setFieldType(sinkField.getFieldType().toString() + sinkField.getComplexSubType());
+            } else {
+                request.setFieldType(sinkField.getFieldType().toString());
+            }
             request.setFieldComment(sinkField.getFieldComment());
             request.setSourceFieldName(sinkField.getSourceFieldName());
             request.setSourceFieldType(

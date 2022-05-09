@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -35,6 +38,8 @@ import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
+import org.apache.inlong.sort.formats.common.MapFormatInfo;
+import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
@@ -45,9 +50,14 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Util for sort field info.
@@ -95,8 +105,15 @@ public class FieldInfoUtils {
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
-                streamField.getFieldFormat());
+        FieldInfo fieldInfo;
+        if (StringUtils.isEmpty(streamField.getComplexSubType())) {
+            fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
+                    streamField.getFieldFormat());
+        } else {
+            String fieldType = streamField.getFieldType().name() + streamField.getComplexSubType();
+            fieldInfo = getFieldInfo(streamField.getFieldName(), fieldType, isBuiltIn,
+                    streamField.getFieldFormat());
+        }
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
     }
@@ -205,6 +222,24 @@ public class FieldInfoUtils {
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
+        String baseType = type.contains("<") ? type.substring(0,type.indexOf("<")) : type;
+        if (isComplecType(baseType)) {
+            Map<String, String> complexType = Maps.newHashMap();
+            complexType.put(baseType, type.substring(type.indexOf("<") + 1, type.length() - 1));
+            return transferComplexType(complexType);
+        } else {
+            return transferSimpleType(baseType, format);
+        }
+    }
+
+    /**
+     * Get the FieldFormat of Sort according to simple type string
+     *
+     * @param type
+     * @param format
+     * @return
+     */
+    public static FormatInfo transferSimpleType(String type, String format) {
         FormatInfo formatInfo;
         FieldType fieldType = FieldType.forName(type);
         switch (fieldType) {
@@ -263,8 +298,125 @@ public class FieldInfoUtils {
             default: // default is string
                 formatInfo = new StringFormatInfo();
         }
-
         return formatInfo;
+    }
+
+    /**
+     * Get the FieldFormat of Sort according to complex type string
+     *
+     * @param map
+     * @return
+     */
+    private static FormatInfo transferComplexType(Map<String, String> map) {
+        FormatInfo formatInfo = null;
+        Iterator iter = map.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            String subtype = (String) entry.getValue();
+            FieldType fieldType = FieldType.forName((String) entry.getKey());
+            switch (fieldType) {
+                case ARRAY:
+                    formatInfo = new ArrayFormatInfo(convertFieldFormat(subtype));
+                    break;
+                case MAP:
+                    Pair<String, String> mapPair = parseMapType(subtype);
+                    formatInfo = new MapFormatInfo(convertFieldFormat(mapPair.getKey()),
+                            convertFieldFormat(mapPair.getValue()));
+                    break;
+                case ROW:
+                    Pair<List<String>, List<String>> rowPair = parseRowType(subtype);
+                    formatInfo = new RowFormatInfo(rowPair.getKey().toArray(new String[0]),
+                            rowPair.getValue().stream()
+                                    .map(m -> convertFieldFormat(m))
+                                    .collect(Collectors.toList())
+                                    .toArray(new FormatInfo[0]));
+                    break;
+                default:
+            }
+        }
+        return formatInfo;
+    }
+
+    /**
+     * parse string of complex type : row
+     *
+     * @param str
+     * @return
+     */
+    private static Pair<List<String>, List<String>> parseRowType(String str) {
+        Deque<Pair<Character, Integer>> stack = new LinkedList<>();
+        for (int i = 0; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (ch == ' ' || ch == ',' ||  ch == '<') {
+                stack.addFirst(new Pair<>(ch, i));
+            }
+            if (ch == '>' && !stack.isEmpty()) {
+                while (stack.peekFirst().getKey() != '<') {
+                    stack.pollFirst();
+                }
+                stack.pollFirst();
+            }
+        }
+        List<Integer> separationIndexs = stack.stream()
+                .map(pair -> pair.getValue())
+                .sorted()
+                .collect(Collectors.toList());
+
+        List<String> fieldNames = Lists.newArrayList();
+        List<String> fieldFormatInfos = Lists.newArrayList();
+
+        fieldNames.add(str.substring(0, separationIndexs.get(0)));
+        for (int j = 1; j < separationIndexs.size(); j++) {
+            if (j % 2 == 0) {
+                fieldNames.add(str.substring(separationIndexs.get(j - 1) + 1, separationIndexs.get(j)));
+            } else {
+                fieldFormatInfos.add(str.substring(separationIndexs.get(j - 1) + 1, separationIndexs.get(j)));
+            }
+        }
+        fieldFormatInfos.add(str.substring(separationIndexs.get(separationIndexs.size() - 1) + 1));
+        return  new Pair<>(fieldNames, fieldFormatInfos);
+    }
+
+    /**
+     *Judge whether complextype
+     *
+     * @param type
+     * @return
+     */
+    private static boolean isComplecType(String type) {
+        return type.toLowerCase(Locale.ROOT).startsWith("array")
+                || type.toLowerCase(Locale.ROOT).startsWith("map")
+                || type.toLowerCase(Locale.ROOT).startsWith("row");
+    }
+
+    /**
+     * parse string of complex type : map
+     *
+     * @param str
+     * @return
+     */
+    private static Pair<String, String> parseMapType(String str) {
+        Deque<Character> stack = new LinkedList<Character>();
+        if (str.indexOf("<") == -1 || str.indexOf(">") == -1) {
+            return new Pair<>(str.substring(0, str.indexOf(",")),str.substring(str.indexOf(",") + 1));
+        } else {
+            for (int i = 0; i < str.length(); i++) {
+                char ch = str.charAt(i);
+                if (ch == '<' || ch == ',') {
+                    stack.addFirst(ch);
+                }
+                if (ch == '>' && !stack.isEmpty()) {
+                    while (stack.peekFirst() != '<') {
+                        stack.pollFirst();
+                    }
+                    stack.pollFirst();
+                    if (stack.isEmpty()) {
+                        return new Pair<>(str.substring(0, i + 1), str.substring(i + 2));
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported mode %s for subtype", str));
     }
 
     /**

@@ -70,6 +70,9 @@ public class StreamField {
     @ApiModelProperty(value = "Field type", required = true)
     private FieldType fieldType;
 
+    @ApiModelProperty(value = "Complex field subtype, such as <string>,<int,string>")
+    private String complexSubType;
+
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
 

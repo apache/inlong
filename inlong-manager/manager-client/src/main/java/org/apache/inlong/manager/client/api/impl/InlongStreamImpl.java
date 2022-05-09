@@ -83,16 +83,7 @@ public class InlongStreamImpl extends InlongStream {
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
             this.streamFields = streamFieldInfos.stream()
-                    .map(fieldInfo -> new StreamField(
-                                    fieldInfo.getId(),
-                                    FieldType.forName(fieldInfo.getFieldType()),
-                                    fieldInfo.getFieldName(),
-                                    fieldInfo.getFieldComment(),
-                                    fieldInfo.getFieldValue(),
-                                    fieldInfo.getIsMetaField(),
-                                    fieldInfo.getFieldFormat()
-                            )
-                    ).collect(Collectors.toList());
+                    .map(fieldInfo -> transferFromInlongStream(fieldInfo)).collect(Collectors.toList());
         }
         List<SinkResponse> sinkList = fullStreamResponse.getSinkInfo();
         if (CollectionUtils.isNotEmpty(sinkList)) {
@@ -118,6 +109,27 @@ public class InlongStreamImpl extends InlongStream {
                     ));
         }
 
+    }
+
+    private StreamField transferFromInlongStream(InlongStreamFieldInfo fieldInfo) {
+        StreamField streamField = new StreamField();
+        if (fieldInfo.getFieldType().startsWith("array")
+                || fieldInfo.getFieldType().startsWith("map")
+                || fieldInfo.getFieldType().startsWith("row")) {
+            String filedType = fieldInfo.getFieldType().substring(0,fieldInfo.getFieldType().indexOf("<"));
+            String subType = fieldInfo.getFieldType().substring(fieldInfo.getFieldType().indexOf("<"));
+            streamField.setFieldType(FieldType.forName(filedType));
+            streamField.setComplexSubType(subType);
+        } else {
+            streamField.setFieldType(FieldType.forName(fieldInfo.getFieldType()));
+        }
+        streamField.setId(fieldInfo.getId());
+        streamField.setFieldName(fieldInfo.getFieldName());
+        streamField.setFieldComment(fieldInfo.getFieldComment());
+        streamField.setFieldValue(fieldInfo.getFieldValue());
+        streamField.setIsMetaField(fieldInfo.getIsMetaField());
+        streamField.setFieldFormat(fieldInfo.getFieldFormat());
+        return streamField;
     }
 
     public InlongStreamImpl(String group, String name, InnerInlongManagerClient managerClient) {
