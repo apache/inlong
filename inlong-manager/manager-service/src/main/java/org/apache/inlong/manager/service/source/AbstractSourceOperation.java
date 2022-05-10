@@ -87,8 +87,8 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         String sourceName = request.getSourceName();
         List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
         if (CollectionUtils.isNotEmpty(existList)) {
-            String err = "stream source already exists with groupId=%s, streamId=%s, sourceName=%s";
-            throw new BusinessException(String.format(err, groupId, streamId, sourceName));
+            String err = "source name=%s already exists with groupId=%s streamId=%s";
+            throw new BusinessException(String.format(err, sourceName, groupId, streamId));
         }
 
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
@@ -133,12 +133,14 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         if (!SourceStatus.ALLOWED_UPDATE.contains(entity.getStatus())) {
-            throw new BusinessException(String.format("Source=%s is not allowed to update, "
+            throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
-        String sourceType = request.getSourceType();
-        if (sourceType != null && sourceType != "" && sourceType != entity.getSourceType()) {
-            throw new BusinessException(String.format("SourceType can not change"));
+
+        // Source type cannot be changed
+        if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {
+            throw new BusinessException(String.format("source type=%s cannot change to %s",
+                    entity.getSourceType(), request.getSourceType()));
         }
 
         String groupId = request.getInlongGroupId();
@@ -148,7 +150,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         for (StreamSourceEntity sourceEntity : sourceList) {
             Integer sourceId = sourceEntity.getId();
             if (!Objects.equals(sourceId, request.getId())) {
-                String err = "source have the same name = %s under the groupId = %s and streamId = %s";
+                String err = "source name=%s already exists with the groupId=%s streamId=%s";
                 throw new BusinessException(String.format(err, sourceName, groupId, streamId));
             }
         }
@@ -170,7 +172,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
         SourceStatus nextState = SourceStatus.TO_BE_ISSUED_FROZEN;
         if (!SourceStatus.isAllowedTransition(curState, nextState)) {
-            throw new BusinessException(String.format("Source=%s is not allowed to stop", existEntity));
+            throw new BusinessException(String.format("source=%s is not allowed to stop", existEntity));
         }
         StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         curEntity.setVersion(existEntity.getVersion() + 1);
