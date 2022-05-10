@@ -154,8 +154,8 @@ public class InlongStreamSinkTransfer {
         List<SinkField> sinkFields = Lists.newArrayList();
         for (SinkFieldResponse sinkFieldResponse : sinkFieldResponses) {
             SinkField sinkField = new SinkField();
-            sinkField.setFieldType(trandferfromstring(sinkFieldResponse.getFieldType()).getKey());
-            sinkField.setComplexSubType((String) trandferfromstring(sinkFieldResponse.getFieldType()).getValue());
+            sinkField.setFieldType(transferfromstring(sinkFieldResponse.getFieldType()).getKey());
+            sinkField.setComplexSubType((String) transferfromstring(sinkFieldResponse.getFieldType()).getValue());
             sinkField.setId(sinkFieldResponse.getId());
             sinkField.setFieldName(sinkFieldResponse.getFieldName());
             sinkField.setFieldComment(sinkFieldResponse.getFieldComment());
@@ -312,7 +312,7 @@ public class InlongStreamSinkTransfer {
         return hiveSink;
     }
 
-    public static Pair<FieldType, Object> trandferfromstring(String type) {
+    public static Pair<FieldType, Object> transferfromstring(String type) {
         return type.toLowerCase(Locale.ROOT).startsWith("array")
                 || type.toLowerCase(Locale.ROOT).startsWith("map")
                 || type.toLowerCase(Locale.ROOT).startsWith("row")
@@ -320,3 +320,4 @@ public class InlongStreamSinkTransfer {
                 : Pair.of(FieldType.forName(type), null);
     }
 }
+
