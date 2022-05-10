@@ -97,16 +97,13 @@ public class CommandList extends CommandBase {
             try {
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(group);
+                // set default page size to DEFAULT_PAGE_SIZE
                 pageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize;
                 pageRequest.setPageNum(1).setPageSize(pageSize);
 
-                List<Integer> statusList = null;
-                if (status != null) {
-                    statusList = InlongGroupStatus.parseStatusCodeByStr(status);
-                }
-                if (CollectionUtils.isEmpty(statusList)) {
-                    statusList = InlongGroupStatus.parseStatusCodeByStr(InlongGroupStatus.STARTED.toString());
-                }
+                // set default status to STARTED
+                status = status == null ? InlongGroupStatus.STARTED.toString() : status;
+                List<Integer> statusList = statusList = InlongGroupStatus.parseStatusCodeByStr(status);
                 pageRequest.setStatusList(statusList);
 
                 InnerInlongManagerClient client = new InnerInlongManagerClient(connect().getConfiguration());
