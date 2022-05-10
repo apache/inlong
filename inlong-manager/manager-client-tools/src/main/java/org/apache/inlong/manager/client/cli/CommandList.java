@@ -20,7 +20,6 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
