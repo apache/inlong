@@ -54,7 +54,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Flink sql parse handler
@@ -67,9 +66,9 @@ public class FlinkSqlParser implements Parser {
     private final TableEnvironment tableEnv;
     private final GroupInfo groupInfo;
     private final Set<String> hasParsedSet = new HashSet<>();
-    private final Map<String, String> extractTableSqls = new TreeMap<>();
-    private final Map<String, String> transformTableSqls = new TreeMap<>();
-    private final Map<String, String> loadTableSqls = new TreeMap<>();
+    private final List<String> extractTableSqls = new ArrayList<>();
+    private final List<String> transformTableSqls = new ArrayList<>();
+    private final List<String> loadTableSqls = new ArrayList<>();
     private final List<String> insertSqls = new ArrayList<>();
 
     /**
@@ -118,9 +117,9 @@ public class FlinkSqlParser implements Parser {
             parseStream(streamInfo);
         }
         log.info("parse group success, groupId:{}", groupInfo.getGroupId());
-        List<String> createTableSqls = new ArrayList<>(extractTableSqls.values());
-        createTableSqls.addAll(transformTableSqls.values());
-        createTableSqls.addAll(loadTableSqls.values());
+        List<String> createTableSqls = new ArrayList<>(extractTableSqls);
+        createTableSqls.addAll(transformTableSqls);
+        createTableSqls.addAll(loadTableSqls);
         return new FlinkSqlParseResult(tableEnv, createTableSqls, insertSqls);
     }
 
@@ -183,11 +182,11 @@ public class FlinkSqlParser implements Parser {
 
     private void registerTableSql(Node node, String sql) {
         if (node instanceof ExtractNode) {
-            extractTableSqls.put(node.getId(), sql);
+            extractTableSqls.add(sql);
         } else if (node instanceof TransformNode) {
-            transformTableSqls.put(node.getId(), sql);
+            transformTableSqls.add(sql);
         } else if (node instanceof LoadNode) {
-            loadTableSqls.put(node.getId(), sql);
+            loadTableSqls.add(sql);
         } else {
             throw new UnsupportedOperationException("Only support [ExtractNode|TransformNode|LoadNode]");
         }
