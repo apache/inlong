@@ -85,7 +85,7 @@ spec:
           {{- end }}
           env:
             - name: MANAGER_API_ADDRESS
-              value: "{{ template "inlong.tubemqManager.hostname" .}}:{{ .Values.tubemqManager.port }}"
+              value: "{{ template "inlong.manager.hostname" .}}:{{ .Values.manager.port }}"
           ports:
             - name: {{ .Values.dashboard.component }}-port
               containerPort: 80
