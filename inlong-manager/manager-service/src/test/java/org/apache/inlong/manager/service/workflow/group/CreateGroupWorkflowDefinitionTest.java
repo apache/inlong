@@ -29,8 +29,11 @@ public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
     CreateGroupWorkflowDefinition createGroupWorkflowDefinition;
 
     @Test
-    public void testDefineProcess() {
+    public void testDefineProcess() throws CloneNotSupportedException {
         WorkflowProcess process = createGroupWorkflowDefinition.defineProcess();
+        WorkflowProcess cloneProcess1 = process.clone();
+        WorkflowProcess cloneProcess2 = cloneProcess1.clone();
+        Assert.assertTrue(cloneProcess2 != cloneProcess1);
         Assert.assertEquals("Group Resource Creation", process.getType());
         Assert.assertNotNull(process.getTaskByName("initSource"));
         Assert.assertNotNull(process.getTaskByName("initMQ"));
