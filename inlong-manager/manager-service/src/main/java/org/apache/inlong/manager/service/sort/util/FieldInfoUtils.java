@@ -348,7 +348,7 @@ public class FieldInfoUtils {
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
             if (ch == ' ' || ch == ',' ||  ch == '<') {
-                stack.addFirst( Pair.of(ch, i));
+                stack.addFirst(Pair.of(ch, i));
             }
             if (ch == '>' && !stack.isEmpty()) {
                 while (stack.peekFirst().getKey() != '<') {
