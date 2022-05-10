@@ -25,7 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
@@ -128,8 +128,8 @@ public class InlongGroupImpl implements InlongGroup {
         }
         final String groupId = "b_" + conf.getGroupName();
         InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
-        InlongGroupState state = InlongGroupState.parseByBizStatus(groupResponse.getStatus());
-        AssertUtil.isTrue(state != InlongGroupState.INITIALIZING,
+        InlongGroupStatus state = InlongGroupStatus.parseStatusByCode(groupResponse.getStatus());
+        AssertUtil.isTrue(state != InlongGroupStatus.INITIALIZING,
                 "Inlong Group is in init state, should not be updated");
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
@@ -171,7 +171,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STOPPED, async);
+        managerClient.operateInlongGroup(groupId, InlongGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
 
@@ -187,7 +187,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtil.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupState.STARTED, async);
+        managerClient.operateInlongGroup(groupId, InlongGroupStatus.STARTED, async);
         return generateSnapshot();
     }
 

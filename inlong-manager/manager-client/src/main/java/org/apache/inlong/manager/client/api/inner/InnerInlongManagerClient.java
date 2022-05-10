@@ -30,7 +30,7 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
@@ -201,14 +201,13 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * List inlong group
+     * List inlong group by the page request
      *
-     * @param inlongGroupRequest The inlongGroupRequest
+     * @param pageRequest The pageRequest
      * @return Response encapsulate of inlong group list
      */
-    public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest inlongGroupRequest)
-            throws Exception {
-        String requestParams = GsonUtil.toJson(inlongGroupRequest);
+    public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest pageRequest) throws Exception {
+        String requestParams = GsonUtil.toJson(pageRequest);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
         String path = HTTP_PATH + "/group/list";
         final String url = formatUrl(path);
@@ -787,19 +786,19 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupState status) {
+    public boolean operateInlongGroup(String groupId, InlongGroupStatus status) {
         return operateInlongGroup(groupId, status, false);
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupState status, boolean async) {
+    public boolean operateInlongGroup(String groupId, InlongGroupStatus status, boolean async) {
         String path = HTTP_PATH;
-        if (status == InlongGroupState.STOPPED) {
+        if (status == InlongGroupStatus.STOPPED) {
             if (async) {
                 path += "/group/suspendProcessAsync/";
             } else {
                 path += "/group/suspendProcess/";
             }
-        } else if (status == InlongGroupState.STARTED) {
+        } else if (status == InlongGroupStatus.STARTED) {
             if (async) {
                 path += "/group/restartProcessAsync/";
             } else {

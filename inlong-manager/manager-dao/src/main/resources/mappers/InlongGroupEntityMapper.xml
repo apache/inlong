@@ -133,6 +133,12 @@
             <if test="status != null and status != ''">
                 and status = #{status, jdbcType=INTEGER}
             </if>
+            <if test="statusList != null and statusList.size() > 0">
+                and status in
+                <foreach collection="statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
         </where>
         order by modify_time desc
     </select>
