@@ -93,7 +93,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        // InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
