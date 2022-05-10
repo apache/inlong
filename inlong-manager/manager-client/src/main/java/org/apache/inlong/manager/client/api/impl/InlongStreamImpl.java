@@ -363,7 +363,6 @@ public class InlongStreamImpl extends InlongStream {
         for (SourceListResponse sourceListResponse : sourceListResponses) {
             final String sourceName = sourceListResponse.getSourceName();
             final int id = sourceListResponse.getId();
-            final String type = sourceListResponse.getSourceType();
             if (this.streamSources.get(sourceName) == null) {
                 boolean isDelete = managerClient.deleteSource(id);
                 if (!isDelete) {
@@ -400,7 +399,6 @@ public class InlongStreamImpl extends InlongStream {
         for (SinkListResponse sinkListResponse : sinkListResponses) {
             final String sinkName = sinkListResponse.getSinkName();
             final int id = sinkListResponse.getId();
-            final String type = sinkListResponse.getSinkType();
             if (this.streamSinks.get(sinkName) == null) {
                 boolean isDelete = managerClient.deleteSink(id);
                 if (!isDelete) {
