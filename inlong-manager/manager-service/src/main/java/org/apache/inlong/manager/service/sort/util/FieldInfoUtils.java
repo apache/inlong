@@ -222,7 +222,7 @@ public class FieldInfoUtils {
      * @return Sort field format instance
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
-        String baseType = type.contains("<") ? type.substring(0,type.indexOf("<")) : type;
+        String baseType = type.contains("<") ? type.substring(0, type.indexOf("<")) : type;
         if (isComplecType(baseType)) {
             Map<String, String> complexType = Maps.newHashMap();
             complexType.put(baseType, type.substring(type.indexOf("<") + 1, type.length() - 1));
