@@ -116,7 +116,7 @@
                s.inlong_stream_id,
                s.sink_type,
                s.sink_name
-        from stream_sink
+        from stream_sink s
         where s.is_deleted = 0
           and s.inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and s.inlong_stream_id = #{streamId, jdbcType=VARCHAR}
