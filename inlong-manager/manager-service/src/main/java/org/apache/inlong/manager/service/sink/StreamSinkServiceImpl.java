@@ -102,7 +102,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity sinkEntity : sinkList) {
             if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
-                String err = "sink have the same name = %s under the groupId = %s and streamId = %s";
+                String err = "sink name=%s already exists with the groupId=%s streamId=%s";
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
@@ -208,12 +208,12 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String sinkType = request.getSinkType();
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
-        // Check whether the sink have the same name under the same groupId and streamId
+        // Check whether the sink name exists with the same groupId and streamId
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity entity : sinkList) {
             Integer sinkId = entity.getId();
             if (!Objects.equals(request.getId(), sinkId) && Objects.equals(entity.getSinkName(), sinkName)) {
-                String err = "sink name have the same name = %s under the groupId = %s and streamId = %s";
+                String err = "sink name=%s already exists with the groupId=%s streamId=%s";
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
