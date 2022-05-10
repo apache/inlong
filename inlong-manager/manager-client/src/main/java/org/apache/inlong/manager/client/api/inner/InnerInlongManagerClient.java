@@ -480,12 +480,10 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public boolean deleteSource(int id, String type) {
+    public boolean deleteSource(int id) {
         AssertUtil.isTrue(id > 0, "sourceId is illegal");
-        AssertUtil.notEmpty(type, "sourceType should not be null");
         final String path = HTTP_PATH + "/source/delete/" + id;
         String url = formatUrl(path);
-        url = String.format("%s&sourceType=%s", url, type);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)
@@ -638,12 +636,10 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public boolean deleteSink(int id, String type) {
+    public boolean deleteSink(int id) {
         AssertUtil.isTrue(id > 0, "sinkId is illegal");
-        AssertUtil.notEmpty(type, "sinkType should not be null");
         final String path = HTTP_PATH + "/sink/delete/" + id;
         String url = formatUrl(path);
-        url = String.format("%s&sinkType=%s", url, type);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)

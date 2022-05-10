@@ -214,7 +214,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             final int id = sourceListResponse.getId();
             final String type = sourceListResponse.getSourceType();
             if (sourceRequests.get(sourceName) == null) {
-                boolean isDelete = managerClient.deleteSource(id, type);
+                boolean isDelete = managerClient.deleteSource(id);
                 if (!isDelete) {
                     throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
                 }
@@ -253,7 +253,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
             final int id = sinkListResponse.getId();
             final String type = sinkListResponse.getSinkType();
             if (sinkRequests.get(sinkName) == null) {
-                boolean isDelete = managerClient.deleteSink(id, type);
+                boolean isDelete = managerClient.deleteSink(id);
                 if (!isDelete) {
                     throw new RuntimeException(String.format("Delete sink=%s failed", sinkListResponse));
                 }
