@@ -113,15 +113,14 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
-    public SourceResponse getById(@NotNull Integer id) {
-        StreamSourceEntity entity = sourceMapper.selectById(id);
+    public SourceResponse getById(@NotNull StreamSourceEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
 
         SourceResponse sourceResponse = this.getFromEntity(entity, this::getResponse);
-        List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(id);
+        List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(entity.getId());
         List<InlongStreamFieldInfo> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
                 InlongStreamFieldInfo::new);
         sourceResponse.setFieldList(fieldInfos);
@@ -138,12 +137,16 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
 
-        String sourceName = entity.getSourceName();
-        Integer sourceId = entity.getId();
-        if (!Objects.equals(sourceId, request.getId()) && Objects.equals(sourceName, request.getSourceName())) {
-            String err = "source have the same name = %s under the groupId = %s and streamId = %s";
-            throw new BusinessException(String.format(err, sourceName, request.getInlongGroupId(),
-                    request.getInlongStreamId()));
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sourceName = request.getSourceName();
+        List<StreamSourceEntity> sourceList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
+        for (StreamSourceEntity sourceEntity : sourceList) {
+            Integer sourceId = sourceEntity.getId();
+            if (!Objects.equals(sourceId, request.getId())) {
+                String err = "source have the same name = %s under the groupId = %s and streamId = %s";
+                throw new BusinessException(String.format(err, sourceName, groupId, streamId));
+            }
         }
 
         // Setting updated parameters of stream source entity.

@@ -99,9 +99,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         String sinkName = request.getSinkName();
-        List<StreamSinkEntity> sinkExist = sinkMapper.selectByRelatedId(groupId, streamId);
-        Preconditions.checkEmpty(sinkExist, ErrorCodeEnum.SINK_ALREADY_EXISTS.getMessage());
-        for (StreamSinkEntity sinkEntity : sinkExist) {
+        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId);
+        for (StreamSinkEntity sinkEntity : sinkList) {
             if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
                 String err = "sink have the same name = %s under the groupId = %s and streamId = %s";
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
@@ -132,7 +131,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         String sinkType = entity.getSinkType();
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
-        SinkResponse sinkResponse = operation.getById(sinkType, id);
+        SinkResponse sinkResponse = operation.getById(sinkType, entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return sinkResponse;
     }

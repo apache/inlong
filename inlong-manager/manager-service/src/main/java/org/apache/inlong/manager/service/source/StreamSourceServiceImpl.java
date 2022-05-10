@@ -96,7 +96,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
         }
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
-        SourceResponse sourceResponse = operation.getById(id);
+        SourceResponse sourceResponse = operation.getById(entity);
         LOGGER.debug("success to get source by id={}", id);
         return sourceResponse;
     }
