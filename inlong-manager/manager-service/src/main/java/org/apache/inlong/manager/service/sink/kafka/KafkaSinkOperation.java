@@ -136,7 +136,7 @@ public class KafkaSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getById(@NotNull String sinkType, @NotNull StreamSinkEntity entity) {
+    public SinkResponse getById(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
