@@ -43,7 +43,7 @@ import java.util.List;
 public class CommandList extends CommandBase {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public CommandList() {
         super("list");
@@ -57,7 +57,7 @@ public class CommandList extends CommandBase {
     private static class ListStream extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
@@ -81,20 +81,23 @@ public class CommandList extends CommandBase {
     @Parameters(commandDescription = "Get group details")
     private static class ListGroup extends CommandUtil {
 
-        @Parameter(names = {"-n", "--num"}, description = "the number displayed")
-        private final int pageSize = 10;
+        private static final int DEFAULT_PAGE_SIZE = 10;
+
         @Parameter()
         private List<String> params;
         @Parameter(names = {"-s", "--status"})
         private String status;
         @Parameter(names = {"-g", "--group"}, description = "inlong group id")
         private String group;
+        @Parameter(names = {"-n", "--num"}, description = "the number displayed")
+        private int pageSize;
 
         @Override
         void run() {
             try {
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(group);
+                pageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize;
                 pageRequest.setPageNum(1).setPageSize(pageSize);
 
                 List<Integer> statusList = null;
@@ -121,7 +124,7 @@ public class CommandList extends CommandBase {
     private static class ListSink extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "stream id")
         private String stream;
@@ -145,7 +148,7 @@ public class CommandList extends CommandBase {
     private static class ListSource extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
