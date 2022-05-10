@@ -54,7 +54,8 @@ public class DatabaseHistoryUtil {
         synchronized (HISTORY) {
             if (Boolean.TRUE.equals(HISTORY_CLEANUP_STATUS.get(engineName))) {
                 throw new IllegalStateException(String.format(
-                        "Retrieve schema history failed, the schema records for engine %s has been removed, this might because the debezium engine has been shutdown due to other errors.",
+                        "Retrieve schema history failed, the schema records for engine %s has been removed, "
+                                + "this might because the debezium engine has been shutdown due to other errors.",
                         engineName));
             } else {
                 return (Collection) HISTORY.getOrDefault(engineName, Collections.emptyList());
