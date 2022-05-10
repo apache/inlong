@@ -131,6 +131,9 @@
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
             </if>
+            <if test="sinkName != null and sinkName != ''">
+                and sink_name = #{sinkName, jdbcType=VARCHAR}
+            </if>
         </where>
     </select>
     <select id="selectByIdAndType" resultType="org.apache.inlong.manager.dao.entity.StreamSinkEntity">

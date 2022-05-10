@@ -132,7 +132,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getById(StreamSinkEntity entity) {
+    public SinkResponse getByEntity(StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),

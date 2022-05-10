@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.springframework.stereotype.Repository;
@@ -63,9 +63,11 @@ public interface StreamSinkEntityMapper {
      *
      * @param groupId Inlong group id.
      * @param streamId Inlong stream id.
+     * @param sinkName Stream sink name.
      * @return Sink entity list.
      */
-    List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<StreamSinkEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
+            @Param("sinkName") String sinkName);
 
     /**
      * According to the group id, stream id and sink type, query valid sink entity list.

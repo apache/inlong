@@ -113,7 +113,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
-    public SourceResponse getById(@NotNull StreamSourceEntity entity) {
+    public SourceResponse getByEntity(@NotNull StreamSourceEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),

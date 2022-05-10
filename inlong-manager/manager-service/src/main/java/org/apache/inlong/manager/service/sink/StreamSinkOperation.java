@@ -62,7 +62,7 @@ public interface StreamSinkOperation {
      * @param entity the given entity.
      * @return Sink info.
      */
-    SinkResponse getById(StreamSinkEntity entity);
+    SinkResponse getByEntity(StreamSinkEntity entity);
 
     /**
      * Get the target from the given entity.

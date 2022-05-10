@@ -53,7 +53,7 @@ public interface StreamSourceOperation {
      * @param entity Get field value from the entity.
      * @return Source info.
      */
-    SourceResponse getById(StreamSourceEntity entity);
+    SourceResponse getByEntity(StreamSourceEntity entity);
 
     /**
      * Get the target from the given entity.

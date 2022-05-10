@@ -99,7 +99,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         String sinkName = request.getSinkName();
-        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId);
+        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity sinkEntity : sinkList) {
             if (sinkEntity != null && Objects.equals(sinkEntity.getSinkName(), sinkName)) {
                 String err = "sink have the same name = %s under the groupId = %s and streamId = %s";
@@ -131,7 +131,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         String sinkType = entity.getSinkType();
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
-        SinkResponse sinkResponse = operation.getById(entity);
+        SinkResponse sinkResponse = operation.getByEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return sinkResponse;
     }
@@ -146,7 +146,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Override
     public List<SinkResponse> listSink(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
@@ -209,7 +209,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
 
         // Check whether the sink have the same name under the same groupId and streamId
-        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId);
+        List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
         for (StreamSinkEntity entity : sinkList) {
             Integer sinkId = entity.getId();
             if (!Objects.equals(request.getId(), sinkId) && Objects.equals(entity.getSinkName(), sinkName)) {
@@ -275,7 +275,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         commonOperateService.checkGroupStatus(groupId, operator);
 
         Date now = new Date();
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
@@ -304,7 +304,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Check if it can be deleted
         commonOperateService.checkGroupStatus(groupId, operator);
 
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId);
+        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
                 sinkMapper.deleteByPrimaryKey(entity.getId());
