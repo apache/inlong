@@ -79,6 +79,7 @@ public class StreamPipeline {
 
     private boolean isReach(Map<String, Set<String>> paths, Set<String> inputs, String output) {
         Queue<String> queue = new LinkedList<>(inputs);
+        Set<String> preNodes = new HashSet<>(inputs);
         while (!queue.isEmpty()) {
             String node = queue.remove();
             if (paths.get(node) == null) {
@@ -89,7 +90,8 @@ public class StreamPipeline {
                 return true;
             }
             for (String postNode : postNodes) {
-                if (!inputs.contains(postNode)) {
+                if (!preNodes.contains(postNode)) {
+                    preNodes.add(postNode);
                     queue.add(postNode);
                 }
             }
