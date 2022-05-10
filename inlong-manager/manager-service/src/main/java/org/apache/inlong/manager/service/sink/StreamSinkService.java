@@ -106,11 +106,10 @@ public interface StreamSinkService {
      * Delete the stream sink by the given id and sink type.
      *
      * @param id The primary key of the sink.
-     * @param sinkType Sink type.
      * @param operator Operator's name.
      * @return Whether succeed
      */
-    Boolean delete(Integer id, String sinkType, String operator);
+    Boolean delete(Integer id, String operator);
 
     /**
      * Logically delete stream sink with the given conditions.

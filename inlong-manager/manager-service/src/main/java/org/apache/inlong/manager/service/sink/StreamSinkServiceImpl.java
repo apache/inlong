@@ -243,8 +243,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
-    public Boolean delete(Integer id, String sinkType, String operator) {
-        LOGGER.info("begin to delete sink by id={}, sinkType={}", id, sinkType);
+    public Boolean delete(Integer id, String operator) {
+        LOGGER.info("begin to delete sink by id={}", id);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         // Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
 

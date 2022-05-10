@@ -97,31 +97,28 @@ public interface StreamSourceService {
      * Delete the stream source by the given id and source type.
      *
      * @param id The primary key of the source.
-     * @param sourceType Source type.
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean delete(Integer id, String sourceType, String operator);
+    boolean delete(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
      *
      * @param id The primary key of the source.
-     * @param sourceType Source type.
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean restart(Integer id, String sourceType, String operator);
+    boolean restart(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
      *
      * @param id The primary key of the source.
-     * @param sourceType Source type.
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean stop(Integer id, String sourceType, String operator);
+    boolean stop(Integer id, String operator);
 
     /**
      * Logically delete stream source with the given conditions.

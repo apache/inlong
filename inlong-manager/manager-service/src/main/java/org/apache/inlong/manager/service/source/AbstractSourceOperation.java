@@ -136,6 +136,10 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
             throw new BusinessException(String.format("Source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
+        String sourceType = request.getSourceType();
+        if (sourceType != null && sourceType != "" && sourceType != entity.getSourceType()) {
+            throw new BusinessException(String.format("SourceType can not change"));
+        }
 
         String groupId = request.getInlongGroupId();
         String streamId = request.getInlongStreamId();

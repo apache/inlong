@@ -67,7 +67,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     public void deleteKafkaSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, SinkType.SINK_CLICKHOUSE, globalOperator);
+        boolean result = sinkService.delete(sinkId, globalOperator);
         Assert.assertTrue(result);
     }
 

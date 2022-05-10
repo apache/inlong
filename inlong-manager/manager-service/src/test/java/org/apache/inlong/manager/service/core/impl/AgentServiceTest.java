@@ -70,7 +70,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         Boolean result = agentService.reportSnapshot(request);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, SourceType.BINLOG.getType(), GLOBAL_OPERATOR);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
 }

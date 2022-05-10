@@ -64,7 +64,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     public void deleteKafkaSink(Integer kafkaSinkId) {
-        boolean result = sinkService.delete(kafkaSinkId, SinkType.SINK_KAFKA, globalOperator);
+        boolean result = sinkService.delete(kafkaSinkId, globalOperator);
         Assert.assertTrue(result);
     }
 

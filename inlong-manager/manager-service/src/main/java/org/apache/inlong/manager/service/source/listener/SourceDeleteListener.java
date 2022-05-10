@@ -32,6 +32,6 @@ public class SourceDeleteListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
-        streamSourceService.delete(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
+        streamSourceService.delete(sourceRequest.getId(), operator);
     }
 }

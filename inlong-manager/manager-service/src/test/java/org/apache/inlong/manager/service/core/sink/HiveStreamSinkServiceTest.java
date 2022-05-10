@@ -62,7 +62,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assert.assertNotNull(id);
 
-        boolean result = sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
+        boolean result = sinkService.delete(id, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -73,7 +73,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         SinkResponse sink = sinkService.get(id);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
 
-        sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
+        sinkService.delete(id, globalOperator);
     }
 
     @Test

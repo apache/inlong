@@ -30,6 +30,6 @@ public class SourceStopListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
-        streamSourceService.stop(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
+        streamSourceService.stop(sourceRequest.getId(), operator);
     }
 }
