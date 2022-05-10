@@ -92,4 +92,5 @@ public class StreamSinkController {
         boolean result = sinkService.delete(id, sinkType, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
+
 }
