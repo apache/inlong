@@ -15,22 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.ck.builder;
+package org.apache.inlong.manager.common.pojo.sink.ck;
 
-import org.apache.inlong.manager.common.pojo.query.ck.ClickHouseTableQueryBean;
+import lombok.Data;
 
-public class ClickHouseCreateDbSqlBuilder extends SqlBuilder<ClickHouseTableQueryBean> {
+import java.util.List;
 
-    @Override
-    public String buildDDL(ClickHouseTableQueryBean clickHouseTableQueryBean) {
-        String dbName = "`" + clickHouseTableQueryBean.getDbName() + "`"; // Support _ beginning with underscore
-        ddl.append("CREATE DATABASE IF NOT EXISTS ").append(dbName);
-        return ddl.toString();
-    }
+@Data
+public class ClickHouseTableInfo {
+    // Basic attributes
+    private String dbName;
+    private String tableName;
+    private String tableDesc;
 
-    @Override
-    public String getOPT() {
-        return "CREATE_DB_CLICKHOUSE";
-    }
+    private String engine;
+    private String partitionBy;
+    private String orderBy;
+    private String primaryKey;
 
+    private List<ClickHouseColumnInfo> columns;
 }

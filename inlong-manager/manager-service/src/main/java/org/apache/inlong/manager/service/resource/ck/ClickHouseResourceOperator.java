@@ -17,25 +17,22 @@
 
 package org.apache.inlong.manager.service.resource.ck;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.query.ColumnInfoBean;
-import org.apache.inlong.manager.common.pojo.query.DatabaseQueryBean;
-import org.apache.inlong.manager.common.pojo.query.ck.ClickHouseColumnQueryBean;
-import org.apache.inlong.manager.common.pojo.query.ck.ClickHouseTableQueryBean;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseTableInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.core.DataSourceService;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -47,24 +44,18 @@ import static java.util.stream.Collectors.toList;
 public class ClickHouseResourceOperator implements SinkResourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseResourceOperator.class);
-
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private StreamSinkFieldEntityMapper clickHouseFieldMapper;
-    @Autowired
-    @Qualifier("clickHouseSourceServiceImpl")
-    private DataSourceService<DatabaseQueryBean, ClickHouseTableQueryBean> dataSourceService;
 
     @Override
     public Boolean accept(SinkType sinkType) {
         return SinkType.CLICKHOUSE == sinkType;
     }
 
-    /**
-     * Create ClickHouse table according to the groupId and ClickHouse config
-     */
-    public void createSinkResource(String groupId, SinkInfo sinkInfo) {
+    @Override
+    public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
             LOGGER.warn("sink info was null, skip to create resource");
             return;
@@ -78,75 +69,70 @@ public class ClickHouseResourceOperator implements SinkResourceOperator {
             return;
         }
 
-        this.createTable(groupId, sinkInfo);
+        this.createTable(sinkInfo);
     }
 
-    private void createTable(String groupId, SinkInfo config) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin create ClickHouse table for inlong group={}, config={}", groupId, config);
+    private void createTable(SinkInfo sinkInfo) {
+        LOGGER.info("begin to create clickhouse table for sinkId={}", sinkInfo.getId());
+
+        List<StreamSinkFieldEntity> fieldList = clickHouseFieldMapper.selectBySinkId(sinkInfo.getId());
+        if (CollectionUtils.isEmpty(fieldList)) {
+            LOGGER.warn("no clickhouse fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
-        // Get all info from config
-        ClickHouseSinkDTO clickHouseInfo = ClickHouseSinkDTO.getFromJson(config.getExtParams());
-        ClickHouseTableQueryBean tableBean = getTableQueryBean(config, clickHouseInfo);
-        try {
-            // create database if not exists
-            dataSourceService.createDb(tableBean);
+        // set columns
+        List<ClickHouseColumnInfo> columnList = new ArrayList<>();
+        for (StreamSinkFieldEntity field : fieldList) {
+            ClickHouseColumnInfo columnInfo = new ClickHouseColumnInfo();
+            columnInfo.setName(field.getFieldName());
+            columnInfo.setType(field.getFieldType());
+            columnInfo.setDesc(field.getFieldComment());
+            columnList.add(columnInfo);
+        }
 
-            // check if the table exists
-            List<ColumnInfoBean> columns = dataSourceService.queryColumns(tableBean);
-            if (columns.size() == 0) {
-                // no such table, create one
-                dataSourceService.createTable(tableBean);
+        try {
+            ClickHouseSinkDTO ckInfo = ClickHouseSinkDTO.getFromJson(sinkInfo.getExtParams());
+            ClickHouseTableInfo tableInfo = ClickHouseSinkDTO.getClickHouseTableInfo(ckInfo, columnList);
+            String url = ckInfo.getJdbcUrl();
+            String user = ckInfo.getUsername();
+            String password = ckInfo.getPassword();
+
+            String dbName = tableInfo.getDbName();
+            String tableName = tableInfo.getTableName();
+
+            // 1. create database if not exists
+            ClickHouseJdbcUtils.createDb(url, user, password, dbName);
+
+            // 2. check if the table exists
+            List<String> tables = ClickHouseJdbcUtils.getTables(url, user, password, dbName);
+            boolean tableExists = tables.contains(tableName);
+
+            // 3. table not exists, create it
+            if (!tableExists) {
+                ClickHouseJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
-                List<ClickHouseColumnQueryBean> columnsSkipHistory = tableBean.getColumns().stream()
-                        .skip(columns.size()).collect(toList());
-                if (columnsSkipHistory.size() != 0) {
-                    tableBean.setColumns(columnsSkipHistory);
-                    dataSourceService.createColumn(tableBean);
+                // 4. table exists, add columns - skip the exists columns
+                List<ClickHouseColumnInfo> existColumns = ClickHouseJdbcUtils.getColumns(url,
+                        user, password, dbName, tableName);
+                List<ClickHouseColumnInfo> needAddColumns = tableInfo.getColumns().stream()
+                        .skip(existColumns.size()).collect(toList());
+                if (CollectionUtils.isNotEmpty(needAddColumns)) {
+                    ClickHouseJdbcUtils.addColumns(url, user, password, dbName, tableName, needAddColumns);
                 }
             }
-            sinkService.updateStatus(config.getId(),
-                    SinkStatus.CONFIG_SUCCESSFUL.getCode(), "create ClickHouse table success");
+
+            // 5. update the sink status to success
+            String info = "success to create clickhouse resource";
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
+            LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            LOGGER.error("create ClickHouse table error, ", e);
-            sinkService.updateStatus(config.getId(), SinkStatus.CONFIG_FAILED.getCode(), e.getMessage());
-            throw new WorkflowException("create ClickHouse table failed, reason: " + e.getMessage());
+            String errMsg = "create clickhouse table failed: " + e.getMessage();
+            LOGGER.error(errMsg, e);
+            sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
+            throw new WorkflowException(errMsg);
         }
 
-        LOGGER.info("success create ClickHouse table for data group [" + groupId + "]");
+        LOGGER.info("success create ClickHouse table for data sind [" + sinkInfo.getId() + "]");
     }
 
-    protected ClickHouseTableQueryBean getTableQueryBean(SinkInfo config, ClickHouseSinkDTO clickHouseInfo) {
-        String groupId = config.getInlongGroupId();
-        String streamId = config.getInlongStreamId();
-        LOGGER.info("begin to get table query bean for groupId={}, streamId={}", groupId, streamId);
-
-        List<StreamSinkFieldEntity> fieldEntities = clickHouseFieldMapper.selectFields(groupId, streamId);
-
-        List<ClickHouseColumnQueryBean> columnQueryBeans = new ArrayList<>();
-        for (StreamSinkFieldEntity field : fieldEntities) {
-            ClickHouseColumnQueryBean columnBean = new ClickHouseColumnQueryBean();
-            columnBean.setColumnName(field.getFieldName());
-            columnBean.setColumnType(field.getFieldType());
-            columnBean.setColumnDesc(field.getFieldComment());
-            columnQueryBeans.add(columnBean);
-        }
-
-        ClickHouseTableQueryBean queryBean = new ClickHouseTableQueryBean();
-        queryBean.setColumns(columnQueryBeans);
-        if (clickHouseInfo.getTableEngine() != null) {
-            queryBean.setTableEngine(clickHouseInfo.getTableEngine());
-        }
-        queryBean.setUsername(clickHouseInfo.getUsername());
-        queryBean.setPassword(clickHouseInfo.getPassword());
-        queryBean.setTableName(clickHouseInfo.getTableName());
-        queryBean.setDbName(clickHouseInfo.getDbName());
-        queryBean.setJdbcUrl(clickHouseInfo.getJdbcUrl());
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to get table query bean={}", queryBean);
-        }
-        return queryBean;
-    }
 }

@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,7 +80,16 @@ public class ClickHouseSinkDTO {
     private String keyFieldNames;
 
     @ApiModelProperty("Table engine, support MergeTree Mem and so on")
-    private String tableEngine;
+    private String engine;
+
+    @ApiModelProperty("Table Partiion information")
+    private String partitionBy;
+
+    @ApiModelProperty("Table order information")
+    private String orderBy;
+
+    @ApiModelProperty("Table primary key")
+    private String primaryKey;
 
     @ApiModelProperty("Properties for clickhouse")
     private Map<String, Object> properties;
@@ -101,7 +111,10 @@ public class ClickHouseSinkDTO {
                 .partitionStrategy(request.getPartitionStrategy())
                 .partitionFields(request.getPartitionFields())
                 .keyFieldNames(request.getKeyFieldNames())
-                .tableEngine(request.getTableEngine())
+                .engine(request.getEngine())
+                .partitionBy(request.getPartitionBy())
+                .primaryKey(request.getPrimaryKey())
+                .orderBy(request.getOrderBy())
                 .properties(request.getProperties())
                 .build();
     }
@@ -113,6 +126,20 @@ public class ClickHouseSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    public static ClickHouseTableInfo getClickHouseTableInfo(ClickHouseSinkDTO ckInfo,
+            List<ClickHouseColumnInfo> columnList) {
+        ClickHouseTableInfo tableInfo = new ClickHouseTableInfo();
+        tableInfo.setDbName(ckInfo.getDbName());
+        tableInfo.setTableName(ckInfo.getTableName());
+        tableInfo.setEngine(ckInfo.getEngine());
+        tableInfo.setOrderBy(ckInfo.getOrderBy());
+        tableInfo.setPartitionBy(ckInfo.getPartitionBy());
+        tableInfo.setPrimaryKey(ckInfo.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+
+        return tableInfo;
     }
 
 }

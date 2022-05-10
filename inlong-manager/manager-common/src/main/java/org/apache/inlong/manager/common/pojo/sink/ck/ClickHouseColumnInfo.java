@@ -15,22 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.query.ck;
+package org.apache.inlong.manager.common.pojo.sink.ck;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.query.ColumnQueryBean;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class ClickHouseColumnQueryBean extends ColumnQueryBean {
+public class ClickHouseColumnInfo {
 
-    private String columnType;
-    private String columnDefaultType;
-    private String columnDefaultExpr;
+    private String name;
+    private String type;
+    private String desc;
+    private String defaultType;
+    private String defaultExpr;
 
-    private String columnCompressionCode;
+    private String compressionCode;
 
-    private String columnTTLExpr;
-
+    private String tTLExpr;
 }

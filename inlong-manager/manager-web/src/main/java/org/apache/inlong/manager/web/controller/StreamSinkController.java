@@ -48,11 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Stream sink config")
 public class StreamSinkController {
 
-<<<<<<< HEAD
-=======
-    //@Autowired
-    //private DataSourceService dataSourceService;
->>>>>>> support create table with clickhouse
     @Autowired
     private StreamSinkService sinkService;
 
@@ -97,33 +92,4 @@ public class StreamSinkController {
         boolean result = sinkService.delete(id, sinkType, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
-
-<<<<<<< HEAD
-=======
-    /*@RequestMapping(value = "/query/testConnection", method = RequestMethod.POST)
-    @ApiOperation(value = "Test the connection")
-    public Response<Boolean> testConnection(@RequestBody ConnectionInfo connectionInfo) {
-        return Response.success(dataSourceService.testConnection(connectionInfo));
-    }
-
-    @RequestMapping(value = "/query/createDb", method = RequestMethod.POST)
-    @ApiOperation(value = "Create database if not exists")
-    public Response<Object> createDb(@RequestBody TableQueryBean queryBean) throws Exception {
-        dataSourceService.createDb(queryBean);
-        return Response.success();
-    }
-
-    @RequestMapping(value = "/query/columns", method = RequestMethod.POST)
-    @ApiOperation(value = "Query table columns")
-    public Response<List<ColumnInfoBean>> queryColumns(@RequestBody TableQueryBean queryBean) throws Exception {
-        return Response.success(dataSourceService.queryColumns(queryBean));
-    }
-
-    @RequestMapping(value = "/query/dbDetail", method = RequestMethod.POST)
-    @ApiOperation(value = "Query database detail")
-    public Response<DatabaseDetail> queryDbDetail(@RequestBody TableQueryBean queryBean) throws Exception {
-        return Response.success(dataSourceService.queryDbDetail(queryBean));
-    }*/
-
->>>>>>> support create table with clickhouse
 }
