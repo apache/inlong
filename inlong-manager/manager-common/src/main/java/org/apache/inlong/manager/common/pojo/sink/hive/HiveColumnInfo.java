@@ -15,35 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.query;
+package org.apache.inlong.manager.common.pojo.sink.hive;
 
-import java.util.Objects;
 import lombok.Data;
 
+/**
+ * Hive column info
+ */
 @Data
-public class ColumnQueryBean {
+public class HiveColumnInfo {
 
-    private String columnName;
-    private String columnDesc;
-    private String inlongGroupDesc; // Inlong group description
-    private String columnNameOfCN;
-    private String columnNameOfEN;
+    private String name;
+    private String type;
+    private String desc;
+    private String format;
+
     private String oldColumnName;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ColumnQueryBean that = (ColumnQueryBean) o;
-        return Objects.equals(columnName, that.columnName);
-    }
+    private boolean isPartition;
+    private String exampleData;
 
-    @Override
-    public int hashCode() {
-        return columnName != null ? columnName.hashCode() : 0;
-    }
 }

@@ -80,7 +80,7 @@ public class CreateSinkResourceForStreamListener implements SinkOperateListener 
         for (SinkInfo sinkConfig : needCreateList) {
             String sinkType = sinkConfig.getSinkType();
             SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
-            resourceOperator.createSinkResource(groupId, sinkConfig);
+            resourceOperator.createSinkResource(sinkConfig);
         }
         String result = "success to create sink resources for group [" + groupId + "] and stream " + streamIdList;
         log.info(result);

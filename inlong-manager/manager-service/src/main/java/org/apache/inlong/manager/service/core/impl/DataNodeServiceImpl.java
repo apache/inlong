@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.enums.DataNodeType;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
@@ -30,11 +31,13 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.service.core.DataNodeService;
+import org.apache.inlong.manager.service.resource.hive.HiveJdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -145,6 +148,37 @@ public class DataNodeServiceImpl implements DataNodeService {
         dataNodeMapper.updateById(entity);
         LOGGER.info("success to delete data node by id={}", id);
         return true;
+    }
+
+    @Override
+    public Boolean testConnection(DataNodeRequest request) {
+        LOGGER.info("begin test connection for: {}", request);
+        Preconditions.checkNotNull(request, "Connection request cannot be empty");
+        String type = request.getType();
+        Preconditions.checkNotNull(type, "Connection type cannot be empty");
+
+        Boolean result = false;
+        if (DataNodeType.HIVE.toString().equals(type)) {
+            result = testHiveConnection(request);
+        }
+
+        LOGGER.info("connection [{}] for: {}", result ? "success" : "failed", request);
+        return result;
+    }
+
+    /**
+     * Test connection for Hive
+     */
+    private Boolean testHiveConnection(DataNodeRequest request) {
+        String url = request.getUrl();
+        Preconditions.checkNotNull(url, "connection url cannot be empty");
+        try (Connection ignored = HiveJdbcUtils.getConnection(url, request.getUsername(), request.getPassword())) {
+            LOGGER.info("hive connection not null - connection success");
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("hive connection failed: {}", e.getMessage());
+            return false;
+        }
     }
 
 }

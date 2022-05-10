@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.definition;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -30,8 +31,10 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Service task workflow
@@ -86,10 +89,22 @@ public class ServiceTask extends WorkflowTask {
     @SneakyThrows
     @Override
     public ServiceTask clone() {
-        ServiceTask serviceTask = (ServiceTask) super.clone();
+        ServiceTask serviceTask = new ServiceTask();
+        serviceTask.setName(this.getName());
+        serviceTask.setDisplayName(this.getDisplayName());
         serviceTask.addServiceTaskType(this.serviceTaskType);
         serviceTask.addListenerProvider(this.listenerProvider);
-        serviceTask.isInit.set(false);
+        Map<WorkflowAction, List<ConditionNextElement>> cloneActionToNextElementMap = Maps.newHashMap();
+        this.getActionToNextElementMap().forEach(
+                (k, v) -> cloneActionToNextElementMap.put(k, v.stream().map(ele -> {
+                    try {
+                        return (ConditionNextElement) ele.clone();
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).collect(Collectors.toList())));
+        serviceTask.setActionToNextElementMap(cloneActionToNextElementMap);
         return serviceTask;
     }
 
@@ -109,8 +124,7 @@ public class ServiceTask extends WorkflowTask {
             Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
             addListeners(Lists.newArrayList(listeners));
         } else {
-            log.debug("ServiceTask:{} is already init", getName());
+            log.info("ServiceTask:{} is already init", getName());
         }
     }
-
 }

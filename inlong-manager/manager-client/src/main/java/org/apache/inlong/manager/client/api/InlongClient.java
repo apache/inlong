@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 
 import java.util.List;
@@ -82,7 +82,7 @@ public interface InlongClient {
      * @return
      * @throws Exception
      */
-    Map<String, InlongGroupState> listGroupState(List<String> groupNames) throws Exception;
+    Map<String, InlongGroupStatus> listGroupState(List<String> groupNames) throws Exception;
 
     /**
      * Gets group.

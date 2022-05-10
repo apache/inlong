@@ -70,4 +70,12 @@ public interface DataNodeService {
      */
     Boolean delete(Integer id, String operator);
 
+    /**
+     * Test whether the connection can be successfully established.
+     *
+     * @param request connection request
+     * @return true or false
+     */
+    Boolean testConnection(DataNodeRequest request);
+
 }

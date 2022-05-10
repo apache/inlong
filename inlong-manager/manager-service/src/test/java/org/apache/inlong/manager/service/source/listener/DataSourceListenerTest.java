@@ -119,7 +119,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowTask task = process.getTaskByName("restartSource");
         Assert.assertTrue(task instanceof ServiceTask);
         SourceResponse sourceResponse = streamSourceService.get(sourceId);
-        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_ACTIVE);
+        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.SOURCE_NORMAL);
     }
 
 }
