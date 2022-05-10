@@ -108,6 +108,39 @@ public class InLongMsgUtils {
         }
     }
 
+    public static InLongMsgHead parseHead(String attr) {
+        Map<String, String> attributes = parseAttr(attr);
+
+        // Extracts interface from the attributes.
+        String streamId;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else {
+            throw new IllegalArgumentException("Could not find " + INLONGMSG_ATTR_STREAM_ID + " in attributes!");
+        }
+
+        // Extracts time from the attributes
+        Timestamp time;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
+            String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
+            time = parseDateTime(date);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
+            String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
+            time = parseEpochTime(epoch);
+        } else {
+            throw new IllegalArgumentException(
+                    "Could not find " + INLONGMSG_ATTR_TIME_T
+                            + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
+        }
+
+        // Extracts predefined fields from the attributes
+        List<String> predefinedFields = getPredefinedFields(attributes);
+
+        return new InLongMsgHead(attributes, streamId, time, predefinedFields);
+    }
+
     public static Map<String, String> parseAttr(String attr) {
         return StringUtils.splitKv(
                 attr,

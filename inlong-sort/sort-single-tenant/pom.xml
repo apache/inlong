@@ -66,16 +66,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -122,12 +112,8 @@
             <version>1.4.01</version>
         </dependency>
 
-        <!--flink-->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hive_${flink.scala.binary.version}</artifactId>
-        </dependency>
 
+        <!-- flink format -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
@@ -141,6 +127,30 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-avro</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-inlongmsg-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- flink connector -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hive_${flink.scala.binary.version}</artifactId>
         </dependency>
 
         <dependency>
@@ -158,7 +168,7 @@
             </exclusions>
         </dependency>
 
-
+        <!-- flink core -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
