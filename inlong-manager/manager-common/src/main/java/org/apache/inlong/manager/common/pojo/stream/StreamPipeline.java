@@ -51,10 +51,7 @@ public class StreamPipeline {
     }
 
     /**
-     * Check if pipeline has circle
-     * If has one, return circled node names;
-     *
-     * @return
+     * Check if a pipeline has a circle, if it has, return circled node names
      */
     public Pair<Boolean, Pair<String, String>> hasCircle() {
         Map<String, Set<String>> priorityMap = Maps.newHashMap();
@@ -82,8 +79,7 @@ public class StreamPipeline {
     }
 
     private boolean isReach(Map<String, Set<String>> paths, Set<String> inputs, String output) {
-        Queue<String> queue = new LinkedList<>();
-        queue.addAll(inputs);
+        Queue<String> queue = new LinkedList<>(inputs);
         Set<String> preNodes = new HashSet<>(inputs);
         while (!queue.isEmpty()) {
             String node = queue.remove();
@@ -95,7 +91,7 @@ public class StreamPipeline {
                 return true;
             }
             for (String postNode : postNodes) {
-                if (!inputs.contains(postNode)) {
+                if (!preNodes.contains(postNode)) {
                     preNodes.add(postNode);
                     queue.add(postNode);
                 }

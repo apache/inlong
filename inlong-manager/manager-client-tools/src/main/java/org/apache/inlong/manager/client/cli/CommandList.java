@@ -20,14 +20,16 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.pojo.SinkInfo;
 import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
 import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
-import org.apache.inlong.manager.client.cli.util.PrintUtil;
+import org.apache.inlong.manager.client.cli.util.PrintUtils;
+import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -40,21 +42,21 @@ import java.util.List;
 public class CommandList extends CommandBase {
 
     @Parameter()
-    private java.util.List<String> params;
+    private List<String> params;
 
     public CommandList() {
         super("list");
-        jcommander.addCommand("stream", new CommandList.ListStream());
-        jcommander.addCommand("group", new CommandList.ListGroup());
-        jcommander.addCommand("sink", new CommandList.ListSink());
-        jcommander.addCommand("source", new CommandList.ListSource());
+        jcommander.addCommand("stream", new ListStream());
+        jcommander.addCommand("group", new ListGroup());
+        jcommander.addCommand("sink", new ListSink());
+        jcommander.addCommand("source", new ListSource());
     }
 
     @Parameters(commandDescription = "Get stream main information")
-    private class ListStream extends CommandUtil {
+    private static class ListStream extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
@@ -68,7 +70,7 @@ public class CommandList extends CommandBase {
                 fullStreamResponseList.forEach(fullStreamResponse -> {
                     inlongStreamInfoList.add(fullStreamResponse.getStreamInfo());
                 });
-                PrintUtil.print(inlongStreamInfoList, StreamInfo.class);
+                PrintUtils.print(inlongStreamInfoList, StreamInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -76,38 +78,38 @@ public class CommandList extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get group details")
-    private class ListGroup extends CommandUtil {
+    private static class ListGroup extends CommandUtil {
+
+        private static final int DEFAULT_PAGE_SIZE = 10;
 
         @Parameter()
-        private java.util.List<String> params;
-
+        private List<String> params;
         @Parameter(names = {"-s", "--status"})
         private String status;
-
         @Parameter(names = {"-g", "--group"}, description = "inlong group id")
         private String group;
-
         @Parameter(names = {"-n", "--num"}, description = "the number displayed")
-        private int pageSize = 10;
+        private int pageSize;
 
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
-                List<InlongGroupListResponse> groupList = new ArrayList<>();
-                if (status != null) {
-                    List<Integer> stateList = InlongGroupState.parseStatusByStrState(status);
-                    for (int state : stateList) {
-                        PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, state, 1,
-                                pageSize);
-                        groupList.addAll(groupPageInfo.getList());
-                    }
-                } else {
-                    PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, 0, 1,
-                            pageSize);
-                    groupList = groupPageInfo.getList();
-                }
-                PrintUtil.print(groupList, GroupInfo.class);
+                InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
+                pageRequest.setKeyword(group);
+                // set default page size to DEFAULT_PAGE_SIZE
+                pageSize = pageSize <= 0 ? DEFAULT_PAGE_SIZE : pageSize;
+                pageRequest.setPageNum(1).setPageSize(pageSize);
+
+                // set default status to STARTED
+                status = status == null ? InlongGroupStatus.STARTED.toString() : status;
+                List<Integer> statusList = statusList = InlongGroupStatus.parseStatusCodeByStr(status);
+                pageRequest.setStatusList(statusList);
+
+                InnerInlongManagerClient client = new InnerInlongManagerClient(connect().getConfiguration());
+                Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = client.listGroups(pageRequest);
+                List<InlongGroupListResponse> groupList = pageInfoResponse.getData().getList();
+
+                PrintUtils.print(groupList, GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -115,10 +117,10 @@ public class CommandList extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get sink details")
-    private class ListSink extends CommandUtil {
+    private static class ListSink extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "stream id")
         private String stream;
@@ -131,7 +133,7 @@ public class CommandList extends CommandBase {
             InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-                PrintUtil.print(sinkListResponses, SinkInfo.class);
+                PrintUtils.print(sinkListResponses, SinkInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -139,10 +141,10 @@ public class CommandList extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get source details")
-    private class ListSource extends CommandUtil {
+    private static class ListSource extends CommandUtil {
 
         @Parameter()
-        private java.util.List<String> params;
+        private List<String> params;
 
         @Parameter(names = {"-s", "--stream"}, required = true, description = "inlong stream id")
         private String stream;
@@ -158,7 +160,7 @@ public class CommandList extends CommandBase {
             InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-                PrintUtil.print(sourceListResponses, SourceInfo.class);
+                PrintUtils.print(sourceListResponses, SourceInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

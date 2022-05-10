@@ -30,7 +30,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class PrintUtil {
+/**
+ * Util that prints information to the console.
+ */
+public class PrintUtils {
 
     private static final String joint = "+";
     private static final String horizontal = "—";
