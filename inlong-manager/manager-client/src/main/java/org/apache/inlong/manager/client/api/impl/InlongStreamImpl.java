@@ -112,9 +112,9 @@ public class InlongStreamImpl extends InlongStream {
 
     private StreamField transferFromInlongStream(InlongStreamFieldInfo fieldInfo) {
         StreamField streamField = new StreamField();
-        streamField.setFieldType(InlongStreamSinkTransfer.trandferfromstring(fieldInfo.getFieldType()).getKey());
+        streamField.setFieldType(InlongStreamSinkTransfer.transferfromstring(fieldInfo.getFieldType()).getKey());
         streamField.setComplexSubType(
-                (String) InlongStreamSinkTransfer.trandferfromstring(fieldInfo.getFieldType()).getValue());
+                (String) InlongStreamSinkTransfer.transferfromstring(fieldInfo.getFieldType()).getValue());
         streamField.setId(fieldInfo.getId());
         streamField.setFieldName(fieldInfo.getFieldName());
         streamField.setFieldComment(fieldInfo.getFieldComment());
