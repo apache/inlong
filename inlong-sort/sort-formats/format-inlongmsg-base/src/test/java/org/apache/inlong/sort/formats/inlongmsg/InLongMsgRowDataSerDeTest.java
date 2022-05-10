@@ -20,40 +20,23 @@
 
 package org.apache.inlong.sort.formats.inlongmsg;
 
-import com.twitter.chill.Base64;
 import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
-import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.catalog.Column;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.connector.format.DecodingFormat;
-import org.apache.flink.table.connector.source.DynamicTableSource;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.data.TimestampData;
 import org.apache.flink.table.data.binary.BinaryStringData;
-import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.utils.FactoryMocks;
 import org.apache.flink.table.runtime.connector.source.ScanRuntimeProviderContext;
 import org.apache.inlong.common.msg.InLongMsg;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,13 +67,12 @@ public class InLongMsgRowDataSerDeTest {
         List<byte[]> input = inLongMsgs.stream()
                 .map(inLongMsg -> inLongMsg.buildArray())
                 .collect(Collectors.toList());
-        List<RowData> exceptedOutput = Stream.of(
+        final List<RowData> exceptedOutput = Stream.of(
                 GenericRowData.of(1L, BinaryStringData.fromString("asdqw")),
                 GenericRowData.of(2L, BinaryStringData.fromString("testData")),
                 GenericRowData.of(3L, BinaryStringData.fromString("dwqdqw")),
                 GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"))
         ).collect(Collectors.toList());
-
 
         // deserialize
         final Map<String, String> tableOptions =
@@ -111,7 +93,6 @@ public class InLongMsgRowDataSerDeTest {
 
         assertEquals(exceptedOutput, deData);
     }
-
 
     @Test
     public void testDeserializeInLongMsgWithError() throws Exception {
@@ -146,7 +127,6 @@ public class InLongMsgRowDataSerDeTest {
         assertEquals(Collections.emptyList(), deData);
     }
 
-
     @Test
     public void testDeserializeInLongMsgWithMetadata() throws Exception {
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg();
@@ -163,7 +143,7 @@ public class InLongMsgRowDataSerDeTest {
         List<byte[]> input = inLongMsgs.stream()
                 .map(inLongMsg -> inLongMsg.buildArray())
                 .collect(Collectors.toList());
-        List<RowData> exceptedOutput = Stream.of(
+        final List<RowData> exceptedOutput = Stream.of(
                 GenericRowData.of(1L, BinaryStringData.fromString("asdqw"),
                         TimestampData.fromTimestamp(new Timestamp(1652153467000L))),
                 GenericRowData.of(2L, BinaryStringData.fromString("testData"),
@@ -173,7 +153,6 @@ public class InLongMsgRowDataSerDeTest {
                 GenericRowData.of(4L, BinaryStringData.fromString("asdqdqwe"),
                         TimestampData.fromTimestamp(new Timestamp(1652153469000L)))
         ).collect(Collectors.toList());
-
 
         // deserialize
         final Map<String, String> tableOptions = new HashMap<>();
@@ -192,7 +171,6 @@ public class InLongMsgRowDataSerDeTest {
         decodingFormat.applyReadableMetadata(Stream.of("create-time").collect(Collectors.toList()));
         DeserializationSchema<RowData> inLongMsgDeserializationSchema = decodingFormat
                 .createRuntimeDecoder(ScanRuntimeProviderContext.INSTANCE, schema.toPhysicalRowDataType());
-
 
         List<RowData> deData = new ArrayList<>();
         ListCollector<RowData> out = new ListCollector<>(deData);

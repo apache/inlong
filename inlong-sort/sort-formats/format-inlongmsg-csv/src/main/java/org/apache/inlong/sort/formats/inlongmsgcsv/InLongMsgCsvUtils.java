@@ -18,14 +18,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseDateTime;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
-
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -37,7 +29,6 @@ import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.inlong.sort.formats.util.StringUtils;
 import org.slf4j.Logger;

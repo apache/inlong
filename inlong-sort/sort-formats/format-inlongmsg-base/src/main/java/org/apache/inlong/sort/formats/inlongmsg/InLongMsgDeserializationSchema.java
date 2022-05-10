@@ -29,12 +29,13 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Collector;
 import org.apache.inlong.common.msg.InLongMsg;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InLongMsgDeserializationSchema implements DeserializationSchema<RowData> {
 
@@ -126,9 +127,11 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
             return false;
         }
         InLongMsgDeserializationSchema that = (InLongMsgDeserializationSchema) o;
-        return ignoreErrors == that.ignoreErrors && Objects.equal(deserializationSchema,
-                that.deserializationSchema) && Objects.equal(metadataConverters,
-                that.metadataConverters) && Objects.equal(producedTypeInfo, that.producedTypeInfo);
+        return ignoreErrors == that.ignoreErrors
+                && Objects.equal(Arrays.stream(metadataConverters).collect(Collectors.toList()),
+                        Arrays.stream(that.metadataConverters).collect(Collectors.toList()))
+                && Objects.equal(deserializationSchema, that.deserializationSchema)
+                && Objects.equal(producedTypeInfo, that.producedTypeInfo);
     }
 
     @Override
