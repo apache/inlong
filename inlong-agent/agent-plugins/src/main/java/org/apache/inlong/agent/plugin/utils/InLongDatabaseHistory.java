@@ -17,14 +17,13 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import com.ververica.cdc.debezium.internal.SchemaRecord;
-import com.ververica.cdc.debezium.utils.DatabaseHistoryUtil;
 import io.debezium.config.Configuration;
 import io.debezium.relational.history.AbstractDatabaseHistory;
 import io.debezium.relational.history.DatabaseHistoryException;
 import io.debezium.relational.history.DatabaseHistoryListener;
 import io.debezium.relational.history.HistoryRecord;
 import io.debezium.relational.history.HistoryRecordComparator;
+import org.apache.inlong.agent.plugin.message.SchemaRecord;
 
 import java.util.Collection;
 import java.util.Iterator;
