@@ -33,8 +33,7 @@
         select cluster_name, type, cluster_tag, ext_tag,
         ext_params
         from inlong_cluster
-        where type in
-        ('PULSAR','KAFKA','TUBE')
+        where type in ('PULSAR','KAFKA','TUBE')
         and is_deleted='0'
     </select>
     <select id="selectInlongGroupId"

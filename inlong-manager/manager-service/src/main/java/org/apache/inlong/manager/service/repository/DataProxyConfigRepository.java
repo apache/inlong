@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
@@ -59,6 +60,8 @@ public class DataProxyConfigRepository implements IRepository {
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
     private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
+    public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
+    public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
     private static final Gson gson = new Gson();
 
     // key: proxyClusterName, value: jsonString
@@ -132,8 +135,12 @@ public class DataProxyConfigRepository implements IRepository {
     private Map<String, Map<String, List<CacheCluster>>> reloadCacheCluster() {
         Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = new HashMap<>();
         for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
-            cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTag(), k -> new HashMap<>())
-                    .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+            Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
+            String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
+            if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString())) {
+                cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTag(), k -> new HashMap<>())
+                        .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+            }
         }
         return cacheClusterMap;
     }
@@ -178,6 +185,7 @@ public class DataProxyConfigRepository implements IRepository {
             Map<String, Map<String, List<CacheCluster>>> cacheClusterMap) {
         Map<String, String> newProxyConfigJson = new ConcurrentHashMap<>();
         Map<String, String> newProxyMd5Map = new ConcurrentHashMap<>();
+        Map<String, Map<String, String>> tagCache = new HashMap<>();
         for (Entry<String, ProxyClusterObject> entry : proxyClusterMap.entrySet()) {
             ProxyClusterObject proxyObj = entry.getValue();
             // proxy
@@ -188,24 +196,32 @@ public class DataProxyConfigRepository implements IRepository {
             String extTag = proxyObj.getZone();
             Map<String, List<CacheCluster>> cacheClusterZoneMap = cacheClusterMap.get(clusterTag);
             if (cacheClusterZoneMap != null) {
-                List<CacheCluster> cacheClusterList = cacheClusterZoneMap.get(extTag);
-                if (cacheClusterList != null && cacheClusterList.size() > 0) {
-                    CacheClusterSetObject cacheSet = clusterObj.getCacheClusterSet();
-                    cacheSet.setSetName(clusterTag);
-                    cacheSet.setType(cacheClusterList.get(0).getType());
-                    List<CacheClusterObject> cacheClusters = new ArrayList<>(cacheClusterList.size());
-                    cacheSet.setCacheClusters(cacheClusters);
-                    for (CacheCluster cacheCluster : cacheClusterList) {
-                        CacheClusterObject obj = new CacheClusterObject();
-                        obj.setName(cacheCluster.getClusterName());
-                        obj.setZone(cacheCluster.getExtTag());
-                        try {
-                            Map<String, String> params = gson.fromJson(cacheCluster.getExtParams(), Map.class);
-                            obj.setParams(params);
-                        } catch (Exception e) {
-                            LOGGER.error(e.getMessage(), e);
+                Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(extTag));
+                for (Entry<String, List<CacheCluster>> cacheEntry : cacheClusterZoneMap.entrySet()) {
+                    if (cacheEntry.getValue().size() == 0) {
+                        continue;
+                    }
+                    Map<String, String> wholeTagMap = tagCache.computeIfAbsent(cacheEntry.getKey(),
+                            k -> MAP_SPLITTER.split(cacheEntry.getKey()));
+                    if (isSubTag(wholeTagMap, subTagMap)) {
+                        CacheClusterSetObject cacheSet = clusterObj.getCacheClusterSet();
+                        cacheSet.setSetName(clusterTag);
+                        List<CacheCluster> cacheClusterList = cacheEntry.getValue();
+                        cacheSet.setType(cacheClusterList.get(0).getType());
+                        List<CacheClusterObject> cacheClusters = new ArrayList<>(cacheClusterList.size());
+                        cacheSet.setCacheClusters(cacheClusters);
+                        for (CacheCluster cacheCluster : cacheClusterList) {
+                            CacheClusterObject obj = new CacheClusterObject();
+                            obj.setName(cacheCluster.getClusterName());
+                            obj.setZone(cacheCluster.getExtTag());
+                            try {
+                                Map<String, String> params = gson.fromJson(cacheCluster.getExtParams(), Map.class);
+                                obj.setParams(params);
+                            } catch (Exception e) {
+                                LOGGER.error(e.getMessage(), e);
+                            }
+                            cacheClusters.add(obj);
                         }
-                        cacheClusters.add(obj);
                     }
                 }
             }
@@ -225,6 +241,22 @@ public class DataProxyConfigRepository implements IRepository {
         // replace
         this.proxyConfigJson = newProxyConfigJson;
         this.proxyMd5Map = newProxyMd5Map;
+    }
+
+    /**
+     * isSubTag
+     * @param wholeTagMap
+     * @param subTagMap
+     * @return
+     */
+    private boolean isSubTag(Map<String, String> wholeTagMap, Map<String, String> subTagMap) {
+        for (Entry<String, String> entry : subTagMap.entrySet()) {
+            String value = wholeTagMap.get(entry.getKey());
+            if (value == null || !value.equals(entry.getValue())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
