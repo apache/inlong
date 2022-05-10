@@ -57,13 +57,12 @@ public interface StreamSinkOperation {
     }
 
     /**
-     * Get sink info by sink type and sink id.
+     * Get sink info by the given entity.
      *
-     * @param sinkType Sink type.
-     * @param id Sink id.
+     * @param entity the given entity.
      * @return Sink info.
      */
-    SinkResponse getById(String sinkType, Integer id);
+    SinkResponse getByEntity(StreamSinkEntity entity);
 
     /**
      * Get the target from the given entity.

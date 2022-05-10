@@ -67,14 +67,14 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     public void deleteKafkaSink(Integer sinkId) {
-        boolean result = sinkService.delete(sinkId, SinkType.SINK_CLICKHOUSE, globalOperator);
+        boolean result = sinkService.delete(sinkId, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer sinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(sinkId, SinkType.SINK_CLICKHOUSE);
+        SinkResponse sink = sinkService.get(sinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteKafkaSink(sinkId);
     }
@@ -82,7 +82,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer sinkId = this.saveSink("default2");
-        SinkResponse response = sinkService.get(sinkId, SinkType.SINK_CLICKHOUSE);
+        SinkResponse response = sinkService.get(sinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         ClickHouseSinkResponse kafkaSinkResponse = (ClickHouseSinkResponse) response;

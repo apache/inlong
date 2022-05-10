@@ -136,14 +136,13 @@ public class KafkaSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getById(@NotNull String sinkType, @NotNull Integer id) {
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
+    public SinkResponse getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_KAFKA.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_KAFKA, existType));
         SinkResponse response = this.getFromEntity(entity, KafkaSinkResponse::new);
-        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
+        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities, SinkFieldResponse::new);
         response.setFieldList(infos);
         return response;

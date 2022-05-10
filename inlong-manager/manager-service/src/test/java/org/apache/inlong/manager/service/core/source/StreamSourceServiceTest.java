@@ -60,7 +60,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         Integer id = this.saveSource();
         Assert.assertNotNull(id);
 
-        boolean result = sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
+        boolean result = sourceService.delete(id, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -68,16 +68,16 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id, SourceType.BINLOG.getType());
+        SourceResponse source = sourceService.get(id);
         Assert.assertEquals(globalGroupId, source.getInlongGroupId());
 
-        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
+        sourceService.delete(id, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id, SourceType.BINLOG.getType());
+        SourceResponse response = sourceService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
@@ -86,7 +86,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         boolean result = sourceService.update(request, globalOperator);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, SourceType.BINLOG.getType(), globalOperator);
+        sourceService.delete(id, globalOperator);
     }
 
 }

@@ -30,6 +30,6 @@ public class SourceRestartListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
-        streamSourceService.restart(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
+        streamSourceService.restart(sourceRequest.getId(), operator);
     }
 }

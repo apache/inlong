@@ -64,14 +64,14 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     public void deleteKafkaSink(Integer kafkaSinkId) {
-        boolean result = sinkService.delete(kafkaSinkId, SinkType.SINK_KAFKA, globalOperator);
+        boolean result = sinkService.delete(kafkaSinkId, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer kafkaSinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(kafkaSinkId, SinkType.SINK_KAFKA);
+        SinkResponse sink = sinkService.get(kafkaSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteKafkaSink(kafkaSinkId);
     }
@@ -79,7 +79,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer kafkaSinkId = this.saveSink("default2");
-        SinkResponse response = sinkService.get(kafkaSinkId, SinkType.SINK_KAFKA);
+        SinkResponse response = sinkService.get(kafkaSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         KafkaSinkResponse kafkaSinkResponse = (KafkaSinkResponse) response;

@@ -132,15 +132,14 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getById(String sinkType, Integer id) {
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
+    public SinkResponse getByEntity(StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, existType));
 
         SinkResponse response = this.getFromEntity(entity, IcebergSinkResponse::new);
-        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(id);
+        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkFieldResponse::new);
         response.setFieldList(infos);

@@ -94,16 +94,16 @@
             <if test="request.status != null and request.status != ''">
                 and status = #{request.status, jdbcType=INTEGER}
             </if>
-            <if test="request.inlongClusterName != null and request.status != ''">
+            <if test="request.inlongClusterName != null and request.inlongClusterName != ''">
                 and inlong_cluster_name = #{request.inlongClusterName, jdbcType=VARCHAR}
             </if>
-            <if test="request.dataNodeName != null and request.status != ''">
+            <if test="request.dataNodeName != null and request.dataNodeName != ''">
                 and data_node_name = #{request.dataNodeName, jdbcType=VARCHAR}
             </if>
-            <if test="request.sortTaskName != null and request.status != ''">
+            <if test="request.sortTaskName != null and request.sortTaskName != ''">
                 and sort_task_name = #{request.sortTaskName, jdbcType=VARCHAR}
             </if>
-            <if test="request.sortConsumerGroup != null and request.status != ''">
+            <if test="request.sortConsumerGroup != null and request.sortConsumerGroup != ''">
                 and sort_consumer_group = #{request.sortConsumerGroup, jdbcType=VARCHAR}
             </if>
             order by modify_time desc
@@ -130,6 +130,9 @@
             and inlong_group_id = #{groupId, jdbcType=VARCHAR}
             <if test="streamId != null and streamId != ''">
                 and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+            </if>
+            <if test="sinkName != null and sinkName != ''">
+                and sink_name = #{sinkName, jdbcType=VARCHAR}
             </if>
         </where>
     </select>

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.web.controller;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -60,12 +58,9 @@ public class StreamSinkController {
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Query sink information")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true),
-            @ApiImplicitParam(name = "sinkType", dataTypeClass = String.class, required = true)
-    })
-    public Response<SinkResponse> get(@PathVariable Integer id, @RequestParam String sinkType) {
-        return Response.success(sinkService.get(id, sinkType));
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<SinkResponse> get(@PathVariable Integer id) {
+        return Response.success(sinkService.get(id));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -84,12 +79,9 @@ public class StreamSinkController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data sink information")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true),
-            @ApiImplicitParam(name = "sinkType", dataTypeClass = String.class, required = true)
-    })
-    public Response<Boolean> delete(@PathVariable Integer id, @RequestParam String sinkType) {
-        boolean result = sinkService.delete(id, sinkType, LoginUserUtils.getLoginUserDetail().getUserName());
+    @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
+    public Response<Boolean> delete(@PathVariable Integer id) {
+        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
     }
 
