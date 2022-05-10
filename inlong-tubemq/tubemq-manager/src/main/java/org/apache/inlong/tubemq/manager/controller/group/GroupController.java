@@ -94,7 +94,8 @@ public class GroupController {
      *
      * @param req
      * @return
-     * @throws Exception exception
+     *
+     * @throws Exception the exception
      */
     @GetMapping("/")
     public @ResponseBody
@@ -139,7 +140,8 @@ public class GroupController {
      *
      * @param req
      * @return
-     * @throws Exception exception
+     *
+     * @throws Exception the exception
      */
     @GetMapping("/blackGroup")
     public @ResponseBody

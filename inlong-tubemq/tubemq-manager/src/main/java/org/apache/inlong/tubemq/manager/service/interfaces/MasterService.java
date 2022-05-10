@@ -87,6 +87,7 @@ public interface MasterService {
      *
      * @param queryBody
      * @return
+     *
      * @throws Exception exception
      */
     String getQueryUrl(Map<String, String> queryBody) throws Exception;
