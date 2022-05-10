@@ -20,6 +20,7 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
@@ -47,6 +48,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 
 public class InlongStreamSinkTransfer {
 
@@ -152,18 +154,8 @@ public class InlongStreamSinkTransfer {
         List<SinkField> sinkFields = Lists.newArrayList();
         for (SinkFieldResponse sinkFieldResponse : sinkFieldResponses) {
             SinkField sinkField = new SinkField();
-            if (sinkFieldResponse.getFieldType().startsWith("array")
-                    || sinkFieldResponse.getFieldType().startsWith("map")
-                    || sinkFieldResponse.getFieldType().startsWith("row")) {
-                String filedType =
-                        sinkFieldResponse.getFieldType().substring(0, sinkFieldResponse.getFieldType().indexOf("<"));
-                String subType =
-                        sinkFieldResponse.getFieldType().substring(sinkFieldResponse.getFieldType().indexOf("<"));
-                sinkField.setFieldType(FieldType.forName(filedType));
-                sinkField.setComplexSubType(subType);
-            } else {
-                sinkField.setFieldType(FieldType.forName(sinkFieldResponse.getFieldType()));
-            }
+            sinkField.setFieldType(trandferfromstring(sinkFieldResponse.getFieldType()).getKey());
+            sinkField.setComplexSubType((String) trandferfromstring(sinkFieldResponse.getFieldType()).getValue());
             sinkField.setId(sinkFieldResponse.getId());
             sinkField.setFieldName(sinkFieldResponse.getFieldName());
             sinkField.setFieldComment(sinkFieldResponse.getFieldComment());
@@ -320,4 +312,11 @@ public class InlongStreamSinkTransfer {
         return hiveSink;
     }
 
+    public static Pair<FieldType, Object> trandferfromstring(String type) {
+        return type.toLowerCase(Locale.ROOT).startsWith("array")
+                || type.toLowerCase(Locale.ROOT).startsWith("map")
+                || type.toLowerCase(Locale.ROOT).startsWith("row")
+                ? Pair.of(FieldType.forName(type.substring(0, type.indexOf("<"))), type.substring(type.indexOf("<")))
+                : Pair.of(FieldType.forName(type), null);
+    }
 }

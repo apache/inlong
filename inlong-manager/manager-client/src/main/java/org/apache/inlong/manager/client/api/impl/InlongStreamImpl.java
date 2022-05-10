@@ -33,7 +33,6 @@ import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransformTransfer;
-import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -113,16 +112,9 @@ public class InlongStreamImpl extends InlongStream {
 
     private StreamField transferFromInlongStream(InlongStreamFieldInfo fieldInfo) {
         StreamField streamField = new StreamField();
-        if (fieldInfo.getFieldType().startsWith("array")
-                || fieldInfo.getFieldType().startsWith("map")
-                || fieldInfo.getFieldType().startsWith("row")) {
-            String filedType = fieldInfo.getFieldType().substring(0,fieldInfo.getFieldType().indexOf("<"));
-            String subType = fieldInfo.getFieldType().substring(fieldInfo.getFieldType().indexOf("<"));
-            streamField.setFieldType(FieldType.forName(filedType));
-            streamField.setComplexSubType(subType);
-        } else {
-            streamField.setFieldType(FieldType.forName(fieldInfo.getFieldType()));
-        }
+        streamField.setFieldType(InlongStreamSinkTransfer.trandferfromstring(fieldInfo.getFieldType()).getKey());
+        streamField.setComplexSubType(
+                (String) InlongStreamSinkTransfer.trandferfromstring(fieldInfo.getFieldType()).getValue());
         streamField.setId(fieldInfo.getId());
         streamField.setFieldName(fieldInfo.getFieldName());
         streamField.setFieldComment(fieldInfo.getFieldComment());

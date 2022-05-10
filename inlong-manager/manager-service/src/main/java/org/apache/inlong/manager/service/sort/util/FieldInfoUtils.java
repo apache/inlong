@@ -223,7 +223,7 @@ public class FieldInfoUtils {
      */
     public static FormatInfo convertFieldFormat(String type, String format) {
         String baseType = type.contains("<") ? type.substring(0, type.indexOf("<")) : type;
-        if (isComplecType(baseType)) {
+        if (isComplexType(baseType)) {
             Map<String, String> complexType = Maps.newHashMap();
             complexType.put(baseType, type.substring(type.indexOf("<") + 1, type.length() - 1));
             return transferComplexType(complexType);
@@ -383,7 +383,7 @@ public class FieldInfoUtils {
      * @param type
      * @return
      */
-    private static boolean isComplecType(String type) {
+    private static boolean isComplexType(String type) {
         return type.toLowerCase(Locale.ROOT).startsWith("array")
                 || type.toLowerCase(Locale.ROOT).startsWith("map")
                 || type.toLowerCase(Locale.ROOT).startsWith("row");
