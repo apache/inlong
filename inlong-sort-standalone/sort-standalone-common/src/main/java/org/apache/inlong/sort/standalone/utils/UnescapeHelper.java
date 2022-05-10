@@ -26,11 +26,11 @@ import java.util.List;
 public class UnescapeHelper {
 
     /**
-     * Unescape String format field values to List<String> format by separator.
+     * Unescape String format field values to String List format by separator.
      *
      * @param  fieldValues FiledValues in String format.
      * @param  separator Separator.
-     * @return FiledValues in List<String> format.
+     * @return FiledValues in String List format.
      */
     public static List<String> toFiledList(String fieldValues, char separator) {
         List<String> fields = new ArrayList<String>();

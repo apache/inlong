@@ -43,6 +43,9 @@ public class FlinkUtils {
 
     /**
      * getLatestFlinkVersion
+     *
+     * @param supportedFlink
+     * @return
      */
     public static String getLatestFlinkVersion(String[] supportedFlink) {
         if (Objects.isNull(supportedFlink)) {
@@ -62,6 +65,8 @@ public class FlinkUtils {
 
     /**
      * print exception
+     * @param throwable
+     * @return
      */
     public static String getExceptionStackMsg(Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
@@ -71,6 +76,10 @@ public class FlinkUtils {
 
     /**
      * fetch sort-single-tenant jar path
+     *
+     * @param baseDirName
+     * @param pattern
+     * @return
      */
     public static String findFiles(String baseDirName, String pattern) {
         File baseDir = new File(baseDirName);
@@ -100,6 +109,10 @@ public class FlinkUtils {
 
     /**
      * get value
+     *
+     * @param key
+     * @param defaultValue
+     * @return
      */
     public static String getValue(String key, String defaultValue) {
         return StringUtils.isNotEmpty(key) ? key : defaultValue;
@@ -107,6 +120,9 @@ public class FlinkUtils {
 
     /**
      * getConfigDirectory
+     *
+     * @param name
+     * @return
      */
     public static String getConfigDirectory(String name) {
         return BASE_DIRECTORY + File.separator + name;
@@ -114,6 +130,11 @@ public class FlinkUtils {
 
     /**
      * writeConfigToFile
+     *
+     * @param configJobDirectory
+     * @param configFileName
+     * @param content
+     * @return
      */
     public static boolean writeConfigToFile(String configJobDirectory, String configFileName, String content) {
         File file = new File(configJobDirectory);
@@ -136,6 +157,9 @@ public class FlinkUtils {
 
     /**
      * delete configuration file
+     *
+     * @param name
+     * @return
      */
     public static boolean deleteConfigFile(String name) {
         String configDirectory = getConfigDirectory(name);
