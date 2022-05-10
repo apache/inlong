@@ -27,6 +27,6 @@ public interface DataProxyClusterService {
      *
      * @return data proxy config
      */
-    String getAllConfig(String clusterName, String setName, String md5);
+    String getAllConfig(String clusterName, String md5);
 
 }

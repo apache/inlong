@@ -21,13 +21,15 @@ package org.apache.inlong.manager.dao.entity;
  * CacheCluster
  */
 public class CacheCluster {
+
     private String clusterName;
-    private String setName;
-    private String zone;
+    private String type;
+    private String clusterTag;
+    private String extTag;
+    private String extParams;
 
     /**
      * get clusterName
-     * 
      * @return the clusterName
      */
     public String getClusterName() {
@@ -36,7 +38,6 @@ public class CacheCluster {
 
     /**
      * set clusterName
-     * 
      * @param clusterName the clusterName to set
      */
     public void setClusterName(String clusterName) {
@@ -44,39 +45,67 @@ public class CacheCluster {
     }
 
     /**
-     * get setName
-     * 
-     * @return the setName
+     * get type
+     * @return the type
      */
-    public String getSetName() {
-        return setName;
+    public String getType() {
+        return type;
     }
 
     /**
-     * set setName
-     * 
-     * @param setName the setName to set
+     * set type
+     * @param type the type to set
      */
-    public void setSetName(String setName) {
-        this.setName = setName;
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
-     * get zone
-     * 
-     * @return the zone
+     * get clusterTag
+     * @return the clusterTag
      */
-    public String getZone() {
-        return zone;
+    public String getClusterTag() {
+        return clusterTag;
     }
 
     /**
-     * set zone
-     * 
-     * @param zone the zone to set
+     * set clusterTag
+     * @param clusterTag the clusterTag to set
      */
-    public void setZone(String zone) {
-        this.zone = zone;
+    public void setClusterTag(String clusterTag) {
+        this.clusterTag = clusterTag;
+    }
+
+    /**
+     * get extTag
+     * @return the extTag
+     */
+    public String getExtTag() {
+        return extTag;
+    }
+
+    /**
+     * set extTag
+     * @param extTag the extTag to set
+     */
+    public void setExtTag(String extTag) {
+        this.extTag = extTag;
+    }
+
+    /**
+     * get extParams
+     * @return the extParams
+     */
+    public String getExtParams() {
+        return extParams;
+    }
+
+    /**
+     * set extParams
+     * @param extParams the extParams to set
+     */
+    public void setExtParams(String extParams) {
+        this.extParams = extParams;
     }
 
 }

@@ -17,52 +17,22 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import java.util.List;
-
 import org.apache.inlong.manager.dao.entity.CacheCluster;
-import org.apache.inlong.manager.dao.entity.CacheClusterExt;
-import org.apache.inlong.manager.dao.entity.CacheTopic;
-import org.apache.inlong.manager.dao.entity.ClusterSet;
-import org.apache.inlong.manager.dao.entity.FlumeChannel;
-import org.apache.inlong.manager.dao.entity.FlumeChannelExt;
-import org.apache.inlong.manager.dao.entity.FlumeSink;
-import org.apache.inlong.manager.dao.entity.FlumeSinkExt;
-import org.apache.inlong.manager.dao.entity.FlumeSource;
-import org.apache.inlong.manager.dao.entity.FlumeSourceExt;
-import org.apache.inlong.manager.dao.entity.InLongId;
+import org.apache.inlong.manager.dao.entity.InlongGroupId;
 import org.apache.inlong.manager.dao.entity.ProxyCluster;
-import org.apache.inlong.manager.dao.entity.ProxyClusterToCacheCluster;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * ClusterSetMapper
  */
 @Repository
 public interface ClusterSetMapper {
-    List<ClusterSet> selectClusterSet();
-
-    List<InLongId> selectInlongId();
-
-    List<CacheCluster> selectCacheCluster();
-
-    List<CacheClusterExt> selectCacheClusterExt();
-
-    List<CacheTopic> selectCacheTopic();
 
     List<ProxyCluster> selectProxyCluster();
 
-    List<ProxyClusterToCacheCluster> selectProxyClusterToCacheCluster();
+    List<CacheCluster> selectCacheCluster();
 
-    List<FlumeSource> selectFlumeSource();
-
-    List<FlumeSourceExt> selectFlumeSourceExt();
-
-    List<FlumeChannel> selectFlumeChannel();
-
-    List<FlumeChannelExt> selectFlumeChannelExt();
-
-    List<FlumeSink> selectFlumeSink();
-
-    List<FlumeSinkExt> selectFlumeSinkExt();
-
+    List<InlongGroupId> selectInlongGroupId();
 }

@@ -18,29 +18,29 @@
 package org.apache.inlong.manager.dao.entity;
 
 /**
- * ProxyCluster
+ * InlongGroupId
  */
-public class ProxyCluster {
+public class InlongGroupId {
 
-    private String clusterName;
+    private String inlongGroupId;
     private String clusterTag;
-    private String extTag;
+    private String topic;
     private String extParams;
 
     /**
-     * get clusterName
-     * @return the clusterName
+     * get inlongGroupId
+     * @return the inlongGroupId
      */
-    public String getClusterName() {
-        return clusterName;
+    public String getInlongGroupId() {
+        return inlongGroupId;
     }
 
     /**
-     * set clusterName
-     * @param clusterName the clusterName to set
+     * set inlongGroupId
+     * @param inlongGroupId the inlongGroupId to set
      */
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
+    public void setInlongGroupId(String inlongGroupId) {
+        this.inlongGroupId = inlongGroupId;
     }
 
     /**
@@ -60,19 +60,19 @@ public class ProxyCluster {
     }
 
     /**
-     * get extTag
-     * @return the extTag
+     * get topic
+     * @return the topic
      */
-    public String getExtTag() {
-        return extTag;
+    public String getTopic() {
+        return topic;
     }
 
     /**
-     * set extTag
-     * @param extTag the extTag to set
+     * set topic
+     * @param topic the topic to set
      */
-    public void setExtTag(String extTag) {
-        this.extTag = extTag;
+    public void setTopic(String topic) {
+        this.topic = topic;
     }
 
     /**
