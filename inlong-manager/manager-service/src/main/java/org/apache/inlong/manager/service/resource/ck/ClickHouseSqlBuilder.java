@@ -35,6 +35,9 @@ public class ClickHouseSqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseSqlBuilder.class);
 
+    /**
+     * Build create database SQL
+     */
     public static String buildCreateDbSql(String dbName) {
         // Support _ beginning with underscore
         String sql = "CREATE DATABASE IF NOT EXISTS " + dbName;
@@ -42,6 +45,9 @@ public class ClickHouseSqlBuilder {
         return sql;
     }
 
+    /**
+     * Build create table SQL
+     */
     public static String buildCreateTableSql(ClickHouseTableInfo table) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
@@ -75,6 +81,9 @@ public class ClickHouseSqlBuilder {
         return sql.toString();
     }
 
+    /**
+     * Build add column SQL
+     */
     public static List<String> buildAddColumnsSql(String dbName, String tableName,
             List<ClickHouseColumnInfo> columnList) {
         String dbTableName = dbName + "." + tableName;
@@ -88,6 +97,9 @@ public class ClickHouseSqlBuilder {
         return resultList;
     }
 
+    /**
+     * Build create column SQL
+     */
     private static String buildCreateColumnsSql(List<ClickHouseColumnInfo> columns) {
         List<String> columnList = getColumnsInfo(columns);
         StringBuilder result = new StringBuilder().append(" (")
@@ -95,6 +107,9 @@ public class ClickHouseSqlBuilder {
         return result.toString();
     }
 
+    /**
+     * Build column info
+     */
     private static List<String> getColumnsInfo(List<ClickHouseColumnInfo> columns) {
         List<String> columnList = new ArrayList<>();
         List<String> partitionList = new ArrayList<>();
@@ -120,6 +135,9 @@ public class ClickHouseSqlBuilder {
         return columnList;
     }
 
+    /**
+     * Build query table SQL
+     */
     public static String buildDescTableSql(String dbName, String tableName) {
         StringBuilder sql = new StringBuilder();
         String fullTableName = dbName + "." + tableName;

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.resource.ck;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseTableInfo;
 import org.slf4j.Logger;
@@ -123,9 +124,7 @@ public class ClickHouseJdbcUtils {
                 String tableName = rs.getString(COLUMN_LABEL);
                 tables.add(tableName);
             }
-        } catch (Exception e) {
-            LOG.error("a database access error occurs or this method is called on a closed connection", e);
-            throw e;
+            rs.close();
         }
         return tables;
     }
