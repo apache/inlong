@@ -18,14 +18,6 @@
 
 package org.apache.inlong.sort.formats.inlongmsgcsv;
 
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_STREAM_ID;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_DT;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.INLONGMSG_ATTR_TIME_T;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.getPredefinedFields;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseAttr;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseDateTime;
-import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils.parseEpochTime;
-
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -37,7 +29,6 @@ import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgBody;
-import org.apache.inlong.sort.formats.inlongmsg.InLongMsgHead;
 import org.apache.inlong.sort.formats.inlongmsg.InLongMsgUtils;
 import org.apache.inlong.sort.formats.util.StringUtils;
 import org.slf4j.Logger;
@@ -52,39 +43,6 @@ public class InLongMsgCsvUtils {
 
     public static final String FORMAT_DELETE_HEAD_DELIMITER = "format.delete-head-delimiter";
     public static final boolean DEFAULT_DELETE_HEAD_DELIMITER = true;
-
-    public static InLongMsgHead parseHead(String attr) {
-        Map<String, String> attributes = parseAttr(attr);
-
-        // Extracts interface from the attributes.
-        String streamId;
-
-        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
-            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
-        } else {
-            throw new IllegalArgumentException("Could not find " + INLONGMSG_ATTR_STREAM_ID + " in attributes!");
-        }
-
-        // Extracts time from the attributes
-        Timestamp time;
-
-        if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
-            String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
-            time = parseDateTime(date);
-        } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
-            String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
-            time = parseEpochTime(epoch);
-        } else {
-            throw new IllegalArgumentException(
-                    "Could not find " + INLONGMSG_ATTR_TIME_T
-                            + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
-        }
-
-        // Extracts predefined fields from the attributes
-        List<String> predefinedFields = getPredefinedFields(attributes);
-
-        return new InLongMsgHead(attributes, streamId, time, predefinedFields);
-    }
 
     public static InLongMsgBody parseBody(
             byte[] bytes,
