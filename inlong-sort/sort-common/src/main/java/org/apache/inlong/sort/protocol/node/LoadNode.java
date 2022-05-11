@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
@@ -43,7 +44,8 @@ import java.util.Map;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
-        @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad")
+        @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
+        @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad")
 })
 @NoArgsConstructor
 @Data

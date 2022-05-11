@@ -282,6 +282,11 @@
             <version>${debezium-core.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

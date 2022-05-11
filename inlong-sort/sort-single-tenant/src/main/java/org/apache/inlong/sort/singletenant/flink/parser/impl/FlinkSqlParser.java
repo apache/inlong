@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
@@ -493,14 +494,38 @@ public class FlinkSqlParser implements Parser {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO `").append(loadNode.genTableName()).append("` ");
         sb.append("\n    SELECT ");
-        Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(loadNode.getFieldRelationShips().size());
-        loadNode.getFieldRelationShips().forEach(s -> {
-            fieldRelationMap.put(s.getOutputField().getName(), s);
-        });
-        parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
+        if (loadNode instanceof HbaseLoadNode) {
+            parseHbaseLoadFieldRelation((HbaseLoadNode) loadNode, sb);
+        } else {
+            Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(loadNode.getFieldRelationShips().size());
+            loadNode.getFieldRelationShips().forEach(s -> {
+                fieldRelationMap.put(s.getOutputField().getName(), s);
+            });
+            parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
+        }
         sb.append("\n    FROM `").append(inputNode.genTableName()).append("`");
         parseFilterFields(loadNode.getFilterStrategy(), loadNode.getFilters(), sb);
         return sb.toString();
+    }
+
+    private void parseHbaseLoadFieldRelation(HbaseLoadNode hbaseLoadNode, StringBuilder sb) {
+        sb.append(hbaseLoadNode.getRowKey()).append(" as rowkey,\n");
+        List<FieldRelationShip> fieldRelationShips = hbaseLoadNode.getFieldRelationShips();
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = genColumnFamilyMapFieldRelationShips(
+                fieldRelationShips);
+        for (Map.Entry<String, List<FieldRelationShip>> entry : columnFamilyMapFields.entrySet()) {
+            StringBuilder fieldAppend = new StringBuilder(" ROW(");
+            for (FieldRelationShip fieldRelationShip : entry.getValue()) {
+                FieldInfo fieldInfo = (FieldInfo) fieldRelationShip.getInputField();
+                fieldAppend.append(fieldInfo.getName()).append(",");
+            }
+            if (fieldAppend.length() > 0) {
+                fieldAppend.delete(fieldAppend.lastIndexOf(","), fieldAppend.length());
+            }
+            fieldAppend.append("),");
+            sb.append(fieldAppend);
+        }
+        sb.delete(sb.lastIndexOf(","), sb.length());
     }
 
     /**
@@ -512,6 +537,9 @@ public class FlinkSqlParser implements Parser {
     private String genCreateSql(Node node) {
         if (node instanceof TransformNode) {
             return genCreateTransformSql(node);
+        }
+        if (node instanceof HbaseLoadNode) {
+            return genCreateHbaseLoadSql((HbaseLoadNode) node);
         }
         StringBuilder sb = new StringBuilder("CREATE TABLE `");
         sb.append(node.genTableName()).append("`(\n");
@@ -530,6 +558,50 @@ public class FlinkSqlParser implements Parser {
         }
         sb.append(parseOptions(node.tableOptions()));
         return sb.toString();
+    }
+
+    /**
+     * gen create table DDL for hbase load
+     *
+     * @param node
+     * @return
+     */
+    private String genCreateHbaseLoadSql(HbaseLoadNode node) {
+        StringBuilder sb = new StringBuilder("CREATE TABLE `");
+        sb.append(node.genTableName()).append("`(\n");
+        sb.append("rowkey STRING,\n");
+        List<FieldRelationShip> fieldRelationShips = node.getFieldRelationShips();
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = genColumnFamilyMapFieldRelationShips(
+                fieldRelationShips);
+        for (Map.Entry<String, List<FieldRelationShip>> entry : columnFamilyMapFields.entrySet()) {
+            sb.append(entry.getKey());
+            StringBuilder fieldsAppend = new StringBuilder(" Row<");
+            for (FieldRelationShip fieldRelationShip : entry.getValue()) {
+                FieldInfo fieldInfo = fieldRelationShip.getOutputField();
+                fieldsAppend.append(fieldInfo.getName().split(":")[1]).append(" ")
+                        .append(TableFormatUtils.deriveLogicalType(fieldInfo.getFormatInfo()).asSummaryString())
+                        .append(",");
+            }
+            if (fieldsAppend.length() > 0) {
+                fieldsAppend.delete(fieldsAppend.lastIndexOf(","), fieldsAppend.length());
+                fieldsAppend.append(">,\n");
+            }
+            sb.append(fieldsAppend);
+        }
+        sb.append("PRIMARY KEY (rowkey) NOT ENFORCED\n) ");
+        sb.append(parseOptions(node.tableOptions()));
+        return sb.toString();
+    }
+
+    private Map<String, List<FieldRelationShip>> genColumnFamilyMapFieldRelationShips(
+            List<FieldRelationShip> fieldRelationShips) {
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = new HashMap<>(16);
+        for (FieldRelationShip fieldRelationShip : fieldRelationShips) {
+            String columnFamily = fieldRelationShip.getOutputField().getName().split(":")[0];
+            columnFamilyMapFields.computeIfAbsent(columnFamily, v -> new ArrayList<>())
+                    .add(fieldRelationShip);
+        }
+        return columnFamilyMapFields;
     }
 
     /**
