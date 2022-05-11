@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ClickHouseSqlBuilder<T> {
+/**
+ * Builder for ClickHouse SQL string
+ */
+public class ClickHouseSqlBuilder {
 
     private static final int FIRST_COLUMN_INDEX = 0;
 
@@ -106,8 +109,8 @@ public abstract class ClickHouseSqlBuilder<T> {
             if (StringUtils.isNotEmpty(columnInfo.getCompressionCode())) {
                 columnStr.append(" CODEC(").append(columnInfo.getDesc()).append(")");
             }
-            if (StringUtils.isNotEmpty(columnInfo.getTTLExpr())) {
-                columnStr.append(" TTL ").append(columnInfo.getTTLExpr());
+            if (StringUtils.isNotEmpty(columnInfo.getTtlExpr())) {
+                columnStr.append(" TTL ").append(columnInfo.getTtlExpr());
             }
             if (StringUtils.isNotEmpty(columnInfo.getDesc())) {
                 columnStr.append(" COMMENT '").append(columnInfo.getDesc()).append("'");

@@ -68,6 +68,9 @@ public class ClickHouseJdbcUtils {
         return conn;
     }
 
+    /**
+     * Execute One ClickHouse Sql command
+     */
     public static void executeSql(String sql, String url, String user, String password) throws Exception {
         try (Connection conn = getConnection(url, user, password)) {
             Statement stmt = conn.createStatement();
@@ -76,6 +79,9 @@ public class ClickHouseJdbcUtils {
         }
     }
 
+    /**
+     * Execute Batch ClickHouse Sql commands
+     */
     public static void executeSqlBatch(List<String> sql, String url, String user, String password) throws Exception {
         try (Connection conn = getConnection(url, user, password)) {
             Statement stmt = conn.createStatement();
@@ -143,7 +149,7 @@ public class ClickHouseJdbcUtils {
                 columnInfo.setDefaultExpr(rs.getString(4));
                 columnInfo.setDesc(rs.getString(5));
                 columnInfo.setCompressionCode(rs.getString(6));
-                columnInfo.setTTLExpr(rs.getString(7));
+                columnInfo.setTtlExpr(rs.getString(7));
                 columnList.add(columnInfo);
             }
             return columnList;

@@ -30,5 +30,5 @@ public class ClickHouseColumnInfo {
 
     private String compressionCode;
 
-    private String tTLExpr;
+    private String ttlExpr;
 }
