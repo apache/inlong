@@ -116,7 +116,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req) {
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -161,7 +161,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult rebalanceGroup(RebalanceGroupReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -193,7 +193,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult deleteOffset(DeleteOffsetReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -224,7 +224,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult queryOffset(QueryOffsetReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }

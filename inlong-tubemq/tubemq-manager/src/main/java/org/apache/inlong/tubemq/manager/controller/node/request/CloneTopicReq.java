@@ -30,5 +30,6 @@ public class CloneTopicReq extends BaseReq {
     private String sourceTopicName;
     private List<Integer> brokerId;
     private List<String> targetTopicName;
+    private AddTopicReq targetTopic;
     private String confModAuthToken;
 }
