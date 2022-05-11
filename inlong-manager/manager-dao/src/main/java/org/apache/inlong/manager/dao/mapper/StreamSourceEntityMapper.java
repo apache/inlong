@@ -119,7 +119,7 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Physical delete stream sources.
-     * 
+     *
      * @param groupId
      * @param streamId
      * @return

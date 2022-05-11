@@ -59,24 +59,22 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
 
     @Override
     public void notify(ProcessEvent event, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
-        WorkflowProcess process = context.getProcess();
+        WorkflowProcess process = sourceContext.getProcess();
 
-        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
-        process.syncListeners(event).forEach(syncLogableNotify(context));
+        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(sourceContext));
+        process.syncListeners(event).forEach(syncLogableNotify(sourceContext));
 
-        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(context));
-        process.asyncListeners(event).forEach(asyncLogableNotify(context));
+        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
+        process.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
     }
 
     @Override
     public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
-        WorkflowProcess process = context.getProcess();
+        WorkflowProcess process = sourceContext.getProcess();
 
         Optional.ofNullable(this.eventListenerManager.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
-        Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, context));
+                .ifPresent(logableNotify(forceSync, sourceContext));
+        Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, sourceContext));
     }
 
     private Consumer<ProcessEventListener> logableNotify(boolean forceSync, WorkflowContext context) {

@@ -59,26 +59,24 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
 
     @Override
     public void notify(TaskEvent event, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
-        WorkflowTask task = (WorkflowTask) context.getCurrentElement();
-        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
+        WorkflowTask task = (WorkflowTask) sourceContext.getCurrentElement();
+        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(sourceContext));
 
-        task.syncListeners(event).forEach(syncLogableNotify(context));
+        task.syncListeners(event).forEach(syncLogableNotify(sourceContext));
 
-        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(context));
+        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
 
-        task.asyncListeners(event).forEach(asyncLogableNotify(context));
+        task.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
     }
 
     @Override
     public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
         Optional.ofNullable(this.eventListenerManager.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
+                .ifPresent(logableNotify(forceSync, sourceContext));
 
-        WorkflowTask task = (WorkflowTask) context.getCurrentElement();
+        WorkflowTask task = (WorkflowTask) sourceContext.getCurrentElement();
         Optional.ofNullable(task.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
+                .ifPresent(logableNotify(forceSync, sourceContext));
     }
 
     private Consumer<TaskEventListener> logableNotify(boolean forceSync, WorkflowContext context) {
