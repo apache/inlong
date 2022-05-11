@@ -75,7 +75,8 @@ public class HbaseLoadFlinkSqlParseTest extends AbstractTestBase {
                 Arrays.asList(new FieldRelationShip(new FieldInfo("age", new LongFormatInfo()),
                                 new FieldInfo("cf:age", new LongFormatInfo())),
                         new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("cf:name", new StringFormatInfo()))), null, 1, null, "mytable", "default",
+                                new FieldInfo("cf:name", new StringFormatInfo()))), null, null, 1, null, "mytable",
+                "default",
                 "localhost:2181", "MD5(`name`)", null, null, null, null);
     }
 

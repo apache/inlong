@@ -32,7 +32,7 @@ public class HbaseLoadNodeTest extends SerializeBaseTest<HbaseLoadNode> {
         return new HbaseLoadNode("2", "test_hbase",
                 Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
-                        new FieldInfo("cf:id", new StringFormatInfo()))), null, 1, null, "mytable", "default",
+                        new FieldInfo("cf:id", new StringFormatInfo()))), null, null, 1, null, "mytable", "default",
                 "localhost:2181", "MD5(`id`)", null, null, null, null);
     }
 }
