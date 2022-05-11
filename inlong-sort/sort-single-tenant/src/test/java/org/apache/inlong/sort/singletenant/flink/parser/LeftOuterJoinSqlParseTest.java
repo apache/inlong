@@ -29,6 +29,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
@@ -130,7 +131,7 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("salary", "3", new TimestampFormatInfo()),
                                 new FieldInfo("salary", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("5", "kafka_output", fields, relations,
+        return new KafkaLoadNode("5", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
                 null, "id");
@@ -159,7 +160,7 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
                         new FieldInfo("ts", new TimestampFormatInfo())),
                 new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo()))
-        ), null);
+        ), null, null);
     }
 
     /**
@@ -195,7 +196,8 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
                         new FieldInfo("ts", new TimestampFormatInfo())),
                 new FieldRelationShip(new FieldInfo("salary", "3", new TimestampFormatInfo()),
                         new FieldInfo("salary", new TimestampFormatInfo()))
-        ), filters, Collections.singletonList(new FieldInfo("name", "1", new StringFormatInfo())),
+        ), filters, FilterStrategy.RETAIN,
+                Collections.singletonList(new FieldInfo("name", "1", new StringFormatInfo())),
                 new FieldInfo("ts", "3", new TimestampFormatInfo()), OrderDirection.ASC);
     }
 

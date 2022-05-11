@@ -75,7 +75,7 @@ public class GroupInfoTest extends SerializeBaseTest<GroupInfo> {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
                 "topic", "localhost:9092", new JsonFormat(),
                 1, null, "id");
     }

@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
@@ -79,6 +80,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
             @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("catalogName") String catalogName,
@@ -88,7 +90,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("hiveVersion") String hiveVersion,
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
             @JsonProperty("parFields") List<FieldInfo> partitionFields) {
-        super(id, name, fields, fieldRelationShips, filters, sinkParallelism, properties);
+        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
         this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
