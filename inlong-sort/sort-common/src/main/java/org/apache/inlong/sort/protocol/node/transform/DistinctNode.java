@@ -25,6 +25,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
@@ -75,10 +76,11 @@ public class DistinctNode extends TransformNode {
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
             @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @JsonProperty("distinctFields") List<FieldInfo> distinctFields,
             @JsonProperty("orderField") FieldInfo orderField,
             @JsonProperty("orderDirection") OrderDirection orderDirection) {
-        super(id, name, fields, fieldRelationShips, filters);
+        super(id, name, fields, fieldRelationShips, filters, filterStrategy);
         this.distinctFields = Preconditions.checkNotNull(distinctFields, "distinctFields is null");
         Preconditions.checkState(!distinctFields.isEmpty(), "distinct fields is empty");
         this.orderField = Preconditions.checkNotNull(orderField, "orderField is null");

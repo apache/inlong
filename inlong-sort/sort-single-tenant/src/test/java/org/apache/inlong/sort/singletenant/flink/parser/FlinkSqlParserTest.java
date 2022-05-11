@@ -105,7 +105,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode(id, "kafka_output", fields, relations, null,
+        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "workerJson", "localhost:9092",
                 new JsonFormat(), null,
                 null, null);
@@ -134,7 +134,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
         return new HiveLoadNode(id, "hive_output",
-                fields, relations, null, 1,
+                fields, relations, null, null, 1,
                 null, "myCatalog", "default", "work2",
                 "/opt/hive/conf", "3.1.2",
                 null, null);

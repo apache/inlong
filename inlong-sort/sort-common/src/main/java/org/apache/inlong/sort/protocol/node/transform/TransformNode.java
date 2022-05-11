@@ -28,12 +28,12 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,14 +61,18 @@ public class TransformNode implements Node, Serializable {
     private List<FieldRelationShip> fieldRelationShips;
     @JsonProperty("filters")
     @JsonInclude(Include.NON_NULL)
-    private List<FilterFunction> filters = new ArrayList<>();
+    private List<FilterFunction> filters;
+    @JsonProperty("filterStrategy")
+    @JsonInclude(Include.NON_NULL)
+    private FilterStrategy filterStrategy;
 
     @JsonCreator
     public TransformNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
-            @JsonProperty("filters") List<FilterFunction> filters) {
+            @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy) {
         this.id = Preconditions.checkNotNull(id, "id is null");
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");
@@ -77,6 +81,7 @@ public class TransformNode implements Node, Serializable {
                 "fieldRelationShips is null");
         Preconditions.checkState(!fieldRelationShips.isEmpty(), "fieldRelationShips is empty");
         this.filters = filters;
+        this.filterStrategy = filterStrategy;
     }
 
     @JsonIgnore
