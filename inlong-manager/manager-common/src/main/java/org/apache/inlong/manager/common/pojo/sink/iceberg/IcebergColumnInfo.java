@@ -15,39 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.sink.iceberg;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
+/**
+ * Iceberg column info
+ */
 @Data
-public class StreamSinkFieldEntity implements Serializable {
+public class IcebergColumnInfo {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private Integer sinkId;
-    private String sinkType;
-
-    private String fieldName;
-    private String fieldType;
-    private String fieldComment;
-    private Integer isRequired;
-    private String sourceFieldName;
-    private String sourceFieldType;
-
-    private Integer fieldLength;
-    private Integer fieldPrecision;
-    private Integer fieldScale;
+    private String name;
+    private String type;
+    private String desc;
+    private boolean required;
+    private Integer length;
     private String partitionStrategy;
+    private Integer precision;
+    private Integer scale;
     private Integer bucketNum;
     private Integer width;
-
-    private Integer isMetaField;
-    private String fieldFormat;
-    private Short rankNum;
-    private Integer isDeleted;
-
 }
