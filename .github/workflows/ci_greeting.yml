@@ -38,4 +38,4 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           issue-message: 'Thanks a lot for opening your first issue with us! 🧡 We''ll get back to you shortly! ⏳'
-          pr-message: 'Thanks a lot for your contribution! 💖 This seems to be your first PR! 🌠 Please be sure to follow our [contribution guidelines](../../CONTRIBUTING.md)! 🎁'
+          pr-message: 'Thanks a lot for your contribution! 💖 This seems to be your first PR! 🌠 Please be sure to follow our [contribution guidelines](https://inlong.apache.org/community/how-to-contribute/)! 🎁'
