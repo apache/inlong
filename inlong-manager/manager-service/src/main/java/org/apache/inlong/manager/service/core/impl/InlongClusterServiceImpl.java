@@ -20,26 +20,38 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +68,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
+    @Autowired
+    private ClusterBean clusterBean;
 
     @Override
     public Integer save(InlongClusterRequest request, String operator) {
@@ -108,6 +126,22 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         page.setTotal(clusterList.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
         return page;
+    }
+
+    @Override
+    public List<String> listNodeIpByType(String type) {
+        Preconditions.checkNotNull(type, "inlong cluster type is null");
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setType(type);
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
+        List<String> ipList = new ArrayList<>();
+        for (InlongClusterEntity clusterEntity : clusterList) {
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(clusterEntity.getId());
+            for (InlongClusterNodeEntity nodeEntity : nodeList) {
+                ipList.add(String.format("%s:%d", nodeEntity.getIp(), nodeEntity.getPort()));
+            }
+        }
+        return ipList;
     }
 
     @Override
@@ -259,6 +293,66 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         clusterNodeMapper.updateById(entity);
         LOGGER.info("success to delete inlong cluster node by id={}", id);
         return true;
+    }
+
+    @Override
+    public List<DataProxyResponse> getIpList(String clusterName) {
+        LOGGER.debug("begin to list data proxy by clusterName={}", clusterName);
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setType(InlongGroupSettings.CLUSTER_DATA_PROXY);
+        if (StringUtils.isNotBlank(clusterName)) {
+            request.setName(clusterName);
+        }
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
+        Preconditions.checkNotEmpty(clusterList,
+                "data proxy cluster not found by type=" + InlongGroupSettings.CLUSTER_DATA_PROXY);
+
+        List<DataProxyResponse> responseList = new ArrayList<>();
+        for (InlongClusterEntity clusterEntity : clusterList) {
+            Integer clusterId = clusterEntity.getId();
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(clusterId);
+            for (InlongClusterNodeEntity nodeEntity : nodeList) {
+                DataProxyResponse response = new DataProxyResponse();
+                response.setId(clusterId);
+                response.setIp(nodeEntity.getIp());
+                response.setPort(nodeEntity.getPort());
+                responseList.add(response);
+            }
+        }
+
+        LOGGER.debug("success to list data proxy cluster={}", responseList);
+        return responseList;
+    }
+
+    @Override
+    public List<DataProxyConfig> getConfig() {
+        // get all configs with inlong group status of 130, that is, config successful
+        // TODO Optimize query conditions
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
+        List<DataProxyConfig> configList = new ArrayList<>();
+        for (InlongGroupEntity groupEntity : groupEntityList) {
+            String groupId = groupEntity.getInlongGroupId();
+            String bizResource = groupEntity.getMqResourceObj();
+
+            DataProxyConfig config = new DataProxyConfig();
+            config.setM(groupEntity.getSchemaName());
+            MQType mqType = MQType.forType(groupEntity.getMiddlewareType());
+            if (mqType == MQType.TUBE) {
+                config.setInlongGroupId(groupId);
+                config.setTopic(bizResource);
+            } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+                for (InlongStreamEntity stream : streamList) {
+                    String topic = stream.getMqResourceObj();
+                    String streamId = stream.getInlongStreamId();
+                    config.setInlongGroupId(groupId + "/" + streamId);
+                    config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + bizResource + "/" + topic);
+                }
+            }
+            configList.add(config);
+        }
+
+        return configList;
     }
 
 }

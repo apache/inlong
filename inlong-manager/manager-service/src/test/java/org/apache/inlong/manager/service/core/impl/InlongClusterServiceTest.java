@@ -242,4 +242,33 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertTrue(success);
     }
 
+    @Test
+    public void testGetDataProxyIp() {
+        String clusterTag = "default_cluster";
+        String extTag = "ext_1";
+        String ip = "127.0.0.1";
+        Integer port1 = 46800;
+        Integer port2 = 46801;
+
+        Integer id = this.saveCluster(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, clusterTag, extTag);
+        Assert.assertNotNull(id);
+
+        // save cluster node
+        Integer nodeId1 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port1);
+        Assert.assertNotNull(nodeId1);
+
+        Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
+        Assert.assertNotNull(nodeId2);
+
+
+        // Get the data proxy cluster ip list, the first port should is p1, second port is p2
+        List<DataProxyResponse> ipList = inlongClusterService.getIpList(CLUSTER_NAME);
+        Assert.assertEquals(ipList.size(), 2);
+        Assert.assertEquals(port1, ipList.get(0).getPort());
+        Assert.assertEquals(port2, ipList.get(1).getPort());
+        this.deleteClusterNode(nodeId1);
+        this.deleteClusterNode(nodeId2);
+        this.deleteCluster(id);
+    }
+
 }

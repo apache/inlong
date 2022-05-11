@@ -24,6 +24,7 @@ import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 /**
@@ -45,17 +47,19 @@ public class DataProxyController {
     private DataProxyClusterService dataProxyClusterService;
     @Autowired
     private ThirdPartyClusterService thirdPartyClusterService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @RequestMapping(value = "/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation(value = "Get data proxy ip list by cluster name")
     public Response<List<DataProxyResponse>> getIpList(@RequestParam(required = false) String clusterName) {
-        return Response.success(thirdPartyClusterService.getIpList(clusterName));
+        return Response.success(clusterService.getIpList(clusterName));
     }
 
     @GetMapping("/getConfig")
     @ApiOperation(value = "Get data proxy topic list")
     public Response<List<DataProxyConfig>> getConfig() {
-        return Response.success(thirdPartyClusterService.getConfig());
+        return Response.success(clusterService.getConfig());
     }
 
     @GetMapping("/getConfig_v2")

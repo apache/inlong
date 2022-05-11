@@ -24,7 +24,7 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.service.core.AgentService;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,12 +44,12 @@ public class AgentController {
     @Autowired
     private AgentService agentService;
     @Autowired
-    private ThirdPartyClusterService thirdPartyClusterService;
+    private InlongClusterService inlongClusterService;
 
     @PostMapping("/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
-        return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
+        return Response.success(inlongClusterService.listNodeIpByType("inlong-openapi"));
     }
 
     @PostMapping("/reportSnapshot")

@@ -170,7 +170,13 @@
         </where>
         order by modify_time desc
     </select>
-
+    <select id="selectByParentId" resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_node
+        where is_deleted = 0
+        and parent_id = #{parentId, jdbcType=INTEGER}
+    </select>
     <update id="updateByIdSelective"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         update inlong_cluster_node
