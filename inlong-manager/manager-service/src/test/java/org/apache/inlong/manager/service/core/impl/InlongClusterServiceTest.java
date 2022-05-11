@@ -260,7 +260,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
         Assert.assertNotNull(nodeId2);
 
-
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
         List<DataProxyResponse> ipList = inlongClusterService.getIpList(CLUSTER_NAME);
         Assert.assertEquals(ipList.size(), 2);
