@@ -92,6 +92,12 @@ public class FilterFunctionUtils {
         return filterFunctions;
     }
 
+    /**
+     * Parse filter strategy from TransformResponse and convert to the filter strategy of sort protocol
+     *
+     * @param transformResponse The transform response that may contains filter operation
+     * @return The filter strategy, see {@link FilterStrategy}
+     */
     public static FilterStrategy parseFilterStrategy(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
