@@ -284,8 +284,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
-
-                sinkMapper.deleteByPrimaryKey(id);
+                sinkMapper.updateByPrimaryKeySelective(entity);
                 sinkFieldMapper.logicDeleteAll(id);
             });
         }
