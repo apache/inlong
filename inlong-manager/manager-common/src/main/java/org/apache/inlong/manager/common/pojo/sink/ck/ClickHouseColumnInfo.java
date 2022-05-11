@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.node.request;
-
-import java.util.List;
+package org.apache.inlong.manager.common.pojo.sink.ck;
 
 import lombok.Data;
-import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
 
 @Data
-public class CloneBrokersReq {
-    private Integer sourceBrokerId;
-    private List<String> targetIps;
-    private List<AddTopicReq> addTopicReqs;
-    private BrokerConf sourceBroker;
-    private String confModAuthToken;
-    private String createUser;
-    private int clusterId;
+public class ClickHouseColumnInfo {
+
+    private String name;
+    private String type;
+    private String desc;
+    private String defaultType;
+    private String defaultExpr;
+
+    private String compressionCode;
+
+    private String ttlExpr;
 }

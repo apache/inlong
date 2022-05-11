@@ -15,20 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.node.request;
+package org.apache.inlong.sort.protocol.enums;
 
-import java.util.List;
-
-import lombok.Data;
-import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
-
-@Data
-public class CloneBrokersReq {
-    private Integer sourceBrokerId;
-    private List<String> targetIps;
-    private List<AddTopicReq> addTopicReqs;
-    private BrokerConf sourceBroker;
-    private String confModAuthToken;
-    private String createUser;
-    private int clusterId;
+/**
+ * Filter strategy,it defines the strategy of filter
+ */
+public enum FilterStrategy {
+    /**
+     * The RETAIN strategy that is retain the data that satisfies the filter
+     */
+    RETAIN,
+    /**
+     * The REMOVE strategy that is remove the data that satisfies the filter
+     */
+    REMOVE
 }

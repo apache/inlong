@@ -48,7 +48,7 @@ public class DistinctNodeTest extends SerializeBaseTest<DistinctNode> {
                         new FieldRelationShip(new FieldInfo("ts", new StringFormatInfo()),
                                 new FieldInfo("ts", new StringFormatInfo()))
                 ),
-                null,
+                null, null,
                 Arrays.asList(new FieldInfo("f1", new StringFormatInfo()),
                         new FieldInfo("f2", new StringFormatInfo())),
                 new FieldInfo("ts", new StringFormatInfo()), OrderDirection.ASC);

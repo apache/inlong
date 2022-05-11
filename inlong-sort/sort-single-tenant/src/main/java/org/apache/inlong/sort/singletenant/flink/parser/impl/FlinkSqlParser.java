@@ -26,6 +26,7 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
@@ -54,6 +55,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Flink sql parse handler
@@ -336,7 +338,7 @@ public class FlinkSqlParser implements Parser {
             // Fill out the tablename alias for param
             fillOutTableNameAlias(new ArrayList<>(node.getFilters()), tableNameAliasMap);
             // Parse filter fields to generate filter sql like 'WHERE 1=1...'
-            parseFilterFields(node.getFilters(), sb);
+            parseFilterFields(node.getFilterStrategy(), node.getFilters(), sb);
         }
         if (node instanceof DistinctNode) {
             // Generate distinct filter sql like 'WHERE row_num = 1'
@@ -428,7 +430,7 @@ public class FlinkSqlParser implements Parser {
             genDistinctSql((DistinctNode) node, sb);
         }
         sb.append("\n    FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ");
-        parseFilterFields(node.getFilters(), sb);
+        parseFilterFields(node.getFilterStrategy(), node.getFilters(), sb);
         if (node instanceof DistinctNode) {
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
@@ -438,14 +440,19 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse filter fields to generate filter sql like 'where 1=1...'
      *
+     * @param filterStrategy The filter strategy default[RETAIN], it decide whether to retain or remove
      * @param filters The filter functions
      * @param sb Container for storing sql
      */
-    private void parseFilterFields(List<FilterFunction> filters, StringBuilder sb) {
+    private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
-            sb.append("\n    WHERE");
-            for (FilterFunction filter : filters) {
-                sb.append(" ").append(filter.format());
+            sb.append("\n    WHERE ");
+            String subSql = StringUtils
+                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), " ");
+            if (filterStrategy == FilterStrategy.REMOVE) {
+                sb.append("not (").append(subSql).append(")");
+            } else {
+                sb.append(subSql);
             }
         }
     }
@@ -492,7 +499,7 @@ public class FlinkSqlParser implements Parser {
         });
         parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
         sb.append("\n    FROM `").append(inputNode.genTableName()).append("`");
-        parseFilterFields(loadNode.getFilters(), sb);
+        parseFilterFields(loadNode.getFilterStrategy(), loadNode.getFilters(), sb);
         return sb.toString();
     }
 

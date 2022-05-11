@@ -115,7 +115,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations,
+        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
                 null, null);
@@ -137,7 +137,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations,
+        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
                 null, "id");
@@ -159,7 +159,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("3", "kafka_output", fields, relations,
+        return new KafkaLoadNode("3", "kafka_output", fields, relations, null,
                 null, "topic_output", "localhost:9092",
                 new JsonFormat(), null,
                 null, "id");
@@ -183,7 +183,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 ),
-                null,
+                null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("proctime", new TimestampFormatInfo()),
                 OrderDirection.ASC);
@@ -207,7 +207,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 ),
-                null,
+                null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 OrderDirection.ASC);
@@ -231,7 +231,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 ),
-                null,
+                null, null,
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 OrderDirection.ASC);

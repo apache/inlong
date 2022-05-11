@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.T
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
@@ -89,6 +90,38 @@ public class FilterFunctionUtils {
         }
         ((SingleValueFilterFunction) filterFunctions.get(0)).setLogicOperator(EmptyOperator.getInstance());
         return filterFunctions;
+    }
+
+    /**
+     * Parse filter strategy from TransformResponse and convert to the filter strategy of sort protocol
+     *
+     * @param transformResponse The transform response that may contains filter operation
+     * @return The filter strategy, see {@link FilterStrategy}
+     */
+    public static FilterStrategy parseFilterStrategy(TransformResponse transformResponse) {
+        TransformType transformType = TransformType.forType(transformResponse.getTransformType());
+        TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
+                transformResponse.getTransformDefinition(), transformType);
+        switch (transformType) {
+            case FILTER:
+                FilterDefinition filterDefinition = (FilterDefinition) transformDefinition;
+                switch (filterDefinition.getFilterStrategy()) {
+                    case REMOVE:
+                        return FilterStrategy.REMOVE;
+                    case RETAIN:
+                        return FilterStrategy.RETAIN;
+                    default:
+                        return FilterStrategy.RETAIN;
+                }
+            case DE_DUPLICATION:
+            case SPLITTER:
+            case JOINER:
+            case STRING_REPLACER:
+                return null;
+            default:
+                throw new UnsupportedOperationException(
+                        String.format("Unsupported transformType=%s for Inlong", transformType));
+        }
     }
 
     private static FilterFunction createFilterFunction(FilterRule filterRule, String transformName) {
