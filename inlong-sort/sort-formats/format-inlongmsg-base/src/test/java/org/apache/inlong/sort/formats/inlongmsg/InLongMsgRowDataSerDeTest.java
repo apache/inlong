@@ -97,9 +97,7 @@ public class InLongMsgRowDataSerDeTest {
         // mock data
         InLongMsg inLongMsg1 = InLongMsg.newInLongMsg();
         inLongMsg1.addMsg("asdq",
-                "1qwd".getBytes(StandardCharsets.UTF_8));
-        inLongMsg1.addMsg("streamId=xixi&t=202201011112",
-                "2asdqwdestData".getBytes(StandardCharsets.UTF_8));
+                "1, asd".getBytes(StandardCharsets.UTF_8));
         List<InLongMsg> inLongMsgs = Stream.of(inLongMsg1).collect(Collectors.toList());
         List<byte[]> input = inLongMsgs.stream()
                 .map(inLongMsg -> inLongMsg.buildArray())
@@ -109,7 +107,7 @@ public class InLongMsgRowDataSerDeTest {
         final Map<String, String> tableOptions =
                 InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
                     opts.put("inlong.inner.format", "csv");
-                    opts.put("ignore-parse-errors", "true");
+                    opts.put("inlong.ignore-parse-errors", "true");
                 });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
