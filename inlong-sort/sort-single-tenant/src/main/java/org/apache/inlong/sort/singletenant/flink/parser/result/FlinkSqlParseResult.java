@@ -83,4 +83,11 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "FlinkSqlParseResult{" +
+                "createTableSqls=" + createTableSqls +
+                ", loadSqls=" + loadSqls +
+                '}';
+    }
 }

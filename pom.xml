@@ -191,7 +191,7 @@
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
-        <iceberg.flink.version>0.12.1</iceberg.flink.version>
+        <iceberg.flink.version>0.13.1</iceberg.flink.version>
         <iceberg.version>0.13.1</iceberg.version>
         <flink.version>1.13.5</flink.version>
         <flink.connector.mysql.cdc.version>2.0.2</flink.connector.mysql.cdc.version>
@@ -204,8 +204,9 @@
 
         <curator.version>2.12.0</curator.version>
 
-        <avro.version>1.11.0</avro.version>
+        <avro.version>1.10.1</avro.version>
         <orc.core.version>1.6.7</orc.core.version>
+        <parquet.version>1.12.2</parquet.version>
         <oro.version>2.0.8</oro.version>
         <akka.version>2.5.21</akka.version>
         <antlr.verison>4.0.4</antlr.verison>
@@ -942,16 +943,12 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink</artifactId>
+                <artifactId>iceberg-flink-1.13</artifactId>
                 <version>${iceberg.flink.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.avro</groupId>
                         <artifactId>avro</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.iceberg</groupId>
-                        <artifactId>iceberg-hive-metastore</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -1069,6 +1066,11 @@
                 <artifactId>orc-core</artifactId>
                 <version>${orc.core.version}</version>
                 <classifier>nohive</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-hadoop</artifactId>
+                <version>${parquet.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
