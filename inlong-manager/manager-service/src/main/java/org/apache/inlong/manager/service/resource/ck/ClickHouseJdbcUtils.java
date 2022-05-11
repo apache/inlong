@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.resource.ck;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hive.jdbc.HiveDatabaseMetaData;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseTableInfo;
 import org.slf4j.Logger;
@@ -115,7 +114,6 @@ public class ClickHouseJdbcUtils {
      */
     public static List<String> getTables(String url, String user, String password, String dbname) throws Exception {
         List<String> tables = new ArrayList<>();
-
         try (Connection conn = getConnection(url, user, password)) {
             ClickHouseDatabaseMetadata metaData = (ClickHouseDatabaseMetadata) conn.getMetaData();
             LOG.info("dbname is {}", dbname);
