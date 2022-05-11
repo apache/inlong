@@ -228,21 +228,6 @@
         </where>
         order by modify_time desc
     </select>
-    <select id="selectMQCluster" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster
-        <where>
-            is_deleted = 0
-            and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-            <if test="typeList != null and typeList.size()>0">
-                and type in
-                <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
-        </where>
-    </select>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
         <set>

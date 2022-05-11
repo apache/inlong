@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -37,9 +36,6 @@ public interface InlongClusterEntityMapper {
     InlongClusterEntity selectByUniqueKey(InlongClusterRequest request);
 
     List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
-
-    List<InlongClusterEntity> selectMQCluster(@Param("clusterTag") String clusterTag,
-            @Param("typeList") List<String> typeList);
 
     int updateByIdSelective(InlongClusterEntity record);
 
