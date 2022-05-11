@@ -58,14 +58,14 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
     }
 
     @Override
-    public void notify(ProcessEvent event, WorkflowContext sourceContext) {
-        WorkflowProcess process = sourceContext.getProcess();
+    public void notify(ProcessEvent event, WorkflowContext context) {
+        WorkflowProcess process = context.getProcess();
 
-        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(sourceContext));
-        process.syncListeners(event).forEach(syncLogableNotify(sourceContext));
+        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
+        process.syncListeners(event).forEach(syncLogableNotify(context));
 
-        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
-        process.asyncListeners(event).forEach(asyncLogableNotify(sourceContext));
+        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(context));
+        process.asyncListeners(event).forEach(asyncLogableNotify(context));
     }
 
     @Override
