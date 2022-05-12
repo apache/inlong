@@ -253,11 +253,11 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         List<DataProxyConfig> configList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntityList) {
             String groupId = groupEntity.getInlongGroupId();
-            String bizResource = groupEntity.getMqResourceObj();
+            String bizResource = groupEntity.getMqResource();
 
             DataProxyConfig config = new DataProxyConfig();
-            config.setM(groupEntity.getSchemaName());
-            MQType mqType = MQType.forType(groupEntity.getMiddlewareType());
+//            config.setM(groupEntity.getSchemaName());
+            MQType mqType = MQType.forType(groupEntity.getMqType());
             if (mqType == MQType.TUBE) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
@@ -298,14 +298,14 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         // third-party-cluster type
         String mqType = "";
         if (!groupEntityList.isEmpty()) {
-            mqType = groupEntityList.get(0).getMiddlewareType();
+            mqType = groupEntityList.get(0).getMqType();
         }
 
         // Get topic list by group id
         List<DataProxyConfig> topicList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntityList) {
             final String groupId = groupEntity.getInlongGroupId();
-            final String mqResource = groupEntity.getMqResourceObj();
+            final String mqResource = groupEntity.getMqResource();
             MQType type = MQType.forType(mqType);
             if (type == MQType.PULSAR || type == MQType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);

@@ -54,7 +54,7 @@ public interface InlongGroupEntityMapper {
      */
     List<DataProxyConfig> selectDataProxyConfig();
 
-    List<String> selectGroupIdByProxyId(Integer proxyClusterId);
+    List<String> selectGroupIdByProxyId(String inlongClusterTag);
 
     int updateByPrimaryKeySelective(InlongGroupEntity record);
 

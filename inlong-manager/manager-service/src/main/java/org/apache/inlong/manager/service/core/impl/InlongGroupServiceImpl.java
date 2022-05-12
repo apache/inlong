@@ -110,11 +110,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Processing inlong group and extended information
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(groupInfo, InlongGroupEntity::new);
         entity.setInlongGroupId(groupId);
-        if (StringUtils.isEmpty(entity.getMqResourceObj())) {
-            entity.setMqResourceObj(groupId);
+        if (StringUtils.isEmpty(entity.getMqResource())) {
+            entity.setMqResource(groupId);
         }
         // Only M0 is currently supported
-        entity.setSchemaName(Constant.SCHEMA_M0_DAY);
+//        entity.setSchemaName(Constant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [GROUP_WAIT_SUBMIT]
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
@@ -155,7 +155,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setExtList(extInfoList);
 
         // If the middleware is Pulsar, we need to encapsulate Pulsar related data
-        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        MQType mqType = MQType.forType(entity.getMqType());
         Middleware mq = groupMqFactory.getMqMiddleware(mqType);
         groupInfo.setMqExtInfo(mq.get(groupId));
 
@@ -336,7 +336,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // To logically delete the associated extension table
         groupExtMapper.logicDeleteAllByGroupId(groupId);
-        groupMqFactory.getMqMiddleware(MQType.forType(entity.getMiddlewareType())).delete(groupId);
+        groupMqFactory.getMqMiddleware(MQType.forType(entity.getMqType())).delete(groupId);
         LOGGER.info("success to delete inlong group and inlong group ext property for groupId={}", groupId);
         return true;
     }

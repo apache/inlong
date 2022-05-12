@@ -308,8 +308,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private String getFullPulsarTopic(String groupId, String topic) {
         InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         String tenant = clusterBean.getDefaultTenant();
-        String namespace = inlongGroupEntity.getMqResourceObj();
-        return "persistent://" + tenant + "/" + namespace + "/" + topic;
+        String groupTopic = inlongGroupEntity.getMqResource();
+        return "persistent://" + tenant + "/" + groupTopic;
     }
 
     @Override

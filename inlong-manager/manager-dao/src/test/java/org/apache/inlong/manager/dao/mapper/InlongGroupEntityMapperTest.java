@@ -56,7 +56,7 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
     private InlongGroupEntity createHeartbeatEntity() {
         InlongGroupEntity entity = new InlongGroupEntity();
         entity.setInlongGroupId("test_group");
-        entity.setMqResourceObj("test_group");
+        entity.setMqResource("test_group");
         entity.setInCharges("admin");
         entity.setCreator("admin");
         entity.setCreateTime(new Date());

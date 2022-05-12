@@ -17,39 +17,105 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Date;
+
+import lombok.Data;
 
 @Data
 public class InlongGroupEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * Incremental primary key
+     */
     private Integer id;
+    /**
+     * Inlong group id, filled in by the user, undeleted ones cannot be repeated
+     */
     private String inlongGroupId;
+    /**
+     * Inlong group name, English, Chinese, numbers, etc
+     */
     private String name;
-    private String cnName;
+    /**
+     * Inlong group Introduction
+     */
     private String description;
-    private String middlewareType;
-    private String queueModule;
-    private Integer topicPartitionNum;
-    private String mqResourceObj;
+    /**
+     * The message queue type, high throughput: TUBE, high consistency: PULSAR
+     */
+    private String mqType;
+    /**
+     * MQ resource, for Tube, its Topic, for Pulsar, Namespace/Topic
+     */
+    private String mqResource;
+    /**
+     * Number of access records per day, unit: 10,000 records per day
+     */
     private Integer dailyRecords;
+    /**
+     * Access size by day, unit: GB per day
+     */
     private Integer dailyStorage;
+    /**
+     * Access peak per second, unit: records per second
+     */
     private Integer peakRecords;
-    private Integer zookeeperEnabled;
+    /**
+     * The maximum length of a single piece of data, unit: Byte
+     */
     private Integer maxLength;
-    private String schemaName;
+    /**
+     * Name of responsible person, separated by commas
+     */
     private String inCharges;
+    /**
+     * Name of followers, separated by commas
+     */
     private String followers;
+    /**
+     * Extended params, will saved as JSON string, such as queue_module, partition_num,
+     */
+    private String extParams;
+    /**
+     * Inlong group status
+     */
     private Integer status;
+    /**
+     * Previous group status
+     */
+    private Integer previousStatus;
+    /**
+     * Whether to delete, 0: not deleted, > 0: deleted
+     */
     private Integer isDeleted;
+    /**
+     * Creator name
+     */
     private String creator;
+    /**
+     * Modifier name
+     */
     private String modifier;
+    /**
+     * Create time
+     */
     private Date createTime;
+    /**
+     * Modify time
+     */
     private Date modifyTime;
-    private String tempView;
-    private Integer proxyClusterId;
-
+    /**
+     * Need create resource, 0: false, 1: true
+     */
+    private Date enableCreateResource;
+    /**
+     * Need zookeeper support, 0: false, 1: true
+     */
+    private Date enableZookeeper;
+    /**
+     * The cluster tag, which links to inlong_cluster table
+     */
+    private Date inlongClusterTag;
 }
