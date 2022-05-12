@@ -23,6 +23,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Debezium deserialization info
+ */
 public class DebeziumDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = 1L;

@@ -30,6 +30,9 @@ import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOp
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotInOperator;
 
+/**
+ * interface for all compare operators
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

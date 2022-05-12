@@ -27,6 +27,9 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.flink.clickhouse.ClickHouseSinkFunction;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 
+/**
+ * click house sink function using ClickHouseOutputFormat
+ */
 public class ClickhouseRowSinkFunction extends RichSinkFunction<Row> implements CheckpointedFunction {
 
     private static final long serialVersionUID = -2043675961013551232L;

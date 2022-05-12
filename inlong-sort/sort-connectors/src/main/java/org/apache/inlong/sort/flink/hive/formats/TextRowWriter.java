@@ -36,6 +36,7 @@ import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
 
+/** Writes a record with the text schema in order to be written to a file. */
 public class TextRowWriter implements BulkWriter<Row> {
 
     private static final String NULL_STRING = "null";

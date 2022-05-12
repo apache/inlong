@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * return hop end of a time window function
+ */
 @JsonTypeName("hopEnd")
 @Data
 @NoArgsConstructor

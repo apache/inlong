@@ -21,6 +21,9 @@ import java.time.Duration;
 
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
+/**
+ * Constans used in sort
+ */
 public class Constants {
 
     public static final long UNKNOWN_DATAFLOW_ID = -1L;

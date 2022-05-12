@@ -23,6 +23,10 @@ import org.apache.inlong.sort.flink.hive.partition.HivePartition;
 import org.apache.inlong.sort.flink.hive.partition.HivePartition.VersionedSerializer;
 import org.apache.inlong.sort.flink.hive.partition.PartitionComputer;
 
+/**
+ * generate the identifier of the bucket the provided element should be put into.
+ * @param <T>
+ */
 public class HivePartitionBucketAssigner<T> implements BucketAssigner<T, HivePartition> {
 
     private static final long serialVersionUID = -7943062469842167739L;

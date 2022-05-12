@@ -29,6 +29,9 @@ import org.apache.inlong.sort.protocol.transformation.function.TumbleEndFunction
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleStartFunction;
 
+/**
+ * interface for all the window functions appeared in flink
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

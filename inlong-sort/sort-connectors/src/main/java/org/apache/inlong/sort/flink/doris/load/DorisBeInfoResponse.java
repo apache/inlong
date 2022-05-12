@@ -20,6 +20,9 @@ package org.apache.inlong.sort.flink.doris.load;
 
 import java.util.Map;
 
+/**
+ * Doris Info Response from doris server
+ */
 public class DorisBeInfoResponse {
     private String msg;
     private String code;

@@ -21,6 +21,10 @@ import javax.annotation.Nullable;
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks;
 import org.apache.flink.streaming.api.watermark.Watermark;
 
+/**
+ * Assigns timestamps to the elements in the data stream and periodically creates
+ * watermarks to signal event time progress.
+ */
 public class MetricsAssignerWithPeriodicWatermarks implements AssignerWithPeriodicWatermarks<MetricData> {
     private long currentMaxTimestamp;
 
