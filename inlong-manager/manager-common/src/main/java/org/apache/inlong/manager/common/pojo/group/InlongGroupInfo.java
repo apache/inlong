@@ -100,7 +100,7 @@ public class InlongGroupInfo {
 
     @ApiModelProperty(value = "Need zookeeper support, 0 false 1 true")
     private Integer enableZookeeper;
-	
+
     @ApiModelProperty(value = "The cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
 
