@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class for deal with jar hell.
+ */
 public class JarHell {
 
     public static final JavaVersion CURRENT_VERSION = new JavaVersion(Lists.newArrayList(1, 8), null);
@@ -72,10 +75,16 @@ public class JarHell {
         return new JavaVersion(version, prePart);
     }
 
+    /**
+     * Check the string if is vaild.
+     */
     public static boolean isValid(String value) {
         return value.matches("^0*[0-9]+(\\.[0-9]+)*(-[a-zA-Z0-9]+)?$");
     }
 
+    /**
+     * Java version class
+     */
     public static class JavaVersion {
 
         private final List<Integer> version;

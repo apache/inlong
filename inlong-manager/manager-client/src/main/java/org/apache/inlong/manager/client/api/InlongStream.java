@@ -26,6 +26,9 @@ import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Inlong stream.
+ */
 public abstract class InlongStream {
 
     /**

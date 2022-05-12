@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * InlongGroupPulsarEntity.
+ */
 @Data
 public class InlongGroupPulsarEntity implements Serializable {
 

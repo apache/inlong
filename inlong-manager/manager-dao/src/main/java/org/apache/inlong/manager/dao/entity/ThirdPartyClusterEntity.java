@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * ThirdPartyClusterEntity.
+ */
 @Data
 public class ThirdPartyClusterEntity implements Serializable {
 

@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import java.io.Serializable;
 import lombok.Data;
 
+/**
+ * City zone entity.
+ */
 @Data
 public class CityZoneEntity implements Serializable {
 

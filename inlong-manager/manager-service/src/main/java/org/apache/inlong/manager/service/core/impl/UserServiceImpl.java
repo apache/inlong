@@ -44,7 +44,7 @@ import java.util.List;
 import static org.apache.inlong.manager.common.util.SmallTools.getOverDueDate;
 
 /**
- * User service
+ * User service layer implementation
  */
 @Slf4j
 @Service

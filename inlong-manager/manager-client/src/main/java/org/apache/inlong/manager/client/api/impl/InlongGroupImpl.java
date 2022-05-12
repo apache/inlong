@@ -54,6 +54,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Inlong group service implementation.
+ */
 public class InlongGroupImpl implements InlongGroup {
 
     private InlongGroupConf groupConf;

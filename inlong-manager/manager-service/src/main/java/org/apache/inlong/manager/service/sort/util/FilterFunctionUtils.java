@@ -53,6 +53,9 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Util for creat filter function.
+ */
 public class FilterFunctionUtils {
 
     public static List<FilterFunction> createFilterFunctions(TransformResponse transformResponse) {

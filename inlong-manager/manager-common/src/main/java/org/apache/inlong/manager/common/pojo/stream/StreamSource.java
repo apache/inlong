@@ -25,6 +25,9 @@ import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 
+/**
+ * Stream source configuration
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream source configuration")

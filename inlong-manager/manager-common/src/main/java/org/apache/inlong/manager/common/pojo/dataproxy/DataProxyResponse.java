@@ -21,6 +21,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * Data proxy response.
+ */
 @Data
 @ApiModel("DataProxy response")
 public class DataProxyResponse {

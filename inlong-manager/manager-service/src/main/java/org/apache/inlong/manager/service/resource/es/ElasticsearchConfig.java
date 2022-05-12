@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * elasticsearch config info.
+ */
 @Component
 public class ElasticsearchConfig {
 

@@ -26,6 +26,9 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 
 import java.io.File;
 
+/**
+ * Create resource by json file.
+ */
 @Parameters(commandDescription = "Create resource by json file")
 public class CommandCreate extends CommandBase {
 

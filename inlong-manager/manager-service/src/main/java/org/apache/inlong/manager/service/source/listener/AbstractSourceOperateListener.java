@@ -49,6 +49,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Create a listener for source operation.
+ */
 @Slf4j
 @Component
 public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {

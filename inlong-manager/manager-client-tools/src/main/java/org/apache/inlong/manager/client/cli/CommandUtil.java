@@ -34,6 +34,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+/**
+ * Util of command.
+ */
 abstract class CommandUtil {
 
     private static final String CONFIG_FILE = "application.properties";

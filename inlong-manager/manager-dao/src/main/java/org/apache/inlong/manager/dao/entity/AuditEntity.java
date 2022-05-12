@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Audit info.
+ */
 @Data
 public class AuditEntity implements Serializable {
 

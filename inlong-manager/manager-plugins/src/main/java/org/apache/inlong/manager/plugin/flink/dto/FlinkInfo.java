@@ -22,6 +22,9 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
+/**
+ * Flink info.
+ */
 @Data
 public class FlinkInfo {
 

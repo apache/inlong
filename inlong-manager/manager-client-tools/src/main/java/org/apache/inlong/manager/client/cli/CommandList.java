@@ -38,6 +38,9 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Command list.
+ */
 @Parameters(commandDescription = "Displays main information for one or more resources")
 public class CommandList extends CommandBase {
 

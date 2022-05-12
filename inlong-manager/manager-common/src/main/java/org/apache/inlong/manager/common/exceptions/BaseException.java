@@ -21,6 +21,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * BaseException.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)

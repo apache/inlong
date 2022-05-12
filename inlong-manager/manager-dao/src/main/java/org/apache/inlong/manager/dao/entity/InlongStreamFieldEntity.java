@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * InlongStreamFieldEntity.
+ */
 @Data
 public class InlongStreamFieldEntity implements Serializable {
 

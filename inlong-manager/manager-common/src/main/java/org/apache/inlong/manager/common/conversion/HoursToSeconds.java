@@ -19,6 +19,9 @@ package org.apache.inlong.manager.common.conversion;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * Hours to seconds.
+ */
 @Component
 public class HoursToSeconds implements ConversionStrategy {
 

@@ -37,6 +37,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+/**
+ * Create default subscription group for tube
+ */
 @Component
 @Slf4j
 public class CreateTubeGroupTaskListener implements QueueOperateListener {

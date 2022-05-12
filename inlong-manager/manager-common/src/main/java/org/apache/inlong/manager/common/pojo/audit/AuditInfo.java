@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.pojo.audit;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * Audit info.
+ */
 @Data
 public class AuditInfo {
 

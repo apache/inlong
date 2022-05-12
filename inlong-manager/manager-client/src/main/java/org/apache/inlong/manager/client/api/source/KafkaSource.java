@@ -28,6 +28,9 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
+/**
+ * Kafka source.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

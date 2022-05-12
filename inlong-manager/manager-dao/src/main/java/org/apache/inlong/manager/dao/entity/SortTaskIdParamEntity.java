@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * SortTaskIdParamEntity.
+ */
 @Data
 @Builder
 public class SortTaskIdParamEntity {

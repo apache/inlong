@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * InlongGroupExtEntity.
+ */
 @Data
 public class InlongGroupExtEntity implements Serializable {
 

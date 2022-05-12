@@ -35,6 +35,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 import java.util.Date;
 
+/**
+ * Web User authorization.
+ */
 public class WebAuthorizingRealm extends AuthorizingRealm {
 
     private final UserService userService;

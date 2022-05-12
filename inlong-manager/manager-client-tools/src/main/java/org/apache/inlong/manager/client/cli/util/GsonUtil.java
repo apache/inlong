@@ -28,6 +28,9 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
 import java.nio.charset.Charset;
 
+/**
+ * Util of gson.
+ */
 public class GsonUtil {
 
     public static Gson gsonBuilder() {

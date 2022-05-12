@@ -48,6 +48,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Util for creat field relation ship.
+ */
 public class FieldRelationShipUtils {
 
     public static List<FieldRelationShip> createFieldRelationShips(TransformResponse transformResponse) {

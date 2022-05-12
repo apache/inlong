@@ -21,6 +21,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * Inlong stream config log request.
+ */
 @Data
 @ApiModel("Inlong stream config log")
 public class InlongStreamConfigLogRequest {

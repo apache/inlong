@@ -131,6 +131,9 @@ public class WorkflowContext implements Cloneable {
         }
     }
 
+    /**
+     * Action Context
+     */
     public static class ActionContext implements Cloneable {
 
         private WorkflowAction action;

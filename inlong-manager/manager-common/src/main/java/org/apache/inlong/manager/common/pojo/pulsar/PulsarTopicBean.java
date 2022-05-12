@@ -22,6 +22,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Pulsar topic bean.
+ */
 @Data
 @Builder
 @NoArgsConstructor

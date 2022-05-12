@@ -21,6 +21,9 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Tube cluster reponse.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class TubeClusterResponse extends TubeManagerResponse {

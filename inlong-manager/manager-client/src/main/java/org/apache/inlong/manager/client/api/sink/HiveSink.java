@@ -36,6 +36,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * Hive sink.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

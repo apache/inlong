@@ -52,6 +52,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Listener of light group sort.
+ */
 @Component
 public class LightGroupSortListener implements SortOperateListener {
 

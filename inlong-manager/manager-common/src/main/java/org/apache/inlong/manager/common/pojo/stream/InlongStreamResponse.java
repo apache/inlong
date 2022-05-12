@@ -28,6 +28,9 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Inlong stream response.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
+/**
+ * Listener of restart sort.
+ */
 @Slf4j
 public class RestartSortListener implements SortOperateListener {
 

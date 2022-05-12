@@ -21,6 +21,9 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.Data;
 
+/**
+ * Audit VO.
+ */
 @Data
 public class AuditVO {
 

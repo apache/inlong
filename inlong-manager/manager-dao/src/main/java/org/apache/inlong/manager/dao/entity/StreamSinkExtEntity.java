@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * StreamSinkExtEntity.
+ */
 @Data
 public class StreamSinkExtEntity implements Serializable {
 

@@ -38,6 +38,9 @@ import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefiniti
 
 import java.util.List;
 
+/**
+ * Utils of stream parse.
+ */
 public class StreamParseUtils {
 
     public static final String LEFT_NODE = "leftNode";

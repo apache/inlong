@@ -22,6 +22,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * SortTaskSinkParamEntity.
+ */
 @Data
 @Builder
 public class SortTaskSinkParamEntity implements Serializable {

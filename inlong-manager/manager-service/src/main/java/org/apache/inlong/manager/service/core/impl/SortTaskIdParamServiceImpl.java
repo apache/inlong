@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Sort id params service implementation. */
+/**
+ * Sort id params service implementation.
+ */
 @Service
 public class SortTaskIdParamServiceImpl implements SortTaskIdParamService {
 

@@ -24,6 +24,9 @@ import org.apache.inlong.manager.common.enums.MQType;
 
 import java.io.Serializable;
 
+/**
+ * MQ base config.
+ */
 @Data
 @ApiModel("Base configuration for message queue")
 public abstract class MQBaseConf implements Serializable {

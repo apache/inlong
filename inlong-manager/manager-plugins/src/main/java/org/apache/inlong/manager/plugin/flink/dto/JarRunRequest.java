@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * Jar run request.
+ */
 @Data
 public class JarRunRequest {
 

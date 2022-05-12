@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.function.Function;
 import org.apache.commons.collections.CollectionUtils;
 
+/**
+ * Utils of inlong collection.
+ */
 public class InlongCollectionUtils {
 
     /**

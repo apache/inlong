@@ -22,6 +22,9 @@ import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus
 
 import java.util.Date;
 
+/**
+ * Group info.
+ */
 @Data
 public class GroupInfo {
 

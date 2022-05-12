@@ -24,6 +24,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of tube event.
+ */
 @Slf4j
 public class TubeEventSelector implements EventSelector {
 

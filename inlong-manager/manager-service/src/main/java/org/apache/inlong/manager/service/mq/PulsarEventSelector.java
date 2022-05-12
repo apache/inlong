@@ -26,6 +26,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of pulsar event.
+ */
 @Slf4j
 public class PulsarEventSelector implements EventSelector {
 

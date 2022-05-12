@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink.enums;
 
+/**
+ * Constants info.
+ */
 public class Constants {
 
     //properties

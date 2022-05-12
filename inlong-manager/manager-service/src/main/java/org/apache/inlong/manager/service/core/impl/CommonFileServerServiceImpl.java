@@ -45,6 +45,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Common file server service layer implementation
+ */
 @Slf4j
 @Service
 public class CommonFileServerServiceImpl implements CommonFileServerService {
@@ -54,11 +57,24 @@ public class CommonFileServerServiceImpl implements CommonFileServerService {
     @Autowired
     private CommonFileServerEntityMapper commonFileServerMapper;
 
+    /**
+     * Check if the string length is right.
+     *
+     * @param text string.
+     * @param maxLength max length for string.
+     * @return true or false.
+     */
     public static boolean checkStrLen(String text, int maxLength) {
         // too large.
         return text != null && text.length() > maxLength;
     }
 
+    /**
+     * Check if the IP string is valid.
+     *
+     * @param text IP string.
+     * @return true or false.
+     */
     public static boolean ipCheck(String text) {
         if (text != null && !text.isEmpty()) {
             // Define regular expression

@@ -22,6 +22,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * SortClusterConfigEntity.
+ */
 @Data
 @Builder
 public class SortClusterConfigEntity implements Serializable {

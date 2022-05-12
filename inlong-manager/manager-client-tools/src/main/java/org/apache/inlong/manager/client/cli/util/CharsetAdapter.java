@@ -25,6 +25,9 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 
+/**
+ * Charset adapter.
+ */
 public class CharsetAdapter implements JsonDeserializer {
 
     @Override

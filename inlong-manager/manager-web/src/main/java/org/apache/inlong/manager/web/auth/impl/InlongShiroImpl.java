@@ -38,6 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+/**
+ * Inlong shiro service layer implementation.
+ */
 @ConditionalOnProperty(name = "type", prefix = "inlong.auth", havingValue = "default")
 @Component
 public class InlongShiroImpl implements InlongShiro {

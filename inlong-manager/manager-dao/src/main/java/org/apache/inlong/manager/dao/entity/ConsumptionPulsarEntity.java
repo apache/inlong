@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import java.io.Serializable;
 import lombok.Data;
 
+/**
+ * Data consumption table.
+ */
 @Data
 public class ConsumptionPulsarEntity implements Serializable {
 

@@ -22,6 +22,9 @@ import com.beust.jcommander.ParameterException;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 
+/**
+ * Inlong group status.
+ */
 public class GroupStatus implements IParameterValidator {
 
     @Override

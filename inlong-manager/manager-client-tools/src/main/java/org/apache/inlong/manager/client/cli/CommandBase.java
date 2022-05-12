@@ -21,6 +21,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * Command base.
+ */
 abstract class CommandBase {
 
     protected final JCommander jcommander;

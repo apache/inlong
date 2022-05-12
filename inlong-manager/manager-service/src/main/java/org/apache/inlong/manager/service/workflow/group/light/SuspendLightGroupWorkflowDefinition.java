@@ -33,6 +33,9 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Suspend light workflow definition for inlong group
+ */
 @Slf4j
 @Component
 public class SuspendLightGroupWorkflowDefinition implements WorkflowDefinition {

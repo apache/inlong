@@ -26,6 +26,9 @@ import org.apache.inlong.manager.client.api.InlongStreamConf;
 
 import java.util.List;
 
+/**
+ * Check inlong group if is exist.
+ */
 public class BlankInlongGroup implements InlongGroup {
 
     @Override

@@ -40,6 +40,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
+/**
+ * File source operation
+ */
 @Service
 public class FileSourceOperation extends AbstractSourceOperation {
 

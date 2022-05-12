@@ -23,6 +23,9 @@ import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Set;
 
+/**
+ * Stream node relationship info.
+ */
 @Data
 public class StreamNodeRelationship {
 

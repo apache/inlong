@@ -25,6 +25,9 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Map;
 
+/**
+ * Base configuration for user defined sort functions.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for user defined sort functions")

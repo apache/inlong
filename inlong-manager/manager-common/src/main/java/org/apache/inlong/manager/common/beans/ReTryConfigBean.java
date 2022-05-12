@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.beans;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+/**
+ * ReTryConfigBean
+ */
 @Data
 @Component
 public class ReTryConfigBean {

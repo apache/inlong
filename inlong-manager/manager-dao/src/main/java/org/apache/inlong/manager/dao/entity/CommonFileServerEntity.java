@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Common file server entity.
+ */
 @Data
 public class CommonFileServerEntity implements Serializable {
 

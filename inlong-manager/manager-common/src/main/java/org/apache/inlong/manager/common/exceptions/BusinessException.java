@@ -22,6 +22,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 
+/**
+ * BusinessException.
+ */
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)

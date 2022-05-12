@@ -25,6 +25,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Common database server info.
+ */
 @Data
 @Builder
 @NoArgsConstructor

@@ -35,6 +35,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+/**
+ * TubeMq operation service.
+ */
 @Slf4j
 @Service
 public class TubeMqOptService {

@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * StreamConfigLogEntity.
+ */
 public class StreamConfigLogEntity implements Serializable {
 
     private String ip;

@@ -62,6 +62,9 @@ public class PulsarUtils {
         return PulsarAdmin.builder().serviceHttpUrl(serviceHttpUrl).build();
     }
 
+    /**
+     * Get pulsar admin.
+     */
     private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication, String authenticationType)
             throws PulsarClientException {
         if (InlongGroupSettings.DEFAULT_PULSAR_AUTHENTICATION_TYPE.equals(authenticationType)) {
@@ -73,10 +76,16 @@ public class PulsarUtils {
         }
     }
 
+    /**
+     * Get pulsar cluster list.
+     */
     public static List<String> getPulsarClusters(PulsarAdmin pulsarAdmin) throws PulsarAdminException {
         return pulsarAdmin.clusters().getClusters();
     }
 
+    /**
+     * Get pulsar cluster service url.
+     */
     public static String getServiceUrl(PulsarAdmin pulsarAdmin, String pulsarCluster) throws PulsarAdminException {
         return pulsarAdmin.clusters().getCluster(pulsarCluster).getServiceUrl();
     }

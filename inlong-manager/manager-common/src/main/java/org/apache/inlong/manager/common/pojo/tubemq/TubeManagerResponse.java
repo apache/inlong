@@ -19,6 +19,9 @@ package org.apache.inlong.manager.common.pojo.tubemq;
 
 import lombok.Data;
 
+/**
+ * Tube manager response.
+ */
 @Data
 public class TubeManagerResponse {
 

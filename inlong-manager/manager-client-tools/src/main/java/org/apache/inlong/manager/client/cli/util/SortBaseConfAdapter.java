@@ -29,6 +29,9 @@ import org.apache.inlong.manager.client.api.UserDefinedSortConf;
 
 import java.lang.reflect.Type;
 
+/**
+ * Sort base config adapter.
+ */
 public class SortBaseConfAdapter implements JsonDeserializer {
 
     @Override

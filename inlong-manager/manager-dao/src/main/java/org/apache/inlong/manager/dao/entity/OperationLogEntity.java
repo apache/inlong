@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * OperationLogEntity.
+ */
 @Data
 public class OperationLogEntity implements Serializable {
 

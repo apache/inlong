@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Inlong cluster node entity.
+ */
 @Data
 public class InlongClusterNodeEntity implements Serializable {
 

@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * Source info.
+ */
 @Data
 public class SourceInfo {
 

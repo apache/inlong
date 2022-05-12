@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import java.io.Serializable;
 import lombok.Data;
 
+/**
+ * Agent system config info.
+ */
 @Data
 public class AgentSysConfigEntity implements Serializable {
 

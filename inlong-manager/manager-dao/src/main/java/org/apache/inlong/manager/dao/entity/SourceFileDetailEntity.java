@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * SourceFileDetailEntity.
+ */
 @Data
 public class SourceFileDetailEntity implements Serializable {
 

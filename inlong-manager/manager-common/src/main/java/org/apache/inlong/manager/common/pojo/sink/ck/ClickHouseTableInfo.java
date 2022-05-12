@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * ClickHouse table info.
+ */
 @Data
 public class ClickHouseTableInfo {
     // Basic attributes
