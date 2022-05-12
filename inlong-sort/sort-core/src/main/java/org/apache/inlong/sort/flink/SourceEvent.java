@@ -26,9 +26,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.SourceInfo;
 
-/**
- *
- */
 public class SourceEvent implements Serializable {
 
     private static final long serialVersionUID = 1L;
