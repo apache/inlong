@@ -113,7 +113,7 @@ public class AgentServiceImpl implements AgentService {
      */
     private void updateTaskStatus(CommandEntity command) {
         Integer taskId = command.getTaskId();
-        StreamSourceEntity current = sourceMapper.selectByIdForUpdate(taskId);
+        StreamSourceEntity current = sourceMapper.selectForAgentTask(taskId);
         if (current == null) {
             LOGGER.warn("stream source not found by id={}, just return", taskId);
             return;
@@ -194,7 +194,7 @@ public class AgentServiceImpl implements AgentService {
         for (StreamSourceEntity entity : entityList) {
             // Change 20x to 30x
             int id = entity.getId();
-            entity = sourceMapper.selectByIdForUpdate(id);
+            entity = sourceMapper.selectForAgentTask(id);
             int status = entity.getStatus();
             int op = status % MODULUS_100;
             if (status / MODULUS_100 == UNISSUED_STATUS) {
