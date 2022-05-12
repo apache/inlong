@@ -41,11 +41,6 @@ public class ZkTools {
 
     /**
      * add a dataFlow to sort cluster by creating a zk node
-     * @param cluster
-     * @param dataFlowId
-     * @param zkQuorum
-     * @param zkRoot
-     * @throws Exception
      */
     public static void addDataFlowToCluster(
             String cluster,
@@ -69,11 +64,6 @@ public class ZkTools {
 
     /**
      * remove a dataFlow from sort cluster
-     * @param cluster
-     * @param dataFlowId
-     * @param zkQuorum
-     * @param zkRoot
-     * @throws Exception
      */
     public static void removeDataFlowFromCluster(
             String cluster,

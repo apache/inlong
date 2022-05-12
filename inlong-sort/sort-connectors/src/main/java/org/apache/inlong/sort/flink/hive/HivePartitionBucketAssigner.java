@@ -25,7 +25,6 @@ import org.apache.inlong.sort.flink.hive.partition.PartitionComputer;
 
 /**
  * generate the identifier of the bucket the provided element should be put into.
- * @param <T>
  */
 public class HivePartitionBucketAssigner<T> implements BucketAssigner<T, HivePartition> {
 

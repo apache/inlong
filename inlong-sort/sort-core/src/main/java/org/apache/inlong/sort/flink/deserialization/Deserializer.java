@@ -21,8 +21,6 @@ import org.apache.flink.util.Collector;
 
 /**
  * interface for deserialization
- * @param <IN>
- * @param <OUT>
  */
 public interface Deserializer<IN, OUT> {
     void deserialize(IN input, Collector<OUT> collector) throws Exception;
