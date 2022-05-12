@@ -24,6 +24,10 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Interface class for data format
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

@@ -27,6 +27,9 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * factory class for clickhouse output format
+ */
 public class ClickHouseOutputFormatFactory {
     private static final Logger LOG = LoggerFactory.getLogger(ClickHouseOutputFormatFactory.class);
 

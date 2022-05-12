@@ -39,6 +39,9 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.IGNORE_P
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.INNER_FORMAT;
 import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validateDecodingFormatOptions;
 
+/**
+ * factory class for inLong msg format
+ */
 public final class InLongMsgFormatFactory
         implements DeserializationFormatFactory, SerializationFormatFactory {
 

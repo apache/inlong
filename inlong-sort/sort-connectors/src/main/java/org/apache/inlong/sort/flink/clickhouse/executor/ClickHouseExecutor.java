@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 
+/**
+ * interface for clickhouse executors
+ */
 public interface ClickHouseExecutor extends Serializable {
 
     void prepareStatement(ClickHouseConnection paramClickHouseConnection) throws SQLException;

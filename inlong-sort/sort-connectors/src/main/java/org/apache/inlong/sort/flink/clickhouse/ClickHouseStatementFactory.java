@@ -22,6 +22,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * factory class for clickhouse statement
+ */
 public class ClickHouseStatementFactory {
 
     public static String getInsertIntoStatement(String tableName, String[] fieldNames) {

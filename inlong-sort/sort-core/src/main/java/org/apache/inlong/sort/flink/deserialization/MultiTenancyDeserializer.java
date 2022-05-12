@@ -36,6 +36,10 @@ import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
 import org.apache.inlong.sort.util.CommonUtils;
 
+/**
+ * deserializer used in multiTenancy
+ * obtains different deserializers for different dataflow
+ */
 public class MultiTenancyDeserializer implements DataFlowInfoListener, Deserializer<SerializedRecord, Record> {
     /**
      * Date flow id -> Deserializer.

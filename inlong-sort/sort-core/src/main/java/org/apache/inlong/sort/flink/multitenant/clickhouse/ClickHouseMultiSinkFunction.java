@@ -39,6 +39,11 @@ import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * clickhouse multi sink function used in multi tenancy
+ * when dataflow changes, the sink function should action accordingly
+ * see DataFlowInfoListenerImpl
+ */
 public class ClickHouseMultiSinkFunction extends ProcessFunction<SerializedRecord, Void>
         implements CheckpointedFunction {
 
