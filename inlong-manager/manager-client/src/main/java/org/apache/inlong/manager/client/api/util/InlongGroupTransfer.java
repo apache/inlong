@@ -207,19 +207,18 @@ public class InlongGroupTransfer {
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         AssertUtil.hasLength(groupConf.getGroupName(), "GroupName should not be empty");
         groupInfo.setName(groupConf.getGroupName());
-        groupInfo.setCnName(groupConf.getCnName());
         groupInfo.setInlongGroupId("b_" + groupConf.getGroupName());
         groupInfo.setDescription(groupConf.getDescription());
-        groupInfo.setZookeeperEnabled(groupConf.isZookeeperEnabled() ? 1 : 0);
+        groupInfo.setEnableZookeeper(groupConf.isZookeeperEnabled() ? 1 : 0);
         groupInfo.setDailyRecords(groupConf.getDailyRecords().intValue());
         groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
-        groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
+        groupInfo.setInlongClusterTag(String.valueOf(groupConf.getProxyClusterId()));
         MQBaseConf mqConf = groupConf.getMqBaseConf();
         MQType mqType = MQType.NONE;
         if (null != mqConf) {
             mqType = mqConf.getType();
-            groupInfo.setMiddlewareType(mqType.name());
+            groupInfo.setMqType(mqType.name());
         }
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
@@ -227,7 +226,7 @@ public class InlongGroupTransfer {
         setGroupMode(groupConf, groupInfo);
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
-            groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
+            groupInfo.setMqResource(pulsarBaseConf.getNamespace());
             InlongGroupPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
             groupInfo.setMqExtInfo(pulsarInfo);
             List<InlongGroupExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);
@@ -236,7 +235,7 @@ public class InlongGroupTransfer {
         } else if (mqType == MQType.TUBE) {
             TubeBaseConf tubeBaseConf = (TubeBaseConf) mqConf;
             List<InlongGroupExtInfo> extInfos = createTubeExtInfo(tubeBaseConf);
-            groupInfo.setMqResourceObj(tubeBaseConf.getGroupName());
+            groupInfo.setMqResource(tubeBaseConf.getGroupName());
             groupInfo.getExtList().addAll(extInfos);
             groupInfo.setTopicPartitionNum(tubeBaseConf.getTopicPartitionNum());
         }
