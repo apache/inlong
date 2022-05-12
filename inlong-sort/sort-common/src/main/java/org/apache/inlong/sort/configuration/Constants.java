@@ -22,7 +22,7 @@ import java.time.Duration;
 import static org.apache.inlong.sort.configuration.ConfigOptions.key;
 
 /**
- * Constans used in sort
+ * Constants used in sort
  */
 public class Constants {
 
