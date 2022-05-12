@@ -109,13 +109,13 @@ public class InlongGroupEntity implements Serializable {
     /**
      * Need create resource, 0: false, 1: true
      */
-    private Date enableCreateResource;
+    private Integer enableCreateResource;
     /**
      * Need zookeeper support, 0: false, 1: true
      */
-    private Date enableZookeeper;
+    private Integer enableZookeeper;
     /**
      * The cluster tag, which links to inlong_cluster table
      */
-    private Date inlongClusterTag;
+    private String inlongClusterTag;
 }

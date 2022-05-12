@@ -35,7 +35,7 @@ public class TubeEventSelector implements EventSelector {
         }
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
         String groupId = form.getInlongGroupId();
-        MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+        MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
         if (mqType == MQType.TUBE) {
             log.info("need to create tube resource for groupId [{}]", groupId);
             return true;

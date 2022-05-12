@@ -65,7 +65,7 @@ public class TubeMiddleware implements Middleware {
     @Override
     public InlongGroupTopicResponse getTopic(InlongGroupInfo groupInfo) {
         InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();
-        topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
+        topicVO.setMqResourceObj(groupInfo.getMqResource());
         topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
         topicVO.setInlongGroupId(groupInfo.getInlongGroupId());
         topicVO.setMiddlewareType(type().name());

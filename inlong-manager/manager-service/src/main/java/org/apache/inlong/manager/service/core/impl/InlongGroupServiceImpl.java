@@ -129,7 +129,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupMapper.insertSelective(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
         // Saving MQ information.
-        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMqType()));
         if (groupInfo.getMqExtInfo() != null && StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
             groupInfo.getMqExtInfo().setInlongGroupId(groupId);
         }
@@ -227,7 +227,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.saveOrUpdateExt(groupId, groupRequest.getExtList());
 
         // Update the MQ info
-        MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
+        MQType mqType = MQType.forType(groupRequest.getMqType());
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         InlongGroupMqExtBase mqExtInfo = groupRequest.getMqExtInfo();
         if (mqExtInfo != null && StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
@@ -377,7 +377,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicResponse getTopic(String groupId) {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
         InlongGroupInfo groupInfo = this.get(groupId);
-        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(groupInfo.getMqType());
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         return mqMiddleware.getTopic(groupInfo);
     }
@@ -391,7 +391,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.checkNotNull(approveInfo, "InlongGroupApproveRequest is empty");
         String groupId = approveInfo.getInlongGroupId();
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        String middlewareType = approveInfo.getMiddlewareType();
+        String middlewareType = approveInfo.getMqType();
         Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
 
         // Update status to [GROUP_APPROVE_PASSED]

@@ -35,10 +35,10 @@ public class InlongGroupApproveRequest {
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Middleware Type")
-    private String middlewareType;
+    private String mqType;
 
     @ApiModelProperty(value = "MQ resource object, for Tube, it's Topic")
-    private String mqResourceObj;
+    private String mqResource;
 
     @ApiModelProperty(value = "Data type name")
     private String schemaName;

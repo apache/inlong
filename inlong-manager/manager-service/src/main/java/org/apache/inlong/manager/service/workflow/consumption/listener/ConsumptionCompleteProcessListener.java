@@ -117,7 +117,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         String groupId = entity.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
-        String mqResourceObj = groupInfo.getMqResourceObj();
+        String mqResourceObj = groupInfo.getMqResource();
         Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
         PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMiddlewareType());
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {

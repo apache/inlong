@@ -90,7 +90,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
@@ -106,7 +106,7 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }

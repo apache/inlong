@@ -50,7 +50,7 @@ CREATE TABLE `inlong_group`
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
+    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Need create resource support, 0: false, 1: true',
     `enable_zookeeper`       tinyint(2)        DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
     `inlong_cluster_tag`     varchar(128)      DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     PRIMARY KEY (`id`),

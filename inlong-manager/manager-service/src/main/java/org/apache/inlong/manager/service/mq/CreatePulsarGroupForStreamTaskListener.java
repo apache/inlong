@@ -86,7 +86,7 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
             log.warn("inlong stream is empty for group={}, stream={}, skip to create pulsar group", groupId, streamId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
@@ -98,14 +98,14 @@ public class CreatePulsarGroupForStreamTaskListener implements QueueOperateListe
 
             PulsarTopicBean topicBean = new PulsarTopicBean();
             topicBean.setTenant(clusterBean.getDefaultTenant());
-            topicBean.setNamespace(groupInfo.getMqResourceObj());
+            topicBean.setNamespace(groupInfo.getMqResource());
             String topic = streamEntity.getMqResourceObj();
             topicBean.setTopicName(topic);
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
 
             // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
             String tenant = clusterBean.getDefaultTenant();
-            String namespace = groupInfo.getMqResourceObj();
+            String namespace = groupInfo.getMqResource();
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
                 PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()

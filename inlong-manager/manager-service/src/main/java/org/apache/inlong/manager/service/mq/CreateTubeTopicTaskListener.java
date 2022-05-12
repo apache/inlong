@@ -58,7 +58,7 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
 
         try {
             InlongGroupInfo groupInfo = groupService.get(groupId);
-            String topicName = groupInfo.getMqResourceObj();
+            String topicName = groupInfo.getMqResource();
             AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
             request.setUser("inlong-manager");
             AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();

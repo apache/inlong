@@ -63,7 +63,7 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
         log.info("try to create consumer group for groupId {}", groupId);
 
         InlongGroupInfo groupInfo = groupService.get(groupId);
-        String topicName = groupInfo.getMqResourceObj();
+        String topicName = groupInfo.getMqResource();
         int clusterId = Integer.parseInt(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_CLUSTER_ID));
         QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()
                 .topicName(topicName).clusterId(clusterId)

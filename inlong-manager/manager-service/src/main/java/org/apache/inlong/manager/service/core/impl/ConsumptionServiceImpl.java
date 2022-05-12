@@ -352,7 +352,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         }
 
         log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-        MQType mqType = MQType.forType(bizInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(bizInfo.getMqType());
         ConsumptionEntity entity = new ConsumptionEntity();
         entity.setInlongGroupId(groupId);
         entity.setMiddlewareType(mqType.getType());

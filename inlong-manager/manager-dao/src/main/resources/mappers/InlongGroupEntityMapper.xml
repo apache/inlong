@@ -25,25 +25,25 @@
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="description" jdbcType="VARCHAR" property="description"/>
-        <result column="mq_type" jdbcType="VARCHAR" property="description"/>
-        <result column="mq_resource" jdbcType="VARCHAR" property="description"/>
+        <result column="mq_type" jdbcType="VARCHAR" property="mqType"/>
+        <result column="mq_resource" jdbcType="VARCHAR" property="mqResource"/>
         <result column="daily_records" jdbcType="INTEGER" property="dailyRecords"/>
         <result column="daily_storage" jdbcType="INTEGER" property="dailyStorage"/>
         <result column="peak_records" jdbcType="INTEGER" property="peakRecords"/>
         <result column="max_length" jdbcType="INTEGER" property="maxLength"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="followers" jdbcType="VARCHAR" property="followers"/>
-        <result column="ext_params" jdbcType="VARCHAR" property="followers"/>
+        <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
-        <result column="previous_status" jdbcType="INTEGER" property="status"/>
+        <result column="previous_status" jdbcType="INTEGER" property="previousStatus"/>
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
         <result column="creator" jdbcType="VARCHAR" property="creator"/>
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
-        <result column="enable_create_resource" jdbcType="INTEGER" property="status"/>
-        <result column="enable_zookeeper" jdbcType="INTEGER" property="status"/>
-        <result column="inlong_cluster_tag" jdbcType="VARCHAR" property="description"/>
+        <result column="enable_create_resource" jdbcType="INTEGER" property="enableCreateResource"/>
+        <result column="enable_zookeeper" jdbcType="INTEGER" property="enableZookeeper"/>
+        <result column="inlong_cluster_tag" jdbcType="VARCHAR" property="inlongClusterTag"/>
     </resultMap>
 
     <resultMap id="statusCountMap" type="java.util.Map">

@@ -137,9 +137,9 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupInfo.setName(inLongGroupName);
         groupInfo.setInCharges(OPERATOR);
         groupInfo.setInlongGroupId(inLongGroupId);
-        groupInfo.setMiddlewareType(middlewareType);
+        groupInfo.setMqType(middlewareType);
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
-        groupInfo.setMqResourceObj("test-queue");
+        groupInfo.setMqResource("test-queue");
         groupService.save(groupInfo.genRequest(), OPERATOR);
 
         groupService.updateStatus(inLongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), OPERATOR);
