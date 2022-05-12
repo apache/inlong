@@ -58,8 +58,7 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
     }
 
     @Override
-    public void notify(TaskEvent event, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
+    public void notify(TaskEvent event, WorkflowContext context) {
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
         eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
 
@@ -71,8 +70,7 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
     }
 
     @Override
-    public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
+    public void notify(String listenerName, boolean forceSync, WorkflowContext context) {
         Optional.ofNullable(this.eventListenerManager.listener(listenerName))
                 .ifPresent(logableNotify(forceSync, context));
 

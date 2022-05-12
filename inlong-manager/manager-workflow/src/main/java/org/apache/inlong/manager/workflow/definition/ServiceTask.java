@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -121,8 +122,12 @@ public class ServiceTask extends WorkflowTask {
             if (listenerProvider == null || serviceTaskType == null) {
                 return;
             }
-            Iterable<TaskEventListener> listeners = listenerProvider.get(workflowContext, serviceTaskType);
-            addListeners(Lists.newArrayList(listeners));
+            List<TaskEventListener> listeners = Lists.newArrayList(
+                    listenerProvider.get(workflowContext, serviceTaskType));
+            log.info("ServiceTask:{} is init for listeners:{}", getName(),
+                    JsonUtils.toJson(listeners.stream().map(listener -> listener.name()).collect(
+                            Collectors.toList())));
+            addListeners(listeners);
         } else {
             log.info("ServiceTask:{} is already init", getName());
         }
