@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * node for insert data to external system
+ * node for inserting data to external system
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
