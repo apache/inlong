@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Base class for extract node and load node
+ * Base class for extract node \ load node \ transform node
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
