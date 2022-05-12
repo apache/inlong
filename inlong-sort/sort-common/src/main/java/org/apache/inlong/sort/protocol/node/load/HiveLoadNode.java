@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * hive load node with FlinkCdc
+ * hive load node with flink cdc
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("hiveLoad")
