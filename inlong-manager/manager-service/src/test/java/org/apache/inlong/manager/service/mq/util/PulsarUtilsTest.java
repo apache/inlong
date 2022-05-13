@@ -32,6 +32,9 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+/**
+ * Test class for pulsar utils.
+ */
 public class PulsarUtilsTest {
 
     // There will be concurrency problems in the overall operation,This method temporarily fails the test

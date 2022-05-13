@@ -26,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 
+/**
+ * JDBC source config test for {@link JDBCSourceConfig}
+ */
 public class JDBCSourceConfigTest extends DaoBaseTest {
 
     @Autowired

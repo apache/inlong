@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * WorkflowApproverEntity.
+ * Workflow approver entity, including process name, task name, filter key, etc.
  */
 @Data
 public class WorkflowApproverEntity implements Serializable {

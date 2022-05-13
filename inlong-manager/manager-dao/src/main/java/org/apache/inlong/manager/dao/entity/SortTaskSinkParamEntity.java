@@ -23,7 +23,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * SortTaskSinkParamEntity.
+ * Sort task sink param entity, including task name, sink type, etc.
  */
 @Data
 @Builder

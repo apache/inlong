@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Data proxy response.
+ * The response info of ata proxy.
  */
 @Data
 @ApiModel("DataProxy response")

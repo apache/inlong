@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Jar file info.
+ * Jar file info, including id, name, uploaded, entry, etc.
  */
 @Data
 public class JarFileInfo {

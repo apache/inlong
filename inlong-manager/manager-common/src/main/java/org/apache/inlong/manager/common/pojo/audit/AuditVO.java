@@ -22,7 +22,7 @@ import java.util.List;
 import lombok.Data;
 
 /**
- * Audit VO.
+ * The VO of audit.
  */
 @Data
 public class AuditVO {

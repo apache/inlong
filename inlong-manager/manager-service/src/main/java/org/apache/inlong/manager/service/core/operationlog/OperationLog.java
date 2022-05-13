@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import org.apache.inlong.manager.common.enums.OperationType;
 
 /**
- * Operation log
+ * The interface of operation log
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

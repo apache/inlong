@@ -21,7 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * SortTaskIdParamEntity.
+ * Sort task id param entity, including task name, group id, etc.
  */
 @Data
 @Builder

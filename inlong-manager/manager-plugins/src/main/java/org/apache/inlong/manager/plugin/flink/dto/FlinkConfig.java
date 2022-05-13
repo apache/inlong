@@ -20,7 +20,7 @@ package org.apache.inlong.manager.plugin.flink.dto;
 import lombok.Data;
 
 /**
- * Flink config.
+ * Flink config, including address, port, job manager port, etc.
  */
 @Data
 public class FlinkConfig {

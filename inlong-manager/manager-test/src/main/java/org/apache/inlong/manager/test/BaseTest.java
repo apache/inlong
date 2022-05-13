@@ -28,6 +28,9 @@ import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+/**
+ * Class of base test.
+ */
 @ActiveProfiles(value = {"test"})
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")

@@ -21,7 +21,7 @@ import lombok.Data;
 import org.springframework.stereotype.Component;
 
 /**
- * ReTryConfigBean
+ * Re try config bean, including max attempts, delay, max delay, multiplier.
  */
 @Data
 @Component

@@ -27,6 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Test class for reload plugin.
+ */
 public class PluginServiceTest extends ServiceBaseTest {
 
     @Autowired

@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Stop with save point request info.
+ * Request info of stop with save point.
  */
 @Getter
 @Setter

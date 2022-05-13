@@ -38,6 +38,9 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Transform definition service test.
+ */
 public class TransformDefinitionTest {
 
     public class BlankStreamNode extends StreamNode {

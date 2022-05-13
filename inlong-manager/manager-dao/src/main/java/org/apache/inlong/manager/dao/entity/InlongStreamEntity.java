@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * InlongStreamEntity.
+ * Inlong stream entity, including inlong stream id, inlong group id, etc.
  */
 @Data
 public class InlongStreamEntity implements Serializable {

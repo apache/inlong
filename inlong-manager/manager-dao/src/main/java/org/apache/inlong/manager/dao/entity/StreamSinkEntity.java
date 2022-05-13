@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * StreamSinkEntity.
+ * Stream sink entity, including sink type, sink name, etc.
  */
 @Data
 public class StreamSinkEntity implements Serializable {

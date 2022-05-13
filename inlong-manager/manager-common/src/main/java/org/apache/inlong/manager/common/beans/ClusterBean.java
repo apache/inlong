@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * ClusterBean
+ * Cluster bean, including default tenant, app name, etc.
  */
 @Data
 @Component

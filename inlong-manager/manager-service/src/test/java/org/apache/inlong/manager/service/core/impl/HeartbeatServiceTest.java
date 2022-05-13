@@ -34,6 +34,7 @@ import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
+import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.core.HeartbeatService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,6 +52,9 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 
+/**
+ * Heartbeat service test.
+ */
 @RunWith(SpringRunner.class)
 public class HeartbeatServiceTest {
 

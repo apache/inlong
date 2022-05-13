@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * BaseException.
+ * Base exception.
  */
 @Data
 @NoArgsConstructor

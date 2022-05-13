@@ -22,7 +22,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 /**
- * Command base.
+ * Class for parse command.
  */
 abstract class CommandBase {
 

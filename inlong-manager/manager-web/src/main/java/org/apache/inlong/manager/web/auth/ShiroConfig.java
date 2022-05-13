@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Shiro config.
+ * Inlong hiro config.
  */
 @Configuration
 public class ShiroConfig {

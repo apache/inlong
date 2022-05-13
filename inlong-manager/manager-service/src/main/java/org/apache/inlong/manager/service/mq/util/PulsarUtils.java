@@ -63,7 +63,7 @@ public class PulsarUtils {
     }
 
     /**
-     * Get pulsar admin.
+     * Get pulsar admin info.
      */
     private static PulsarAdmin getPulsarAdmin(String serviceHttpUrl, String authentication, String authenticationType)
             throws PulsarClientException {
@@ -77,7 +77,7 @@ public class PulsarUtils {
     }
 
     /**
-     * Get pulsar cluster list.
+     * Get pulsar cluster info list.
      */
     public static List<String> getPulsarClusters(PulsarAdmin pulsarAdmin) throws PulsarAdminException {
         return pulsarAdmin.clusters().getClusters();

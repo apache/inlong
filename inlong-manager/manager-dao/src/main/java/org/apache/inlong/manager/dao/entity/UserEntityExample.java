@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * UserEntityExample.
- */
 public class UserEntityExample {
 
     protected String orderByClause;
@@ -707,6 +704,7 @@ public class UserEntityExample {
             return (Criteria) this;
         }
     }
+
 
     public static class Criteria extends GeneratedCriteria {
 

@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Jar run request.
+ * The request info of jar run.
  */
 @Data
 public class JarRunRequest {

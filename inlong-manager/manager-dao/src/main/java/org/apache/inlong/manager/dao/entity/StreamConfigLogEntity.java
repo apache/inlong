@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * StreamConfigLogEntity.
+ * Stream config log entity, including version, componet name, etc.
  */
 public class StreamConfigLogEntity implements Serializable {
 

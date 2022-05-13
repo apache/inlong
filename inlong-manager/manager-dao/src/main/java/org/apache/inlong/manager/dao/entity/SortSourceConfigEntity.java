@@ -23,7 +23,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * SortSourceConfigEntity.
+ * Sort source config entity, including cluster name, task name, zone name, topic, etc.
  */
 @Data
 @Builder

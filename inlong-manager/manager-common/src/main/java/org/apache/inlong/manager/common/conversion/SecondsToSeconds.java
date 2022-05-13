@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.common.conversion;
 
 /**
- * Seconds to seconds.
+ * Convert seconds to seconds.
  */
 public class SecondsToSeconds implements ConversionStrategy {
 

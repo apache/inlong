@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong cluster node entity.
+ * Inlong cluster node entity, including parent id, type, ip, etc.
  */
 @Data
 public class InlongClusterNodeEntity implements Serializable {

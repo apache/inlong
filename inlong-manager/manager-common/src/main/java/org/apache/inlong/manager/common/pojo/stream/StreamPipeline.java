@@ -33,7 +33,7 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * Stream pipeline.
+ * Stream pipeline, save stream node relationship list.
  */
 @Data
 public class StreamPipeline {

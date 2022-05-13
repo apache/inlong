@@ -45,6 +45,10 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+
+    /**
+     * Save sink info.
+     */
     public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 

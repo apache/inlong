@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * UserEntity.
+ * User entity, including username, password, etc.
  */
 @Data
 public class UserEntity implements Serializable {

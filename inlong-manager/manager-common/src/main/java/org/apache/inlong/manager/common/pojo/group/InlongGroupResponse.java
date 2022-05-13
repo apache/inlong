@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Inlong group response.
+ * The response info of inlong group.
  */
 @Data
 @Builder

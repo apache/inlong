@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Listener of light group sort.
+ * Event listener of creat light group sort config.
  */
 @Component
 public class LightGroupSortListener implements SortOperateListener {

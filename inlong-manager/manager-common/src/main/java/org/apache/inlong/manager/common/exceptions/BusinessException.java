@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 
 /**
- * BusinessException.
+ * Business exception.
  */
 @Data
 @NoArgsConstructor

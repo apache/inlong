@@ -21,6 +21,7 @@ import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
+import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -32,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Sort service test for {@link SortService}
+ */
 public class SortServiceImplTest extends ServiceBaseTest {
 
     @Autowired

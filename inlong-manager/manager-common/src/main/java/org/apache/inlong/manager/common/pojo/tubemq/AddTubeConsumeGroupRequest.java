@@ -21,7 +21,7 @@ import java.util.List;
 import lombok.Data;
 
 /**
- * Add tube consume group request.
+ * The request info of add tube consume group.
  */
 @Data
 public class AddTubeConsumeGroupRequest {

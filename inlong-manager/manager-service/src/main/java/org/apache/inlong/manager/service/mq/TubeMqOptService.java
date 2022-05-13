@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 /**
- * TubeMq operation service.
+ * TubeMq operation service, such as create new topic, consumer group, etc.
  */
 @Slf4j
 @Service

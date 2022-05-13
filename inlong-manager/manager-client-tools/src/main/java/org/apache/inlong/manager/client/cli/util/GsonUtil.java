@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import java.nio.charset.Charset;
 
 /**
- * Util of gson.
+ * Util of gson for register each type of adapter, such as charsetAdapter, streamSourceAdapter, etc.
  */
 public class GsonUtil {
 

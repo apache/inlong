@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * Common file server entity.
+ * Common file server entity, including ip, port, username, password, etc.
  */
 @Data
 public class CommonFileServerEntity implements Serializable {

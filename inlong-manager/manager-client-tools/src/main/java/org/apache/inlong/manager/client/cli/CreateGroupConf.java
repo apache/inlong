@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import java.util.List;
 
 /**
- * Create inlong group config.
+ * The config of group, including stream config, stream source, stream sink, etc.
  */
 @Data
 public class CreateGroupConf {

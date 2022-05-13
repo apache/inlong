@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Data node entity.
+ * Data node entity, including id, name, type, etc.
  */
 @Data
 public class DataNodeEntity implements Serializable {

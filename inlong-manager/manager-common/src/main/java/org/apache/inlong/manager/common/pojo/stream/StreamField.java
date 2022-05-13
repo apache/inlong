@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
 
 /**
- * Stream filed.
+ * Stream filed, including field name, field type, etc.
  */
 @Data
 @NoArgsConstructor

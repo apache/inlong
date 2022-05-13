@@ -52,7 +52,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Utils for sink info
+ * Utils for create sink info, such as kafka sink, clickhouse sink, etc.
  */
 public class SinkInfoUtils {
 

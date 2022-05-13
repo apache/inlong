@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Conversion handle.
+ * Unit conversion handle.
  */
 @Slf4j
 @Component
@@ -44,7 +44,7 @@ public class ConversionHandle {
     }
 
     /**
-     * Conversion handle.
+     * Unit conversion handle.
      */
     public Integer handleConversion(Integer value, String type) {
         if (unitMap == null) {

@@ -21,7 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Query tube topic request.
+ * The request info of query tube topic.
  */
 @Data
 @Builder

@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong group entity.
+ * Inlong group entity, including inlong group id, name, etc.
  */
 @Data
 public class InlongGroupEntity implements Serializable {

@@ -21,7 +21,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * City zone entity.
+ * City zone entity, including city id, city name, zone id.
  */
 @Data
 public class CityZoneEntity implements Serializable {

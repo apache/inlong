@@ -20,7 +20,7 @@ package org.apache.inlong.manager.dao.entity;
 import lombok.Data;
 
 /**
- * City zone info.
+ * City zone info, including ip, city id, zone id.
  */
 @Data
 public class CityZoneInfo {

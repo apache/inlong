@@ -25,7 +25,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of tube event.
+ * Selector of tube event for create tube source.
  */
 @Slf4j
 public class TubeEventSelector implements EventSelector {

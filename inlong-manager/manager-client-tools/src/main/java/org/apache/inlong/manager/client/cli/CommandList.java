@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Command list.
+ * Get main infomation of resources.
  */
 @Parameters(commandDescription = "Displays main information for one or more resources")
 public class CommandList extends CommandBase {

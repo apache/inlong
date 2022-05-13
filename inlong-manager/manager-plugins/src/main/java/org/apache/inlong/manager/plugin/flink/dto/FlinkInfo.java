@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import java.util.List;
 
 /**
- * Flink info.
+ * Flink infomation, including end point, job name, source type, etc.
  */
 @Data
 public class FlinkInfo {

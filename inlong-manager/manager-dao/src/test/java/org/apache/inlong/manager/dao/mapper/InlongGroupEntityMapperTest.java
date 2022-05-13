@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.DaoBaseTest;
+import org.apache.inlong.manager.dao.config.JDBCSourceConfig;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
+/**
+ * Inlong group entity mapper test for {@link InlongGroupEntityMapper}
+ */
 public class InlongGroupEntityMapperTest extends DaoBaseTest {
 
     @Autowired

@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 
 /**
- * Create default subscription group for tube
+ * Event listener of create tube consumer group.
  */
 @Component
 @Slf4j

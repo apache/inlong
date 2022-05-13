@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
- * User info.
+ * User info, including username, password, etc.
  */
 @Data
 @ApiModel("User info")

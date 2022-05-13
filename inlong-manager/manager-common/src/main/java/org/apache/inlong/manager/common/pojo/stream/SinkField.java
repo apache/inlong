@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
 
 /**
- * Sink field.
+ * Sink field info.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

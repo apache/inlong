@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * Common database server entity.
+ * Common database server info, including connection name, username, password, etc.
  */
 @Data
 public class CommonDbServerEntity implements Serializable {

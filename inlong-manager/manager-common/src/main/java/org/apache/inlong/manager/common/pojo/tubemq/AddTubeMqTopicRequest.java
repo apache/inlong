@@ -21,7 +21,7 @@ import java.util.List;
 import lombok.Data;
 
 /**
- * Add tube mq topic request.
+ * The request info of add tube mq topic.
  */
 @Data
 public class AddTubeMqTopicRequest {

@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * UserRoleEntity.
+ * User role entity, including username, role code, etc.
  */
 @Data
 public class UserRoleEntity implements Serializable {

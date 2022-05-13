@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * SourceDbDetailEntity.
+ * Source database Detail entity, including table name, connection name, etc.
  */
 @Data
 public class SourceDbDetailEntity implements Serializable {

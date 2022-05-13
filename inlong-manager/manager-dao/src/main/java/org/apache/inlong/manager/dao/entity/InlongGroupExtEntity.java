@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * InlongGroupExtEntity.
+ * InlongGroupExtEntity, including key name, key value, etc.
  */
 @Data
 public class InlongGroupExtEntity implements Serializable {

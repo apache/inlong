@@ -23,7 +23,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * SortClusterConfigEntity.
+ * Sort cluster config entity, including cluster name, task name, sink type.
  */
 @Data
 @Builder

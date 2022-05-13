@@ -21,7 +21,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * Data schema entity.
+ * Data schema entity, including name, agent type, etc.
  */
 @Data
 public class DataSchemaEntity implements Serializable {

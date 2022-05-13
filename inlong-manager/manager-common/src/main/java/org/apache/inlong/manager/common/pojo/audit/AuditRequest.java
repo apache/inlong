@@ -28,7 +28,7 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * Audit request.
+ * The request info of audit.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

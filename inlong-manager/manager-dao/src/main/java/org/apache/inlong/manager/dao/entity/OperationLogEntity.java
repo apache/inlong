@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * OperationLogEntity.
+ * Operation log entity, including operation type, request url, etc.
  */
 @Data
 public class OperationLogEntity implements Serializable {

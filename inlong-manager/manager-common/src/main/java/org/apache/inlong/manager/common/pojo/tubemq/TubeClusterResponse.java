@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * Tube cluster reponse.
+ * The response info of tube cluster.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -27,7 +27,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of pulsar event.
+ * Selector of pulsar event for create pulsar resource.
  */
 @Slf4j
 public class PulsarEventSelector implements EventSelector {

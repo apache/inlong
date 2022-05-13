@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Audit info.
+ * Audit info, including audit count, audit log timestamp.
  */
 @Data
 public class AuditInfo {

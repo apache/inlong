@@ -35,7 +35,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
- * Util of command.
+ * Util of command for creat connect by config file.
  */
 abstract class CommandUtil {
 

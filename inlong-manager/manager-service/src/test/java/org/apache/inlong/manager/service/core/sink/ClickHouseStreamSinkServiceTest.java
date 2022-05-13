@@ -50,6 +50,10 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+
+    /**
+     * Save sink info.
+     */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
@@ -66,6 +70,10 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
+
+    /**
+     * Delete kafka sink by sink id.
+     */
     public void deleteKafkaSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
         Assert.assertTrue(result);

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.conversion;
 import org.springframework.stereotype.Component;
 
 /**
- * GB to MB.
+ * Convert GB to MB.
  */
 @Component
 public class GBToMB implements ConversionStrategy {

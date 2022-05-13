@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Source info.
+ * Source info, including source type, source name, etc.
  */
 @Data
 public class SourceInfo {

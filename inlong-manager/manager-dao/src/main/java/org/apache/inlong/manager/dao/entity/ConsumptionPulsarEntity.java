@@ -21,7 +21,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 /**
- * Data consumption table.
+ * Data consumption table, including group name, group id, topic, etc
  */
 @Data
 public class ConsumptionPulsarEntity implements Serializable {

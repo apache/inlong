@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.pojo.tubemq;
 import lombok.Data;
 
 /**
- * Tube manager response.
+ * The response info of tube manager.
  */
 @Data
 public class TubeManagerResponse {

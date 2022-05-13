@@ -23,7 +23,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 
 /**
- * Inlong group status.
+ * Class for inlong group status verification.
  */
 public class GroupStatus implements IParameterValidator {
 

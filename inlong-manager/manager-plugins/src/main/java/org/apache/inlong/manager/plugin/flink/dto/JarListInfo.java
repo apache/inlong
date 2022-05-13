@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Jar list info.
+ * Jar list info, including address, file list.
  */
 @Data
 public class JarListInfo {

@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
- * Response for auto push source list.
+ * Response info of auto push source list.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.plugin.flink.dto;
 import lombok.Data;
 
 /**
- * Jar entry info.
+ * Jar entry info, including name, description.
  */
 @Data
 public class JarEntryInfo {

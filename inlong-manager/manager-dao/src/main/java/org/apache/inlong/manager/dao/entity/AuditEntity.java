@@ -22,7 +22,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * Audit info.
+ * Audit info, including ip, docker id, thread id, etc.
  */
 @Data
 public class AuditEntity implements Serializable {

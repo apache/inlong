@@ -26,7 +26,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Common database server info.
+ * Common database server info, including connetion name, database type, etc.
  */
 @Data
 @Builder

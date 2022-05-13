@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.common.conversion;
 
 /**
- * Days to seconds.
+ * Convert days to seconds.
  */
 public class DaysToSeconds implements ConversionStrategy {
 

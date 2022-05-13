@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 
 /**
- * Stream source configuration
+ * Stream source configuration, including source name, agent ip, etc.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

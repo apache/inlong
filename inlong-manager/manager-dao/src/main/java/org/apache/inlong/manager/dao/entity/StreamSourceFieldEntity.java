@@ -22,7 +22,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * StreamSourceFieldEntity.
+ * Stream source field entity, including field name, field value, etc.
  */
 @Data
 public class StreamSourceFieldEntity implements Serializable {

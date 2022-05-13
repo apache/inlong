@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * elasticsearch config info.
+ * Elasticsearch config information, including host, port, etc.
  */
 @Component
 public class ElasticsearchConfig {

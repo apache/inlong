@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * StreamHeartbeatEntity.
+ * Stream heartbeat entity, inlcuding status heartbeat, component, etc.
  */
 @Data
 public class StreamHeartbeatEntity implements Serializable {

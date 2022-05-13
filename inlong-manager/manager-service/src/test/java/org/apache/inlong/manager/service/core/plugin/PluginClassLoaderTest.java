@@ -28,6 +28,9 @@ import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+/**
+ * Test class for load plugin.
+ */
 public class PluginClassLoaderTest {
 
     @Test
