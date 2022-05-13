@@ -31,7 +31,7 @@ public class DataNodeEntity implements Serializable {
     private String type;
     private String url;
     private String username;
-    private String password;
+    private String token;
     private String inCharges;
     private Integer status;
     private Integer isDeleted;
