@@ -17,13 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
-import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
@@ -37,6 +30,14 @@ import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
 /**
  * JobWrapper is used in JobManager, it defines the life cycle of
  * running job and maintains the state of job.
@@ -49,9 +50,8 @@ public class JobWrapper extends AbstractStateWrapper {
     private final TaskManager taskManager;
     private final JobManager jobManager;
     private final Job job;
-    private CommandDb db;
-
     private final List<Task> allTasks;
+    private CommandDb db;
 
     public JobWrapper(AgentManager manager, Job job) {
         super();
@@ -111,7 +111,7 @@ public class JobWrapper extends AbstractStateWrapper {
     /**
      * get snapshot of each task
      *
-     * @return
+     * @return snapshot string
      */
     public String getSnapshot() {
         List<String> snapshotList = new ArrayList<>();

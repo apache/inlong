@@ -17,8 +17,9 @@
 
 package org.apache.inlong.agent.plugin;
 
-import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
+
+import java.util.List;
 
 /**
  * Source can be split into multiple reader.
@@ -29,7 +30,7 @@ public interface Source {
      * Split source into a list of readers.
      *
      * @param conf job conf
-     * @return - list of reader
+     * @return list of reader
      */
     List<Reader> split(JobProfile conf);
 }

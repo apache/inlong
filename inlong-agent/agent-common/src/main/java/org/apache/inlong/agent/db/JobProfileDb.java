@@ -18,17 +18,19 @@
 
 package org.apache.inlong.agent.db;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Wrapper for job conf persistence.
  */
 public class JobProfileDb {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JobProfileDb.class);
     private final Db db;
 
@@ -36,6 +38,9 @@ public class JobProfileDb {
         this.db = db;
     }
 
+    /**
+     * get all restart jobs from db
+     */
     public List<JobProfile> getRestartJobs() {
         List<JobProfile> jobsByState = getJobsByState(StateSearchKey.ACCEPTED);
         jobsByState.addAll(getJobsByState(StateSearchKey.RUNNING));
@@ -45,8 +50,9 @@ public class JobProfileDb {
 
     /**
      * update job state and search it by key name
-     * @param jobInstanceId - job key name
-     * @param stateSearchKey - job state
+     *
+     * @param jobInstanceId job key name
+     * @param stateSearchKey job state
      */
     public void updateJobState(String jobInstanceId, StateSearchKey stateSearchKey) {
         KeyValueEntity entity = db.get(jobInstanceId);
@@ -58,14 +64,15 @@ public class JobProfileDb {
 
     /**
      * store job profile
-     * @param jobProfile - job profile
+     *
+     * @param jobProfile job profile
      */
     public void storeJobFirstTime(JobProfile jobProfile) {
         if (jobProfile.allRequiredKeyExist()) {
             String keyName = jobProfile.get(JobConstants.JOB_INSTANCE_ID);
             jobProfile.setLong(JobConstants.JOB_STORE_TIME, System.currentTimeMillis());
             KeyValueEntity entity = new KeyValueEntity(keyName,
-                jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
+                    jobProfile.toJsonStr(), jobProfile.get(JobConstants.JOB_DIR_FILTER_PATTERN, ""));
             entity.setStateSearchKey(StateSearchKey.ACCEPTED);
             LOGGER.info("store job {} to db", jobProfile.toJsonStr());
             db.put(entity);
@@ -74,6 +81,7 @@ public class JobProfileDb {
 
     /**
      * update job profile
+     *
      * @param jobProfile
      */
     public void updateJobProfile(JobProfile jobProfile) {
@@ -89,8 +97,6 @@ public class JobProfileDb {
 
     /**
      * check whether job is finished, note that non-exist job is regarded as finished.
-     * @param jobProfile
-     * @return
      */
     public boolean checkJobfinished(JobProfile jobProfile) {
         KeyValueEntity entity = db.get(jobProfile.getInstanceId());
@@ -101,10 +107,19 @@ public class JobProfileDb {
         return entity.checkFinished();
     }
 
+    /**
+     * delete job by keyName
+     */
     public void deleteJob(String keyName) {
         db.remove(keyName);
     }
 
+    /**
+     * get job profile by jobId
+     *
+     * @param jobId jobId
+     * @return JobProfile
+     */
     public JobProfile getJobById(String jobId) {
         KeyValueEntity keyValueEntity = db.get(jobId);
         if (keyValueEntity != null) {
@@ -113,6 +128,11 @@ public class JobProfileDb {
         return null;
     }
 
+    /**
+     * remove all expired jobs from db, including success and failed
+     *
+     * @param expireTime expireTime
+     */
     public void removeExpireJobs(long expireTime) {
         // remove finished tasks
         List<KeyValueEntity> successEntityList = db.search(StateSearchKey.SUCCESS);
@@ -126,7 +146,7 @@ public class JobProfileDb {
                 long currentTime = System.currentTimeMillis();
                 if (storeTime == 0 || currentTime - storeTime > expireTime) {
                     LOGGER.info("delete job {} because of timeout store time: {}, expire time: {}",
-                        entity.getKey(), storeTime, expireTime);
+                            entity.getKey(), storeTime, expireTime);
                     deleteJob(entity.getKey());
                 }
             }
@@ -135,8 +155,9 @@ public class JobProfileDb {
 
     /**
      * get job conf by state
-     * @param stateSearchKey - state index for searching.
-     * @return
+     *
+     * @param stateSearchKey state index for searching.
+     * @return JobProfile
      */
     public JobProfile getJob(StateSearchKey stateSearchKey) {
         KeyValueEntity entity = db.searchOne(stateSearchKey);
@@ -148,8 +169,6 @@ public class JobProfileDb {
 
     /**
      * get job reading specific file
-     * @param fileName
-     * @return
      */
     public JobProfile getJobByFileName(String fileName) {
         KeyValueEntity entity = db.searchOne(fileName);
@@ -161,8 +180,9 @@ public class JobProfileDb {
 
     /**
      * get list of job profiles.
-     * @param stateSearchKey - state search key.
-     * @return - list of job profile.
+     *
+     * @param stateSearchKey state search key.
+     * @return list of job profile.
      */
     public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {
         List<KeyValueEntity> entityList = db.search(stateSearchKey);

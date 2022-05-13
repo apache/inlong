@@ -20,16 +20,16 @@ package org.apache.inlong.agent.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ByteUtil
+ */
 public class ByteUtil {
+
     /**
      * Splits the source array into multiple array segments using the given separator, up to a
      * maximum of count items. This will naturally produce copied byte arrays for each of the split
      * segments. To identify the split ranges without the array copies, see {@link
      * ByteUtil#splitRanges(byte[], byte[])}.
-     *
-     * @param source
-     * @param separator
-     * @return
      */
     public static byte[][] split(byte[] source, byte[] separator) {
         return split(source, separator, -1);
@@ -40,10 +40,6 @@ public class ByteUtil {
      * maximum of count items. This will naturally produce copied byte arrays for each of the split
      * segments. To identify the split ranges without the array copies, see {@link
      * ByteUtil#splitRanges(byte[], byte[])}.
-     *
-     * @param source
-     * @param separator
-     * @return
      */
     public static byte[][] split(byte[] source, byte[] separator, int limit) {
         List<Range> segments = splitRanges(source, separator, limit);
@@ -107,10 +103,6 @@ public class ByteUtil {
     /**
      * Returns a single byte array containing all of the individual component arrays separated by
      * the separator array.
-     *
-     * @param separator
-     * @param components
-     * @return
      */
     public static byte[] join(byte[] separator, byte[]... components) {
         if (components == null || components.length == 0) {
@@ -184,11 +176,6 @@ public class ByteUtil {
     /**
      * Returns a copy of the source byte array, starting at offset for the given length.  If the
      * offset + length is out of bounds for the array, returns null.
-     *
-     * @param source
-     * @param offset
-     * @param length
-     * @return
      */
     public static byte[] safeCopy(byte[] source, int offset, int length) {
         if (length < 0 || source.length < offset + length) {
@@ -213,8 +200,8 @@ public class ByteUtil {
         public Range(int start, int end) {
             if (start < 0 || end < start) {
                 throw new IllegalArgumentException(
-                    "Invalid range, required that: 0 <= start <= end; start=" + start
-                        + ", end=" + end);
+                        "Invalid range, required that: 0 <= start <= end; start=" + start
+                                + ", end=" + end);
             }
 
             this.startIdx = start;

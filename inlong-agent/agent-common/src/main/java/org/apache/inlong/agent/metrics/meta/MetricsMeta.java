@@ -17,8 +17,9 @@
 
 package org.apache.inlong.agent.metrics.meta;
 
-import java.util.List;
 import org.apache.inlong.agent.metrics.Metrics;
+
+import java.util.List;
 
 /**
  * This class is related to {@link Metrics}
@@ -33,6 +34,13 @@ public class MetricsMeta {
     private MetricsMeta() {
     }
 
+    /**
+     * build metricsMeta based on Metrics and List<MetricMeta> params
+     *
+     * @param metrics Metrics
+     * @param metricMetaList List<MetricMeta>
+     * @return metricsMeta
+     */
     public static MetricsMeta build(Metrics metrics,
             List<MetricMeta> metricMetaList) {
         MetricsMeta metricsMeta = new MetricsMeta();

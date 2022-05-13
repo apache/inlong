@@ -31,22 +31,16 @@ public @interface Metrics {
 
     /**
      * Metrics name
-     *
-     * @return
      */
     String name() default "";
 
     /**
      * Metrics context
-     *
-     * @return
      */
     String context() default "";
 
     /**
      * Metrics description
-     *
-     * @return
      */
     String desc() default "";
 }
