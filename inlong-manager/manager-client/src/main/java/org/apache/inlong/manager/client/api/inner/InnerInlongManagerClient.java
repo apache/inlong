@@ -329,7 +329,7 @@ public class InnerInlongManagerClient {
             }
             return Boolean.parseBoolean(responseBody.getData().toString());
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group check exists failed: %s", e.getMessage()), e);
+            throw new RuntimeException(String.format("Inlong stream check exists failed: %s", e.getMessage()), e);
         }
     }
 

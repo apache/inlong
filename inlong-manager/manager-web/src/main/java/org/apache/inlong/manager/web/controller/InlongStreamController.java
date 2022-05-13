@@ -89,7 +89,6 @@ public class InlongStreamController {
         return Response.success(streamService.exist(groupId, streamId));
     }
 
-
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream info")
     @ApiImplicitParams({
