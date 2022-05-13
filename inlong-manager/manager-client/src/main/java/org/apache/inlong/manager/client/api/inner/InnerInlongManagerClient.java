@@ -306,12 +306,30 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public Pair<Boolean, InlongStreamInfo> isStreamExists(InlongStreamInfo streamInfo) {
-        InlongStreamInfo currentStreamInfo = getStreamInfo(streamInfo);
-        if (currentStreamInfo != null) {
-            return Pair.of(true, currentStreamInfo);
-        } else {
-            return Pair.of(false, null);
+    public Boolean isStreamExists(InlongStreamInfo streamInfo) {
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        AssertUtil.notEmpty(groupId, "InlongGroupId should not be empty");
+        AssertUtil.notEmpty(streamId, "InlongStreamId should not be empty");
+        String path = HTTP_PATH + "/stream/exist/" + groupId + "/" + streamId;
+        final String url = formatUrl(path);
+        Request request = new Request.Builder().get()
+                .url(url)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try {
+            okhttp3.Response response = call.execute();
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response responseBody = InlongParser.parseResponse(body);
+            if (responseBody.getErrMsg() != null) {
+                throw new RuntimeException(responseBody.getErrMsg());
+            }
+            return Boolean.parseBoolean(responseBody.getData().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(String.format("Inlong group check exists failed: %s", e.getMessage()), e);
         }
     }
 

@@ -79,6 +79,17 @@ public class InlongStreamController {
         return Response.success(result);
     }
 
+    @RequestMapping(value = "/exist/{groupId}/{streamId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Is exists of the inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> exist(@PathVariable String groupId, @PathVariable String streamId) {
+        return Response.success(streamService.exist(groupId, streamId));
+    }
+
+
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream info")
     @ApiImplicitParams({
