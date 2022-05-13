@@ -47,4 +47,8 @@ public class PostgresConstant {
 
     public static final String SLOT_NAME = "slot.name";
 
+    public static final String URL = "url";
+
+    public static final String JDBC = "jdbc";
+
 }
