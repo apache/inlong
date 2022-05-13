@@ -50,7 +50,6 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-
     /**
      * Save sink info.
      */
@@ -69,7 +68,6 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
-
 
     /**
      * Delete kafka sink by sink id.

@@ -45,7 +45,6 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-
     /**
      * Save sink info.
      */

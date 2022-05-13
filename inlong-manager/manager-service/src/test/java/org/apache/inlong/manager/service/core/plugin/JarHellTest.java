@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
-import org.apache.inlong.manager.service.core.AuditService;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -30,7 +30,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
 /**
  * Iceberg stream sink service test..
  */
@@ -45,7 +44,6 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
-
 
     /**
      * Save sink info.

@@ -21,7 +21,6 @@ import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
 import org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.AuditService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -38,14 +37,12 @@ import java.util.Map;
  */
 public class SortServiceImplTest extends ServiceBaseTest {
 
-    @Autowired
-    private SortService sortService;
-
-    @Autowired
-    SortSourceConfigEntityMapper sourceMapper;
-
     private static final String TEST_CLUSTER = "testCluster";
     private static final String TEST_TASK = "testTask";
+    @Autowired
+    SortSourceConfigEntityMapper sourceMapper;
+    @Autowired
+    private SortService sortService;
 
     @Test
     @Transactional
