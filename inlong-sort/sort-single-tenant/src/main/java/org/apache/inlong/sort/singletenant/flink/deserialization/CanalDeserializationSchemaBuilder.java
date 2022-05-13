@@ -47,6 +47,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
 import org.apache.inlong.sort.singletenant.flink.utils.CommonUtils;
 
+/**
+ * builder for canal deserialization schema
+ */
 public class CanalDeserializationSchemaBuilder {
 
     public static DeserializationSchema<Row> build(

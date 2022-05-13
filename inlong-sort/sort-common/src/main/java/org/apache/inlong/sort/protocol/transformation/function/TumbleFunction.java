@@ -32,6 +32,15 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * A tumbling windows assigner assigns each element to a window of a
+ * specified window size. Tumbling windows have a fixed size and
+ * do not overlap. For example, if you specify a tumbling window
+ * with a size of 5 minutes, the current window will be evaluated
+ * and a new window will be started every five minutes
+ * as illustrated by the following figure.
+ */
 @JsonTypeName("tumble")
 @Data
 @NoArgsConstructor

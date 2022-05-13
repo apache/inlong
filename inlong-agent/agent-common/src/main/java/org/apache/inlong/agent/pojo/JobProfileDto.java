@@ -155,6 +155,9 @@ public class JobProfileDto {
         return proxy;
     }
 
+    /**
+     * convert DataConfig to TriggerProfile
+     */
     public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
         if (!dataConfigs.isValid()) {
             throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");

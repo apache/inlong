@@ -17,14 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
-
 import com.google.common.base.Joiner;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
@@ -35,6 +28,17 @@ import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+
+/**
+ * abstract sink: sink data to remote data center
+ */
 public abstract class AbstractSink implements Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSink.class);
@@ -42,19 +46,16 @@ public abstract class AbstractSink implements Sink {
     protected static SinkMetrics sinkMetric;
 
     protected static SinkMetrics streamMetric;
-
-    protected String inlongGroupId;
-
-    protected String inlongStreamId;
-
     private static AtomicLong index = new AtomicLong(0);
+    protected String inlongGroupId;
+    protected String inlongStreamId;
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {
         if (jobConf.hasKey(AGENT_MESSAGE_FILTER_CLASSNAME)) {
             try {
                 return (MessageFilter) Class.forName(jobConf.get(AGENT_MESSAGE_FILTER_CLASSNAME))
-                    .getDeclaredConstructor().newInstance();
+                        .getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 LOGGER.error("init message filter error", e);
             }
@@ -68,6 +69,11 @@ public abstract class AbstractSink implements Sink {
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
+    /**
+     * init sinkMetric
+     *
+     * @param tagName metric tagName
+     */
     protected void intMetric(String tagName) {
         String label = Joiner.on(",").join(tagName, index.getAndIncrement());
         if (ConfigUtil.isPrometheusEnabled()) {

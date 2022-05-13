@@ -45,6 +45,9 @@ import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_HE
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REPORTSNAPSHOT_HTTP_PATH;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH;
 
+/**
+ * report heartbeat to inlong-manager
+ */
 public class HeartbeatManager extends AbstractDaemon {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatManager.class);

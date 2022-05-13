@@ -49,6 +49,9 @@ import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * tube source function used in multi-tenancy
+ */
 public class MultiTopicTubeSourceFunction
         extends RichParallelSourceFunction<SerializedRecord> implements CheckpointedFunction {
 

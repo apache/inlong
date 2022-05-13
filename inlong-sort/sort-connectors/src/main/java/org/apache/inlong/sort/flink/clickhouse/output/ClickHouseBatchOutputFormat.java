@@ -35,6 +35,9 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.sql.SQLException;
 
+/**
+ * output format for batch execution in clickhouse
+ */
 public class ClickHouseBatchOutputFormat extends AbstractClickHouseOutputFormat {
 
     private static final long serialVersionUID = 1L;

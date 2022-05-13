@@ -27,6 +27,9 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * metric sink function
+ */
 public class MetricsLogSink extends RichSinkFunction<MetricData> implements CheckpointedFunction {
 
     private static final long serialVersionUID = -2741257263371632560L;

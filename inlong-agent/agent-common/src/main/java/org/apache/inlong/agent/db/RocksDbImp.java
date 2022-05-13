@@ -17,16 +17,7 @@
 
 package org.apache.inlong.agent.db;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.gson.Gson;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.common.db.CommandEntity;
@@ -42,6 +33,16 @@ import org.rocksdb.RocksIterator;
 import org.rocksdb.Statistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * DB implement based on rocks db.
@@ -128,6 +129,9 @@ public class RocksDbImp implements Db {
         return new ColumnFamilyDescriptor(columnFamilyName, new ColumnFamilyOptions());
     }
 
+    /**
+     * add columnFamilyName
+     */
     public void addColumnFamily(String columnFamilyName) {
         columnDescriptorMap.computeIfAbsent(columnFamilyName, colFamilyName -> {
             try {

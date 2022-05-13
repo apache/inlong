@@ -71,6 +71,9 @@ public class SqlJobProfileDto {
         return proxy;
     }
 
+    /**
+     * convert DbCollectorTask to JobProfile
+     */
     public static JobProfile convertToJobProfile(DbCollectorTask task) {
         if (!task.isValid()) {
             throw new IllegalArgumentException("input task" + task + "is invalid please check");

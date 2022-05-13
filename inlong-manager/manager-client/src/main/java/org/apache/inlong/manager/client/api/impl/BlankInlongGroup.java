@@ -23,6 +23,7 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
+import org.apache.inlong.manager.client.api.SortBaseConf;
 
 import java.util.List;
 
@@ -49,12 +50,12 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
-    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
+    public void update(SortBaseConf sortBaseConf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception {
+    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 

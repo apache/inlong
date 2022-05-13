@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.protocol.serialization;
 
+/**
+ * basic info for avro serialization
+ */
 public class AvroSerializationInfo implements SerializationInfo {
 
     private static final long serialVersionUID = 8446721117598285868L;

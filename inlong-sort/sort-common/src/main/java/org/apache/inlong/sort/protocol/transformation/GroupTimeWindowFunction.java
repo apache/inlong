@@ -23,6 +23,10 @@ import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
 import org.apache.inlong.sort.protocol.transformation.function.SessionFunction;
 import org.apache.inlong.sort.protocol.transformation.function.TumbleFunction;
 
+/**
+ * top-level interface for window function in flink
+ * such as hop\session\tumble functions
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

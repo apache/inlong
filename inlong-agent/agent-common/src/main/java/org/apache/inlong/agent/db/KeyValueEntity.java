@@ -75,6 +75,7 @@ public class KeyValueEntity {
 
     /**
      * convert keyValue to job profile
+     *
      * @return JobConfiguration
      */
     public JobProfile getAsJobProfile() {
@@ -84,7 +85,6 @@ public class KeyValueEntity {
 
     /**
      * convert keyValue to trigger profile
-     * @return
      */
     public TriggerProfile getAsTriggerProfile() {
         return TriggerProfile.parseJsonStr(getJsonValue());
@@ -92,7 +92,6 @@ public class KeyValueEntity {
 
     /**
      * check whether the entity is finished
-     * @return
      */
     public boolean checkFinished() {
         return stateSearchKey.equals(StateSearchKey.SUCCESS)

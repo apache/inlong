@@ -19,6 +19,9 @@ package org.apache.inlong.agent.metrics.counter;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * atomic int for counter
+ */
 public class CounterInt implements Counter {
 
     private AtomicInteger value = new AtomicInteger(0);

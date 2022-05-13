@@ -292,6 +292,11 @@
             <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-postgres-cdc</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

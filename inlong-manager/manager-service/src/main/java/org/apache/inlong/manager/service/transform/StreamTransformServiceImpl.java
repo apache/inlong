@@ -143,9 +143,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setVersion(transformEntity.getVersion() + 1);
         Date now = new Date();
         transformEntity.setModifyTime(now);
-        boolean isUpdate = transformEntityMapper.updateByIdSelective(transformEntity) == transformEntity.getId();
+        transformEntityMapper.updateByIdSelective(transformEntity);
         updateFieldOpt(transformEntity, transformRequest.getFieldList());
-        return isUpdate;
+        return true;
     }
 
     @Override

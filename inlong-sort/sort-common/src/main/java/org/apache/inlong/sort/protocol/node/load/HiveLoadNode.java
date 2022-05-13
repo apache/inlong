@@ -37,6 +37,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * hive load node with flink connectors
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("hiveLoad")
 @Data

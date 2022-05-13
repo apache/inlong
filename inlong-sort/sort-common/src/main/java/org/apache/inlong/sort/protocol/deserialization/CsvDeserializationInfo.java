@@ -21,7 +21,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * .
+ * Csv deserialization info
  */
 public class CsvDeserializationInfo implements DeserializationInfo {
 

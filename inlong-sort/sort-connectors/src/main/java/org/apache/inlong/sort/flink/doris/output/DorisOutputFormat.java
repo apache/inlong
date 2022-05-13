@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * rich output format for doris
+ */
 public class DorisOutputFormat extends RichOutputFormat<Tuple2<Boolean, Row>> {
     private static final Logger LOG = LoggerFactory.getLogger(DorisOutputFormat.class);
 

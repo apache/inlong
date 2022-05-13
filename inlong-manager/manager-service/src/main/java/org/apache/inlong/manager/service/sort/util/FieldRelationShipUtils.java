@@ -183,7 +183,6 @@ public class FieldRelationShipUtils {
     private static List<FieldRelationShip> parseSplitRule(SplitRule splitRule, Set<String> splitFields,
             String transformName, String preNode) {
         StreamField sourceField = splitRule.getSourceField();
-        splitFields.add(sourceField.getFieldName());
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamField(sourceField);
         fieldInfo.setNodeId(preNode);
         String seperator = splitRule.getSeperator();

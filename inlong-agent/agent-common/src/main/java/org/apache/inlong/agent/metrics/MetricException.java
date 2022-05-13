@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.metrics;
 
+/**
+ * MetricException
+ */
 public class MetricException extends RuntimeException {
 
     public MetricException(String message, Exception ex) {

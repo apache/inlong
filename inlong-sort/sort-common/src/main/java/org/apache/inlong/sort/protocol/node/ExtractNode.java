@@ -29,19 +29,24 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * extract node extracts data from external system
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
-        @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract")
+        @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
+        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract")
 })
 @Data
 @NoArgsConstructor

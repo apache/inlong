@@ -40,6 +40,11 @@ import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * pulsar multi source function used in multi tenancy
+ * when dataflow changes, the consumer should action accordingly
+ * see DataFlowInfoListenerImpl
+ */
 public class MultiTopicPulsarSourceFunction extends RichParallelSourceFunction<SerializedRecord> implements
         CheckpointedFunction {
 

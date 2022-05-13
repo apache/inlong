@@ -17,6 +17,11 @@
 
 package org.apache.inlong.agent.conf;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,10 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.io.FileUtils;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * agent configuration. Only one instance in the process.
@@ -43,12 +44,11 @@ public class AgentConfiguration extends AbstractConfiguration {
     private static final ArrayList<String> LOCAL_RESOURCES = new ArrayList<>();
 
     private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
+    private static volatile AgentConfiguration agentConf = null;
 
     static {
         LOCAL_RESOURCES.add(DEFAULT_CONFIG_FILE);
     }
-
-    private static volatile AgentConfiguration agentConf = null;
 
     /**
      * load config from agent file.
@@ -61,7 +61,8 @@ public class AgentConfiguration extends AbstractConfiguration {
 
     /**
      * singleton for agent configuration.
-     * @return - static instance of AgentConfiguration
+     *
+     * @return static instance of AgentConfiguration
      */
     public static AgentConfiguration getAgentConf() {
         if (agentConf == null) {
@@ -88,7 +89,7 @@ public class AgentConfiguration extends AbstractConfiguration {
         // TODO: flush to local file as properties file.
         try {
             String agentConfParent = get(
-                AgentConstants.AGENT_CONF_PARENT, AgentConstants.DEFAULT_AGENT_CONF_PARENT);
+                    AgentConstants.AGENT_CONF_PARENT, AgentConstants.DEFAULT_AGENT_CONF_PARENT);
             File sourceFile = new File(agentConfParent, DEFAULT_CONFIG_FILE);
             File targetFile = new File(agentConfParent, getNextBackupFileName());
             File tmpFile = new File(agentConfParent, TMP_CONFIG_FILE);

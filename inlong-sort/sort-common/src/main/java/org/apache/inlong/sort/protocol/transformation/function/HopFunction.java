@@ -32,6 +32,14 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The HOP function assigns elements to windows of fixed length.
+ * Like a TUMBLE windowing function, the size of the windows is configured by the window size
+ * parameter. An additional window slide parameter controls how frequently a hopping
+ * window is started. Hence, hopping windows can be overlapping if the slide is smaller
+ * than the window size. In this case, elements are assigned to multiple windows.
+ * Hopping windows are also known as “sliding windows”.
+ */
 @JsonTypeName("hop")
 @Data
 @NoArgsConstructor
