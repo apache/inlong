@@ -17,14 +17,6 @@
 
 package org.apache.inlong.agent.metrics;
 
-import java.lang.annotation.Annotation;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import org.apache.inlong.agent.metrics.counter.CounterInt;
 import org.apache.inlong.agent.metrics.counter.CounterLong;
 import org.apache.inlong.agent.metrics.gauge.GaugeInt;
@@ -35,10 +27,20 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.annotation.Annotation;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * register for metrics.
  */
 public class MetricsRegister {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricsRegister.class);
 
     private static final String DOMAIN_PREFIX = "Agent:";
@@ -54,6 +56,7 @@ public class MetricsRegister {
 
     /**
      * register object name for metric
+     *
      * @param agentDynamicMBean agent mbean
      */
     private static void innerRegister(AgentDynamicMBean agentDynamicMBean) {
@@ -71,6 +74,9 @@ public class MetricsRegister {
         }
     }
 
+    /**
+     * register metric for object
+     */
     public static void register(String module, String aspect, String desc, Object source) {
         List<MetricMeta> metricMetaList = handleFieldAnnotation(source);
         MetricsMeta metricsMeta = handleClassAnnotation(source, metricMetaList);

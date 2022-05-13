@@ -38,6 +38,9 @@ import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCE
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
 
+/**
+ * Perform http operation
+ */
 public class HttpManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpManager.class);
@@ -58,7 +61,7 @@ public class HttpManager {
     /**
      * construct http client
      *
-     * @param timeout - timeout setting
+     * @param timeout timeout setting
      * @return closeable timeout
      */
     private synchronized CloseableHttpClient constructHttpClient(int timeout) {
@@ -74,6 +77,12 @@ public class HttpManager {
         return httpClientBuilder.build();
     }
 
+    /**
+     * doPost
+     *
+     * @param dto content body needed to post
+     * @return response
+     */
     public String doSentPost(String url, Object dto) {
         try {
             HttpPost post = getHttpPost(url);
@@ -100,6 +109,11 @@ public class HttpManager {
         return gson.toJson(obj);
     }
 
+    /**
+     * doGet
+     *
+     * @return response
+     */
     public String doSendGet(String url) {
         try {
             HttpGet get = getHttpGet(url);

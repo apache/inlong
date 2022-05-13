@@ -17,16 +17,17 @@
 
 package org.apache.inlong.agent.plugin.message;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.message.ProxyMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.message.ProxyMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Handle List of BusMessage, which belong to the same stream id.
@@ -36,32 +37,26 @@ public class PackProxyMessage {
     private static final Logger LOGGER = LoggerFactory.getLogger(PackProxyMessage.class);
 
     private final String streamId;
-
-    private int currentSize;
-
     private final int maxPackSize;
-
     private final int maxQueueNumber;
     // ms
     private final int cacheTimeout;
-
+    // streamId -> list of proxyMessage
+    private final LinkedBlockingQueue<ProxyMessage> messageQueue;
+    private final AtomicLong queueSize = new AtomicLong(0);
+    private int currentSize;
     /**
      * extra map used when sending to dataproxy
      */
     private Map<String, String> extraMap = new HashMap<>();
-
-    // streamId -> list of proxyMessage
-    private final LinkedBlockingQueue<ProxyMessage> messageQueue;
-
     private volatile long currentCacheTime = System.currentTimeMillis();
-    private final AtomicLong queueSize = new AtomicLong(0);
 
     /**
      * Init PackBusMessage
      *
-     * @param maxPackSize - max pack size for one inlongGroupId
-     * @param cacheTimeout - cache timeout for one proxy message
-     * @param streamId - streamId
+     * @param maxPackSize max pack size for one inlongGroupId
+     * @param cacheTimeout cache timeout for one proxy message
+     * @param streamId streamId
      */
     public PackProxyMessage(int maxPackSize, int maxQueueNumber, int cacheTimeout, String streamId) {
         this.maxPackSize = maxPackSize;
@@ -94,7 +89,7 @@ public class PackProxyMessage {
         try {
             if (queueIsFull()) {
                 LOGGER.warn("message queue is greater than {}, stop adding message, "
-                                + "maybe proxy get stuck", maxQueueNumber);
+                        + "maybe proxy get stuck", maxQueueNumber);
             }
             messageQueue.put(message);
             queueSize.addAndGet(message.getBody().length);
@@ -105,7 +100,6 @@ public class PackProxyMessage {
 
     /**
      * check message queue is empty or not
-     * @return
      */
     public boolean isEmpty() {
         return messageQueue.isEmpty();
@@ -114,8 +108,7 @@ public class PackProxyMessage {
     /**
      * Fetch batch of proxy message, timeout message or max number of list satisfied.
      *
-     * @return map of message list, key is stream id for the batch.
-     * return null if there are no valid messages.
+     * @return map of message list, key is stream id for the batch; return null if there are no valid messages.
      */
     public Pair<String, List<byte[]>> fetchBatch() {
         // if queue is nearly full or package size is satisfied or timeout

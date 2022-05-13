@@ -35,6 +35,9 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
+/**
+ * abstract reader, init reader and reader metrics
+ */
 public abstract class AbstractReader implements Reader {
 
     protected static PluginMetric readerMetric;
@@ -50,6 +53,11 @@ public abstract class AbstractReader implements Reader {
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
+    /**
+     * init reader metrics
+     *
+     * @param tagName metric tagName
+     */
     protected void intMetric(String tagName) {
         String metricsIndexValue = String.valueOf(metricsIndex.getAndIncrement());
         String label = Joiner.on(",").join(tagName, metricsIndexValue);

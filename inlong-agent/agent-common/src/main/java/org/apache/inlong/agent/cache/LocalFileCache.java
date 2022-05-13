@@ -17,14 +17,15 @@
 
 package org.apache.inlong.agent.cache;
 
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * use local file as cache.
@@ -38,8 +39,8 @@ public class LocalFileCache {
 
     /**
      * file with cache time in ms
-     * @param file - file
-     * @param cacheTime - cache time.
+     * @param file file
+     * @param cacheTime cache time.
      */
     public LocalFileCache(File file, long cacheTime) {
         this.file = file;
@@ -62,7 +63,6 @@ public class LocalFileCache {
 
     /**
      * write string to cache
-     * @param info
      */
     public void writeToCache(String info) {
         lock.writeLock().lock();

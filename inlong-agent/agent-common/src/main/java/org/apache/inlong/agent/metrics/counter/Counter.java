@@ -19,6 +19,9 @@ package org.apache.inlong.agent.metrics.counter;
 
 import org.apache.inlong.agent.metrics.MutableMetric;
 
+/**
+ * Counter
+ */
 public interface Counter extends MutableMetric {
 
     /**
