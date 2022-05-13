@@ -460,7 +460,7 @@
       inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/DebeziumOffsetSerializer.java
       inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/history/FlinkJsonTableChangeSerializer.java
  Source  : flink-cdc-connectors 2.0.1 (Please note that the software have been modified.)
- License : https://github.com/ververica/flink-cdc-connectors/blob/master/NOTICE
+ License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
 
 
 =======================================================================
