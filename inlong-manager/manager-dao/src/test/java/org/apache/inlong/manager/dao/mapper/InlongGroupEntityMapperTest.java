@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.DaoBaseTest;
-import org.apache.inlong.manager.dao.config.JDBCSourceConfig;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.junit.Assert;
 import org.junit.Test;
