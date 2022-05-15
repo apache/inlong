@@ -31,8 +31,8 @@ public interface InlongGroup {
     /**
      * Create snapshot for Inlong group
      *
-     * @return
-     * @throws Exception
+     * @return inlong group context
+     * @throws Exception the exception
      */
     InlongGroupContext context() throws Exception;
 
@@ -48,8 +48,7 @@ public interface InlongGroup {
     /**
      * Update Inlong group on updated conf
      *
-     * @return
-     * @throws Exception
+     * @throws Exception the exception
      */
     void update(InlongGroupConf conf) throws Exception;
 

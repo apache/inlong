@@ -139,6 +139,9 @@ public class WorkflowExecuteLog {
         @ApiModelProperty("Description")
         private String description;
 
+        /**
+         * Get listener executor log.
+         */
         public static ListenerExecutorLog fromEventLog(WorkflowEventLogEntity workflowEventLogEntity) {
             ListenerExecutorLog executorLog = ListenerExecutorLog.builder()
                     .id(workflowEventLogEntity.getId())

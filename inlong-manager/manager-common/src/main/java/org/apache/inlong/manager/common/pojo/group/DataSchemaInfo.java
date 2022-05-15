@@ -23,7 +23,6 @@ import lombok.Data;
 
 /**
  * Data schema info
- *
  */
 @Data
 @ApiModel("Data schema info")

@@ -42,6 +42,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test class for binlog to kafka.
+ */
 @Slf4j
 public class Binlog2KafkaExample {
 

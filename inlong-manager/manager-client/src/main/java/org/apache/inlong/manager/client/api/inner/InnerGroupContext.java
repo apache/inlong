@@ -32,6 +32,9 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * InnerGroupContext.
+ */
 @Data
 @NoArgsConstructor
 public class InnerGroupContext {

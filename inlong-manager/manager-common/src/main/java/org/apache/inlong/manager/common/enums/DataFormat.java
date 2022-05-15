@@ -39,6 +39,9 @@ public enum DataFormat {
         this.name = name;
     }
 
+    /**
+     * Get dataformat for inlong by name.
+     */
     public static DataFormat forName(String name) {
         for (DataFormat dataFormat : values()) {
             if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {

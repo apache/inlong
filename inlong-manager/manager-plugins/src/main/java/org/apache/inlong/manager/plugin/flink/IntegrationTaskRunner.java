@@ -27,6 +27,9 @@ import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import static org.apache.flink.api.common.JobStatus.FINISHED;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
+/**
+ * Integration task runner for start, restart or stop flink service.
+ */
 @Slf4j
 public class IntegrationTaskRunner implements Runnable {
 

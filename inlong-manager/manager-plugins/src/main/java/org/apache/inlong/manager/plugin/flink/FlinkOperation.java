@@ -34,7 +34,7 @@ import static org.apache.flink.api.common.JobStatus.RUNNING;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 
 /**
- * Flink task operation.
+ * Flink task operation, such restart or stop flink job.
  */
 @Slf4j
 public class FlinkOperation {

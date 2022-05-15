@@ -21,6 +21,9 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Cluster bean, including default tenant, app name, etc.
+ */
 @Data
 @Component
 public class ClusterBean {

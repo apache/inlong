@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Audit controller.
+ */
 @RestController
 @RequestMapping("/audit")
 @Api(tags = "Audit")

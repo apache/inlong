@@ -27,6 +27,9 @@ import org.apache.inlong.manager.client.api.SortBaseConf;
 
 import java.util.List;
 
+/**
+ * Check inlong group if is exist.
+ */
 public class BlankInlongGroup implements InlongGroup {
 
     @Override

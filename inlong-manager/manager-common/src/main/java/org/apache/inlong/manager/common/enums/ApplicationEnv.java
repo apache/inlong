@@ -49,6 +49,9 @@ public enum ApplicationEnv {
             Function.identity()
     );
 
+    /**
+     * Get application environment by name.
+     */
     public static ApplicationEnv forName(String name) {
         String nameUpper = StringUtils.upperCase(name);
         if (!NAME_MAP.containsKey(nameUpper)) {

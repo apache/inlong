@@ -57,6 +57,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Inlong stream service implementation.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class InlongStreamImpl extends InlongStream {

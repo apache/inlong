@@ -44,6 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Inlong client service implementation.
+ */
 @Slf4j
 public class InlongClientImpl implements InlongClient {
 

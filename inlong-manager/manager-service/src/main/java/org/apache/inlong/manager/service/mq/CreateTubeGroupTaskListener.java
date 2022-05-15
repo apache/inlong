@@ -37,6 +37,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+/**
+ * Event listener of create tube consumer group.
+ */
 @Component
 @Slf4j
 public class CreateTubeGroupTaskListener implements QueueOperateListener {

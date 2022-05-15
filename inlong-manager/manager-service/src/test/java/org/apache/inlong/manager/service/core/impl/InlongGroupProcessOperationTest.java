@@ -34,6 +34,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+/**
+ * Inlong group process operation service test.
+ */
 @EnableAutoConfiguration
 public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
@@ -52,6 +55,9 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     @Autowired
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
+    /**
+     * Set some base infomation before satart process.
+     */
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
         serviceTaskListenerFactory.acceptPlugin(mockPlugin);

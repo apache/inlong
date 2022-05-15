@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
+/**
+ * Listener of startup sort.
+ */
 @Slf4j
 public class StartupSortListener implements SortOperateListener {
 

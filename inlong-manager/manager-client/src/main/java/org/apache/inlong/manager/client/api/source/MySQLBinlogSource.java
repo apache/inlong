@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
 import java.util.List;
 
+/**
+ * MySQL binlog source.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

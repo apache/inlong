@@ -44,6 +44,9 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+    /**
+     * Save source info.
+     */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 

@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Data proxy cluster entity, including id, name, address, etc.
+ */
 @Data
 public class DataProxyClusterEntity implements Serializable {
 

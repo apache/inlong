@@ -43,6 +43,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+/**
+ * Plugin class loader.
+ */
 @Slf4j
 public class PluginClassLoader extends URLClassLoader {
 
@@ -66,6 +69,9 @@ public class PluginClassLoader extends URLClassLoader {
         loadPluginDefinition();
     }
 
+    /**
+     * Get pluginClassLoader by plugin url.
+     */
     public static PluginClassLoader getFromPluginUrl(String url, ClassLoader parent) {
         checkClassLoader(parent);
         checkUrl(url);

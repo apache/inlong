@@ -37,14 +37,23 @@ public class EventListenerManagerFactory {
         this.taskListenerManager = new TaskEventListenerManager(eventLogMapper);
     }
 
+    /**
+     * Get process event listener manager.
+     */
     public ProcessEventListenerManager getProcessListenerManager() {
         return processListenerManager;
     }
 
+    /**
+     * Get task event listener manager.
+     */
     public TaskEventListenerManager getTaskListenerManager() {
         return taskListenerManager;
     }
 
+    /**
+     * Get workflow event listener manager.
+     */
     public WorkflowEventLogEntityMapper getEventLogMapper() {
         return eventLogMapper;
     }

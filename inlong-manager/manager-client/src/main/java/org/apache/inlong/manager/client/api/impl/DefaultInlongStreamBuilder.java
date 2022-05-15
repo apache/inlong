@@ -50,6 +50,9 @@ import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Default inlong stream builder.
+ */
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private InlongStreamImpl inlongStream;

@@ -25,6 +25,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessFor
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of restart process event.
+ */
 @Slf4j
 public class RestartProcessSelector implements EventSelector {
 

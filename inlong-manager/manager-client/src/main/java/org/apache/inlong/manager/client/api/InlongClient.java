@@ -78,9 +78,9 @@ public interface InlongClient {
     /**
      * List group state
      *
-     * @param groupNames
-     * @return
-     * @throws Exception
+     * @param groupNames inlong group name list
+     * @return map of inlong group status list
+     * @throws Exception the exception
      */
     Map<String, InlongGroupStatus> listGroupState(List<String> groupNames) throws Exception;
 

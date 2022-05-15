@@ -37,6 +37,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Test class for sort controller.
+ */
 public class SortControllerTest extends WebBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SortControllerTest.class);

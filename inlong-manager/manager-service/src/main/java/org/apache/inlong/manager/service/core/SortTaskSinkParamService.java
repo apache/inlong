@@ -26,9 +26,10 @@ public interface SortTaskSinkParamService {
 
     /**
      * Select all sink params by task name and sink type.
+     *
      * @param taskName Name of task;
      * @param sinkType Type of sink;
-     * @return
+     * @return map of sink params.
      */
     Map<String, String> selectByTaskNameAndType(String taskName, String sinkType);
 }

@@ -20,6 +20,9 @@ package org.apache.inlong.manager.client.api;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
+/**
+ * Sort configuration for inlong group.
+ */
 @Data
 @ApiModel("Sort configuration for inlong group")
 public abstract class SortBaseConf {

@@ -20,6 +20,9 @@ package org.apache.inlong.manager.workflow.event.task;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
+/**
+ * Listener of operate sort.
+ */
 public interface SortOperateListener extends TaskEventListener {
 
     SortOperateListener DEFAULT_SORT_OPERATE_LISTENER = new SortOperateListener() {

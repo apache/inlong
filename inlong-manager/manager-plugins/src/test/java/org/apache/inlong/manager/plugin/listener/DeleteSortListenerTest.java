@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Test class for delete sort listener.
+ */
 public class DeleteSortListenerTest {
 
     @Test

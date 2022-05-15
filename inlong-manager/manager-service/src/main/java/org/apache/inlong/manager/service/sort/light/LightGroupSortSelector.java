@@ -28,6 +28,9 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
 
 import java.util.List;
 
+/**
+ * Selector of light group sort.
+ */
 @Slf4j
 public class LightGroupSortSelector implements EventSelector {
 

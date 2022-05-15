@@ -35,6 +35,9 @@ import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Test class for save stream transform.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class StreamTransformServiceTest extends ServiceBaseTest {

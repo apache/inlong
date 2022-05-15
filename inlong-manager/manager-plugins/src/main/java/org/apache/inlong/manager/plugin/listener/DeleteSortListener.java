@@ -40,6 +40,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
+/**
+ * Listener of delete sort.
+ */
 @Slf4j
 public class DeleteSortListener implements SortOperateListener {
 

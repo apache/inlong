@@ -38,6 +38,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Set;
 
+/**
+ * Hander of controller exception.
+ */
 @Slf4j
 @ControllerAdvice
 public class ControllerExceptionHandler {

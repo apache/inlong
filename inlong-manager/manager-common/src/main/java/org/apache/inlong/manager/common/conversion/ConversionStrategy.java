@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.conversion;
 
+/**
+ * Conversion strategy.
+ */
 public interface ConversionStrategy {
 
     Integer unitConversion(Integer value);

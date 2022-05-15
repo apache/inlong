@@ -23,6 +23,9 @@ import lombok.Data;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
+/**
+ * User info, including username, password, etc.
+ */
 @Data
 @ApiModel("User info")
 public class UserInfo {

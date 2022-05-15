@@ -53,6 +53,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Iceberg sink operation, such as save or update iceberg field, etc.
+ */
 @Service
 public class IcebergSinkOperation implements StreamSinkOperation {
 

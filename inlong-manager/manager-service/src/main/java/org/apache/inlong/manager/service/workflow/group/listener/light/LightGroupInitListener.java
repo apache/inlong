@@ -36,6 +36,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Listener of light group init.
+ */
 @Slf4j
 @Component
 public class LightGroupInitListener implements ProcessEventListener {

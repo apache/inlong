@@ -25,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
+/**
+ * Inlong group entity mapper test for {@link InlongGroupEntityMapper}
+ */
 public class InlongGroupEntityMapperTest extends DaoBaseTest {
 
     @Autowired

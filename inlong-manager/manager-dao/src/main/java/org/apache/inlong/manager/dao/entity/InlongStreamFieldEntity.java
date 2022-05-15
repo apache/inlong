@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * Inlong stream field entity, including inlong gourp id, inlong stream id, etc.
+ */
 @Data
 public class InlongStreamFieldEntity implements Serializable {
 
