@@ -536,6 +536,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flink:flink-json:1.13.5 - Flink : Formats : Json (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-json), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-csv:1.13.5 - Flink : Formats : Csv (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-csv), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-parquet_2.11:1.13.5 - Flink : Formats : Parquet (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-parquet), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-orc_2.11:1.13.5 - Flink : Formats : Orc (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-orc), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-scala_2.11:1.13.5 - Flink : Scala (https://github.com/apache/flink/tree/release-1.13.5/flink-scala), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-shaded-asm-7:7.1-13.0 - flink-shaded-asm-7 (https://github.com/apache/flink-shaded/tree/release-7.0/flink-shaded-asm-6), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-shaded-jackson:2.12.1-13.0 - flink-shaded-jackson-2 (http://flink.apache.org/flink-shaded-jackson-parent/flink-shaded-jackson), (The Apache Software License, Version 2.0)
