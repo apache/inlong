@@ -24,6 +24,9 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 
 import java.util.Map;
 
+/**
+ * Token authentication.
+ */
 @NoArgsConstructor
 public class TokenAuthentication implements Authentication {
 

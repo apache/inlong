@@ -17,6 +17,10 @@
 
 package org.apache.inlong.agent.db;
 
+import org.apache.inlong.agent.conf.JobProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,14 +28,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * profile from local file
  */
 public class LocalProfile {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalProfile.class);
 
     private static final String JSON_SUFFIX = ".json";
@@ -45,6 +47,11 @@ public class LocalProfile {
         this.filePath = Paths.get(fileName);
     }
 
+    /**
+     * If filePath is a directory, read all local file and construct job profiles
+     *
+     * @return list of JobProfiles
+     */
     public List<JobProfile> readFromLocal() {
         List<JobProfile> profileList = new ArrayList<>();
         try {

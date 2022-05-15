@@ -24,7 +24,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 
 /**
- * Listener of logable task event
+ * Listener of build even log event.
  */
 public class LogableTaskEventListener extends LogableEventListener<TaskEvent> implements TaskEventListener {
 

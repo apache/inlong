@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test class for auto push to hive.
+ */
 public class AutoPush2HiveExample {
 
     // Manager web url

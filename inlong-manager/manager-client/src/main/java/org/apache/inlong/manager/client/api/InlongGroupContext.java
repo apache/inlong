@@ -37,6 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Inlong group context.
+ */
 @Data
 @Slf4j
 public class InlongGroupContext implements Serializable {

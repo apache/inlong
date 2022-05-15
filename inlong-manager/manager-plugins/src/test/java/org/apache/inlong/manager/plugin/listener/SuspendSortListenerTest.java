@@ -30,6 +30,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Test class for suspend sort listener.
+ */
 public class SuspendSortListenerTest {
 
     @Test

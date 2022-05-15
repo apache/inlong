@@ -23,6 +23,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Test class for ldefine process.
+ */
 public class CreateGroupWorkflowDefinitionTest extends ServiceBaseTest {
 
     @Autowired

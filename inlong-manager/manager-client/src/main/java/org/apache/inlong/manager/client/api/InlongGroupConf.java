@@ -23,6 +23,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Inlong group config.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

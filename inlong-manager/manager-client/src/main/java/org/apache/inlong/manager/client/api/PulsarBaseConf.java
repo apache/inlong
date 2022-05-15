@@ -26,6 +26,9 @@ import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.common.enums.MQType;
 
+/**
+ * Base configuration for Pulsar.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

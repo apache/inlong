@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Data source command config entity, including cmd type, specified data time, etc.
+ */
 @Data
 public class DataSourceCmdConfigEntity implements Serializable {
 

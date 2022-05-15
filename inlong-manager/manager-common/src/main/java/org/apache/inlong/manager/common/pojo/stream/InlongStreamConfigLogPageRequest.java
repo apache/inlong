@@ -25,6 +25,9 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 
+/**
+ * Inlong stream config log page request.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong stream config log query request")

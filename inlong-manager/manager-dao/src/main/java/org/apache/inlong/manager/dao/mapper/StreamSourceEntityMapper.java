@@ -36,8 +36,8 @@ public interface StreamSourceEntityMapper {
     /**
      * Only used for agent collector, which will select all tasks related include deleted tasks.
      *
-     * @param id
-     * @return
+     * @param id stream source id
+     * @return stream source info
      */
     StreamSourceEntity selectForAgentTask(Integer id);
 
@@ -119,10 +119,6 @@ public interface StreamSourceEntityMapper {
 
     /**
      * Physical delete stream sources.
-     *
-     * @param groupId
-     * @param streamId
-     * @return
      */
     int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 

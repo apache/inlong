@@ -24,6 +24,9 @@ import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 
 import java.util.List;
 
+/**
+ * Inlong stream builder.
+ */
 public abstract class InlongStreamBuilder {
 
     /**

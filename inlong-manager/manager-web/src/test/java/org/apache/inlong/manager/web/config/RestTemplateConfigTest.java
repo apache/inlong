@@ -22,6 +22,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Test class for rest template config.
+ */
 public class RestTemplateConfigTest extends WebBaseTest {
 
     private final int maxTotal = 5000;

@@ -33,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Agent controller.
+ */
 @RestController
 @RequestMapping("/openapi/agent")
 @Api(tags = "Agent Config")

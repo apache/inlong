@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 /**
- * Response of the binlog source
+ * Response info of the binlog source
  */
 @Data
 @ToString(callSuper = true)

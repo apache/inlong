@@ -50,6 +50,9 @@ import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Default inlong stream builder.
+ */
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private InlongStreamImpl inlongStream;
@@ -146,8 +149,8 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         dataStreamInfo.setTempView(GsonUtil.toJson(streamPipeline));
-        Pair<Boolean, InlongStreamInfo> existMsg = managerClient.isStreamExists(dataStreamInfo);
-        if (existMsg.getKey()) {
+        Boolean isExist = managerClient.isStreamExists(dataStreamInfo);
+        if (isExist) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
             if (!updateMsg.getKey()) {
                 throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));

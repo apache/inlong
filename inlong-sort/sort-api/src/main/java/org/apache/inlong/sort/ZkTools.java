@@ -39,6 +39,9 @@ public class ZkTools {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZkTools.class);
 
+    /**
+     * add a dataFlow to sort cluster by creating a zk node
+     */
     public static void addDataFlowToCluster(
             String cluster,
             long dataFlowId,
@@ -59,6 +62,9 @@ public class ZkTools {
         LOG.info("Add dataFlow with id {} to cluster {} successfully", dataFlowId, cluster);
     }
 
+    /**
+     * remove a dataFlow from sort cluster
+     */
     public static void removeDataFlowFromCluster(
             String cluster,
             long dataFlowId,

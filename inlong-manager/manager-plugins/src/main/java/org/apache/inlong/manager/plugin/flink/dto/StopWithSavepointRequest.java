@@ -20,6 +20,9 @@ package org.apache.inlong.manager.plugin.flink.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Request info of stop with save point.
+ */
 @Getter
 @Setter
 public class StopWithSavepointRequest {

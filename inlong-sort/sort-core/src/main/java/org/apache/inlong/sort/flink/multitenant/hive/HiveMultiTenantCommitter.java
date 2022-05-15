@@ -36,6 +36,11 @@ import org.apache.inlong.sort.protocol.sink.SinkInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * hive multi committer function used in multi tenancy
+ * when dataflow changes, the process function should action accordingly
+ * see DataFlowInfoListenerImpl
+ */
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class HiveMultiTenantCommitter extends ProcessFunction<PartitionCommitInfo, Void> {
 

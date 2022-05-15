@@ -30,6 +30,9 @@ import org.apache.pulsar.client.api.Message;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Builder for pulsar source
+ */
 public class PulsarSourceBuilder {
 
     public static PulsarSourceFunction<SerializedRecord> buildPulsarSource(

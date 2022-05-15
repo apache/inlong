@@ -53,6 +53,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * Audit service layer implementation
+ */
 @Service
 public class AuditServiceImpl implements AuditService {
 
@@ -66,12 +69,6 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private ElasticsearchApi elasticsearchApi;
 
-    /**
-     * Query audit data for list by condition
-     *
-     * @param request The audit request of query condition
-     * @return The result of query
-     */
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
         LOGGER.info("begin query audit list request={}", request);

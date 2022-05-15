@@ -31,8 +31,8 @@ public interface InlongGroup {
     /**
      * Create snapshot for Inlong group
      *
-     * @return
-     * @throws Exception
+     * @return inlong group context
+     * @throws Exception the exception
      */
     InlongGroupContext context() throws Exception;
 
@@ -48,10 +48,17 @@ public interface InlongGroup {
     /**
      * Update Inlong group on updated conf
      *
-     * @return
-     * @throws Exception
+     * @throws Exception the exception
      */
     void update(InlongGroupConf conf) throws Exception;
+
+    /**
+     * Update Inlong group on SortBaseConf
+     *
+     * @param sortBaseConf
+     * @throws Exception
+     */
+    void update(SortBaseConf sortBaseConf) throws Exception;
 
     /**
      * ReInit inlong group after update configuration for group.
@@ -60,16 +67,6 @@ public interface InlongGroup {
      * @return inlong group info
      */
     InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception;
-
-    /**
-     * Init inlong group on updated conf.
-     * Must be invoked when group is rejected,failed or started
-     * This method is deprecated, recommend to use reInitOnUpdate
-     *
-     * @return inlong group info
-     */
-    @Deprecated
-    InlongGroupContext initOnUpdate(InlongGroupConf conf) throws Exception;
 
     /**
      * Suspend the stream group and return group info.

@@ -23,6 +23,9 @@ import org.apache.flink.types.Row;
 
 import java.util.Objects;
 
+/**
+ * hash partitioner using Objects.hashCode of a record row data
+ */
 public class HashPartitioner implements ClickHousePartitioner {
 
     private static final long serialVersionUID = 1L;

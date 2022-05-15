@@ -17,12 +17,13 @@
 
 package org.apache.inlong.agent.message;
 
+import org.apache.inlong.agent.plugin.Message;
+
+import java.util.Map;
+
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
-
-import java.util.Map;
-import org.apache.inlong.agent.plugin.Message;
 
 /**
  * Bus message with body, header, inlongGroupId and inlongStreamId.
@@ -47,6 +48,16 @@ public class ProxyMessage implements Message {
         this.dataKey = header.getOrDefault(PROXY_KEY_DATA, "");
         // use the batch key of user and inlongStreamId to determine one batch
         this.batchKey = dataKey + inlongStreamId;
+    }
+
+    /**
+     * Transform Message to ProxyMessage
+     *
+     * @param message Message
+     * @return ProxyMessage
+     */
+    public static ProxyMessage parse(Message message) {
+        return new ProxyMessage(message.getBody(), message.getHeader());
     }
 
     public String getDataKey() {
@@ -83,9 +94,5 @@ public class ProxyMessage implements Message {
 
     public String getBatchKey() {
         return batchKey;
-    }
-
-    public static ProxyMessage parse(Message message) {
-        return new ProxyMessage(message.getBody(), message.getHeader());
     }
 }

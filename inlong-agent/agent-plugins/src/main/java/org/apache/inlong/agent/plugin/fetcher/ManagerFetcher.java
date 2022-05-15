@@ -209,6 +209,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         return null;
     }
 
+    /**
+     * request manager to get manager vipUrl list, and store it to local file
+     */
     public void requestTdmList() {
         JsonObject result = getResultData(httpManager.doSendGet(managerVipUrl));
         JsonArray data = result.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonArray();
@@ -377,7 +380,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,
@@ -444,8 +447,8 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * fetch manager list, make sure it's not throwing exceptions
      *
-     * @param isInitial - is initial
-     * @param retryTime - retry time
+     * @param isInitial is initial
+     * @param retryTime retry time
      */
     private void fetchTdmList(boolean isInitial, int retryTime) {
         if (retryTime > MAX_RETRY) {
@@ -496,7 +499,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * request manager to get trigger profiles.
      *
-     * @return - trigger profile list
+     * @return trigger profile list
      */
     @Override
     public List<TriggerProfile> getTriggerProfiles() {

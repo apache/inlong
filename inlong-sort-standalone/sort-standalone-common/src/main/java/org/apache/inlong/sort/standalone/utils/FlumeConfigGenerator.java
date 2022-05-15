@@ -23,6 +23,9 @@ import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * generator for flume config
+ */
 public class FlumeConfigGenerator {
 
     public static final String KEY_TASK_NAME = "taskName";

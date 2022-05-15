@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Request of source
+ * Request info of source
  */
 @Data
 @ApiModel("Request of source")

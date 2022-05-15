@@ -51,6 +51,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Utils for create sink info, such as kafka sink, clickhouse sink, etc.
+ */
 public class SinkInfoUtils {
 
     private static final String DATA_FORMAT = "yyyyMMddHH";

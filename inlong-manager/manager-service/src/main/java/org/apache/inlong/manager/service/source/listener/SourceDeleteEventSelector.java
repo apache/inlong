@@ -23,6 +23,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessFor
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of source delete event.
+ */
 public class SourceDeleteEventSelector implements EventSelector {
 
     @Override

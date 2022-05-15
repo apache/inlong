@@ -24,6 +24,9 @@ import org.apache.inlong.manager.client.api.util.AssertUtil;
 
 import java.util.Map;
 
+/**
+ * Default authentication.
+ */
 @NoArgsConstructor
 public class DefaultAuthentication implements Authentication {
 

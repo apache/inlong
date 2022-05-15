@@ -41,6 +41,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Test class for operate binlog source, such as frozen or restart.
+ */
 public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     public UpdateGroupProcessForm form;

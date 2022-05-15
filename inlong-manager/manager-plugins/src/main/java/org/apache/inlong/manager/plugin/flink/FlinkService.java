@@ -48,6 +48,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Flink service, such as save or get flink config info, etc.
+ */
 @Slf4j
 public class FlinkService {
 

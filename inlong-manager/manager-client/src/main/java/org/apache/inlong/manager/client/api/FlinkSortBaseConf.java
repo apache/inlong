@@ -26,6 +26,9 @@ import org.apache.inlong.manager.client.api.auth.Authentication;
 
 import java.util.Map;
 
+/**
+ * Flink sort base config.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for flink cluster")

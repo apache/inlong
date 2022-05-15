@@ -53,6 +53,10 @@ import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * tube multi tenancy consumer
+ * contains multiple tube topic and their consumers
+ */
 public class MultiTenancyTubeConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MultiTenancyTubeConsumer.class);

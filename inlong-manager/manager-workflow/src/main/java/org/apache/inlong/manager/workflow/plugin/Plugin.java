@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
+/**
+ * Interface of plugin.
+ */
 public interface Plugin {
 
 }

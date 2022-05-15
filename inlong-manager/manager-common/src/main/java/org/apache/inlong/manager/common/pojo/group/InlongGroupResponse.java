@@ -29,6 +29,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The response info of inlong group.
+ */
 @Data
 @Builder
 @NoArgsConstructor

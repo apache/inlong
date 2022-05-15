@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.plugin.flink.enums;
 
+/**
+ * Constants info, including properties, dataflow info and rest api url info.
+ */
 public class Constants {
 
     //properties

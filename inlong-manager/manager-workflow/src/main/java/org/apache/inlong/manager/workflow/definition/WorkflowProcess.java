@@ -69,6 +69,9 @@ public class WorkflowProcess extends Element {
 
     private int version;
 
+    /**
+     * Add listener to workflow process.
+     */
     public WorkflowProcess addListener(ProcessEventListener listener) {
         if (nameToListenerMap.containsKey(listener.name())) {
             throw new WorkflowListenerException("duplicate listener:" + listener.name());
@@ -82,18 +85,33 @@ public class WorkflowProcess extends Element {
         return this;
     }
 
+    /**
+     * Get async process event listener list.
+     */
     public List<ProcessEventListener> asyncListeners(ProcessEvent processEvent) {
         return this.asyncListeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
     }
 
+    /**
+     * Get sync process event listener list.
+     */
     public List<ProcessEventListener> syncListeners(ProcessEvent processEvent) {
         return this.syncListeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
     }
 
+    /**
+     * Get process event listener by listener name.
+     *
+     * @param listenerName listener name.
+     * @return process event listener.
+     */
     public ProcessEventListener listener(String listenerName) {
         return this.nameToListenerMap.get(listenerName);
     }
 
+    /**
+     * Add workflow task.
+     */
     public WorkflowProcess addTask(WorkflowTask task) {
         if (this.nameToTaskMap.containsKey(task.getName())) {
             throw new WorkflowException("task name cannot duplicate " + task.getName());
@@ -102,6 +120,12 @@ public class WorkflowProcess extends Element {
         return this;
     }
 
+    /**
+     * Get workflow task by task name.
+     *
+     * @param name workflow task name.
+     * @return workflow task info.
+     */
     public WorkflowTask getTaskByName(String name) {
         if (!this.nameToTaskMap.containsKey(name)) {
             throw new WorkflowException("cannot find task with the name " + name);

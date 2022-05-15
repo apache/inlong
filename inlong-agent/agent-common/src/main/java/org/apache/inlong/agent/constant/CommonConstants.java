@@ -19,6 +19,9 @@ package org.apache.inlong.agent.constant;
 
 import org.apache.inlong.agent.utils.AgentUtils;
 
+/**
+ * Common constants.
+ */
 public class CommonConstants {
 
     public static final String PROXY_NET_TAG = "proxy.net.tag";

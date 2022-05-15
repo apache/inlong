@@ -48,26 +48,57 @@ public class ListenerResult {
      */
     private Exception exception;
 
+    /**
+     * Listener execute success.
+     */
     public static ListenerResult success() {
         return ListenerResult.builder().success(true).build();
     }
 
+    /**
+     * Listener execute success
+     *
+     * @param remark remarks on execution results.
+     * @return listener execute success info.
+     */
     public static ListenerResult success(String remark) {
         return ListenerResult.builder().success(true).remark(remark).build();
     }
 
+    /**
+     * Listener execute fail.
+     */
     public static ListenerResult fail() {
         return ListenerResult.builder().success(false).build();
     }
 
+    /**
+     * Listener execute fail.
+     *
+     * @param remark remarks on execution results.
+     * @return listener execute fail info.
+     */
     public static ListenerResult fail(String remark) {
         return ListenerResult.builder().success(false).remark(remark).build();
     }
 
+    /**
+     * Listener execute fail.
+     *
+     * @param exception exception on execution results.
+     * @return listener execute fail info.
+     */
     public static ListenerResult fail(Exception exception) {
         return ListenerResult.builder().success(false).exception(exception).build();
     }
 
+    /**
+     * Listener execute fail.
+     *
+     * @param exception exception on execution results.
+     * @param remark remarks on execution results.
+     * @return listener execute fail info.
+     */
     public static ListenerResult fail(Exception exception, String remark) {
         return ListenerResult.builder().success(false).exception(exception).remark(remark).build();
     }

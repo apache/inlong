@@ -17,23 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 import com.google.gson.Gson;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -51,6 +35,27 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_AUTO_COMMIT_OFFSET_RESET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_BOOTSTRAP_SERVERS;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_GROUP_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_PARTITION_OFFSET_DELIMITER;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_KAFKA_TOPIC;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
+
+/**
+ * kafka source, split kafka source job into multi readers
+ */
 public class KafkaSource implements Source {
 
     public static final String JOB_KAFKA_AUTO_RESETE = "auto.offset.reset";
@@ -60,7 +65,7 @@ public class KafkaSource implements Source {
     private static final String JOB_KAFKAJOB_WAIT_TIMEOUT = "job.kafkajob.wait.timeout";
     private static final String KAFKA_COMMIT_AUTO = "enable.auto.commit";
     private static final String KAFKA_DESERIALIZER_METHOD =
-                                    "org.apache.kafka.common.serialization.ByteArrayDeserializer";
+            "org.apache.kafka.common.serialization.ByteArrayDeserializer";
     private static final String KAFKA_KEY_DESERIALIZER = "key.deserializer";
     private static final String KAFKA_VALUE_DESERIALIZER = "value.deserializer";
     private static final String KAFKA_SESSION_TIMEOUT = "session.timeout.ms";

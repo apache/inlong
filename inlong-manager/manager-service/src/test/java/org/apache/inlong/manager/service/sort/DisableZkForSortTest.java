@@ -51,6 +51,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Test class for listen delete sort event.
+ */
 public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
 
@@ -68,6 +71,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         subType = "DisableZkFor";
     }
 
+    /**
+     * Creat hvie sink by inlong stream info.
+     */
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
         hiveSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -100,6 +106,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return hiveSinkRequest;
     }
 
+    /**
+     * Creat kafka source info by inlong stream info.
+     */
     public KafkaSourceRequest createKafkaSource(InlongStreamInfo streamInfo) {
         KafkaSourceRequest kafkaSourceRequest = new KafkaSourceRequest();
         kafkaSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());

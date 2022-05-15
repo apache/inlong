@@ -51,7 +51,6 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     private static final String rollingRolloverInterval = "sink.rolling-policy.rollover-interval";
     private static final String rollingPolicyFileSize = "sink.rolling-policy.file-size";
 
-
     @JsonProperty("format")
     @Nonnull
     private String format;

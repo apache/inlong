@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Inlong stream entity, including inlong stream id, inlong group id, etc.
+ */
 @Data
 public class InlongStreamEntity implements Serializable {
 

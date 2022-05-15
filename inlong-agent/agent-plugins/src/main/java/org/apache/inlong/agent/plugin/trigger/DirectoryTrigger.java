@@ -17,6 +17,16 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import org.apache.inlong.agent.common.AbstractDaemon;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.JobConstants;
+import org.apache.inlong.agent.plugin.Trigger;
+import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -34,19 +44,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
-import org.apache.inlong.agent.common.AbstractDaemon;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constant.AgentConstants;
-import org.apache.inlong.agent.constant.JobConstants;
-import org.apache.inlong.agent.plugin.Trigger;
-import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Watch directory, if new valid files are created, create
- * jobs correspondingly.
+ * Watch directory, if new valid files are created, create jobs correspondingly.
  */
 public class DirectoryTrigger extends AbstractDaemon implements Trigger {
 
@@ -105,9 +105,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * register all sub-directory
      *
-     * @param entity - entity
-     * @param path - path
-     * @param tmpWatchers - watchers
+     * @param entity entity
+     * @param path path
+     * @param tmpWatchers watchers
      */
     private void registerAllSubDir(PathPattern entity,
             Path path,
@@ -126,9 +126,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                 }
             } else {
                 JobProfile copiedJobProfile = PluginUtils.copyJobProfile(profile,
-                    entity.getSuitTime(), path.toFile());
+                        entity.getSuitTime(), path.toFile());
                 LOGGER.info("trigger {} generate job profile to read file {}",
-                    getTriggerProfile().getTriggerId(), path.toString());
+                        getTriggerProfile().getTriggerId(), path.toString());
                 queue.offer(copiedJobProfile);
             }
         }
@@ -137,9 +137,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     /**
      * if directory has created, then check whether directory is valid
      *
-     * @param entity - entity
-     * @param watchKey - watch key
-     * @param tmpWatchers - watchers
+     * @param entity entity
+     * @param watchKey watch key
+     * @param tmpWatchers watchers
      */
     private void registerNewDir(PathPattern entity,
             WatchKey watchKey,
@@ -219,11 +219,17 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         submitWorker(watchEventHandler());
     }
 
+    /**
+     * register pathPattern into watchers
+     */
     public void register(String pathPattern) throws IOException {
         PathPattern entity = new PathPattern(pathPattern);
         innerRegister(pathPattern, entity);
     }
 
+    /**
+     * register pathPattern into watchers, with offset
+     */
     public void register(String pathPattern, String offset) throws IOException {
         PathPattern entity = new PathPattern(pathPattern, offset);
         innerRegister(pathPattern, entity);
@@ -262,7 +268,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
     public void init(TriggerProfile profile) throws IOException {
         initWatchService();
         interval = profile.getInt(
-            AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
+                AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
         if (this.profile.hasKey(JobConstants.JOB_DIR_FILTER_PATTERN)) {
             String pathPattern = this.profile.get(JobConstants.JOB_DIR_FILTER_PATTERN);

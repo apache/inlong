@@ -34,6 +34,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Listener of light group update.
+ */
 @Slf4j
 @Component
 public class LightGroupUpdateListener implements ProcessEventListener {

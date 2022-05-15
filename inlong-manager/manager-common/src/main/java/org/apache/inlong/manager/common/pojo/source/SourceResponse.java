@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Response of the stream source
+ * Response info of the stream source
  */
 @Data
 @ApiModel("Response of the stream source")

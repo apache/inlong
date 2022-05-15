@@ -32,6 +32,9 @@ import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.Map;
 
+/**
+ * Low level inlong client service implementation.
+ */
 @Slf4j
 public class LowLevelInlongClientImpl implements LowLevelInlongClient {
 

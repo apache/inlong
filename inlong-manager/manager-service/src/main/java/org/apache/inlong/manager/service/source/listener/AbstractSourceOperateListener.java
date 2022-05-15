@@ -49,6 +49,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Event listener of operate resources, such as delete, stop, restart sources.
+ */
 @Slf4j
 @Component
 public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {
@@ -86,6 +89,9 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
+    /**
+     * Operate stream sources ,such as delete, stop, restart.
+     */
     protected void operateStreamSources(String groupId, String streamId, String operator,
             List<SourceResponse> unOperatedSources) {
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
@@ -124,6 +130,12 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         return false;
     }
 
+    /**
+     * Creat source request by source type.
+     *
+     * @param sourceResponse source infomation.
+     * @return source request.
+     */
     public SourceRequest createSourceRequest(SourceResponse sourceResponse) {
         String sourceType = sourceResponse.getSourceType();
         SourceType type = SourceType.valueOf(sourceType);
@@ -138,6 +150,9 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
+    /**
+     * Operate stream sources ,such as delete, stop, restart.
+     */
     public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
     private GroupOperateType getOperateType(ProcessForm processForm) {

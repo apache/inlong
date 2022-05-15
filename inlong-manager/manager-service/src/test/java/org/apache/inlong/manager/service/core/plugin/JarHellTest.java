@@ -20,6 +20,9 @@ package org.apache.inlong.manager.service.core.plugin;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test class for deal with jar hell.
+ */
 public class JarHellTest {
 
     @Test
