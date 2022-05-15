@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
+import org.apache.inlong.manager.client.api.sink.HbaseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.common.enums.DataFormat;
@@ -36,6 +37,8 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
@@ -53,17 +56,18 @@ public class InlongStreamSinkTransfer {
 
     public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         SinkType sinkType = streamSink.getSinkType();
-        SinkRequest sinkRequest;
-        if (sinkType == SinkType.HIVE) {
-            sinkRequest = createHiveRequest(streamSink, streamInfo);
-        } else if (sinkType == SinkType.KAFKA) {
-            sinkRequest = createKafkaRequest(streamSink, streamInfo);
-        } else if (sinkType == SinkType.CLICKHOUSE) {
-            sinkRequest = createClickHouseRequest(streamSink, streamInfo);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
+        switch (sinkType) {
+            case KAFKA:
+                return createKafkaRequest(streamSink, streamInfo);
+            case HIVE:
+                return createHiveRequest(streamSink, streamInfo);
+            case CLICKHOUSE:
+                return createClickHouseRequest(streamSink, streamInfo);
+            case HBASE:
+                return createHbaseRequest(streamSink, streamInfo);
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
-        return sinkRequest;
     }
 
     public static StreamSink parseStreamSink(SinkResponse sinkResponse) {
@@ -73,17 +77,18 @@ public class InlongStreamSinkTransfer {
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
         String type = sinkResponse.getSinkType();
         SinkType sinkType = SinkType.forType(type);
-        StreamSink streamSinkResult;
-        if (sinkType == SinkType.HIVE) {
-            streamSinkResult = parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
-        } else if (sinkType == SinkType.KAFKA) {
-            streamSinkResult = parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
-        } else if (sinkType == SinkType.CLICKHOUSE) {
-            streamSinkResult = parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
+        switch (sinkType) {
+            case KAFKA:
+                return parseKafkaSink((KafkaSinkResponse) sinkResponse, streamSink);
+            case HIVE:
+                return parseHiveSink((HiveSinkResponse) sinkResponse, streamSink);
+            case CLICKHOUSE:
+                return parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
+            case HBASE:
+                return parseHbaseSink((HbaseSinkResponse) sinkResponse, streamSink);
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
-        return streamSinkResult;
     }
 
     private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
@@ -205,6 +210,65 @@ public class InlongStreamSinkTransfer {
             kafkaSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
         }
         return kafkaSink;
+    }
+
+    private static SinkRequest createHbaseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
+        HbaseSinkRequest hbaseSinkRequest = new HbaseSinkRequest();
+        HbaseSink hbaseSink = (HbaseSink) streamSink;
+        hbaseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        hbaseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        hbaseSinkRequest.setNameSpace(hbaseSink.getNameSpace());
+        hbaseSinkRequest.setTableName(hbaseSink.getTableName());
+        hbaseSinkRequest.setRowKey(hbaseSink.getRowKey());
+        hbaseSinkRequest.setZookeeperQuorum(hbaseSink.getZookeeperQuorum());
+        hbaseSinkRequest.setZookeeperZnodeParent(hbaseSink.getZookeeperZnodeParent());
+        hbaseSinkRequest.setSinkBufferFlushInterval(hbaseSink.getSinkBufferFlushInterval());
+        hbaseSinkRequest.setSinkBufferFlushMaxRows(hbaseSink.getSinkBufferFlushMaxRows());
+        hbaseSinkRequest.setSinkBufferFlushMaxSize(hbaseSink.getSinkBufferFlushMaxSize());
+        hbaseSinkRequest.setSinkType(hbaseSink.getSinkType().name());
+        hbaseSinkRequest.setEnableCreateResource(hbaseSink.isNeedCreated() ? 1 : 0);
+        hbaseSinkRequest.setProperties(hbaseSink.getProperties());
+        if (CollectionUtils.isNotEmpty(hbaseSink.getSinkFields())) {
+            List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(hbaseSink.getSinkFields());
+            hbaseSinkRequest.setFieldList(fieldRequests);
+        }
+        return hbaseSinkRequest;
+
+    }
+
+    private static StreamSink parseHbaseSink(HbaseSinkResponse sinkResponse, StreamSink sink) {
+        HbaseSink hbaseSink = new HbaseSink();
+        if (sink != null) {
+            AssertUtil.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
+                    String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
+            HbaseSink snapshot = (HbaseSink) sink;
+            hbaseSink.setSinkName(snapshot.getSinkName());
+            hbaseSink.setNameSpace(snapshot.getNameSpace());
+            hbaseSink.setTableName(snapshot.getTableName());
+            hbaseSink.setRowKey(snapshot.getRowKey());
+            hbaseSink.setZookeeperQuorum(snapshot.getZookeeperQuorum());
+            hbaseSink.setZookeeperZnodeParent(snapshot.getZookeeperZnodeParent());
+            hbaseSink.setSinkBufferFlushInterval(snapshot.getSinkBufferFlushInterval());
+            hbaseSink.setSinkBufferFlushMaxRows(snapshot.getSinkBufferFlushMaxRows());
+            hbaseSink.setSinkBufferFlushMaxSize(snapshot.getSinkBufferFlushMaxSize());
+        } else {
+            hbaseSink.setSinkName(sinkResponse.getSinkName());
+            hbaseSink.setNameSpace(sinkResponse.getNameSpace());
+            hbaseSink.setTableName(sinkResponse.getTableName());
+            hbaseSink.setRowKey(sinkResponse.getRowKey());
+            hbaseSink.setZookeeperQuorum(sinkResponse.getZookeeperQuorum());
+            hbaseSink.setZookeeperZnodeParent(sinkResponse.getZookeeperZnodeParent());
+            hbaseSink.setSinkBufferFlushInterval(sinkResponse.getSinkBufferFlushInterval());
+            hbaseSink.setSinkBufferFlushMaxRows(sinkResponse.getSinkBufferFlushMaxRows());
+            hbaseSink.setSinkBufferFlushMaxSize(sinkResponse.getSinkBufferFlushMaxSize());
+        }
+        hbaseSink.setProperties(sinkResponse.getProperties());
+        hbaseSink.setSinkType(SinkType.HBASE);
+        hbaseSink.setNeedCreated(GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkResponse.getEnableCreateResource()));
+        if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
+            hbaseSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
+        }
+        return hbaseSink;
     }
 
     private static HiveSinkRequest createHiveRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
