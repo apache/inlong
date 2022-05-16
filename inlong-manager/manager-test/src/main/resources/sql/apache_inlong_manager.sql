@@ -325,10 +325,6 @@ CREATE TABLE IF NOT EXISTS `data_schema`
     UNIQUE KEY `unique_schema_name` (`name`)
 );
 
--- create default data schema
-INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time_offset)
-values ('m0_day', 'file_agent', 'day', 0, '-0d');
-
 -- ----------------------------
 -- Table structure for stream_source_cmd_config
 -- ----------------------------
@@ -686,11 +682,6 @@ CREATE TABLE IF NOT EXISTS `user`
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_user_name_idx` (`name`)
 );
-
--- create default admin user, username is 'admin', password is 'inlong'
-INSERT INTO `user` (name, password, account_type, due_date, create_time, update_time, create_by, update_by)
-VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', 0, '2099-12-31 23:59:59',
-        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for user_role
