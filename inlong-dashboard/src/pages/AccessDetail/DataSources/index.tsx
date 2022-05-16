@@ -35,7 +35,7 @@ type Props = CommonInterface;
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
   {
     type: 'radiobutton',
@@ -60,7 +60,7 @@ const getFilterFormContent = defaultValues => [
 
 const Comp = ({ inlongGroupId }: Props, ref) => {
   const [options, setOptions] = useState({
-    // keyWord: '',
+    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
     sourceType: 'FILE',

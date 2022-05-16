@@ -25,8 +25,8 @@ import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
-    initialValue: defaultValues.keyWord,
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
   },
 ];
 

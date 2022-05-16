@@ -50,8 +50,8 @@ export const dashCardList = [
 export const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
-    initialValue: defaultValues.keyWord,
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
     props: {
       allowClear: true,
     },
