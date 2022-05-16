@@ -19,8 +19,6 @@ package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
 
-import java.util.Locale;
-
 /**
  * Iceberg data type
  */
@@ -53,7 +51,7 @@ public enum IcebergType {
      */
     public static IcebergType forType(String type) {
         for (IcebergType ibType : values()) {
-            if (ibType.getType().toLowerCase(Locale.ROOT).equals(type.toLowerCase(Locale.ROOT))) {
+            if (ibType.getType().equalsIgnoreCase(type)) {
                 return ibType;
             }
         }
