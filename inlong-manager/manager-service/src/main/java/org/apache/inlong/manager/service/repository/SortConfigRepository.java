@@ -47,6 +47,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Use to cache the sort cluster config and reduce the number of query to database.
+ */
 @Repository
 public class SortConfigRepository implements IRepository {
 
@@ -90,10 +93,17 @@ public class SortConfigRepository implements IRepository {
     @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.debug("start to reload sort config.");
-        reloadClusterConfig();
+        reloadAllClusterConfig();
         LOGGER.debug("end to reload config");
     }
 
+    /**
+     * Get the cluster config response by specific cluster name.
+     *
+     * @param clusterName Cluster name.
+     * @param md5 Last md5.
+     * @return Corresponding response.
+     */
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
         // check if cluster name is valid or not.
         if (StringUtils.isBlank(clusterName)) {
@@ -123,6 +133,7 @@ public class SortConfigRepository implements IRepository {
                     .build();
         }
 
+        // if the same md5
         if (sortClusterMd5Map.get(clusterName).equals(md5)) {
             return SortClusterResponse.builder()
                     .msg("No update")
@@ -139,7 +150,14 @@ public class SortConfigRepository implements IRepository {
                 .build();
     }
 
-    private void reloadClusterConfig() {
+    /**
+     * Reload all cluster config.
+     *
+     * <p>
+     *     The reload results, including config, md5 and error log, will replace the older ones.
+     * </p>
+     */
+    private void reloadAllClusterConfig() {
         // get all task and group by cluster
         List<SortTaskDTO> tasks = sortClusterMapper.selectAllTasks();
         Map<String, List<SortTaskDTO>> clusterTaskMap =
@@ -161,13 +179,15 @@ public class SortConfigRepository implements IRepository {
         Map<String, String> newErrorlogMap = new ConcurrentHashMap<>();
         clusterTaskMap.forEach((clusterName, taskList) -> {
             try {
+                // get config, then update config map and md5
                 SortClusterConfig clusterConfig =
-                        updateConfigByClusterName(clusterName, taskList, taskIdParamMap, taskSinkParamMap);
+                        getConfigByClusterName(clusterName, taskList, taskIdParamMap, taskSinkParamMap);
                 String jsonStr = gson.toJson(clusterConfig);
                 String md5 = DigestUtils.md5Hex(jsonStr);
                 newConfigMap.put(clusterName, clusterConfig);
                 newMd5Map.put(clusterName, md5);
             } catch (Throwable e) {
+                // if get config failed, update the err log.
                 newErrorlogMap.put(clusterName, e.getMessage());
                 LOGGER.error("Failed to update cluster config of {}, error is {}", clusterName, e.getMessage());
                 LOGGER.error(e.getMessage(), e);
@@ -178,7 +198,16 @@ public class SortConfigRepository implements IRepository {
         sortClusterMd5Map = newMd5Map;
     }
 
-    private SortClusterConfig updateConfigByClusterName(
+    /**
+     * Get the latest config of specific cluster.
+     *
+     * @param clusterName Cluster name.
+     * @param tasks Task in this cluster.
+     * @param taskIdParamMap All id params.
+     * @param taskSinkParamMap All sink params.
+     * @return The sort cluster config of specific cluster.
+     */
+    private SortClusterConfig getConfigByClusterName(
             String clusterName,
             List<SortTaskDTO> tasks,
             Map<String, List<SortIdParamsDTO>> taskIdParamMap,
@@ -200,6 +229,18 @@ public class SortConfigRepository implements IRepository {
                 .build();
     }
 
+    /**
+     * Get task config.
+     * <p>
+     *     If there is no any id or sink params, throw exception to upper caller.
+     * </p>
+     *
+     * @param taskName Task name.
+     * @param type Type of sink.
+     * @param idParams Id params.
+     * @param sinkParams Sink params.
+     * @return Task config.
+     */
     private SortTaskConfig getTaskConfig(
             String taskName,
             String type,
@@ -226,6 +267,11 @@ public class SortConfigRepository implements IRepository {
 
     }
 
+    /**
+     * Parse id params from json.
+     * @param rowIdParams IdParams in json format.
+     * @return List of IdParams.
+     */
     private List<Map<String, String>> parseIdParams(List<SortIdParamsDTO> rowIdParams) {
         return rowIdParams.stream()
                         .map(row -> {
@@ -238,6 +284,11 @@ public class SortConfigRepository implements IRepository {
                         .collect(Collectors.toList());
     }
 
+    /**
+     * Parse sink params from json.
+     * @param rowSinkParams Sink params in json format.
+     * @return Sink params.
+     */
     private Map<String, String> parseSinkParams(SortSinkParamsDTO rowSinkParams) {
         return gson.fromJson(rowSinkParams.getExtParams(), HashMap.class);
     }
