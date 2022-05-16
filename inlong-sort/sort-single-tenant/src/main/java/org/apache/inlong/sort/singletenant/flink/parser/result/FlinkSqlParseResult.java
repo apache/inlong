@@ -82,4 +82,5 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
             tableEnv.executeSql(sql);
         }
     }
+
 }
