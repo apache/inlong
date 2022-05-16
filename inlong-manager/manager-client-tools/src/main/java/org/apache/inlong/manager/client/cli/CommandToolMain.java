@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Command tool main.
+ */
 public class CommandToolMain {
 
     protected final Map<String, Class<?>> commandMap = new HashMap<>();

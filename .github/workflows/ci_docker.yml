@@ -54,11 +54,11 @@ on:
 
 jobs:
   docker:
-    name: Docker Build and Push
+    name: Docker build and push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK
         uses: actions/setup-java@v3
@@ -80,13 +80,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build docker image
+      - name: Build Docker images
         run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
         env:
           CI: false
 
       # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
-      - name: Match Branch
+      - name: Match branch
         id: match-branch
         if: |
           success()
@@ -97,7 +97,7 @@ jobs:
               echo "::set-output name=match::true"
           fi
 
-      - name: Push docker image to Docker Hub
+      - name: Push Docker images to Docker Hub
         if: ${{ success() && steps.match-branch.outputs.match == 'true' }}
         working-directory: docker
         run: bash +x publish.sh

@@ -29,6 +29,9 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 
 import java.util.List;
 
+/**
+ * Get commond describe info of resources.
+ */
 @Parameters(commandDescription = "Display details of one or more resources")
 public class CommandDescribe extends CommandBase {
 

@@ -44,7 +44,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setType(type);
         request.setUrl(url);
         request.setUsername(username);
-        request.setPassword(password);
+        request.setToken(password);
         request.setInCharges(GLOBAL_OPERATOR);
         return dataNodeService.save(request, GLOBAL_OPERATOR);
     }
@@ -69,7 +69,7 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         request.setType(type);
         request.setUrl(url);
         request.setUsername(username);
-        request.setPassword(password);
+        request.setToken(password);
         return dataNodeService.update(request, GLOBAL_OPERATOR);
     }
 

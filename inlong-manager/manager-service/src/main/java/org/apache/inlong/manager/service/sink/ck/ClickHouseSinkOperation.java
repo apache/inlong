@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * ClickHouse sink operation
+ * Click house sink operation, such as save or update click house field, etc.
  */
 @Service
 public class ClickHouseSinkOperation implements StreamSinkOperation {

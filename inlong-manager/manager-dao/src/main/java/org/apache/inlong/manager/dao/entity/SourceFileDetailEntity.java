@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Source file detail entity, including servername, username, password, etc.
+ */
 @Data
 public class SourceFileDetailEntity implements Serializable {
 

@@ -98,8 +98,7 @@ CREATE TABLE `inlong_group_ext`
 -- ----------------------------
 -- Table structure for inlong_cluster
 -- ----------------------------
-DROP TABLE IF EXISTS `inlong_cluster`;
-CREATE TABLE `inlong_cluster`
+CREATE TABLE IF NOT EXISTS `inlong_cluster`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
@@ -107,6 +106,7 @@ CREATE TABLE `inlong_cluster`
     `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
     `cluster_tag` varchar(128)      DEFAULT NULL COMMENT 'Cluster tag, the same tab indicates that cluster belongs to the same set',
     `ext_tag`     varchar(128)      DEFAULT NULL COMMENT 'Extension tag, for extended use',
+    `token`       varchar(512)      DEFAULT NULL COMMENT 'Cluster token',
     `ext_params`  text              DEFAULT NULL COMMENT 'Extended params, will saved as JSON string',
     `heartbeat`   text              DEFAULT NULL COMMENT 'Cluster heartbeat info',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
@@ -123,8 +123,7 @@ CREATE TABLE `inlong_cluster`
 -- ----------------------------
 -- Table structure for inlong_cluster_node
 -- ----------------------------
-DROP TABLE IF EXISTS `inlong_cluster_node`;
-CREATE TABLE `inlong_cluster_node`
+CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `parent_id`   int(11)      NOT NULL COMMENT 'Id of the parent cluster',
@@ -145,15 +144,14 @@ CREATE TABLE `inlong_cluster_node`
 -- ----------------------------
 -- Table structure for data_node
 -- ----------------------------
-DROP TABLE IF EXISTS `data_node`;
-CREATE TABLE `data_node`
+CREATE TABLE IF NOT EXISTS `data_node`
 (
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
-    `type`        varchar(20)       DEFAULT '' COMMENT 'Cluster type, such as: MYSQL, HIVE, KAFKA, ES, etc',
-    `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
-    `username`    varchar(128)      DEFAULT NULL COMMENT 'Username for cluster if needed',
-    `password`    varchar(128)      DEFAULT NULL COMMENT 'Password for cluster',
+    `name`        varchar(128) NOT NULL COMMENT 'Node name',
+    `type`        varchar(20)       DEFAULT '' COMMENT 'Node type, such as: MYSQL, HIVE, KAFKA, ES, etc',
+    `url`         varchar(512)      DEFAULT NULL COMMENT 'Node URL',
+    `username`    varchar(128)      DEFAULT NULL COMMENT 'Username for node if needed',
+    `token`       varchar(512)      DEFAULT NULL COMMENT 'Node token',
     `ext_params`  text              DEFAULT NULL COMMENT 'Extended params, will saved as JSON string',
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '0' COMMENT 'Cluster status',

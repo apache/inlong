@@ -29,7 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Sort sink params service implementation. */
+/**
+ * Sort sink params service implementation.
+ */
 @Service
 public class SortTaskSinkParamServiceImpl implements SortTaskSinkParamService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortTaskSinkParamServiceImpl.class);

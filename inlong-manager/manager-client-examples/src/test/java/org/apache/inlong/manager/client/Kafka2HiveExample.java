@@ -47,6 +47,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test class for kafka to hive.
+ */
 @Slf4j
 public class Kafka2HiveExample {
 

@@ -30,6 +30,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Iceberg stream sink service test..
+ */
 public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
 
     private final String globalGroupId = "b_group1";
@@ -42,6 +45,9 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+    /**
+     * Save sink info.
+     */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         IcebergSinkRequest sinkInfo = new IcebergSinkRequest();

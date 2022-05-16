@@ -29,6 +29,9 @@ import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test class for process plugin.
+ */
 public class MockPlugin implements ProcessPlugin {
 
     public EventSelector stopProcessSelector = new EventSelector() {

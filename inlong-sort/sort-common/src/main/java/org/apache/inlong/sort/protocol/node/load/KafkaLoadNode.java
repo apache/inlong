@@ -43,6 +43,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Kafka load node using kafka connectors provided by flink
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaLoad")
 @Data

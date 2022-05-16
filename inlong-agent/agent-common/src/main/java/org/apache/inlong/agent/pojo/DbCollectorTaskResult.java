@@ -30,6 +30,11 @@ public class DbCollectorTaskResult {
 
     private DbCollectorTask data = new DbCollectorTask();
 
+    /**
+     * get JobProfile based on DbCollectorTask
+     *
+     * @return JobProfile
+     */
     public JobProfile getJobProfile() {
         JobProfile profile = null;
         if (data == null) {

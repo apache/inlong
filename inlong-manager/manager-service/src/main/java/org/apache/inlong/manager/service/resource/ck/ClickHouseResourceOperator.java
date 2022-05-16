@@ -40,6 +40,9 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Operator for clickHouse resource, such as create sink resource, clickHouse tables, etc.
+ */
 @Service
 public class ClickHouseResourceOperator implements SinkResourceOperator {
 

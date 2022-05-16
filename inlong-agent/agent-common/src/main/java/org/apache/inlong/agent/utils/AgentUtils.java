@@ -17,6 +17,13 @@
 
 package org.apache.inlong.agent.utils;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.agent.conf.AgentConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
@@ -44,12 +51,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
@@ -57,11 +58,11 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_O
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
+/**
+ * AgentUtils
+ */
 public class AgentUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
-    private static final AtomicLong INDEX = new AtomicLong(0);
-    private static final String HEX_PREFIX = "0x";
     public static final String EQUAL = "=";
     public static final String M_VALUE = "m";
     public static final String ADDITION_SPLITTER = "&";
@@ -73,10 +74,14 @@ public class AgentUtils {
     public static final String HOUR = "H";
     public static final String HOUR_LOW_CASE = "h";
     public static final String MINUTE = "m";
+    private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
+    private static final AtomicLong INDEX = new AtomicLong(0);
+    private static final String HEX_PREFIX = "0x";
 
     /**
      * get md5 of file.
-     * @param file - file name
+     *
+     * @param file file name
      * @return
      */
     public static String getFileMd5(File file) {
@@ -90,7 +95,6 @@ public class AgentUtils {
 
     /**
      * return system current time
-     * @return
      */
     public static long getCurrentTime() {
         return System.currentTimeMillis();
@@ -99,7 +103,7 @@ public class AgentUtils {
     /**
      * finally close resources
      *
-     * @param resource -  resource which is closable.
+     * @param resource resource which is closable.
      */
     public static void finallyClose(Closeable resource) {
         if (resource != null) {
@@ -114,7 +118,7 @@ public class AgentUtils {
     /**
      * finally close resources.
      *
-     * @param resource -  resource which is closable.
+     * @param resource resource which is closable.
      */
     public static void finallyClose(AutoCloseable resource) {
         if (resource != null) {
@@ -142,7 +146,7 @@ public class AgentUtils {
     /**
      * Get declare methods.
      *
-     * @param clazz - class of field from method return
+     * @param clazz class of field from method return
      * @return list of methods
      */
     public static List<Method> getDeclaredMethodsIncludingInherited(Class<?> clazz) {
@@ -156,8 +160,6 @@ public class AgentUtils {
 
     /**
      * get random int of [seed, seed * 2]
-     * @param seed
-     * @return
      */
     public static int getRandomBySeed(int seed) {
         return ThreadLocalRandom.current().nextInt(0, seed) + seed;
@@ -194,15 +196,19 @@ public class AgentUtils {
 
     /**
      * Get uniq id with timestamp and index.
-     * @param id - job id
-     * @param index - job index
+     *
+     * @param id job id
+     * @param index job index
      * @return uniq id
      */
     public static String getUniqId(String prefix, String id, long index) {
         long currentTime = System.currentTimeMillis() / 1000;
-        return  prefix + currentTime + "_" + id + "_" + index;
+        return prefix + currentTime + "_" + id + "_" + index;
     }
 
+    /**
+     * sleep millisecond
+     */
     public static void silenceSleepInMs(long millisecond) {
         try {
             TimeUnit.MILLISECONDS.sleep(millisecond);
@@ -211,6 +217,9 @@ public class AgentUtils {
         }
     }
 
+    /**
+     * sleep minutes
+     */
     public static void silenceSleepInMinute(long minutes) {
         try {
             TimeUnit.MINUTES.sleep(minutes);
@@ -232,13 +241,14 @@ public class AgentUtils {
 
     /**
      * formatter for current time
-     * @param formatter
-     * @return
      */
     public static String formatCurrentTime(String formatter) {
         return formatCurrentTime(formatter, Locale.getDefault());
     }
 
+    /**
+     * formatter for current time based on zone
+     */
     public static String formatCurrentTime(String formatter, Locale locale) {
         ZonedDateTime zoned = ZonedDateTime.now();
         // TODO: locale seems not working
@@ -247,10 +257,11 @@ public class AgentUtils {
 
     /**
      * formatter with time offset
-     * @param formatter - formatter string
-     * @param day - day offset
-     * @param hour - hour offset
-     * @param min - min offset
+     *
+     * @param formatter formatter string
+     * @param day day offset
+     * @param hour hour offset
+     * @param min min offset
      * @return current time with offset
      */
     public static String formatCurrentTimeWithOffset(String formatter, int day, int hour, int min) {
@@ -266,8 +277,8 @@ public class AgentUtils {
     /**
      * whether all class of path name are matched
      *
-     * @param pathStr - path string
-     * @param patternStr - regex pattern
+     * @param pathStr path string
+     * @param patternStr regex pattern
      * @return true if all match
      */
     public static boolean regexMatch(String pathStr, String patternStr) {
@@ -287,8 +298,6 @@ public class AgentUtils {
 
     /**
      * parse addition attr, the attributes must be send in proxy sender
-     * @param additionStr
-     * @return
      */
     public static Pair<String, Map<String, String>> parseAddAttr(String additionStr) {
         Map<String, String> attr = new HashMap<>();
@@ -310,9 +319,6 @@ public class AgentUtils {
 
     /**
      * the attrs in pairs can be complicated in online env
-     * @param attr
-     * @param s
-     * @param pairs
      */
     private static void getAttrs(Map<String, String> attr, String s, String[] pairs) {
         // when addiction attr be like "m=10&__addcol1__worldid="
@@ -325,8 +331,6 @@ public class AgentUtils {
 
     /**
      * get addition attributes in additionStr
-     * @param additionStr
-     * @return
      */
     public static Map<String, String> getAdditionAttr(String additionStr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(additionStr);
@@ -335,8 +339,6 @@ public class AgentUtils {
 
     /**
      * get m value in additionStr
-     * @param addictiveAttr
-     * @return
      */
     public static String getmValue(String addictiveAttr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(addictiveAttr);
@@ -356,7 +358,7 @@ public class AgentUtils {
     public static String fetchLocalUuid() {
         String uuid = "";
         if (!AgentConfiguration.getAgentConf()
-            .getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
+                .getBoolean(AGENT_LOCAL_UUID_OPEN, DEFAULT_AGENT_LOCAL_UUID_OPEN)) {
             return uuid;
         }
         try {
@@ -379,9 +381,6 @@ public class AgentUtils {
 
     /**
      * time str convert to mill sec
-     * @param time
-     * @param cycleUnit
-     * @return
      */
     public static long timeStrConvertToMillSec(String time, String cycleUnit) {
         long defaultTime = System.currentTimeMillis();

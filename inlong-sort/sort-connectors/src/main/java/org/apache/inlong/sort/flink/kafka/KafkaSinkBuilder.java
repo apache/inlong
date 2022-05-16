@@ -31,6 +31,9 @@ import java.util.Properties;
 
 import static org.apache.inlong.sort.configuration.Constants.SINK_KAFKA_PRODUCER_POOL_SIZE;
 
+/**
+ * builder for kafka sink
+ */
 public class KafkaSinkBuilder {
 
     public static SinkFunction<Row> buildKafkaSink(

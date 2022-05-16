@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * hop start of a window function
+ */
 @JsonTypeName("hopStart")
 @Data
 @NoArgsConstructor

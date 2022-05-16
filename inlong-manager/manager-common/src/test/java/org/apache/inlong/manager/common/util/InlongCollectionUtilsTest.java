@@ -23,6 +23,9 @@ import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Inlong collection util test.
+ */
 public class InlongCollectionUtilsTest {
 
     @Test

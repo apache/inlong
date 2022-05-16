@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * identifier for the end of a session window
+ */
 @JsonTypeName("sessionEnd")
 @Data
 @NoArgsConstructor

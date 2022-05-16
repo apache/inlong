@@ -25,6 +25,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The VO of common file server list.
+ */
 @Data
 @Builder
 @NoArgsConstructor

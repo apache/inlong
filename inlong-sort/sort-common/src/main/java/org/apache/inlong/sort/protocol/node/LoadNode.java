@@ -32,6 +32,7 @@ import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
@@ -39,6 +40,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * node for inserting data to external system
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -47,7 +51,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
         @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
         @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
-        @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad")
+        @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
+        @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad")
 })
 @NoArgsConstructor
 @Data

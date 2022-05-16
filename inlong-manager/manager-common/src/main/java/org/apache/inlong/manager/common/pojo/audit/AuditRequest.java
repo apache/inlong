@@ -27,6 +27,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+/**
+ * The request info of audit.
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Audit query request")

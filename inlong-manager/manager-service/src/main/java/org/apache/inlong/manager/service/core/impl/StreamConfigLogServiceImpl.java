@@ -39,6 +39,9 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Stream config log service layer implementation
+ */
 @Service
 public class StreamConfigLogServiceImpl extends AbstractService<StreamConfigLogEntity>
         implements StreamConfigLogService {
@@ -81,11 +84,23 @@ public class StreamConfigLogServiceImpl extends AbstractService<StreamConfigLogE
         return pageInfo;
     }
 
+    /**
+     * Batch insert stream config log.
+     *
+     * @param entryList stream config log list.
+     * @return whether succeed.
+     */
     public boolean batchInsertEntities(List<StreamConfigLogEntity> entryList) {
         streamConfigLogEntityMapper.insertOrUpdateAll(entryList);
         return true;
     }
 
+    /**
+     * Convert request to stream config log info.
+     *
+     * @param request stream config log list.
+     * @return the updated stream config log info.
+     */
     public StreamConfigLogEntity convertData(InlongStreamConfigLogRequest request) {
         StreamConfigLogEntity entity = new StreamConfigLogEntity();
         entity.setComponentName(request.getComponentName());

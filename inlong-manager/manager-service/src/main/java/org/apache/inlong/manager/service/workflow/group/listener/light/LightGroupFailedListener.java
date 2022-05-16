@@ -30,6 +30,9 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener of light group failed.
+ */
 @Slf4j
 @Component
 public class LightGroupFailedListener implements ProcessEventListener {

@@ -24,7 +24,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Response of the source list
+ * Response info of the source list
  */
 @Data
 public class SourceListResponse {

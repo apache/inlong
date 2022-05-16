@@ -17,23 +17,6 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
-import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
-import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
-import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
-import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
@@ -43,6 +26,24 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.pulsar.client.api.CompressionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
+
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_COLON;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NIX_OS;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_NUX_OS;
+import static org.apache.inlong.agent.constant.CommonConstants.AGENT_OS_NAME;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_FILE_MAX_NUM;
+import static org.apache.inlong.agent.constant.CommonConstants.FILE_MAX_NUM;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_RETRY_TIME;
 
 /**
  * Utils for plugin package.
@@ -54,21 +55,26 @@ public class PluginUtils {
 
     /**
      * convert string compress type to enum compress type
-     * @param type
-     * @return
      */
     public static CompressionType convertType(String type) {
         switch (type) {
-            case "lz4": return CompressionType.LZ4;
-            case "zlib": return CompressionType.ZLIB;
-            case "zstd": return CompressionType.ZSTD;
-            case "snappy": return CompressionType.SNAPPY;
+            case "lz4":
+                return CompressionType.LZ4;
+            case "zlib":
+                return CompressionType.ZLIB;
+            case "zstd":
+                return CompressionType.ZSTD;
+            case "snappy":
+                return CompressionType.SNAPPY;
             case "none":
             default:
                 return CompressionType.NONE;
         }
     }
 
+    /**
+     * scan and return files based on job dir conf
+     */
     public static Collection<File> findSuitFiles(JobProfile jobConf) {
         String dirPattern = jobConf.get(JOB_DIR_FILTER_PATTERN);
         LOGGER.info("start to find files with dir pattern {}", dirPattern);
@@ -87,19 +93,20 @@ public class PluginUtils {
 
     /**
      * if the job is retry job, the date is determined
-     * @param jobConf
-     * @param pattern
      */
     public static void updateRetryTime(JobProfile jobConf, PathPattern pattern) {
         if (jobConf.hasKey(JOB_RETRY_TIME)) {
             LOGGER.info("job {} is retry job with specific time, update file time to {}"
-                + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
+                    + "", jobConf.toJsonStr(), jobConf.get(JOB_RETRY_TIME));
             pattern.updateDateFormatRegex(jobConf.get(JOB_RETRY_TIME));
         }
     }
 
+    /**
+     * convert TriggerProfile to JobProfile
+     */
     public static JobProfile copyJobProfile(TriggerProfile triggerProfile, String dataTime,
-        File pendingFile) {
+            File pendingFile) {
         JobProfile copiedProfile = TriggerProfile.parseJsonStr(triggerProfile.toJsonStr());
         String md5 = AgentUtils.getFileMd5(pendingFile);
         copiedProfile.set(pendingFile.getAbsolutePath() + ".md5", md5);

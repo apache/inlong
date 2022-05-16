@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Common database server info, including connection name, username, password, etc.
+ */
 @Data
 public class CommonDbServerEntity implements Serializable {
 

@@ -34,6 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+/**
+ * Test class for get queue operate listener.
+ */
 public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Autowired

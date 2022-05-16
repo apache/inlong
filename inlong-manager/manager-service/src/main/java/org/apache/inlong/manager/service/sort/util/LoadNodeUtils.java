@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Util for loead node info.
+ */
 public class LoadNodeUtils {
 
     public static List<LoadNode> createLoadNodes(List<SinkResponse> sinkResponses) {

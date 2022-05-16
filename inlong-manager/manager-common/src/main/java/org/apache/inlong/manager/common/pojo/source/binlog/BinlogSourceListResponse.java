@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
- * Response of binlog source list
+ * Response info of binlog source list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

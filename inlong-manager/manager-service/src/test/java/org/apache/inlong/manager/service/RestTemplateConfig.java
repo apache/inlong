@@ -42,6 +42,9 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * Test class for rest template config.
+ */
 @Data
 @Configuration
 @ConditionalOnMissingBean(RestTemplate.class)

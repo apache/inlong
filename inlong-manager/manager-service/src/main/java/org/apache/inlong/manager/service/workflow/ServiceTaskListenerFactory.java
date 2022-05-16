@@ -60,6 +60,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service task listener factory.
+ */
 @Data
 @Component
 public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
@@ -148,6 +151,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         }
     }
 
+    /**
+     * Get data source operate listener list.
+     */
     public List<DataSourceOperateListener> getSourceOperateListener(WorkflowContext context) {
         List<DataSourceOperateListener> listeners = new ArrayList<>();
         for (Map.Entry<DataSourceOperateListener, EventSelector> entry : sourceOperateListeners.entrySet()) {
@@ -159,6 +165,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         return listeners;
     }
 
+    /**
+     * Get queue operate listener list.
+     */
     public List<QueueOperateListener> getQueueOperateListener(WorkflowContext context) {
         List<QueueOperateListener> listeners = new ArrayList<>();
         for (Map.Entry<QueueOperateListener, EventSelector> entry : queueOperateListeners.entrySet()) {
@@ -170,6 +179,9 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         return listeners;
     }
 
+    /**
+     * Get sort operate listener list.
+     */
     public List<SortOperateListener> getSortOperateListener(WorkflowContext context) {
         List<SortOperateListener> listeners = new ArrayList<>();
         for (Map.Entry<SortOperateListener, EventSelector> entry : sortOperateListeners.entrySet()) {

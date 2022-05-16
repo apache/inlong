@@ -22,6 +22,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * Sort task sink param entity, including task name, sink type, etc.
+ */
 @Data
 @Builder
 public class SortTaskSinkParamEntity implements Serializable {

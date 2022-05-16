@@ -33,6 +33,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * clickhouse append executor using ClickHousePreparedStatement
+ * provided by ru.yandex.clickhouse
+ */
 public class ClickHouseAppendExecutor implements ClickHouseExecutor {
 
     private static final long serialVersionUID = 1L;

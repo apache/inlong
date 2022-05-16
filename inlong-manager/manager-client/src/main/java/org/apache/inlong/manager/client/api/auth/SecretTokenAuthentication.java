@@ -24,6 +24,9 @@ import lombok.SneakyThrows;
 
 import java.util.Map;
 
+/**
+ * Secret token authentication.
+ */
 @NoArgsConstructor
 public class SecretTokenAuthentication extends SecretAuthentication {
 

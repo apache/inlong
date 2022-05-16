@@ -49,6 +49,9 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+    /**
+     * Save sink info.
+     */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
@@ -63,6 +66,9 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         return sinkService.save(sinkInfo, globalOperator);
     }
 
+    /**
+     * Delete kafka sink info by sink id.
+     */
     public void deleteKafkaSink(Integer kafkaSinkId) {
         boolean result = sinkService.delete(kafkaSinkId, globalOperator);
         Assert.assertTrue(result);

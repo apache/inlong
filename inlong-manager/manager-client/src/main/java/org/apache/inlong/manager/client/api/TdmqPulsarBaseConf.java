@@ -24,6 +24,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.MQType;
 
+/**
+ * Tdmq Pulsar base config.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

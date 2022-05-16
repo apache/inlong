@@ -44,6 +44,9 @@ import org.apache.inlong.sort.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DeserializationSchema used in multi-tenant sort
+ */
 public class DeserializationSchema extends ProcessFunction<SerializedRecord, SerializedRecord> {
 
     private static final long serialVersionUID = 5380421870587560943L;

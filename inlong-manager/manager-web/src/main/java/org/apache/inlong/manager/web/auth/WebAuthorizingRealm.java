@@ -35,6 +35,9 @@ import org.apache.shiro.subject.PrincipalCollection;
 
 import java.util.Date;
 
+/**
+ * Web user authorization.
+ */
 public class WebAuthorizingRealm extends AuthorizingRealm {
 
     private final UserService userService;
@@ -45,10 +48,6 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
 
     /**
      * Login authentication
-     *
-     * @param authenticationToken
-     * @return
-     * @throws AuthenticationException
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
@@ -67,9 +66,6 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
 
     /**
      * URI access control
-     *
-     * @param principalCollection
-     * @return
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {

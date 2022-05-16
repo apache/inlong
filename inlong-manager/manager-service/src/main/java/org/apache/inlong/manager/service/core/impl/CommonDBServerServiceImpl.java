@@ -45,6 +45,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Common database server service layer implementation
+ */
 @Slf4j
 @Service
 public class CommonDBServerServiceImpl implements CommonDBServerService {
@@ -54,16 +57,23 @@ public class CommonDBServerServiceImpl implements CommonDBServerService {
     @Autowired
     private CommonDbServerEntityMapper commonDbServerMapper;
 
+    /**
+     * Check if the string length is right.
+     *
+     * @param text string.
+     * @param maxLength max length for string.
+     * @return true or false.
+     */
     public static boolean checkStrLen(String text, int maxLength) {
         // too large.
         return text != null && text.length() > maxLength;
     }
 
     /**
-     * Check if the IP string is valid
+     * Check if the IP string is valid.
      *
-     * @param text IP string
-     * @return true or false
+     * @param text IP string.
+     * @return true or false.
      */
     public static boolean ipCheck(String text) {
         if (text != null && !text.isEmpty()) {

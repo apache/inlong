@@ -23,6 +23,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
+/**
+ * Response info of auto push source list.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of DataProxy SDK source paging list")

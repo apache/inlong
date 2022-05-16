@@ -30,6 +30,9 @@ import org.apache.inlong.manager.client.api.TubeBaseConf;
 
 import java.lang.reflect.Type;
 
+/**
+ * MQ base config adapter.
+ */
 public class MQBaseConfAdapter implements JsonDeserializer {
 
     @Override

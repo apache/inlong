@@ -39,7 +39,7 @@ import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 import java.util.List;
 
 /**
- * Utils for source info
+ * Utils for creat source info, such as pulsar source, tube MQ source.
  */
 public class SourceInfoUtils {
 

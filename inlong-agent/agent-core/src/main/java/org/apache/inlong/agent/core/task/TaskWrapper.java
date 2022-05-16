@@ -17,16 +17,6 @@
 
 package org.apache.inlong.agent.core.task;
 
-import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.inlong.agent.common.AgentThreadFactory;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.constant.AgentConstants;
@@ -39,16 +29,25 @@ import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
+
 /**
  * TaskWrapper is used in taskManager, it maintains the life cycle of
  * running task.
  */
 public class TaskWrapper extends AbstractStateWrapper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     public static final int WAIT_FINISH_TIME_OUT = 1;
     public static final int WAIT_BEGIN_TIME_MINUTE = 1;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskWrapper.class);
     private final TaskManager taskManager;
     private final Task task;
 
@@ -101,7 +100,7 @@ public class TaskWrapper extends AbstractStateWrapper {
                 AgentUtils.silenceSleepInMs(readWaitTime);
             }
             LOGGER.info("read end, task exception status is {}, read finish status is {}", isException(),
-                            task.isReadFinished());
+                    task.isReadFinished());
             // write end message
             task.getChannel().push(new EndMessage());
             task.getReader().destroy();
@@ -157,7 +156,6 @@ public class TaskWrapper extends AbstractStateWrapper {
     }
 
 
-
     /**
      * destroy task
      */
@@ -169,7 +167,7 @@ public class TaskWrapper extends AbstractStateWrapper {
     /**
      * whether task retry times exceed max retry time.
      *
-     * @return - whether should retry
+     * @return whether should retry
      */
     boolean shouldRetry() {
         return retryTime.get() < maxRetryTime;

@@ -33,6 +33,9 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.flink.types.Row;
 import org.apache.inlong.sort.flink.clickhouse.output.ClickHouseOutputFormatFactory;
 
+/**
+ * sink function for clickhouse, using ClickHouseOutputFormat for actual execution
+ */
 public class ClickHouseSinkFunction extends RichSinkFunction<Tuple2<Boolean, Row>> implements CheckpointedFunction {
 
     private static final long serialVersionUID = 2738357054183678956L;

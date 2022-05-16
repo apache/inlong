@@ -22,7 +22,6 @@ import org.apache.inlong.agent.constant.JobConstants;
 
 /**
  * job profile which contains details describing properties of one job.
- *
  */
 public class JobProfile extends AbstractConfiguration {
 
@@ -31,7 +30,6 @@ public class JobProfile extends AbstractConfiguration {
     /**
      * parse json string to configuration instance.
      *
-     * @param jsonStr
      * @return job configuration
      */
     public static JobProfile parseJsonStr(String jsonStr) {
@@ -43,7 +41,7 @@ public class JobProfile extends AbstractConfiguration {
     /**
      * parse properties file
      *
-     * @param fileName - file name.
+     * @param fileName file name.
      * @return jobConfiguration.
      */
     public static JobProfile parsePropertiesFile(String fileName) {
@@ -53,8 +51,9 @@ public class JobProfile extends AbstractConfiguration {
     }
 
     /**
-     * pase json file.
-     * @param fileName - json file name.
+     * parse json file.
+     *
+     * @param fileName json file name.
      * @return jobConfiguration.
      */
     public static JobProfile parseJsonFile(String fileName) {

@@ -46,8 +46,8 @@ public class DataNodeResponse {
     @ApiModelProperty(value = "Node username")
     private String username;
 
-    @ApiModelProperty(value = "Node password")
-    private String password;
+    @ApiModelProperty(value = "Node token")
+    private String token;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;

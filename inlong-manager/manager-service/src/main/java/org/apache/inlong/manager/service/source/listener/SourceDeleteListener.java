@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener of source delete event.
+ */
 @Slf4j
 @Component
 public class SourceDeleteListener extends AbstractSourceOperateListener {

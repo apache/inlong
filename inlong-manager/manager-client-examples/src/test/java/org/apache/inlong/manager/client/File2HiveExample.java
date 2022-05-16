@@ -45,6 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test class for file to hive.
+ */
 public class File2HiveExample {
 
     // Manager web url

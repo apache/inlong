@@ -57,6 +57,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Agent service layer implementation
+ */
 @Service
 public class AgentServiceImpl implements AgentService {
 
@@ -103,6 +106,11 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
+    /**
+     * Update task status by command.
+     *
+     * @param command command info.
+     */
     private void updateTaskStatus(CommandEntity command) {
         Integer taskId = command.getTaskId();
         StreamSourceEntity current = sourceMapper.selectForAgentTask(taskId);
@@ -141,9 +149,6 @@ public class AgentServiceImpl implements AgentService {
         }
     }
 
-    /**
-     * Get task result by the request
-     */
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.READ_COMMITTED,
             propagation = Propagation.REQUIRES_NEW)
@@ -237,7 +242,11 @@ public class AgentServiceImpl implements AgentService {
     }
 
     /**
-     * Get the DataConfig from the stream source entity
+     * Get the DataConfig from the stream source entity.
+     *
+     * @param entity stream source entity.
+     * @param op operation code for add, delete, etc.
+     * @return data config.
      */
     private DataConfig getDataConfig(StreamSourceEntity entity, int op) {
         DataConfig dataConfig = new DataConfig();
@@ -265,11 +274,23 @@ public class AgentServiceImpl implements AgentService {
         return dataConfig;
     }
 
+    /**
+     * Get the Task type from the stream source entity.
+     *
+     * @param sourceEntity stream source info.
+     * @return task type
+     */
     private int getTaskType(StreamSourceEntity sourceEntity) {
         SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
         return sourceType.getTaskType().getType();
     }
 
+    /**
+     * Get the agent command config by the agent ip.
+     *
+     * @param taskRequest task request info.
+     * @return agent command config list.
+     */
     private List<CmdConfig> getAgentCmdConfigs(TaskRequest taskRequest) {
         return sourceCmdConfigMapper.queryCmdByAgentIp(taskRequest.getAgentIp()).stream().map(cmd -> {
             CmdConfig cmdConfig = new CmdConfig();

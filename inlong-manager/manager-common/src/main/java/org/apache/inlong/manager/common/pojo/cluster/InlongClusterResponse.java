@@ -49,6 +49,9 @@ public class InlongClusterResponse {
     @ApiModelProperty(value = "Extension tag")
     private String extTag;
 
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
+
     @ApiModelProperty(value = "Cluster heartbeat info")
     private String heartbeat;
 

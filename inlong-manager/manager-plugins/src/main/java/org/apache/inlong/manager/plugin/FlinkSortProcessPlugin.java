@@ -34,6 +34,9 @@ import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Plugin of flink sort process.
+ */
 @Slf4j
 public class FlinkSortProcessPlugin implements ProcessPlugin {
 

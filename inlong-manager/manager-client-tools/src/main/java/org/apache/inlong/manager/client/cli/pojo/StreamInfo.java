@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * Stream info, including stream name, data type, data encoding, etc.
+ */
 @Data
 public class StreamInfo {
 

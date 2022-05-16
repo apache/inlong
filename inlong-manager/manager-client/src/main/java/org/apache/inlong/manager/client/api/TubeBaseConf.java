@@ -25,6 +25,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.MQType;
 
+/**
+ * Base configuration for Tube.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

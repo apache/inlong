@@ -24,6 +24,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Task run service.
+ */
 public class TaskRunService {
 
     private static final ExecutorService executorService;

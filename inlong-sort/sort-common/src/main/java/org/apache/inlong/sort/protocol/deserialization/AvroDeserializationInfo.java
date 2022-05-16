@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.protocol.deserialization;
 
+/**
+ * Avro deserialization info
+ */
 public class AvroDeserializationInfo implements DeserializationInfo {
 
     private static final long serialVersionUID = -5344203248610337314L;

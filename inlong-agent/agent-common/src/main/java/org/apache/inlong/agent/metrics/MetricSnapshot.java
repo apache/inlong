@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.metrics;
 
+/**
+ * MetricSnapshot Template
+ */
 public interface MetricSnapshot<T> {
     T snapshot();
 }

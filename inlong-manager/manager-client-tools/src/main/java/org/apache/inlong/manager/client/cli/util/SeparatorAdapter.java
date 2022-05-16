@@ -25,6 +25,9 @@ import org.apache.inlong.manager.client.api.DataSeparator;
 
 import java.lang.reflect.Type;
 
+/**
+ * Separator adapter.
+ */
 public class SeparatorAdapter implements JsonDeserializer {
 
     @Override

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.pojo.user;
 
+/**
+ * User role code.
+ */
 public class UserRoleCode {
 
     public static final String ADMIN = "Admin";
