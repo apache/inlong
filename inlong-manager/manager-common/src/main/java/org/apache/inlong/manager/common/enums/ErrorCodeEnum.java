@@ -48,7 +48,7 @@ public enum ErrorCodeEnum {
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),
 
-    MIDDLEWARE_TYPE_NOT_SUPPORTED(1021, "MIDDLEWARE_TYPE_NOT_SUPPORTED"),
+    MQ_TYPE_NOT_SUPPORTED(1021, "MIDDLEWARE_TYPE_NOT_SUPPORTED"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
 

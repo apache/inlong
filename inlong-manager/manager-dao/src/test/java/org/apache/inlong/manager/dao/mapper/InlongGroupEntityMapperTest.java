@@ -42,14 +42,6 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
     }
 
     @Test
-    public void insertSelective() {
-        InlongGroupEntity entity = createHeartbeatEntity();
-        groupEntityMapper.insertSelective(entity);
-        InlongGroupEntity queryResult = groupEntityMapper.selectByGroupId(entity.getInlongGroupId());
-        Assert.assertNotNull(queryResult);
-    }
-
-    @Test
     public void selectByPrimaryKey() {
         InlongGroupEntity entity = createHeartbeatEntity();
         groupEntityMapper.insert(entity);
@@ -59,7 +51,7 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
     private InlongGroupEntity createHeartbeatEntity() {
         InlongGroupEntity entity = new InlongGroupEntity();
         entity.setInlongGroupId("test_group");
-        entity.setMqResourceObj("test_group");
+        entity.setMqResource("test_group");
         entity.setInCharges("admin");
         entity.setCreator("admin");
         entity.setCreateTime(new Date());

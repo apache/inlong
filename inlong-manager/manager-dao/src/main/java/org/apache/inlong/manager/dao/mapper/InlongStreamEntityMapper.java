@@ -28,15 +28,9 @@ import java.util.List;
 @Repository
 public interface InlongStreamEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(InlongStreamEntity record);
 
     int insertSelective(InlongStreamEntity record);
-
-    InlongStreamEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKey(InlongStreamEntity record);
 
     InlongStreamEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
@@ -56,12 +50,7 @@ public interface InlongStreamEntityMapper {
 
     List<InlongStreamTopicResponse> selectTopicList(@Param("groupId") String groupId);
 
-    /**
-     * Physically delete all inlong streams of the specified inlong group id
-     *
-     * @return rows deleted
-     */
-    int deleteAllByGroupId(@Param("groupId") String groupId);
+    int updateByPrimaryKey(InlongStreamEntity record);
 
     int updateByIdentifierSelective(InlongStreamEntity streamEntity);
 
@@ -72,5 +61,14 @@ public interface InlongStreamEntityMapper {
      * Logic delete dlq or rlq topic by bid
      */
     void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
+
+    int deleteByPrimaryKey(Integer id);
+
+    /**
+     * Physically delete all inlong streams of the specified inlong group id
+     *
+     * @return rows deleted
+     */
+    int deleteAllByGroupId(@Param("groupId") String groupId);
 
 }

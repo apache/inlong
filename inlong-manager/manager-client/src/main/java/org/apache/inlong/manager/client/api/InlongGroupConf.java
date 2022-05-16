@@ -59,12 +59,16 @@ public class InlongGroupConf {
     @ApiModelProperty("The operator of stream group, default : admin")
     private String operator = "admin";
 
-    @ApiModelProperty("Need zookeeper support")
-    private boolean zookeeperEnabled = true;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableZookeeper;
 
-    @ApiModelProperty("Data proxy cluster id")
-    private Integer proxyClusterId;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableCreateResource;
 
-    @ApiModelProperty("Use lightweight group")
-    private boolean lightweight = false;
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    private Integer lightweight;
+
+    @ApiModelProperty("Inlong cluster tag")
+    private String inlongClusterTag;
+
 }

@@ -54,20 +54,13 @@ public class InlongGroupResponse {
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 
-    @NotNull(message = "middlewareType cannot be null")
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    private String middlewareType;
+    @NotNull(message = "mqType cannot be null")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
-    @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
-            + "messages; serial: single partition, low throughput, and orderly messages")
-    private String queueModule;
-
-    @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
-    private Integer topicPartitionNum;
-
-    @ApiModelProperty(value = "MQ resource object, in inlong group",
+    @ApiModelProperty(value = "MQ resource, in inlong group",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
-    private String mqResourceObj;
+    private String mqResource;
 
     @ApiModelProperty(value = "Tube master URL")
     private String tubeMaster;
@@ -81,8 +74,17 @@ public class InlongGroupResponse {
     @ApiModelProperty(value = "Whether zookeeper enabled? 0: disabled, 1: enabled")
     private Integer zookeeperEnabled;
 
-    @ApiModelProperty(value = "Data type name")
-    private String schemaName;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableZookeeper;
+
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableCreateResource;
+
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    private Integer lightweight;
+
+    @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
+    private String inlongClusterTag;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -96,6 +98,16 @@ public class InlongGroupResponse {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
+    @ApiModelProperty(value = "Extended params, will be saved as JSON string, such as queue_module, partition_num")
+    private String extParams;
+    /* @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
+            + "messages; serial: single partition, low throughput, and orderly messages")
+    private String queueModule;
+
+    @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
+    private Integer topicPartitionNum;*/
+
+
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
 
@@ -103,6 +115,8 @@ public class InlongGroupResponse {
     private String followers;
 
     private Integer status;
+
+    private Integer previousStatus;
 
     private String creator;
 
@@ -113,12 +127,6 @@ public class InlongGroupResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
-
-    @ApiModelProperty(value = "data proxy cluster Id")
-    private Integer proxyClusterId;
 
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;

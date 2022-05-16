@@ -145,7 +145,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream initOrUpdate() {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        dataStreamInfo.setTempView(GsonUtil.toJson(streamPipeline));
+        dataStreamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
         Boolean isExist = managerClient.isStreamExists(dataStreamInfo);
         if (isExist) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);

@@ -42,8 +42,8 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Inlong group id list")
     private List<String> groupIdList;
 
-    @ApiModelProperty(value = "MQ resource object")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type")
+    private String mqType;
 
     @ApiModelProperty(value = "Group status")
     private Integer status;

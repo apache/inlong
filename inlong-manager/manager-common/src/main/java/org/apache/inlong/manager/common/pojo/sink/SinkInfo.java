@@ -39,8 +39,7 @@ public class SinkInfo {
     private String creator;
 
     // Inlong stream info
-    private String mqResourceObj;
-    private String dataSourceType;
+    private String mqResource;
     private String dataType;
     private String sourceSeparator; // Source separator configured in the stream info
     private String dataEscapeChar;

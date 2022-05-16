@@ -124,7 +124,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
         groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setEnableZookeeper(0);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
@@ -149,7 +149,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
-        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setEnableZookeeper(0);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 

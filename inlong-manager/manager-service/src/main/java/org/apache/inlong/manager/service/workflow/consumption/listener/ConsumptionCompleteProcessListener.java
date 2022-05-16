@@ -117,14 +117,14 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         String groupId = entity.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
-        String mqResourceObj = groupInfo.getMqResourceObj();
-        Preconditions.checkNotNull(mqResourceObj, "mq resource cannot empty for groupId=" + groupId);
+        String mqResource = groupInfo.getMqResource();
+        Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
         PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMiddlewareType());
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();
             topicMessage.setTenant(tenant);
-            topicMessage.setNamespace(mqResourceObj);
+            topicMessage.setNamespace(mqResource);
 
             // If cross-regional replication is started, each cluster needs to create consumer groups in cycles
             String consumerGroup = entity.getConsumerGroupId();

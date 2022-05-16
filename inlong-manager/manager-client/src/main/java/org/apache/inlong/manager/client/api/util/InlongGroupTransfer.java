@@ -56,13 +56,13 @@ public class InlongGroupTransfer {
         inlongGroupConf.setGroupName(inlongGroupResponse.getName());
         inlongGroupConf.setDescription(inlongGroupResponse.getDescription());
         inlongGroupConf.setCnName(inlongGroupResponse.getCnName());
-        inlongGroupConf.setLightweight(isLightGroup(inlongGroupResponse));
-        inlongGroupConf.setZookeeperEnabled(inlongGroupResponse.getZookeeperEnabled() == 1);
+        inlongGroupConf.setLightweight(isLightGroup(inlongGroupResponse) ? 1 : 0);
+        inlongGroupConf.setEnableZookeeper(inlongGroupResponse.getEnableZookeeper());
         inlongGroupConf.setDailyRecords(Long.valueOf(inlongGroupResponse.getDailyRecords()));
         inlongGroupConf.setPeakRecords(Long.valueOf(inlongGroupResponse.getPeakRecords()));
         inlongGroupConf.setMqBaseConf(parseMqBaseConf(inlongGroupResponse));
         inlongGroupConf.setSortBaseConf(parseSortBaseConf(inlongGroupResponse));
-        inlongGroupConf.setProxyClusterId(inlongGroupResponse.getProxyClusterId());
+        inlongGroupConf.setInlongClusterTag(inlongGroupResponse.getInlongClusterTag());
         return inlongGroupConf;
     }
 
@@ -82,10 +82,10 @@ public class InlongGroupTransfer {
 
     public static MQBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
         InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
-        if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMiddlewareType())) {
+        if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMqType())) {
             return null;
         }
-        String middleWare = mqExtBase.getMiddlewareType();
+        String middleWare = mqExtBase.getMqType();
         MQType mqType = MQType.forType(middleWare);
         switch (mqType) {
             case NONE:
@@ -122,7 +122,7 @@ public class InlongGroupTransfer {
             case USER_DEFINED:
                 return parseUdf(groupExtInfos);
             default:
-                throw new IllegalArgumentException(String.format("Unsupport sort type=%s for Inlong", sortType));
+                throw new IllegalArgumentException(String.format("Unsupported sort type=%s for Inlong", sortType));
         }
     }
 
@@ -160,7 +160,7 @@ public class InlongGroupTransfer {
 
     private static PulsarBaseConf parsePulsarConf(InlongGroupResponse groupResponse) {
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
-        pulsarBaseConf.setNamespace(groupResponse.getMqResourceObj());
+        pulsarBaseConf.setNamespace(groupResponse.getMqResource());
         InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupResponse.getMqExtInfo();
         pulsarBaseConf.setAckQuorum(pulsarInfo.getAckQuorum());
         pulsarBaseConf.setWriteQuorum(pulsarInfo.getWriteQuorum());
@@ -187,7 +187,7 @@ public class InlongGroupTransfer {
 
     private static TubeBaseConf parseTubeConf(InlongGroupResponse groupResponse) {
         TubeBaseConf tubeBaseConf = new TubeBaseConf();
-        tubeBaseConf.setGroupName(groupResponse.getMqResourceObj());
+        tubeBaseConf.setGroupName(groupResponse.getMqResource());
         List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
             if (extInfo.getKeyName().equals(InlongGroupSettings.TUBE_CLUSTER_ID)) {
@@ -207,19 +207,18 @@ public class InlongGroupTransfer {
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         AssertUtil.hasLength(groupConf.getGroupName(), "GroupName should not be empty");
         groupInfo.setName(groupConf.getGroupName());
-        groupInfo.setCnName(groupConf.getCnName());
         groupInfo.setInlongGroupId("b_" + groupConf.getGroupName());
         groupInfo.setDescription(groupConf.getDescription());
-        groupInfo.setZookeeperEnabled(groupConf.isZookeeperEnabled() ? 1 : 0);
+        groupInfo.setEnableZookeeper(groupConf.getEnableZookeeper());
         groupInfo.setDailyRecords(groupConf.getDailyRecords().intValue());
         groupInfo.setPeakRecords(groupConf.getPeakRecords().intValue());
         groupInfo.setMaxLength(groupConf.getMaxLength());
-        groupInfo.setProxyClusterId(groupConf.getProxyClusterId());
+        groupInfo.setInlongClusterTag(groupConf.getInlongClusterTag());
         MQBaseConf mqConf = groupConf.getMqBaseConf();
         MQType mqType = MQType.NONE;
         if (null != mqConf) {
             mqType = mqConf.getType();
-            groupInfo.setMiddlewareType(mqType.name());
+            groupInfo.setMqType(mqType.name());
         }
         groupInfo.setInCharges(groupConf.getOperator());
         groupInfo.setExtList(Lists.newArrayList());
@@ -227,7 +226,7 @@ public class InlongGroupTransfer {
         setGroupMode(groupConf, groupInfo);
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             PulsarBaseConf pulsarBaseConf = (PulsarBaseConf) mqConf;
-            groupInfo.setMqResourceObj(pulsarBaseConf.getNamespace());
+            groupInfo.setMqResource(pulsarBaseConf.getNamespace());
             InlongGroupPulsarInfo pulsarInfo = createPulsarInfo(pulsarBaseConf);
             groupInfo.setMqExtInfo(pulsarInfo);
             List<InlongGroupExtInfo> extInfos = createPulsarExtInfo(pulsarBaseConf);
@@ -236,7 +235,7 @@ public class InlongGroupTransfer {
         } else if (mqType == MQType.TUBE) {
             TubeBaseConf tubeBaseConf = (TubeBaseConf) mqConf;
             List<InlongGroupExtInfo> extInfos = createTubeExtInfo(tubeBaseConf);
-            groupInfo.setMqResourceObj(tubeBaseConf.getGroupName());
+            groupInfo.setMqResource(tubeBaseConf.getGroupName());
             groupInfo.getExtList().addAll(extInfos);
             groupInfo.setTopicPartitionNum(tubeBaseConf.getTopicPartitionNum());
         }
@@ -261,7 +260,7 @@ public class InlongGroupTransfer {
         InlongGroupExtInfo modeInfo = new InlongGroupExtInfo();
         modeInfo.setInlongGroupId(inlongGroupId);
         modeInfo.setKeyName(InlongGroupSettings.GROUP_MODE);
-        if (inlongGroupConf.isLightweight()) {
+        if (inlongGroupConf.getLightweight() == 1) {
             modeInfo.setKeyValue(GroupMode.LIGHT.getMode());
         } else {
             modeInfo.setKeyValue(GroupMode.NORMAL.getMode());
@@ -271,7 +270,7 @@ public class InlongGroupTransfer {
 
     public static InlongGroupPulsarInfo createPulsarInfo(PulsarBaseConf pulsarBaseConf) {
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
-        pulsarInfo.setMiddlewareType(pulsarBaseConf.getType().name());
+        pulsarInfo.setMqType(pulsarBaseConf.getType().name());
         pulsarInfo.setEnsemble(pulsarBaseConf.getEnsemble());
         pulsarInfo.setAckQuorum(pulsarBaseConf.getAckQuorum());
         pulsarInfo.setEnableCreateResource(pulsarBaseConf.isEnableCreateResource() ? 1 : 0);

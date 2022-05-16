@@ -31,7 +31,7 @@ public class InlongStreamTopicResponse {
     @ApiModelProperty(value = "InLong stream ID")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Message queue type, the inlong stream id corresponds to the topic of Pulsar one-to-one")
-    private String mqResourceObj;
+    @ApiModelProperty(value = "MQ resource, the inlong stream id corresponds to the topic of Pulsar one-to-one")
+    private String mqResource;
 
 }
