@@ -34,11 +34,6 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
-import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
-import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.singletenant.flink.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
@@ -51,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class IcebergLoadNodeSqlParserTest extends AbstractTestBase {
+public class IcebergNodeSqlParserTest extends AbstractTestBase {
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
@@ -84,16 +79,13 @@ public class IcebergLoadNodeSqlParserTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        List<FilterFunction> filters = Arrays.asList(new SingleValueFilterFunction(EmptyOperator.getInstance(),
-                new FieldInfo("name", new StringFormatInfo()),
-                EqualOperator.getInstance(), new StringConstantParam("yunqingmo")));
 
         Map<String, String> props = new HashMap<>();
         props.put("catalog-type", "hadoop");
         props.put("catalog-name", "hadoop_prod");
         props.put("warehouse", "hdfs://localhost:9000/iceberg/warehouse");
         IcebergLoadNode node = new IcebergLoadNode("iceberg", "iceberg_output", fields, relations,
-                filters, null, props, "inlong", "inlong_iceberg");
+                null, null, null, props, "inlong", "inlong_iceberg");
         return node;
     }
 
@@ -122,7 +114,7 @@ public class IcebergLoadNodeSqlParserTest extends AbstractTestBase {
         // props.put("warehouse", "/hive/warehouse");
         // should enable iceberg.engine.hive.enabled in hive-site.xml
         IcebergLoadNode node = new IcebergLoadNode("iceberg", "iceberg_output", fields, relations,
-                null, null, props, "inlong", "inlong_iceberg");
+                null, null, null, props, "inlong", "inlong_iceberg");
         return node;
     }
 
