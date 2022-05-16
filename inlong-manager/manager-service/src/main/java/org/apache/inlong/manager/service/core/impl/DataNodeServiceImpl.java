@@ -172,7 +172,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     private Boolean testHiveConnection(DataNodeRequest request) {
         String url = request.getUrl();
         Preconditions.checkNotNull(url, "connection url cannot be empty");
-        try (Connection ignored = HiveJdbcUtils.getConnection(url, request.getUsername(), request.getPassword())) {
+        try (Connection ignored = HiveJdbcUtils.getConnection(url, request.getUsername(), request.getToken())) {
             LOGGER.info("hive connection not null - connection success");
             return true;
         } catch (Exception e) {
