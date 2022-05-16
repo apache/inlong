@@ -754,7 +754,7 @@ public class InnerInlongManagerClient {
     }
 
     public WorkflowResult startInlongGroup(int taskId,
-                                           Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
+            Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
 
         JSONObject workflowTaskOperation = new JSONObject();
         workflowTaskOperation.put("transferTo", Lists.newArrayList());
