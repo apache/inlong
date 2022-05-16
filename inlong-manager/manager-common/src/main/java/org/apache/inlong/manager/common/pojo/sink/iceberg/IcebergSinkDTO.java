@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -100,6 +101,19 @@ public class IcebergSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * Get Iceberg table info
+     */
+    public static IcebergTableInfo getIcebergTableInfo(IcebergSinkDTO icebergInfo, List<IcebergColumnInfo> columnList) {
+        IcebergTableInfo info = new IcebergTableInfo();
+        info.setDbName(icebergInfo.getDbName());
+        info.setTableName(icebergInfo.getTableName());
+        info.setFileFormat(icebergInfo.getFileFormat());
+        info.setTblProperties(icebergInfo.getProperties());
+        info.setColumns(columnList);
+        return info;
     }
 
 }
