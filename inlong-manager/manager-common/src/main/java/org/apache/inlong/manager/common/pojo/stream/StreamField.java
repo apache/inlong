@@ -34,9 +34,39 @@ import org.apache.inlong.manager.common.enums.MetaFieldType;
 @ApiModel("Stream field configuration")
 public class StreamField {
 
-    public static final StreamField PROCESSING_TIME = new StreamField(100, FieldType.BIGINT,
+    public static final StreamField PROCESSING_TIME = new StreamField(
+            100,
+            FieldType.BIGINT,
             MetaFieldType.PROCESSING_TIME.getName(),
             null, null, 1);
+
+    @ApiModelProperty("Field index")
+    private Integer id;
+
+    @ApiModelProperty(value = "Field type", required = true)
+    private FieldType fieldType;
+
+    @ApiModelProperty(value = "Field name", required = true)
+    private String fieldName;
+
+    @ApiModelProperty(value = "Field comment")
+    private String fieldComment;
+
+    @ApiModelProperty(value = "Field value for constants")
+    private String fieldValue;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    private String fieldFormat;
+
+    @ApiModelProperty("Origin node name which stream fields belong")
+    private String originNodeName;
+
+    @ApiModelProperty("Origin field name before transform operation")
+    private String originFieldName;
 
     public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {
         this.id = index;
@@ -66,33 +96,5 @@ public class StreamField {
         this.originNodeName = originNodeName;
         this.originFieldName = originFieldName;
     }
-
-    @ApiModelProperty("Field index")
-    private Integer id;
-
-    @ApiModelProperty(value = "Field type", required = true)
-    private FieldType fieldType;
-
-    @ApiModelProperty(value = "Field name", required = true)
-    private String fieldName;
-
-    @ApiModelProperty(value = "Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty(value = "Field value for constants")
-    private String fieldValue;
-
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
-    private Integer isMetaField = 0;
-
-    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
-    private String fieldFormat;
-
-    @ApiModelProperty("Origin Node name which stream field belongs")
-    private String originNodeName;
-
-    @ApiModelProperty("Origin field name before transform operation")
-    private String originFieldName;
 
 }

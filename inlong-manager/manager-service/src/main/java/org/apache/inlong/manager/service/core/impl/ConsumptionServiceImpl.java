@@ -308,7 +308,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private String getFullPulsarTopic(String groupId, String topic) {
         InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         String tenant = clusterBean.getDefaultTenant();
-        String namespace = inlongGroupEntity.getMqResourceObj();
+        String namespace = inlongGroupEntity.getMqResource();
         return "persistent://" + tenant + "/" + namespace + "/" + topic;
     }
 
@@ -342,8 +342,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     @Override
-    public void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup) {
-        String groupId = bizInfo.getInlongGroupId();
+    public void saveSortConsumption(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
+        String groupId = groupInfo.getInlongGroupId();
         ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
         if (exists != null) {
             log.warn("consumption with groupId={}, topic={}, consumer group={} already exists, skip to create",
@@ -352,19 +352,19 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         }
 
         log.debug("begin to save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-        MQType mqType = MQType.forType(bizInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(groupInfo.getMqType());
         ConsumptionEntity entity = new ConsumptionEntity();
         entity.setInlongGroupId(groupId);
         entity.setMiddlewareType(mqType.getType());
         entity.setTopic(topic);
         entity.setConsumerGroupId(consumerGroup);
         entity.setConsumerGroupName(consumerGroup);
-        entity.setInCharges(bizInfo.getInCharges());
+        entity.setInCharges(groupInfo.getInCharges());
         entity.setFilterEnabled(0);
 
         entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
-        entity.setCreator(bizInfo.getCreator());
+        entity.setCreator(groupInfo.getCreator());
         entity.setCreateTime(new Date());
 
         consumptionMapper.insert(entity);
@@ -441,9 +441,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
 
         // Tube’s topic is the inlong group level, one inlong group, one Tube topic
-        MQType mqType = MQType.forType(topicVO.getMiddlewareType());
+        MQType mqType = MQType.forType(topicVO.getMqType());
         if (mqType == MQType.TUBE) {
-            String bizTopic = topicVO.getMqResourceObj();
+            String bizTopic = topicVO.getMqResource();
             Preconditions.checkTrue(bizTopic == null || bizTopic.equals(info.getTopic()),
                     "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -452,7 +452,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             List<InlongStreamTopicResponse> dsTopicList = topicVO.getDsTopicList();
             if (dsTopicList != null && dsTopicList.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
-                dsTopicList.forEach(ds -> topicSet.remove(ds.getMqResourceObj()));
+                dsTopicList.forEach(ds -> topicSet.remove(ds.getMqResource()));
                 Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
         }

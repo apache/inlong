@@ -31,7 +31,6 @@ public class GroupInfo {
     private Integer id;
     private String inlongGroupId;
     private String name;
-    private String cnName;
     private String status;
     private Date modifyTime;
 

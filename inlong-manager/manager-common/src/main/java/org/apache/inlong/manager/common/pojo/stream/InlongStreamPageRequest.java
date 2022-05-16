@@ -37,9 +37,6 @@ public class InlongStreamPageRequest extends PageRequest {
     @ApiModelProperty(value = "Keyword, can be stream id or name")
     private String keyword;
 
-    @ApiModelProperty(value = "Source type, including: FILE, DB, AUTO_PUSH (DATA_PROXY_SDK, HTTP)")
-    private String dataSourceType;
-
     @ApiModelProperty(value = "Sink type to be created (which has no inlong stream of this type)")
     private String sinkType;
 

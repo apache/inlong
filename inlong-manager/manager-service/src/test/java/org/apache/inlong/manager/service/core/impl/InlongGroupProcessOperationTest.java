@@ -65,7 +65,7 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setName(GROUP_NAME);
         groupInfo.setInCharges(OPERATOR);
-        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
+        groupInfo.setMqType(MQType.PULSAR.getType());
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
         pulsarInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setMqExtInfo(pulsarInfo);

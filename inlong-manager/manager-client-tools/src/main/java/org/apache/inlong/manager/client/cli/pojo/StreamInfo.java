@@ -29,7 +29,7 @@ public class StreamInfo {
 
     private Integer id;
     private String name;
-    private String mqResourceObj;
+    private String mqResource;
     private String dataType;
     private String dataEncoding;
     private String dataSeparator;

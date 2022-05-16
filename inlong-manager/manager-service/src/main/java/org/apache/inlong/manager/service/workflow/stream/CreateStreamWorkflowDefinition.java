@@ -22,10 +22,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.apache.inlong.manager.service.resource.CreateSinkResourceForStreamListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupForStreamTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarTopicForStreamTaskListener;
+import org.apache.inlong.manager.service.resource.CreateSinkResourceForStreamListener;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
@@ -90,11 +90,11 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarTopicTask = new ServiceTask();
         createPulsarTopicTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
-            log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
+            log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the mqType={}",
                     form.getInlongGroupId(), form.getInlongStreamId(), mqType);
             return true;
         });
@@ -106,11 +106,11 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
         createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
             GroupResourceProcessForm form = (GroupResourceProcessForm) c.getProcessForm();
-            MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+            MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 return false;
             }
-            log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the middlewareType={}",
+            log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the mqType={}",
                     form.getInlongGroupId(), form.getInlongStreamId(), mqType);
             return true;
         });

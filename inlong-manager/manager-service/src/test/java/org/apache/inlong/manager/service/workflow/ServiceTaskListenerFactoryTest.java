@@ -47,7 +47,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         //check pulsar listener
-        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
+        groupInfo.setMqType(MQType.PULSAR.getType());
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
         processForm.setGroupInfo(groupInfo);
         WorkflowContext context = new WorkflowContext();
@@ -61,7 +61,7 @@ public class ServiceTaskListenerFactoryTest extends ServiceBaseTest {
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
-        groupInfo.setMiddlewareType(MQType.TUBE.getType());
+        groupInfo.setMqType(MQType.TUBE.getType());
         queueOperateListeners = serviceTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);

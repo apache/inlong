@@ -45,7 +45,7 @@ public class BlankMiddleware implements Middleware {
     @Override
     public InlongGroupMqExtBase get(String groupId) {
         InlongGroupMqExtBase mqExtBase = new InlongGroupMqExtBase();
-        mqExtBase.setMiddlewareType(MQType.NONE.getType());
+        mqExtBase.setMqType(MQType.NONE.getType());
         mqExtBase.setInlongGroupId(groupId);
         return mqExtBase;
     }

@@ -45,9 +45,6 @@ public class StreamBriefResponse {
     @ApiModelProperty(value = "Inlong stream name")
     private String name;
 
-    @ApiModelProperty(value = "Source type, support: FILE/DB/AUTO_PUSH")
-    private String dataSourceType;
-
     @ApiModelProperty(value = "Sink brief list")
     private List<SinkBriefResponse> sinkList;
 
