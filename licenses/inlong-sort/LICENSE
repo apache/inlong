@@ -530,6 +530,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flink:flink-connector-base:1.13.5 - Flink : Connectors : Base (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-connector-base), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-connector-files:1.13.5 - Flink : Connectors : Files (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-connector-files), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-connector-kafka_2.11:1.13.5 - Flink : Connectors : Kafka (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-connector-kafka), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-connector-jdbc_2.11:1.13.5 - Flink : Connectors : JDBC (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-connector-jdbc), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-connector-hbase-2.2_2.11 - Flink : Connectors : HBase 2.2 (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-connector-hbase-2.2), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-file-sink-common:1.13.5 - Flink : Connectors : File Sink Common (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-file-sink-common), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-java:1.13.5 - Flink : Java (https://github.com/apache/flink/tree/release-1.13.5/flink-java), (The Apache Software License, Version 2.0)
@@ -772,6 +773,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.threeten:threeten-extra:1.5.0 - ThreeTen-Extra (https://www.threeten.org/threeten-extra), (BSD 3-clause)
   xmlenc:xmlenc:0.52 - xmlenc Library (http://xmlenc.sourceforge.net), (The BSD License)
   com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
+  org.postgresql:postgresql:42.3.4 - PostgreSQL JDBC Driver (https://jdbc.postgresql.org), (BSD-2-Clause)
 
 
 ========================================================================
