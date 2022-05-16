@@ -1652,6 +1652,26 @@ https://github.com/airlift/airlift/blob/master/LICENSE
 
 ========================================================================
 
+Apache Iceberg - API NOTICE
+------------------------------------------------------
+Apache Iceberg - Core NOTICE
+------------------------------------------------------
+Apache Iceberg - Hive Metastore NOTICE
+========================================================================
+
+Apache Iceberg
+Copyright 2017-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This project includes code from Kite, developed at Cloudera, Inc. with
+the following copyright notice:
+
+
+
+========================================================================
+
 aircompressor NOTICE
 ------------------------------------------------------
 Apache Commons Compress NOTICE
