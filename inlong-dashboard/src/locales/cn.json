@@ -58,6 +58,7 @@
   "components.AccessHelper.StorageMetaData.Hive.ConnectionSucceeded": "连接成功",
   "components.AccessHelper.StorageMetaData.Hive.ConnectionFailed": "连接失败",
   "components.AccessHelper.StorageMetaData.Hive.DataPath": "数据路径",
+  "components.AccessHelper.StorageMetaData.DataPathHelp": "DB的存储路径，不包括表名，如：hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "components.AccessHelper.StorageMetaData.Hive.FieldName": "字段名",
   "components.AccessHelper.StorageMetaData.Hive.FieldType": "字段类型",
   "components.AccessHelper.StorageMetaData.Hive.FieldDescription": "字段描述",

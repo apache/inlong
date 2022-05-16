@@ -31,7 +31,7 @@ export interface MyAccessModalProps extends Omit<ModalProps, 'onOk'> {
 const getFilterFormContent = () => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
 ];
 
@@ -39,7 +39,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
   const { t } = useTranslation();
 
   const [options, setOptions] = useState({
-    keyWord: '',
+    keyword: '',
     pageSize: 10,
     pageNum: 1,
   });
@@ -74,7 +74,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
 
   const closeAll = () => {
     setOptions({
-      keyWord: '',
+      keyword: '',
       pageSize: 10,
       pageNum: 1,
     });
