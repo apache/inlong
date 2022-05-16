@@ -37,6 +37,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.singletenant.flink.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -115,8 +116,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
         props.put("catalog-name", "hive_prod");
         props.put("catalog-database", "default");
         props.put("uri", "thrift://localhost:9083");
-        // props.put("warehouse", "/hive/warehouse");
-        // should enable iceberg.engine.hive.enabled in hive-site.xml
+        props.put("warehouse", "/hive/warehouse");
         IcebergLoadNode node = new IcebergLoadNode("iceberg", "iceberg_output", fields, relations,
                 null, null, null, props, "inlong", "inlong_iceberg");
         return node;
@@ -154,6 +154,6 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         FlinkSqlParseResult result = parser.parse();
-        System.out.println(result);
+        Assert.assertTrue(!result.getLoadSqls().isEmpty() && !result.getCreateTableSqls().isEmpty());
     }
 }
