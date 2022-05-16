@@ -48,9 +48,6 @@ public class InlongGroupResponse {
     @ApiModelProperty(value = "Inlong group name", required = true)
     private String name;
 
-    @ApiModelProperty(value = "Chinese display name")
-    private String cnName;
-
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 

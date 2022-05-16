@@ -35,9 +35,6 @@ public class InlongGroupConf {
     @ApiModelProperty(value = "Group name", required = true)
     private String groupName;
 
-    @ApiModelProperty("Chinese display name")
-    private String cnName;
-
     @ApiModelProperty("Group description")
     private String description;
 

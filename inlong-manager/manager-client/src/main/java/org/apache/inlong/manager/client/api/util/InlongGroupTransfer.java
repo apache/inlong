@@ -55,7 +55,6 @@ public class InlongGroupTransfer {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
         inlongGroupConf.setGroupName(inlongGroupResponse.getName());
         inlongGroupConf.setDescription(inlongGroupResponse.getDescription());
-        inlongGroupConf.setCnName(inlongGroupResponse.getCnName());
         inlongGroupConf.setLightweight(isLightGroup(inlongGroupResponse) ? 1 : 0);
         inlongGroupConf.setEnableZookeeper(inlongGroupResponse.getEnableZookeeper());
         inlongGroupConf.setDailyRecords(Long.valueOf(inlongGroupResponse.getDailyRecords()));

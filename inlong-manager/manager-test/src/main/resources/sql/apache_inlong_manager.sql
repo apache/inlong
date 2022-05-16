@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
     `name`                   varchar(128)      DEFAULT '' COMMENT 'Inlong group name, English, Chinese, numbers, etc',
-    `cn_name`                varchar(256)      DEFAULT NULL COMMENT 'Chinese display name',
     `description`            varchar(256)      DEFAULT '' COMMENT 'Inlong group Introduction',
     `mq_type`                varchar(20)       DEFAULT 'TUBE' COMMENT 'The message queue type, high throughput: TUBE, high consistency: PULSAR',
     `mq_resource`            varchar(128) NOT NULL COMMENT 'MQ resource, for Tube, its Topic, for Pulsar, its Namespace',
