@@ -103,8 +103,10 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
 
         // If it is a continuous task execution transaction isolation
         if (element instanceof WorkflowTask) {
-            transactionHelper.execute(executeCompleteInTransaction(element, context),
-                    TransactionDefinition.PROPAGATION_NESTED);
+            TransactionCallback<Object> callback = executeCompleteInTransaction(element, context);
+            if (callback != null) {
+                transactionHelper.execute(callback, TransactionDefinition.PROPAGATION_NESTED);
+            }
             return;
         }
 
@@ -120,7 +122,9 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
             return;
         }
         List<Element> nextElements = processor.next(element, context);
-        nextElements.forEach(next -> executeStart(next, context));
+        for (Element next : nextElements) {
+            executeStart(next, context);
+        }
     }
 
     private boolean isSkipCurrentElement(Element element, WorkflowContext context) {
@@ -150,20 +154,20 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         // Execute next
         context.getActionContext().setAction(((NextableElement) element).defaultNextAction());
         List<Element> nextElements = processor.next(element, context);
-        nextElements.forEach(next -> executeStart(next, context));
+        for (Element next : nextElements) {
+            executeStart(next, context);
+        }
     }
 
     private TransactionCallback<Object> executeCompleteInTransaction(Element element, WorkflowContext context) {
-        return s -> {
-            try {
-                executeComplete(element, context);
-                return null;
-            } catch (WorkflowNoRollbackException e) { // Exception does not roll back
-                throw e;
-            } catch (Exception e) { // The exception is only rolled back once
-                throw new WorkflowRollbackOnceException(e.getMessage());
-            }
-        };
+        try {
+            executeComplete(element, context);
+            return null;
+        } catch (WorkflowNoRollbackException e) { // Exception does not roll back
+            throw e;
+        } catch (Exception e) { // The exception is only rolled back once
+            throw new WorkflowRollbackOnceException(e.getMessage());
+        }
     }
 
 }
