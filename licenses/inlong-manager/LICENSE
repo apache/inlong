@@ -707,6 +707,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.mvnsearch:h2-functions-4-mysql:2.0.0 - h2-functions-4-mysql (https://github.com/linux-china/h2-functions-4-mysql/tree/2.0.0), (The Apache License, Version 2.0)
   org.apache.hadoop:hadoop-hdfs:2.10.1 - Apache Hadoop HDFS (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-hdfs-project/hadoop-hdfs), (Apache License, Version 2.0)
   org.apache.hadoop:hadoop-hdfs-client:2.10.1 - Apache Hadoop HDFS Client (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-hdfs-project/hadoop-hdfs-client), (Apache License, Version 2.0)
+  org.apache.hadoop:hadoop-mapreduce-client-core:2.10.1 - Apache Hadoop MapReduce Client Core (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-core), (Apache License, Version 2.0)
   com.carrotsearch:hppc:0.7.1 - HPPC Collections (https://github.com/carrotsearch/hppc/tree/0.7.1), (The Apache Software License, Version 2.0)
   org.codehaus.jackson:jackson-core-asl:1.9.13 - Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.9.13), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2 - Jackson-dataformat-YAML (https://github.com/FasterXML/jackson-dataformat-yaml/tree/jackson-dataformat-yaml-2.13.2), (The Apache Software License, Version 2.0)
