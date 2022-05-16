@@ -27,9 +27,9 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -99,7 +99,7 @@ public class InlongGroupProcessOperation {
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         switch (mode) {
             case NORMAL:
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
                 break;
             case LIGHT:
@@ -128,7 +128,7 @@ public class InlongGroupProcessOperation {
         WorkflowResult result;
         switch (mode) {
             case NORMAL:
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 result = workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
                 break;
             case LIGHT:
@@ -154,7 +154,7 @@ public class InlongGroupProcessOperation {
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         switch (mode) {
             case NORMAL:
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
                 break;
             case LIGHT:
@@ -182,7 +182,7 @@ public class InlongGroupProcessOperation {
         WorkflowResult result;
         switch (mode) {
             case NORMAL:
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.RESTART);
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 result = workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
                 break;
             case LIGHT:
@@ -231,7 +231,7 @@ public class InlongGroupProcessOperation {
         GroupMode mode = GroupMode.parseGroupMode(groupInfo);
         switch (mode) {
             case NORMAL:
-                UpdateGroupProcessForm form = genUpdateGroupProcessForm(groupInfo, GroupOperateType.DELETE);
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.DELETE);
                 workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
                 break;
             case LIGHT:
@@ -256,8 +256,8 @@ public class InlongGroupProcessOperation {
         return form;
     }
 
-    private UpdateGroupProcessForm genUpdateGroupProcessForm(InlongGroupInfo groupInfo, GroupOperateType operateType) {
-        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+    private GroupResourceProcessForm genGroupProcessForm(InlongGroupInfo groupInfo, GroupOperateType operateType) {
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         String groupId = groupInfo.getInlongGroupId();
         if (GroupOperateType.RESTART == operateType) {
             List<InlongStreamInfo> streamList = streamService.list(groupId);

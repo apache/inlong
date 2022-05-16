@@ -35,7 +35,6 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -157,10 +156,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     private GroupOperateType getOperateType(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
-            return GroupOperateType.INIT;
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupOperateType();
+            return ((GroupResourceProcessForm) processForm).getGroupOperateType();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
@@ -172,9 +168,6 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupInfo();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
