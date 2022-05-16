@@ -1,11 +1,11 @@
 /*
  *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
+ *  or more contributor license agreements. See the NOTICE file
  *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
+ *  regarding copyright ownership. The ASF licenses this file
  *  to you under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ *  with the License. You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -46,7 +46,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Test for Iceberg SQL parser.
+ */
 public class IcebergNodeSqlParserTest extends AbstractTestBase {
+
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
@@ -54,7 +58,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
                 new FieldInfo("event_type", new StringFormatInfo()));
-        //if you hope hive load mode of append,please add this config.
+        // if you hope hive load mode of append, please add this config
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql_input", fields,
@@ -120,6 +124,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
 
     /**
      * build node relation
+     *
      * @param inputs extract node
      * @param outputs load node
      * @return node relation
@@ -144,9 +149,8 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
         Node inputNode = buildMySQLExtractNode("1");
         Node outputNode = buildIcebergLoadNodeWithHiveCatalog();
         StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(inputNode, outputNode),
-                Arrays.asList(
-                        buildNodeRelation(Collections.singletonList(inputNode),
-                                Collections.singletonList(outputNode))));
+                Arrays.asList(buildNodeRelation(Collections.singletonList(inputNode),
+                        Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("group_id", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         FlinkSqlParseResult result = parser.parse();
