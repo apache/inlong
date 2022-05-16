@@ -34,7 +34,7 @@ import { genStatusTag } from './status';
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyword',
+    name: 'keyWord',
   },
   {
     type: 'radiobutton',
@@ -59,7 +59,7 @@ const getFilterFormContent = defaultValues => [
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
-    // keyword: '',
+    // keyWord: '',
     pageSize: defaultSize,
     pageNum: 1,
     type: 'DB',

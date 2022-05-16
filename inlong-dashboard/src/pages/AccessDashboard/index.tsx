@@ -33,7 +33,7 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const [options, setOptions] = useState({
-    // keyword: '',
+    // keyWord: '',
     // status: '',
     pageSize: defaultSize,
     pageNum: 1,
