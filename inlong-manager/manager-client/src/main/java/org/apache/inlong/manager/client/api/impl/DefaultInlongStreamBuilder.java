@@ -120,7 +120,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream init() {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        streamInfo.setTempView(GsonUtil.toJson(streamPipeline));
+        streamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
         Double streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(streamIndex.intValue());
         //Create source and update index
