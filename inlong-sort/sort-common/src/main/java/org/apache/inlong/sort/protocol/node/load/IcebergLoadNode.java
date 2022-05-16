@@ -37,11 +37,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-@EqualsAndHashCode(callSuper = true)
 @JsonTypeName("icebergLoad")
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class IcebergLoadNode extends LoadNode implements Serializable {
+
     private static final long serialVersionUID = -1L;
 
     @JsonProperty("tableName")
