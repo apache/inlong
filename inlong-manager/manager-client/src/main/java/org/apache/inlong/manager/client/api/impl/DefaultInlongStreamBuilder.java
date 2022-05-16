@@ -121,25 +121,22 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         streamInfo.setTempView(GsonUtil.toJson(streamPipeline));
-        String streamIndex = managerClient.createStreamInfo(streamInfo);
-        streamInfo.setId(Double.valueOf(streamIndex).intValue());
+        Double streamIndex = managerClient.createStreamInfo(streamInfo);
+        streamInfo.setId(streamIndex.intValue());
         //Create source and update index
         List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
         for (SourceRequest sourceRequest : sourceRequests) {
-            String sourceIndex = managerClient.createSource(sourceRequest);
-            sourceRequest.setId(Double.valueOf(sourceIndex).intValue());
+            sourceRequest.setId(managerClient.createSource(sourceRequest).intValue());
         }
         //Create sink and update index
         List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
         for (SinkRequest sinkRequest : sinkRequests) {
-            String sinkIndex = managerClient.createSink(sinkRequest);
-            sinkRequest.setId(Double.valueOf(sinkIndex).intValue());
+            sinkRequest.setId(managerClient.createSink(sinkRequest).intValue());
         }
         //Create transform and update index
         List<TransformRequest> transformRequests = Lists.newArrayList(streamContext.getTransformRequests().values());
         for (TransformRequest transformRequest : transformRequests) {
-            String transformIndex = managerClient.createTransform(transformRequest);
-            transformRequest.setId(Double.valueOf(transformIndex).intValue());
+            transformRequest.setId(managerClient.createTransform(transformRequest).intValue());
         }
         return inlongStream;
     }
@@ -200,8 +197,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             TransformRequest transformRequest = requestEntry.getValue();
-            String index = managerClient.createTransform(transformRequest);
-            transformRequest.setId(Double.valueOf(index).intValue());
+            transformRequest.setId(managerClient.createTransform(transformRequest).intValue());
         }
     }
 
@@ -238,8 +234,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             SourceRequest sourceRequest = requestEntry.getValue();
-            String index = managerClient.createSource(sourceRequest);
-            sourceRequest.setId(Double.valueOf(index).intValue());
+            sourceRequest.setId(managerClient.createSource(sourceRequest).intValue());
         }
     }
 
@@ -276,8 +271,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             SinkRequest sinkRequest = requestEntry.getValue();
-            String index = managerClient.createSink(sinkRequest);
-            sinkRequest.setId(Double.valueOf(index).intValue());
+            sinkRequest.setId(managerClient.createSink(sinkRequest).intValue());
         }
     }
 }

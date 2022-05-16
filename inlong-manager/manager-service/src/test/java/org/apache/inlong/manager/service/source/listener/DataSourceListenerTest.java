@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowServiceImplTest;
@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
-    public UpdateGroupProcessForm form;
+    public GroupResourceProcessForm form;
 
     public InlongGroupInfo groupInfo;
 
@@ -78,7 +78,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
                 SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
-        form = new UpdateGroupProcessForm();
+        form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         WorkflowContext context = workflowEngine.processService()
@@ -109,7 +109,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
                 SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
-        form = new UpdateGroupProcessForm();
+        form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
         WorkflowContext context = workflowEngine.processService()

@@ -47,8 +47,8 @@ import java.util.Map;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
-        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
-        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract")
+        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
+        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract")
 })
 @Data
 @NoArgsConstructor

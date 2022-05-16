@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
@@ -70,9 +69,9 @@ public class CreateSortConfigListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         LOGGER.info("Create sort config for context={}", context);
         ProcessForm form = context.getProcessForm();
-        if (form instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) form;
-            GroupOperateType groupOperateType = updateGroupProcessForm.getGroupOperateType();
+        if (form instanceof GroupResourceProcessForm) {
+            GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) form;
+            GroupOperateType groupOperateType = groupResourceProcessForm.getGroupOperateType();
             if (groupOperateType == GroupOperateType.SUSPEND || groupOperateType == GroupOperateType.DELETE) {
                 return ListenerResult.success();
             }
@@ -124,9 +123,6 @@ public class CreateSortConfigListener implements SortOperateListener {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupInfo();
         } else {
             LOGGER.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new WorkflowListenerException(

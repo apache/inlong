@@ -45,7 +45,7 @@ public class SourceListResponse {
     private String sourceName;
 
     @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
-    private String serializationType;
+    private String serializationType = "none";
 
     @ApiModelProperty("Data node name")
     private String dataNodeName;
