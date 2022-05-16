@@ -68,7 +68,6 @@ public class HbaseSinkDTO {
     @ApiModelProperty("Properties for hbase")
     private Map<String, Object> properties;
 
-
     /**
      * Get the dto instance from the request
      */

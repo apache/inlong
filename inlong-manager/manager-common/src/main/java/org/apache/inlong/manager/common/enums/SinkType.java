@@ -29,7 +29,6 @@ public enum SinkType {
     public static final String SINK_ICEBERG = "ICEBERG";
     public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
 
-
     /**
      * Get the SinkType enum via the given sinkType string
      */
