@@ -59,7 +59,7 @@ const getFilterFormContent = defaultValues => [
 
 const Comp: React.FC = () => {
   const [options, setOptions] = useState({
-    // keyWorw: '',
+    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
     type: 'DB',
