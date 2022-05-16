@@ -20,42 +20,55 @@
 // import React from 'react';
 import { genBusinessFields } from '@/components/AccessHelper';
 
-export const getFormContent = ({ editing, initialValues }) =>
-  genBusinessFields(
-    [
-      'middlewareType',
-      'inlongGroupId',
-      'mqResourceObj',
-      'name',
-      'cnName',
-      'inCharges',
-      'description',
-      'queueModule',
-      'topicPartitionNum',
-      'dailyRecords',
-      'dailyStorage',
-      'peakRecords',
-      'maxLength',
-      // 'mqExtInfo.ensemble',
-      'mqExtInfo.writeQuorum',
-      'mqExtInfo.ackQuorum',
-      'mqExtInfo.retentionTime',
-      'mqExtInfo.ttl',
-      'mqExtInfo.retentionSize',
-    ],
-    initialValues,
-  ).map(item => ({
-    ...item,
-    type: transType(editing, item, initialValues),
-    suffix:
-      typeof item.suffix === 'object' && !editing
-        ? {
-            ...item.suffix,
-            type: 'text',
-          }
-        : item.suffix,
-    extra: null,
-  }));
+export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
+  const keys = [
+    'middlewareType',
+    !isCreate && 'inlongGroupId',
+    !isCreate && 'mqResourceObj',
+    'name',
+    'cnName',
+    'inCharges',
+    'description',
+    'queueModule',
+    'topicPartitionNum',
+    'dailyRecords',
+    'dailyStorage',
+    'peakRecords',
+    'maxLength',
+    // 'mqExtInfo.ensemble',
+    'mqExtInfo.writeQuorum',
+    'mqExtInfo.ackQuorum',
+    'mqExtInfo.retentionTime',
+    'mqExtInfo.ttl',
+    'mqExtInfo.retentionSize',
+  ].filter(Boolean);
+
+  return isCreate
+    ? genBusinessFields(keys, initialValues).map(item => {
+        if (item.name === 'name' && isUpdate) {
+          return {
+            ...item,
+            props: {
+              ...item.props,
+              disabled: true,
+            },
+          };
+        }
+        return item;
+      })
+    : genBusinessFields(keys, initialValues).map(item => ({
+        ...item,
+        type: transType(editing, item, initialValues),
+        suffix:
+          typeof item.suffix === 'object' && !editing
+            ? {
+                ...item.suffix,
+                type: 'text',
+              }
+            : item.suffix,
+        extra: null,
+      }));
+};
 
 function transType(editing: boolean, conf, initialValues) {
   const arr = [
