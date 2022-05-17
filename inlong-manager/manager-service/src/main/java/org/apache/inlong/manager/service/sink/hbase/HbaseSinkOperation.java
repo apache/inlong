@@ -46,12 +46,17 @@ import org.apache.inlong.manager.service.sink.StreamSinkOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Hbase sink operation
+ */
+@Service
 public class HbaseSinkOperation implements StreamSinkOperation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HbaseSinkOperation.class);

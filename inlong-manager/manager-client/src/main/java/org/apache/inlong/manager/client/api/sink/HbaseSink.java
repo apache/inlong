@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 
 import java.util.List;
 
+/**
+ * Hbase sink.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -67,7 +70,7 @@ public class HbaseSink extends StreamSink {
     @ApiModelProperty("Create table or not")
     private boolean needCreated;
 
-    @ApiModelProperty("Field definitions for hive")
+    @ApiModelProperty("Field definitions for hbase")
     private List<SinkField> sinkFields;
 
     @ApiModelProperty("Data format type for stream sink")
