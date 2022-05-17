@@ -147,7 +147,6 @@
         <dependency>
             <groupId>io.streamnative.connectors</groupId>
             <artifactId>pulsar-flink-connector_2.11</artifactId>
-            <version>1.13.6.1-rc9</version>
         </dependency>
 
 
