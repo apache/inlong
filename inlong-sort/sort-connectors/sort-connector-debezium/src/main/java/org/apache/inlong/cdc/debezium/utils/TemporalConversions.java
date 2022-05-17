@@ -47,6 +47,10 @@ public final class TemporalConversions {
     private TemporalConversions() {
     }
 
+    /**
+     * The year, month and day are processed
+     * return {@link LocalDate}
+     */
     public static LocalDate toLocalDate(Object obj) {
         if (obj == null) {
             return null;
@@ -83,6 +87,10 @@ public final class TemporalConversions {
                         + obj.getClass().getName());
     }
 
+    /**
+     * The minute, second  and nanosecond  are processed
+     * return {@link LocalTime}
+     */
     public static LocalTime toLocalTime(Object obj) {
         if (obj == null) {
             return null;
@@ -135,6 +143,10 @@ public final class TemporalConversions {
                         + obj.getClass().getName());
     }
 
+    /**
+     * Composite function
+     * return{@link LocalDateTime}
+     */
     public static LocalDateTime toLocalDateTime(Object obj, ZoneId serverTimeZone) {
         if (obj == null) {
             return null;
@@ -205,11 +217,19 @@ public final class TemporalConversions {
                         + obj.getClass().getName());
     }
 
+    /**
+     * Instant to microseconds
+     * return long
+     */
     public static long toEpochMicros(Instant instant) {
         return TimeUnit.SECONDS.toMicros(instant.getEpochSecond())
                 + TimeUnit.NANOSECONDS.toMicros(instant.getNano());
     }
 
+    /**
+     * Microseconds to instant
+     * return {@link Instant}
+     */
     public static Instant toInstantFromMicros(long microsSinceEpoch) {
         return Instant.ofEpochSecond(
                 TimeUnit.MICROSECONDS.toSeconds(microsSinceEpoch),

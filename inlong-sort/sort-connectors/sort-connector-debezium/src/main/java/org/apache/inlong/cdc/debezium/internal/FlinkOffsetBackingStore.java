@@ -42,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -145,11 +146,9 @@ public class FlinkOffsetBackingStore implements OffsetBackingStore {
     @Override
     public void start() {
         if (executor == null) {
-            executor =
-                    Executors.newFixedThreadPool(
-                            1,
-                            ThreadUtils.createThreadFactory(
-                                    this.getClass().getSimpleName() + "-%d", false));
+            ThreadFactory threadFactory = ThreadUtils.createThreadFactory(
+                    this.getClass().getSimpleName() + "-%d", false);
+            executor = Executors.newFixedThreadPool(1, threadFactory);
         }
     }
 
