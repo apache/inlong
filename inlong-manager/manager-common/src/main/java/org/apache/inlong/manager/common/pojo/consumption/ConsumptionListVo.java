@@ -19,11 +19,12 @@ package org.apache.inlong.manager.common.pojo.consumption;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * Data consumption list
@@ -38,11 +39,8 @@ public class ConsumptionListVo {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Consumer group name-lowercase letters, numbers, underscores")
-    private String consumerGroupName;
-
-    @ApiModelProperty(value = "Consumer Group ID")
-    private String consumerGroupId;
+    @ApiModelProperty(value = "Consumer Group")
+    private String consumerGroup;
 
     @ApiModelProperty(value = "Person in charge of consumption")
     private String inCharges;
@@ -50,8 +48,8 @@ public class ConsumptionListVo {
     @ApiModelProperty(value = "Consumption target inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
     @ApiModelProperty(value = "Consumption target TOPIC")
     private String topic;

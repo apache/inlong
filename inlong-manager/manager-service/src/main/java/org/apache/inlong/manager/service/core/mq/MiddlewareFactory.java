@@ -46,8 +46,7 @@ public class MiddlewareFactory {
                 return middleware;
             }
         }
-        throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED,
-                "Current version of InLong not support middleware type of MQ:" + type.name());
+        throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED, "Unsupported MQ type of " + type.name());
     }
 
 }

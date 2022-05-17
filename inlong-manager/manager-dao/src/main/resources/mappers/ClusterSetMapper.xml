@@ -35,14 +35,14 @@
         where is_deleted = 0
     </select>
     <select id="selectInlongId" resultType="org.apache.inlong.manager.dao.entity.InLongId">
-        select biz.inlong_stream_id as inlong_id,
-               biz.mq_resource_obj as topic,
-               concat('fieldDelimiter=',biz.data_separator) as params,
-               c.set_name          as set_name
-        from inlong_stream biz,
+        select stream.inlong_stream_id                          as inlong_id,
+               stream.mq_resource                               as topic,
+               concat('fieldDelimiter=', stream.data_separator) as params,
+               c.set_name                                       as set_name
+        from inlong_stream stream,
              cluster_set_inlongid c
-        where biz.is_deleted = 0
-          and biz.inlong_group_id = c.inlong_group_id
+        where stream.is_deleted = 0
+          and stream.inlong_group_id = c.inlong_group_id
     </select>
     <select id="selectCacheCluster" resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
         select cluster_name, set_name, zone

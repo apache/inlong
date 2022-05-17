@@ -84,28 +84,28 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             throw new WorkflowListenerException("consumption not exits for id=" + consumptionId);
         }
 
-        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        MQType mqType = MQType.forType(entity.getMqType());
         if (mqType == MQType.TUBE) {
             this.createTubeConsumerGroup(entity);
             return ListenerResult.success("Create Tube consumer group successful");
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             this.createPulsarTopicMessage(entity);
         } else {
-            throw new WorkflowListenerException("middleware type [" + mqType + "] not supported");
+            throw new WorkflowListenerException("Unsupported MQ type [" + mqType + "]");
         }
 
-        this.updateConsumerInfo(consumptionId, entity.getConsumerGroupId());
-        return ListenerResult.success("create Tube /Pulsar consumer group successful");
+        this.updateConsumerInfo(consumptionId, entity.getConsumerGroup());
+        return ListenerResult.success("Create MQ consumer group successful");
     }
 
     /**
      * Update consumption after approve
      */
-    private void updateConsumerInfo(Integer consumptionId, String consumerGroupId) {
+    private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
         ConsumptionEntity update = new ConsumptionEntity();
         update.setId(consumptionId);
         update.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        update.setConsumerGroupId(consumerGroupId);
+        update.setConsumerGroup(consumerGroup);
         update.setModifyTime(new Date());
         consumptionMapper.updateByPrimaryKeySelective(update);
     }
@@ -119,7 +119,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
         String mqResource = groupInfo.getMqResource();
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMiddlewareType());
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMqType());
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();
@@ -127,7 +127,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             topicMessage.setNamespace(mqResource);
 
             // If cross-regional replication is started, each cluster needs to create consumer groups in cycles
-            String consumerGroup = entity.getConsumerGroupId();
+            String consumerGroup = entity.getConsumerGroup();
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
             List<String> topics = Arrays.asList(entity.getTopic().split(","));
             this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, clusters, topics, globalCluster);
@@ -164,7 +164,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         addTubeConsumeGroupRequest.setCreateUser(consumption.getCreator());
         AddTubeConsumeGroupRequest.GroupNameJsonSetBean bean = new AddTubeConsumeGroupRequest.GroupNameJsonSetBean();
         bean.setTopicName(consumption.getTopic());
-        bean.setGroupName(consumption.getConsumerGroupId());
+        bean.setGroupName(consumption.getConsumerGroup());
         addTubeConsumeGroupRequest.setGroupNameJsonSet(Collections.singletonList(bean));
 
         try {

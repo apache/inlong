@@ -56,7 +56,7 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     private ServiceTaskListenerFactory serviceTaskListenerFactory;
 
     /**
-     * Set some base infomation before satart process.
+     * Set some base information before start process.
      */
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
@@ -119,7 +119,6 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         // testRestartProcess();
         // boolean result = groupProcessOperation.deleteProcess(GROUP_ID, OPERATOR);
         // Assert.assertTrue(result);
-
     }
 }
 
