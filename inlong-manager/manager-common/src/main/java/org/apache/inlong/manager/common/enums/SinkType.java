@@ -21,9 +21,10 @@ import java.util.Locale;
 
 public enum SinkType {
 
-    HIVE, KAFKA, ICEBERG, CLICKHOUSE, HBASE, POSTGRES, ELASTICSEARCH, SQLSERVER;
+    HIVE, KAFKA, ICEBERG, CLICKHOUSE, HBASE, POSTGRES, ELASTICSEARCH, SQLSERVER, HDFS;
 
     public static final String SINK_HIVE = "HIVE";
+    public static final String SINK_HDFS = "HDFS";
     public static final String SINK_KAFKA = "KAFKA";
     public static final String SINK_HBASE = "HBASE";
     public static final String SINK_ICEBERG = "ICEBERG";

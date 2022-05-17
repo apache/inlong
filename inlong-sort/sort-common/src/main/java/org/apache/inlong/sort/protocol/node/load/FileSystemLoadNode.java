@@ -61,6 +61,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     @JsonProperty("partitionFields")
     private List<FieldInfo> partitionFields;
 
+    @JsonProperty("tempTableName")
     private String tempTableName;
 
     @JsonProperty("serverTimeZone")
