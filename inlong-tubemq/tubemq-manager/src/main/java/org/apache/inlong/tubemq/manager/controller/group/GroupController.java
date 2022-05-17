@@ -73,7 +73,7 @@ public class GroupController {
                 return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER:
                 return masterService.baseRequestMaster(gson.fromJson(req, RebalanceConsumerReq.class));
-            case TubeConst.FILTER_COND:
+            case TubeConst.FILTER_CONDITION:
                 return masterService.baseRequestMaster(gson.fromJson(req, FilterCondGroupReq.class));
             case TubeConst.FLOW_CONTROL:
                 return masterService.baseRequestMaster(gson.fromJson(req, FlowControlGroupReq.class));
