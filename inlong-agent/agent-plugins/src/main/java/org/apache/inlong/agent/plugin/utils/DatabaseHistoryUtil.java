@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import io.debezium.relational.history.DatabaseHistory;
 import org.apache.inlong.agent.plugin.message.SchemaRecord;
 
 import java.util.Collection;
@@ -25,8 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @description
- * @date: 2022/5/10
+ * Util to safely visit schema history {@link DatabaseHistory}
  */
 public class DatabaseHistoryUtil {
 

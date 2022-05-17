@@ -23,8 +23,7 @@ import org.apache.inlong.agent.pojo.DebeziumOffset;
 import java.io.IOException;
 
 /**
- * @description
- * @date: 2022/5/9
+ * Serializer implementation for a {@link DebeziumOffset}
  */
 public class DebeziumOffsetSerializer {
 

@@ -28,12 +28,13 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
-import org.apache.inlong.agent.plugin.utils.InLongOffsetBackingStore;
+import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
@@ -244,15 +245,15 @@ public class BinlogReader implements Reader {
         props.setProperty("value.converter.schemas.enable", "false");
         props.setProperty("include.schema.changes", includeSchemaChanges);
         props.setProperty("snapshot.mode", snapshotMode);
-        if ("schema_only_recovery".equals(snapshotMode)) {
-            props.setProperty("offset.storage", InLongOffsetBackingStore.class.getCanonicalName());
-            props.setProperty(InLongOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
+        props.setProperty("database.history.file.filename", databaseStoreHistoryName);
+        if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
+            props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
             props.setProperty("database.history", InLongDatabaseHistory.class.getCanonicalName());
         } else {
             props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
-            props.setProperty("offset.storage.file.filename", offsetStoreFileName);
             props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());
-            props.setProperty("database.history.file.filename", databaseStoreHistoryName);
         }
         props.setProperty("tombstones.on.delete", "false");
         props.setProperty("converters", "datetime");

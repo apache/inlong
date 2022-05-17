@@ -20,46 +20,53 @@ package org.apache.inlong.agent.plugin.utils;
 import io.debezium.embedded.EmbeddedEngine;
 import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
-import org.apache.kafka.common.utils.ThreadUtils;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.runtime.WorkerConfig;
+import org.apache.kafka.connect.runtime.standalone.StandaloneConfig;
 import org.apache.kafka.connect.storage.Converter;
-import org.apache.kafka.connect.storage.OffsetBackingStore;
+import org.apache.kafka.connect.storage.FileOffsetBackingStore;
+import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
 import org.apache.kafka.connect.storage.OffsetStorageWriter;
-import org.apache.kafka.connect.util.Callback;
+import org.apache.kafka.connect.util.SafeObjectInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * @description
- * @date: 2022/5/9
+ * Implementation of OffsetBackingStore that saves data locally to a file. To ensure this behaves
+ * similarly to a real backing store, operations are executed asynchronously on a background thread.
+ * The offset position can be specified
  */
-public class InLongOffsetBackingStore implements OffsetBackingStore {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InLongOffsetBackingStore.class);
+public class InLongFileOffsetBackingStore extends MemoryOffsetBackingStore {
 
     public static final String OFFSET_STATE_VALUE = "offset.storage.inlong.state.value";
     public static final int FLUSH_TIMEOUT_SECONDS = 10;
+    private static final Logger log = LoggerFactory.getLogger(FileOffsetBackingStore.class);
+    private File file;
 
-    protected Map<ByteBuffer, ByteBuffer> data = new HashMap<>();
-    protected ExecutorService executor;
+    public InLongFileOffsetBackingStore() {
+
+    }
 
     @Override
     public void configure(WorkerConfig config) {
+        super.configure(config);
+        file = new File(config.getString(StandaloneConfig.OFFSET_STORAGE_FILE_FILENAME_CONFIG));
         // eagerly initialize the executor, because OffsetStorageWriter will use it later
         start();
 
@@ -75,7 +82,7 @@ public class InLongOffsetBackingStore implements OffsetBackingStore {
         try {
             debeziumOffset = serializer.deserialize(stateJson.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            LOG.error("Can't deserialize debezium offset state from JSON: " + stateJson, e);
+            log.error("Can't deserialize debezium offset state from JSON: " + stateJson, e);
             throw new RuntimeException(e);
         }
 
@@ -101,8 +108,8 @@ public class InLongOffsetBackingStore implements OffsetBackingStore {
         if (!offsetWriter.beginFlush()) {
             // if nothing is needed to be flushed, there must be something wrong with the
             // initialization
-            LOG.warn(
-                    "Initialize FlinkOffsetBackingStore from empty offset state, this shouldn't happen.");
+            log.warn(
+                    "Initialize InLongFileOffsetBackingStore from empty offset state, this shouldn't happen.");
             return;
         }
 
@@ -111,85 +118,79 @@ public class InLongOffsetBackingStore implements OffsetBackingStore {
                 offsetWriter.doFlush(
                         (error, result) -> {
                             if (error != null) {
-                                LOG.error("Failed to flush initial offset.", error);
+                                log.error("Failed to flush initial offset.", error);
                             } else {
-                                LOG.debug("Successfully flush initial offset.");
+                                log.debug("Successfully flush initial offset.");
                             }
                         });
 
         // wait until flushing finished
         try {
             flushFuture.get(FLUSH_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            LOG.info(
+            log.info(
                     "Flush offsets successfully, partition: {}, offsets: {}",
                     debeziumOffset.sourcePartition,
                     debeziumOffset.sourceOffset);
         } catch (InterruptedException e) {
-            LOG.warn("Flush offsets interrupted, cancelling.", e);
+            log.warn("Flush offsets interrupted, cancelling.", e);
             offsetWriter.cancelFlush();
         } catch (ExecutionException e) {
-            LOG.error("Flush offsets threw an unexpected exception.", e);
+            log.error("Flush offsets threw an unexpected exception.", e);
             offsetWriter.cancelFlush();
         } catch (TimeoutException e) {
-            LOG.error("Timed out waiting to flush offsets to storage.", e);
+            log.error("Timed out waiting to flush offsets to storage.", e);
             offsetWriter.cancelFlush();
         }
     }
 
     @Override
-    public void start() {
-        if (executor == null) {
-            executor =
-                    Executors.newFixedThreadPool(
-                            1,
-                            ThreadUtils.createThreadFactory(
-                                    this.getClass().getSimpleName() + "-%d", false));
+    public synchronized void start() {
+        super.start();
+        log.info("Starting FileOffsetBackingStore with file {}", file);
+        load();
+    }
+
+    @Override
+    public synchronized void stop() {
+        super.stop();
+        // Nothing to do since this doesn't maintain any outstanding connections/data
+        log.info("Stopped FileOffsetBackingStore");
+    }
+
+    @SuppressWarnings("unchecked")
+    private void load() {
+        try (SafeObjectInputStream is = new SafeObjectInputStream(Files.newInputStream(file.toPath()))) {
+            Object obj = is.readObject();
+            if (!(obj instanceof HashMap)) {
+                throw new ConnectException("Expected HashMap but found " + obj.getClass());
+            }
+            Map<byte[], byte[]> raw = (Map<byte[], byte[]>) obj;
+            data = new HashMap<>();
+            for (Map.Entry<byte[], byte[]> mapEntry : raw.entrySet()) {
+                ByteBuffer key = (mapEntry.getKey() != null) ? ByteBuffer.wrap(mapEntry.getKey()) : null;
+                ByteBuffer value = (mapEntry.getValue() != null) ? ByteBuffer.wrap(mapEntry.getValue()) : null;
+                data.put(key, value);
+            }
+        } catch (NoSuchFileException | EOFException e) {
+            // NoSuchFileException: Ignore, may be new.
+            // EOFException: Ignore, this means the file was missing or corrupt
+        } catch (IOException | ClassNotFoundException e) {
+            throw new ConnectException(e);
         }
     }
 
     @Override
-    public void stop() {
-        if (executor != null) {
-            executor.shutdown();
-            // Best effort wait for any get() and set() tasks (and caller's callbacks) to complete.
-            try {
-                executor.awaitTermination(30, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    protected void save() {
+        try (ObjectOutputStream os = new ObjectOutputStream(Files.newOutputStream(file.toPath()))) {
+            Map<byte[], byte[]> raw = new HashMap<>();
+            for (Map.Entry<ByteBuffer, ByteBuffer> mapEntry : data.entrySet()) {
+                byte[] key = (mapEntry.getKey() != null) ? mapEntry.getKey().array() : null;
+                byte[] value = (mapEntry.getValue() != null) ? mapEntry.getValue().array() : null;
+                raw.put(key, value);
             }
-            if (!executor.shutdownNow().isEmpty()) {
-                throw new ConnectException(
-                        "Failed to stop FlinkOffsetBackingStore. Exiting without cleanly "
-                                + "shutting down pending tasks and/or callbacks.");
-            }
-            executor = null;
+            os.writeObject(raw);
+        } catch (IOException e) {
+            throw new ConnectException(e);
         }
-    }
-
-    @Override
-    public Future<Map<ByteBuffer, ByteBuffer>> get(final Collection<ByteBuffer> keys) {
-        return executor.submit(
-                () -> {
-                    Map<ByteBuffer, ByteBuffer> result = new HashMap<>();
-                    for (ByteBuffer key : keys) {
-                        result.put(key, data.get(key));
-                    }
-                    return result;
-                });
-    }
-
-    @Override
-    public Future<Void> set(
-            final Map<ByteBuffer, ByteBuffer> values, final Callback<Void> callback) {
-        return executor.submit(
-                () -> {
-                    for (Map.Entry<ByteBuffer, ByteBuffer> entry : values.entrySet()) {
-                        data.put(entry.getKey(), entry.getValue());
-                    }
-                    if (callback != null) {
-                        callback.onCompletion(null, null);
-                    }
-                    return null;
-                });
     }
 }
