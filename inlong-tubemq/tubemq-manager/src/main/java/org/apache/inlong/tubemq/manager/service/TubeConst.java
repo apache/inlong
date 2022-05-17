@@ -60,6 +60,9 @@ public class TubeConst {
     public static final String AUTH_CONTROL = "authControl";
     public static final String ADD_TOPIC_TASK = "addTopicTask";
     public static final String QUERY_CAN_WRITE = "queryCanWrite";
+    public static final String FILTER_CONDITION = "filterCondition";
+    public static final String FLOW_CONTROL = "flowControl";
+
 
     /**
      * status code

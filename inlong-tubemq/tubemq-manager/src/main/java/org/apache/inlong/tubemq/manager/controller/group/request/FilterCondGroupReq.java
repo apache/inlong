@@ -22,12 +22,17 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
+/**
+ * Consumer group filter item record
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class DeleteBlackGroupReq extends BaseReq {
+public class FilterCondGroupReq extends BaseReq {
+    private String groupName;
     private String topicName;
     private String confModAuthToken;
-    private String groupName;
-    private String modifyUser;
+    private Integer condStatus;
+    private String filterConds;
+    private String createUser;
 }
