@@ -249,21 +249,20 @@ CREATE TABLE IF NOT EXISTS `common_file_server`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption`
 (
-    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `consumer_group_name` varchar(256)      DEFAULT NULL COMMENT 'consumer group name',
-    `consumer_group_id`   varchar(256) NOT NULL COMMENT 'Consumer group ID',
-    `in_charges`          varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `middleware_type`     varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
-    `topic`               varchar(256) NOT NULL COMMENT 'Consumption topic',
-    `filter_enabled`      int(2)            DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
-    `inlong_stream_id`    varchar(256)      DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
-    `status`              int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
-    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`             varchar(64)  NOT NULL COMMENT 'creator',
-    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'modifier',
-    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `consumer_group`   varchar(256) NOT NULL COMMENT 'Consumer group',
+    `in_charges`       varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `mq_type`          varchar(10)       DEFAULT 'TUBE' COMMENT 'Message queue type, high throughput: TUBE, high consistency: PULSAR',
+    `topic`            varchar(256) NOT NULL COMMENT 'Consumption topic',
+    `filter_enabled`   int(2)            DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
+    `inlong_stream_id` varchar(256)      DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
+    `status`           int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `creator`          varchar(64)  NOT NULL COMMENT 'creator',
+    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'modifier',
+    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`)
 );
 
@@ -272,16 +271,15 @@ CREATE TABLE IF NOT EXISTS `consumption`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption_pulsar`
 (
-    `id`                  int(11)      NOT NULL AUTO_INCREMENT,
-    `consumption_id`      int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
-    `consumer_group_id`   varchar(256) NOT NULL COMMENT 'Consumer group ID',
-    `consumer_group_name` varchar(256) DEFAULT NULL COMMENT 'Consumer group name',
-    `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Inlong group ID',
-    `is_rlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
-    `retry_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'The name of the retry queue topic',
-    `is_dlq`              tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
-    `dead_letter_topic`   varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
-    `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `id`                 int(11)      NOT NULL AUTO_INCREMENT,
+    `consumption_id`     int(11)      DEFAULT NULL COMMENT 'ID of the consumption information to which it belongs, guaranteed to be uniquely associated with consumption information',
+    `consumer_group`     varchar(256) NOT NULL COMMENT 'Consumer group',
+    `inlong_group_id`    varchar(256) NOT NULL COMMENT 'Inlong group ID',
+    `is_rlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure the retry letter topic, 0: no configuration, 1: configuration',
+    `retry_letter_topic` varchar(256) DEFAULT NULL COMMENT 'The name of the retry queue topic',
+    `is_dlq`             tinyint(1)   DEFAULT '0' COMMENT 'Whether to configure dead letter topic, 0: no configuration, 1: means configuration',
+    `dead_letter_topic`  varchar(256) DEFAULT NULL COMMENT 'dead letter topic name',
+    `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 ) COMMENT ='Pulsar consumption table';
 

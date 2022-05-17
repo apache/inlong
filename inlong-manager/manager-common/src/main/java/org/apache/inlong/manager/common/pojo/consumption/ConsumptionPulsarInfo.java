@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 public class ConsumptionPulsarInfo extends ConsumptionMqExtBase {
 
     public ConsumptionPulsarInfo() {
-        this.setMiddlewareType(MQType.PULSAR.getType());
+        this.setMqType(MQType.PULSAR.getType());
     }
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: do not configure, 1: configure")

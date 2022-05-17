@@ -40,7 +40,7 @@ public enum ErrorCodeEnum {
     GROUP_DELETE_NOT_ALLOWED(1007, "The current inlong group status does not support deletion"),
     GROUP_ID_UPDATE_NOT_ALLOWED(1008, "The current inlong group status does not support modifying the group id"),
     GROUP_MIDDLEWARE_UPDATE_NOT_ALLOWED(1011,
-            "The current inlong group status does not support modifying the middleware type"),
+            "The current inlong group status does not support modifying the MQ type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
@@ -48,7 +48,7 @@ public enum ErrorCodeEnum {
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),
 
-    MQ_TYPE_NOT_SUPPORTED(1021, "MIDDLEWARE_TYPE_NOT_SUPPORTED"),
+    MQ_TYPE_NOT_SUPPORTED(1021, "MQ_TYPE_NOT_SUPPORTED"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
 
@@ -100,7 +100,7 @@ public enum ErrorCodeEnum {
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
-    CONSUMER_GROUP_NAME_DUPLICATED(2600, "The consumer group already exists in the cluster"),
+    CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
     CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
     TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
     PULSAR_GROUP_CREATE_FAILED(2603, "Create Pulsar consumer group failed"),

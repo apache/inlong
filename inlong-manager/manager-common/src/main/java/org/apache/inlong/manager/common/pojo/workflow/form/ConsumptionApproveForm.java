@@ -32,13 +32,13 @@ public class ConsumptionApproveForm extends BaseTaskForm {
 
     public static final String FORM_NAME = "ConsumptionApproveForm";
 
-    @ApiModelProperty("Consumer group ID")
-    private String consumerGroupId;
+    @ApiModelProperty("Consumer group")
+    private String consumerGroup;
 
     @Override
 
     public void validate() throws FormValidateException {
-        Preconditions.checkNotEmpty(consumerGroupId, "Consumer group cannot be empty");
+        Preconditions.checkNotEmpty(consumerGroup, "Consumer group cannot be empty");
     }
 
     @Override
