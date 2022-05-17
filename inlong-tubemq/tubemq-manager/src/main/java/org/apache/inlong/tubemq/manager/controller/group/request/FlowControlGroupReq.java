@@ -22,12 +22,16 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
+/**
+ * Consumer group flow control rules
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class DeleteBlackGroupReq extends BaseReq {
-    private String topicName;
-    private String confModAuthToken;
+public class FlowControlGroupReq extends BaseReq {
     private String groupName;
-    private String modifyUser;
+    private Integer statusId;
+    private Integer qryPriorityId;
+    private String confModAuthToken;
+    private String createUser;
 }
