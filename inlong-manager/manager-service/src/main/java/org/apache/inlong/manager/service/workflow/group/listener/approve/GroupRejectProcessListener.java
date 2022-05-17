@@ -64,7 +64,7 @@ public class GroupRejectProcessListener implements ProcessEventListener {
         }
 
         // After reject, update inlong group status to [GROUP_APPROVE_REJECT]
-        String username = context.getApplicant();
+        String username = context.getOperator();
         groupService.updateStatus(groupId, GroupStatus.APPROVE_REJECTED.getCode(), username);
         return ListenerResult.success();
     }

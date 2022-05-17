@@ -31,6 +31,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.mq.util.PulsarOptService;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,7 +47,7 @@ import java.util.List;
  * Create Pulsar tenant, namespace and topic
  */
 @Slf4j
-@Component()
+@Component
 public class CreatePulsarResourceTaskListener implements QueueOperateListener {
 
     @Autowired

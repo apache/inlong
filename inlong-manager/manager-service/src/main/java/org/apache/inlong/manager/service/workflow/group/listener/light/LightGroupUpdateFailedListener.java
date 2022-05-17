@@ -49,7 +49,7 @@ public class LightGroupUpdateFailedListener implements ProcessEventListener {
         LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         final String groupId = groupInfo.getInlongGroupId();
-        final String applicant = context.getApplicant();
+        final String applicant = context.getOperator();
         // Update inlong group status
         groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), applicant);
         groupService.update(groupInfo.genRequest(), applicant);

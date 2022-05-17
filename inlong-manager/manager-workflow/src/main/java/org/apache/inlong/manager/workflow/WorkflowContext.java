@@ -37,7 +37,7 @@ import java.util.List;
 @Slf4j
 public class WorkflowContext {
 
-    private String applicant;
+    private String operator;
 
     private WorkflowProcess process;
 
@@ -51,12 +51,12 @@ public class WorkflowContext {
 
     private ActionContext actionContext;
 
-    public String getApplicant() {
-        return applicant;
+    public String getOperator() {
+        return operator;
     }
 
-    public WorkflowContext setApplicant(String applicant) {
-        this.applicant = applicant;
+    public WorkflowContext setOperator(String operator) {
+        this.operator = operator;
         return this;
     }
 

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.group;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupCompleteProcessListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupFailedProcessListener;
@@ -47,7 +47,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private GroupFailedProcessListener groupFailedProcessListener;
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -74,7 +74,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initDataSourceTask.setName("initSource");
         initDataSourceTask.setDisplayName("Group-InitSource");
         initDataSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
-        initDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
+        initDataSourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initDataSourceTask);
 
         // init MQ resource
@@ -82,7 +82,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initMQResourceTask.setName("initMQ");
         initMQResourceTask.setDisplayName("Group-InitMQ");
         initMQResourceTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
-        initMQResourceTask.addListenerProvider(serviceTaskListenerFactory);
+        initMQResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initMQResourceTask);
 
         // init Sort resource
@@ -90,7 +90,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initSortResourceTask.setName("initSort");
         initSortResourceTask.setDisplayName("Group-InitSort");
         initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortResourceTask.addListenerProvider(serviceTaskListenerFactory);
+        initSortResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSortResourceTask);
 
         // init sink
@@ -98,7 +98,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initSinkTask.setName("initSink");
         initSinkTask.setDisplayName("Group-InitSink");
         initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
-        initSinkTask.addListenerProvider(serviceTaskListenerFactory);
+        initSinkTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSinkTask);
 
         // End node

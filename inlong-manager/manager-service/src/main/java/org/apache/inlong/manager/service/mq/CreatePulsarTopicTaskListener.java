@@ -23,11 +23,10 @@ import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.mq.util.PulsarOptService;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -44,7 +43,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListener {
+public class CreatePulsarTopicTaskListener implements QueueOperateListener {
 
     @Autowired
     private CommonOperateService commonOperateService;
@@ -52,10 +51,6 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
     private ClusterBean clusterBean;
     @Autowired
     private PulsarOptService pulsarOptService;
-    @Autowired
-    private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamEntityMapper streamMapper;
 
     @Override
     public TaskEvent event() {
@@ -64,17 +59,11 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String groupId = form.getInlongGroupId();
-        String streamId = form.getInlongStreamId();
-
-        InlongGroupInfo groupInfo = groupService.get(groupId);
-        InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
-        if (groupInfo == null || streamEntity == null) {
-            throw new WorkflowListenerException("inlong group or inlong stream not found with groupId=" + groupId
-                    + ", streamId=" + streamId);
-        }
-
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
         PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
@@ -83,7 +72,7 @@ public class CreatePulsarTopicForStreamTaskListener implements QueueOperateListe
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
                 PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
                         .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                String pulsarTopic = streamEntity.getMqResourceObj();
+                String pulsarTopic = streamInfo.getMqResourceObj();
                 this.createTopic(groupInfo, pulsarTopic, pulsarClusterInfo);
             }
         } catch (Exception e) {

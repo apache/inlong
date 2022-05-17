@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +53,14 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     private InlongGroupProcessOperation groupProcessOperation;
 
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     /**
      * Set some base infomation before satart process.
      */
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
-        serviceTaskListenerFactory.acceptPlugin(mockPlugin);
+        groupTaskListenerFactory.acceptPlugin(mockPlugin);
         InlongGroupRequest groupInfo = new InlongGroupRequest();
         groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setName(GROUP_NAME);

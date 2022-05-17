@@ -20,17 +20,17 @@ package org.apache.inlong.manager.service.sort;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
-import org.springframework.stereotype.Component;
 
 /**
  * Event selector for whether ZooKeeper is disabled.
  */
 @Slf4j
-@Component
 public class ZookeeperDisabledSelector implements EventSelector {
 
     @Override
@@ -40,10 +40,18 @@ public class ZookeeperDisabledSelector implements EventSelector {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-
             boolean enable = groupInfo.getZookeeperEnabled() == 0
                     && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
             log.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
+            return enable;
+        } else if (processForm instanceof StreamResourceProcessForm) {
+            StreamResourceProcessForm streamResourceForm = (StreamResourceProcessForm) processForm;
+            InlongGroupInfo groupInfo = streamResourceForm.getGroupInfo();
+            InlongStreamInfo streamInfo = streamResourceForm.getStreamInfo();
+            boolean enable = groupInfo.getZookeeperEnabled() == 0
+                    && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+            log.info("zookeeper disabled was [{}] for groupId [{}] and streamId [{}] ", enable, groupId,
+                    streamInfo.getInlongStreamId());
             return enable;
         } else {
             log.info("zk disabled for groupId [{}]", groupId);

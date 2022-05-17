@@ -55,7 +55,7 @@ public class LightGroupCompleteListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
         final String groupId = form.getGroupInfo().getInlongGroupId();
-        final String applicant = context.getApplicant();
+        final String applicant = context.getOperator();
         // Update inlong group status and other info
         groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
         groupService.update(form.getGroupInfo().genRequest(), applicant);

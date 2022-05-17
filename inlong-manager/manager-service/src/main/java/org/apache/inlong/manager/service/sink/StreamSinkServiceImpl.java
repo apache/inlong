@@ -22,7 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -54,11 +53,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of sink service interface
@@ -67,14 +61,6 @@ import java.util.concurrent.TimeUnit;
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
-    public final ExecutorService executorService = new ThreadPoolExecutor(
-            10,
-            20,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(100),
-            new ThreadFactoryBuilder().setNameFormat("stream-workflow-%s").build(),
-            new CallerRunsPolicy());
 
     @Autowired
     private SinkOperationFactory operationFactory;
@@ -93,7 +79,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        commonOperateService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -110,12 +96,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // According to the sink type, save sink information
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         int id = operation.saveOpt(request, operator);
-
-        // If the inlong group status is [Configuration Successful], then asynchronously initiate
-        // the [Single inlong stream Resource Creation] workflow
-//        if (GroupState.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-//            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
-//        }
 
         LOGGER.info("success to save sink info: {}", request);
         return id;
@@ -377,45 +357,4 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String sinkName = request.getSinkName();
         Preconditions.checkNotNull(sinkName, ErrorCodeEnum.SINK_NAME_IS_NULL.getMessage());
     }
-
-    /**
-     * Asynchronously initiate a single inlong stream related workflow
-     *
-     * @see CreateStreamWorkflowDefinition
-     */
-//    class WorkflowStartRunnable implements Runnable {
-//
-//        private final String operator;
-//        private final InlongGroupEntity inlongGroupEntity;
-//        private final String streamId;
-//
-//        public WorkflowStartRunnable(String operator, InlongGroupEntity inlongGroupEntity, String streamId) {
-//            this.operator = operator;
-//            this.inlongGroupEntity = inlongGroupEntity;
-//            this.streamId = streamId;
-//        }
-//
-//        @Override
-//        public void run() {
-//            String groupId = inlongGroupEntity.getInlongGroupId();
-//            LOGGER.info("begin start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
-//
-//            InlongGroupInfo groupInfo = CommonBeanUtils.copyProperties(inlongGroupEntity, InlongGroupInfo::new);
-//            GroupResourceProcessForm form = genGroupResourceProcessForm(groupInfo, streamId);
-//
-//            workflowService.start(ProcessName.CREATE_STREAM_RESOURCE, operator, form);
-//            LOGGER.info("success start inlong stream workflow for groupId={}, streamId={}", groupId, streamId);
-//        }
-//
-//        /**
-//         * Generate [Group Resource] form
-//         */
-//        private GroupResourceProcessForm genGroupResourceProcessForm(InlongGroupInfo groupInfo, String streamId) {
-//            GroupResourceProcessForm form = new GroupResourceProcessForm();
-//            form.setGroupInfo(groupInfo);
-//            form.setInlongStreamId(streamId);
-//            return form;
-//        }
-//    }
-
 }

@@ -50,7 +50,7 @@ public class GroupUpdateListener implements ProcessEventListener {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
         GroupOperateType groupOperateType = form.getGroupOperateType();
-        String username = context.getApplicant();
+        String username = context.getOperator();
         if (groupInfo != null) {
             switch (groupOperateType) {
                 case SUSPEND:

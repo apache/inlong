@@ -48,7 +48,7 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
+        String operator = context.getOperator();
         GroupOperateType groupOperateType = form.getGroupOperateType();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         Integer nextStatus;
@@ -67,8 +67,8 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
                         String.format("Unsupported operation=%s for Inlong group", groupOperateType));
         }
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, operator);
+        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

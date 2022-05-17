@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group;
+package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateCompleteListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateFailedListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -34,35 +34,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Restart inlong group process definition
+ * Restart inlong stream process definition
  */
 @Slf4j
 @Component
-public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
+public class RestartStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
-
+    private StreamUpdateListener streamUpdateListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
-
+    private StreamUpdateFailedListener streamUpdateFailedListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
-
+    private StreamUpdateCompleteListener streamUpdateCompleteListener;
     @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Restart");
+        process.addListener(streamUpdateListener);
+        process.addListener(streamUpdateCompleteListener);
+        process.addListener(streamUpdateFailedListener);
+        process.setType("Stream Resource Restart");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(GroupResourceProcessForm.class);
+        process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
@@ -73,17 +70,17 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         //restart sort
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("restartSort");
-        restartSortTask.setDisplayName("Group-RestartSort");
+        restartSortTask.setDisplayName("Stream-RestartSort");
         restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(groupTaskListenerFactory);
+        restartSortTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(restartSortTask);
 
         //restart datasource
         ServiceTask restartDataSourceTask = new ServiceTask();
         restartDataSourceTask.setName("restartSource");
-        restartDataSourceTask.setDisplayName("Group-RestartSource");
+        restartDataSourceTask.setDisplayName("Stream-RestartSource");
         restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(groupTaskListenerFactory);
+        restartDataSourceTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(restartDataSourceTask);
 
         // End node
@@ -99,7 +96,6 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.RESTART_GROUP_PROCESS;
+        return ProcessName.RESTART_STREAM_RESOURCE;
     }
-
 }
