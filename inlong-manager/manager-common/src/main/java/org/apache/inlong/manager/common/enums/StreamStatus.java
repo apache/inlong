@@ -36,8 +36,8 @@ public enum StreamStatus {
     RESTARTING(151, "restarting"),
     RESTARTED(150, "restarted"),
 
-    DELETING(11, "deleting"),
-    DELETED(10, "deleted");
+    DELETING(41, "deleting"),
+    DELETED(40, "deleted");
 
     private final Integer code;
     private final String description;
