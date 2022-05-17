@@ -46,10 +46,6 @@ import java.util.stream.Collectors;
 
 public class PulsarSqlParserTest {
 
-    /**
-     * build mysql extract node
-     * @return Mysql extract node
-     */
     private KafkaLoadNode buildKafkaLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -64,10 +60,6 @@ public class PulsarSqlParserTest {
                 null, null);
     }
 
-    /**
-     * build hbase load node
-     * @return hbase load node
-     */
     public PulsarExtractNode buildPulsarExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));

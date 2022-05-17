@@ -980,7 +980,7 @@
 
             <dependency>
                 <groupId>io.streamnative.connectors</groupId>
-                <artifactId>pulsar-flink-connector_2.11</artifactId>
+                <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
                 <version>${flink.pulsar.version}</version>
             </dependency>
 

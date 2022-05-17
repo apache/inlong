@@ -66,7 +66,6 @@ public class PulsarExtractNode extends ExtractNode {
             @JsonProperty("fields") List<FieldInfo> fields,
             @Nullable @JsonProperty("watermarkField") WatermarkField watermarkField,
             @JsonProperty("properties") Map<String, String> properties,
-
             @Nonnull @JsonProperty("topic") String topic,
             @Nonnull @JsonProperty("adminUrl") String adminUrl,
             @Nonnull @JsonProperty("serviceUrl") String serviceUrl,
@@ -74,11 +73,12 @@ public class PulsarExtractNode extends ExtractNode {
             @Nonnull @JsonProperty("scanStartupMode") String scanStartupMode,
             @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, watermarkField, properties);
-        this.topic = Preconditions.checkNotNull(topic, "pulsar topic is empty");
-        this.adminUrl = Preconditions.checkNotNull(adminUrl, "pulsar adminUrl is empty.");
-        this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is empty");
-        this.format = Preconditions.checkNotNull(format, "pulsar format is empty");
-        this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode, "pulsar scanStartupMode is empty");
+        this.topic = Preconditions.checkNotNull(topic, "pulsar topic is null.");
+        this.adminUrl = Preconditions.checkNotNull(adminUrl, "pulsar adminUrl is null.");
+        this.serviceUrl = Preconditions.checkNotNull(serviceUrl, "pulsar serviceUrl is null.");
+        this.format = Preconditions.checkNotNull(format, "pulsar format is null.");
+        this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode,
+                "pulsar scanStartupMode is null.");
         this.primaryKey = primaryKey;
     }
 
@@ -92,15 +92,17 @@ public class PulsarExtractNode extends ExtractNode {
         Map<String, String> options = super.tableOptions();
         if (StringUtils.isEmpty(this.primaryKey)) {
             options.put("connector", "pulsar-inlong");
+            options.putAll(format.generateOptions(false));
         } else {
             options.put("connector", "upsert-pulsar-inlong");
+            options.putAll(format.generateOptions(true));
         }
         options.put("generic", "true");
         options.put("service-url", serviceUrl);
         options.put("admin-url", adminUrl);
         options.put("topic", topic);
         options.put("scan.startup.mode", scanStartupMode);
-        options.putAll(format.generateOptions());
+
         return options;
     }
 
