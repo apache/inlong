@@ -39,7 +39,6 @@ public class MiddlewareFactory {
      * Getting InLong Group Mq middle ware implementation.
      *
      * @param type MQ TYPE.
-     * @return
      */
     public Middleware getMqMiddleware(MQType type) {
         for (Middleware middleware : middlewares) {
@@ -47,8 +46,7 @@ public class MiddlewareFactory {
                 return middleware;
             }
         }
-        throw new BusinessException(ErrorCodeEnum.MIDDLEWARE_TYPE_NOT_SUPPORTED,
-                "Current version of InLong not support middleware type of MQ:" + type.name());
+        throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED, "Unsupported MQ type of " + type.name());
     }
 
 }

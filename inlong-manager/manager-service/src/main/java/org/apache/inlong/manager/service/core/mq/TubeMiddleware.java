@@ -51,7 +51,7 @@ public class TubeMiddleware implements Middleware {
     @Override
     public InlongGroupMqExtBase get(String groupId) {
         InlongGroupMqExtBase mqExtBase = new InlongGroupMqExtBase();
-        mqExtBase.setMiddlewareType(MQType.TUBE.getType());
+        mqExtBase.setMqType(MQType.TUBE.getType());
         mqExtBase.setInlongGroupId(groupId);
         return mqExtBase;
     }
@@ -65,10 +65,10 @@ public class TubeMiddleware implements Middleware {
     @Override
     public InlongGroupTopicResponse getTopic(InlongGroupInfo groupInfo) {
         InlongGroupTopicResponse topicVO = new InlongGroupTopicResponse();
-        topicVO.setMqResourceObj(groupInfo.getMqResourceObj());
+        topicVO.setMqResource(groupInfo.getMqResource());
         topicVO.setTubeMasterUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL));
         topicVO.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicVO.setMiddlewareType(type().name());
+        topicVO.setMqType(type().name());
         return topicVO;
     }
 

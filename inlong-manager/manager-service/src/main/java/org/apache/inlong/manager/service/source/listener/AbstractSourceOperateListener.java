@@ -79,8 +79,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType groupOperateType = getOperateType(context.getProcessForm());
             StringBuilder builder = new StringBuilder("Unsupported operate ").append(groupOperateType).append(" for (");
-            unOperatedSources.stream()
-                    .forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
+            unOperatedSources.forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
             String errMsg = builder.append(")").toString();
             throw new WorkflowListenerException(errMsg);
         } else {

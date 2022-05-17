@@ -24,7 +24,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -110,11 +109,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         // Processing inlong group and extended information
         InlongGroupEntity entity = CommonBeanUtils.copyProperties(groupInfo, InlongGroupEntity::new);
         entity.setInlongGroupId(groupId);
-        if (StringUtils.isEmpty(entity.getMqResourceObj())) {
-            entity.setMqResourceObj(groupId);
+        if (StringUtils.isEmpty(entity.getMqResource())) {
+            entity.setMqResource(groupId);
         }
-        // Only M0 is currently supported
-        entity.setSchemaName(Constant.SCHEMA_M0_DAY);
 
         // After saving, the status is set to [GROUP_WAIT_SUBMIT]
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
@@ -126,10 +123,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             entity.setModifier(operator);
         }
         entity.setCreateTime(new Date());
-        groupMapper.insertSelective(entity);
+        groupMapper.insert(entity);
         this.saveOrUpdateExt(groupId, groupInfo.getExtList());
         // Saving MQ information.
-        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMiddlewareType()));
+        Middleware mqMiddleware = groupMqFactory.getMqMiddleware(MQType.forType(groupInfo.getMqType()));
         if (groupInfo.getMqExtInfo() != null && StringUtils.isBlank(groupInfo.getMqExtInfo().getInlongGroupId())) {
             groupInfo.getMqExtInfo().setInlongGroupId(groupId);
         }
@@ -155,7 +152,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         groupInfo.setExtList(extInfoList);
 
         // If the middleware is Pulsar, we need to encapsulate Pulsar related data
-        MQType mqType = MQType.forType(entity.getMiddlewareType());
+        MQType mqType = MQType.forType(entity.getMqType());
         Middleware mq = groupMqFactory.getMqMiddleware(mqType);
         groupInfo.setMqExtInfo(mq.get(groupId));
 
@@ -227,7 +224,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         this.saveOrUpdateExt(groupId, groupRequest.getExtList());
 
         // Update the MQ info
-        MQType mqType = MQType.forType(groupRequest.getMiddlewareType());
+        MQType mqType = MQType.forType(groupRequest.getMqType());
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         InlongGroupMqExtBase mqExtInfo = groupRequest.getMqExtInfo();
         if (mqExtInfo != null && StringUtils.isBlank(mqExtInfo.getInlongGroupId())) {
@@ -336,7 +333,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // To logically delete the associated extension table
         groupExtMapper.logicDeleteAllByGroupId(groupId);
-        groupMqFactory.getMqMiddleware(MQType.forType(entity.getMiddlewareType())).delete(groupId);
+        groupMqFactory.getMqMiddleware(MQType.forType(entity.getMqType())).delete(groupId);
         LOGGER.info("success to delete inlong group and inlong group ext property for groupId={}", groupId);
         return true;
     }
@@ -377,7 +374,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public InlongGroupTopicResponse getTopic(String groupId) {
         LOGGER.debug("begin to get topic by groupId={}", groupId);
         InlongGroupInfo groupInfo = this.get(groupId);
-        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(groupInfo.getMqType());
         Middleware mqMiddleware = groupMqFactory.getMqMiddleware(mqType);
         return mqMiddleware.getTopic(groupInfo);
     }
@@ -391,8 +388,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.checkNotNull(approveInfo, "InlongGroupApproveRequest is empty");
         String groupId = approveInfo.getInlongGroupId();
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        String middlewareType = approveInfo.getMiddlewareType();
-        Preconditions.checkNotNull(middlewareType, "Middleware type is empty");
+        String mqType = approveInfo.getMqType();
+        Preconditions.checkNotNull(mqType, "MQ type cannot by empty");
 
         // Update status to [GROUP_APPROVE_PASSED]
         // If you need to change inlong group info after approve, just do in here

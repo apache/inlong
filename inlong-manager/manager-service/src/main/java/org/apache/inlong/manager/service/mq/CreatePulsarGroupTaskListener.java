@@ -83,16 +83,16 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
             log.warn("inlong stream is empty for groupId={}, skip to create pulsar subscription", groupId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             String tenant = clusterBean.getDefaultTenant();
-            String namespace = groupInfo.getMqResourceObj();
+            String namespace = groupInfo.getMqResource();
 
             for (InlongStreamEntity streamEntity : streamEntities) {
                 PulsarTopicBean topicBean = new PulsarTopicBean();
                 topicBean.setTenant(tenant);
                 topicBean.setNamespace(namespace);
-                String topic = streamEntity.getMqResourceObj();
+                String topic = streamEntity.getMqResource();
                 topicBean.setTopicName(topic);
                 List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
 

@@ -28,15 +28,9 @@ public class Constant {
 
     public static final String DATA_SOURCE_DB = "DB";
 
-    public static final String DATA_SOURCE_FILE = "FILE";
-
-    public static final String DATA_SOURCE_AUTO_PUSH = "AUTO_PUSH";
-
     public static final String DATA_TYPE_TEXT = "TEXT";
 
     public static final String DATA_TYPE_KEY_VALUE = "KEY-VALUE";
-
-    public static final String SCHEMA_M0_DAY = "m0_day";
 
     public static final String CLUSTER_TUBE = "TUBE";
     public static final String CLUSTER_PULSAR = "PULSAR";

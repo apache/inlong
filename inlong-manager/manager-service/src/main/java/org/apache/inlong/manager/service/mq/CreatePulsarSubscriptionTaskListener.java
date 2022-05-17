@@ -71,9 +71,9 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        final String namespace = groupInfo.getMqResourceObj();
-        final String topic = streamInfo.getMqResourceObj();
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
+        final String namespace = groupInfo.getMqResource();
+        final String topic = streamInfo.getMqResource();
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);

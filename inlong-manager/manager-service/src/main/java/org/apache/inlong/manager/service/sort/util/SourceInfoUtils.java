@@ -64,7 +64,7 @@ public class SourceInfoUtils {
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
 
-        MQType mqType = MQType.forType(groupInfo.getMiddlewareType());
+        MQType mqType = MQType.forType(groupInfo.getMqType());
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
         SourceInfo sourceInfo;
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -86,14 +86,14 @@ public class SourceInfoUtils {
     private static SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
-        String topicName = streamInfo.getMqResourceObj();
+        String topicName = streamInfo.getMqResource();
         InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
         String tenant = clusterBean.getDefaultTenant();
         if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
             tenant = pulsarInfo.getTenant();
         }
 
-        final String namespace = groupInfo.getMqResourceObj();
+        final String namespace = groupInfo.getMqResource();
         // Full name of topic in Pulsar
         final String fullTopicName = "persistent://" + tenant + "/" + namespace + "/" + topicName;
         final String consumerGroup = clusterBean.getAppName() + "_" + topicName + "_consumer_group";
@@ -115,7 +115,7 @@ public class SourceInfoUtils {
     private static TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
             ClusterBean clusterBean, DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
-        String topic = groupInfo.getMqResourceObj();
+        String topic = groupInfo.getMqResource();
         String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
         return new TubeSourceInfo(topic, masterAddress, consumerGroup, deserializationInfo,
                 fieldInfos.toArray(new FieldInfo[0]));

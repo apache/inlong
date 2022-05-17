@@ -15,23 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.tubemq.manager.controller.group.request;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 
 /**
- * Inlong stream id and topic interaction object
+ * Consumer group filter item record
  */
 @Data
-@ApiModel("Inlong stream id and topic interaction object")
-public class InlongStreamTopicResponse {
-
-    @ApiModelProperty(value = "InLong stream ID")
-    private String inlongStreamId;
-
-    @ApiModelProperty(value = "MQ resource, the inlong stream id corresponds to the topic of Pulsar one-to-one")
-    private String mqResource;
-
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class FilterCondGroupReq extends BaseReq {
+    private String groupName;
+    private String topicName;
+    private String confModAuthToken;
+    private Integer condStatus;
+    private String filterConds;
+    private String createUser;
 }

@@ -40,16 +40,17 @@ public class ZookeeperDisabledSelector implements EventSelector {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-            boolean enable = groupInfo.getZookeeperEnabled() == 0
-                    && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+            boolean enable = groupInfo.getEnableZookeeper() == 0
+                    && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
+
             log.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
             return enable;
         } else if (processForm instanceof StreamResourceProcessForm) {
             StreamResourceProcessForm streamResourceForm = (StreamResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = streamResourceForm.getGroupInfo();
             InlongStreamInfo streamInfo = streamResourceForm.getStreamInfo();
-            boolean enable = groupInfo.getZookeeperEnabled() == 0
-                    && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+            boolean enable = groupInfo.getEnableZookeeper() == 0
+                    && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
             log.info("zookeeper disabled was [{}] for groupId [{}] and streamId [{}] ", enable, groupId,
                     streamInfo.getInlongStreamId());
             return enable;

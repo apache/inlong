@@ -28,13 +28,13 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.PulsarBaseConf;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
+import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
@@ -118,8 +118,7 @@ public class File2HiveExample {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
         inlongGroupConf.setGroupName(GROUP_NAME);
         inlongGroupConf.setDescription(GROUP_NAME);
-        inlongGroupConf.setProxyClusterId(1);
-        //pulsar conf
+        // pulsar conf
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
         inlongGroupConf.setMqBaseConf(pulsarBaseConf);
         pulsarBaseConf.setPulsarServiceUrl(PULSAR_SERVICE_URL);
@@ -128,14 +127,19 @@ public class File2HiveExample {
         pulsarBaseConf.setEnableCreateResource(false);
         pulsarBaseConf.setTenant(tenant);
 
-        //flink conf
+        // flink conf
         FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
         inlongGroupConf.setSortBaseConf(sortBaseConf);
         sortBaseConf.setServiceUrl(FLINK_URL);
         Map<String, String> map = new HashMap<>(16);
         sortBaseConf.setProperties(map);
-        //enable zk
-        inlongGroupConf.setZookeeperEnabled(false);
+
+        // set enable zk, create resource, lightweight mode, and cluster tag
+        inlongGroupConf.setEnableZookeeper(0);
+        inlongGroupConf.setEnableCreateResource(1);
+        inlongGroupConf.setLightweight(1);
+        inlongGroupConf.setInlongClusterTag("default_cluster");
+
         inlongGroupConf.setDailyRecords(10000000L);
         inlongGroupConf.setPeakRecords(100000L);
         inlongGroupConf.setMaxLength(10000);

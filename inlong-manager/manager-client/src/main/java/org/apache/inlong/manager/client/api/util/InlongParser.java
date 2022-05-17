@@ -66,7 +66,7 @@ public class InlongParser {
 
     public static final String GROUP_INFO = "groupInfo";
     public static final String MQ_EXT_INFO = "mqExtInfo";
-    public static final String MIDDLEWARE_TYPE = "middlewareType";
+    public static final String MQ_TYPE = "mqType";
     public static final String SINK_INFO = "sinkInfo";
     public static final String SOURCE_INFO = "sourceInfo";
     public static final String SINK_TYPE = "sinkType";
@@ -89,8 +89,8 @@ public class InlongParser {
         JsonObject groupJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
-        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+        if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
@@ -250,8 +250,8 @@ public class InlongParser {
         InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
-        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+        if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
                         InlongGroupPulsarInfo.class);

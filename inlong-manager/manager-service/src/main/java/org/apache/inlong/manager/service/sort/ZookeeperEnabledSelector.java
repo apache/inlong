@@ -43,7 +43,7 @@ public class ZookeeperEnabledSelector implements EventSelector {
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
         boolean enable =
-                groupInfo.getZookeeperEnabled() == 1 && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+                groupInfo.getEnableZookeeper() == 1 && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
         log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
         return enable;
     }

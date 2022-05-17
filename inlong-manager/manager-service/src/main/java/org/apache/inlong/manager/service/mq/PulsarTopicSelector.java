@@ -35,7 +35,7 @@ public class PulsarTopicSelector implements EventSelector {
             return false;
         }
         StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
-        MQType mqType = MQType.forType(streamResourceProcessForm.getGroupInfo().getMiddlewareType());
+        MQType mqType = MQType.forType(streamResourceProcessForm.getGroupInfo().getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             return true;
         } else {

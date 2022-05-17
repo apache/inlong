@@ -107,8 +107,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream id [{}] has already exists", streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_ID_DUPLICATE);
         }
-        if (StringUtils.isEmpty(request.getMqResourceObj())) {
-            request.setMqResourceObj(streamId);
+        if (StringUtils.isEmpty(request.getMqResource())) {
+            request.setMqResource(streamId);
         }
         // Processing inlong stream
         InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
@@ -537,7 +537,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongStreamEntity streamEntity = new InlongStreamEntity();
         streamEntity.setInlongGroupId(groupId);
         streamEntity.setInlongStreamId(topicName);
-        streamEntity.setMqResourceObj(topicName);
+        streamEntity.setMqResource(topicName);
         streamEntity.setDescription("This is DLQ / RLQ topic created by SYSTEM");
         streamEntity.setDailyRecords(1000);
         streamEntity.setDailyStorage(1000);
@@ -649,7 +649,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     /**
-     * Check that groupId, streamId, and dataSourceType are not allowed to be modified
+     * Check that groupId, streamId  are not allowed to be modified
      */
     private void checkUpdatedFields(InlongStreamEntity streamEntity, InlongStreamRequest request) {
         String newGroupId = request.getInlongGroupId();

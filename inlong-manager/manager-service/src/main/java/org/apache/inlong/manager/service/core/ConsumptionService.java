@@ -55,13 +55,13 @@ public interface ConsumptionService {
     ConsumptionInfo get(Integer id);
 
     /**
-     * Determine whether the Consumer group ID already exists
+     * Determine whether the Consumer group already exists
      *
-     * @param consumerGroupId Consumer group ID
+     * @param consumerGroup Consumer group
      * @param excludeSelfId Exclude the ID of this record
      * @return does it exist
      */
-    boolean isConsumerGroupIdExists(String consumerGroupId, Integer excludeSelfId);
+    boolean isConsumerGroupExists(String consumerGroup, Integer excludeSelfId);
 
     /**
      * Save basic data consumption information

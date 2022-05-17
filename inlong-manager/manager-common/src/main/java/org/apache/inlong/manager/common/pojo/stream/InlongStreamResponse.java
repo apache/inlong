@@ -41,24 +41,21 @@ public class InlongStreamResponse {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Inlong stream name", required = true)
-    private String name;
-
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
+    @ApiModelProperty(value = "Inlong stream name", required = true)
+    private String name;
+
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
-    @ApiModelProperty(value = "MQ resource object, in inlong group",
+    @ApiModelProperty(value = "MQ resource, in inlong group",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
-    private String mqResourceObj;
-
-    @ApiModelProperty(value = "Data storage period, unit: day (required when dataSourceType=AUTO_PUSH)")
-    private Integer storagePeriod;
+    private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
@@ -71,9 +68,6 @@ public class InlongStreamResponse {
 
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
-
-    @ApiModelProperty(value = "(File and DB access) Whether there are predefined fields, 0: no, 1: yes")
-    private Integer havePredefinedFields;
 
     @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
             notes = "Each task under this stream sends data synchronously, "
@@ -92,8 +86,11 @@ public class InlongStreamResponse {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
-    @ApiModelProperty(value = "Names of responsible persons, separated by commas")
-    private String inCharges;
+    @ApiModelProperty(value = "Data storage period, unit: day")
+    private Integer storagePeriod;
+
+    @ApiModelProperty(value = "Extended params, will be saved as JSON string")
+    private String extParams;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
@@ -114,9 +111,6 @@ public class InlongStreamResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
 
     @ApiModelProperty(value = "Field list")
     private List<InlongStreamFieldInfo> fieldList;
