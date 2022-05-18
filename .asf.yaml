@@ -46,6 +46,43 @@ github:
   dependabot_alerts: true
   # disable the dependabot_updates
   dependabot_updates: false
+  protected_branches:
+    master:
+      required_status_checks:
+        # strict means "Require branches to be up to date before merging".
+        strict: false
+        # contexts are the names of checks that must pass for a merge to be allowed.
+        contexts:
+          - 'Build'
+          - 'Unit Test'
+          - 'Check license header'
+          - 'Docker build and push'
+          - 'Lint and test charts'
+      required_pull_request_reviews:
+        dismiss_stale_reviews: false
+        require_code_owner_reviews: true
+        required_approving_review_count: 1
+
+      # squash or rebase must be allowed in the repo for this setting to be set to true.
+      required_linear_history: false
+
+      required_signatures: false
+
+    # disable force push from the following branches
+    release-0.1.0: {}
+    release-0.2.0: {}
+    release-0.3.0: {}
+    release-0.4.0: {}
+    release-0.5.0: {}
+    release-0.6.0: {}
+    release-0.7.0: {}
+    release-0.8.0: {}
+    release-0.9.0: {}
+    release-0.10.0: {}
+    release-0.11.0: {}
+    release-0.12.0: {}
+    release-1.0.0: {}
+    release-1.1.0: {}
 
 notifications:
   commits:      commits@inlong.apache.org
