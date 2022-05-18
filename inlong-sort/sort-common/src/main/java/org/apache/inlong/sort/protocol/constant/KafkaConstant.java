@@ -27,6 +27,8 @@ public class KafkaConstant {
 
     public static final String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
 
+    public static final String PROPERTIES_GROUP_ID = "properties.group.id";
+
     public static final String CONNECTOR = "connector";
 
     public static final String SCAN_STARTUP_MODE = "scan.startup.mode";
@@ -38,7 +40,5 @@ public class KafkaConstant {
      *         Upsert Kafka</a>
      */
     public static final String UPSERT_KAFKA = "upsert-kafka";
-
-    public static final String PROPERTIES_GROUP_ID = "properties.group.id";
 
 }
