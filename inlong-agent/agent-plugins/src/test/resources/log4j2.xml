@@ -37,10 +37,6 @@
         <property name="error_filePattern">${basePath}/error-%d{yyyy-MM-dd}-%i.log.gz</property>
         <property name="error_max">10</property>
         <property name="console_print_level">DEBUG</property>
-        <property name="index_fileName">${basePath}/index.log</property>
-        <property name="index_filePattern">${basePath}/index-%d{yyyy-MM-dd}-%i.log.gz</property>
-        <property name="monitors_fileName">${basePath}/monitors.log</property>
-        <property name="monitors_filePattern">${basePath}/monitors-%d{yyyy-MM-dd}-%i.log.gz</property>
     </Properties>
 
     <appenders>
@@ -62,26 +58,6 @@
 
         <RollingFile name="InfoFile" fileName="${info_fileName}" filePattern="${info_filePattern}">
             <PatternLayout pattern="${log_pattern}"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${info_max}"/>
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-
-        <RollingFile name="IndexFile" fileName="${index_fileName}" filePattern="${index_filePattern}">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %m%n"/>
-            <SizeBasedTriggeringPolicy size="${every_file_size}"/>
-            <DefaultRolloverStrategy max="${info_max}"/>
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-        </RollingFile>
-
-        <RollingFile name="MonitorFile" fileName="${monitors_fileName}" filePattern="${monitors_filePattern}">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %m%n"/>
             <SizeBasedTriggeringPolicy size="${every_file_size}"/>
             <DefaultRolloverStrategy max="${info_max}"/>
             <Filters>
