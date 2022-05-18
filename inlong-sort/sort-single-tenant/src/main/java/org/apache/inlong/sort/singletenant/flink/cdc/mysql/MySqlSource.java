@@ -156,6 +156,10 @@ public class MySqlSource {
             return this;
         }
 
+        /**
+         * builder
+         * @return
+         */
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();
             props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());

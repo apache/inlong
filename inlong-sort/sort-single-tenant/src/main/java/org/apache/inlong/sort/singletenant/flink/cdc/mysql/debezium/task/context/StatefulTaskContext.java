@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * A stateful task context that contains entries the debezium mysql connector task required.
  *
  * <p>The offset change and schema change should record to MySqlSplitState when emit the record,
- * thus the Flink's state mechanism can help to store/restore when failover happens.
+ * thus the Flink's state mechanism can help to store/restore when failover happens.</p>
  */
 public class StatefulTaskContext {
 
@@ -96,6 +96,10 @@ public class StatefulTaskContext {
         this.connection = connection;
     }
 
+    /**
+     * configure
+     * @param mySqlSplit
+     */
     public void configure(MySqlSplit mySqlSplit) {
         // initial stateful objects
         final boolean tableIdCaseInsensitive = connection.isTableIdCaseSensitive();

@@ -66,6 +66,9 @@ public class HeartbeatServiceTest {
     @Mock
     private StreamHeartbeatEntityMapper streamHeartbeatMapper;
 
+    /**
+     * setUp
+     */
     @Before
     public void setUp() {
         MockitoAnnotations.openMocks(this);

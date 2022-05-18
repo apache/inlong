@@ -37,6 +37,11 @@ public class PooledDataSourceFactory {
     private PooledDataSourceFactory() {
     }
 
+    /**
+     * Create JDBC pool of data source.
+     * @param sourceConfig
+     * @return
+     */
     public static HikariDataSource createPooledDataSource(MySqlSourceConfig sourceConfig) {
         final HikariConfig config = new HikariConfig();
 
@@ -63,6 +68,13 @@ public class PooledDataSourceFactory {
         return new HikariDataSource(config);
     }
 
+    /**
+     * Create JDBC url.
+     * @param hostName
+     * @param port
+     * @param jdbcProperties
+     * @return
+     */
     private static String formatJdbcUrl(String hostName, int port, Properties jdbcProperties) {
         Properties combinedProperties = new Properties();
         combinedProperties.putAll(DEFAULT_JDBC_PROPERTIES);
@@ -79,6 +91,10 @@ public class PooledDataSourceFactory {
         return jdbcUrlStringBuilder.toString();
     }
 
+    /**
+     * Default JDBC properties.
+     * @return
+     */
     private static Properties initializeDefaultJdbcProperties() {
         Properties defaultJdbcProperties = new Properties();
         defaultJdbcProperties.setProperty("zeroDateTimeBehavior", "CONVERT_TO_NULL");

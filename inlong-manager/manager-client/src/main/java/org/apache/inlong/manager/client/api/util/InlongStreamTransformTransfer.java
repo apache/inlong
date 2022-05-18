@@ -37,6 +37,12 @@ import java.util.List;
 
 public class InlongStreamTransformTransfer {
 
+    /**
+     * Create request of transformation.
+     * @param streamTransform
+     * @param streamInfo
+     * @return
+     */
     public static TransformRequest createTransformRequest(StreamTransform streamTransform,
             InlongStreamInfo streamInfo) {
         TransformRequest transformRequest = new TransformRequest();
@@ -61,6 +67,11 @@ public class InlongStreamTransformTransfer {
         return transformRequest;
     }
 
+    /**
+     * Parse stream of transformation.
+     * @param transformResponse
+     * @return
+     */
     public static StreamTransform parseStreamTransform(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         String transformDefinitionStr = transformResponse.getTransformDefinition();

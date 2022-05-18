@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
 
 public class InlongStreamTransfer {
 
+    /**
+     * Create information of stream.
+     * @param streamConf
+     * @param groupInfo
+     * @return
+     */
     public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
         dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
@@ -57,6 +63,12 @@ public class InlongStreamTransfer {
         return dataStreamInfo;
     }
 
+    /**
+     * Create information of stream fields.
+     * @param fieldList
+     * @param streamInfo
+     * @return
+     */
     public static List<InlongStreamFieldInfo> createStreamFields(
             List<StreamField> fieldList, InlongStreamInfo streamInfo) {
         if (CollectionUtils.isEmpty(fieldList)) {
@@ -76,6 +88,11 @@ public class InlongStreamTransfer {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Parse information of stream fields.
+     * @param fields
+     * @return
+     */
     public static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
         if (CollectionUtils.isEmpty(fields)) {
             return null;

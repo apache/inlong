@@ -37,6 +37,14 @@ public class StatementUtils {
 
     }
 
+    /**
+     * Query value of min and max.
+     * @param jdbc
+     * @param tableId
+     * @param columnName
+     * @return
+     * @throws SQLException
+     */
     public static Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
             throws SQLException {
         final String minMaxQuery =
@@ -57,6 +65,13 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query approximate value.
+     * @param jdbc
+     * @param tableId
+     * @return
+     * @throws SQLException
+     */
     public static long queryApproximateRowCnt(JdbcConnection jdbc, TableId tableId)
             throws SQLException {
         // The statement used to get approximate row count which is less
@@ -77,6 +92,15 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query value of min.
+     * @param jdbc
+     * @param tableId
+     * @param columnName
+     * @param excludedLowerBound
+     * @return
+     * @throws SQLException
+     */
     public static Object queryMin(
             JdbcConnection jdbc, TableId tableId, String columnName, Object excludedLowerBound)
             throws SQLException {
@@ -98,6 +122,16 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query chunk of max.
+     * @param jdbc
+     * @param tableId
+     * @param splitColumnName
+     * @param chunkSize
+     * @param includedLowerBound
+     * @return
+     * @throws SQLException
+     */
     public static Object queryNextChunkMax(
             JdbcConnection jdbc,
             TableId tableId,
@@ -131,6 +165,14 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Create split scan.
+     * @param tableId
+     * @param pkRowType
+     * @param isFirstSplit
+     * @param isLastSplit
+     * @return
+     */
     public static String buildSplitScanQuery(
             TableId tableId, RowType pkRowType, boolean isFirstSplit, boolean isLastSplit) {
         return buildSplitQuery(tableId, pkRowType, isFirstSplit, isLastSplit, -1, true);
@@ -189,6 +231,18 @@ public class StatementUtils {
         }
     }
 
+    /**
+     * Get data statement of table.
+     * @param jdbc
+     * @param sql
+     * @param isFirstSplit
+     * @param isLastSplit
+     * @param splitStart
+     * @param splitEnd
+     * @param primaryKeyNum
+     * @param fetchSize
+     * @return
+     */
     public static PreparedStatement readTableSplitDataStatement(
             JdbcConnection jdbc,
             String sql,
@@ -225,10 +279,20 @@ public class StatementUtils {
         }
     }
 
+    /**
+     * quote
+     * @param dbOrTableName
+     * @return
+     */
     public static String quote(String dbOrTableName) {
         return "`" + dbOrTableName + "`";
     }
 
+    /**
+     * quote
+     * @param tableId
+     * @return
+     */
     public static String quote(TableId tableId) {
         return tableId.toQuotedString('`');
     }

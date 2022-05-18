@@ -71,6 +71,9 @@ public class Sender {
         this(configure, null);
     }
 
+    /**
+     * Constructor of sender takes two arguments {@link ProxyClientConfig} and {@link ThreadFactory}
+     */
     public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         this.configure = configure;
         this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
@@ -507,7 +510,9 @@ public class Sender {
         return !needEqual;
     }
 
-    /* Following methods used by asynchronously message sending. */
+    /**
+     * Following methods used by asynchronously message sending.
+     */
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),

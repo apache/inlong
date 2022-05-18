@@ -54,6 +54,19 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     private final ErrorHandler errorHandler;
     private ChangeEventSourceContext context;
 
+    /**
+     * Constructor
+     * @param connectorConfig
+     * @param offsetContext
+     * @param connection
+     * @param dispatcher
+     * @param errorHandler
+     * @param clock
+     * @param taskContext
+     * @param metrics
+     * @param topic
+     * @param binlogSplit
+     */
     public MySqlBinlogSplitReadTask(
             MySqlConnectorConfig connectorConfig,
             MySqlOffsetContext offsetContext,

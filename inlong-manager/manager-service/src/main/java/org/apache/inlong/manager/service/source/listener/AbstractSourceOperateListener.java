@@ -102,6 +102,12 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         });
     }
 
+    /**
+     * Check source status.
+     * @param sourceResponse
+     * @param unOperatedSources
+     * @return boolean
+     */
     @SneakyThrows
     public boolean checkIfOp(SourceResponse sourceResponse, List<SourceResponse> unOperatedSources) {
         for (int retry = 0; retry < 60; retry++) {

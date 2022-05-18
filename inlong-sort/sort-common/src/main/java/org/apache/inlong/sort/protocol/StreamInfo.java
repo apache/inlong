@@ -44,6 +44,8 @@ public class StreamInfo implements Serializable {
     private List<NodeRelationShip> relations;
 
     /**
+     * Information of stream.
+     * 
      * @param streamId Uniquely identifies of GroupInfo
      * @param nodes The node list that StreamInfo contains
      * @param relations The relation list that StreamInfo contains,

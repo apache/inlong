@@ -59,6 +59,11 @@ public class DebeziumChangeConsumer
         }
     }
 
+    /**
+     * Commit offset.
+     * @param offset
+     * @throws InterruptedException
+     */
     @SuppressWarnings("unchecked")
     public void commitOffset(DebeziumOffset offset) throws InterruptedException {
         // Although the committer is read/write by multi-thread, the committer will be not changed

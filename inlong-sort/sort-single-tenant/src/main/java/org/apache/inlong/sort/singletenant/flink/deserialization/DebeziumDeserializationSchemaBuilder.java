@@ -97,6 +97,11 @@ public class DebeziumDeserializationSchemaBuilder {
                 extractFormatInfos(getProducedFieldInfos(originPhysicalFieldInfos)));
     }
 
+    /**
+     * Get Information of metadata. 
+     * @param fieldInfos
+     * @return FieldInfo
+     */
     public static FieldInfo[] getMetadataFieldInfos(FieldInfo[] fieldInfos) {
         List<FieldInfo> metadataFieldInfos = new ArrayList<>();
         Arrays.stream(fieldInfos)

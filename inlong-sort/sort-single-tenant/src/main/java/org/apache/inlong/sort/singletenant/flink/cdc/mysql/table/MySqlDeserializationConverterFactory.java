@@ -44,6 +44,10 @@ import org.apache.kafka.connect.data.Struct;
 /** Used to create {@link DeserializationRuntimeConverterFactory} specified to MySQL. */
 public class MySqlDeserializationConverterFactory {
 
+    /**
+     * instance
+     * @return
+     */
     public static DeserializationRuntimeConverterFactory instance() {
         return new DeserializationRuntimeConverterFactory() {
 
@@ -66,6 +70,10 @@ public class MySqlDeserializationConverterFactory {
         };
     }
 
+    /**
+     * Create converter of string.
+     * @return
+     */
     private static Optional<DeserializationRuntimeConverter> createStringConverter() {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectWriter objectWriter = objectMapper.writer();
@@ -113,6 +121,11 @@ public class MySqlDeserializationConverterFactory {
                 });
     }
 
+    /**
+     * Create converter of array.
+     * @param arrayType
+     * @return
+     */
     private static Optional<DeserializationRuntimeConverter> createArrayConverter(
             ArrayType arrayType) {
         if (LogicalTypeChecks.hasFamily(

@@ -72,10 +72,22 @@ public class InlongParser {
     public static final String SINK_TYPE = "sinkType";
     public static final String SOURCE_TYPE = "sourceType";
 
+    /**
+     * Parse body of response.
+     * @param responseBody
+     * @return
+     */
     public static Response parseResponse(String responseBody) {
         return GsonUtil.fromJson(responseBody, Response.class);
     }
 
+    /**
+     * Parse body of response.
+     * @param responseType
+     * @param responseBody
+     * @param <T>
+     * @return
+     */
     public static <T> Response<T> parseResponse(Class<T> responseType, String responseBody) {
         AssertUtil.notNull(responseType, "responseType must not be null");
         return GsonUtil.fromJson(
@@ -84,6 +96,11 @@ public class InlongParser {
         );
     }
 
+    /**
+     * Parse information of group.
+     * @param response
+     * @return
+     */
     public static InlongGroupResponse parseGroupInfo(Response response) {
         Object data = response.getData();
         JsonObject groupJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
@@ -99,6 +116,11 @@ public class InlongParser {
         return inlongGroupResponse;
     }
 
+    /**
+     * Parse information of groups.
+     * @param response
+     * @return
+     */
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -112,6 +134,11 @@ public class InlongParser {
         return GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
     }
 
+    /**
+     * Parse list of stream.
+     * @param response
+     * @return List
+     */
     public static List<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
         JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
@@ -193,6 +220,11 @@ public class InlongParser {
         return list;
     }
 
+    /**
+     * Parse list of source.
+     * @param response
+     * @return
+     */
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -228,6 +260,11 @@ public class InlongParser {
         }
     }
 
+    /**
+     * Parse list of transformation.
+     * @param response
+     * @return
+     */
     public static List<TransformResponse> parseTransformList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -236,6 +273,11 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse list of data sink.
+     * @param response
+     * @return
+     */
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -244,6 +286,11 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse forms of group.
+     * @param formJson
+     * @return
+     */
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
         JsonObject groupJson = formData.getAsJsonObject(GROUP_INFO);
@@ -273,6 +320,11 @@ public class InlongParser {
         return Pair.of(groupApproveInfo, streamApproveList);
     }
 
+    /**
+     * Parse list of event about view log.
+     * @param response
+     * @return
+     */
     public static PageInfo<EventLogView> parseEventLogViewList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -281,6 +333,11 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse list of stream log.
+     * @param response
+     * @return
+     */
     public static PageInfo<InlongStreamConfigLogListResponse> parseStreamLogList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);

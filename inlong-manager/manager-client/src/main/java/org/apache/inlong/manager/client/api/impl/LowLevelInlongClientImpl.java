@@ -43,6 +43,11 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     @Getter
     private final ClientConfiguration configuration;
 
+    /**
+     * Constructor
+     * @param serviceUrl
+     * @param configuration
+     */
     public LowLevelInlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
                 .split(serviceUrl);

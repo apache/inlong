@@ -78,6 +78,11 @@ public class InlongStreamImpl extends InlongStream {
 
     private List<StreamField> streamFields = Lists.newArrayList();
 
+    /**
+     * Constructor
+     * @param fullStreamResponse
+     * @param managerClient
+     */
     public InlongStreamImpl(FullStreamResponse fullStreamResponse, InnerInlongManagerClient managerClient) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.managerClient = managerClient;

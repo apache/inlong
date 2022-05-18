@@ -40,6 +40,13 @@ import org.slf4j.LoggerFactory;
 public class TableDiscoveryUtils {
     private static final Logger LOG = LoggerFactory.getLogger(TableDiscoveryUtils.class);
 
+    /**
+     * Get list of table.
+     * @param jdbc
+     * @param tableFilters
+     * @return
+     * @throws SQLException
+     */
     public static List<TableId> listTables(JdbcConnection jdbc, RelationalTableFilters tableFilters)
             throws SQLException {
         final List<TableId> capturedTableIds = new ArrayList<>();
@@ -93,6 +100,12 @@ public class TableDiscoveryUtils {
         return capturedTableIds;
     }
 
+    /**
+     * Discover schemas of table.
+     * @param sourceConfig
+     * @param jdbc
+     * @return
+     */
     public static Map<TableId, TableChanges.TableChange> discoverCapturedTableSchemas(
             MySqlSourceConfig sourceConfig, MySqlConnection jdbc) {
         final List<TableId> capturedTableIds;

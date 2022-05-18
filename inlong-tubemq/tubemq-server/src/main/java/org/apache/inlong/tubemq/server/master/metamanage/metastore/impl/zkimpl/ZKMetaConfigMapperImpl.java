@@ -81,6 +81,10 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
         }
     }
 
+    /**
+     * Constructor
+     * @param masterConfig
+     */
     public ZKMetaConfigMapperImpl(MasterConfig masterConfig) {
         super(masterConfig);
         this.localNodeAdd = new NodeAddrInfo(

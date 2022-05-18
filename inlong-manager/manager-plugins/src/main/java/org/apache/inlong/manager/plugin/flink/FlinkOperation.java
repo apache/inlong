@@ -153,6 +153,11 @@ public class FlinkOperation {
         future.get();
     }
 
+    /**
+     * Delete the Flink job
+     * @param flinkInfo
+     * @throws Exception
+     */
     public void delete(FlinkInfo flinkInfo) throws Exception {
         String jobId = flinkInfo.getJobId();
         JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(jobId);
@@ -173,6 +178,11 @@ public class FlinkOperation {
         future.get();
     }
 
+    /**
+     * Status of Flink job.
+     * @param flinkInfo
+     * @throws Exception
+     */
     public void pollJobStatus(FlinkInfo flinkInfo) throws Exception {
         if (flinkInfo.isException()) {
             throw new BusinessException("startup failed: " + flinkInfo.getExceptionMsg());

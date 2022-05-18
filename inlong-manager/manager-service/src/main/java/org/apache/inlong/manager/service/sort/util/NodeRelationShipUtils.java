@@ -76,6 +76,11 @@ public class NodeRelationShipUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Optimize relationship of node.
+     * @param streamInfo
+     * @param transformResponses
+     */
     public static void optimizeNodeRelationShips(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
             return;

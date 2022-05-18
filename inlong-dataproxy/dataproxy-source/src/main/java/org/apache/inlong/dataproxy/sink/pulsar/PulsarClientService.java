@@ -345,6 +345,13 @@ public class PulsarClientService {
         return builder.build();
     }
 
+    /**
+     * Producer initialization.
+     * @param topic
+     * @param inlongGroupId
+     * @param inlongStreamId
+     * @return
+     */
     public List<TopicProducerInfo> initTopicProducer(String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {

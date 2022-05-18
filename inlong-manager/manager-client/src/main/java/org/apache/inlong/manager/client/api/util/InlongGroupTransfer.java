@@ -51,6 +51,11 @@ import java.util.Map;
 
 public class InlongGroupTransfer {
 
+    /**
+     * Parse information of group.
+     * @param inlongGroupResponse
+     * @return InlongGroupConf
+     */
     public static InlongGroupConf parseGroupResponse(InlongGroupResponse inlongGroupResponse) {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
         inlongGroupConf.setGroupName(inlongGroupResponse.getName());
@@ -65,6 +70,11 @@ public class InlongGroupTransfer {
         return inlongGroupConf;
     }
 
+    /**
+     * Determine the Inlong Cluster to create initialization and  groups  of Sort.
+     * @param inlongGroupResponse
+     * @return boolean
+     */
     public static boolean isLightGroup(InlongGroupResponse inlongGroupResponse) {
         List<InlongGroupExtInfo> extInfos = inlongGroupResponse.getExtList();
         if (CollectionUtils.isEmpty(extInfos)) {
@@ -79,6 +89,11 @@ public class InlongGroupTransfer {
         return false;
     }
 
+    /**
+     * Parse the basic configuration about MQ.
+     * @param inlongGroupResponse
+     * @return MQBaseConf
+     */
     public static MQBaseConf parseMqBaseConf(InlongGroupResponse inlongGroupResponse) {
         InlongGroupMqExtBase mqExtBase = inlongGroupResponse.getMqExtInfo();
         if (null == mqExtBase || StringUtils.isBlank(mqExtBase.getMqType())) {
@@ -99,6 +114,11 @@ public class InlongGroupTransfer {
         }
     }
 
+    /**
+     * Parse the basic configuration about Sort.
+     * @param groupResponse
+     * @return
+     */
     public static SortBaseConf parseSortBaseConf(InlongGroupResponse groupResponse) {
         List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
         if (CollectionUtils.isEmpty(groupExtInfos)) {
@@ -125,6 +145,11 @@ public class InlongGroupTransfer {
         }
     }
 
+    /**
+     * Parse config of Flink.
+     * @param groupExtInfos
+     * @return FlinkSortBaseConf
+     */
     private static FlinkSortBaseConf parseFlinkSortConf(List<InlongGroupExtInfo> groupExtInfos) {
         FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
@@ -141,6 +166,11 @@ public class InlongGroupTransfer {
         return sortBaseConf;
     }
 
+    /**
+     * Parse config of UDF.
+     * @param groupExtInfos
+     * @return UserDefinedSortConf
+     */
     private static UserDefinedSortConf parseUdf(List<InlongGroupExtInfo> groupExtInfos) {
         UserDefinedSortConf sortConf = new UserDefinedSortConf();
         for (InlongGroupExtInfo extInfo : groupExtInfos) {
@@ -157,6 +187,11 @@ public class InlongGroupTransfer {
         return sortConf;
     }
 
+    /**
+     * Parse config of Pulsar.
+     * @param groupResponse
+     * @return PulsarBaseConf
+     */
     private static PulsarBaseConf parsePulsarConf(InlongGroupResponse groupResponse) {
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
         pulsarBaseConf.setNamespace(groupResponse.getMqResource());
@@ -184,6 +219,11 @@ public class InlongGroupTransfer {
         return pulsarBaseConf;
     }
 
+    /**
+     * Parse config of Tube.
+     * @param groupResponse
+     * @return TubeBaseConf
+     */
     private static TubeBaseConf parseTubeConf(InlongGroupResponse groupResponse) {
         TubeBaseConf tubeBaseConf = new TubeBaseConf();
         tubeBaseConf.setGroupName(groupResponse.getMqResource());
@@ -202,6 +242,11 @@ public class InlongGroupTransfer {
         return tubeBaseConf;
     }
 
+    /**
+     * Create information of group.
+     * @param groupConf
+     * @return InlongGroupInfo
+     */
     public static InlongGroupInfo createGroupInfo(InlongGroupConf groupConf) {
         InlongGroupInfo groupInfo = new InlongGroupInfo();
         AssertUtil.hasLength(groupConf.getGroupName(), "GroupName should not be empty");
@@ -254,6 +299,11 @@ public class InlongGroupTransfer {
         return groupInfo;
     }
 
+    /**
+     * Set the mode of group.
+     * @param inlongGroupConf
+     * @param inlongGroupInfo
+     */
     public static void setGroupMode(InlongGroupConf inlongGroupConf, InlongGroupInfo inlongGroupInfo) {
         String inlongGroupId = inlongGroupInfo.getInlongGroupId();
         InlongGroupExtInfo modeInfo = new InlongGroupExtInfo();
@@ -267,6 +317,11 @@ public class InlongGroupTransfer {
         inlongGroupInfo.getExtList().add(modeInfo);
     }
 
+    /**
+     * Create information of Pulsar.
+     * @param pulsarBaseConf
+     * @return InlongGroupPulsarInfo
+     */
     public static InlongGroupPulsarInfo createPulsarInfo(PulsarBaseConf pulsarBaseConf) {
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
         pulsarInfo.setMqType(pulsarBaseConf.getType().name());
@@ -284,6 +339,11 @@ public class InlongGroupTransfer {
         return pulsarInfo;
     }
 
+    /**
+     * Create information of Pulsar.
+     * @param pulsarBaseConf
+     * @return List
+     */
     public static List<InlongGroupExtInfo> createPulsarExtInfo(PulsarBaseConf pulsarBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (pulsarBaseConf.getAuthentication() != null) {
@@ -316,6 +376,11 @@ public class InlongGroupTransfer {
         return extInfos;
     }
 
+    /**
+     * Create information of Tube.
+     * @param tubeBaseConf
+     * @return List
+     */
     public static List<InlongGroupExtInfo> createTubeExtInfo(TubeBaseConf tubeBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (StringUtils.isNotEmpty(tubeBaseConf.getTubeMasterUrl())) {
@@ -339,6 +404,11 @@ public class InlongGroupTransfer {
         return extInfos;
     }
 
+    /**
+     * Create information of Flink.
+     * @param flinkSortBaseConf
+     * @return List
+     */
     public static List<InlongGroupExtInfo> createFlinkExtInfo(FlinkSortBaseConf flinkSortBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
@@ -375,6 +445,11 @@ public class InlongGroupTransfer {
         return extInfos;
     }
 
+    /**
+     * Create information of user-defined Sort.
+     * @param userDefinedSortConf
+     * @return List
+     */
     public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(UserDefinedSortConf userDefinedSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();

@@ -68,6 +68,15 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
     /** row schema that json serializer can parse output row to json format */
     private final RowType jsonRowType;
 
+    /**
+     * Constructor
+     * @param physicalDataType
+     * @param writeableMetadata
+     * @param timestampFormat
+     * @param mapNullKeyMode
+     * @param mapNullKeyLiteral
+     * @param encodeDecimalAsPlainNumber
+     */
     public CanalJsonEnhancedSerializationSchema(
             DataType physicalDataType,
             List<WriteableMetadata> writeableMetadata,

@@ -182,7 +182,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecord, MySqlSpli
      *
      * <p>The watermark signal algorithm is the binlog split reader only sends the binlog event that
      * belongs to its finished snapshot splits. For each snapshot split, the binlog event is valid
-     * since the offset is after its high watermark.
+     * since the offset is after its high watermark.</p>
      *
      * <pre> E.g: the data input is :
      *    snapshot-split-0 info : [0,    1024) highWatermark0

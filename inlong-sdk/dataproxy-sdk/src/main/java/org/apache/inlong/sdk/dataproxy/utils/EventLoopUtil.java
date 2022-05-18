@@ -43,6 +43,13 @@ public class EventLoopUtil {
     public EventLoopUtil() {
     }
 
+    /**
+     * Create loop of event about group.
+     * @param nThreads
+     * @param enableBusyWait
+     * @param threadFactory
+     * @return EventLoopGroup
+     */
     public static EventLoopGroup newEventLoopGroup(int nThreads, boolean enableBusyWait, ThreadFactory threadFactory) {
         if (!Epoll.isAvailable()) {
             return new NioEventLoopGroup(nThreads, threadFactory);
@@ -58,21 +65,40 @@ public class EventLoopUtil {
         }
     }
 
+    /**
+     * Get class of socket's channel about client.
+     * @param eventLoopGroup
+     * @return
+     */
     public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
+    /**
+     * Get class of socket's channel about server.
+     * @param eventLoopGroup
+     * @return
+     */
     public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
+    /**
+     * Get class of datagram's channel.
+     * @param eventLoopGroup
+     * @return
+     */
     public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
+    /**
+     * Epoll mode.
+     * @param bootstrap
+     */
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {
         if (Epoll.isAvailable()) {
             bootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
@@ -80,10 +106,20 @@ public class EventLoopUtil {
 
     }
 
+    /**
+     * Gracefully close the thread pool. 
+     * @param eventLoopGroup
+     * @return
+     */
     public static CompletableFuture<Void> shutdownGracefully(EventLoopGroup eventLoopGroup) {
         return toCompletableFutureVoid(eventLoopGroup.shutdownGracefully());
     }
 
+    /**
+     * Convert to CompletableFuture.
+     * @param future
+     * @return
+     */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {
         Objects.requireNonNull(future, "future cannot be null");
 

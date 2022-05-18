@@ -71,7 +71,7 @@ public final class StartupOptions implements Serializable {
      * read binlog from the specified timestamp.
      *
      * <p>The consumer will traverse the binlog from the beginning and ignore change events whose
-     * timestamp is smaller than the specified timestamp.
+     * timestamp is smaller than the specified timestamp.</p>
      *
      * @param startupTimestampMillis timestamp for the startup offsets, as milliseconds from epoch.
      */

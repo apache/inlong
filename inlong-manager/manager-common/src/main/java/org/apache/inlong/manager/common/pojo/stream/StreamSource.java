@@ -36,6 +36,11 @@ public abstract class StreamSource extends StreamNode {
     public enum State {
         INIT, NORMAL, FROZING, FROZEN, FAILED, DELETING, DELETE;
 
+        /**
+         * Parse status of stream source.
+         * @param status
+         * @return
+         */
         public static State parseByStatus(int status) {
             SourceStatus sourceStatus = SourceStatus.forCode(status);
             switch (sourceStatus) {

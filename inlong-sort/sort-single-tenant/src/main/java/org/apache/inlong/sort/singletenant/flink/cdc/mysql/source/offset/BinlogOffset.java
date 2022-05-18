@@ -34,7 +34,7 @@ import org.apache.kafka.connect.errors.ConnectException;
  * <p>This structure can also be used to deal the binlog event in transaction, a transaction may
  * contains multiple change events, and each change event may contain multiple rows. When restart
  * from a specific {@link BinlogOffset}, we need to skip the processed change events and the
- * processed rows.
+ * processed rows.</p>
  */
 public class BinlogOffset implements Comparable<BinlogOffset>, Serializable {
 
