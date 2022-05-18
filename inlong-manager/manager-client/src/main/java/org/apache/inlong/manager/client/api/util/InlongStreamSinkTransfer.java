@@ -258,6 +258,7 @@ public class InlongStreamSinkTransfer {
     private static SinkRequest createHbaseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         HbaseSinkRequest hbaseSinkRequest = new HbaseSinkRequest();
         HbaseSink hbaseSink = (HbaseSink) streamSink;
+        hbaseSinkRequest.setSinkName(streamSink.getSinkName());
         hbaseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         hbaseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         hbaseSinkRequest.setNameSpace(hbaseSink.getNameSpace());
