@@ -61,7 +61,6 @@ public class FilterFunctionUtils {
     /**
      * Create functions of filter.
      * @param transformResponse
-     * @return
      */
     public static List<FilterFunction> createFilterFunctions(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
@@ -87,7 +86,6 @@ public class FilterFunctionUtils {
      * Create functions of filter.
      * @param filterDefinition
      * @param transformName
-     * @return
      */
     public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
         FilterMode filterMode = filterDefinition.getFilterMode();

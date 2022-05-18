@@ -69,7 +69,7 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
     private final RowType jsonRowType;
 
     /**
-     * Constructor
+     * Constructor of CanalJsonEnhancedSerializationSchema.
      * @param physicalDataType
      * @param writeableMetadata
      * @param timestampFormat

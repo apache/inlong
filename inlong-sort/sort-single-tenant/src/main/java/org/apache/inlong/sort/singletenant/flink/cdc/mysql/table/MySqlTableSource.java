@@ -96,7 +96,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     protected List<String> metadataKeys;
 
     /**
-     * Constructor
+     * Constructor of MySqlTableSource.
      * @param physicalSchema
      * @param port
      * @param hostname
@@ -174,7 +174,7 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
     }
 
     /**
-     * Constructor
+     * Constructor of MySqlTableSource.
      * @param physicalSchema
      * @param port
      * @param hostname

@@ -82,7 +82,7 @@ public class ZKMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     }
 
     /**
-     * Constructor
+     * Constructor of ZKMetaConfigMapperImpl.
      * @param masterConfig
      */
     public ZKMetaConfigMapperImpl(MasterConfig masterConfig) {

@@ -75,7 +75,6 @@ public class InlongParser {
     /**
      * Parse body of response.
      * @param responseBody
-     * @return
      */
     public static Response parseResponse(String responseBody) {
         return GsonUtil.fromJson(responseBody, Response.class);
@@ -86,7 +85,6 @@ public class InlongParser {
      * @param responseType
      * @param responseBody
      * @param <T>
-     * @return
      */
     public static <T> Response<T> parseResponse(Class<T> responseType, String responseBody) {
         AssertUtil.notNull(responseType, "responseType must not be null");
@@ -99,7 +97,6 @@ public class InlongParser {
     /**
      * Parse information of group.
      * @param response
-     * @return
      */
     public static InlongGroupResponse parseGroupInfo(Response response) {
         Object data = response.getData();
@@ -119,7 +116,6 @@ public class InlongParser {
     /**
      * Parse information of groups.
      * @param response
-     * @return
      */
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
         Object data = response.getData();
@@ -137,7 +133,6 @@ public class InlongParser {
     /**
      * Parse list of stream.
      * @param response
-     * @return List
      */
     public static List<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
@@ -223,7 +218,6 @@ public class InlongParser {
     /**
      * Parse list of source.
      * @param response
-     * @return
      */
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
         Object data = response.getData();
@@ -263,7 +257,6 @@ public class InlongParser {
     /**
      * Parse list of transformation.
      * @param response
-     * @return
      */
     public static List<TransformResponse> parseTransformList(Response response) {
         Object data = response.getData();
@@ -276,7 +269,6 @@ public class InlongParser {
     /**
      * Parse list of data sink.
      * @param response
-     * @return
      */
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
@@ -289,7 +281,6 @@ public class InlongParser {
     /**
      * Parse forms of group.
      * @param formJson
-     * @return
      */
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
@@ -323,7 +314,6 @@ public class InlongParser {
     /**
      * Parse list of event about view log.
      * @param response
-     * @return
      */
     public static PageInfo<EventLogView> parseEventLogViewList(Response response) {
         Object data = response.getData();
@@ -336,7 +326,6 @@ public class InlongParser {
     /**
      * Parse list of stream log.
      * @param response
-     * @return
      */
     public static PageInfo<InlongStreamConfigLogListResponse> parseStreamLogList(Response response) {
         Object data = response.getData();

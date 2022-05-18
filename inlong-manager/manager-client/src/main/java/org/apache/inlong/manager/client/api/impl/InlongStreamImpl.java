@@ -79,7 +79,7 @@ public class InlongStreamImpl extends InlongStream {
     private List<StreamField> streamFields = Lists.newArrayList();
 
     /**
-     * Constructor
+     * Constructor of InlongStreamImpl.
      * @param fullStreamResponse
      * @param managerClient
      */

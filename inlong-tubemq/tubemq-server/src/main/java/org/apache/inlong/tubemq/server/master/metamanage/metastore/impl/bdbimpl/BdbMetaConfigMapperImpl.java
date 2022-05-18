@@ -94,7 +94,7 @@ public class BdbMetaConfigMapperImpl extends AbsMetaConfigMapperImpl {
     private final StoreConfig storeConfig = new StoreConfig();
 
     /**
-     * Constructor
+     * Constructor of BdbMetaConfigMapperImpl.
      * @param masterConfig
      */
     public BdbMetaConfigMapperImpl(MasterConfig masterConfig) {

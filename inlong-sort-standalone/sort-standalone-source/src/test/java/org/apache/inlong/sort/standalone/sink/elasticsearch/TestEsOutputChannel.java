@@ -56,8 +56,7 @@ public class TestEsOutputChannel {
 
     /**
      * mock
-     * 
-     * @return
+     *
      * @throws Exception
      */
     public static EsOutputChannel mock() throws Exception {

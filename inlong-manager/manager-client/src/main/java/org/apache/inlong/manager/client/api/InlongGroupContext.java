@@ -75,7 +75,7 @@ public class InlongGroupContext implements Serializable {
     private InlongGroupStatus state;
 
     /**
-     * Constructor
+     * Constructor of InlongGroupContext.
      * @param groupContext
      * @param streamGroupConf
      */

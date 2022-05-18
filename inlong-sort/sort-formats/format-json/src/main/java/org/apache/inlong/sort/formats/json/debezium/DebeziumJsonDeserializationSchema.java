@@ -109,7 +109,7 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
     private final boolean isMigrateAll;
 
     /**
-     * Constructor.
+     * Constructor of DebeziumJsonDeserializationSchema.
      * @param physicalDataType
      * @param requestedMetadata
      * @param producedTypeInfo

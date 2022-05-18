@@ -144,7 +144,7 @@ public class TDMQPulsarSourceFunction<T>
     private transient Duration receiveTimeout;
 
     /**
-     * Constructor
+     * Constructor of TDMQPulsarSourceFunction.
      * @param serviceUrl
      * @param topic
      * @param consumerGroup

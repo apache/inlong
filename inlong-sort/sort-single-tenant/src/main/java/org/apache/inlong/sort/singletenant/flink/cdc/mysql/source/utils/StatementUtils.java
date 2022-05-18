@@ -42,7 +42,6 @@ public class StatementUtils {
      * @param jdbc
      * @param tableId
      * @param columnName
-     * @return
      * @throws SQLException
      */
     public static Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
@@ -69,7 +68,6 @@ public class StatementUtils {
      * Query approximate value.
      * @param jdbc
      * @param tableId
-     * @return
      * @throws SQLException
      */
     public static long queryApproximateRowCnt(JdbcConnection jdbc, TableId tableId)
@@ -98,7 +96,6 @@ public class StatementUtils {
      * @param tableId
      * @param columnName
      * @param excludedLowerBound
-     * @return
      * @throws SQLException
      */
     public static Object queryMin(
@@ -129,7 +126,6 @@ public class StatementUtils {
      * @param splitColumnName
      * @param chunkSize
      * @param includedLowerBound
-     * @return
      * @throws SQLException
      */
     public static Object queryNextChunkMax(
@@ -171,7 +167,6 @@ public class StatementUtils {
      * @param pkRowType
      * @param isFirstSplit
      * @param isLastSplit
-     * @return
      */
     public static String buildSplitScanQuery(
             TableId tableId, RowType pkRowType, boolean isFirstSplit, boolean isLastSplit) {
@@ -241,7 +236,6 @@ public class StatementUtils {
      * @param splitEnd
      * @param primaryKeyNum
      * @param fetchSize
-     * @return
      */
     public static PreparedStatement readTableSplitDataStatement(
             JdbcConnection jdbc,
@@ -282,7 +276,6 @@ public class StatementUtils {
     /**
      * quote
      * @param dbOrTableName
-     * @return
      */
     public static String quote(String dbOrTableName) {
         return "`" + dbOrTableName + "`";
@@ -291,7 +284,6 @@ public class StatementUtils {
     /**
      * quote
      * @param tableId
-     * @return
      */
     public static String quote(TableId tableId) {
         return tableId.toQuotedString('`');

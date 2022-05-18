@@ -74,7 +74,7 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
     private final Schema schemaChangeValueSchema;
 
     /**
-     * Constructor
+     * Constructor of EventDispatcherImpl.
      * @param connectorConfig
      * @param topicSelector
      * @param schema

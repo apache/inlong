@@ -183,7 +183,6 @@ public class ClientMgr {
      * @param configure
      * @param sender
      * @param selfDefineFactory
-     * @throws Exception
      */
     public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
         /* Initialize the bootstrap. */

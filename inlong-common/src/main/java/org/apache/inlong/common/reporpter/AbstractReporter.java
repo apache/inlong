@@ -99,7 +99,6 @@ public class AbstractReporter<T> {
      * @param data
      * @param serverUrl
      * @return Response
-     * @throws Exception
      */
     public Response syncReportData(T data, String serverUrl) throws Exception {
         if (StringUtils.isEmpty(serverUrl)) {
@@ -125,7 +124,6 @@ public class AbstractReporter<T> {
      * Report data.
      * @param data
      * @return Response
-     * @throws Exception
      */
     public Response syncReportData(T data) throws Exception {
         return this.syncReportData(data, serverUrl);
@@ -143,7 +141,6 @@ public class AbstractReporter<T> {
      * Report data.
      * @param data
      * @param serverUrl
-     * @return Future
      */
     public Future<Response>  asyncReportData(T data, String serverUrl) {
         CompletableFuture<Response> completableFuture = new CompletableFuture<>();
@@ -160,7 +157,6 @@ public class AbstractReporter<T> {
     /**
      * Report data.
      * @param data
-     * @return Future
      */
     public Future<Response> asyncReportData(T data) {
         return asyncReportData(data, serverUrl);
@@ -170,7 +166,6 @@ public class AbstractReporter<T> {
      * Parse json data.
      * @param json
      * @return Response
-     * @throws Exception
      */
     public Response parse(String json) throws Exception {
 

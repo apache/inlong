@@ -62,7 +62,7 @@ public class FlinkService {
     private final Configuration configuration;
 
     /**
-     * Constructor
+     * Constructor of FlinkService.
      * @param endpoint
      * @throws Exception
      */

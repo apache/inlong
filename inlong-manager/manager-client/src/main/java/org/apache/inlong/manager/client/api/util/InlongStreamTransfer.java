@@ -36,7 +36,6 @@ public class InlongStreamTransfer {
      * Create information of stream.
      * @param streamConf
      * @param groupInfo
-     * @return
      */
     public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
@@ -67,7 +66,6 @@ public class InlongStreamTransfer {
      * Create information of stream fields.
      * @param fieldList
      * @param streamInfo
-     * @return
      */
     public static List<InlongStreamFieldInfo> createStreamFields(
             List<StreamField> fieldList, InlongStreamInfo streamInfo) {
@@ -91,7 +89,6 @@ public class InlongStreamTransfer {
     /**
      * Parse information of stream fields.
      * @param fields
-     * @return
      */
     public static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
         if (CollectionUtils.isEmpty(fields)) {

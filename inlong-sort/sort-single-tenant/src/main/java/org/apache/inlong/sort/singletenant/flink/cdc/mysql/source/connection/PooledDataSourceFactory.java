@@ -40,7 +40,6 @@ public class PooledDataSourceFactory {
     /**
      * Create JDBC pool of data source.
      * @param sourceConfig
-     * @return
      */
     public static HikariDataSource createPooledDataSource(MySqlSourceConfig sourceConfig) {
         final HikariConfig config = new HikariConfig();
@@ -73,7 +72,6 @@ public class PooledDataSourceFactory {
      * @param hostName
      * @param port
      * @param jdbcProperties
-     * @return
      */
     private static String formatJdbcUrl(String hostName, int port, Properties jdbcProperties) {
         Properties combinedProperties = new Properties();
@@ -93,7 +91,6 @@ public class PooledDataSourceFactory {
 
     /**
      * Default JDBC properties.
-     * @return
      */
     private static Properties initializeDefaultJdbcProperties() {
         Properties defaultJdbcProperties = new Properties();

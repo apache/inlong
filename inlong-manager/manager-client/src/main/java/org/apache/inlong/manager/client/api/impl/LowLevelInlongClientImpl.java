@@ -44,7 +44,7 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     private final ClientConfiguration configuration;
 
     /**
-     * Constructor
+     * Constructor of LowLevelInlongClientImpl.
      * @param serviceUrl
      * @param configuration
      */

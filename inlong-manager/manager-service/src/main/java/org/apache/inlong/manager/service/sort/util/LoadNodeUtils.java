@@ -50,7 +50,6 @@ public class LoadNodeUtils {
     /**
      * Create nodes of data load.
      * @param sinkResponses
-     * @return
      */
     public static List<LoadNode> createLoadNodes(List<SinkResponse> sinkResponses) {
         if (CollectionUtils.isEmpty(sinkResponses)) {
@@ -63,7 +62,6 @@ public class LoadNodeUtils {
     /**
      * Create node of data load.
      * @param sinkResponse
-     * @return
      */
     public static LoadNode createLoadNode(SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
@@ -81,7 +79,6 @@ public class LoadNodeUtils {
     /**
      * Create node of data load about kafka.
      * @param kafkaSinkResponse
-     * @return
      */
     public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
 
@@ -139,7 +136,6 @@ public class LoadNodeUtils {
     /**
      * Create node of data load about hive.
      * @param hiveSinkResponse
-     * @return
      */
     public static HiveLoadNode createLoadNode(HiveSinkResponse hiveSinkResponse) {
         String id = hiveSinkResponse.getSinkName();
@@ -185,7 +181,6 @@ public class LoadNodeUtils {
      * Parse information field of data sink.
      * @param sinkFieldResponses
      * @param sinkName
-     * @return
      */
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {
         if (CollectionUtils.isEmpty(sinkFieldResponses)) {

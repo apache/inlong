@@ -44,7 +44,6 @@ public class TableDiscoveryUtils {
      * Get list of table.
      * @param jdbc
      * @param tableFilters
-     * @return
      * @throws SQLException
      */
     public static List<TableId> listTables(JdbcConnection jdbc, RelationalTableFilters tableFilters)
@@ -104,7 +103,6 @@ public class TableDiscoveryUtils {
      * Discover schemas of table.
      * @param sourceConfig
      * @param jdbc
-     * @return
      */
     public static Map<TableId, TableChanges.TableChange> discoverCapturedTableSchemas(
             MySqlSourceConfig sourceConfig, MySqlConnection jdbc) {

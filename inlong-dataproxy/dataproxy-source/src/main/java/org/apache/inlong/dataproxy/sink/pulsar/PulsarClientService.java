@@ -152,7 +152,6 @@ public class PulsarClientService {
      * @param event
      * @param sendMessageCallBack
      * @param es
-     * @return
      */
     public boolean sendMessage(int poolIndex, String topic, Event event,
                                SendMessageCallBack sendMessageCallBack, EventStat es) {

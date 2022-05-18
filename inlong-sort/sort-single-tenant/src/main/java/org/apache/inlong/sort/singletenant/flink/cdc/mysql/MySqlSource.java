@@ -158,7 +158,6 @@ public class MySqlSource {
 
         /**
          * builder
-         * @return
          */
         public DebeziumSourceFunction<T> build() {
             Properties props = new Properties();

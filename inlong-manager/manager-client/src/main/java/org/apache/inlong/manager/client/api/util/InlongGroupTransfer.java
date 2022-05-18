@@ -117,7 +117,6 @@ public class InlongGroupTransfer {
     /**
      * Parse the basic configuration about Sort.
      * @param groupResponse
-     * @return
      */
     public static SortBaseConf parseSortBaseConf(InlongGroupResponse groupResponse) {
         List<InlongGroupExtInfo> groupExtInfos = groupResponse.getExtList();
@@ -342,7 +341,6 @@ public class InlongGroupTransfer {
     /**
      * Create information of Pulsar.
      * @param pulsarBaseConf
-     * @return List
      */
     public static List<InlongGroupExtInfo> createPulsarExtInfo(PulsarBaseConf pulsarBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
@@ -379,7 +377,6 @@ public class InlongGroupTransfer {
     /**
      * Create information of Tube.
      * @param tubeBaseConf
-     * @return List
      */
     public static List<InlongGroupExtInfo> createTubeExtInfo(TubeBaseConf tubeBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
@@ -407,7 +404,6 @@ public class InlongGroupTransfer {
     /**
      * Create information of Flink.
      * @param flinkSortBaseConf
-     * @return List
      */
     public static List<InlongGroupExtInfo> createFlinkExtInfo(FlinkSortBaseConf flinkSortBaseConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
@@ -448,7 +444,6 @@ public class InlongGroupTransfer {
     /**
      * Create information of user-defined Sort.
      * @param userDefinedSortConf
-     * @return List
      */
     public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(UserDefinedSortConf userDefinedSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
