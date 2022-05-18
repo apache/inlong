@@ -74,8 +74,6 @@ public class TestBinlogReader {
         jobProfile.set(BinlogReader.JOB_DATABASE_WHITELIST, "etl");
         jobProfile.set(BinlogReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "mysql-bin.000001");
         jobProfile.set(BinlogReader.JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "5641");
-        // jobProfile.set(BinlogReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.INITIAL);
-        // jobProfile.set(BinlogReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.EARLIEST_OFFSET);
         jobProfile.set(BinlogReader.JOB_DATABASE_SNAPSHOT_MODE, SnapshotModeConstants.SPECIFIC_OFFSETS);
         // jobProfile.set(BinlogReader.JOB_DATABASE_STORE_HISTORY_FILENAME, "");
         jobProfile.set(BinlogReader.JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, String.valueOf(6000L));
