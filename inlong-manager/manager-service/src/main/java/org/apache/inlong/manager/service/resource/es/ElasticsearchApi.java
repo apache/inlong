@@ -24,8 +24,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticSearchColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticSearchTableInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchTableInfo;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -47,14 +47,14 @@ import org.springframework.stereotype.Component;
  * elasticsearch template service
  */
 @Component
-public class ElasticSearchApi {
+public class ElasticsearchApi {
 
     private static final String FIELD_KEY = "properties";
 
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticSearchApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchApi.class);
 
     @Autowired
-    private ElasticSearchConfig esConfig;
+    private ElasticsearchConfig esConfig;
 
     /**
      * Search
@@ -115,9 +115,9 @@ public class ElasticSearchApi {
      * @return String list of columns translation
      * @throws IOException The exception may throws
      */
-    private List<String> getMappingInfo(List<ElasticSearchColumnInfo> columnsInfo) {
+    private List<String> getMappingInfo(List<ElasticsearchColumnInfo> columnsInfo) {
         List<String> columnList = new ArrayList<>();
-        for (ElasticSearchColumnInfo entry : columnsInfo) {
+        for (ElasticsearchColumnInfo entry : columnsInfo) {
             StringBuilder columnStr = new StringBuilder().append("        \"").append(entry.getName())
                     .append("\" : {\n          \"type\" : \"")
                     .append(entry.getType()).append("\"");
@@ -158,7 +158,7 @@ public class ElasticSearchApi {
      * @return void
      * @throws IOException The exception may throws
      */
-    public void createIndexAndMapping(ElasticSearchTableInfo tableInfo) throws IOException {
+    public void createIndexAndMapping(ElasticsearchTableInfo tableInfo) throws IOException {
         CreateIndexRequest createIndexRequest = new CreateIndexRequest(tableInfo.getIndexName());
         List<String> columnList = getMappingInfo(tableInfo.getColumns());
         StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
@@ -190,7 +190,7 @@ public class ElasticSearchApi {
      * @return void
      * @throws IOException The exception may throws
      */
-    public void addColumns(String indexName, List<ElasticSearchColumnInfo> columnInfos) throws IOException {
+    public void addColumns(String indexName, List<ElasticsearchColumnInfo> columnInfos) throws IOException {
         if (CollectionUtils.isNotEmpty(columnInfos)) {
             List<String> columnList = getMappingInfo(columnInfos);
             StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
@@ -213,12 +213,12 @@ public class ElasticSearchApi {
      * @throws IOException The exception may throws
      */
     public void addNotExistColumns(String indexName,
-            List<ElasticSearchColumnInfo> columnInfos) throws IOException {
-        List<ElasticSearchColumnInfo> notExistColumnInfos = new ArrayList<>(columnInfos);
+            List<ElasticsearchColumnInfo> columnInfos) throws IOException {
+        List<ElasticsearchColumnInfo> notExistColumnInfos = new ArrayList<>(columnInfos);
         Map<String, MappingMetaData> mapping = getColumns(indexName);
         Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
-            for (ElasticSearchColumnInfo entry : notExistColumnInfos) {
+            for (ElasticsearchColumnInfo entry : notExistColumnInfos) {
                 if (entry.getName().equals(key)) {
                     notExistColumnInfos.remove(entry);
                     break;
@@ -243,7 +243,7 @@ public class ElasticSearchApi {
      * @param config ElasticSearch's configuration
      * @return void
      */
-    public void setEsConfig(ElasticSearchConfig config) {
+    public void setEsConfig(ElasticsearchConfig config) {
         this.esConfig = config;
     }
 }

@@ -21,21 +21,30 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 /**
- * Response of ElasticSearch sink list
+ * Response of the ElasticSearch sink.
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of ElasticSearch sink paging list")
-public class ElasticSearchSinkListResponse extends SinkListResponse {
+@ApiModel(value = "Response of the ElasticSearch sink")
+public class ElasticsearchSinkResponse extends SinkResponse {
 
     @ApiModelProperty("ElasticSearch URL")
     private String url;
 
     @ApiModelProperty("ElasticSearch Port")
     private Integer port;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("User password")
+    private String password;
 
     @ApiModelProperty("ElasticSearch index name")
     private String indexName;
@@ -48,5 +57,12 @@ public class ElasticSearchSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
+
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
+
+    public ElasticsearchSinkResponse() {
+        this.sinkType = SinkType.SINK_ELASTICSEARCH;
+    }
 
 }

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  * Elasticsearch config information, including host, port, etc.
  */
 @Component
-public class ElasticSearchConfig {
+public class ElasticsearchConfig {
 
     @Value("${es.index.search.hostname}")
     private String host;
@@ -50,7 +50,7 @@ public class ElasticSearchConfig {
     @Value("${es.auth.password}")
     private String password;
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
 
     private static RestHighLevelClient highLevelClient;
 

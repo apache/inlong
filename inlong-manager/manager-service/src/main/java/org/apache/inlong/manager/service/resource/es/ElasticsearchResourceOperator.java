@@ -24,9 +24,9 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticSearchColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticSearchSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticSearchTableInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchTableInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
@@ -43,9 +43,9 @@ import java.util.List;
  * ElasticSearch resource operator
  */
 @Service
-public class ElasticSearchResourceOperator implements SinkResourceOperator {
+public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchResourceOperator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchResourceOperator.class);
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
@@ -86,17 +86,17 @@ public class ElasticSearchResourceOperator implements SinkResourceOperator {
         }
 
         // set columns
-        List<ElasticSearchColumnInfo> columnList = new ArrayList<>();
+        List<ElasticsearchColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            ElasticSearchColumnInfo columnInfo = new ElasticSearchColumnInfo();
+            ElasticsearchColumnInfo columnInfo = new ElasticsearchColumnInfo();
             columnInfo.setName(field.getFieldName());
             columnInfo.setType(field.getFieldType());
             columnList.add(columnInfo);
         }
 
         try {
-            ElasticSearchConfig config = new ElasticSearchConfig();
-            ElasticSearchSinkDTO esInfo = ElasticSearchSinkDTO.getFromJson(sinkInfo.getExtParams());
+            ElasticsearchConfig config = new ElasticsearchConfig();
+            ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
             if (StringUtils.isNotEmpty(esInfo.getUsername())) {
                 config.setAuthEnable(true);
                 config.setUserName(esInfo.getUsername());
@@ -105,10 +105,10 @@ public class ElasticSearchResourceOperator implements SinkResourceOperator {
             config.setHost(esInfo.getUrl());
             config.setPort(esInfo.getPort());
 
-            ElasticSearchApi client = new ElasticSearchApi();
+            ElasticsearchApi client = new ElasticsearchApi();
             client.setEsConfig(config);
 
-            ElasticSearchTableInfo tableInfo = ElasticSearchSinkDTO.getElasticSearchTableInfo(esInfo, columnList);
+            ElasticsearchTableInfo tableInfo = ElasticsearchSinkDTO.getElasticSearchTableInfo(esInfo, columnList);
             boolean indexExists = client.indexExists(tableInfo.getIndexName());
 
             // 3. table not exists, create it

@@ -23,16 +23,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of the ClickHouse sink.
+ * Request of the ElasticSearch sink.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the ElasticSearch sink")
-public class ElasticSearchSinkResponse extends SinkResponse {
+@ApiModel(value = "Request of the ElasticSearch sink info")
+@JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
+public class ElasticsearchSinkRequest extends SinkRequest {
 
     @ApiModelProperty("ElasticSearch URL")
     private String url;
@@ -57,12 +59,5 @@ public class ElasticSearchSinkResponse extends SinkResponse {
 
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
-
-    @ApiModelProperty("Key field names, separate with commas")
-    private String keyFieldNames;
-
-    public ElasticSearchSinkResponse() {
-        this.sinkType = SinkType.SINK_ELASTICSEARCH;
-    }
 
 }

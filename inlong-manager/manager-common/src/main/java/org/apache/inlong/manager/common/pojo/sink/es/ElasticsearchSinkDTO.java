@@ -38,7 +38,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ElasticSearchSinkDTO {
+public class ElasticsearchSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -72,8 +72,8 @@ public class ElasticSearchSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticSearchSinkDTO getFromRequest(ElasticSearchSinkRequest request) {
-        return ElasticSearchSinkDTO.builder()
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) {
+        return ElasticsearchSinkDTO.builder()
                 .url(request.getUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
@@ -85,18 +85,18 @@ public class ElasticSearchSinkDTO {
                 .build();
     }
 
-    public static ElasticSearchSinkDTO getFromJson(@NotNull String extParams) {
+    public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ElasticSearchSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }
 
-    public static ElasticSearchTableInfo getElasticSearchTableInfo(ElasticSearchSinkDTO ckInfo,
-            List<ElasticSearchColumnInfo> columnList) {
-        ElasticSearchTableInfo tableInfo = new ElasticSearchTableInfo();
+    public static ElasticsearchTableInfo getElasticSearchTableInfo(ElasticsearchSinkDTO ckInfo,
+            List<ElasticsearchColumnInfo> columnList) {
+        ElasticsearchTableInfo tableInfo = new ElasticsearchTableInfo();
         tableInfo.setIndexName(ckInfo.getIndexName());
         tableInfo.setColumns(columnList);
 

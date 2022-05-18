@@ -21,32 +21,21 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 
 /**
- * Request of the ElasticSearch sink.
+ * Response of ElasticSearch sink list
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the ElasticSearch sink info")
-@JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
-public class ElasticSearchSinkRequest extends SinkRequest {
+@ApiModel("Response of ElasticSearch sink paging list")
+public class ElasticsearchSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("ElasticSearch URL")
     private String url;
 
     @ApiModelProperty("ElasticSearch Port")
     private Integer port;
-
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
-
-    @ApiModelProperty("User password")
-    private String password;
 
     @ApiModelProperty("ElasticSearch index name")
     private String indexName;
