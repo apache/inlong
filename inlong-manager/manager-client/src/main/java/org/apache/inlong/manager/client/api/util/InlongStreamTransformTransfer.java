@@ -39,8 +39,6 @@ public class InlongStreamTransformTransfer {
 
     /**
      * Create request of transformation.
-     * @param streamTransform
-     * @param streamInfo
      */
     public static TransformRequest createTransformRequest(StreamTransform streamTransform,
             InlongStreamInfo streamInfo) {
@@ -68,7 +66,6 @@ public class InlongStreamTransformTransfer {
 
     /**
      * Parse stream of transformation.
-     * @param transformResponse
      */
     public static StreamTransform parseStreamTransform(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());

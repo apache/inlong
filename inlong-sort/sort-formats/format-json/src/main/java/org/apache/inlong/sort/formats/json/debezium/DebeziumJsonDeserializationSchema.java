@@ -110,14 +110,6 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
 
     /**
      * Constructor of DebeziumJsonDeserializationSchema.
-     * @param physicalDataType
-     * @param requestedMetadata
-     * @param producedTypeInfo
-     * @param schemaInclude
-     * @param updateBeforeInclude
-     * @param ignoreParseErrors
-     * @param timestampFormat
-     * @param isMigrateAll
      */
     public DebeziumJsonDeserializationSchema(
             DataType physicalDataType,

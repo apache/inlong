@@ -145,12 +145,6 @@ public class TDMQPulsarSourceFunction<T>
 
     /**
      * Constructor of TDMQPulsarSourceFunction.
-     * @param serviceUrl
-     * @param topic
-     * @param consumerGroup
-     * @param authentication
-     * @param deserializationSchema
-     * @param configuration
      */
     public TDMQPulsarSourceFunction(
             String serviceUrl,

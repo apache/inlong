@@ -37,9 +37,6 @@ public class PulsarSourceBuilder {
 
     /**
      * Create data source of Pulsar.
-     * @param sourceInfo
-     * @param config
-     * @param properties
      */
     public static PulsarSourceFunction<SerializedRecord> buildPulsarSource(
             PulsarSourceInfo sourceInfo,
@@ -70,9 +67,6 @@ public class PulsarSourceBuilder {
 
     /**
      * Create data source of TDMQPulsar.
-     * @param tdmqPulsarSourceInfo
-     * @param config
-     * @param properties
      */
     public static TDMQPulsarSourceFunction<SerializedRecord> buildTDMQPulsarSource(
             TDMQPulsarSourceInfo tdmqPulsarSourceInfo,

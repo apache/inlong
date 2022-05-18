@@ -99,12 +99,6 @@ public class StreamConfigLogMetric implements Runnable {
 
     /**
      * Update value by config.
-     * @param streamConfigLogInfo
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @param configName
-     * @param configLogTypeEnum
-     * @param log
      */
     private void updateDataValue(StreamConfigLogInfo streamConfigLogInfo,
             String inlongGroupId, String inlongStreamId, String configName,

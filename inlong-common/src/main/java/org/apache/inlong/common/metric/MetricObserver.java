@@ -109,8 +109,6 @@ public class MetricObserver {
 
     /**
      * Get properties.
-     * @param commonProperties
-     * @param prefix
      */
     public static ImmutableMap<String, String> getSubProperties(Map<String, String> commonProperties,
             String prefix) {

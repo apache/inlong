@@ -123,20 +123,6 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
 
     /**
      * Constructor of KafkaDynamicSink.
-     * @param consumedDataType
-     * @param physicalDataType
-     * @param keyEncodingFormat
-     * @param valueEncodingFormat
-     * @param keyProjection
-     * @param valueProjection
-     * @param keyPrefix
-     * @param topic
-     * @param properties
-     * @param partitioner
-     * @param semantic
-     * @param upsertMode
-     * @param flushMode
-     * @param parallelism
      */
     public KafkaDynamicSink(
             DataType consumedDataType,

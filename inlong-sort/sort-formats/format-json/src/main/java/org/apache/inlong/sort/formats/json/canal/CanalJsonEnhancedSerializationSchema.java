@@ -70,12 +70,6 @@ public class CanalJsonEnhancedSerializationSchema implements SerializationSchema
 
     /**
      * Constructor of CanalJsonEnhancedSerializationSchema.
-     * @param physicalDataType
-     * @param writeableMetadata
-     * @param timestampFormat
-     * @param mapNullKeyMode
-     * @param mapNullKeyLiteral
-     * @param encodeDecimalAsPlainNumber
      */
     public CanalJsonEnhancedSerializationSchema(
             DataType physicalDataType,

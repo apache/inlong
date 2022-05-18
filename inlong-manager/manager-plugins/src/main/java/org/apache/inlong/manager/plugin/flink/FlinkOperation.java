@@ -155,8 +155,6 @@ public class FlinkOperation {
 
     /**
      * Delete the Flink job
-     * @param flinkInfo
-     * @throws Exception
      */
     public void delete(FlinkInfo flinkInfo) throws Exception {
         String jobId = flinkInfo.getJobId();
@@ -180,8 +178,6 @@ public class FlinkOperation {
 
     /**
      * Status of Flink job.
-     * @param flinkInfo
-     * @throws Exception
      */
     public void pollJobStatus(FlinkInfo flinkInfo) throws Exception {
         if (flinkInfo.isException()) {

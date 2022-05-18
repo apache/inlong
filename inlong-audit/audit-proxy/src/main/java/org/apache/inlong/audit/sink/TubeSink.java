@@ -307,7 +307,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * Send message of success.
-     * @param es
      */
     public void handleMessageSendSuccess(EventStat es) {
         //Statistics tube performance

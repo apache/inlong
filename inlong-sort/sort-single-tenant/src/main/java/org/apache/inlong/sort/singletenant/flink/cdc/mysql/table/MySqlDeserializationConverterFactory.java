@@ -121,7 +121,6 @@ public class MySqlDeserializationConverterFactory {
 
     /**
      * Create converter of array.
-     * @param arrayType
      */
     private static Optional<DeserializationRuntimeConverter> createArrayConverter(
             ArrayType arrayType) {

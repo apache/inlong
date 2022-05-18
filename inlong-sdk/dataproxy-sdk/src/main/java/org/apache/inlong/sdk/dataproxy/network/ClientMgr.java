@@ -180,9 +180,6 @@ public class ClientMgr {
     
     /**
      * Build up the connection between the server and client.
-     * @param configure
-     * @param sender
-     * @param selfDefineFactory
      */
     public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
         /* Initialize the bootstrap. */

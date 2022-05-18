@@ -63,8 +63,6 @@ public class FlinkService {
 
     /**
      * Constructor of FlinkService.
-     * @param endpoint
-     * @throws Exception
      */
     public FlinkService(String endpoint) throws Exception {
         FlinkConfiguration flinkConfiguration = new FlinkConfiguration();

@@ -38,7 +38,6 @@ public abstract class StreamSource extends StreamNode {
 
         /**
          * Parse status of stream source.
-         * @param status
          */
         public static State parseByStatus(int status) {
             SourceStatus sourceStatus = SourceStatus.forCode(status);

@@ -97,29 +97,6 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     /**
      * Constructor of MySqlTableSource.
-     * @param physicalSchema
-     * @param port
-     * @param hostname
-     * @param database
-     * @param tableName
-     * @param username
-     * @param password
-     * @param serverTimeZone
-     * @param dbzProperties
-     * @param serverId
-     * @param enableParallelRead
-     * @param splitSize
-     * @param splitMetaGroupSize
-     * @param fetchSize
-     * @param connectTimeout
-     * @param connectMaxRetries
-     * @param connectionPoolSize
-     * @param distributionFactorUpper
-     * @param distributionFactorLower
-     * @param appendSource
-     * @param startupOptions
-     * @param heartbeatInterval
-     * @param migrateAll
      */
     public MySqlTableSource(
             ResolvedSchema physicalSchema,
@@ -175,31 +152,6 @@ public class MySqlTableSource implements ScanTableSource, SupportsReadingMetadat
 
     /**
      * Constructor of MySqlTableSource.
-     * @param physicalSchema
-     * @param port
-     * @param hostname
-     * @param database
-     * @param tableName
-     * @param username
-     * @param password
-     * @param serverTimeZone
-     * @param dbzProperties
-     * @param serverId
-     * @param enableParallelRead
-     * @param splitSize
-     * @param splitMetaGroupSize
-     * @param fetchSize
-     * @param connectTimeout
-     * @param connectMaxRetries
-     * @param connectionPoolSize
-     * @param distributionFactorUpper
-     * @param distributionFactorLower
-     * @param appendSource
-     * @param startupOptions
-     * @param scanNewlyAddedTableEnabled
-     * @param jdbcProperties
-     * @param heartbeatInterval
-     * @param migrateAll
      */
     public MySqlTableSource(
             ResolvedSchema physicalSchema,

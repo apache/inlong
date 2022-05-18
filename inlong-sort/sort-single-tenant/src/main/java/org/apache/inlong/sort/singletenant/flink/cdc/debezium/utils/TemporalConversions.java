@@ -47,7 +47,6 @@ public final class TemporalConversions {
 
     /**
      * Convert object to local date.
-     * @param obj
      */
     public static LocalDate toLocalDate(Object obj) {
         if (obj == null) {
@@ -87,7 +86,6 @@ public final class TemporalConversions {
 
     /**
      * Convert object to local time.
-     * @param obj
      */
     public static LocalTime toLocalTime(Object obj) {
         if (obj == null) {
@@ -143,8 +141,6 @@ public final class TemporalConversions {
 
     /**
      * Convert object to local date and time.
-     * @param obj
-     * @param serverTimeZone
      */
     public static LocalDateTime toLocalDateTime(Object obj, ZoneId serverTimeZone) {
         if (obj == null) {
@@ -218,7 +214,6 @@ public final class TemporalConversions {
 
     /**
      * Convert instant to local microsecond.
-     * @param instant
      */
     public static long toEpochMicros(Instant instant) {
         return TimeUnit.SECONDS.toMicros(instant.getEpochSecond())
@@ -227,7 +222,6 @@ public final class TemporalConversions {
 
     /**
      * Convert microsecond to local instant.
-     * @param microsSinceEpoch
      */
     public static Instant toInstantFromMicros(long microsSinceEpoch) {
         return Instant.ofEpochSecond(

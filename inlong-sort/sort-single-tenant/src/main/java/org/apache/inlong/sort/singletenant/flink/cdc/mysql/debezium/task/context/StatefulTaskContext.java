@@ -98,7 +98,6 @@ public class StatefulTaskContext {
 
     /**
      * configure
-     * @param mySqlSplit
      */
     public void configure(MySqlSplit mySqlSplit) {
         // initial stateful objects

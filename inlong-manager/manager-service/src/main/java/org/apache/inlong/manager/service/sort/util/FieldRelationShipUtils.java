@@ -55,7 +55,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields.
-     * @param transformResponse
      */
     public static List<FieldRelationShip> createFieldRelationShips(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
@@ -84,8 +83,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields.
-     * @param fieldList
-     * @param transformName
      */
     private static List<FieldRelationShip> createFieldRelationShips(List<StreamField> fieldList, String transformName) {
         return fieldList.stream()
@@ -101,8 +98,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields in join function.
-     * @param fieldList
-     * @param transformName
      */
     private static List<FieldRelationShip> createJoinerFieldRelationShips(List<StreamField> fieldList,
             String transformName) {
@@ -121,10 +116,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields in split function.
-     * @param fieldList
-     * @param transformName
-     * @param splitterDefinition
-     * @param preNodes
      */
     private static List<FieldRelationShip> createSplitterFieldRelationShips(List<StreamField> fieldList,
             String transformName, SplitterDefinition splitterDefinition, String preNodes) {
@@ -147,10 +138,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields in replace function.
-     * @param fieldList
-     * @param transformName
-     * @param replacerDefinition
-     * @param preNodes
      */
     private static List<FieldRelationShip> createReplacerFieldRelationShips(List<StreamField> fieldList,
             String transformName, StringReplacerDefinition replacerDefinition, String preNodes) {
@@ -171,7 +158,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Create relationship of fields in cascade function.
-     * @param fieldRelationShips
      */
     private static List<FieldRelationShip> cascadeFunctionRelationShips(List<FieldRelationShip> fieldRelationShips) {
         Map<String, List<CascadeFunction>> cascadeFunctions = Maps.newHashMap();
@@ -194,10 +180,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Parse rule of replacer.
-     * @param replaceRule
-     * @param replaceFields
-     * @param transformName
-     * @param preNode
      */
     private static FieldRelationShip parseReplaceRule(ReplaceRule replaceRule, Set<String> replaceFields,
             String transformName, String preNode) {
@@ -224,10 +206,6 @@ public class FieldRelationShipUtils {
 
     /**
      * Parse rule of split.
-     * @param splitRule
-     * @param splitFields
-     * @param transformName
-     * @param preNode
      */
     private static List<FieldRelationShip> parseSplitRule(SplitRule splitRule, Set<String> splitFields,
             String transformName, String preNode) {

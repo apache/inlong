@@ -65,7 +65,6 @@ public class CommonUtils {
 
     /**
      * Get table schema.
-     * @param fieldInfos
      */
     public static TableSchema getTableSchema(FieldInfo[] fieldInfos) {
         TableSchema.Builder builder = new Builder();
@@ -81,7 +80,6 @@ public class CommonUtils {
 
     /**
      * Convert information of field to Row type.
-     * @param fieldInfos
      */
     public static org.apache.flink.api.java.typeutils.RowTypeInfo convertFieldInfosToRowTypeInfo(
             FieldInfo[] fieldInfos
@@ -102,7 +100,6 @@ public class CommonUtils {
 
     /**
      * Convert information of field to logical type.
-     * @param fieldInfos
      */
     public static LogicalType convertFieldInfosToLogicalType(FieldInfo[] fieldInfos) {
         int fieldLength = fieldInfos.length;
@@ -119,7 +116,6 @@ public class CommonUtils {
 
     /**
      * Create Avro schema in json.
-     * @param fieldInfos
      */
     public static String buildAvroRecordSchemaInJson(FieldInfo[] fieldInfos) {
         LogicalType logicalType = convertFieldInfosToLogicalType(fieldInfos);
@@ -133,7 +129,6 @@ public class CommonUtils {
 
     /**
      * Convert information of field to Data type.
-     * @param fieldInfos
      */
     public static DataType convertFieldInfosToDataType(FieldInfo[] fieldInfos) {
         LogicalType logicalType = convertFieldInfosToLogicalType(fieldInfos);
@@ -142,7 +137,6 @@ public class CommonUtils {
 
     /**
      * Create converter.
-     * @param fieldInfos
      */
     public static DataFormatConverters.RowConverter createRowConverter(FieldInfo[] fieldInfos) {
         DataType[] fieldDataTypes = getTableSchema(fieldInfos).getFieldDataTypes();
@@ -151,7 +145,6 @@ public class CommonUtils {
 
     /**
      * Convert information of field to Row type.
-     * @param fieldInfos
      */
     public static RowType convertFieldInfosToRowType(FieldInfo[] fieldInfos) {
         int fieldLength = fieldInfos.length;
@@ -167,7 +160,6 @@ public class CommonUtils {
 
     /**
      * Get standard timestamp.
-     * @param input
      */
     public static TimestampFormat getTimestampFormatStandard(String input) {
         if (DATE_AND_TIME_STANDARD_SQL.equalsIgnoreCase(input)) {
@@ -181,9 +173,6 @@ public class CommonUtils {
 
     /**
      * Deep copy.
-     * @param input
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
     public static Object deepCopy(Serializable input) throws IOException, ClassNotFoundException {
         byte[] bytes;
@@ -219,7 +208,6 @@ public class CommonUtils {
 
     /**
      * Judge standard timestamp.
-     * @param formatInfo
      */
     public static boolean isStandardTimestampFormat(FormatInfo formatInfo) {
         if (formatInfo instanceof DateFormatInfo) {
@@ -238,7 +226,6 @@ public class CommonUtils {
 
     /**
      * Extract formatting information.
-     * @param fieldInfos
      */
     public static FormatInfo[] extractFormatInfos(FieldInfo[] fieldInfos) {
         int length = fieldInfos.length;
@@ -252,8 +239,6 @@ public class CommonUtils {
 
     /**
      * Extract information of field.
-     * @param fieldInfos
-     * @param includeData
      */
     public static FieldInfo[] extractNonBuiltInFieldInfos(FieldInfo[] fieldInfos, boolean includeData) {
         return Arrays.stream(fieldInfos)
@@ -265,7 +250,6 @@ public class CommonUtils {
 
     /**
      * Check information of field.
-     * @param fieldInfos
      */
     public static boolean checkWhetherMigrateAll(FieldInfo[] fieldInfos) {
         for (FieldInfo fieldInfo : fieldInfos) {
@@ -280,7 +264,6 @@ public class CommonUtils {
 
     /**
      * Get field information of producer.
-     * @param physicalFieldInfos
      */
     public static FieldInfo[] getProducedFieldInfos(FieldInfo[] physicalFieldInfos) {
         List<FieldInfo> results = new ArrayList<>();
@@ -293,7 +276,6 @@ public class CommonUtils {
 
     /**
      * Get ID of group and stream.
-     * @param dataFlowInfo
      */
     public static Pair<String, String> getInLongGroupIdAndStreamId(DataFlowInfo dataFlowInfo) {
         String groupId = "";

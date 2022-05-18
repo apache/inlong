@@ -61,8 +61,6 @@ public class DebeziumChangeConsumer
 
     /**
      * Commit offset.
-     * @param offset
-     * @throws InterruptedException
      */
     @SuppressWarnings("unchecked")
     public void commitOffset(DebeziumOffset offset) throws InterruptedException {

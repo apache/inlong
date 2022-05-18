@@ -98,8 +98,7 @@ public class DebeziumDeserializationSchemaBuilder {
     }
 
     /**
-     * Get Information of metadata. 
-     * @param fieldInfos
+     * Get Information of metadata.
      */
     public static FieldInfo[] getMetadataFieldInfos(FieldInfo[] fieldInfos) {
         List<FieldInfo> metadataFieldInfos = new ArrayList<>();

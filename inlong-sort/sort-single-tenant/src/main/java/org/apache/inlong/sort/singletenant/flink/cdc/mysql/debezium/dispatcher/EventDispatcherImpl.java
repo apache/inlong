@@ -75,14 +75,6 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
 
     /**
      * Constructor of EventDispatcherImpl.
-     * @param connectorConfig
-     * @param topicSelector
-     * @param schema
-     * @param queue
-     * @param filter
-     * @param changeEventCreator
-     * @param metadataProvider
-     * @param schemaNameAdjuster
      */
     public EventDispatcherImpl(
             CommonConnectorConfig connectorConfig,

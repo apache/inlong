@@ -76,8 +76,6 @@ public class InlongGroupContext implements Serializable {
 
     /**
      * Constructor of InlongGroupContext.
-     * @param groupContext
-     * @param streamGroupConf
      */
     public InlongGroupContext(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();

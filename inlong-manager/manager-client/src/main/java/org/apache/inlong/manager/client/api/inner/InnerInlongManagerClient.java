@@ -173,10 +173,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of groups.
-     * @param keyword
-     * @param status
-     * @param pageNum
-     * @param pageSize
      */
     public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
         if (pageNum <= 0) {
@@ -301,7 +297,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Create information of stream.
-     * @param streamInfo
      */
     public Double createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
@@ -385,7 +380,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information through information of  Inlong's stream.
-     * @param streamInfo
      */
     public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/get";
@@ -417,7 +411,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of stream.
-     * @param inlongGroupId
      */
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
@@ -447,8 +440,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Create a data source.
-     * @param sourceRequest
-     * @return Double
      */
     public Double createSource(SourceRequest sourceRequest) {
         String path = HTTP_PATH + "/source/save";
@@ -476,8 +467,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of sources.
-     * @param groupId
-     * @param streamId
      */
     public List<SourceListResponse> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
@@ -485,9 +474,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of sources.
-     * @param groupId
-     * @param streamId
-     * @param sourceType
      */
     public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
         final String path = HTTP_PATH + "/source/list";
@@ -517,8 +503,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Update data Source Information.
-     * @param sourceRequest
-     * @return {@link Pair<Boolean, String>}
      */
     public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
         final String path = HTTP_PATH + "/source/update";
@@ -547,8 +531,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Delete data source information by id.
-     * @param id
-     * @return boolean
      */
     public boolean deleteSource(int id) {
         AssertUtil.isTrue(id > 0, "sourceId is illegal");
@@ -577,8 +559,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Create a conversion function information.
-     * @param transformRequest
-     * @return Double
      */
     public Double createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
@@ -606,8 +586,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get all conversion function information.
-     * @param groupId
-     * @param streamId
      */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         final String path = HTTP_PATH + "/transform/list";
@@ -633,7 +611,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Update conversion function information.
-     * @param transformRequest
      */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
         final String path = HTTP_PATH + "/transform/update";
@@ -662,8 +639,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Delete conversion function information.
-     * @param transformRequest
-     * @return boolean
      */
     public boolean deleteTransform(TransformRequest transformRequest) {
         AssertUtil.notEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
@@ -698,8 +673,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Create information of data sink.
-     * @param sinkRequest
-     * @return Double
      */
     public Double createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
@@ -727,8 +700,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Delete information of data sink by ID.
-     * @param id
-     * @return boolean
      */
     public boolean deleteSink(int id) {
         AssertUtil.isTrue(id > 0, "sinkId is illegal");
@@ -757,8 +728,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of data sinks.
-     * @param groupId
-     * @param streamId
      */
     public List<SinkListResponse> listSinks(String groupId, String streamId) {
         return listSinks(groupId, streamId, null);
@@ -766,9 +735,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Get information of data sinks.
-     * @param groupId
-     * @param streamId
-     * @param sinkType
      */
     public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
         final String path = HTTP_PATH + "/sink/list";
@@ -798,8 +764,6 @@ public class InnerInlongManagerClient {
 
     /**
      * Update information of data sink.
-     * @param sinkRequest
-     * @return {@link Pair<Boolean, String>}
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         final String path = HTTP_PATH + "/sink/update";
