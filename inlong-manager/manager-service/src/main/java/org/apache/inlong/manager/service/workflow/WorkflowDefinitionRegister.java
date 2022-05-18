@@ -35,7 +35,7 @@ public class WorkflowDefinitionRegister {
     private List<WorkflowDefinition> workflowDefinitions;
 
     @PostConstruct
-    public void registerDefinition(){
+    public void registerDefinition() {
         workflowDefinitions.forEach(definition -> {
             try {
                 workflowEngine.processDefinitionService().register(definition.defineProcess());
