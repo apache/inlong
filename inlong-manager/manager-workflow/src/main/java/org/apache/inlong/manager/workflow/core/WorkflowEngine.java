@@ -30,13 +30,6 @@ public interface WorkflowEngine {
     ProcessDefinitionService processDefinitionService();
 
     /**
-     * Get process definition  repository
-     *
-     * @return Process repository.
-     */
-    ProcessDefinitionRepository processDefinitionRepository();
-
-    /**
      * Get process instance service
      *
      * @return Process instance service

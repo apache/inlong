@@ -55,4 +55,13 @@ public enum StreamStatus {
         return description;
     }
 
+    public static StreamStatus forCode(int code) {
+        for (StreamStatus status : values()) {
+            if (status.getCode() == code) {
+                return status;
+            }
+        }
+        throw new IllegalStateException(String.format("Illegal code=%s for StreamStatus", code));
+    }
+
 }

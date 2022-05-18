@@ -27,10 +27,11 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
+import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.service.core.operation.ConsumptionProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,6 +52,8 @@ public class ConsumptionController {
 
     @Autowired
     private ConsumptionService consumptionService;
+    @Autowired
+    private ConsumptionProcessOperation processOperation;
 
     @GetMapping("/summary")
     @ApiOperation(value = "Get data consumption summary")
@@ -106,7 +109,7 @@ public class ConsumptionController {
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
         String username = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(this.consumptionService.startProcess(id, username));
+        return Response.success(processOperation.startProcess(id, username));
     }
 
 }
