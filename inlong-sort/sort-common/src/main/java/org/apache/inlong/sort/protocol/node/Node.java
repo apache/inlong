@@ -26,6 +26,7 @@ import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
@@ -50,6 +51,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
         @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
         @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
+        @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),

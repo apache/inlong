@@ -71,6 +71,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
         </dependency>
         <!--for clickhouse-->
@@ -140,6 +145,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.streamnative.connectors</groupId>
+            <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
             <version>${flink.version}</version>
@@ -155,6 +166,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
 
     </dependencies>
 
