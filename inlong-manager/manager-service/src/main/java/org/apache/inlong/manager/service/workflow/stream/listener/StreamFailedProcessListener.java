@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.stream;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -39,8 +38,6 @@ import org.springframework.stereotype.Component;
 public class StreamFailedProcessListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
-    @Autowired
     private InlongStreamService streamService;
 
     @Override
@@ -54,13 +51,12 @@ public class StreamFailedProcessListener implements ProcessEventListener {
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String groupId = form.getInlongGroupId();
-        String streamId = form.getInlongStreamId();
-        String username = context.getApplicant();
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        final String username = context.getOperator();
 
-        // update inlong group status
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), username);
         // update inlong stream status
         streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), username);
 

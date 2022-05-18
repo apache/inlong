@@ -55,7 +55,7 @@ public class LightGroupUpdateListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
         final String groupId = form.getGroupInfo().getInlongGroupId();
-        final String applicant = context.getApplicant();
+        final String applicant = context.getOperator();
         GroupOperateType groupOperateType = form.getGroupOperateType();
         switch (groupOperateType) {
             case SUSPEND:

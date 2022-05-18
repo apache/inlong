@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.mq;
+package org.apache.inlong.manager.service.mq.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

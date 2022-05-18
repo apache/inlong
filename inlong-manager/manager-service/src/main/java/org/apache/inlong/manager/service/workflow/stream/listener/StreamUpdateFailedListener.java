@@ -15,44 +15,44 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.stream;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Initialize the listener for inlong group information
+ * Update failed listener for inlong stream
  */
-@Service
-public class InitGroupForStreamListener implements ProcessEventListener {
+@Slf4j
+@Component
+public class StreamUpdateFailedListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.FAIL;
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
-        if (groupInfo != null) {
-            form.setGroupInfo(groupInfo);
-        } else {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String operator = context.getOperator();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), operator);
+        streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 
@@ -60,5 +60,4 @@ public class InitGroupForStreamListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
-
 }

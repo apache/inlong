@@ -23,7 +23,6 @@ package org.apache.inlong.manager.common.enums;
 public enum StreamStatus {
 
     DRAFT(0, "draft"),
-    DELETED(10, "deleted"),
 
     // Stream related status
     NEW(100, "new"),
@@ -31,7 +30,14 @@ public enum StreamStatus {
     CONFIG_FAILED(120, "configuration failed"),
     CONFIG_SUCCESSFUL(130, "configuration successful"),
 
-    ;
+    SUSPENDING(141, "suspending"),
+    SUSPENDED(140, "suspended"),
+
+    RESTARTING(151, "restarting"),
+    RESTARTED(150, "restarted"),
+
+    DELETING(41, "deleting"),
+    DELETED(40, "deleted");
 
     private final Integer code;
     private final String description;

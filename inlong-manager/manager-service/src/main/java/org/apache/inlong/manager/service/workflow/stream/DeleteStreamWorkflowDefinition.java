@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group;
+package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateCompleteListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateFailedListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -34,32 +34,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Delete workflow definitions for inlong group
+ * Delete workflow definition for inlong stream
  */
 @Slf4j
 @Component
-public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
+public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
+    private StreamUpdateListener streamUpdateListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
+    private StreamUpdateCompleteListener streamUpdateCompleteListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
+    private StreamUpdateFailedListener streamUpdateFailedListener;
     @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Delete");
+        process.addListener(streamUpdateListener);
+        process.addListener(streamUpdateCompleteListener);
+        process.addListener(streamUpdateFailedListener);
+        process.setType("Stream Resource Delete");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(GroupResourceProcessForm.class);
+        process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
@@ -70,17 +70,17 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
         //delete datasource
         ServiceTask deleteDataSourceTask = new ServiceTask();
         deleteDataSourceTask.setName("deleteSource");
-        deleteDataSourceTask.setDisplayName("Group-DeleteSource");
+        deleteDataSourceTask.setDisplayName("Stream-DeleteSource");
         deleteDataSourceTask.addServiceTaskType(ServiceTaskType.DELETE_SOURCE);
-        deleteDataSourceTask.addListenerProvider(groupTaskListenerFactory);
+        deleteDataSourceTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(deleteDataSourceTask);
 
         //delete sort
         ServiceTask deleteSortTask = new ServiceTask();
         deleteSortTask.setName("deleteSort");
-        deleteSortTask.setDisplayName("Group-DeleteSort");
+        deleteSortTask.setDisplayName("Stream-DeleteSort");
         deleteSortTask.addServiceTaskType(ServiceTaskType.DELETE_SORT);
-        deleteSortTask.addListenerProvider(groupTaskListenerFactory);
+        deleteSortTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(deleteSortTask);
 
         // End node
@@ -96,7 +96,6 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.DELETE_GROUP_PROCESS;
+        return ProcessName.DELETE_STREAM_RESOURCE;
     }
-
 }

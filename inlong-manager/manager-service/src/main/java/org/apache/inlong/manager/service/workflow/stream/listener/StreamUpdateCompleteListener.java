@@ -15,17 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.stream;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.StreamStatus;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -34,39 +31,45 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for completed creation of inlong stream resource
+ * Update completed listener for inlong stream
  */
 @Slf4j
 @Component
-public class StreamCompleteProcessListener implements ProcessEventListener {
+public class StreamUpdateCompleteListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
-    @Autowired
     private InlongStreamService streamService;
-    @Autowired
-    private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
         return ProcessEvent.COMPLETE;
     }
 
-    /**
-     * The creation process ends normally, modify the status of inlong group and other related info.
-     */
     @Override
-    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String groupId = form.getInlongGroupId();
-        String streamId = form.getInlongStreamId();
-        String applicant = context.getApplicant();
-
-        // Update status of other related configs
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        sourceService.updateStatus(groupId, streamId, SourceStatus.TO_BE_ISSUED_ADD.getCode(), applicant);
-
+    public ListenerResult listen(WorkflowContext context) throws Exception {
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        final InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String operator = context.getOperator();
+        final GroupOperateType groupOperateType = form.getGroupOperateType();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        StreamStatus status;
+        switch (groupOperateType) {
+            case RESTART:
+                status = StreamStatus.RESTARTED;
+                break;
+            case SUSPEND:
+                status = StreamStatus.SUSPENDED;
+                break;
+            case DELETE:
+                status = StreamStatus.DELETED;
+                break;
+            default:
+                throw new RuntimeException(
+                        String.format("Unsupported operation=%s for Inlong group", groupOperateType));
+        }
+        streamService.updateStatus(groupId, streamId, status.getCode(), operator);
+        streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 
@@ -74,5 +77,4 @@ public class StreamCompleteProcessListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
-
 }

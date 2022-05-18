@@ -74,7 +74,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
         List<SourceResponse> unOperatedSources = Lists.newArrayList();
         streamBriefResponses.forEach(streamBriefResponse ->
-                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant(),
+                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getOperator(),
                         unOperatedSources));
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType groupOperateType = getOperateType(context.getProcessForm());

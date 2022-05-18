@@ -57,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -241,7 +242,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
-        streamEntity.setStatus(GroupStatus.CONFIG_ING.getCode());
         streamMapper.updateByIdentifierSelective(streamEntity);
 
         // Update field information
@@ -518,6 +518,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, String streamId, Integer status, String operator) {
         LOGGER.debug("begin to update status by groupId={}, streamId={}", groupId, streamId);
         streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);

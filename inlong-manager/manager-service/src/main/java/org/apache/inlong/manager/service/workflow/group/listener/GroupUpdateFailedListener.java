@@ -47,11 +47,11 @@ public class GroupUpdateFailedListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
+        String operator = context.getOperator();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), operator);
+        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

@@ -402,7 +402,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList) {
-        LOGGER.debug("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, infoList);
+        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, infoList);
 
         if (CollectionUtils.isEmpty(infoList)) {
             return;

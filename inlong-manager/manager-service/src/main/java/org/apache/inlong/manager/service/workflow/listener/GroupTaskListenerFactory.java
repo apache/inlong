@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow;
+package org.apache.inlong.manager.service.workflow.listener;
 
 import com.google.common.collect.Lists;
 import lombok.Data;
@@ -65,7 +65,7 @@ import java.util.Map;
  */
 @Data
 @Component
-public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
+public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
 
     private Map<DataSourceOperateListener, EventSelector> sourceOperateListeners;
 
@@ -94,9 +94,6 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
 
     @Autowired
     private PushSortConfigListener pushSortConfigListener;
-    private ZookeeperEnabledSelector zookeeperEnabledSelector;
-    @Autowired
-    private ZookeeperDisabledSelector zookeeperDisabledSelector;
     @Autowired
     private CreateSortConfigListener createSortConfigListener;
 
@@ -115,8 +112,8 @@ public class ServiceTaskListenerFactory implements PluginBinder, ServiceTaskList
         queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
         queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(pushSortConfigListener, zookeeperEnabledSelector);
-        sortOperateListeners.put(createSortConfigListener, zookeeperDisabledSelector);
+        sortOperateListeners.put(pushSortConfigListener, new ZookeeperEnabledSelector());
+        sortOperateListeners.put(createSortConfigListener, new ZookeeperDisabledSelector());
         sortOperateListeners.put(lightGroupSortListener, new LightGroupSortSelector());
     }
 

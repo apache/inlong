@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group;
+package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateCompleteListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateFailedListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamUpdateListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -34,35 +34,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Suspend inlong group process definition
+ * Suspend inlong stream process definition
  */
 @Slf4j
 @Component
-public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
+public class SuspendStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
-
+    private StreamUpdateListener streamUpdateListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
-
+    private StreamUpdateCompleteListener streamUpdateCompleteListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
-
+    private StreamUpdateFailedListener streamUpdateFailedListener;
     @Autowired
-    private GroupTaskListenerFactory groupTaskListenerFactory;
+    private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Suspend");
+        process.addListener(streamUpdateListener);
+        process.addListener(streamUpdateFailedListener);
+        process.addListener(streamUpdateCompleteListener);
+        process.setType("Stream Resource Suspend");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(GroupResourceProcessForm.class);
+        process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
@@ -73,17 +70,17 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         //stop datasource
         ServiceTask stopDataSourceTask = new ServiceTask();
         stopDataSourceTask.setName("stopSource");
-        stopDataSourceTask.setDisplayName("Group-StopSource");
+        stopDataSourceTask.setDisplayName("Stream-StopSource");
         stopDataSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopDataSourceTask.addListenerProvider(groupTaskListenerFactory);
+        stopDataSourceTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(stopDataSourceTask);
 
         //stop sort
         ServiceTask stopSortTask = new ServiceTask();
         stopSortTask.setName("stopSort");
-        stopSortTask.setDisplayName("Group-StopSort");
+        stopSortTask.setDisplayName("Stream-StopSort");
         stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(groupTaskListenerFactory);
+        stopSortTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node
@@ -99,7 +96,6 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.SUSPEND_GROUP_PROCESS;
+        return ProcessName.SUSPEND_STREAM_RESOURCE;
     }
-
 }

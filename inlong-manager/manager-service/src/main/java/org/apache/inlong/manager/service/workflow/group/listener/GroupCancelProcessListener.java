@@ -62,7 +62,7 @@ public class GroupCancelProcessListener implements ProcessEventListener {
         }
 
         // After canceling the approval, the status becomes [Waiting to submit]
-        String username = context.getApplicant();
+        String username = context.getOperator();
         groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), username);
 
         return ListenerResult.success();

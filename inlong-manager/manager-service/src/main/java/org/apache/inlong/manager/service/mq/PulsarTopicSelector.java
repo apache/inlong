@@ -15,37 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sort;
+package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
-/**
- * Event selector for whether ZooKeeper is enabled.
- */
 @Slf4j
-public class ZookeeperEnabledSelector implements EventSelector {
+public class PulsarTopicSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
-        String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("zookeeper enabled was [false] for groupId [{}]", groupId);
+        if (!(processForm instanceof StreamResourceProcessForm)) {
             return false;
         }
-
-        GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        boolean enable =
-                groupInfo.getEnableZookeeper() == 1 && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
-        log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
-        return enable;
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        MQType mqType = MQType.forType(streamResourceProcessForm.getGroupInfo().getMqType());
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            return true;
+        } else {
+            InlongStreamInfo streamInfo = streamResourceProcessForm.getStreamInfo();
+            log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
+                    streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(), mqType);
+            return false;
+        }
     }
-
 }

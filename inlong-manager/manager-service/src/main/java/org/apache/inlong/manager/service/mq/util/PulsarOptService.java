@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.mq;
+package org.apache.inlong.manager.service.mq.util;
 
 import java.util.List;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;

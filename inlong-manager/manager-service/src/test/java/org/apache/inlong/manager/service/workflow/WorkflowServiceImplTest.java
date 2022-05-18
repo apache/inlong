@@ -47,6 +47,7 @@ import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -97,7 +98,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Autowired
     protected InlongGroupService groupService;
     @Autowired
-    protected ServiceTaskListenerFactory taskListenerFactory;
+    protected GroupTaskListenerFactory taskListenerFactory;
     @Autowired
     protected WorkflowProcessEntityMapper processEntityMapper;
     @Autowired

@@ -113,4 +113,7 @@ public class InlongStreamInfo {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
     }
 
+    public InlongStreamRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);
+    }
 }

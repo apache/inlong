@@ -15,36 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener.light;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 /**
- * Listener of light group init.
+ * Initialize the listener for inlong group information
  */
-@Slf4j
-@Component
-public class LightGroupInitListener implements ProcessEventListener {
-
-    @Autowired
-    private InlongGroupService groupService;
+@Service
+public class StreamInitProcessListener implements ProcessEventListener {
 
     @Autowired
     private InlongStreamService streamService;
@@ -55,20 +46,17 @@ public class LightGroupInitListener implements ProcessEventListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
-        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        if (groupInfo == null) {
-            throw new WorkflowListenerException(ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        final String operator = context.getOperator();
+        InlongStreamInfo originStreamInfo = streamService.get(groupId, streamId);
+        if (originStreamInfo == null) {
+            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
-        final String groupId = groupInfo.getInlongGroupId();
-        final int status = GroupStatus.CONFIG_ING.getCode();
-        final String username = context.getOperator();
-        groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
-        if (CollectionUtils.isEmpty(form.getStreamInfos())) {
-            List<InlongStreamInfo> streamInfos = streamService.list(groupId);
-            form.setStreamInfos(streamInfos);
-        }
+        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_ING.getCode(), operator);
         return ListenerResult.success();
     }
 
@@ -76,4 +64,5 @@ public class LightGroupInitListener implements ProcessEventListener {
     public boolean async() {
         return false;
     }
+
 }
