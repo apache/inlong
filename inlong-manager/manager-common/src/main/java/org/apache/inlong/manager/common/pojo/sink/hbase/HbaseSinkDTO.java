@@ -85,6 +85,9 @@ public class HbaseSinkDTO {
                 .build();
     }
 
+    /**
+     * Get hbase sink info from JSON string
+     */
     public static HbaseSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

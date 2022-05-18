@@ -37,7 +37,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Hive sink configuration")
+@ApiModel("Hbase sink configuration")
 public class HbaseSink extends StreamSink {
 
     @ApiModelProperty(value = "Sink type", required = true)

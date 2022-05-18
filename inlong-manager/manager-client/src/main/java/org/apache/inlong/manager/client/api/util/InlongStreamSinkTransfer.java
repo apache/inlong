@@ -54,6 +54,9 @@ import java.util.stream.Collectors;
 
 public class InlongStreamSinkTransfer {
 
+    /**
+     * Create sink request
+     */
     public static SinkRequest createSinkRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         SinkType sinkType = streamSink.getSinkType();
         switch (sinkType) {
@@ -74,6 +77,9 @@ public class InlongStreamSinkTransfer {
         return parseStreamSink(sinkResponse, null);
     }
 
+    /**
+     * Parse stream sink
+     */
     public static StreamSink parseStreamSink(SinkResponse sinkResponse, StreamSink streamSink) {
         String type = sinkResponse.getSinkType();
         SinkType sinkType = SinkType.forType(type);
@@ -91,6 +97,13 @@ public class InlongStreamSinkTransfer {
         }
     }
 
+    /**
+     * Create clickHouse request.
+     *
+     * @param streamSink streamSink object
+     * @param streamInfo inlongStreamInfo object
+     * @return clickHouseSinkRequest object
+     */
     private static SinkRequest createClickHouseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         ClickHouseSinkRequest clickHouseSinkRequest = new ClickHouseSinkRequest();
         ClickHouseSink clickHouseSink = (ClickHouseSink) streamSink;
@@ -122,6 +135,13 @@ public class InlongStreamSinkTransfer {
         return clickHouseSinkRequest;
     }
 
+    /**
+     * Parse clickHouse sink.
+     *
+     * @param sinkResponse kafkaSinkResponse object
+     * @param streamSink streamSink object
+     * @return clickHouseSink object
+     */
     private static StreamSink parseClickHouseSink(ClickHouseSinkResponse sinkResponse,
             StreamSink streamSink) {
         ClickHouseSink clickHouseSink = new ClickHouseSink();
@@ -154,6 +174,9 @@ public class InlongStreamSinkTransfer {
         return clickHouseSink;
     }
 
+    /**
+     * Convert sinkFieldResponse to sinkField
+     */
     private static List<SinkField> convertToSinkFields(List<SinkFieldResponse> sinkFieldResponses) {
         return sinkFieldResponses.stream().map(sinkFieldResponse -> new SinkField(sinkFieldResponse.getId(),
                 FieldType.forName(sinkFieldResponse.getFieldType()),
@@ -164,9 +187,15 @@ public class InlongStreamSinkTransfer {
                         FieldType.forName(sinkFieldResponse.getSourceFieldType()),
                 sinkFieldResponse.getIsMetaField(),
                 sinkFieldResponse.getFieldFormat())).collect(Collectors.toList());
-
     }
 
+    /**
+     * Create kafka request.
+     *
+     * @param streamSink streamSink object
+     * @param streamInfo inlongStreamInfo object
+     * @return kafkaSinkRequest object
+     */
     private static SinkRequest createKafkaRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         KafkaSinkRequest kafkaSinkRequest = new KafkaSinkRequest();
         KafkaSink kafkaSink = (KafkaSink) streamSink;
@@ -187,6 +216,13 @@ public class InlongStreamSinkTransfer {
         return kafkaSinkRequest;
     }
 
+    /**
+     * Parse kafka sink.
+     *
+     * @param sinkResponse kafkaSinkResponse object
+     * @param sink streamSink object
+     * @return kafkaSink object
+     */
     private static StreamSink parseKafkaSink(KafkaSinkResponse sinkResponse, StreamSink sink) {
         KafkaSink kafkaSink = new KafkaSink();
         if (sink != null) {
@@ -212,6 +248,13 @@ public class InlongStreamSinkTransfer {
         return kafkaSink;
     }
 
+    /**
+     * Create habse request.
+     *
+     * @param streamSink streamSink object
+     * @param streamInfo inlongStreamInfo object
+     * @return hbaseSinkRequest object
+     */
     private static SinkRequest createHbaseRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         HbaseSinkRequest hbaseSinkRequest = new HbaseSinkRequest();
         HbaseSink hbaseSink = (HbaseSink) streamSink;
@@ -236,6 +279,13 @@ public class InlongStreamSinkTransfer {
 
     }
 
+    /**
+     * Parse hbase sink.
+     *
+     * @param sinkResponse hbaseSinkResponse object
+     * @param sink streamSink object
+     * @return hbaseSink object
+     */
     private static StreamSink parseHbaseSink(HbaseSinkResponse sinkResponse, StreamSink sink) {
         HbaseSink hbaseSink = new HbaseSink();
         if (sink != null) {
@@ -271,6 +321,13 @@ public class InlongStreamSinkTransfer {
         return hbaseSink;
     }
 
+    /**
+     * Create hive request.
+     *
+     * @param streamSink streamSink object
+     * @param streamInfo inlongStreamInfo object
+     * @return hiveSinkRequest object
+     */
     private static HiveSinkRequest createHiveRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
         HiveSink hiveSink = (HiveSink) streamSink;
@@ -302,6 +359,9 @@ public class InlongStreamSinkTransfer {
         return hiveSinkRequest;
     }
 
+    /**
+     *Create sink field requests
+     */
     private static List<SinkFieldRequest> createSinkFieldRequests(List<SinkField> sinkFields) {
         List<SinkFieldRequest> fieldRequestList = Lists.newArrayList();
         for (SinkField sinkField : sinkFields) {
@@ -319,6 +379,13 @@ public class InlongStreamSinkTransfer {
         return fieldRequestList;
     }
 
+    /**
+     * Parse hive sink.
+     *
+     * @param sinkResponse hiveSinkResponse object
+     * @param sink streamSink object
+     * @return hiveSink object
+     */
     private static HiveSink parseHiveSink(HiveSinkResponse sinkResponse, StreamSink sink) {
         HiveSink hiveSink = new HiveSink();
         if (sink != null) {

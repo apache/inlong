@@ -130,7 +130,7 @@ public class HbaseSinkOperation implements StreamSinkOperation {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save hive field");
+        LOGGER.info("success to save hbase field");
     }
 
     @Override
@@ -202,7 +202,6 @@ public class HbaseSinkOperation implements StreamSinkOperation {
         this.updateFieldOpt(onlyAdd, hbaseSinkRequest);
 
         LOGGER.info("success to update sink of type={}", sinkType);
-
     }
 
     @Override

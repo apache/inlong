@@ -165,6 +165,11 @@ public class LoadNodeUtils {
         );
     }
 
+    /**
+     * Create hbase load node from response.
+     * @param hbaseSinkResponse hbaseSinkResponse
+     * @return hbaseLoadNode
+     */
     public static HbaseLoadNode createLoadNode(HbaseSinkResponse hbaseSinkResponse) {
         String id = hbaseSinkResponse.getSinkName();
         String name = hbaseSinkResponse.getSinkName();

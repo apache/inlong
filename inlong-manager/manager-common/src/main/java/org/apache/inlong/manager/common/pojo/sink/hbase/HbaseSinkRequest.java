@@ -22,7 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Request of the Hbase sink
@@ -31,6 +33,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the Hbase sink")
+@JsonTypeDefine(value = SinkType.SINK_HBASE)
 public class HbaseSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Target table name")
