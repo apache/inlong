@@ -39,4 +39,6 @@ public class KafkaConstant {
      */
     public static final String UPSERT_KAFKA = "upsert-kafka";
 
+    public static final String PROPERTIES_GROUP_ID = "properties.group.id";
+
 }
