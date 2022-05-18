@@ -30,7 +30,7 @@ import java.util.List;
 public class WorkflowDefinitionRegister {
 
     @Autowired
-    WorkflowEngine workflowEngine;
+    private WorkflowEngine workflowEngine;
     @Autowired
     private List<WorkflowDefinition> workflowDefinitions;
 

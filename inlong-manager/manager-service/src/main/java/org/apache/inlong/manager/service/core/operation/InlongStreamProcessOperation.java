@@ -70,10 +70,6 @@ public class InlongStreamProcessOperation {
     /**
      * Create stream in synchronous/asynchronous way.
      *
-     * @param groupId
-     * @param streamId
-     * @param operator
-     * @param sync
      * @return
      */
     public boolean startProcess(String groupId, String streamId, String operator, boolean sync) {
@@ -118,10 +114,6 @@ public class InlongStreamProcessOperation {
     /**
      * Suspend stream in synchronous/asynchronous way.
      *
-     * @param groupId
-     * @param streamId
-     * @param operator
-     * @param sync
      * @return
      */
     public boolean suspendProcess(String groupId, String streamId, String operator, boolean sync) {
@@ -169,10 +161,6 @@ public class InlongStreamProcessOperation {
     /**
      * Restart stream in synchronous/asynchronous way.
      *
-     * @param groupId
-     * @param streamId
-     * @param operator
-     * @param sync
      * @return
      */
     public boolean restartProcess(String groupId, String streamId, String operator, boolean sync) {
@@ -219,10 +207,6 @@ public class InlongStreamProcessOperation {
     /**
      * Restart stream in synchronous/asynchronous way.
      *
-     * @param groupId
-     * @param streamId
-     * @param operator
-     * @param sync
      * @return
      */
     public boolean deleteProcess(String groupId, String streamId, String operator, boolean sync) {
