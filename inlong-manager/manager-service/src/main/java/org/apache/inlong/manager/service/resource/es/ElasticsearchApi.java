@@ -97,7 +97,6 @@ public class ElasticsearchApi {
      * Create index
      *
      * @param indexName The index name of Elasticsearch
-     * @return void
      * @throws IOException The exception may throws
      */
     public void createIndex(String indexName) throws IOException {
@@ -105,7 +104,7 @@ public class ElasticsearchApi {
 
         CreateIndexResponse createIndexResponse = getEsClient().indices()
                 .create(createIndexRequest, RequestOptions.DEFAULT);
-        LOG.info("create es index: {}", createIndexResponse.isAcknowledged());
+        LOG.info("create es index:{} result: {}", indexName, createIndexResponse.isAcknowledged());
     }
 
     /**
@@ -155,7 +154,6 @@ public class ElasticsearchApi {
      * Create index and mapping
      *
      * @param tableInfo Table info of creating
-     * @return void
      * @throws IOException The exception may throws
      */
     public void createIndexAndMapping(ElasticsearchTableInfo tableInfo) throws IOException {
@@ -187,7 +185,6 @@ public class ElasticsearchApi {
      *
      * @param indexName The index name of Elasticsearch
      * @param columnInfos The columns info of Elasticsearch
-     * @return void
      * @throws IOException The exception may throws
      */
     public void addColumns(String indexName, List<ElasticsearchColumnInfo> columnInfos) throws IOException {
@@ -209,7 +206,6 @@ public class ElasticsearchApi {
      *
      * @param indexName The index name of elasticsearch
      * @param columnInfos The columns info of elasticsearch
-     * @return void
      * @throws IOException The exception may throws
      */
     public void addNotExistColumns(String indexName,
@@ -241,7 +237,6 @@ public class ElasticsearchApi {
      * Get Elasticsearch client
      *
      * @param config Elasticsearch's configuration
-     * @return void
      */
     public void setEsConfig(ElasticsearchConfig config) {
         this.esConfig = config;

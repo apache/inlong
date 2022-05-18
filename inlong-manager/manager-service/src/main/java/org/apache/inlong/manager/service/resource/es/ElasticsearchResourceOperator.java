@@ -82,7 +82,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
         List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no ES fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOGGER.warn("no es fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
         // set columns
