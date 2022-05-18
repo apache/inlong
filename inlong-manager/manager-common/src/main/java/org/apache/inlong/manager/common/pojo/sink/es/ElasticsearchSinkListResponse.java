@@ -24,20 +24,20 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 
 /**
- * Response of ElasticSearch sink list
+ * Response of Elasticsearch sink list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of ElasticSearch sink paging list")
+@ApiModel("Response of Elasticsearch sink paging list")
 public class ElasticsearchSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("ElasticSearch URL")
+    @ApiModelProperty("Elasticsearch URL")
     private String url;
 
-    @ApiModelProperty("ElasticSearch Port")
+    @ApiModelProperty("Elasticsearch Port")
     private Integer port;
 
-    @ApiModelProperty("ElasticSearch index name")
+    @ApiModelProperty("Elasticsearch index name")
     private String indexName;
 
     @ApiModelProperty("Flush interval, unit: second, default is 1s")

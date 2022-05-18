@@ -59,8 +59,8 @@ public class ElasticsearchApi {
     /**
      * Search
      *
-     * @param searchRequest The search request of elasticsearch
-     * @return Search reponse of elasticsearch
+     * @param searchRequest The search request of Elasticsearch
+     * @return Search reponse of Elasticsearch
      * @throws IOException The io exception may throws
      */
     public SearchResponse search(SearchRequest searchRequest) throws IOException {
@@ -70,9 +70,9 @@ public class ElasticsearchApi {
     /**
      * Search
      *
-     * @param searchRequest The search request of elasticsearch
-     * @param options The options of elasticsearch
-     * @return Search reponse of elasticsearch
+     * @param searchRequest The search request of Elasticsearch
+     * @param options The options of Elasticsearch
+     * @return Search reponse of Elasticsearch
      * @throws IOException The io exception may throws
      */
     public SearchResponse search(SearchRequest searchRequest, RequestOptions options) throws IOException {
@@ -83,7 +83,7 @@ public class ElasticsearchApi {
     /**
      * Check index exists
      *
-     * @param indexName The index name of elasticsearch
+     * @param indexName The index name of Elasticsearch
      * @return true if exists else false
      * @throws IOException The exception may throws
      */
@@ -96,7 +96,7 @@ public class ElasticsearchApi {
     /**
      * Create index
      *
-     * @param indexName The index name of elasticsearch
+     * @param indexName The index name of Elasticsearch
      * @return void
      * @throws IOException The exception may throws
      */
@@ -111,7 +111,7 @@ public class ElasticsearchApi {
     /**
      * Get mapping info
      *
-     * @param columnsInfo The columns info of elasticsearch
+     * @param columnsInfo The columns info of Elasticsearch
      * @return String list of columns translation
      * @throws IOException The exception may throws
      */
@@ -173,7 +173,7 @@ public class ElasticsearchApi {
     /**
      * Get columns
      *
-     * @param indexName The index name of elasticsearch
+     * @param indexName The index name of Elasticsearch
      * @return Map<String, MappingMetaData> index information
      * @throws IOException The exception may throws
      */
@@ -185,8 +185,8 @@ public class ElasticsearchApi {
     /**
      * Add columns
      *
-     * @param indexName The index name of elasticsearch
-     * @param columnInfos The columns info of elasticsearch
+     * @param indexName The index name of Elasticsearch
+     * @param columnInfos The columns info of Elasticsearch
      * @return void
      * @throws IOException The exception may throws
      */
@@ -229,7 +229,7 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Get ElasticSearch client
+     * Get Elasticsearch client
      *
      * @return RestHighLevelClient
      */
@@ -238,9 +238,9 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Get ElasticSearch client
+     * Get Elasticsearch client
      *
-     * @param config ElasticSearch's configuration
+     * @param config Elasticsearch's configuration
      * @return void
      */
     public void setEsConfig(ElasticsearchConfig config) {

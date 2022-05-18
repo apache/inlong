@@ -27,19 +27,19 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the ElasticSearch sink.
+ * Request of the Elasticsearch sink.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the ElasticSearch sink info")
+@ApiModel(value = "Request of the Elasticsearch sink info")
 @JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
 public class ElasticsearchSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("ElasticSearch URL")
+    @ApiModelProperty("Elasticsearch URL")
     private String url;
 
-    @ApiModelProperty("ElasticSearch Port")
+    @ApiModelProperty("Elasticsearch Port")
     private Integer port;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -48,7 +48,7 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("ElasticSearch index name")
+    @ApiModelProperty("Elasticsearch index name")
     private String indexName;
 
     @ApiModelProperty("Flush interval, unit: second, default is 1s")

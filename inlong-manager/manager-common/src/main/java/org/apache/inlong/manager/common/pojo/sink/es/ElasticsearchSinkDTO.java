@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Sink info of ElasticSearch
+ * Sink info of Elasticsearch
  */
 @Data
 @Builder
@@ -42,10 +42,10 @@ public class ElasticsearchSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("ElasticSearch URL")
+    @ApiModelProperty("Elasticsearch URL")
     private String url;
 
-    @ApiModelProperty("ElasticSearch Port")
+    @ApiModelProperty("Elasticsearch Port")
     private Integer port;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -54,7 +54,7 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("ElasticSearch index name")
+    @ApiModelProperty("Elasticsearch index name")
     private String indexName;
 
     @ApiModelProperty("Flush interval, unit: second, default is 1s")

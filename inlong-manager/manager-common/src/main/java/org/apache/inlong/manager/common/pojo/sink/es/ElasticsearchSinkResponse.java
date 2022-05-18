@@ -26,18 +26,18 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 /**
- * Response of the ElasticSearch sink.
+ * Response of the Elasticsearch sink.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the ElasticSearch sink")
+@ApiModel(value = "Response of the Elasticsearch sink")
 public class ElasticsearchSinkResponse extends SinkResponse {
 
-    @ApiModelProperty("ElasticSearch URL")
+    @ApiModelProperty("Elasticsearch URL")
     private String url;
 
-    @ApiModelProperty("ElasticSearch Port")
+    @ApiModelProperty("Elasticsearch Port")
     private Integer port;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -46,7 +46,7 @@ public class ElasticsearchSinkResponse extends SinkResponse {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("ElasticSearch index name")
+    @ApiModelProperty("Elasticsearch index name")
     private String indexName;
 
     @ApiModelProperty("Flush interval, unit: second, default is 1s")

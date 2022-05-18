@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ElasticSearch resource operator
+ * Elasticsearch resource operator
  */
 @Service
 public class ElasticsearchResourceOperator implements SinkResourceOperator {
@@ -99,7 +99,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
             if (StringUtils.isNotEmpty(esInfo.getUsername())) {
                 config.setAuthEnable(true);
-                config.setUserName(esInfo.getUsername());
+                config.setUsername(esInfo.getUsername());
                 config.setPassword(esInfo.getPassword());
             }
             config.setHost(esInfo.getUrl());
@@ -120,11 +120,11 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             }
 
             // 5. update the sink status to success
-            String info = "success to create elasticsearch resource";
+            String info = "success to create Elasticsearch resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            String errMsg = "create elasticsearch table failed: " + e.getMessage();
+            String errMsg = "create Elasticsearch table failed: " + e.getMessage();
             LOGGER.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);

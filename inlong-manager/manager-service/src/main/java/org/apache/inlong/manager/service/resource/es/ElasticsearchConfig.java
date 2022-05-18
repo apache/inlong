@@ -19,6 +19,9 @@ package org.apache.inlong.manager.service.resource.es;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Data;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -36,6 +39,7 @@ import org.springframework.stereotype.Component;
 /**
  * Elasticsearch config information, including host, port, etc.
  */
+@Data
 @Component
 public class ElasticsearchConfig {
 
@@ -107,42 +111,6 @@ public class ElasticsearchConfig {
 
     public void setHost(String arg) {
         this.host = arg;
-    }
-
-    public String getHost() {
-        return this.host;
-    }
-
-    public void setPort(Integer arg) {
-        this.port = arg;
-    }
-
-    public Integer getPort() {
-        return this.port;
-    }
-
-    public void setAuthEnable(boolean arg) {
-        this.authEnable = arg;
-    }
-
-    public Boolean getAuthEnable() {
-        return this.authEnable;
-    }
-
-    public void setUserName(String arg) {
-        this.username = arg;
-    }
-
-    public String getUserName() {
-        return this.username;
-    }
-
-    public void setPassword(String arg) {
-        this.password = arg;
-    }
-
-    public String getPassword() {
-        return this.password;
     }
 
 }
