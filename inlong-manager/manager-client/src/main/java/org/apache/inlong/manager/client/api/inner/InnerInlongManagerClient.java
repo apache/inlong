@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -167,12 +168,12 @@ public class InnerInlongManagerClient {
             pageNum = 1;
         }
 
-        JSONObject groupQuery = new JSONObject();
+        ObjectNode groupQuery = JsonUtils.OBJECT_MAPPER.createObjectNode();
         groupQuery.put("keyword", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
         groupQuery.put("pageSize", pageSize);
-        String operationData = GsonUtil.toJson(groupQuery);
+        String operationData = groupQuery.toString();
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
         String path = HTTP_PATH + "/group/list";
@@ -756,17 +757,18 @@ public class InnerInlongManagerClient {
     public WorkflowResult startInlongGroup(int taskId,
             Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
 
-        JSONObject workflowTaskOperation = new JSONObject();
-        workflowTaskOperation.put("transferTo", Lists.newArrayList());
+        ObjectMapper objectMapper = JsonUtils.OBJECT_MAPPER;
+        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
-        JSONObject inlongGroupApproveForm = new JSONObject();
-        inlongGroupApproveForm.put("groupApproveInfo", initMsg.getKey());
-        inlongGroupApproveForm.put("streamApproveInfoList", initMsg.getValue());
+        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", initMsg.getKey());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", initMsg.getValue());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
-        workflowTaskOperation.put("form", inlongGroupApproveForm);
+        workflowTaskOperation.set("form", inlongGroupApproveForm);
 
-        String operationData = GsonUtil.toJson(workflowTaskOperation);
+        String operationData = workflowTaskOperation.toString();
 
         final String path = HTTP_PATH + "/workflow/approve/" + taskId;
         final String url = formatUrl(path);
