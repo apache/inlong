@@ -51,7 +51,6 @@ public class InLongMsgFormat implements Format {
         this.ignoreParseErrors = ignoreParseErrors;
     }
 
-    @JsonCreator
     public InLongMsgFormat() {
         this(new CsvFormat(), false);
     }
