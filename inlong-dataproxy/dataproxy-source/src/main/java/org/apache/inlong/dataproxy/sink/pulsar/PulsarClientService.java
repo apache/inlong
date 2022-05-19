@@ -340,10 +340,6 @@ public class PulsarClientService {
 
     /**
      * Producer initialization.
-     * @param topic
-     * @param inlongGroupId
-     * @param inlongStreamId
-     * @return
      */
     public List<TopicProducerInfo> initTopicProducer(String topic, String inlongGroupId,
             String inlongStreamId) {
