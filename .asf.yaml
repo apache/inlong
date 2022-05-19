@@ -68,22 +68,6 @@ github:
 
       required_signatures: false
 
-    # disable force push from the following branches
-    release-0.1.0: {}
-    release-0.2.0: {}
-    release-0.3.0: {}
-    release-0.4.0: {}
-    release-0.5.0: {}
-    release-0.6.0: {}
-    release-0.7.0: {}
-    release-0.8.0: {}
-    release-0.9.0: {}
-    release-0.10.0: {}
-    release-0.11.0: {}
-    release-0.12.0: {}
-    release-1.0.0: {}
-    release-1.1.0: {}
-
 notifications:
   commits:      commits@inlong.apache.org
   issues:       dev@inlong.apache.org
