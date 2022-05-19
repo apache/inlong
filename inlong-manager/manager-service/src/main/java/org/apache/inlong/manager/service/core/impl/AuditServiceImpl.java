@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.mapper.AuditEntityMapper;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.apache.inlong.manager.service.resource.es.ElasticsearchApi;
+import org.apache.inlong.manager.service.resource.es.ElasticSearchApi;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -67,7 +67,7 @@ public class AuditServiceImpl implements AuditService {
     @Autowired
     private AuditEntityMapper auditEntityMapper;
     @Autowired
-    private ElasticsearchApi elasticsearchApi;
+    private ElasticSearchApi elasticsearchApi;
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {

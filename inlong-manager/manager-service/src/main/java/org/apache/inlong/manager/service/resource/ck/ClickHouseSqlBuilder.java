@@ -112,7 +112,6 @@ public class ClickHouseSqlBuilder {
      */
     private static List<String> getColumnsInfo(List<ClickHouseColumnInfo> columns) {
         List<String> columnList = new ArrayList<>();
-        List<String> partitionList = new ArrayList<>();
         for (ClickHouseColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
             StringBuilder columnStr = new StringBuilder().append(columnInfo.getName())

@@ -37,7 +37,7 @@ import org.springframework.stereotype.Component;
  * Elasticsearch config information, including host, port, etc.
  */
 @Component
-public class ElasticsearchConfig {
+public class ElasticSearchConfig {
 
     @Value("${es.index.search.hostname}")
     private String host;
@@ -46,11 +46,11 @@ public class ElasticsearchConfig {
     @Value("${es.auth.enable}")
     private Boolean authEnable = false;
     @Value("${es.auth.user}")
-    private String user;
+    private String username;
     @Value("${es.auth.password}")
     private String password;
 
-    private static final Logger logger = LoggerFactory.getLogger(ElasticsearchConfig.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElasticSearchConfig.class);
 
     private static RestHighLevelClient highLevelClient;
 
@@ -95,7 +95,7 @@ public class ElasticsearchConfig {
             logger.info("set es auth of enable={}", authEnable);
             if (authEnable) {
                 final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
                 builder.setHttpClientConfigCallback(
                         httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
@@ -104,4 +104,45 @@ public class ElasticsearchConfig {
             logger.error("set es auth error ", e);
         }
     }
+
+    public void setHost(String arg) {
+        this.host = arg;
+    }
+
+    public String getHost() {
+        return this.host;
+    }
+
+    public void setPort(Integer arg) {
+        this.port = arg;
+    }
+
+    public Integer getPort() {
+        return this.port;
+    }
+
+    public void setAuthEnable(boolean arg) {
+        this.authEnable = arg;
+    }
+
+    public Boolean getAuthEnable() {
+        return this.authEnable;
+    }
+
+    public void setUserName(String arg) {
+        this.username = arg;
+    }
+
+    public String getUserName() {
+        return this.username;
+    }
+
+    public void setPassword(String arg) {
+        this.password = arg;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
 }
