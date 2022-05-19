@@ -45,9 +45,9 @@ import static org.apache.inlong.sort.formats.inlongmsg.InLongMsgOptions.validate
 public final class InLongMsgFormatFactory
         implements DeserializationFormatFactory, SerializationFormatFactory {
 
-    public static final String IDENTIFIER = "inlong";
+    public static final String IDENTIFIER = "inlong-msg";
 
-    public static final String INLONG_PREFIX = "inlong.";
+    public static final String INLONG_PREFIX = "inlong-msg.";
 
     @Override
     public DecodingFormat<DeserializationSchema<RowData>> createDecodingFormat(Context context,

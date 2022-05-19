@@ -42,6 +42,11 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-common</artifactId>
             <version>${project.version}</version>
         </dependency>
