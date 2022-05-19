@@ -690,6 +690,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.ververica:flink-connector-mysql-cdc:2.2.1 - flink-connector-mysql-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-sql-connector-mysql-cdc/), (The Apache Software License, Version 2.0)
   com.ververica:flink-connector-mongodb-cdc:2.2.1 - flink-connector-mongodb-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-connector-mongodb-cdc/), (The Apache Software License, Version 2.0)
   com.ververica:flink-connector-postgres-cdc:2.2.1 - flink-connector-postgres-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-sql-connector-postgres-cdc/), (The Apache Software License, Version 2.0)
+  com.ververica:flink-connector-sqlserver-cdc:2.2.1 - flink-connector-sqlserver-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-connector-sqlserver-cdc/),  (The Apache Software License, Version 2.0)
   org.apache.hadoop:hadoop-annotations:2.10.1 - Apache Hadoop Annotations (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-annotations), (Apache License, Version 2.0)
   org.apache.hadoop:hadoop-auth:2.10.1 - Apache Hadoop Auth (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-auth), (Apache License, Version 2.0)
   org.apache.hadoop:hadoop-common:2.10.1 - Apache Hadoop Common (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-common), (Apache License, Version 2.0)

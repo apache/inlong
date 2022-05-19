@@ -619,6 +619,18 @@ License. The source code of jersey can be found at https://github.com/jersey/jer
 
 ========================================================================
 
+flink-connector-sqlserver-cdc NOTICE
+========================================================================
+
+flink-connector-sqlserver-cdc
+Copyright 2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+========================================================================
+
 Flink : Connectors : File Sink Common NOTICE
 ========================================================================
 
