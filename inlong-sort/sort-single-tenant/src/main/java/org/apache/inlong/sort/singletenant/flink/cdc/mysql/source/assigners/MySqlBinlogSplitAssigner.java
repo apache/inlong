@@ -21,8 +21,6 @@ package org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.assigners;
 import static com.ververica.cdc.connectors.mysql.source.utils.TableDiscoveryUtils.listTables;
 import static org.apache.inlong.sort.singletenant.flink.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
 
-import com.ververica.cdc.connectors.mysql.schema.MySqlSchema;
-import com.ververica.cdc.connectors.mysql.source.MySqlSourceOptions;
 import io.debezium.connector.mysql.MySqlConnection;
 import io.debezium.jdbc.JdbcConnection;
 import io.debezium.relational.RelationalTableFilters;
@@ -38,9 +36,11 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.debezium.DebeziumUtils;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.schema.MySqlSchema;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.assigners.state.BinlogPendingSplitsState;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.assigners.state.PendingSplitsState;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceConfig;
+import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.config.MySqlSourceOptions;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.split.MySqlBinlogSplit;
@@ -178,10 +178,10 @@ public class MySqlBinlogSplitAssigner implements MySqlSplitAssigner {
         }
 
         // fetch table schemas
-        MySqlSchema mySqlSchema = new MySqlSchema(sourceConfig.getDbzConfiguration(), jdbc);
+        MySqlSchema mySqlSchema = new MySqlSchema(sourceConfig, false);
         Map<TableId, TableChange> tableSchemas = new HashMap<>();
         for (TableId tableId : capturedTableIds) {
-            TableChange tableSchema = mySqlSchema.getTableSchema(tableId);
+            TableChange tableSchema = mySqlSchema.getTableSchema(jdbc, tableId);
             tableSchemas.put(tableId, tableSchema);
         }
         return tableSchemas;

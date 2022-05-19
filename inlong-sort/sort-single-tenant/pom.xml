@@ -32,9 +32,8 @@
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
     <properties>
-        <flink-connector-debezium.version>2.0.1</flink-connector-debezium.version>
-        <debezium-connector-mysql.version>1.5.4.Final</debezium-connector-mysql.version>
-        <debezium-core.version>1.5.4.Final</debezium-core.version>
+        <debezium-connector-mysql.version>1.6.4.Final</debezium-connector-mysql.version>
+        <debezium-core.version>1.6.4.Final</debezium-core.version>
     </properties>
     <packaging>jar</packaging>
 
@@ -63,6 +62,11 @@
                     <groupId>org.apache.hive</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>debezium-core</artifactId>
+            <groupId>io.debezium</groupId>
+            <version>${debezium-core.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -214,6 +218,16 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>flink-connector-debezium</artifactId>
+                    <groupId>com.ververica</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>debezium-connector-mysql</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -223,12 +237,15 @@
         </dependency>
         <dependency>
             <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-debezium</artifactId>
-            <version>2.0.1</version>
+            <artifactId>flink-connector-mongodb-cdc</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>kafka-log4j-appender</artifactId>
-                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>debezium-api</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>debezium-embedded</artifactId>
+                    <groupId>io.debezium</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -242,13 +259,6 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-core</artifactId>
-            <version>1.5.4.Final</version>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.esri.geometry</groupId>
@@ -266,11 +276,12 @@
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
             <version>${debezium-connector-mysql.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-core</artifactId>
-            <version>${debezium-core.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>debezium-core</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
