@@ -31,10 +31,14 @@
 
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
+
     <properties>
-        <debezium-connector-mysql.version>1.6.4.Final</debezium-connector-mysql.version>
-        <debezium-core.version>1.6.4.Final</debezium-core.version>
+        <debezium.connector.mysql.version>1.6.4.Final</debezium.connector.mysql.version>
+        <debezium.core.version>1.6.4.Final</debezium.core.version>
+        <debezium.embedded.version>1.5.2.Final</debezium.embedded.version>
+        <kafka.clients.version>2.7.0</kafka.clients.version>
     </properties>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -66,8 +70,15 @@
         <dependency>
             <artifactId>debezium-core</artifactId>
             <groupId>io.debezium</groupId>
-            <version>${debezium-core.version}</version>
+            <version>${debezium.core.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.clients.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
@@ -250,6 +261,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${debezium.embedded.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>4.0.3</version>
@@ -275,7 +291,7 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
-            <version>${debezium-connector-mysql.version}</version>
+            <version>${debezium.connector.mysql.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>debezium-core</artifactId>
