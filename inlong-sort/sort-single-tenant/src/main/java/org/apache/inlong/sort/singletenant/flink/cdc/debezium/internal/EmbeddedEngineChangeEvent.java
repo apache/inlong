@@ -23,9 +23,7 @@ import io.debezium.engine.RecordChangeEvent;
 import org.apache.kafka.connect.source.SourceRecord;
 
 /**
- * copied from 
- * @param <K>
- * @param <V>
+ * Copied from Debezium project. Make it public to be accessible from DebeziumChangeFetcher.
  */
 public class EmbeddedEngineChangeEvent<K, V> implements ChangeEvent<K, V>, RecordChangeEvent<V> {
 

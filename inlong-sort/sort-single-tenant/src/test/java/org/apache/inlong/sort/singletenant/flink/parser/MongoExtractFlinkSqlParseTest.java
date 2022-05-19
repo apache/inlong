@@ -75,7 +75,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql parse
+     * Test mongodb to kafka
      *
      * @throws Exception The exception may throws when execute the case
      */

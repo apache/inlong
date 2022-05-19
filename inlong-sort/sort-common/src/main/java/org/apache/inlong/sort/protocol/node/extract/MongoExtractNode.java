@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
+/**
+ * Extract node for mongo, note that mongo should work in replicaSet mode
+ */
 public class MongoExtractNode extends ExtractNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
