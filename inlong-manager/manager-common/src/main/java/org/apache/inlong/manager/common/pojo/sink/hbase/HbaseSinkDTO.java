@@ -45,7 +45,7 @@ public class HbaseSinkDTO {
     private String tableName;
 
     @ApiModelProperty("Namespace")
-    private String nameSpace;
+    private String namespace;
 
     @ApiModelProperty("Row key")
     private String rowKey;
@@ -74,7 +74,7 @@ public class HbaseSinkDTO {
     public static HbaseSinkDTO getFromRequest(HbaseSinkRequest request) {
         return HbaseSinkDTO.builder()
                 .tableName(request.getTableName())
-                .nameSpace(request.getNameSpace())
+                .namespace(request.getNamespace())
                 .rowKey(request.getRowKey())
                 .zookeeperQuorum(request.getZookeeperQuorum())
                 .sinkBufferFlushMaxSize(request.getSinkBufferFlushMaxSize())

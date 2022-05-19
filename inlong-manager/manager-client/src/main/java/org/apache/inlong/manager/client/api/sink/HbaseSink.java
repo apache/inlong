@@ -47,7 +47,7 @@ public class HbaseSink extends StreamSink {
     private String tableName;
 
     @ApiModelProperty("Namespace")
-    private String nameSpace;
+    private String namespace;
 
     @ApiModelProperty("Row key")
     private String rowKey;
@@ -73,6 +73,8 @@ public class HbaseSink extends StreamSink {
     @ApiModelProperty("Field definitions for hbase")
     private List<SinkField> sinkFields;
 
-    @ApiModelProperty("Data format type for stream sink")
-    private DataFormat dataFormat;
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.NONE;
+    }
 }

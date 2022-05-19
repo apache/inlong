@@ -38,7 +38,7 @@ public class HbaseSinkResponse extends SinkResponse {
     private String tableName;
 
     @ApiModelProperty("Namespace")
-    private String nameSpace;
+    private String namespace;
 
     @ApiModelProperty("Row key")
     private String rowKey;

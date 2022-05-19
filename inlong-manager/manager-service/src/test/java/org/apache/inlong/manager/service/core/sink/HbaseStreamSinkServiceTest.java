@@ -58,7 +58,7 @@ public class HbaseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setTableName(tableName);
-        sinkInfo.setNameSpace(nameSpace);
+        sinkInfo.setNamespace(nameSpace);
         sinkInfo.setRowKey(rowkey);
         sinkInfo.setZookeeperQuorum(zookeeperQuorum);
         return sinkService.save(sinkInfo, globalOperator);

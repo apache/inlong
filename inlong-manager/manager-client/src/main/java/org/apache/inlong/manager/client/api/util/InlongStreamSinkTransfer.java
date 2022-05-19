@@ -261,7 +261,7 @@ public class InlongStreamSinkTransfer {
         hbaseSinkRequest.setSinkName(streamSink.getSinkName());
         hbaseSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         hbaseSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        hbaseSinkRequest.setNameSpace(hbaseSink.getNameSpace());
+        hbaseSinkRequest.setNamespace(hbaseSink.getNamespace());
         hbaseSinkRequest.setTableName(hbaseSink.getTableName());
         hbaseSinkRequest.setRowKey(hbaseSink.getRowKey());
         hbaseSinkRequest.setZookeeperQuorum(hbaseSink.getZookeeperQuorum());
@@ -294,7 +294,7 @@ public class InlongStreamSinkTransfer {
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             HbaseSink snapshot = (HbaseSink) sink;
             hbaseSink.setSinkName(snapshot.getSinkName());
-            hbaseSink.setNameSpace(snapshot.getNameSpace());
+            hbaseSink.setNamespace(snapshot.getNamespace());
             hbaseSink.setTableName(snapshot.getTableName());
             hbaseSink.setRowKey(snapshot.getRowKey());
             hbaseSink.setZookeeperQuorum(snapshot.getZookeeperQuorum());
@@ -304,7 +304,7 @@ public class InlongStreamSinkTransfer {
             hbaseSink.setSinkBufferFlushMaxSize(snapshot.getSinkBufferFlushMaxSize());
         } else {
             hbaseSink.setSinkName(sinkResponse.getSinkName());
-            hbaseSink.setNameSpace(sinkResponse.getNameSpace());
+            hbaseSink.setNamespace(sinkResponse.getNamespace());
             hbaseSink.setTableName(sinkResponse.getTableName());
             hbaseSink.setRowKey(sinkResponse.getRowKey());
             hbaseSink.setZookeeperQuorum(sinkResponse.getZookeeperQuorum());
@@ -361,7 +361,7 @@ public class InlongStreamSinkTransfer {
     }
 
     /**
-     *Create sink field requests
+     * Create sink field requests
      */
     private static List<SinkFieldRequest> createSinkFieldRequests(List<SinkField> sinkFields) {
         List<SinkFieldRequest> fieldRequestList = Lists.newArrayList();

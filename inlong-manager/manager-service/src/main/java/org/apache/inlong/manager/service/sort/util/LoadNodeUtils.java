@@ -66,7 +66,7 @@ public class LoadNodeUtils {
                 return createLoadNode((HiveSinkResponse) sinkResponse);
             case HBASE:
                 return createLoadNode((HbaseSinkResponse) sinkResponse);
-                default:
+            default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
         }
@@ -167,6 +167,7 @@ public class LoadNodeUtils {
 
     /**
      * Create hbase load node from response.
+     *
      * @param hbaseSinkResponse hbaseSinkResponse
      * @return hbaseLoadNode
      */
@@ -174,7 +175,7 @@ public class LoadNodeUtils {
         String id = hbaseSinkResponse.getSinkName();
         String name = hbaseSinkResponse.getSinkName();
         String tableName = hbaseSinkResponse.getTableName();
-        String nameSpace = hbaseSinkResponse.getNameSpace();
+        String nameSpace = hbaseSinkResponse.getNamespace();
         String rowKey = hbaseSinkResponse.getRowKey();
         String zookeeperQuorum = hbaseSinkResponse.getZookeeperQuorum();
         String sinkBufferFlushMaxSize = hbaseSinkResponse.getSinkBufferFlushMaxSize();
