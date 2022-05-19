@@ -83,7 +83,8 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     }
 
     @Override
-    public void execute(ChangeEventSourceContext context, MySqlOffsetContext offsetContext) throws InterruptedException {
+    public void execute(ChangeEventSourceContext context, MySqlOffsetContext offsetContext)
+        throws InterruptedException {
         this.context = context;
         super.execute(context, offsetContext);
     }
