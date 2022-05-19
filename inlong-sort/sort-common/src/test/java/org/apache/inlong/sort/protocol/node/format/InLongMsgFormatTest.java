@@ -20,7 +20,7 @@ package org.apache.inlong.sort.protocol.node.format;
 import org.apache.inlong.sort.SerializeBaseTest;
 
 /**
- * Test for {@link AvroFormat}
+ * Test for {@link InLongMsgFormat}
  */
 public class InLongMsgFormatTest extends SerializeBaseTest<InLongMsgFormat> {
 
