@@ -61,8 +61,8 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String password;
 
-    @JsonProperty("primaryKey")
-    private String primaryKey;
+    @JsonProperty("parFields")
+    List<FieldInfo> partitionFields;
 
     @JsonCreator
     public ClickHouseLoadNode(@JsonProperty("id") String id,
@@ -77,14 +77,13 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
             @Nonnull @JsonProperty("passWord") String password,
-            @JsonProperty("primaryKey") String primaryKey) {
+            @JsonProperty("parFields") List<FieldInfo> partitionFields) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.primaryKey = primaryKey;
-
+        this.partitionFields = partitionFields;
     }
 
     @Override
@@ -111,7 +110,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
 
     @Override
     public List<FieldInfo> getPartitionFields() {
-        return super.getPartitionFields();
+        return partitionFields;
     }
 
 }

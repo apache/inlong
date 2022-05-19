@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Default JDBC dialects. */
+/**
+ * Default JDBC dialects.
+ */
 public final class JdbcDialects {
 
     private static final List<JdbcDialect> DIALECTS = new ArrayList<>();

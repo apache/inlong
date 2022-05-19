@@ -29,6 +29,9 @@ import org.apache.flink.table.types.logical.VarBinaryType;
 
 import java.util.List;
 
+/**
+ * Default JDBC dialects implements for validate.
+ */
 public abstract class AbstractJdbcDialect implements JdbcDialect {
 
     @Override

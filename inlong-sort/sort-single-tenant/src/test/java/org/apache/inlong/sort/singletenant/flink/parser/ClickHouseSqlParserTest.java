@@ -21,6 +21,7 @@ package org.apache.inlong.sort.singletenant.flink.parser;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.inlong.sort.flink.clickhouse.table.ClickHouseDialect;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -43,11 +44,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Test for  {@link ClickHouseLoadNode} and {@link ClickHouseDialect}
+ */
 public class ClickHouseSqlParserTest {
     public MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
-        // if you hope hive load mode of append, please add this config
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql_input", fields,
@@ -94,6 +97,11 @@ public class ClickHouseSqlParserTest {
         return new NodeRelationShip(inputIds, outputIds);
     }
 
+    /**
+     * Test extract data from mysql and load data to clickhouse.
+     *
+     * @throws Exception The exception may throws when executing
+     */
     @Test
     public void testClickHouse() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings

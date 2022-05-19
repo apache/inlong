@@ -27,14 +27,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * JDBC dialect for ClickHouse SQL.
+ */
 public class ClickHouseDialect extends AbstractJdbcDialect {
 
-    // Define MAX/MIN precision of TIMESTAMP type according to Mysql docs:
+    // Define MAX/MIN precision of TIMESTAMP type according to ClickHouse docs:
     // https://clickhouse.com/docs/zh/sql-reference/data-types/datetime64
     private static final int MAX_TIMESTAMP_PRECISION = 8;
     private static final int MIN_TIMESTAMP_PRECISION = 0;
 
-    // Define MAX/MIN precision of DECIMAL type according to Mysql docs:
+    // Define MAX/MIN precision of DECIMAL type according to ClickHouse docs:
     // https://clickhouse.com/docs/zh/sql-reference/data-types/decimal/
     private static final int MAX_DECIMAL_PRECISION = 128;
     private static final int MIN_DECIMAL_PRECISION = 32;

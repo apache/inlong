@@ -26,6 +26,9 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
 
+/**
+ * Test for {@link ClickHouseLoadNode} Serialization/Deserialization.
+ */
 public class ClickHouseLoadNodeTest extends SerializeBaseTest<Node> {
     @Override
     public Node getTestObject() {
