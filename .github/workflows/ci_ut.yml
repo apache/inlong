@@ -19,38 +19,7 @@ name: InLong Unit Test
 
 on:
   push:
-    paths:
-      - '.github/workflows/ci_ut.yml'
-      - '**/pom.xml'
-      - 'inlong-agent/**'
-      - 'inlong-audit/**'
-      - 'inlong-common/**'
-      - 'inlong-dashboard/**'
-      - 'inlong-dataproxy/**'
-      - 'inlong-distribution/**'
-      - 'inlong-manager/**'
-      - 'inlong-sdk/**'
-      - 'inlong-sort/**'
-      - 'inlong-sort-standalone/**'
-      - 'inlong-tubemq/**'
-      - '!*.md'
-
   pull_request:
-    paths:
-      - '.github/workflows/ci_ut.yml'
-      - '**/pom.xml'
-      - 'inlong-agent/**'
-      - 'inlong-audit/**'
-      - 'inlong-common/**'
-      - 'inlong-dashboard/**'
-      - 'inlong-dataproxy/**'
-      - 'inlong-distribution/**'
-      - 'inlong-manager/**'
-      - 'inlong-sdk/**'
-      - 'inlong-sort/**'
-      - 'inlong-sort-standalone/**'
-      - 'inlong-tubemq/**'
-      - '!*.md'
 
 jobs:
   unit-test:
@@ -65,38 +34,3 @@ jobs:
         with:
           java-version: 8
           distribution: adopt
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.m2/repository
-            !~/.m2/repository/org/apache/inlong
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
-        env:
-          CI: false
-
-      - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V test
-        env:
-          CI: false
-
-      - name: Upload unit test results
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: surefire-reports
-          path: ./**/target/surefire-reports/
-          if-no-files-found: ignore
-
-      - name: Upload integration test results
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: failsafe-reports
-          path: ./**/target/failsafe-reports/
-          if-no-files-found: ignore
