@@ -39,8 +39,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -53,8 +51,6 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,8 +81,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private ConsumptionEntityMapper consumptionMapper;
     @Autowired
     private ConsumptionPulsarEntityMapper consumptionPulsarMapper;
-    @Autowired
-    private WorkflowService workflowService;
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -324,24 +318,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     @Override
-    public WorkflowResult startProcess(Integer id, String operation) {
-        ConsumptionInfo consumptionInfo = this.get(id);
-        Preconditions.checkTrue(ConsumptionStatus.ALLOW_START_WORKFLOW_STATUS.contains(
-                        ConsumptionStatus.fromStatus(consumptionInfo.getStatus())),
-                "current status not allow start workflow");
-
-        ConsumptionEntity updateConsumptionEntity = new ConsumptionEntity();
-        updateConsumptionEntity.setId(consumptionInfo.getId());
-        updateConsumptionEntity.setModifyTime(new Date());
-        updateConsumptionEntity.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
-        int success = this.consumptionMapper.updateByPrimaryKeySelective(updateConsumptionEntity);
-        Preconditions.checkTrue(success == 1, "update consumption failed");
-
-        return workflowService.start(ProcessName.NEW_CONSUMPTION_PROCESS, operation,
-                genNewConsumptionProcessForm(consumptionInfo));
-    }
-
-    @Override
     public void saveSortConsumption(InlongGroupInfo groupInfo, String topic, String consumerGroup) {
         String groupId = groupInfo.getInlongGroupId();
         ConsumptionEntity exists = consumptionMapper.selectConsumptionExists(groupId, topic, consumerGroup);
@@ -378,20 +354,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         }
 
         log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
-    }
-
-    private NewConsumptionProcessForm genNewConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
-        NewConsumptionProcessForm form = new NewConsumptionProcessForm();
-        Integer id = consumptionInfo.getId();
-        MQType mqType = MQType.forType(consumptionInfo.getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            ConsumptionPulsarEntity consumptionPulsarEntity = consumptionPulsarMapper.selectByConsumptionId(id);
-            ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(consumptionPulsarEntity,
-                    ConsumptionPulsarInfo::new);
-            consumptionInfo.setMqExtInfo(pulsarInfo);
-        }
-        form.setConsumptionInfo(consumptionInfo);
-        return form;
     }
 
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator, Date now) {

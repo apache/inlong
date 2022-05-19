@@ -23,7 +23,6 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 /**
  * Data consumption interface
@@ -87,15 +86,6 @@ public interface ConsumptionService {
      * @param operator Operator
      */
     Boolean delete(Integer id, String operator);
-
-    /**
-     * Start the application process
-     *
-     * @param id Data consumption id
-     * @param operator Operator
-     * @return WorkflowProcess information
-     */
-    WorkflowResult startProcess(Integer id, String operator);
 
     /**
      * Save the consumer group info for Sort to the database
