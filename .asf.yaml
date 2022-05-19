@@ -49,19 +49,12 @@ github:
   protected_branches:
     master:
       required_status_checks:
-        # strict means "Require branches to be up to date before merging".
+        # strict means "Require branches to be up-to-date before merging".
         strict: false
-        # contexts are the names of checks that must pass for a merge to be allowed.
-        contexts:
-          - 'Build'
-          - 'Unit Test'
-          - 'Check license header'
-          - 'Docker build and push'
-          - 'Lint and test charts'
       required_pull_request_reviews:
         dismiss_stale_reviews: false
         require_code_owner_reviews: true
-        required_approving_review_count: 1
+        required_approving_review_count: 2
 
       # squash or rebase must be allowed in the repo for this setting to be set to true.
       required_linear_history: false
@@ -69,9 +62,9 @@ github:
       required_signatures: false
 
 notifications:
-  commits:      commits@inlong.apache.org
-  issues:       dev@inlong.apache.org
-  pullrequests_status: commits@inlong.apache.org
+  commits:              commits@inlong.apache.org
+  issues:               dev@inlong.apache.org
+  pullrequests_status:  commits@inlong.apache.org
   pullrequests_comment: commits@inlong.apache.org
-  issues_status: dev@inlong.apache.org
-  issues_comment: commits@inlong.apache.org
+  issues_status:        dev@inlong.apache.org
+  issues_comment:       commits@inlong.apache.org
