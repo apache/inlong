@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.enums.SinkType
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 
 /**
@@ -34,8 +34,8 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Elasticsearch sink")
 public class ElasticsearchSinkResponse extends SinkResponse {
 
-    @ApiModelProperty("Elasticsearch URL")
-    private String url;
+    @ApiModelProperty("Elasticsearch Host")
+    private String host;
 
     @ApiModelProperty("Elasticsearch Port")
     private Integer port;

@@ -23,8 +23,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+
+import java.util.List;
 
 /**
  * Request of the Elasticsearch sink.
@@ -36,8 +39,8 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
 public class ElasticsearchSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Elasticsearch URL")
-    private String url;
+    @ApiModelProperty("Elasticsearch Host")
+    private String host;
 
     @ApiModelProperty("Elasticsearch Port")
     private Integer port;
@@ -59,5 +62,8 @@ public class ElasticsearchSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
+
+    @ApiModelProperty("Sink filed info")
+    private List<SinkFieldRequest> fieldList;
 
 }

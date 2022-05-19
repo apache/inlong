@@ -24,9 +24,10 @@ import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchTableInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchFieldInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkExtrParamDTO;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkIndexDTO;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchIndexInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
@@ -80,43 +81,37 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
     private void createIndex(SinkInfo sinkInfo) {
         LOGGER.info("begin to create ES Index for sinkId={}", sinkInfo.getId());
 
-        List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
-        if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no es fields found, skip to create table for sinkId={}", sinkInfo.getId());
+        List<StreamSinkFieldEntity> sinkList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
+        if (CollectionUtils.isEmpty(sinkList)) {
+            LOGGER.warn("no es fields found, skip to create index for sinkId={}", sinkInfo.getId());
         }
 
-        // set columns
-        List<ElasticsearchColumnInfo> columnList = new ArrayList<>();
-        for (StreamSinkFieldEntity field : fieldList) {
-            ElasticsearchColumnInfo columnInfo = new ElasticsearchColumnInfo();
-            columnInfo.setName(field.getFieldName());
-            columnInfo.setType(field.getFieldType());
-            columnList.add(columnInfo);
-        }
+        // set fields
+        List<ElasticsearchFieldInfo> fieldList = getElasticsearchFieldFromSink(sinkList);
 
         try {
             ElasticsearchConfig config = new ElasticsearchConfig();
-            ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
+            ElasticsearchSinkIndexDTO esInfo = ElasticsearchSinkIndexDTO.getFromJson(sinkInfo.getExtParams());
             if (StringUtils.isNotEmpty(esInfo.getUsername())) {
                 config.setAuthEnable(true);
                 config.setUsername(esInfo.getUsername());
                 config.setPassword(esInfo.getPassword());
             }
-            config.setHost(esInfo.getUrl());
+            config.setHost(esInfo.getHost());
             config.setPort(esInfo.getPort());
 
             ElasticsearchApi client = new ElasticsearchApi();
             client.setEsConfig(config);
 
-            ElasticsearchTableInfo tableInfo = ElasticsearchSinkDTO.getElasticSearchTableInfo(esInfo, columnList);
-            boolean indexExists = client.indexExists(tableInfo.getIndexName());
+            ElasticsearchIndexInfo indexInfo = ElasticsearchSinkIndexDTO.getElasticSearchIndexInfo(esInfo, fieldList);
+            boolean indexExists = client.indexExists(indexInfo.getIndexName());
 
-            // 3. table not exists, create it
+            // 3. index not exists, create it
             if (!indexExists) {
-                client.createIndexAndMapping(tableInfo);
+                client.createIndexAndMapping(indexInfo, fieldList);
             } else {
-                // 4. table exists, add columns - skip the exists columns
-                client.addNotExistColumns(tableInfo.getIndexName(), tableInfo.getColumns());
+                // 4. index exists, add fields - skip the exists fields
+                client.addNotExistFields(indexInfo.getIndexName(), fieldList);
             }
 
             // 5. update the sink status to success
@@ -124,11 +119,28 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            String errMsg = "create Elasticsearch table failed: " + e.getMessage();
+            String errMsg = "create Elasticsearch index failed: " + e.getMessage();
             LOGGER.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
         }
+    }
+
+    public List<ElasticsearchFieldInfo> getElasticsearchFieldFromSink(List<StreamSinkFieldEntity> sinkList) {
+        List<ElasticsearchFieldInfo> fieldList = new ArrayList<>();
+        for (StreamSinkFieldEntity entry : sinkList) {
+            ElasticsearchFieldInfo fieldInfo = new ElasticsearchFieldInfo();
+            fieldInfo.setName(entry.getFieldName());
+            fieldInfo.setType(entry.getFieldType());
+            fieldInfo.setScalingFactor(entry.getFieldScale());
+            fieldInfo.setFormat(entry.getFieldFormat());
+            ElasticsearchSinkExtrParamDTO filedExtrParam =
+                    ElasticsearchSinkExtrParamDTO.getFromJson(entry.getExtrParam());
+            fieldInfo.setAnalyzer(filedExtrParam.getAnalyzer());
+            fieldInfo.setSearchAnalyzer(filedExtrParam.getSearchAnalyzer());
+            fieldList.add(fieldInfo);
+        }
+        return fieldList;
     }
 
 }

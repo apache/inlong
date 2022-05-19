@@ -35,6 +35,7 @@
         <result column="field_precision" jdbcType="INTEGER" property="fieldPrecision"/>
         <result column="field_scale" jdbcType="INTEGER" property="fieldScale"/>
         <result column="partition_strategy" jdbcType="VARCHAR" property="partitionStrategy"/>
+        <result column="extr_param" jdbcType="VARCHAR" property="extrParam"/>
         <result column="is_meta_field" jdbcType="SMALLINT" property="isMetaField"/>
         <result column="field_format" jdbcType="VARCHAR" property="fieldFormat"/>
         <result column="rank_num" jdbcType="SMALLINT" property="rankNum"/>

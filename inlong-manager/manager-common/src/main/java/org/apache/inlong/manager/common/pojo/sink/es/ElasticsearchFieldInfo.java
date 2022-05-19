@@ -19,12 +19,19 @@ package org.apache.inlong.manager.common.pojo.sink.es;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
-public class ElasticsearchTableInfo {
-    // Basic attributes
-    private String indexName;
+public class ElasticsearchFieldInfo {
 
-    private List<ElasticsearchColumnInfo> columns;
+    private String name;
+    private String type;
+
+    /* extra attr for text type */
+    private String analyzer;
+    private String searchAnalyzer;
+
+    /* extra attr for date type */
+    private String format;
+
+    /* extra attr for float type */
+    private Integer scalingFactor;
 }

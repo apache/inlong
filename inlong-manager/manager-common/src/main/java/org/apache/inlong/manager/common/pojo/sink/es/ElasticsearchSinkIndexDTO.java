@@ -38,12 +38,12 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ElasticsearchSinkDTO {
+public class ElasticsearchSinkIndexDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Elasticsearch URL")
-    private String url;
+    @ApiModelProperty("Elasticsearch Host")
+    private String host;
 
     @ApiModelProperty("Elasticsearch Port")
     private Integer port;
@@ -72,9 +72,9 @@ public class ElasticsearchSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) {
-        return ElasticsearchSinkDTO.builder()
-                .url(request.getUrl())
+    public static ElasticsearchSinkIndexDTO getFromRequest(ElasticsearchSinkRequest request) {
+        return ElasticsearchSinkIndexDTO.builder()
+                .host(request.getHost())
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .indexName(request.getIndexName())
@@ -85,22 +85,21 @@ public class ElasticsearchSinkDTO {
                 .build();
     }
 
-    public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
+    public static ElasticsearchSinkIndexDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkIndexDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }
 
-    public static ElasticsearchTableInfo getElasticSearchTableInfo(ElasticsearchSinkDTO ckInfo,
-            List<ElasticsearchColumnInfo> columnList) {
-        ElasticsearchTableInfo tableInfo = new ElasticsearchTableInfo();
-        tableInfo.setIndexName(ckInfo.getIndexName());
-        tableInfo.setColumns(columnList);
+    public static ElasticsearchIndexInfo getElasticSearchIndexInfo(ElasticsearchSinkIndexDTO esInfo,
+            List<ElasticsearchFieldInfo> fieldList) {
+        ElasticsearchIndexInfo indexInfo = new ElasticsearchIndexInfo();
+        indexInfo.setIndexName(esInfo.getIndexName());
 
-        return tableInfo;
+        return indexInfo;
     }
 
 }

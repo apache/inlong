@@ -109,8 +109,4 @@ public class ElasticsearchConfig {
         }
     }
 
-    public void setHost(String arg) {
-        this.host = arg;
-    }
-
 }

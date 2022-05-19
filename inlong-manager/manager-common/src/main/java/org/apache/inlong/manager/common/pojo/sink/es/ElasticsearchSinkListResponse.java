@@ -31,8 +31,8 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 @ApiModel("Response of Elasticsearch sink paging list")
 public class ElasticsearchSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("Elasticsearch URL")
-    private String url;
+    @ApiModelProperty("Elasticsearch Host")
+    private String host;
 
     @ApiModelProperty("Elasticsearch Port")
     private Integer port;

@@ -24,8 +24,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchTableInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchFieldInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchIndexInfo;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -110,88 +110,86 @@ public class ElasticsearchApi {
     /**
      * Get mapping info
      *
-     * @param columnsInfo The columns info of Elasticsearch
-     * @return String list of columns translation
+     * @param fieldsInfo The fields info of Elasticsearch
+     * @return String list of fields translation
      * @throws IOException The exception may throws
      */
-    private List<String> getMappingInfo(List<ElasticsearchColumnInfo> columnsInfo) {
-        List<String> columnList = new ArrayList<>();
-        for (ElasticsearchColumnInfo entry : columnsInfo) {
-            StringBuilder columnStr = new StringBuilder().append("        \"").append(entry.getName())
+    private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
+        List<String> fieldList = new ArrayList<>();
+        for (ElasticsearchFieldInfo entry : fieldsInfo) {
+            StringBuilder fieldStr = new StringBuilder().append("        \"").append(entry.getName())
                     .append("\" : {\n          \"type\" : \"")
                     .append(entry.getType()).append("\"");
             if (entry.getType().equals("text")) {
                 if (StringUtils.isNotEmpty(entry.getAnalyzer())) {
-                    columnStr.append(",\n          \"analyzer\" : \"")
+                    fieldStr.append(",\n          \"analyzer\" : \"")
                             .append(entry.getAnalyzer()).append("\"");
                 }
                 if (StringUtils.isNotEmpty(entry.getSearchAnalyzer())) {
-                    columnStr.append(",\n          \"search_analyzer\" : \"")
+                    fieldStr.append(",\n          \"search_analyzer\" : \"")
                             .append(entry.getSearchAnalyzer()).append("\"");
-                }
-                if (StringUtils.isNotEmpty(entry.getIndex())) {
-                    columnStr.append(",\n          \"index\" : \"")
-                            .append(entry.getIndex()).append("\"");
                 }
             } else if (entry.getType().equals("date")) {
                 if (StringUtils.isNotEmpty(entry.getFormat())) {
-                    columnStr.append(",\n          \"format\" : \"")
+                    fieldStr.append(",\n          \"format\" : \"")
                             .append(entry.getFormat()).append("\"");
                 }
             } else if (entry.getType().contains("float")) {
                 if (StringUtils.isNotEmpty(entry.getFormat())) {
-                    columnStr.append(",\n          \"scaling_factor\" : \"")
+                    fieldStr.append(",\n          \"scaling_factor\" : \"")
                             .append(entry.getFormat()).append("\"");
                 }
             }
-            columnStr.append("\n        }");
-            columnList.add(columnStr.toString());
+            fieldStr.append("\n        }");
+            fieldList.add(fieldStr.toString());
         }
-        return columnList;
+        return fieldList;
     }
 
     /**
      * Create index and mapping
      *
-     * @param tableInfo Table info of creating
+     * @param indexInfo Index info of creating
+     * @param fieldInfos Field infos
      * @throws IOException The exception may throws
      */
-    public void createIndexAndMapping(ElasticsearchTableInfo tableInfo) throws IOException {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(tableInfo.getIndexName());
-        List<String> columnList = getMappingInfo(tableInfo.getColumns());
+    public void createIndexAndMapping(ElasticsearchIndexInfo indexInfo,
+            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexInfo.getIndexName());
+        List<String> fieldList = getMappingInfo(fieldInfos);
         StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                .append(StringUtils.join(columnList, ",\n")).append("\n      }\n}");
+                .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
         createIndexRequest.mapping(mapping.toString(), XContentType.JSON);
 
         CreateIndexResponse createIndexResponse = getEsClient().indices()
                 .create(createIndexRequest, RequestOptions.DEFAULT);
-        LOG.info("create {}:{}", tableInfo.getIndexName(), createIndexResponse.isAcknowledged());
+        LOG.info("create {}:{}", indexInfo.getIndexName(), createIndexResponse.isAcknowledged());
     }
 
     /**
-     * Get columns
+     * Get fields
      *
      * @param indexName The index name of Elasticsearch
      * @return Map<String, MappingMetaData> index information
      * @throws IOException The exception may throws
      */
-    public Map<String, MappingMetaData> getColumns(String indexName) throws IOException {
+    public Map<String, MappingMetaData> getFields(String indexName) throws IOException {
         GetMappingsRequest request = new GetMappingsRequest().indices(indexName);
         return getEsClient().indices().getMapping(request, RequestOptions.DEFAULT).mappings();
     }
 
     /**
-     * Add columns
+     * Add fieldss
      *
      * @param indexName The index name of Elasticsearch
-     * @param columnInfos The columns info of Elasticsearch
+     * @param fieldInfos The fields info of Elasticsearch
      * @throws IOException The exception may throws
      */
-    public void addColumns(String indexName, List<ElasticsearchColumnInfo> columnInfos) throws IOException {
-        if (CollectionUtils.isNotEmpty(columnInfos)) {
-            List<String> columnList = getMappingInfo(columnInfos);
+    public void addFields(String indexName, List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+        if (CollectionUtils.isNotEmpty(fieldInfos)) {
+            List<String> fieldList = getMappingInfo(fieldInfos);
             StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
-                    .append(StringUtils.join(columnList, ",\n")).append("\n      }\n}");
+                    .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
             System.out.println(mapping.toString());
             PutMappingRequest indexRequest = new PutMappingRequest(indexName)
                     .source(mapping.toString(), XContentType.JSON);
@@ -202,26 +200,26 @@ public class ElasticsearchApi {
     }
 
     /**
-     * Add not exist columns
+     * Add not exist fields
      *
      * @param indexName The index name of elasticsearch
-     * @param columnInfos The columns info of elasticsearch
+     * @param fieldInfos The fields info of elasticsearch
      * @throws IOException The exception may throws
      */
-    public void addNotExistColumns(String indexName,
-            List<ElasticsearchColumnInfo> columnInfos) throws IOException {
-        List<ElasticsearchColumnInfo> notExistColumnInfos = new ArrayList<>(columnInfos);
-        Map<String, MappingMetaData> mapping = getColumns(indexName);
+    public void addNotExistFields(String indexName,
+            List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
+        List<ElasticsearchFieldInfo> notExistFieldInfos = new ArrayList<>(fieldInfos);
+        Map<String, MappingMetaData> mapping = getFields(indexName);
         Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
-            for (ElasticsearchColumnInfo entry : notExistColumnInfos) {
+            for (ElasticsearchFieldInfo entry : notExistFieldInfos) {
                 if (entry.getName().equals(key)) {
-                    notExistColumnInfos.remove(entry);
+                    notExistFieldInfos.remove(entry);
                     break;
                 }
             }
         }
-        addColumns(indexName, notExistColumnInfos);
+        addFields(indexName, notExistFieldInfos);
     }
 
     /**
