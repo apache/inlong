@@ -25,6 +25,9 @@ import org.apache.inlong.manager.common.enums.DataFormat;
 
 import java.lang.reflect.Type;
 
+/**
+ * Data format adapter.
+ */
 public class DataFormatAdapter implements JsonDeserializer {
 
     @Override

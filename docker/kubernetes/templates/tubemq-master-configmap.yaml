@@ -29,7 +29,7 @@ data:
 
   ready: |
     #!/bin/sh
-    curl 127.0.0.1:8080/index.htm
+    curl 127.0.0.1:{{ .Values.tubemqMaster.ports.webPort }}/index.htm
 
   run: |
     #!/bin/bash
@@ -47,7 +47,7 @@ data:
     # generate config file
     cp /opt/tubemq-server/conf/master.ini.raw /opt/tubemq-server/conf/master.ini
     sed -i "s/REPLACE_BY_POD_ID/$MY_POD_ID/g" /opt/tubemq-server/conf/master.ini
-    sed -i "s/REPLACE_BY_POD_HOSTNAME/$HOST.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Name }}.svc.cluster.local/g" /opt/tubemq-server/conf/master.ini
+    sed -i "s/REPLACE_BY_POD_HOSTNAME/{{ template "inlong.tubemqMaster.hostname" . }}/g" /opt/tubemq-server/conf/master.ini
     # start master
     /opt/tubemq-server/bin/tubemq.sh master start
     tail -F /opt/tubemq-server/logs/master.log

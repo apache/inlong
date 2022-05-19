@@ -73,11 +73,11 @@ public class GroupAfterApprovedListener implements TaskEventListener {
         }
 
         // Save the inlong group information after approval
-        groupService.updateAfterApprove(approveInfo, context.getApplicant());
+        groupService.updateAfterApprove(approveInfo, context.getOperator());
 
         // Save inlong stream information after approval
         List<InlongStreamApproveRequest> streamApproveInfoList = form.getStreamApproveInfoList();
-        streamService.updateAfterApprove(streamApproveInfoList, context.getApplicant());
+        streamService.updateAfterApprove(streamApproveInfoList, context.getOperator());
         return ListenerResult.success();
     }
 

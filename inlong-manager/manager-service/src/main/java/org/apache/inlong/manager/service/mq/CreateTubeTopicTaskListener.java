@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.mq.util.TubeMqOptService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
@@ -58,7 +59,7 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
 
         try {
             InlongGroupInfo groupInfo = groupService.get(groupId);
-            String topicName = groupInfo.getMqResourceObj();
+            String topicName = groupInfo.getMqResource();
             AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
             request.setUser("inlong-manager");
             AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();

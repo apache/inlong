@@ -24,6 +24,9 @@ import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
 import java.util.List;
 
+/**
+ * StreamTransform with multiple pre stream nodes, such as join.
+ */
 @ApiModel("StreamTransform with multiple pre stream nodes, such as join")
 public class MultiDependencyTransform extends StreamTransform {
 

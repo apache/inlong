@@ -43,6 +43,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * the executor for load data to apache doris
+ */
 public class DorisStreamLoad implements Serializable {
 
     public static final Logger LOG = LoggerFactory.getLogger(DorisStreamLoad.class);

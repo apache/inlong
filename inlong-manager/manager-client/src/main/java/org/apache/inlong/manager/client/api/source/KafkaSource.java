@@ -28,6 +28,9 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
+/**
+ * Kafka source.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
@@ -79,4 +82,7 @@ public class KafkaSource extends StreamSource {
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
     private String timestampFormatStandard = "SQL";
+
+    @ApiModelProperty("Primary key, needed when data format is csv, json, avro")
+    private String primaryKey;
 }

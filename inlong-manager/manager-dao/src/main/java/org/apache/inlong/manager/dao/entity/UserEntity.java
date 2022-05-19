@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * User entity, including username, password, etc.
+ */
 @Data
 public class UserEntity implements Serializable {
 

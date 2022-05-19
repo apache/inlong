@@ -27,6 +27,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
+/**
+ * defines the mapping rules for data fields
+ */
 public class FieldMappingRule implements TransformationRule, Serializable {
 
     private static final long serialVersionUID = -3285027125865704371L;

@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.TextFileFormat;
 import org.apache.inlong.sort.util.ParameterTool;
 
+/**
+ * a tool for testing hive partition commit
+ */
 public class JdbcHivePartitionTool {
     public static void main(String[] args) throws Exception {
         final Configuration config = ParameterTool.fromArgs(args).getConfiguration();

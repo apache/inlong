@@ -20,13 +20,16 @@ package org.apache.inlong.manager.client.cli.validator;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.inlong.manager.client.api.InlongGroupContext;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 
+/**
+ * Class for inlong group status verification.
+ */
 public class GroupStatus implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
-        if (!EnumUtils.isValidEnum(InlongGroupContext.InlongGroupState.class, value)) {
+        if (!EnumUtils.isValidEnum(InlongGroupStatus.class, value)) {
             String msg = "should be one of the following values:\n"
                     + "\tCREATE, REJECTED, INITIALIZING, OPERATING, STARTED, FAILED, STOPPED, FINISHED, DELETED";
             throw new ParameterException("Parameter " + name + msg);

@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
- * Response of File source list
+ * Response info of File source list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

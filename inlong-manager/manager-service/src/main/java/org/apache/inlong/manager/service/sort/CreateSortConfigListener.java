@@ -28,8 +28,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
@@ -68,16 +66,13 @@ public class CreateSortConfigListener implements SortOperateListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        LOGGER.info("Create sort config for context={}", context);
-        ProcessForm form = context.getProcessForm();
-        if (form instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) form;
-            GroupOperateType groupOperateType = updateGroupProcessForm.getGroupOperateType();
-            if (groupOperateType == GroupOperateType.SUSPEND || groupOperateType == GroupOperateType.DELETE) {
-                return ListenerResult.success();
-            }
+        LOGGER.info("Create sort config for groupId={}", context.getProcessForm().getInlongGroupId());
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+        GroupOperateType groupOperateType = form.getGroupOperateType();
+        if (groupOperateType == GroupOperateType.SUSPEND || groupOperateType == GroupOperateType.DELETE) {
+            return ListenerResult.success();
         }
-        InlongGroupInfo groupInfo = this.getGroupInfo(form);
+        InlongGroupInfo groupInfo = form.getGroupInfo();
         String groupId = groupInfo.getInlongGroupId();
         if (StringUtils.isEmpty(groupId)) {
             LOGGER.warn("GroupId is null for context={}", context);
@@ -111,27 +106,12 @@ public class CreateSortConfigListener implements SortOperateListener {
             LOGGER.error("create sort config failed for sink list={} ", sinkResponseList, e);
             throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
-
         return ListenerResult.success();
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
         groupInfo.getExtList().removeIf(ext -> InlongGroupSettings.DATA_FLOW.equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
-    }
-
-    private InlongGroupInfo getGroupInfo(ProcessForm processForm) {
-        if (processForm instanceof GroupResourceProcessForm) {
-            GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-            return groupResourceProcessForm.getGroupInfo();
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupInfo();
-        } else {
-            LOGGER.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
-            throw new WorkflowListenerException(
-                    String.format("Unsupported ProcessForm {%s}", processForm.getFormName()));
-        }
     }
 
     @Override

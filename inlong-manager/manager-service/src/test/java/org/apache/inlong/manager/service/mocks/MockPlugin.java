@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.mocks;
 
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.event.EventSelector;
@@ -29,16 +29,19 @@ import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test class for process plugin.
+ */
 public class MockPlugin implements ProcessPlugin {
 
     public EventSelector stopProcessSelector = new EventSelector() {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateGroupProcessForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
             return form.getGroupOperateType() == GroupOperateType.SUSPEND;
         }
     };
@@ -47,10 +50,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateGroupProcessForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
             return form.getGroupOperateType() == GroupOperateType.RESTART;
         }
     };
@@ -59,10 +62,10 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (!(processForm instanceof UpdateGroupProcessForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateGroupProcessForm form = (UpdateGroupProcessForm) processForm;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
             return form.getGroupOperateType() == GroupOperateType.DELETE;
         }
     };

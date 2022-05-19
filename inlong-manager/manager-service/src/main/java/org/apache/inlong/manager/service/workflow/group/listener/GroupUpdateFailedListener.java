@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,12 +46,12 @@ public class GroupUpdateFailedListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+        String operator = context.getOperator();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), operator);
+        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

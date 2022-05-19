@@ -17,18 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
-import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-
 import io.netty.util.concurrent.DefaultThreadFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
@@ -39,12 +28,24 @@ import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
-import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
+import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
 /**
  * proxy client
@@ -94,28 +95,29 @@ public class SenderManager {
         localhost = jobConf.get(CommonConstants.PROXY_LOCAL_HOST, CommonConstants.DEFAULT_PROXY_LOCALHOST);
         netTag = jobConf.get(CommonConstants.PROXY_NET_TAG, CommonConstants.DEFAULT_PROXY_NET_TAG);
         isLocalVisit = jobConf.getBoolean(
-            CommonConstants.PROXY_IS_LOCAL_VISIT, CommonConstants.DEFAULT_PROXY_IS_LOCAL_VISIT);
+                CommonConstants.PROXY_IS_LOCAL_VISIT, CommonConstants.DEFAULT_PROXY_IS_LOCAL_VISIT);
         totalAsyncBufSize = jobConf
                 .getInt(
-                    CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE, CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
+                        CommonConstants.PROXY_TOTAL_ASYNC_PROXY_SIZE,
+                        CommonConstants.DEFAULT_PROXY_TOTAL_ASYNC_PROXY_SIZE);
         aliveConnectionNum = jobConf
                 .getInt(
-                    CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
+                        CommonConstants.PROXY_ALIVE_CONNECTION_NUM, CommonConstants.DEFAULT_PROXY_ALIVE_CONNECTION_NUM);
         isCompress = jobConf.getBoolean(
-            CommonConstants.PROXY_IS_COMPRESS, CommonConstants.DEFAULT_PROXY_IS_COMPRESS);
+                CommonConstants.PROXY_IS_COMPRESS, CommonConstants.DEFAULT_PROXY_IS_COMPRESS);
         maxSenderPerGroup = jobConf.getInt(
-            CommonConstants.PROXY_MAX_SENDER_PER_GROUP, CommonConstants.DEFAULT_PROXY_MAX_SENDER_PER_GROUP);
+                CommonConstants.PROXY_MAX_SENDER_PER_GROUP, CommonConstants.DEFAULT_PROXY_MAX_SENDER_PER_GROUP);
         msgType = jobConf.getInt(CommonConstants.PROXY_MSG_TYPE, CommonConstants.DEFAULT_PROXY_MSG_TYPE);
         maxSenderTimeout = jobConf.getInt(
-            CommonConstants.PROXY_SENDER_MAX_TIMEOUT, CommonConstants.DEFAULT_PROXY_SENDER_MAX_TIMEOUT);
+                CommonConstants.PROXY_SENDER_MAX_TIMEOUT, CommonConstants.DEFAULT_PROXY_SENDER_MAX_TIMEOUT);
         maxSenderRetry = jobConf.getInt(
-            CommonConstants.PROXY_SENDER_MAX_RETRY, CommonConstants.DEFAULT_PROXY_SENDER_MAX_RETRY);
+                CommonConstants.PROXY_SENDER_MAX_RETRY, CommonConstants.DEFAULT_PROXY_SENDER_MAX_RETRY);
         retrySleepTime = jobConf.getLong(
-            CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
+                CommonConstants.PROXY_RETRY_SLEEP, CommonConstants.DEFAULT_PROXY_RETRY_SLEEP);
         isFile = jobConf.getBoolean(CommonConstants.PROXY_IS_FILE, CommonConstants.DEFAULT_IS_FILE);
         taskPositionManager = TaskPositionManager.getTaskPositionManager();
         semaphore = new Semaphore(jobConf.getInt(CommonConstants.PROXY_MESSAGE_SEMAPHORE,
-            CommonConstants.DEFAULT_PROXY_MESSAGE_SEMAPHORE));
+                CommonConstants.DEFAULT_PROXY_MESSAGE_SEMAPHORE));
         ioThreadNum = jobConf.getInt(CommonConstants.PROXY_CLIENT_IO_THREAD_NUM,
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
@@ -134,7 +136,7 @@ public class SenderManager {
     /**
      * Select by group.
      *
-     * @param group - inlong group id
+     * @param group inlong group id
      * @return default message sender
      */
     private DefaultMessageSender selectSender(String group) {
@@ -147,14 +149,14 @@ public class SenderManager {
             semaphore.acquire(messageNum);
         } catch (Exception e) {
             LOGGER.error("acquire messageNum {} fail, current semaphore {}",
-                messageNum, semaphore.availablePermits());
+                    messageNum, semaphore.availablePermits());
         }
     }
 
     /**
      * sender
      *
-     * @param groupId - group id
+     * @param groupId group id
      * @return DefaultMessageSender
      */
     private DefaultMessageSender createMessageSender(String groupId) throws Exception {
@@ -176,7 +178,6 @@ public class SenderManager {
 
     /**
      * Add new sender for group id if max size is not satisfied.
-     *
      */
     public void addMessageSender() throws Exception {
         List<DefaultMessageSender> tmpList = new ArrayList<>();
@@ -195,6 +196,7 @@ public class SenderManager {
      * sender callback
      */
     private class AgentSenderCallback implements SendMessageCallback {
+
         private final int retry;
         private final String groupId;
         private final List<byte[]> bodyList;
@@ -203,7 +205,7 @@ public class SenderManager {
         private final String jobId;
 
         AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
-            long dataTime) {
+                long dataTime) {
             this.retry = retry;
             this.groupId = groupId;
             this.streamId = streamId;
@@ -237,13 +239,13 @@ public class SenderManager {
     /**
      * Send message to proxy by batch, use message cache.
      *
-     * @param groupId - groupId
-     * @param streamId - streamId
-     * @param bodyList - body list
-     * @param retry - retry time
+     * @param groupId groupId
+     * @param streamId streamId
+     * @param bodyList body list
+     * @param retry retry time
      */
     public void sendBatchAsync(String jobId, String groupId, String streamId,
-        List<byte[]> bodyList, int retry, long dataTime) {
+            List<byte[]> bodyList, int retry, long dataTime) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
@@ -272,21 +274,21 @@ public class SenderManager {
     /**
      * Send message to proxy by batch, use message cache.
      *
-     * @param groupId - groupId
-     * @param streamId - streamId
-     * @param bodyList - body list
-     * @param retry - retry time
+     * @param groupId groupId
+     * @param streamId streamId
+     * @param bodyList body list
+     * @param retry retry time
      */
     public void sendBatchSync(String groupId, String streamId,
-        List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
+            List<byte[]> bodyList, int retry, long dataTime, Map<String, String> extraMap) {
         if (retry > maxSenderRetry) {
             LOGGER.warn("max retry reached, retry count is {}, sleep and send again", retry);
             AgentUtils.silenceSleepInMs(retrySleepTime);
         }
         try {
             selectSender(groupId).sendMessage(
-                bodyList, groupId, streamId, dataTime, "",
-                maxSenderTimeout, TimeUnit.SECONDS, extraMap
+                    bodyList, groupId, streamId, dataTime, "",
+                    maxSenderTimeout, TimeUnit.SECONDS, extraMap
             );
             semaphore.release(bodyList.size());
         } catch (Exception exception) {

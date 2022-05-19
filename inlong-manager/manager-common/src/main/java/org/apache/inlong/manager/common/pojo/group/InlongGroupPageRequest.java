@@ -33,8 +33,8 @@ import java.util.List;
 @ApiModel("Inlong group query request")
 public class InlongGroupPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Keywords")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, can be group id or name")
+    private String keyword;
 
     @ApiModelProperty(value = "Inlong group name list")
     private List<String> nameList;
@@ -42,11 +42,14 @@ public class InlongGroupPageRequest extends PageRequest {
     @ApiModelProperty(value = "Inlong group id list")
     private List<String> groupIdList;
 
-    @ApiModelProperty(value = "MQ resource object")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type")
+    private String mqType;
 
-    @ApiModelProperty(value = "Status")
+    @ApiModelProperty(value = "Group status")
     private Integer status;
+
+    @ApiModelProperty(value = "Group status list")
+    private List<Integer> statusList;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;

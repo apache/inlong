@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import ReactDom from 'react-dom';
 import { Form, Collapse, Button, Empty, Modal, Space, message } from 'antd';
 import FormGenerator, { FormItemContent } from '@/components/FormGenerator';
@@ -26,7 +26,6 @@ import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
 import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
-import { pickObject } from '@/utils';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent, genExtraContent, genFormContent } from './config';
@@ -35,7 +34,7 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
+const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
@@ -118,13 +117,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       const { list } = await getTouchedValues();
       const values = list.find(item => item.id === record.id);
       const data = valuesToData(values ? [values] : [], inlongGroupId);
-      const submitData = data.map(item =>
-        pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
-      );
       await request({
         url: '/stream/update',
         method: 'POST',
-        data: submitData?.[0]?.streamInfo,
+        data: data?.[0]?.streamInfo,
       });
     } else {
       // create
@@ -132,15 +128,27 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       const values = list?.[0];
       const data = valuesToData(values ? [values] : [], inlongGroupId);
       await request({
-        url: '/stream/saveAll',
+        url: '/stream/save',
         method: 'POST',
-        data: data?.[0],
+        data: data?.[0]?.streamInfo,
       });
     }
     await getList();
     setEditingId(false);
     message.success(t('basic.OperatingSuccess'));
   };
+
+  const onOk = () => {
+    if (editingId) {
+      return Promise.reject('Please save the data');
+    } else {
+      return Promise.resolve();
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    onOk,
+  }));
 
   const onEdit = record => {
     // setEditingId(record.id);
@@ -149,6 +157,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   };
 
   const onCancel = async () => {
+    setEditingId(false);
     await getList();
   };
 
@@ -324,4 +333,4 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

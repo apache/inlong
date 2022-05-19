@@ -17,10 +17,11 @@
 
 package org.apache.inlong.agent.plugin.message;
 
+import org.apache.inlong.agent.utils.AgentUtils;
+
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.inlong.agent.utils.AgentUtils;
 
 /**
  * Generate uniq sequential id, reset base id if max number
@@ -28,14 +29,13 @@ import org.apache.inlong.agent.utils.AgentUtils;
  */
 public class SequentialID {
 
+    private static final int MAX_ID = 2000000000;
+    private static final String IP_HEX = getHex();
+    private static SequentialID uniqueSequentialID = null;
     private final AtomicInteger id = new AtomicInteger(1);
     private final ReentrantLock idLock = new ReentrantLock();
     private final AtomicInteger uid = new AtomicInteger(1);
     private final ReentrantLock uidLock = new ReentrantLock();
-    private static final int MAX_ID = 2000000000;
-
-    private static SequentialID uniqueSequentialID = null;
-    private static final String IP_HEX = getHex();
 
     private SequentialID() {
 
@@ -57,6 +57,9 @@ public class SequentialID {
         return "00000000";
     }
 
+    /**
+     * get SequentialID single instance
+     */
     public static synchronized SequentialID getInstance() {
 
         if (uniqueSequentialID == null) {
@@ -77,6 +80,9 @@ public class SequentialID {
         }
     }
 
+    /**
+     * get next uuid
+     */
     public String getNextUuid() {
         uidLock.lock();
         try {

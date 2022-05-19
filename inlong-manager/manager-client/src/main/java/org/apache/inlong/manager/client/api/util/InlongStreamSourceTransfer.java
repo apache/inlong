@@ -102,6 +102,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setIgnoreParseErrors(response.isIgnoreParseErrors());
         kafkaSource.setTimestampFormatStandard(response.getTimestampFormatStandard());
         kafkaSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
+        kafkaSource.setPrimaryKey(response.getPrimaryKey());
         return kafkaSource;
     }
 
@@ -114,6 +115,7 @@ public class InlongStreamSourceTransfer {
         binlogSource.setAgentIp(response.getAgentIp());
         binlogSource.setState(State.parseByStatus(response.getStatus()));
         binlogSource.setServerId(response.getServerId());
+        binlogSource.setDataNodeName(response.getDataNodeName());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -174,6 +176,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setTablePattern(kafkaSource.getTablePattern());
         sourceRequest.setIgnoreParseErrors(kafkaSource.isIgnoreParseErrors());
         sourceRequest.setTimestampFormatStandard(kafkaSource.getTimestampFormatStandard());
+        sourceRequest.setPrimaryKey(kafkaSource.getPrimaryKey());
         sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(kafkaSource.getFields(), streamInfo));
         return sourceRequest;
     }
@@ -191,6 +194,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setHostname(binlogSource.getHostname());
         sourceRequest.setPort(binlogSource.getPort());
         sourceRequest.setServerId(binlogSource.getServerId());
+        sourceRequest.setDataNodeName(binlogSource.getDataNodeName());
         sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());

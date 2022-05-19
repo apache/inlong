@@ -22,6 +22,9 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import java.util.Map;
 
+/**
+ * insert fields from flink Row to doris request
+ */
 public class DorisRowConverter {
 
     public static void setRow(FormatInfo[] formatInfos,String[] fieldNames, Row row, Map<String,Object> rowDataMap) {

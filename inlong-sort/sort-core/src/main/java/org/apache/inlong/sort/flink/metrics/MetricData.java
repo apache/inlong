@@ -20,6 +20,9 @@ package org.apache.inlong.sort.flink.metrics;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
 
+/**
+ * metric used in multiTenancy, collecting data during job running time
+ */
 public class MetricData implements Serializable {
 
     private static final long serialVersionUID = -3294877245954460452L;

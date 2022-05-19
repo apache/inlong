@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.transform.filter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
@@ -31,6 +32,7 @@ import java.util.List;
  * Rule mode is more recommended then script mode
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class FilterDefinition extends TransformDefinition {
 
     public FilterDefinition(FilterStrategy filterStrategy, List<FilterRule> filterRules) {

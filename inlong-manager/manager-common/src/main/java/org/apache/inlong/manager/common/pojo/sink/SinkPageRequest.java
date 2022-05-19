@@ -43,10 +43,22 @@ public class SinkPageRequest extends PageRequest {
     @ApiModelProperty(value = "Sink type, such as HIVE")
     private String sinkType;
 
-    @ApiModelProperty(value = "Key word")
-    private String keyWord;
+    @ApiModelProperty(value = "Keyword, can be group id, stream id or sink name")
+    private String keyword;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
+
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
+
+    @ApiModelProperty("Sort task name")
+    private String sortTaskName;
+
+    @ApiModelProperty("Sort consumer group")
+    private String sortConsumerGroup;
 
 }

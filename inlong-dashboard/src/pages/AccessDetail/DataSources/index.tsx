@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
@@ -35,7 +35,7 @@ type Props = CommonInterface;
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
   {
     type: 'radiobutton',
@@ -58,9 +58,9 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp: React.FC<Props> = ({ inlongGroupId }) => {
+const Comp = ({ inlongGroupId }: Props, ref) => {
   const [options, setOptions] = useState({
-    // keyWord: '',
+    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
     sourceType: 'FILE',
@@ -245,4 +245,4 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

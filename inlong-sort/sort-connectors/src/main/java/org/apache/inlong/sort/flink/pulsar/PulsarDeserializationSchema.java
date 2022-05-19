@@ -22,6 +22,9 @@ import java.io.Serializable;
 import org.apache.flink.api.java.typeutils.ResultTypeQueryable;
 import org.apache.pulsar.client.api.Message;
 
+/**
+ * Pulsar message deserialization schema
+ */
 public interface PulsarDeserializationSchema<T> extends Serializable, ResultTypeQueryable<T> {
 
     class DeserializationResult<T> {

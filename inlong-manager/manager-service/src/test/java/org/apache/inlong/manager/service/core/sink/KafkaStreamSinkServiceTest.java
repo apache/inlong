@@ -26,9 +26,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,21 +36,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1";
-    private static final String globalOperator = "test_user";
+    private static final String globalStreamId = "stream1_kafka";
+    private static final String globalOperator = "admin";
     private static final String bootstrapServers = "127.0.0.1:9092";
     private static final String serializationType = "Json";
     private static final String topicName = "kafka_topic_name";
-    private static final String sinkName = "default";
-    private static Integer kafkaSinkId;
+    // private static final String sinkName = "default";
+    // private static Integer kafkaSinkId;
 
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
-    @Before
-    public void saveSink() {
+    /**
+     * Save sink info.
+     */
+    public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         KafkaSinkRequest sinkInfo = new KafkaSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
@@ -63,24 +63,29 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setBootstrapServers(bootstrapServers);
         sinkInfo.setTopicName(topicName);
         sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-        kafkaSinkId = sinkService.save(sinkInfo, globalOperator);
+        return sinkService.save(sinkInfo, globalOperator);
     }
 
-    @After
-    public void deleteKafkaSink() {
-        boolean result = sinkService.delete(kafkaSinkId, SinkType.SINK_KAFKA, globalOperator);
+    /**
+     * Delete kafka sink info by sink id.
+     */
+    public void deleteKafkaSink(Integer kafkaSinkId) {
+        boolean result = sinkService.delete(kafkaSinkId, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        SinkResponse sink = sinkService.get(kafkaSinkId, SinkType.SINK_KAFKA);
+        Integer kafkaSinkId = this.saveSink("default1");
+        SinkResponse sink = sinkService.get(kafkaSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        deleteKafkaSink(kafkaSinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        SinkResponse response = sinkService.get(kafkaSinkId, SinkType.SINK_KAFKA);
+        Integer kafkaSinkId = this.saveSink("default2");
+        SinkResponse response = sinkService.get(kafkaSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         KafkaSinkResponse kafkaSinkResponse = (KafkaSinkResponse) response;
@@ -89,6 +94,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
         KafkaSinkRequest request = CommonBeanUtils.copyProperties(kafkaSinkResponse, KafkaSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
+        deleteKafkaSink(kafkaSinkId);
     }
 
 }

@@ -19,16 +19,12 @@ package org.apache.inlong.manager.service.sort;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.service.core.InlongGroupService;
-import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -37,9 +33,6 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.ZkTools;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.deserialization.InLongMsgCsvDeserializationInfo;
-import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +52,6 @@ public class PushSortConfigListener implements SortOperateListener {
     private ClusterBean clusterBean;
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
     @Autowired
     private StreamSinkService streamSinkService;
     @Autowired
@@ -115,38 +106,6 @@ public class PushSortConfigListener implements SortOperateListener {
         }
 
         return ListenerResult.success();
-    }
-
-    /**
-     * Get source info for DataFlowInfo
-     */
-    @Deprecated
-    private SourceInfo getSourceInfo(InlongGroupInfo groupInfo, String streamId,
-            List<StreamSinkFieldEntity> fieldList) {
-        DeserializationInfo deserializationInfo = null;
-        String groupId = groupInfo.getInlongGroupId();
-        InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-
-        boolean isDbType = Constant.DATA_SOURCE_DB.equals(streamInfo.getDataType());
-        if (!isDbType) {
-            // FILE and auto push source, the data format is TEXT or KEY-VALUE, temporarily use InLongMsgCsv
-            String dataType = streamInfo.getDataType();
-            if (Constant.DATA_TYPE_TEXT.equalsIgnoreCase(dataType)
-                    || Constant.DATA_TYPE_KEY_VALUE.equalsIgnoreCase(dataType)) {
-                // Use the field separator from the inlong stream
-                char separator = (char) Integer.parseInt(streamInfo.getDataSeparator());
-                // TODO support escape
-                /*Character escape = null;
-                if (info.getDataEscapeChar() != null) {
-                    escape = info.getDataEscapeChar().charAt(0);
-                }*/
-                // Whether to delete the first separator, the default is false for the time being
-                deserializationInfo = new InLongMsgCsvDeserializationInfo(streamId, separator);
-            }
-        }
-
-        // The number and order of the source fields must be the same as the target fields
-        return null;
     }
 
     @Override

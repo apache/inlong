@@ -34,6 +34,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Listener of light group update.
+ */
 @Slf4j
 @Component
 public class LightGroupUpdateListener implements ProcessEventListener {
@@ -52,7 +55,7 @@ public class LightGroupUpdateListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
         final String groupId = form.getGroupInfo().getInlongGroupId();
-        final String applicant = context.getApplicant();
+        final String applicant = context.getOperator();
         GroupOperateType groupOperateType = form.getGroupOperateType();
         switch (groupOperateType) {
             case SUSPEND:

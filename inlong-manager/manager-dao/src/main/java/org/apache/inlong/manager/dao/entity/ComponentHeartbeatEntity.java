@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Common heartbeat server entity, including status info and time info.
+ */
 @Data
 public class ComponentHeartbeatEntity implements Serializable {
 

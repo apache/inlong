@@ -31,6 +31,7 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.mq.util.PulsarOptService;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,7 +47,7 @@ import java.util.List;
  * Create Pulsar tenant, namespace and topic
  */
 @Slf4j
-@Component()
+@Component
 public class CreatePulsarResourceTaskListener implements QueueOperateListener {
 
     @Autowired
@@ -77,7 +78,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         if (groupInfo == null) {
             throw new WorkflowListenerException("inlong group or pulsar cluster not found for groupId=" + groupId);
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
@@ -102,7 +103,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={} in cluster={}", groupId, pulsarClusterInfo);
 
-        String namespace = groupInfo.getMqResourceObj();
+        String namespace = groupInfo.getMqResource();
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty for groupId=" + groupId);
         String queueModule = groupInfo.getQueueModule();
         Preconditions.checkNotNull(queueModule, "queue module cannot be empty for groupId=" + groupId);
@@ -123,7 +124,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
                     .tenant(tenant).namespace(namespace).numPartitions(partitionNum).queueModule(queueModule).build();
 
             for (InlongStreamTopicResponse topicVO : streamTopicList) {
-                topicBean.setTopicName(topicVO.getMqResourceObj());
+                topicBean.setTopicName(topicVO.getMqResource());
                 pulsarOptService.createTopic(pulsarAdmin, topicBean);
             }
         }

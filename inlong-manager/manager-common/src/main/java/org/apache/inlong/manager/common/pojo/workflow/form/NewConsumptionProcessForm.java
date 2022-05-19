@@ -51,7 +51,7 @@ public class NewConsumptionProcessForm extends BaseProcessForm {
 
     @Override
     public String getInlongGroupId() {
-        return consumptionInfo.getConsumerGroupId();
+        return consumptionInfo.getConsumerGroup();
     }
 
     @Override

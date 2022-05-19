@@ -41,14 +41,14 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
         'inlongStreamId',
         'name',
         'description',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-            </Divider>
-          ),
-        },
-        'dataSourceType',
+        // {
+        //   type: (
+        //     <Divider orientation="left">
+        //       {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
+        //     </Divider>
+        //   ),
+        // },
+        // 'dataSourceType',
         // 'hasHigher',
         // 'isHybridSource',
         // 'isTableMapping',

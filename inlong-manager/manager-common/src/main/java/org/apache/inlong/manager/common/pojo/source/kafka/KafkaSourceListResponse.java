@@ -46,9 +46,6 @@ public class KafkaSourceListResponse extends SourceListResponse {
     @ApiModelProperty("Limit the number of bytes read per second")
     private String byteSpeedLimit;
 
-    @ApiModelProperty("Data Serialization, support: json, canal, avro, etc")
-    private String serializationType = "none";
-
     @ApiModelProperty(value = "Topic partition offset",
             notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
     private String topicPartitionOffset;
@@ -56,5 +53,8 @@ public class KafkaSourceListResponse extends SourceListResponse {
     @ApiModelProperty(value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")
     private String autoOffsetReset;
+
+    @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
+    private String primaryKey;
 
 }

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
@@ -75,8 +76,8 @@ public class ExtractNodeUtils {
     /**
      * Create MySqlExtractNode based on BinlogSourceResponse
      *
-     * @param binlogSourceResponse
-     * @return
+     * @param binlogSourceResponse binlog source response info
+     * @return MySql extract node info
      */
     public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
         final String id = binlogSourceResponse.getSourceName();
@@ -92,14 +93,14 @@ public class ExtractNodeUtils {
             serverId = binlogSourceResponse.getServerId();
         }
         String tables = binlogSourceResponse.getTableWhiteList();
-        List<String> tableNames = Splitter.on(",").splitToList(tables);
-        List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+        final List<String> tableNames = Splitter.on(",").splitToList(tables);
+        final List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        final String serverTimeZone = binlogSourceResponse.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
-        
+
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
         if (binlogSourceResponse.isAllMigration()) {
@@ -108,6 +109,10 @@ public class ExtractNodeUtils {
             properties.put("migrate-all", "true");
         }
         properties.put("append-mode", "true");
+        if (StringUtils.isEmpty(primaryKey)) {
+            incrementalSnapshotEnabled = false;
+            properties.put("scan.incremental.snapshot.enabled", "false");
+        }
         return new MySqlExtractNode(id,
                 name,
                 fieldInfos,
@@ -128,8 +133,8 @@ public class ExtractNodeUtils {
     /**
      * Create KafkaExtractNode based KafkaSourceResponse
      *
-     * @param kafkaSourceResponse
-     * @return
+     * @param kafkaSourceResponse kafka source response
+     * @return kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
         String id = kafkaSourceResponse.getSourceName();
@@ -171,6 +176,8 @@ public class ExtractNodeUtils {
             default:
                 startupMode = ScanStartupMode.LATEST_OFFSET;
         }
+        final String primaryKey = kafkaSourceResponse.getPrimaryKey();
+        String groupId = kafkaSourceResponse.getGroupId();
 
         return new KafkaExtractNode(id,
                 name,
@@ -181,6 +188,7 @@ public class ExtractNodeUtils {
                 bootstrapServers,
                 format,
                 startupMode,
-                null);
+                primaryKey,
+                groupId);
     }
 }

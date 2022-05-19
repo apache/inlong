@@ -20,12 +20,14 @@ package org.apache.inlong.tubemq.manager.controller.node.request;
 import java.util.List;
 
 import lombok.Data;
+import org.apache.inlong.tubemq.manager.service.tube.BrokerConf;
 
 @Data
 public class CloneBrokersReq {
     private Integer sourceBrokerId;
     private List<String> targetIps;
     private List<AddTopicReq> addTopicReqs;
+    private BrokerConf sourceBroker;
     private String confModAuthToken;
     private String createUser;
     private int clusterId;

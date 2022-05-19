@@ -18,12 +18,16 @@
 package org.apache.inlong.manager.common.pojo.stream;
 
 import com.google.common.collect.Sets;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Stream node, including data node name, pre node name, post node name, field list.
+ */
 @Data
 public class StreamNode {
 
@@ -32,6 +36,9 @@ public class StreamNode {
     protected Set<String> postNodes;
 
     protected List<StreamField> fields;
+
+    @ApiModelProperty("Data node name")
+    protected String dataNodeName;
 
     public void addPre(String pre) {
         Preconditions.checkNotEmpty(pre, "Pre node should not be empty");

@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Stream source entity, including source type, source name, etc.
+ */
 @Data
 public class StreamSourceEntity implements Serializable {
 
@@ -34,7 +37,7 @@ public class StreamSourceEntity implements Serializable {
     private String agentIp;
     private String uuid;
 
-    private Integer serverId;
+    private String dataNodeName;
     private Integer clusterId;
     private String serializationType;
     private String snapshot;

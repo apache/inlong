@@ -22,30 +22,32 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Inlong stream entity, including inlong stream id, inlong group id, etc.
+ */
 @Data
 public class InlongStreamEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String inlongStreamId;
     private String inlongGroupId;
+    private String inlongStreamId;
     private String name;
     private String description;
-    private String mqResourceObj;
-    private String dataSourceType;
-    private Integer storagePeriod;
+    private String mqResource;
+
     private String dataType;
     private String dataEncoding;
     private String dataSeparator;
     private String dataEscapeChar;
-    private Integer havePredefinedFields;
     private Integer syncSend;
 
     private Integer dailyRecords;
     private Integer dailyStorage;
     private Integer peakRecords;
     private Integer maxLength;
-    private String inCharges;
+    private Integer storagePeriod;
+    private String extParams;
 
     private Integer status;
     private Integer previousStatus;
@@ -54,6 +56,5 @@ public class InlongStreamEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-    private String tempView;
 
 }

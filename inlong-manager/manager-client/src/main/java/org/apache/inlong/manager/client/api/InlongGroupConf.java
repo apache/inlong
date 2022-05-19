@@ -23,6 +23,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Inlong group config.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,9 +34,6 @@ public class InlongGroupConf {
 
     @ApiModelProperty(value = "Group name", required = true)
     private String groupName;
-
-    @ApiModelProperty("Chinese display name")
-    private String cnName;
 
     @ApiModelProperty("Group description")
     private String description;
@@ -56,12 +56,16 @@ public class InlongGroupConf {
     @ApiModelProperty("The operator of stream group, default : admin")
     private String operator = "admin";
 
-    @ApiModelProperty("Need zookeeper support")
-    private boolean zookeeperEnabled = true;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableZookeeper = 1;
 
-    @ApiModelProperty("Data proxy cluster id")
-    private Integer proxyClusterId;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableCreateResource = 1;
 
-    @ApiModelProperty("Use lightweight group")
-    private boolean lightweight = false;
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    private Integer lightweight = 0;
+
+    @ApiModelProperty("Inlong cluster tag")
+    private String inlongClusterTag;
+
 }

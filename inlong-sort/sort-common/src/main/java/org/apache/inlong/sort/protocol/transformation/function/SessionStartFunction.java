@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * session start for a session window function
+ */
 @JsonTypeName("sessionStart")
 @Data
 @NoArgsConstructor

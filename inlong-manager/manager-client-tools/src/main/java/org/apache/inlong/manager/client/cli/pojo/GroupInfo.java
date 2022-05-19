@@ -18,16 +18,24 @@
 package org.apache.inlong.manager.client.cli.pojo;
 
 import lombok.Data;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 
 import java.util.Date;
 
+/**
+ * Group info, including inlong group id, inlong group name, etc.
+ */
 @Data
 public class GroupInfo {
 
     private Integer id;
     private String inlongGroupId;
     private String name;
-    private String cnName;
-    private Integer status;
+    private String status;
     private Date modifyTime;
+
+    public void setStatus(String status) {
+        InlongGroupStatus groupStatus = InlongGroupStatus.parseStatusByCode(Integer.parseInt(status));
+        this.status = groupStatus.name() + " (" + status + ")";
+    }
 }

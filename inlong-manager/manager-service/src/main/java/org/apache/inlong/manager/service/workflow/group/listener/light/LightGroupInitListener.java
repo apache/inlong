@@ -36,6 +36,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Listener of light group init.
+ */
 @Slf4j
 @Component
 public class LightGroupInitListener implements ProcessEventListener {
@@ -60,7 +63,7 @@ public class LightGroupInitListener implements ProcessEventListener {
         }
         final String groupId = groupInfo.getInlongGroupId();
         final int status = GroupStatus.CONFIG_ING.getCode();
-        final String username = context.getApplicant();
+        final String username = context.getOperator();
         groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
         if (CollectionUtils.isEmpty(form.getStreamInfos())) {
             List<InlongStreamInfo> streamInfos = streamService.list(groupId);

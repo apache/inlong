@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
@@ -50,7 +50,7 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
     private GroupUpdateFailedListener groupUpdateFailedListener;
 
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -62,7 +62,7 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         process.setType("Group Resource Restart");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(UpdateGroupProcessForm.class);
+        process.setFormClass(GroupResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
@@ -75,7 +75,7 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         restartSortTask.setName("restartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
         restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(serviceTaskListenerFactory);
+        restartSortTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(restartSortTask);
 
         //restart datasource
@@ -83,7 +83,7 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         restartDataSourceTask.setName("restartSource");
         restartDataSourceTask.setDisplayName("Group-RestartSource");
         restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
+        restartDataSourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(restartDataSourceTask);
 
         // End node

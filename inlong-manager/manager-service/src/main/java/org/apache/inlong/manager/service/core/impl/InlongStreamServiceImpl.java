@@ -57,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -106,8 +107,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream id [{}] has already exists", streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_ID_DUPLICATE);
         }
-        if (StringUtils.isEmpty(request.getMqResourceObj())) {
-            request.setMqResourceObj(streamId);
+        if (StringUtils.isEmpty(request.getMqResource())) {
+            request.setMqResource(streamId);
         }
         // Processing inlong stream
         InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
@@ -164,6 +165,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     @Override
     public Boolean exist(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
         return streamEntity != null;
     }
@@ -240,7 +242,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
-        streamEntity.setStatus(GroupStatus.CONFIG_ING.getCode());
         streamMapper.updateByIdentifierSelective(streamEntity);
 
         // Update field information
@@ -517,6 +518,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean updateStatus(String groupId, String streamId, Integer status, String operator) {
         LOGGER.debug("begin to update status by groupId={}, streamId={}", groupId, streamId);
         streamMapper.updateStatusByIdentifier(groupId, streamId, status, operator);
@@ -535,7 +537,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongStreamEntity streamEntity = new InlongStreamEntity();
         streamEntity.setInlongGroupId(groupId);
         streamEntity.setInlongStreamId(topicName);
-        streamEntity.setMqResourceObj(topicName);
+        streamEntity.setMqResource(topicName);
         streamEntity.setDescription("This is DLQ / RLQ topic created by SYSTEM");
         streamEntity.setDailyRecords(1000);
         streamEntity.setDailyStorage(1000);
@@ -647,7 +649,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     /**
-     * Check that groupId, streamId, and dataSourceType are not allowed to be modified
+     * Check that groupId, streamId  are not allowed to be modified
      */
     private void checkUpdatedFields(InlongStreamEntity streamEntity, InlongStreamRequest request) {
         String newGroupId = request.getInlongGroupId();

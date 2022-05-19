@@ -25,6 +25,9 @@ import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 
 import java.util.Map;
 
+/**
+ * Interface of process plugin.
+ */
 public interface ProcessPlugin extends Plugin {
 
     default Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {

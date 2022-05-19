@@ -24,6 +24,10 @@ import java.util.Objects;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * defines where to get the data flow info from
+ * only supports zookeeper now
+ */
 public class DataFlowStorageInfo implements Serializable {
 
     private static final long serialVersionUID = -2785142086976967367L;

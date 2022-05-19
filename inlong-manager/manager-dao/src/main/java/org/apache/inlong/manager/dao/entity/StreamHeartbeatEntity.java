@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Stream heartbeat entity, inlcuding status heartbeat, component, etc.
+ */
 @Data
 public class StreamHeartbeatEntity implements Serializable {
 

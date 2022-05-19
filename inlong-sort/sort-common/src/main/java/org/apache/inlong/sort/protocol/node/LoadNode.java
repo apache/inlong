@@ -27,23 +27,32 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
+import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * node for inserting data to external system
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
-        @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad")
+        @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
+        @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
+        @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
+        @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad")
 })
 @NoArgsConstructor
 @Data
@@ -64,7 +73,10 @@ public abstract class LoadNode implements Node {
     private Integer sinkParallelism;
     @JsonProperty("filters")
     @JsonInclude(Include.NON_NULL)
-    private List<FilterFunction> filters = new ArrayList<>();
+    private List<FilterFunction> filters;
+    @JsonProperty("filterStrategy")
+    @JsonInclude(Include.NON_NULL)
+    private FilterStrategy filterStrategy;
     @Nullable
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("properties")
@@ -76,6 +88,7 @@ public abstract class LoadNode implements Node {
             @JsonProperty("fields") List<FieldInfo> fields,
             @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
             @JsonProperty("filters") List<FilterFunction> filters,
+            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties) {
         this.id = Preconditions.checkNotNull(id, "id is null");
@@ -86,6 +99,7 @@ public abstract class LoadNode implements Node {
                 "fieldRelationShips is null");
         Preconditions.checkState(!fieldRelationShips.isEmpty(), "fieldRelationShips is empty");
         this.filters = filters;
+        this.filterStrategy = filterStrategy;
         this.sinkParallelism = sinkParallelism;
         this.properties = properties;
     }

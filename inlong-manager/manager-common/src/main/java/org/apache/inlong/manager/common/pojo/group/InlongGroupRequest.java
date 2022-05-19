@@ -43,26 +43,25 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Inlong group name", required = true)
     private String name;
 
-    @ApiModelProperty(value = "Chinese display name")
-    private String cnName;
-
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 
-    @NotNull(message = "middlewareType cannot be null")
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    private String middlewareType;
+    @NotNull(message = "mqType cannot be null")
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
     @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
             + "messages; serial: single partition, low throughput, and orderly messages")
+    @Builder.Default
     private String queueModule = "parallel";
 
     @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
+    @Builder.Default
     private Integer topicPartitionNum = 3;
 
-    @ApiModelProperty(value = "MQ resource object, in inlong group",
+    @ApiModelProperty(value = "MQ resource, in inlong group",
             notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
-    private String mqResourceObj;
+    private String mqResource;
 
     @ApiModelProperty(value = "Tube master URL")
     private String tubeMaster;
@@ -73,11 +72,23 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Pulsar service URL")
     private String pulsarServiceUrl;
 
-    @ApiModelProperty(value = "Whether zookeeper enabled? 0: disabled, 1: enabled")
-    private Integer zookeeperEnabled = 0;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @Builder.Default
+    private Integer enableZookeeper = 0;
 
-    @ApiModelProperty(value = "Data type name")
-    private String schemaName;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @Builder.Default
+    private Integer enableCreateResource = 1;
+
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    @Builder.Default
+    private Integer lightweight = 1;
+
+    @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
+    private String inlongClusterTag;
+
+    @ApiModelProperty(value = "Extended params, will be saved as JSON string, such as queue_module, partition_num")
+    private String extParams;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -99,12 +110,6 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Name of creator")
     private String creator;
-
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
-
-    @ApiModelProperty(value = "data proxy cluster id")
-    private Integer proxyClusterId;
 
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;

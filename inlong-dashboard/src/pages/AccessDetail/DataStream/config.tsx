@@ -21,13 +21,12 @@ import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
-import { Storages } from '@/components/MetaData';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
-    initialValue: defaultValues.keyWord,
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
   },
 ];
 
@@ -104,15 +103,6 @@ export const genFormContent = (
         {
           type: (
             <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-            </Divider>
-          ),
-        },
-        'dataSourceType',
-        'dataSourcesConfig',
-        {
-          type: (
-            <Divider orientation="left">
               {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
             </Divider>
           ),
@@ -139,21 +129,21 @@ export const genFormContent = (
         visible: middlewareType === 'PULSAR',
       }),
     ),
-    ...genDataFields(
-      [
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
-            </Divider>
-          ),
-        },
-        'streamSink',
-        ...Storages.map(item => `streamSink${item.value}`),
-      ],
-      currentValues,
-      extraParams,
-    ),
+    // ...genDataFields(
+    //   [
+    //     {
+    //       type: (
+    //         <Divider orientation="left">
+    //           {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
+    //         </Divider>
+    //       ),
+    //     },
+    //     'streamSink',
+    //     ...Storages.map(item => `streamSink${item.value}`),
+    //   ],
+    //   currentValues,
+    //   extraParams,
+    // ),
   ].map(item => {
     if (
       (editingId === true && currentValues?.id === undefined) ||

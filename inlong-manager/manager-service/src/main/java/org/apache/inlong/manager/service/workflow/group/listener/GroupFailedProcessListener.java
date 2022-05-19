@@ -57,7 +57,7 @@ public class GroupFailedProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        String username = context.getApplicant();
+        String username = context.getOperator();
 
         // Update inlong group status
         groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), username);

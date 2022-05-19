@@ -19,15 +19,17 @@ package org.apache.inlong.tubemq.corerpc.netty;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
+
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ssl.SSLEngine;
+
 import org.apache.inlong.tubemq.corebase.cluster.NodeAddrInfo;
 import org.apache.inlong.tubemq.corerpc.RpcConfig;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
@@ -217,7 +220,7 @@ public class NettyClientFactory implements ClientFactory {
      * @param addressInfo        the remote address information
      * @param connectTimeout     the connection timeout
      * @param conf               the configure information
-     * @return                   the client object
+     * @return the client object
      * @throws Exception         the exception while creating object.
      */
     private Client createClient(final NodeAddrInfo addressInfo,
@@ -232,18 +235,14 @@ public class NettyClientFactory implements ClientFactory {
         clientBootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
 
         int nettyWriteHighMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, -1);
+                conf.getInt(RpcConstants.NETTY_WRITE_HIGH_MARK, 64 * 1024);
         int nettyWriteLowMark =
-                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, -1);
-        if (nettyWriteHighMark > 0) {
-            clientBootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, nettyWriteHighMark);
-        }
-        if (nettyWriteLowMark > 0) {
-            clientBootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, nettyWriteLowMark);
-        }
+                conf.getInt(RpcConstants.NETTY_WRITE_LOW_MARK, 32 * 1024);
+        clientBootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                    new WriteBufferWaterMark(nettyWriteLowMark, nettyWriteHighMark));
         clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            public void initChannel(SocketChannel socketChannel)throws Exception {
+            public void initChannel(SocketChannel socketChannel) throws Exception {
                 ChannelPipeline pipeline = socketChannel.pipeline();
                 if (enableTLS) {
                     try {

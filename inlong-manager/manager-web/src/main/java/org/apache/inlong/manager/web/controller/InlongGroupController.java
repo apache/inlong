@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongGroupService;
-import org.apache.inlong.manager.service.core.impl.InlongGroupProcessOperation;
+import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;

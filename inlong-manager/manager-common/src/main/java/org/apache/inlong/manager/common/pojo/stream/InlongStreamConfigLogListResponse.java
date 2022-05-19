@@ -23,6 +23,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * Inlong stream config log list response.
+ */
 @Data
 @ApiModel("Inlong stream config log query response")
 public class InlongStreamConfigLogListResponse {

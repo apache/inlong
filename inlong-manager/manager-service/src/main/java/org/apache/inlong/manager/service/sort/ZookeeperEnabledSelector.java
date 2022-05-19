@@ -24,13 +24,11 @@ import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessF
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
-import org.springframework.stereotype.Component;
 
 /**
  * Event selector for whether ZooKeeper is enabled.
  */
 @Slf4j
-@Component
 public class ZookeeperEnabledSelector implements EventSelector {
 
     @Override
@@ -45,7 +43,7 @@ public class ZookeeperEnabledSelector implements EventSelector {
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
         boolean enable =
-                groupInfo.getZookeeperEnabled() == 1 && MQType.forType(groupInfo.getMiddlewareType()) != MQType.NONE;
+                groupInfo.getEnableZookeeper() == 1 && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
         log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
         return enable;
     }

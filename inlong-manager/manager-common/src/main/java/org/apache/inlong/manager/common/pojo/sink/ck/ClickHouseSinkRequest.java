@@ -73,4 +73,16 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
+    @ApiModelProperty("table engine, support MergeTree Mem and so on")
+    private String engine;
+
+    @ApiModelProperty("Table Partiion information")
+    private String partitionBy;
+
+    @ApiModelProperty("Table order information")
+    private String orderBy;
+
+    @ApiModelProperty("Table primary key")
+    private String primaryKey;
+
 }

@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -47,8 +47,8 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        UpdateGroupProcessForm form = (UpdateGroupProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+        String operator = context.getOperator();
         GroupOperateType groupOperateType = form.getGroupOperateType();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         Integer nextStatus;
@@ -67,8 +67,8 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
                         String.format("Unsupported operation=%s for Inlong group", groupOperateType));
         }
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, operator);
+        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

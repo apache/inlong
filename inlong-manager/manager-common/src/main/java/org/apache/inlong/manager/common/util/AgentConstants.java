@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.util;
 
+/**
+ * Agent constants.
+ */
 public class AgentConstants {
     public static String NAME = "name";
     public static String IP = "ip";

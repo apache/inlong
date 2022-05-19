@@ -31,6 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Audit service test for {@link AuditService}
+ */
 public class AuditServiceTest extends ServiceBaseTest {
 
     @Autowired

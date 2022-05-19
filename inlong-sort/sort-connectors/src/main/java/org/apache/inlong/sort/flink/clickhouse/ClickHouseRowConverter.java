@@ -49,6 +49,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Map;
 
+/**
+ * set fields in a PreparedStatement from flink row data
+ */
 public class ClickHouseRowConverter {
 
     public static void setRow(

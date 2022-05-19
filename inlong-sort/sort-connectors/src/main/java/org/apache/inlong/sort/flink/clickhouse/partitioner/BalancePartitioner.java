@@ -21,6 +21,10 @@ package org.apache.inlong.sort.flink.clickhouse.partitioner;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.types.Row;
 
+/**
+ * balance partitioner for clickhouse shard selection
+ * also named as round robin selection
+ */
 public class BalancePartitioner implements ClickHousePartitioner {
 
     private static final long serialVersionUID = 1L;

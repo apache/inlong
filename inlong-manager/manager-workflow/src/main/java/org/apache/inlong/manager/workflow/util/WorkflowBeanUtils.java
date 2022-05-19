@@ -54,7 +54,7 @@ public class WorkflowBeanUtils {
         }
 
         return new WorkflowContext().setProcess(process)
-                .setApplicant(processEntity.getApplicant())
+                .setOperator(processEntity.getApplicant())
                 .setProcessForm(processForm)
                 .setProcessEntity(processEntity);
     }

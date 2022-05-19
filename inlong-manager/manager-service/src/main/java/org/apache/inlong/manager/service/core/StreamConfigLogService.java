@@ -22,10 +22,25 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 
+/**
+ * Stream config log service.
+ */
 public interface StreamConfigLogService {
 
+    /**
+     * Report config log.
+     *
+     * @param request request condition.
+     * @return whether succeed info.
+     */
     String reportConfigLog(InlongStreamConfigLogRequest request);
 
+    /**
+     * Query inlong stream config log list based on conditions
+     *
+     * @param request Inlong stream config log paging query request
+     * @return Inlong stream config log paging list
+     */
     PageInfo<InlongStreamConfigLogListResponse> listByCondition(
             InlongStreamConfigLogPageRequest request);
 

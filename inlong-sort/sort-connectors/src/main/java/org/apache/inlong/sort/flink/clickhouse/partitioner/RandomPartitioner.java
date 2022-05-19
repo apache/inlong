@@ -23,6 +23,9 @@ import org.apache.flink.types.Row;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * random partitioner using ThreadLocalRandom
+ */
 public class RandomPartitioner implements ClickHousePartitioner {
 
     private static final long serialVersionUID = 1L;

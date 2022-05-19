@@ -36,6 +36,9 @@ import org.apache.inlong.manager.dao.mapper.OperationLogEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Operation log thread pool
+ */
 @Slf4j
 @Component
 public class OperationLogPool {

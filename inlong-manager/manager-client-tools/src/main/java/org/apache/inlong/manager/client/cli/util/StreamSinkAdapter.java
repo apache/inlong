@@ -31,6 +31,9 @@ import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.lang.reflect.Type;
 
+/**
+ * Stream sink adapter.
+ */
 public class StreamSinkAdapter implements JsonDeserializer {
 
     @Override

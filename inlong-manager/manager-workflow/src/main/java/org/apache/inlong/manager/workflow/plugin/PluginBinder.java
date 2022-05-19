@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.workflow.plugin;
 
+/**
+ * Interface of plugin binder.
+ */
 public interface PluginBinder {
 
     void acceptPlugin(Plugin plugin);

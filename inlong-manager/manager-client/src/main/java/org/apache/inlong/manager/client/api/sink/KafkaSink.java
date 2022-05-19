@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.enums.SinkType;
 
 import java.util.List;
 
+/**
+ * Kafka sink.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

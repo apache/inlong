@@ -24,7 +24,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * Response of the source list
+ * Response info of the source list
  */
 @Data
 public class SourceListResponse {
@@ -45,10 +45,10 @@ public class SourceListResponse {
     private String sourceName;
 
     @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
-    private String serializationType;
+    private String serializationType = "none";
 
-    @ApiModelProperty("Id of the source server")
-    private Integer serverId;
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;

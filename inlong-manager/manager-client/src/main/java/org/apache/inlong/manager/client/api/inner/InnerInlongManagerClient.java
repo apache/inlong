@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupState;
+import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
@@ -105,26 +106,27 @@ public class InnerInlongManagerClient {
     }
 
     public boolean isGroupExists(String inlongGroupId) {
-        if (StringUtils.isEmpty(inlongGroupId)) {
-            throw new IllegalArgumentException("InlongGroupId should not be empty");
-        }
+        AssertUtil.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
+
         String path = HTTP_PATH + "/group/exist/" + inlongGroupId;
         final String url = formatUrl(path);
-        Request request = new Request.Builder().get()
+        Request request = new Request.Builder()
+                .get()
                 .url(url)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
-            if (responseBody.getErrMsg() != null) {
+
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
+            if (!responseBody.isSuccess()) {
                 throw new RuntimeException(responseBody.getErrMsg());
             }
-            return Boolean.parseBoolean(responseBody.getData().toString());
+
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group check exists failed: %s", e.getMessage()), e);
         }
@@ -136,13 +138,13 @@ public class InnerInlongManagerClient {
         }
         String path = HTTP_PATH + "/group/get/" + inlongGroupId;
         final String url = formatUrl(path);
-        Request request = new Request.Builder().get()
+        Request request = new Request.Builder()
+                .get()
                 .url(url)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
@@ -165,23 +167,24 @@ public class InnerInlongManagerClient {
         if (pageNum <= 0) {
             pageNum = 1;
         }
-        JSONObject groupQuery = new JSONObject();
-        groupQuery.put("keyWord", keyword);
+
+        ObjectNode groupQuery = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        groupQuery.put("keyword", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
         groupQuery.put("pageSize", pageSize);
-        String operationData = GsonUtil.toJson(groupQuery);
+        String operationData = groupQuery.toString();
+
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
         String path = HTTP_PATH + "/group/list";
         final String url = formatUrl(path);
-        Request request = new Request.Builder().get()
+        Request request = new Request.Builder()
                 .url(url)
-                .method("POST", requestBody)
+                .post(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
@@ -198,32 +201,33 @@ public class InnerInlongManagerClient {
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group get failed: %s", e.getMessage()), e);
         }
+
     }
 
     /**
-     * List inlong group
+     * List inlong group by the page request
      *
-     * @param inlongGroupRequest The inlongGroupRequest
+     * @param pageRequest The pageRequest
      * @return Response encapsulate of inlong group list
      */
-    public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest inlongGroupRequest)
-            throws Exception {
-        String requestParams = GsonUtil.toJson(inlongGroupRequest);
+    public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest pageRequest) throws Exception {
+        String requestParams = GsonUtil.toJson(pageRequest);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
         String path = HTTP_PATH + "/group/list";
         final String url = formatUrl(path);
-        Request request = new Request.Builder().get()
+        Request request = new Request.Builder()
                 .url(url)
-                .method("POST", requestBody)
+                .post(requestBody)
                 .build();
         Call call = httpClient.newCall(request);
-        okhttp3.Response response = call.execute();
-        assert response.body() != null;
-        String body = response.body().string();
-        assertHttpSuccess(response, body, path);
-        return JsonUtils.parse(body,
-                new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
-                });
+        try (okhttp3.Response response = call.execute()) {
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            return JsonUtils.parse(body,
+                    new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
+                    });
+        }
     }
 
     /**
@@ -236,19 +240,18 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", bizBody)
+                .post(bizBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<String> responseBody = InlongParser.parseResponse(String.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return responseBody.getData().toString();
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("inlong group save failed: %s", e.getMessage()), e);
         }
@@ -266,53 +269,70 @@ public class InnerInlongManagerClient {
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", groupBody)
+                .post(groupBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
-            return Pair.of(responseBody.getData().toString(), responseBody.getErrMsg());
+            Response<String> responseBody = InlongParser.parseResponse(String.class, body);
+            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group update failed: %s", e.getMessage()), e);
         }
     }
 
-    public String createStreamInfo(InlongStreamInfo streamInfo) {
+    public Double createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
         final String stream = GsonUtil.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", streamBody)
+                .post(streamBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return responseBody.getData().toString();
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong stream save failed: %s", e.getMessage()), e);
         }
     }
 
-    public Pair<Boolean, InlongStreamInfo> isStreamExists(InlongStreamInfo streamInfo) {
-        InlongStreamInfo currentStreamInfo = getStreamInfo(streamInfo);
-        if (currentStreamInfo != null) {
-            return Pair.of(true, currentStreamInfo);
-        } else {
-            return Pair.of(false, null);
+    public Boolean isStreamExists(InlongStreamInfo streamInfo) {
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        AssertUtil.notEmpty(groupId, "InlongGroupId should not be empty");
+        AssertUtil.notEmpty(streamId, "InlongStreamId should not be empty");
+        String path = HTTP_PATH + "/stream/exist/" + groupId + "/" + streamId;
+        final String url = formatUrl(path);
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
+
+        try (okhttp3.Response response = httpClient.newCall(request).execute()) {
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
+            if (!responseBody.isSuccess()) {
+                throw new RuntimeException(responseBody.getErrMsg());
+            }
+
+            return responseBody.getData();
+        } catch (Exception e) {
+            log.error("Inlong stream check exists failed", e);
+            throw new RuntimeException(String.format("Inlong stream check exists failed: %s", e.getMessage()), e);
         }
     }
 
@@ -324,18 +344,18 @@ public class InnerInlongManagerClient {
         final String stream = GsonUtil.toJson(streamInfo);
         RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), stream);
         Request request = new Request.Builder()
-                .method("POST", bizBody)
+                .post(bizBody)
                 .url(url)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
+            assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             if (responseBody.getData() != null) {
-                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+                return Pair.of(responseBody.getData(), responseBody.getErrMsg());
             } else {
                 return Pair.of(false, responseBody.getErrMsg());
             }
@@ -353,8 +373,8 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
+            assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
@@ -385,8 +405,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
@@ -399,26 +418,25 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public String createSource(SourceRequest sourceRequest) {
+    public Double createSource(SourceRequest sourceRequest) {
         String path = HTTP_PATH + "/source/save";
         final String source = GsonUtil.toJson(sourceRequest);
         final RequestBody sourceBody = RequestBody.create(MediaType.parse("application/json"), source);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", sourceBody)
+                .post(sourceBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return responseBody.getData().toString();
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong source save failed: %s", e.getMessage()), e);
         }
@@ -440,8 +458,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
@@ -461,18 +478,17 @@ public class InnerInlongManagerClient {
         final String storage = GsonUtil.toJson(sourceRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
         Request request = new Request.Builder()
-                .method("POST", storageBody)
+                .post(storageBody)
                 .url(url)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             if (responseBody.getData() != null) {
-                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+                return Pair.of(responseBody.getData(), responseBody.getErrMsg());
             } else {
                 return Pair.of(false, responseBody.getErrMsg());
             }
@@ -481,26 +497,50 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public String createTransform(TransformRequest transformRequest) {
+    public boolean deleteSource(int id) {
+        AssertUtil.isTrue(id > 0, "sourceId is illegal");
+        final String path = HTTP_PATH + "/source/delete/" + id;
+        String url = formatUrl(path);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .delete(requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try (okhttp3.Response response = call.execute()) {
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return responseBody.getData();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong source delete failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public Double createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
         final String sink = GsonUtil.toJson(transformRequest);
         final RequestBody transformBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", transformBody)
+                .post(transformBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return responseBody.getData().toString();
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong transform save failed: %s", e.getMessage()), e);
         }
@@ -539,13 +579,12 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             if (responseBody.getData() != null) {
-                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+                return Pair.of(responseBody.getData(), responseBody.getErrMsg());
             } else {
                 return Pair.of(false, responseBody.getErrMsg());
             }
@@ -567,47 +606,70 @@ public class InnerInlongManagerClient {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)
-                .method("DELETE", requestBody)
+                .delete(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return Boolean.parseBoolean(responseBody.getData().toString());
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(
                     String.format("Inlong transform delete failed: %s", e.getMessage()), e);
         }
     }
 
-    public String createSink(SinkRequest sinkRequest) {
+    public Double createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
         final String sink = GsonUtil.toJson(sinkRequest);
         final RequestBody sinkBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", sinkBody)
+                .post(sinkBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return responseBody.getData().toString();
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong sink save failed: %s", e.getMessage()), e);
+        }
+    }
+
+    public boolean deleteSink(int id) {
+        AssertUtil.isTrue(id > 0, "sinkId is illegal");
+        final String path = HTTP_PATH + "/sink/delete/" + id;
+        String url = formatUrl(path);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
+        Request request = new Request.Builder()
+                .url(url)
+                .delete(requestBody)
+                .build();
+
+        Call call = httpClient.newCall(request);
+        try (okhttp3.Response response = call.execute()) {
+            assert response.body() != null;
+            String body = response.body().string();
+            assertHttpSuccess(response, body, path);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
+            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+                    String.format("Inlong request failed: %s", responseBody.getErrMsg()));
+            return responseBody.getData();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    String.format("Inlong sink delete failed: %s", e.getMessage()), e);
         }
     }
 
@@ -627,8 +689,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
@@ -648,18 +709,17 @@ public class InnerInlongManagerClient {
         final String storage = GsonUtil.toJson(sinkRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
         Request request = new Request.Builder()
-                .method("POST", storageBody)
+                .post(storageBody)
                 .url(url)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             if (responseBody.getData() != null) {
-                return Pair.of(Boolean.valueOf(responseBody.getData().toString()), responseBody.getErrMsg());
+                return Pair.of(responseBody.getData(), responseBody.getErrMsg());
             } else {
                 return Pair.of(false, responseBody.getErrMsg());
             }
@@ -676,19 +736,18 @@ public class InnerInlongManagerClient {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", requestBody)
+                .post(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<WorkflowResult> responseBody = InlongParser.parseResponse(WorkflowResult.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return InlongParser.parseWorkflowResult(responseBody);
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group init failed: %s", e.getMessage()),
                     e);
@@ -698,52 +757,55 @@ public class InnerInlongManagerClient {
     public WorkflowResult startInlongGroup(int taskId,
             Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
 
-        JSONObject workflowTaskOperation = new JSONObject();
-        workflowTaskOperation.put("transferTo", Lists.newArrayList());
+        ObjectMapper objectMapper = JsonUtils.OBJECT_MAPPER;
+        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
-        JSONObject inlongGroupApproveForm = new JSONObject();
-        inlongGroupApproveForm.put("groupApproveInfo", initMsg.getKey());
-        inlongGroupApproveForm.put("streamApproveInfoList", initMsg.getValue());
+
+        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", initMsg.getKey());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", initMsg.getValue());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
-        workflowTaskOperation.put("form", inlongGroupApproveForm);
-        String operationData = GsonUtil.toJson(workflowTaskOperation);
+        workflowTaskOperation.set("form", inlongGroupApproveForm);
+
+        String operationData = workflowTaskOperation.toString();
+
         final String path = HTTP_PATH + "/workflow/approve/" + taskId;
         final String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", requestBody)
+                .post(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<WorkflowResult> responseBody = InlongParser.parseResponse(WorkflowResult.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return InlongParser.parseWorkflowResult(responseBody);
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(String.format("Inlong group start failed: %s", e.getMessage()),
                     e);
         }
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupState status) {
+    public boolean operateInlongGroup(String groupId, InlongGroupStatus status) {
         return operateInlongGroup(groupId, status, false);
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupState status, boolean async) {
+    public boolean operateInlongGroup(String groupId, InlongGroupStatus status, boolean async) {
         String path = HTTP_PATH;
-        if (status == InlongGroupState.STOPPED) {
+        if (status == InlongGroupStatus.STOPPED) {
             if (async) {
                 path += "/group/suspendProcessAsync/";
             } else {
                 path += "/group/suspendProcess/";
             }
-        } else if (status == InlongGroupState.STARTED) {
+        } else if (status == InlongGroupStatus.STARTED) {
             if (async) {
                 path += "/group/restartProcessAsync/";
             } else {
@@ -757,12 +819,11 @@ public class InnerInlongManagerClient {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)
-                .method("POST", requestBody)
+                .post(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
@@ -790,19 +851,18 @@ public class InnerInlongManagerClient {
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
         Request request = new Request.Builder()
                 .url(url)
-                .method("DELETE", requestBody)
+                .delete(requestBody)
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            Response responseBody = InlongParser.parseResponse(body);
+            Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
             AssertUtil.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
-            return Boolean.parseBoolean(responseBody.getData().toString());
+            return responseBody.getData();
         } catch (Exception e) {
             throw new RuntimeException(
                     String.format("Inlong group delete failed: %s", e.getMessage()), e);
@@ -822,8 +882,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
@@ -850,8 +909,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Call call = httpClient.newCall(request);
-        try {
-            okhttp3.Response response = call.execute();
+        try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);

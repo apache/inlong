@@ -21,7 +21,6 @@ export interface CommonInterface {
   inlongGroupId: string;
   middlewareType: 'TUBE' | 'PULSAR';
   readonly?: boolean;
-  isActive?: boolean;
-  // extraRef of Tab
-  extraRef?: React.RefObject<HTMLDivElement>;
+  isCreate?: boolean;
+  ref?: React.RefObject<unknown>;
 }

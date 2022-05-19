@@ -31,12 +31,10 @@ import java.util.List;
  */
 public class ManagerResultFormatter {
 
+    public static final String SUCCESS_CODE = "true";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerResultFormatter.class);
-
     private static final String RESULT_CODE = "success";
     private static final String RESULT_DATA = "data";
-    public static final String SUCCESS_CODE = "true";
-
     private static final Gson GSON = new Gson();
 
     /**
@@ -58,8 +56,8 @@ public class ManagerResultFormatter {
     /**
      * get random list of base list.
      *
-     * @param baseList - base list
-     * @param num - max Num
+     * @param baseList base list
+     * @param num max Num
      * @return random list
      */
     public static <T> List<T> getRandomList(List<T> baseList, int num) {

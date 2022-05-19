@@ -76,7 +76,7 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
                 "topic", "localhost:9092", new JsonFormat(),
                 1, null, "id");
     }
@@ -97,7 +97,7 @@ public class StreamInfoTest extends SerializeBaseTest<StreamInfo> {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new HiveLoadNode("2", "hive_output", fields, relations, null,
+        return new HiveLoadNode("2", "hive_output", fields, relations, null, null,
                 1, null, "myHive", "default", "test", "/opt/hive-conf", "3.1.2",
                 null, Arrays.asList(new FieldInfo("day", new LongFormatInfo())));
     }

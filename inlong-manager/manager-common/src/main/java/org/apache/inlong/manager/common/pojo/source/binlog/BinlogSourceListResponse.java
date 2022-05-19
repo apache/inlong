@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
- * Response of binlog source list
+ * Response info of binlog source list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -42,6 +42,9 @@ public class BinlogSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Exposed port of the DB server")
     private int port;
+
+    @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
+    private Integer serverId = 0;
 
     @ApiModelProperty("Whether include schema, default is 'false'")
     private String includeSchema;

@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.conversion;
 
+/**
+ * Convert TB to TB.
+ */
 public class TBToMB implements ConversionStrategy {
 
     @Override

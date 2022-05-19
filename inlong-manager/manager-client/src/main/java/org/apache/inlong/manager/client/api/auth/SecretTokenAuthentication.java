@@ -17,13 +17,17 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
+/**
+ * Secret token authentication.
+ */
 @NoArgsConstructor
 public class SecretTokenAuthentication extends SecretAuthentication {
 
@@ -52,11 +56,11 @@ public class SecretTokenAuthentication extends SecretAuthentication {
     @SneakyThrows
     @Override
     public String toString() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(SECRET_ID, this.getSecretId());
-        jsonObject.put(SECRET_KEY, this.getSecretKey());
-        jsonObject.put(SECRET_TOKEN, this.getSToken());
-        return jsonObject.toString();
+        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        objectNode.put(SECRET_ID, this.getSecretId());
+        objectNode.put(SECRET_KEY, this.getSecretKey());
+        objectNode.put(SECRET_TOKEN, this.getSToken());
+        return objectNode.toString();
     }
 
 }

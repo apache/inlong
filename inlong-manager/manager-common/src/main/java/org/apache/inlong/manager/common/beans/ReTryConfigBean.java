@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.beans;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+/**
+ * Re try config bean, including max attempts, delay, max delay, multiplier.
+ */
 @Data
 @Component
 public class ReTryConfigBean {

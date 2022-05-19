@@ -17,8 +17,6 @@
 
 package org.apache.inlong.agent.core.job;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.task.Task;
@@ -28,6 +26,9 @@ import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * job meta definition, job will be split into several tasks.
@@ -47,7 +48,7 @@ public class Job {
         this.jobConf = jobConf;
         this.name = jobConf.get(JobConstants.JOB_NAME, JobConstants.DEFAULT_JOB_NAME);
         this.description = jobConf.get(
-            JobConstants.JOB_DESCRIPTION, JobConstants.DEFAULT_JOB_DESCRIPTION);
+                JobConstants.JOB_DESCRIPTION, JobConstants.DEFAULT_JOB_DESCRIPTION);
         this.jobInstanceId = jobConf.get(JobConstants.JOB_INSTANCE_ID);
     }
 
@@ -75,14 +76,19 @@ public class Job {
         this.jobInstanceId = jobInstanceId;
     }
 
+    /**
+     * split a job into multi tasks, each task has its own reader, writer and channel
+     *
+     * @return taskList
+     */
     public List<Task> createTasks() {
         List<Task> taskList = new ArrayList<>();
         int index = 0;
         try {
             LOGGER.info("job id: {}, source: {}, channel: {}, sink: {}",
-                getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE_CLASS),
-                jobConf.get(JobConstants.JOB_CHANNEL),
-                jobConf.get(JobConstants.JOB_SINK));
+                    getJobInstanceId(), jobConf.get(JobConstants.JOB_SOURCE_CLASS),
+                    jobConf.get(JobConstants.JOB_CHANNEL),
+                    jobConf.get(JobConstants.JOB_SINK));
             Source source = (Source) Class.forName(jobConf.get(JobConstants.JOB_SOURCE_CLASS)).newInstance();
             for (Reader reader : source.split(jobConf)) {
                 Sink writer = (Sink) Class.forName(jobConf.get(JobConstants.JOB_SINK)).newInstance();

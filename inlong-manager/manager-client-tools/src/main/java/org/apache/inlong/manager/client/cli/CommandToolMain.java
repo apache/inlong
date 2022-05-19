@@ -20,11 +20,13 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Command tool main.
+ */
 public class CommandToolMain {
 
     protected final Map<String, Class<?>> commandMap = new HashMap<>();
@@ -45,13 +47,7 @@ public class CommandToolMain {
         for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
             try {
                 jcommander.addCommand(cmd.getKey(), cmd.getValue().getConstructor().newInstance());
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

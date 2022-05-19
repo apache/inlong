@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.workflow.group.light;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupUpdateCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupUpdateFailedListener;
@@ -47,7 +47,7 @@ public class RestartLightGroupWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private LightGroupUpdateFailedListener lightGroupUpdateFailedListener;
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -72,7 +72,7 @@ public class RestartLightGroupWorkflowDefinition implements WorkflowDefinition {
         restartSortTask.setName("restartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
         restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(serviceTaskListenerFactory);
+        restartSortTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(restartSortTask);
 
         // End node

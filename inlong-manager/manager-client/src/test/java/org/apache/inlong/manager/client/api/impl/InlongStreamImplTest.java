@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
@@ -28,6 +27,7 @@ import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
+import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.FilterStrategy;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
@@ -37,11 +37,14 @@ import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test class for creat inlong stream.
+ */
 public class InlongStreamImplTest {
 
     @Test
     public void testCreatePipeline() {
-        InlongStream inlongStream = new InlongStreamImpl();
+        InlongStream inlongStream = new InlongStreamImpl("group", "stream", null);
         // add stream source
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName("A");

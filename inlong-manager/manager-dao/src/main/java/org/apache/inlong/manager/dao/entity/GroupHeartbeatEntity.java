@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Group heartbeat entity.
+ */
 @Data
 public class GroupHeartbeatEntity implements Serializable {
 

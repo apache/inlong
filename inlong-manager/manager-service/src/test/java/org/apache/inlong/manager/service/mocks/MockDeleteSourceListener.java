@@ -22,6 +22,9 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
+/**
+ * Test class for listen delete source event.
+ */
 public class MockDeleteSourceListener implements DataSourceOperateListener {
 
     @Override

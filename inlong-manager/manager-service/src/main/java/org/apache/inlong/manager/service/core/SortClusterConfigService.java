@@ -28,6 +28,7 @@ public interface SortClusterConfigService {
 
     /**
      * Select list of task by cluster name.
+     *
      * @param clusterName Name of sort cluster.
      * @return List of tasks, including task name and sink type.
      */

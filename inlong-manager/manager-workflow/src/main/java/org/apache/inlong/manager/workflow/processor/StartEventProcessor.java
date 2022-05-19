@@ -54,7 +54,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
 
     @Override
     public void create(StartEvent startEvent, WorkflowContext context) {
-        String applicant = context.getApplicant();
+        String applicant = context.getOperator();
         WorkflowProcess process = context.getProcess();
         ProcessForm form = context.getProcessForm();
         if (process.getFormClass() != null) {

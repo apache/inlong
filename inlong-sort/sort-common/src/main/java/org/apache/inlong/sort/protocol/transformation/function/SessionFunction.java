@@ -32,6 +32,14 @@ import org.apache.inlong.sort.protocol.transformation.TimeUnitConstantParam;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The sliding windows assigner assigns elements to windows of fixed length.
+ * Similar to a tumbling windows assigner, the size of the windows is configured
+ * by the window size parameter. An additional window slide parameter
+ * controls how frequently a sliding window is started. Hence,
+ * sliding windows can be overlapping if the slide is smaller than the window size.
+ * In this case elements are assigned to multiple windows.
+ */
 @JsonTypeName("session")
 @Data
 @NoArgsConstructor

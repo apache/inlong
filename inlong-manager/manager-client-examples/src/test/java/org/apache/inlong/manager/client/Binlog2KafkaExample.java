@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import org.apache.inlong.manager.client.api.InlongClient;
@@ -32,16 +31,20 @@ import org.apache.inlong.manager.client.api.PulsarBaseConf;
 import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Test class for binlog to kafka.
+ */
 @Slf4j
 public class Binlog2KafkaExample {
 
@@ -150,8 +153,7 @@ public class Binlog2KafkaExample {
         InlongGroupConf inlongGroupConf = new InlongGroupConf();
         inlongGroupConf.setGroupName(GROUP_NAME);
         inlongGroupConf.setDescription(GROUP_NAME);
-        inlongGroupConf.setProxyClusterId(1);
-        //pulsar conf
+        // pulsar conf
         PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
         pulsarBaseConf.setType(MQType.PULSAR);
         inlongGroupConf.setMqBaseConf(pulsarBaseConf);
@@ -160,14 +162,20 @@ public class Binlog2KafkaExample {
         pulsarBaseConf.setNamespace("public");
         pulsarBaseConf.setEnableCreateResource(false);
         pulsarBaseConf.setTenant(tenant);
-        //flink conf
+
+        // flink conf
         FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
         inlongGroupConf.setSortBaseConf(sortBaseConf);
         sortBaseConf.setServiceUrl(FLINK_URL);
         Map<String, String> map = new HashMap<>(16);
         sortBaseConf.setProperties(map);
-        //enable zk
-        inlongGroupConf.setZookeeperEnabled(false);
+
+        // set enable zk, create resource, lightweight mode, and cluster tag
+        inlongGroupConf.setEnableZookeeper(0);
+        inlongGroupConf.setEnableCreateResource(1);
+        inlongGroupConf.setLightweight(1);
+        inlongGroupConf.setInlongClusterTag("default_cluster");
+
         inlongGroupConf.setDailyRecords(10000000L);
         inlongGroupConf.setPeakRecords(100000L);
         inlongGroupConf.setMaxLength(10000);
@@ -188,7 +196,7 @@ public class Binlog2KafkaExample {
 
     private MySQLBinlogSource createMysqlSource() {
         MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setDbNames(Arrays.asList("{db.name}"));
+        mySQLBinlogSource.setDbNames(Collections.singletonList("{db.name}"));
         mySQLBinlogSource.setHostname("{db.url}");
         mySQLBinlogSource.setAuthentication(new DefaultAuthentication("root", "inlong"));
         mySQLBinlogSource.setSourceName("{mysql.source.name}");
@@ -204,7 +212,7 @@ public class Binlog2KafkaExample {
         kafkaSink.setNeedCreated(false);
         kafkaSink.setSinkName("{kafka.sink.name}");
         Map<String, Object> properties = new HashMap<>();
-        //Not needed if kafka cluster is not set
+        // Not needed if kafka cluster is not set
         properties.put("transaction.timeout.ms", 9000000);
         kafkaSink.setProperties(properties);
         return kafkaSink;

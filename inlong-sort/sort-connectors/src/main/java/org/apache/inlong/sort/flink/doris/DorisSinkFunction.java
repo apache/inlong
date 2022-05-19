@@ -28,6 +28,9 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.DorisSinkInfo;
 
+/**
+ * doris sink function with output format to insert data
+ */
 public class DorisSinkFunction  extends RichSinkFunction<Tuple2<Boolean, Row>> {
     private transient DorisOutputFormat outputFormat;
     private DorisSinkInfo dorisSinkInfo;

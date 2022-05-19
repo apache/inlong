@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -54,32 +55,33 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 
 import java.util.List;
 
 /**
  * Parser for Inlong entity
  */
+@UtilityClass
 public class InlongParser {
 
     public static final String GROUP_INFO = "groupInfo";
     public static final String MQ_EXT_INFO = "mqExtInfo";
-    public static final String MIDDLEWARE_TYPE = "middlewareType";
+    public static final String MQ_TYPE = "mqType";
     public static final String SINK_INFO = "sinkInfo";
     public static final String SOURCE_INFO = "sourceInfo";
     public static final String SINK_TYPE = "sinkType";
     public static final String SOURCE_TYPE = "sourceType";
 
     public static Response parseResponse(String responseBody) {
-        Response response = GsonUtil.fromJson(responseBody, Response.class);
-        return response;
+        return GsonUtil.fromJson(responseBody, Response.class);
     }
 
-    public static WorkflowResult parseWorkflowResult(Response response) {
-        Object data = response.getData();
-        String resultData = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(resultData, WorkflowResult.class);
+    public static <T> Response<T> parseResponse(Class<T> responseType, String responseBody) {
+        AssertUtil.notNull(responseType, "responseType must not be null");
+        return GsonUtil.fromJson(
+                responseBody,
+                com.google.gson.reflect.TypeToken.getParameterized(Response.class, responseType).getType()
+        );
     }
 
     public static InlongGroupResponse parseGroupInfo(Response response) {
@@ -87,8 +89,8 @@ public class InlongParser {
         JsonObject groupJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
         InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
-        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+        if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
                 inlongGroupResponse.setMqExtInfo(pulsarInfo);
@@ -248,8 +250,8 @@ public class InlongParser {
         InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
-        if (mqExtInfo != null && mqExtInfo.get(MIDDLEWARE_TYPE) != null) {
-            MQType mqType = MQType.forType(mqExtInfo.get(MIDDLEWARE_TYPE).getAsString());
+        if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
+            MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
                         InlongGroupPulsarInfo.class);

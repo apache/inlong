@@ -29,7 +29,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("Extended inlong group info of different MQs")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = InlongGroupMqExtBase.class)
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType", defaultImpl = InlongGroupMqExtBase.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = "PULSAR"),
         @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = "TDMQ_PULSAR")
@@ -45,8 +45,8 @@ public class InlongGroupMqExtBase {
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
-    @ApiModelProperty(value = "Middleware type of stream sink, high throughput: TUBE, high consistency : PULSAR")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency : PULSAR")
+    private String mqType;
 
     @ApiModelProperty(value = "Whether to create mq resource, 0: not create, 1: create; default is 1")
     private Integer enableCreateResource = 1;

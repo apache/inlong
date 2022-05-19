@@ -34,9 +34,9 @@ public class InlongGroupSettings {
     /**
      * config of pulsar
      */
-    public static final String PULSAR_ADMIN_URL = "pulsar.adminUrl";
+    public static final String PULSAR_ADMIN_URL = "pulsar_adminUrl";
 
-    public static final String PULSAR_SERVICE_URL = "pulsar.serviceUrl";
+    public static final String PULSAR_SERVICE_URL = "pulsar_serviceUrl";
 
     public static final String PULSAR_AUTHENTICATION = "pulsar.authentication";
 

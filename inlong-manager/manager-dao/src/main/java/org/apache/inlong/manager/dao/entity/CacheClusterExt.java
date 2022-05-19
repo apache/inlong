@@ -83,8 +83,6 @@ public class CacheClusterExt {
 
     /**
      * getJIsDeleted
-     * 
-     * @return
      */
     public Integer getJIsDeleted() {
         return isDeleted;
@@ -92,8 +90,6 @@ public class CacheClusterExt {
 
     /**
      * setIsDeleted
-     * 
-     * @param isDeleted
      */
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;

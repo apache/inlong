@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.transform.splitter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TransformType;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
@@ -30,6 +31,7 @@ import java.util.List;
  * A class to define operation to split fields according to SplitRule defined.
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Builder
 public class SplitterDefinition extends TransformDefinition {
 

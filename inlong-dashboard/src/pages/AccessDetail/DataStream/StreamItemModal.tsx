@@ -55,14 +55,6 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
         {
           type: (
             <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-            </Divider>
-          ),
-        },
-        'dataSourceType',
-        {
-          type: (
-            <Divider orientation="left">
               {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
             </Divider>
           ),

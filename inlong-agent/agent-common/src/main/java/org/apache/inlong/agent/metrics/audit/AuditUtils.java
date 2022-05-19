@@ -71,8 +71,6 @@ public class AuditUtils {
 
     /**
      * add
-     *
-     * @param auditID
      */
     public static void add(int auditID, String inlongGroupId, String inlongStreamId, long logTime) {
         if (!IS_AUDIT) {

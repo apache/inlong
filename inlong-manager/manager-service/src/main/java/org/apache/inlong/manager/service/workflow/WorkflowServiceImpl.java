@@ -35,6 +35,8 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -43,8 +45,6 @@ import org.apache.inlong.manager.service.workflow.WorkflowExecuteLog.TaskExecuto
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
@@ -56,7 +56,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -71,27 +70,11 @@ public class WorkflowServiceImpl implements WorkflowService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowServiceImpl.class);
 
-    private final WorkflowEngine workflowEngine;
+    @Autowired
+    private WorkflowEngine workflowEngine;
 
     @Autowired
     private WorkflowQueryService queryService;
-    @Autowired
-    private List<WorkflowDefinition> workflowDefinitions;
-
-    @Autowired
-    public WorkflowServiceImpl(WorkflowEngine workflowEngine) {
-        this.workflowEngine = workflowEngine;
-    }
-
-    @PostConstruct
-    private void init() {
-        LOGGER.info("start init workflow service");
-        workflowDefinitions.forEach(definition -> {
-            workflowEngine.processDefinitionService().register(definition.defineProcess());
-            LOGGER.info("success register workflow definition: {}", definition.getProcessName());
-        });
-        LOGGER.info("success init workflow service");
-    }
 
     @Override
     @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)

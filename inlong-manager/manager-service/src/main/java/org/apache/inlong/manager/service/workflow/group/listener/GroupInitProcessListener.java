@@ -51,7 +51,7 @@ public class GroupInitProcessListener implements ProcessEventListener {
         InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
         if (groupInfo != null) {
             final int status = GroupStatus.CONFIG_ING.getCode();
-            final String username = context.getApplicant();
+            final String username = context.getOperator();
             groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
             form.setGroupInfo(groupInfo);
         } else {

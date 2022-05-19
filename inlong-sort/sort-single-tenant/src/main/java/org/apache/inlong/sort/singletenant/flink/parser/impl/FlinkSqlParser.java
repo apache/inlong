@@ -26,11 +26,13 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
@@ -41,6 +43,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelationShip;
+import org.apache.inlong.sort.singletenant.flink.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.singletenant.flink.parser.Parser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
 import org.slf4j.Logger;
@@ -53,7 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Flink sql parse handler
@@ -66,9 +69,9 @@ public class FlinkSqlParser implements Parser {
     private final TableEnvironment tableEnv;
     private final GroupInfo groupInfo;
     private final Set<String> hasParsedSet = new HashSet<>();
-    private final Map<String, String> extractTableSqls = new TreeMap<>();
-    private final Map<String, String> transformTableSqls = new TreeMap<>();
-    private final Map<String, String> loadTableSqls = new TreeMap<>();
+    private final List<String> extractTableSqls = new ArrayList<>();
+    private final List<String> transformTableSqls = new ArrayList<>();
+    private final List<String> loadTableSqls = new ArrayList<>();
     private final List<String> insertSqls = new ArrayList<>();
 
     /**
@@ -80,6 +83,7 @@ public class FlinkSqlParser implements Parser {
     public FlinkSqlParser(TableEnvironment tableEnv, GroupInfo groupInfo) {
         this.tableEnv = tableEnv;
         this.groupInfo = groupInfo;
+        registerUDF();
     }
 
     /**
@@ -91,6 +95,13 @@ public class FlinkSqlParser implements Parser {
      */
     public static FlinkSqlParser getInstance(TableEnvironment tableEnv, GroupInfo groupInfo) {
         return new FlinkSqlParser(tableEnv, groupInfo);
+    }
+
+    /**
+     * Register udf
+     */
+    private void registerUDF() {
+        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
     }
 
     /**
@@ -109,9 +120,9 @@ public class FlinkSqlParser implements Parser {
             parseStream(streamInfo);
         }
         log.info("parse group success, groupId:{}", groupInfo.getGroupId());
-        List<String> createTableSqls = new ArrayList<>(extractTableSqls.values());
-        createTableSqls.addAll(transformTableSqls.values());
-        createTableSqls.addAll(loadTableSqls.values());
+        List<String> createTableSqls = new ArrayList<>(extractTableSqls);
+        createTableSqls.addAll(transformTableSqls);
+        createTableSqls.addAll(loadTableSqls);
         return new FlinkSqlParseResult(tableEnv, createTableSqls, insertSqls);
     }
 
@@ -174,11 +185,11 @@ public class FlinkSqlParser implements Parser {
 
     private void registerTableSql(Node node, String sql) {
         if (node instanceof ExtractNode) {
-            extractTableSqls.put(node.getId(), sql);
+            extractTableSqls.add(sql);
         } else if (node instanceof TransformNode) {
-            transformTableSqls.put(node.getId(), sql);
+            transformTableSqls.add(sql);
         } else if (node instanceof LoadNode) {
-            loadTableSqls.put(node.getId(), sql);
+            loadTableSqls.add(sql);
         } else {
             throw new UnsupportedOperationException("Only support [ExtractNode|TransformNode|LoadNode]");
         }
@@ -328,7 +339,7 @@ public class FlinkSqlParser implements Parser {
             // Fill out the tablename alias for param
             fillOutTableNameAlias(new ArrayList<>(node.getFilters()), tableNameAliasMap);
             // Parse filter fields to generate filter sql like 'WHERE 1=1...'
-            parseFilterFields(node.getFilters(), sb);
+            parseFilterFields(node.getFilterStrategy(), node.getFilters(), sb);
         }
         if (node instanceof DistinctNode) {
             // Generate distinct filter sql like 'WHERE row_num = 1'
@@ -420,7 +431,7 @@ public class FlinkSqlParser implements Parser {
             genDistinctSql((DistinctNode) node, sb);
         }
         sb.append("\n    FROM `").append(nodeMap.get(relation.getInputs().get(0)).genTableName()).append("` ");
-        parseFilterFields(node.getFilters(), sb);
+        parseFilterFields(node.getFilterStrategy(), node.getFilters(), sb);
         if (node instanceof DistinctNode) {
             sb = genDistinctFilterSql(node.getFields(), sb);
         }
@@ -430,14 +441,19 @@ public class FlinkSqlParser implements Parser {
     /**
      * Parse filter fields to generate filter sql like 'where 1=1...'
      *
+     * @param filterStrategy The filter strategy default[RETAIN], it decide whether to retain or remove
      * @param filters The filter functions
      * @param sb Container for storing sql
      */
-    private void parseFilterFields(List<FilterFunction> filters, StringBuilder sb) {
+    private void parseFilterFields(FilterStrategy filterStrategy, List<FilterFunction> filters, StringBuilder sb) {
         if (filters != null && !filters.isEmpty()) {
-            sb.append("\n    WHERE");
-            for (FilterFunction filter : filters) {
-                sb.append(" ").append(filter.format());
+            sb.append("\n    WHERE ");
+            String subSql = StringUtils
+                    .join(filters.stream().map(FunctionParam::format).collect(Collectors.toList()), " ");
+            if (filterStrategy == FilterStrategy.REMOVE) {
+                sb.append("not (").append(subSql).append(")");
+            } else {
+                sb.append(subSql);
             }
         }
     }
@@ -478,14 +494,38 @@ public class FlinkSqlParser implements Parser {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO `").append(loadNode.genTableName()).append("` ");
         sb.append("\n    SELECT ");
-        Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(loadNode.getFieldRelationShips().size());
-        loadNode.getFieldRelationShips().forEach(s -> {
-            fieldRelationMap.put(s.getOutputField().getName(), s);
-        });
-        parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
+        if (loadNode instanceof HbaseLoadNode) {
+            parseHbaseLoadFieldRelation((HbaseLoadNode) loadNode, sb);
+        } else {
+            Map<String, FieldRelationShip> fieldRelationMap = new HashMap<>(loadNode.getFieldRelationShips().size());
+            loadNode.getFieldRelationShips().forEach(s -> {
+                fieldRelationMap.put(s.getOutputField().getName(), s);
+            });
+            parseFieldRelations(loadNode.getFields(), fieldRelationMap, sb);
+        }
         sb.append("\n    FROM `").append(inputNode.genTableName()).append("`");
-        parseFilterFields(loadNode.getFilters(), sb);
+        parseFilterFields(loadNode.getFilterStrategy(), loadNode.getFilters(), sb);
         return sb.toString();
+    }
+
+    private void parseHbaseLoadFieldRelation(HbaseLoadNode hbaseLoadNode, StringBuilder sb) {
+        sb.append(hbaseLoadNode.getRowKey()).append(" as rowkey,\n");
+        List<FieldRelationShip> fieldRelationShips = hbaseLoadNode.getFieldRelationShips();
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = genColumnFamilyMapFieldRelationShips(
+                fieldRelationShips);
+        for (Map.Entry<String, List<FieldRelationShip>> entry : columnFamilyMapFields.entrySet()) {
+            StringBuilder fieldAppend = new StringBuilder(" ROW(");
+            for (FieldRelationShip fieldRelationShip : entry.getValue()) {
+                FieldInfo fieldInfo = (FieldInfo) fieldRelationShip.getInputField();
+                fieldAppend.append(fieldInfo.getName()).append(",");
+            }
+            if (fieldAppend.length() > 0) {
+                fieldAppend.delete(fieldAppend.lastIndexOf(","), fieldAppend.length());
+            }
+            fieldAppend.append("),");
+            sb.append(fieldAppend);
+        }
+        sb.delete(sb.lastIndexOf(","), sb.length());
     }
 
     /**
@@ -497,6 +537,9 @@ public class FlinkSqlParser implements Parser {
     private String genCreateSql(Node node) {
         if (node instanceof TransformNode) {
             return genCreateTransformSql(node);
+        }
+        if (node instanceof HbaseLoadNode) {
+            return genCreateHbaseLoadSql((HbaseLoadNode) node);
         }
         StringBuilder sb = new StringBuilder("CREATE TABLE `");
         sb.append(node.genTableName()).append("`(\n");
@@ -515,6 +558,50 @@ public class FlinkSqlParser implements Parser {
         }
         sb.append(parseOptions(node.tableOptions()));
         return sb.toString();
+    }
+
+    /**
+     * gen create table DDL for hbase load
+     *
+     * @param node
+     * @return
+     */
+    private String genCreateHbaseLoadSql(HbaseLoadNode node) {
+        StringBuilder sb = new StringBuilder("CREATE TABLE `");
+        sb.append(node.genTableName()).append("`(\n");
+        sb.append("rowkey STRING,\n");
+        List<FieldRelationShip> fieldRelationShips = node.getFieldRelationShips();
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = genColumnFamilyMapFieldRelationShips(
+                fieldRelationShips);
+        for (Map.Entry<String, List<FieldRelationShip>> entry : columnFamilyMapFields.entrySet()) {
+            sb.append(entry.getKey());
+            StringBuilder fieldsAppend = new StringBuilder(" Row<");
+            for (FieldRelationShip fieldRelationShip : entry.getValue()) {
+                FieldInfo fieldInfo = fieldRelationShip.getOutputField();
+                fieldsAppend.append(fieldInfo.getName().split(":")[1]).append(" ")
+                        .append(TableFormatUtils.deriveLogicalType(fieldInfo.getFormatInfo()).asSummaryString())
+                        .append(",");
+            }
+            if (fieldsAppend.length() > 0) {
+                fieldsAppend.delete(fieldsAppend.lastIndexOf(","), fieldsAppend.length());
+                fieldsAppend.append(">,\n");
+            }
+            sb.append(fieldsAppend);
+        }
+        sb.append("PRIMARY KEY (rowkey) NOT ENFORCED\n) ");
+        sb.append(parseOptions(node.tableOptions()));
+        return sb.toString();
+    }
+
+    private Map<String, List<FieldRelationShip>> genColumnFamilyMapFieldRelationShips(
+            List<FieldRelationShip> fieldRelationShips) {
+        Map<String, List<FieldRelationShip>> columnFamilyMapFields = new HashMap<>(16);
+        for (FieldRelationShip fieldRelationShip : fieldRelationShips) {
+            String columnFamily = fieldRelationShip.getOutputField().getName().split(":")[0];
+            columnFamilyMapFields.computeIfAbsent(columnFamily, v -> new ArrayList<>())
+                    .add(fieldRelationShip);
+        }
+        return columnFamilyMapFields;
     }
 
     /**
@@ -619,34 +706,34 @@ public class FlinkSqlParser implements Parser {
                 metaType = "STRING METADATA FROM 'value.database'";
                 break;
             case MYSQL_METADATA_EVENT_TIME:
-                metaType = "TIMESTAMP(3) METADATA FROM 'value.op_ts'";
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
                 break;
             case MYSQL_METADATA_EVENT_TYPE:
-                metaType = "STRING METADATA FROM 'value.op_type'";
+                metaType = "STRING METADATA FROM 'value.op-type'";
                 break;
             case MYSQL_METADATA_DATA:
                 metaType = "STRING METADATA FROM 'value.data'";
                 break;
             case MYSQL_METADATA_IS_DDL:
-                metaType = "BOOLEAN METADATA FROM 'value.is_ddl'";
+                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
                 break;
             case METADATA_TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ts'";
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
                 break;
             case METADATA_SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql_type'";
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
                 break;
             case METADATA_MYSQL_TYPE:
-                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql_type'";
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
                 break;
             case METADATA_PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'value.pk_names'";
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
                 break;
             case METADATA_BATCH_ID:
-                metaType = "BIGINT METADATA FROM 'value.batch_id'";
+                metaType = "BIGINT METADATA FROM 'value.batch-id'";
                 break;
             case METADATA_UPDATE_BEFORE:
-                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update_before'";
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
                 break;
             default:
                 metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();

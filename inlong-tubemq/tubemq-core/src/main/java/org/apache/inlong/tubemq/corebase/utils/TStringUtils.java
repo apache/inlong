@@ -20,6 +20,7 @@ package org.apache.inlong.tubemq.corebase.utils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -149,9 +150,11 @@ public class TStringUtils {
         Base64 base64 = new Base64();
         StringBuilder sbuf = new StringBuilder(512);
         byte[] baseStr =
-                base64.encode(HmacUtils.hmacSha1(usrPassWord,
-                        sbuf.append(usrName).append(timestamp)
-                                .append(randomValue).toString()));
+                base64.encode(new HmacUtils(HmacAlgorithms.HMAC_SHA_1, usrPassWord)
+                        .hmac(sbuf.append(usrName)
+                                .append(timestamp)
+                                .append(randomValue)
+                                .toString()));
         sbuf.delete(0, sbuf.length());
         String signature = "";
         try {

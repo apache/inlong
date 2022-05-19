@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.state;
 
+/**
+ * StateTransferException
+ */
 public class StateTransferException extends RuntimeException {
 
     public StateTransferException(State begin, State end) {

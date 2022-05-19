@@ -21,11 +21,16 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.client.api.auth.Authentication;
 
 import java.util.Map;
 
+/**
+ * Flink sort base config.
+ */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for flink cluster")
 public class FlinkSortBaseConf extends SortBaseConf {
 

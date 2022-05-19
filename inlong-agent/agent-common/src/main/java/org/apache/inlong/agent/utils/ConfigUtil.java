@@ -24,8 +24,14 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_PROMETHEUS_ENABLE;
 import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_ENABLE;
 
+/**
+ * ConfigUtil
+ */
 public class ConfigUtil {
 
+    /**
+     * whether use prometheus metrics
+     */
     public static boolean isPrometheusEnabled() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         return conf.getBoolean(PROMETHEUS_ENABLE, DEFAULT_PROMETHEUS_ENABLE);

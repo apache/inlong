@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Request of source
+ * Request info of source
  */
 @Data
 @ApiModel("Request of source")
@@ -56,8 +56,8 @@ public class SourceRequest {
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @ApiModelProperty("Id of the source server")
-    private Integer serverId = 0;
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;

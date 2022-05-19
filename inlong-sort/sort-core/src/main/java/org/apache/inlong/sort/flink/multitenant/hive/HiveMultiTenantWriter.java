@@ -49,6 +49,11 @@ import org.apache.inlong.sort.util.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * hive multi committer function used in multi tenancy
+ * when dataflow changes, the process function should action accordingly
+ * see DataFlowInfoListenerImpl
+ */
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class HiveMultiTenantWriter extends ProcessFunction<SerializedRecord, PartitionCommitInfo>
         implements CheckpointedFunction, CheckpointListener {

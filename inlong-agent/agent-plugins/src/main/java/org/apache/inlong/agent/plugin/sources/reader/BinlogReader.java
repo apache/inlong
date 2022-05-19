@@ -17,21 +17,11 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
-
 import com.google.gson.Gson;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.relational.history.FileDatabaseHistory;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -47,9 +37,22 @@ import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
 import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
-
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_MAP_CAPACITY;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+
+/**
+ * read binlog data
+ */
 public class BinlogReader implements Reader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
@@ -73,13 +76,13 @@ public class BinlogReader implements Reader {
     private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
     private static final String JOB_DATABASE_PORT = "job.binlogJob.port";
     private static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
-
+    private static final Gson gson = new Gson();
+    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
      * pair.left: table name
      * pair.right: actual data
      */
     private LinkedBlockingQueue<Pair<String, String>> binlogMessagesQueue;
-
     private boolean finished = false;
     private String userName;
     private String password;
@@ -99,12 +102,9 @@ public class BinlogReader implements Reader {
     private String offset;
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
-    private static final Gson gson = new Gson();
     private boolean destroyed = false;
     private boolean enableReportConfigLog;
     private StreamConfigLogMetric streamConfigLogMetric;
-    private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
-
     private String inlongGroupId;
     private String inlongStreamId;
 
@@ -125,7 +125,7 @@ public class BinlogReader implements Reader {
         Map<String, String> header = new HashMap<>(DEFAULT_MAP_CAPACITY);
         header.put(PROXY_KEY_DATA, message.getKey());
         return new DefaultMessage(message.getValue().getBytes(StandardCharsets.UTF_8),
-            header);
+                header);
     }
 
     @Override
@@ -141,9 +141,9 @@ public class BinlogReader implements Reader {
         serverTimeZone = jobConf.get(JOB_DATABASE_SERVER_TIME_ZONE, "");
         offsetFlushIntervalMs = jobConf.get(JOB_DATABASE_STORE_OFFSET_INTERVAL_MS, "100000");
         databaseStoreHistoryName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
-            tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
+                tryToInitAndGetHistoryPath()) + "/history.dat" + jobConf.getInstanceId();
         offsetStoreFileName = jobConf.get(JOB_DATABASE_STORE_HISTORY_FILENAME,
-            tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
+                tryToInitAndGetHistoryPath()) + "/offset.dat" + jobConf.getInstanceId();
         snapshotMode = jobConf.get(JOB_DATABASE_SNAPSHOT_MODE, "");
         includeSchemaChanges = jobConf.get(JOB_DATABASE_INCLUDE_SCHEMA_CHANGES, "false");
         historyMonitorDdl = jobConf.get(JOB_DATABASE_HISTORY_MONITOR_DDL, "false");
@@ -157,7 +157,7 @@ public class BinlogReader implements Reader {
 
         enableReportConfigLog =
                 Boolean.parseBoolean(jobConf.get(StreamConfigLogMetric.CONFIG_LOG_REPORT_ENABLE,
-                "true"));
+                        "true"));
 
         inlongGroupId = jobConf.get(CommonConstants.PROXY_INLONG_GROUP_ID,
                 CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID);
@@ -179,38 +179,38 @@ public class BinlogReader implements Reader {
         Properties props = getEngineProps();
 
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(
-            io.debezium.engine.format.Json.class)
-            .using(props)
-            .notifying((records, committer) -> {
-                try {
-                    for (ChangeEvent<String, String> record : records) {
-                        DebeziumFormat debeziumFormat = gson
-                            .fromJson(record.value(), DebeziumFormat.class);
-                        binlogMessagesQueue.put(Pair.of(debeziumFormat.getSource().getTable(),
-                            record.value()));
-                        committer.markProcessed(record);
+                io.debezium.engine.format.Json.class)
+                .using(props)
+                .notifying((records, committer) -> {
+                    try {
+                        for (ChangeEvent<String, String> record : records) {
+                            DebeziumFormat debeziumFormat = gson
+                                    .fromJson(record.value(), DebeziumFormat.class);
+                            binlogMessagesQueue.put(Pair.of(debeziumFormat.getSource().getTable(),
+                                    record.value()));
+                            committer.markProcessed(record);
+                        }
+                        committer.markBatchFinished();
+                    } catch (Exception e) {
+                        LOGGER.error("parse binlog message error", e);
                     }
-                    committer.markBatchFinished();
-                } catch (Exception e) {
-                    LOGGER.error("parse binlog message error", e);
-                }
 
-            })
-            .using((success, message, error) -> {
-                if (!success) {
-                    LOGGER.error("binlog job with jobConf {} has " + "error {}",
-                            jobConf.getInstanceId(), message, error);
-                    streamConfigLogMetric
-                            .updateConfigLog(inlongGroupId, inlongStreamId, "DBConfig",
-                                    ConfigLogTypeEnum.ERROR, error == null ? "" : error.toString());
-                }
-            }).build();
+                })
+                .using((success, message, error) -> {
+                    if (!success) {
+                        LOGGER.error("binlog job with jobConf {} has " + "error {}",
+                                jobConf.getInstanceId(), message, error);
+                        streamConfigLogMetric
+                                .updateConfigLog(inlongGroupId, inlongStreamId, "DBConfig",
+                                        ConfigLogTypeEnum.ERROR, error == null ? "" : error.toString());
+                    }
+                }).build();
 
         executor = Executors.newSingleThreadExecutor();
         executor.execute(engine);
 
         LOGGER.info("get initial snapshot of job {}, snapshot {}",
-            jobConf.getInstanceId(), getSnapshot());
+                jobConf.getInstanceId(), getSnapshot());
     }
 
     private Properties getEngineProps() {
@@ -305,9 +305,9 @@ public class BinlogReader implements Reader {
 
     private String tryToInitAndGetHistoryPath() {
         String historyPath = agentConf.get(
-            AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
+                AgentConstants.AGENT_HISTORY_PATH, AgentConstants.DEFAULT_AGENT_HISTORY_PATH);
         String parentPath = agentConf.get(
-            AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
+                AgentConstants.AGENT_HOME, AgentConstants.DEFAULT_AGENT_HOME);
         return AgentUtils.makeDirsIfNotExist(historyPath, parentPath).getAbsolutePath();
     }
 

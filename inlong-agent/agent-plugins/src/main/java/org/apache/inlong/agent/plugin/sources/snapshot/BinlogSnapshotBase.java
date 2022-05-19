@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,18 +29,18 @@ import java.io.OutputStream;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * binlog snapshot
+ */
 public class BinlogSnapshotBase implements SnapshotBase {
 
     public static final int BUFFER_SIZE = 1024;
     public static final int START_OFFSET = 0;
     private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
-    private File file;
     private final Decoder decoder = Base64.getDecoder();
     private final Encoder encoder = Base64.getEncoder();
-
+    private File file;
     private byte[] offset;
 
     public BinlogSnapshotBase(String filePath) {
@@ -54,6 +57,9 @@ public class BinlogSnapshotBase implements SnapshotBase {
     public void close() {
     }
 
+    /**
+     * load binlog offset from local file
+     */
     public void load() {
         try {
             if (!file.exists()) {
@@ -75,6 +81,9 @@ public class BinlogSnapshotBase implements SnapshotBase {
         }
     }
 
+    /**
+     * save binlog offset to local file
+     */
     public void save(String snapshot) {
         byte[] bytes = decoder.decode(snapshot);
         if (bytes.length != 0) {

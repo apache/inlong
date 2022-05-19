@@ -20,6 +20,9 @@ package org.apache.inlong.manager.dao.entity;
 import java.io.Serializable;
 import lombok.Data;
 
+/**
+ * Data schema entity, including name, agent type, etc.
+ */
 @Data
 public class DataSchemaEntity implements Serializable {
 

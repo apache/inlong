@@ -42,8 +42,6 @@ public class WorkflowEngineImpl implements WorkflowEngine {
 
     private final ProcessDefinitionService processDefService;
 
-    private final ProcessDefinitionRepository processDefRepository;
-
     private final ProcessService processService;
 
     private final TaskService taskService;
@@ -59,9 +57,6 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         // Database transaction assistant
         TransactionHelper transactionHelper = new TransactionHelper(workflowConfig.getTransactionManager());
 
-        // Get workflow data accessor
-        this.processDefRepository = workflowConfig.getDefinitionRepository();
-
         // Workflow event listener manager
         EventListenerManagerFactory listenerManagerFactory = new EventListenerManagerFactory(workflowConfig);
 
@@ -73,6 +68,8 @@ public class WorkflowEngineImpl implements WorkflowEngine {
         WorkflowTaskEntityMapper taskEntityMapper = workflowConfig.getTaskEntityMapper();
         ProcessorExecutor processorExecutor = new ProcessorExecutorImpl(processEntityMapper,
                 taskEntityMapper, workflowEventNotifier, transactionHelper);
+
+        ProcessDefinitionRepository processDefRepository = workflowConfig.getDefinitionRepository();
 
         // Workflow context builder
         WorkflowContextBuilder contextBuilder = new WorkflowContextBuilderImpl(
@@ -98,11 +95,6 @@ public class WorkflowEngineImpl implements WorkflowEngine {
     @Override
     public ProcessDefinitionService processDefinitionService() {
         return processDefService;
-    }
-
-    @Override
-    public ProcessDefinitionRepository processDefinitionRepository() {
-        return processDefRepository;
     }
 
     @Override

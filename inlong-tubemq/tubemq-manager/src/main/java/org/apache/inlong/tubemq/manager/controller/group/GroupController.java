@@ -26,6 +26,8 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.AddBlackGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteBlackGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.FilterCondGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.FlowControlGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
@@ -71,6 +73,10 @@ public class GroupController {
                 return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER:
                 return masterService.baseRequestMaster(gson.fromJson(req, RebalanceConsumerReq.class));
+            case TubeConst.FILTER_CONDITION:
+                return masterService.baseRequestMaster(gson.fromJson(req, FilterCondGroupReq.class));
+            case TubeConst.FLOW_CONTROL:
+                return masterService.baseRequestMaster(gson.fromJson(req, FlowControlGroupReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
@@ -94,7 +100,8 @@ public class GroupController {
      *
      * @param req
      * @return
-     * @throws Exception exception
+     *
+     * @throws Exception the exception
      */
     @GetMapping("/")
     public @ResponseBody
@@ -139,7 +146,8 @@ public class GroupController {
      *
      * @param req
      * @return
-     * @throws Exception exception
+     *
+     * @throws Exception the exception
      */
     @GetMapping("/blackGroup")
     public @ResponseBody

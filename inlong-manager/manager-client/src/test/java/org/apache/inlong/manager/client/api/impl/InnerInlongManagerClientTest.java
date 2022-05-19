@@ -27,6 +27,9 @@ import org.junit.Test;
 
 import java.util.List;
 
+/**
+ * Test class for get stream info list.
+ */
 @Slf4j
 public class InnerInlongManagerClientTest {
 

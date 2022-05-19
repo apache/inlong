@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Inlong cluster entity, including name, type, cluster tag, etc.
+ */
 @Data
 public class InlongClusterEntity implements Serializable {
 
@@ -32,7 +35,8 @@ public class InlongClusterEntity implements Serializable {
     private String type;
     private String url;
     private String clusterTag;
-    private String zoneTag;
+    private String extTag;
+    private String token;
 
     private String extParams;
     private String heartbeat;

@@ -48,12 +48,12 @@ public interface StreamSourceOperation {
     Integer saveOpt(SourceRequest request, Integer groupStatus, String operator);
 
     /**
-     * Get source info by source id.
+     * Get source info by the given entity.
      *
-     * @param id Source id.
+     * @param entity Get field value from the entity.
      * @return Source info.
      */
-    SourceResponse getById(Integer id);
+    SourceResponse getByEntity(StreamSourceEntity entity);
 
     /**
      * Get the target from the given entity.
@@ -71,9 +71,7 @@ public interface StreamSourceOperation {
      * @param entityPage The given entity page.
      * @return Source list response.
      */
-    default PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        return new PageInfo<>();
-    }
+    PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage);
 
     /**
      * Update the source info.

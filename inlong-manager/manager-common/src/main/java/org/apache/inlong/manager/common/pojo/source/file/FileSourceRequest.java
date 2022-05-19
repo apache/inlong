@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of File Source Info
+ * Request info of File Source Info
  */
 @Data
 @ToString(callSuper = true)

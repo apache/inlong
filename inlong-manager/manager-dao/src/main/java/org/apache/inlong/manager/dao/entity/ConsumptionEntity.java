@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * Data consumption table
@@ -29,11 +30,10 @@ public class ConsumptionEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String consumerGroupName;
-    private String consumerGroupId;
+    private String consumerGroup;
     private String inCharges;
     private String inlongGroupId;
-    private String middlewareType;
+    private String mqType;
     private String topic;
     private Integer filterEnabled;
     private String inlongStreamId;

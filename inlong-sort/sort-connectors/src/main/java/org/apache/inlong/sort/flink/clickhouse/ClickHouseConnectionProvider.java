@@ -39,6 +39,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * provider for clickhouse connection
+ * ClickHouseConnection is provided by ru.yandex.clickhouse.ClickHouseConnection
+ */
 public class ClickHouseConnectionProvider implements Serializable {
 
     private static final long serialVersionUID = 1L;

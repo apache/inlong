@@ -85,10 +85,10 @@ public class EventLoopUtil {
     }
 
     /**
-     * get CompletableFuture<Void> by Future
+     * get CompletableFuture by Future
      *
      * @param future Future
-     * @return CompletableFuture<Void>
+     * @return CompletableFuture
      */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {
         Objects.requireNonNull(future, "future cannot be null");

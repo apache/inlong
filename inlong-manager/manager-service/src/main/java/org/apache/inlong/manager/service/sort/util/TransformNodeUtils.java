@@ -95,6 +95,7 @@ public class TransformNodeUtils {
                 transformNode.getFields(),
                 transformNode.getFieldRelationShips(),
                 transformNode.getFilters(),
+                transformNode.getFilterStrategy(),
                 distinctFields,
                 orderField,
                 orderDirection);
@@ -117,6 +118,7 @@ public class TransformNodeUtils {
         transformNode.setFieldRelationShips(FieldRelationShipUtils.createFieldRelationShips(transformResponse));
         transformNode.setFilters(
                 FilterFunctionUtils.createFilterFunctions(transformResponse));
+        transformNode.setFilterStrategy(FilterFunctionUtils.parseFilterStrategy(transformResponse));
         return transformNode;
     }
 }

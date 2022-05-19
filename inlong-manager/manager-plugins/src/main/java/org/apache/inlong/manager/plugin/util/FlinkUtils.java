@@ -34,6 +34,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Util of flink.
+ */
 @Slf4j
 public class FlinkUtils {
 
@@ -71,6 +74,10 @@ public class FlinkUtils {
 
     /**
      * fetch sort-single-tenant jar path
+     *
+     * @param baseDirName base directory name.
+     * @param pattern pattern of file
+     * @return  sort-single-tenant jar path
      */
     public static String findFiles(String baseDirName, String pattern) {
         File baseDir = new File(baseDirName);
@@ -107,6 +114,9 @@ public class FlinkUtils {
 
     /**
      * getConfigDirectory
+     *
+     * @param name config file name
+     * @return config file directory
      */
     public static String getConfigDirectory(String name) {
         return BASE_DIRECTORY + File.separator + name;
@@ -114,6 +124,11 @@ public class FlinkUtils {
 
     /**
      * writeConfigToFile
+     *
+     * @param configJobDirectory job config directory
+     * @param configFileName config file name
+     * @param content contents of the file to be written
+     * @return whether success
      */
     public static boolean writeConfigToFile(String configJobDirectory, String configFileName, String content) {
         File file = new File(configJobDirectory);
@@ -135,7 +150,10 @@ public class FlinkUtils {
     }
 
     /**
-     * delete configuration file
+     * Delete configuration file
+     *
+     * @param name file config info
+     * @return whether sucess
      */
     public static boolean deleteConfigFile(String name) {
         String configDirectory = getConfigDirectory(name);

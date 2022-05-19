@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * Sink info, including sink type, sink name, etc.
+ */
 @Data
 public class SinkInfo {
 

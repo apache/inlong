@@ -107,12 +107,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * save cluster info.
      */
-    public Integer saveCluster(String clusterName, String type, String clusterTag, String zoneTag) {
+    public Integer saveCluster(String clusterName, String type, String clusterTag, String extTag) {
         InlongClusterRequest request = new InlongClusterRequest();
         request.setName(clusterName);
         request.setType(type);
         request.setClusterTag(clusterTag);
-        request.setZoneTag(zoneTag);
+        request.setExtTag(extTag);
         request.setInCharges(GLOBAL_OPERATOR);
         return inlongClusterService.save(request, GLOBAL_OPERATOR);
     }
@@ -120,23 +120,23 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster list info.
      */
-    public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag, String zoneTag) {
+    public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
         request.setClusterTag(clusterTag);
-        request.setZoneTag(zoneTag);
         return inlongClusterService.list(request);
     }
 
     /**
      * update cluster info.
      */
-    public Boolean updateCluster(String clusterName, String type, String clusterTag, String zoneTag) {
+    public Boolean updateCluster(Integer id, String name, String type, String clusterTag, String extTag) {
         InlongClusterRequest request = new InlongClusterRequest();
-        request.setName(clusterName);
+        request.setId(id);
+        request.setName(name);
         request.setType(type);
         request.setClusterTag(clusterTag);
-        request.setZoneTag(zoneTag);
+        request.setExtTag(extTag);
         request.setInCharges(GLOBAL_OPERATOR);
         return inlongClusterService.update(request, GLOBAL_OPERATOR);
     }
@@ -163,8 +163,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * update cluster node info.
      */
-    public Boolean updateClusterNode(Integer parentId, String type, String ip, Integer port) {
+    public Boolean updateClusterNode(Integer id, Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setId(id);
         request.setParentId(parentId);
         request.setType(type);
         request.setIp(ip);
@@ -175,10 +176,10 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster node list info.
      */
-    public PageInfo<ClusterNodeResponse> listNode(String type, String keyWord) {
+    public PageInfo<ClusterNodeResponse> listNode(String type, String keyword) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
-        request.setKeyword(keyWord);
+        request.setKeyword(keyword);
         return inlongClusterService.listNode(request);
     }
 
@@ -196,30 +197,32 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     public void testClusterSaveAndDelete() {
         String type = "PULSAR";
         String clusterTag = "default_cluster";
-        String zoneTag = "china_1";
+        String extTag = "ext_1";
         String ip = "127.0.0.1";
         Integer port = 8080;
 
         String typeUpdate = "DATA_PROXY";
         String clusterTagUpdate = "default_cluster_2";
-        String zoneTagUpdate = "china_2";
+        String extTagUpdate = "ext_2";
+
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
 
         // save cluster
-        Integer id = this.saveCluster(CLUSTER_NAME, type, clusterTag, zoneTag);
+        Integer id = this.saveCluster(CLUSTER_NAME, type, clusterTag, extTag);
         Assert.assertNotNull(id);
 
         // list cluster
-        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, clusterTag, zoneTag);
+        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, clusterTag);
         Assert.assertEquals(listCluster.getTotal(), 1);
 
         // update cluster
-        Boolean updateSuccess = this.updateCluster(CLUSTER_NAME, typeUpdate, clusterTagUpdate, zoneTagUpdate);
+        Boolean updateSuccess = this.updateCluster(id, CLUSTER_NAME, typeUpdate, clusterTagUpdate, extTagUpdate);
         Assert.assertTrue(updateSuccess);
 
         // save cluster node
-        Integer nodeId = this.saveClusterNode(id, type, ip, port);
+        Integer parentId = 1;
+        Integer nodeId = this.saveClusterNode(parentId, type, ip, port);
         Assert.assertNotNull(nodeId);
 
         // list cluster node
@@ -227,7 +230,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assert.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
-        Boolean updateNodeSuccess = this.updateClusterNode(id, typeUpdate, ipUpdate, portUpdate);
+        Boolean updateNodeSuccess = this.updateClusterNode(id, parentId, typeUpdate, ipUpdate, portUpdate);
         Assert.assertTrue(updateNodeSuccess);
 
         // delete cluster node
@@ -238,4 +241,5 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Boolean success = this.deleteCluster(id);
         Assert.assertTrue(success);
     }
+
 }

@@ -17,10 +17,8 @@
 
 apiVersion: v2
 name: inlong
-description: A Helm Chart for Apache InLong
 type: application
-version: 2.0.0
-appVersion: 0.10.0
+description: A Helm Chart for Apache InLong
 home: https://inlong.apache.org
 icon: https://inlong.apache.org/img/first-page-bg.png
 sources:
@@ -28,10 +26,19 @@ sources:
 keywords:
   - inlong
   - tubemq
+
+# The chart version number should be incremented each time you make changes
+# to the chart and its templates.
+version: 2.0.2
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 1.2.0
+
 maintainers:
   - name: dockerzhang
     email: dockerzhang@apache.org
     url: https://github.com/dockerzhang
   - name: shink
-    email: jiyuanhao1997@gmail.com
+    email: jiyuanhao@apache.org
     url: https://github.com/shink

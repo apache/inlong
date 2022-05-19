@@ -42,8 +42,8 @@ const routes: RouteProps[] = [
     exact: true,
     childRoutes: [
       {
-        path: '/create',
-        component: () => import('@/pages/AccessCreate'),
+        path: '/create/:id?',
+        component: () => import('@/pages/AccessDetail'),
         exact: true,
       },
       {
