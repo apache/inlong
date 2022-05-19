@@ -15,46 +15,52 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.auth;
+package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
 /**
- * Token authentication.
+ * Secret token authentication.
  */
 @NoArgsConstructor
-public class TokenAuthentication implements Authentication {
+public class SecretTokenAuthentication extends SecretAuthentication {
 
-    public static final String TOKEN = "token";
+    public static final String SECRET_TOKEN = "secret_token";
 
     @Getter
-    protected String token;
+    protected String sToken;
 
-    public TokenAuthentication(String token) {
-        this.token = token;
+    public SecretTokenAuthentication(String secretId, String secretKey, String secretToken) {
+        this.secretId = secretId;
+        this.secretKey = secretKey;
+        this.sToken = secretToken;
     }
 
     @Override
     public AuthType getAuthType() {
-        return AuthType.TOKEN;
+        return AuthType.SECRET_AND_TOKEN;
     }
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtil.notEmpty(properties, "Properties should not be empty when init TokenAuthentification");
-        this.token = properties.get(TOKEN);
+        super.configure(properties);
+        this.sToken = properties.get(SECRET_TOKEN);
     }
 
+    @SneakyThrows
     @Override
     public String toString() {
         ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
-        objectNode.put(TOKEN, this.getToken());
+        objectNode.put(SECRET_ID, this.getSecretId());
+        objectNode.put(SECRET_KEY, this.getSecretKey());
+        objectNode.put(SECRET_TOKEN, this.getSToken());
         return objectNode.toString();
     }
+
 }

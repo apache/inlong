@@ -15,38 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.mq;
+package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Message queue middleware factory.
+ * Factory for {@link InlongGroupOperator}.
  */
 @Service
-public class MiddlewareFactory {
+public class InlongGroupOperatorFactory {
 
     @Autowired
-    private List<Middleware> middlewares;
+    private List<InlongGroupOperator> groupOperatorList;
 
     /**
-     * Getting InLong Group Mq middle ware implementation.
-     *
-     * @param type MQ TYPE.
+     * Get a group operator instance via the given mqType
      */
-    public Middleware getMqMiddleware(MQType type) {
-        for (Middleware middleware : middlewares) {
-            if (Objects.equals(type, middleware.type())) {
-                return middleware;
-            }
+    public InlongGroupOperator getInstance(String mqType) {
+        Optional<InlongGroupOperator> instance = groupOperatorList.stream()
+                .filter(inst -> inst.accept(mqType))
+                .findFirst();
+        if (!instance.isPresent()) {
+            throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), mqType));
         }
-        throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED, "Unsupported MQ type of " + type.name());
+        return instance.get();
     }
 
 }

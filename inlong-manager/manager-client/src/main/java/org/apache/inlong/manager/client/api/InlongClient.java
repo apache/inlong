@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api;
 
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -59,13 +60,13 @@ public interface InlongClient {
     }
 
     /**
-     * Create stream group by conf
+     * Create inlong group by the given group info
      *
-     * @param groupConf the group conf
+     * @param groupInfo the group info
      * @return the inlong group
      * @throws Exception the exception
      */
-    InlongGroup forGroup(InlongGroupConf groupConf) throws Exception;
+    InlongGroup forGroup(InlongGroupInfo groupInfo) throws Exception;
 
     /**
      * List group list.

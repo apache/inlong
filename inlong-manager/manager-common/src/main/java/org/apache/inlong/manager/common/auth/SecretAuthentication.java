@@ -15,52 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.auth;
+package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
 /**
- * Secret token authentication.
+ * Secret authentication.
  */
 @NoArgsConstructor
-public class SecretTokenAuthentication extends SecretAuthentication {
+public class SecretAuthentication implements Authentication {
 
-    public static final String SECRET_TOKEN = "secret_token";
+    public static final String SECRET_ID = "secret_id";
+
+    public static final String SECRET_KEY = "secret_key";
 
     @Getter
-    protected String sToken;
+    protected String secretId;
 
-    public SecretTokenAuthentication(String secretId, String secretKey, String secretToken) {
+    @Getter
+    protected String secretKey;
+
+    public SecretAuthentication(String secretId, String secretKey) {
         this.secretId = secretId;
         this.secretKey = secretKey;
-        this.sToken = secretToken;
     }
 
     @Override
     public AuthType getAuthType() {
-        return AuthType.SECRET_AND_TOKEN;
+        return AuthType.SECRET;
     }
 
     @Override
     public void configure(Map<String, String> properties) {
-        super.configure(properties);
-        this.sToken = properties.get(SECRET_TOKEN);
+        AssertUtils.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
+        this.secretId = properties.get(SECRET_ID);
+        this.secretKey = properties.get(SECRET_KEY);
     }
 
-    @SneakyThrows
     @Override
     public String toString() {
         ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
         objectNode.put(SECRET_ID, this.getSecretId());
         objectNode.put(SECRET_KEY, this.getSecretKey());
-        objectNode.put(SECRET_TOKEN, this.getSToken());
         return objectNode.toString();
     }
-
 }

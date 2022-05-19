@@ -15,43 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.group.tube;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Sort configuration for inlong group.
+ * Inlong group request for Tube
  */
 @Data
-@ApiModel("Sort configuration for inlong group")
-public abstract class SortBaseConf {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong group request for Tube")
+@JsonTypeDefine(value = MQType.MQ_TUBE)
+public class InlongTubeRequest extends InlongGroupRequest {
 
-    public enum SortType {
-        FLINK("flink"),
-        LOCAL("local"),
-        USER_DEFINED("user_defined");
+    // no field
 
-        private String type;
-
-        public String getType() {
-            return this.type;
-        }
-
-        SortType(String type) {
-            this.type = type;
-        }
-
-        public static SortType forType(String type) {
-            for (SortType sortType : values()) {
-                if (sortType.getType().equals(type)) {
-                    return sortType;
-                }
-            }
-            throw new IllegalArgumentException(String.format("Unsupport type=%s for Inlong", type));
-        }
-
+    public InlongTubeRequest() {
+        this.setMqType(MQType.MQ_TUBE);
     }
 
-    public abstract SortType getType();
 }

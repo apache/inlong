@@ -15,54 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.auth;
+package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
 /**
- * Default authentication.
+ * Token authentication.
  */
 @NoArgsConstructor
-public class DefaultAuthentication implements Authentication {
+public class TokenAuthentication implements Authentication {
 
-    public static final String USER_NAME = "user_name";
-
-    public static final String PASSWORD = "password";
+    public static final String TOKEN = "token";
 
     @Getter
-    protected String userName;
+    protected String token;
 
-    @Getter
-    protected String password;
-
-    public DefaultAuthentication(String userName, String password) {
-        this.userName = userName;
-        this.password = password;
+    public TokenAuthentication(String token) {
+        this.token = token;
     }
 
     @Override
     public AuthType getAuthType() {
-        return AuthType.UNAME_PASSWD;
+        return AuthType.TOKEN;
     }
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtil.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
-        this.userName = properties.get(USER_NAME);
-        this.password = properties.get(PASSWORD);
+        AssertUtils.notEmpty(properties, "Properties should not be empty when init TokenAuthentication");
+        this.token = properties.get(TOKEN);
     }
 
     @Override
     public String toString() {
         ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
-        objectNode.put(USER_NAME, this.getUserName());
-        objectNode.put(PASSWORD, this.getPassword());
+        objectNode.put(TOKEN, this.getToken());
         return objectNode.toString();
     }
 }

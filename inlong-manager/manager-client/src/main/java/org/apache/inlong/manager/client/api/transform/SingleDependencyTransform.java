@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 
 /**
@@ -37,11 +37,11 @@ public class SingleDependencyTransform extends StreamTransform {
      *         if pre streamNode is streamTransform, preNode is transformName
      */
     public SingleDependencyTransform(String transformName, TransformDefinition transformDefinition, String preNode) {
-        AssertUtil.notNull(transformDefinition, "TransformDefinition should not be null");
+        AssertUtils.notNull(transformDefinition, "TransformDefinition should not be null");
         this.transformDefinition = transformDefinition;
-        AssertUtil.notNull(transformName, "TransformName should not be empty");
+        AssertUtils.notNull(transformName, "TransformName should not be empty");
         this.transformName = transformName;
-        AssertUtil.notNull(preNode, "Pre streamNode should not be null");
+        AssertUtils.notNull(preNode, "Pre streamNode should not be null");
         this.addPre(preNode);
     }
 

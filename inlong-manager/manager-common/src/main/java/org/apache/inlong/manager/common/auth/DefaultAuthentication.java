@@ -15,54 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.auth;
+package org.apache.inlong.manager.common.auth;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
 /**
- * Secret authentication.
+ * Default authentication.
  */
 @NoArgsConstructor
-public class SecretAuthentication implements Authentication {
+public class DefaultAuthentication implements Authentication {
 
-    public static final String SECRET_ID = "secret_id";
+    public static final String USER_NAME = "user_name";
 
-    public static final String SECRET_KEY = "secret_key";
-
-    @Getter
-    protected String secretId;
+    public static final String PASSWORD = "password";
 
     @Getter
-    protected String secretKey;
+    protected String userName;
 
-    public SecretAuthentication(String secretId, String secretKey) {
-        this.secretId = secretId;
-        this.secretKey = secretKey;
+    @Getter
+    protected String password;
+
+    public DefaultAuthentication(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
     }
 
     @Override
     public AuthType getAuthType() {
-        return AuthType.SECRET;
+        return AuthType.UNAME_PASSWD;
     }
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtil.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
-        this.secretId = properties.get(SECRET_ID);
-        this.secretKey = properties.get(SECRET_KEY);
+        AssertUtils.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
+        this.userName = properties.get(USER_NAME);
+        this.password = properties.get(PASSWORD);
     }
 
     @Override
     public String toString() {
         ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
-        objectNode.put(SECRET_ID, this.getSecretId());
-        objectNode.put(SECRET_KEY, this.getSecretKey());
+        objectNode.put(USER_NAME, this.getUserName());
+        objectNode.put(PASSWORD, this.getPassword());
         return objectNode.toString();
     }
 }

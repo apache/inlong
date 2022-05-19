@@ -200,32 +200,6 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 
-    @Override
-    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public void deleteOpt(SourceRequest request, String operator) {
-        Integer id = request.getId();
-        StreamSourceEntity existEntity = sourceMapper.selectByIdForUpdate(id);
-        SourceStatus curState = SourceStatus.forCode(existEntity.getStatus());
-        SourceStatus nextState = SourceStatus.TO_BE_ISSUED_DELETE;
-        // if source is frozen|failed|new , delete directly
-        if (curState == SourceStatus.SOURCE_FROZEN || curState == SourceStatus.SOURCE_FAILED
-                || curState == SourceStatus.SOURCE_NEW) {
-            nextState = SourceStatus.SOURCE_DISABLE;
-        }
-        if (!SourceStatus.isAllowedTransition(curState, nextState)) {
-            throw new BusinessException(String.format("Source=%s is not allowed to delete", existEntity));
-        }
-        StreamSourceEntity curEntity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        curEntity.setVersion(existEntity.getVersion() + 1);
-        curEntity.setPreviousStatus(curState.getCode());
-        curEntity.setStatus(nextState.getCode());
-        curEntity.setIsDeleted(id);
-        curEntity.setModifyTime(new Date());
-        sourceMapper.updateByPrimaryKeySelective(curEntity);
-        sourceFieldMapper.deleteAll(id);
-        LOGGER.info("success to delete source={}", request);
-    }
-
     private void updateFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
         Integer sourceId = entity.getId();
         if (CollectionUtils.isEmpty(fieldInfos)) {

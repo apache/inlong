@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.mq;
+package org.apache.inlong.manager.client.api;
 
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.springframework.stereotype.Component;
 
 /**
- * TDMQ_Pulsar MQ middleware implementation.
+ * Inlong group config without MQ.
  */
-@Component
-public class TDMQPulsarMiddleware extends PulsarMiddleware {
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong group config without MQ")
+public class InlongGroupNoneConf extends InlongGroupConf {
 
-    @Override
-    public MQType type() {
-        return MQType.TDMQ_PULSAR;
+    public InlongGroupNoneConf() {
+        this.setMqType(MQType.NONE.getType());
     }
+
 }

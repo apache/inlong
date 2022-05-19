@@ -28,14 +28,12 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
 import org.apache.inlong.manager.common.util.HttpUtils;
@@ -59,7 +57,7 @@ public class InlongClientImpl implements InlongClient {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
                 .split(serviceUrl);
         if (MapUtils.isEmpty(hostPorts)) {
-            throw new IllegalArgumentException(String.format("Unsupported serviceUrl : %s", serviceUrl));
+            throw new IllegalArgumentException(String.format("Unsupported serviceUrl: %s", serviceUrl));
         }
         configuration.setServiceUrl(serviceUrl);
         boolean isConnective = false;
@@ -80,8 +78,8 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public InlongGroup forGroup(InlongGroupConf groupConf) {
-        return new InlongGroupImpl(groupConf, this);
+    public InlongGroup forGroup(InlongGroupInfo groupInfo) {
+        return new InlongGroupImpl(groupInfo, this);
     }
 
     @Override
@@ -94,9 +92,8 @@ public class InlongClientImpl implements InlongClient {
         } else {
             return responsePageInfo.getList().stream().map(response -> {
                 String groupId = response.getInlongGroupId();
-                InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
-                InlongGroupConf groupConf = InlongGroupTransfer.parseGroupResponse(groupResponse);
-                return new InlongGroupImpl(groupConf, this);
+                InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
+                return new InlongGroupImpl(groupInfo, this);
             }).collect(Collectors.toList());
         }
     }
@@ -121,7 +118,7 @@ public class InlongClientImpl implements InlongClient {
         groupListResponses.forEach(groupListResponse -> {
             String groupId = groupListResponse.getInlongGroupId();
             InlongGroupStatus groupState = InlongGroupStatus.parseStatusByCode(groupListResponse.getStatus());
-            List<SourceListResponse> sourceListResponses = groupListResponse.getSourceListResponses();
+            List<SourceListResponse> sourceListResponses = groupListResponse.getSourceResponses();
             groupState = recheckGroupState(groupState, sourceListResponses);
             groupStateMap.put(groupId, groupState);
         });
@@ -129,15 +126,13 @@ public class InlongClientImpl implements InlongClient {
     }
 
     @Override
-    public InlongGroup getGroup(String groupName) {
+    public InlongGroup getGroup(String groupId) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
-        final String groupId = "b_" + groupName;
-        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
-        if (groupResponse == null) {
+        InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
+        if (groupInfo == null) {
             return new BlankInlongGroup();
         }
-        InlongGroupConf groupConf = InlongGroupTransfer.parseGroupResponse(groupResponse);
-        return new InlongGroupImpl(groupConf, this);
+        return new InlongGroupImpl(groupInfo, this);
     }
 
     private InlongGroupStatus recheckGroupState(InlongGroupStatus groupState,

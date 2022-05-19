@@ -300,7 +300,7 @@
             and is_deleted = 0
         </where>
     </select>
-    <select id="selectTopicList" resultType="org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse">
+    <select id="selectTopicList" resultType="org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo">
         select inlong_stream_id, mq_resource
         from inlong_stream
         <where>

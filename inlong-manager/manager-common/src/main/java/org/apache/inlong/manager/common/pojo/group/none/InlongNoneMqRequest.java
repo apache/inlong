@@ -15,37 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.group.none;
 
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.client.api.auth.Authentication;
-
-import java.util.Map;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Flink sort base config.
+ * Inlong group request without MQ.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Base configuration for flink cluster")
-public class FlinkSortBaseConf extends SortBaseConf {
+@ApiModel("Inlong group request without MQ")
+@JsonTypeDefine(value = MQType.MQ_NONE)
+public class InlongNoneMqRequest extends InlongGroupRequest {
 
-    @ApiModelProperty(value = "Sort type")
-    private SortType type = SortType.FLINK;
+    // no field
 
-    @ApiModelProperty("Authentication")
-    private Authentication authentication;
+    public InlongNoneMqRequest() {
+        this.setMqType(MQType.MQ_NONE);
+    }
 
-    @ApiModelProperty("ServiceUrl for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing")
-    private String serviceUrl;
-
-    @ApiModelProperty("Region for flink cluster, for example:ap-beijing|ap-chengdu|ap-chongqing or null if not exists")
-    private String region;
-
-    @ApiModelProperty("Other properties if needed")
-    private Map<String, String> properties = Maps.newHashMap();
 }

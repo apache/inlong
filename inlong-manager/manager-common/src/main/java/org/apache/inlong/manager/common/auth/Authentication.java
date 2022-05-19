@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.auth;
+package org.apache.inlong.manager.common.auth;
 
 import java.util.Locale;
 import java.util.Map;

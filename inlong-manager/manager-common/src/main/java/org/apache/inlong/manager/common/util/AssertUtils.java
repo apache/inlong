@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.util;
+package org.apache.inlong.manager.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.Map;
 
-public class AssertUtil {
+public class AssertUtils {
 
     public static void isTrue(boolean expression, String message) {
         if (!expression) {

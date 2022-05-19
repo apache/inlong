@@ -21,10 +21,10 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,22 +43,20 @@ public class InlongGroupServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceTest.class);
 
-    private final String globalGroupId = "b_group1";
-    private final String globalGroupName = "group1";
+    private final String globalGroupId = "group1";
     private final String globalOperator = "admin";
-
-    @Autowired
-    InlongGroupExtEntityMapper groupExtMapper;
     @Autowired
     public InlongGroupService groupService;
+    @Autowired
+    InlongGroupExtEntityMapper groupExtMapper;
 
     /**
      * Test to save group
      */
-    public String saveGroup(String groupName, String operator) {
+    public String saveGroup(String inlongGroupId, String operator) {
         InlongGroupInfo groupInfo;
         try {
-            groupInfo = groupService.get(globalGroupId);
+            groupInfo = groupService.get(inlongGroupId);
             if (groupInfo != null) {
                 return groupInfo.getInlongGroupId();
             }
@@ -66,28 +64,24 @@ public class InlongGroupServiceTest {
             // ignore
         }
 
-        groupInfo = new InlongGroupInfo();
-        groupInfo.setName(groupName);
-        groupInfo.setMqType(MQType.PULSAR.getType());
-        groupInfo.setCreator(operator);
-        groupInfo.setInCharges(operator);
-        groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-
-        InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
+        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
+        pulsarInfo.setInlongGroupId(inlongGroupId);
         pulsarInfo.setMqType(MQType.PULSAR.getType());
+        pulsarInfo.setCreator(operator);
+        pulsarInfo.setInCharges(operator);
+        pulsarInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
+
         pulsarInfo.setEnsemble(3);
         pulsarInfo.setWriteQuorum(3);
         pulsarInfo.setAckQuorum(2);
 
-        groupInfo.setMqExtInfo(pulsarInfo);
-
-        return groupService.save(groupInfo.genRequest(), operator);
+        return groupService.save(pulsarInfo.genRequest(), operator);
     }
 
     // @TestComponent runs as a whole without injecting objects
     // @Test
     public void testSaveAndDelete() {
-        String groupId = this.saveGroup(globalGroupName, globalOperator);
+        String groupId = this.saveGroup(globalGroupId, globalOperator);
         Assert.assertNotNull(groupId);
 
         boolean result = groupService.delete(groupId, globalOperator);

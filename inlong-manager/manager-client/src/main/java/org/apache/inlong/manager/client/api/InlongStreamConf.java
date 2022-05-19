@@ -37,11 +37,14 @@ import java.util.List;
 @ApiModel("Inlong stream configuration")
 public class InlongStreamConf {
 
-    @ApiModelProperty(value = "Inlong stream name", required = true)
+    @ApiModelProperty(value = "Inlong stream ID", required = true)
+    private String streamId;
+
+    @ApiModelProperty(value = "Inlong stream name")
     private String name;
 
-    @ApiModelProperty(value = "Topic name for stream. default: b_${name}")
-    private String topic;
+    @ApiModelProperty(value = "MQ resource for stream. Default: ${streamId}")
+    private String mqResource;
 
     @ApiModelProperty("Inlong stream description")
     private String description;

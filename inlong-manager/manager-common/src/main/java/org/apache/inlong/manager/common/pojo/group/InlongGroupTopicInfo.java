@@ -20,16 +20,16 @@ package org.apache.inlong.manager.common.pojo.group;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 
 import java.util.List;
 
 /**
- * Topic response of the inlong group
+ * Inlong group and topic info
  */
 @Data
-@ApiModel("Topic response of the inlong group")
-public class InlongGroupTopicResponse {
+@ApiModel("Inlong group and topic info")
+public class InlongGroupTopicInfo {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
@@ -42,7 +42,7 @@ public class InlongGroupTopicResponse {
 
     @ApiModelProperty(value = "Topic list, Tube corresponds to inlong group, there is only 1 topic, "
             + "Pulsar corresponds to inlong stream, there are multiple topics")
-    private List<InlongStreamTopicResponse> dsTopicList;
+    private List<InlongStreamTopicInfo> streamTopics;
 
     @ApiModelProperty(value = "Tube master URL")
     private String tubeMasterUrl;

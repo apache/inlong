@@ -35,9 +35,6 @@ public class InlongStreamServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceTest.class);
 
-    private final String globalGroupId = "b_group1";
-    private final String globalGroupName = "group1";
-    private final String globalStreamId = "stream1";
     private final String globalOperator = "admin";
 
     @Autowired
@@ -49,7 +46,6 @@ public class InlongStreamServiceTest {
      * Test save inlong stream
      */
     public Integer saveInlongStream(String groupId, String streamId, String operator) {
-        ;
         try {
             InlongStreamInfo response = streamService.get(groupId, streamId);
             if (response != null) {
@@ -59,7 +55,7 @@ public class InlongStreamServiceTest {
             // ignore
         }
 
-        groupServiceTest.saveGroup(globalGroupName, operator);
+        groupServiceTest.saveGroup(groupId, operator);
 
         InlongStreamRequest request = new InlongStreamRequest();
         request.setInlongGroupId(groupId);
@@ -69,13 +65,14 @@ public class InlongStreamServiceTest {
         return streamService.save(request, operator);
     }
 
-    // @TestComponent runs as a whole without injecting objects
     // @Test
     public void testSaveAndDelete() {
-        Integer id = this.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        String groupId = "stream_service_test_group";
+        String streamId = "stream_service_test_stream";
+        Integer id = this.saveInlongStream(groupId, streamId, globalOperator);
         Assert.assertNotNull(id);
 
-        boolean result = streamService.delete(globalGroupId, globalStreamId, globalOperator);
+        boolean result = streamService.delete(groupId, streamId, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -83,4 +80,5 @@ public class InlongStreamServiceTest {
     public void test() {
         LOGGER.info("If you don't add test, UnusedImports: Unused import: org.junit.Test.");
     }
+
 }

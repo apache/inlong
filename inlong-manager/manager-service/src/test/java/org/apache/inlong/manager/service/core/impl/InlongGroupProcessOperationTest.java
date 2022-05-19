@@ -21,12 +21,11 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperation;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
@@ -45,7 +44,7 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
     private static final String GROUP_NAME = "test_biz";
 
-    private static final String GROUP_ID = "b_test_biz";
+    private static final String GROUP_ID = "test_biz";
 
     @Autowired
     private InlongGroupService groupService;
@@ -62,14 +61,11 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
         groupTaskListenerFactory.acceptPlugin(mockPlugin);
-        InlongGroupRequest groupInfo = new InlongGroupRequest();
+        InlongPulsarRequest groupInfo = new InlongPulsarRequest();
         groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setName(GROUP_NAME);
         groupInfo.setInCharges(OPERATOR);
         groupInfo.setMqType(MQType.PULSAR.getType());
-        InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
-        pulsarInfo.setInlongGroupId(GROUP_ID);
-        groupInfo.setMqExtInfo(pulsarInfo);
         groupService.save(groupInfo, OPERATOR);
     }
 

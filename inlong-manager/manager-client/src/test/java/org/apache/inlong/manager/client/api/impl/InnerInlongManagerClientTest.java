@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.junit.Assert;

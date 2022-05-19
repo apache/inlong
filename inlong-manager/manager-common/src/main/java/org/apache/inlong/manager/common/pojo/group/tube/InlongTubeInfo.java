@@ -15,30 +15,42 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.group.tube;
 
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Map;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Base configuration for user defined sort functions.
+ * Inlong group info for Tube
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Base configuration for user defined sort functions")
-public class UserDefinedSortConf extends SortBaseConf {
+@ApiModel("Inlong group info for Tube")
+@JsonTypeDefine(value = MQType.MQ_TUBE)
+public class InlongTubeInfo extends InlongGroupInfo {
 
-    @ApiModelProperty(value = "Sort type")
-    private SortType type = SortType.USER_DEFINED;
+    @ApiModelProperty("Tube manager URL")
+    private String managerUrl;
 
-    @ApiModelProperty("Name for user defined sort functions")
-    private String sortName;
+    @ApiModelProperty("Tube master URL")
+    private String masterUrl;
 
-    @ApiModelProperty("Properties for user defined sort functions if needed")
-    private Map<String, String> properties = Maps.newHashMap();
+    @ApiModelProperty("Tube cluster ID")
+    private int clusterId = 1;
+
+    public InlongTubeInfo() {
+        this.setMqType(MQType.MQ_TUBE);
+    }
+
+    @Override
+    public InlongTubeRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongTubeRequest::new);
+    }
+
 }
