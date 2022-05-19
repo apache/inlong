@@ -77,7 +77,7 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("1", "kafka_input_1", fields, null,
                 null, "topic_input_1", "localhost:9092",
                 new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
-                null);
+                null, "groupId");
     }
 
     /**
@@ -91,7 +91,7 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
         return new KafkaExtractNode("2", "kafka_input_2", fields, null,
                 null, "topic_input_2", "localhost:9092",
                 new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
-                null);
+                null, "groupId");
     }
 
     /**
@@ -105,7 +105,7 @@ public class LeftOuterJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         return new KafkaExtractNode("3", "kafka_input_3", fields, null,
                 null, "topic_input_3", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null);
+                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null, "groupId");
     }
 
     /**

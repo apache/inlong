@@ -68,6 +68,9 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonProperty("groupId")
+    private String groupId;
+
     @JsonCreator
     public KafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -78,13 +81,15 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("bootstrapServers") String bootstrapServers,
             @Nonnull @JsonProperty("format") Format format,
             @JsonProperty("scanStartupMode") ScanStartupMode scanStartupMode,
-            @JsonProperty("primaryKey") String primaryKey) {
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("groupId") String groupId) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
         this.format = Preconditions.checkNotNull(format, "kafka format is empty");
         this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode, "kafka scanStartupMode is empty");
         this.primaryKey = primaryKey;
+        this.groupId = groupId;
     }
 
     /**
@@ -112,6 +117,9 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
+        }
+        if (StringUtils.isNotEmpty(groupId)) {
+            options.put(KafkaConstant.PROPERTIES_GROUP_ID, groupId);
         }
         return options;
     }

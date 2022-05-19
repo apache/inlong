@@ -57,13 +57,13 @@ public class InlongGroupConf {
     private String operator = "admin";
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    private Integer enableZookeeper;
+    private Integer enableZookeeper = 1;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    private Integer enableCreateResource;
+    private Integer enableCreateResource = 1;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
-    private Integer lightweight;
+    private Integer lightweight = 0;
 
     @ApiModelProperty("Inlong cluster tag")
     private String inlongClusterTag;

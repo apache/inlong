@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.service.core.operation;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -247,7 +247,7 @@ public class InlongGroupProcessOperation {
     /**
      * Generate the form of [New Group Workflow]
      */
-    public NewGroupProcessForm genNewGroupProcessForm(String groupId) {
+    private NewGroupProcessForm genNewGroupProcessForm(String groupId) {
         NewGroupProcessForm form = new NewGroupProcessForm();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         form.setGroupInfo(groupInfo);

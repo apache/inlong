@@ -39,6 +39,6 @@ public class KafkaExtractNodeTest extends SerializeBaseTest<Node> {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input", fields, null, null, "workerCsv",
-                "localhost:9092", new CsvFormat(), ScanStartupMode.EARLIEST_OFFSET, null);
+                "localhost:9092", new CsvFormat(), ScanStartupMode.EARLIEST_OFFSET, null, "groupId");
     }
 }
