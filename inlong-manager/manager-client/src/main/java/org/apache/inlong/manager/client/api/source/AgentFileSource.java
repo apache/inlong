@@ -27,6 +27,9 @@ import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.enums.SourceType;
 
+/**
+ * Agent file source.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

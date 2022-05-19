@@ -84,7 +84,7 @@ public class GroupApproveProcessListener implements ProcessEventListener {
     private void createGroupResource(WorkflowContext context, InlongGroupInfo groupInfo) {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
         processForm.setGroupInfo(groupInfo);
-        String username = context.getApplicant();
+        String username = context.getOperator();
         String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);
@@ -94,7 +94,7 @@ public class GroupApproveProcessListener implements ProcessEventListener {
     private void createLightGroupResource(WorkflowContext context, InlongGroupInfo groupInfo) {
         LightGroupResourceProcessForm processForm = new LightGroupResourceProcessForm();
         processForm.setGroupInfo(groupInfo);
-        String username = context.getApplicant();
+        String username = context.getOperator();
         String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);

@@ -51,6 +51,9 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 
+/**
+ * Heartbeat service test.
+ */
 @RunWith(SpringRunner.class)
 public class HeartbeatServiceTest {
 

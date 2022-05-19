@@ -19,6 +19,10 @@ package org.apache.inlong.agent.plugin.utils;
 
 import io.debezium.spi.converter.CustomConverter;
 import io.debezium.spi.converter.RelationalColumn;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -26,14 +30,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import org.apache.kafka.connect.data.SchemaBuilder;
-
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * binlog time converter utils
+ */
 public class BinlogTimeConverter implements CustomConverter<SchemaBuilder, RelationalColumn> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginUtils.class);

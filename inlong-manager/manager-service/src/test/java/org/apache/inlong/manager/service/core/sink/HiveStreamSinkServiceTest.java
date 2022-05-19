@@ -45,6 +45,9 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+    /**
+     * Save sink info.
+     */
     public Integer saveSink() {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
@@ -62,7 +65,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         Integer id = this.saveSink();
         Assert.assertNotNull(id);
 
-        boolean result = sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
+        boolean result = sinkService.delete(id, globalOperator);
         Assert.assertTrue(result);
     }
 
@@ -70,16 +73,16 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSink();
 
-        SinkResponse sink = sinkService.get(id, SinkType.SINK_HIVE);
+        SinkResponse sink = sinkService.get(id);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
 
-        sinkService.delete(id, SinkType.SINK_HIVE, globalOperator);
+        sinkService.delete(id, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id, SinkType.SINK_HIVE);
+        SinkResponse response = sinkService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HiveSinkResponse hiveResponse = (HiveSinkResponse) response;

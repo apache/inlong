@@ -20,6 +20,9 @@ package org.apache.inlong.manager.workflow.event.task;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
+/**
+ * Listener of operate data source.
+ */
 public interface DataSourceOperateListener extends TaskEventListener {
 
     DataSourceOperateListener DEFAULT_SOURCE_OPERATE_LISTENER = new DataSourceOperateListener() {

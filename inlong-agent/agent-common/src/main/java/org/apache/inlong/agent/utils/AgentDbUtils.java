@@ -17,6 +17,9 @@
 
 package org.apache.inlong.agent.utils;
 
+import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,20 +27,21 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.lang3.StringUtils;
 
+/**
+ * AgentDbUtils
+ */
 public class AgentDbUtils {
 
     private static final Pattern PATTERN =
-        Pattern.compile("\\$\\{(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *, "
-            + "*(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *(, *[0-9]*?)??}");
+            Pattern.compile("\\$\\{(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *, "
+                    + "*(((0x)|(0X)|o|O)??[0-9a-fA-F]+?) *(, *[0-9]*?)??}");
     private static final Pattern OCT_PATTERN = Pattern.compile("^o[0-7]+?$");
     private static final Pattern DEC_PATTERN = Pattern.compile("^[0-9]+?$");
     private static final int HEX_MODE = 16;
     private static final int EIGHT_MODE = 8;
     private static final String HEX_PREFIX = "0x";
-    private static final String O_PREFIX  = "o";
+    private static final String O_PREFIX = "o";
 
     /**
      * Attempts to establish a connection to the database from the XML configurations. If failed,
@@ -136,9 +140,9 @@ public class AgentDbUtils {
      * Transfer string pattern into a list of real string.
      * For example: ${1, 99} = 1, 2, 3, ... 98,
      * 99 <br> ${01, 99} = 01, 02, ... 98, 99 <br>
-     *     ${0x0,0xff} = 1, 2, ... fe, ff <br> ${0x00,0xff}
+     * ${0x0,0xff} = 1, 2, ... fe, ff <br> ${0x00,0xff}
      * = 01, 02, ... fe, ff <br> ${O1,O10} = 1, 2,... 7, 10<br>
-     *     ${O01,O10} = 01, 02,... 07, 10<br>
+     * ${O01,O10} = 01, 02,... 07, 10<br>
      *
      * test_${0x00,0x12,5} = test_00, test_05, test_0a, test_0f<br>
      *
@@ -214,10 +218,10 @@ public class AgentDbUtils {
     }
 
     private static ArrayList<String>[] formatStartNum(ArrayList<String> startNum,
-        ArrayList<String> endNum,
-        ArrayList<Integer> modes,
-        ArrayList<Integer> steps,
-        StringBuffer sb) {
+            ArrayList<String> endNum,
+            ArrayList<Integer> modes,
+            ArrayList<Integer> steps,
+            StringBuffer sb) {
         @SuppressWarnings("unchecked")
         ArrayList<String>[] tempArray = new ArrayList[startNum.size() + 1];
         tempArray[0] = new ArrayList<String>();
@@ -232,8 +236,8 @@ public class AgentDbUtils {
             for (String currentPath : tempArray[index]) {
                 for (int i = parseInt(start); i <= parseInt(end); i = i + step) {
                     tempArray[index + 1].add(currentPath.replaceAll(
-                        "\\$\\{" + index + "}",
-                        format(i, lengthEquals, end.length(), mode)));
+                            "\\$\\{" + index + "}",
+                            format(i, lengthEquals, end.length(), mode)));
                 }
             }
         }

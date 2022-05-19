@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
@@ -40,6 +40,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
+/**
+ * Listener of delete sort.
+ */
 @Slf4j
 public class DeleteSortListener implements SortOperateListener {
 
@@ -52,14 +55,14 @@ public class DeleteSortListener implements SortOperateListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof UpdateGroupProcessForm)) {
-            String message = String.format("process form was not UpdateGroup for groupId [%s]", groupId);
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            String message = String.format("process form was not GroupResourceProcessForm for groupId [%s]", groupId);
             log.error(message);
             return ListenerResult.fail(message);
         }
 
-        UpdateGroupProcessForm updateGroupForm = (UpdateGroupProcessForm) processForm;
-        InlongGroupInfo inlongGroupInfo = updateGroupForm.getGroupInfo();
+        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
+        InlongGroupInfo inlongGroupInfo = groupResourceProcessForm.getGroupInfo();
         List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
         log.info("inlong group ext info: {}", extList);
 

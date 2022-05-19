@@ -60,7 +60,7 @@ public class SinkResourceListener implements SinkOperateListener {
         log.info("begin to create sink resources for groupId={}", groupId);
 
         List<String> streamIdList = new ArrayList<>();
-        List<InlongStreamInfo> streamList = form.getStreamInfoList();
+        List<InlongStreamInfo> streamList = form.getStreamInfos();
         if (CollectionUtils.isNotEmpty(streamList)) {
             streamIdList = streamList.stream().map(InlongStreamInfo::getInlongStreamId).collect(Collectors.toList());
         }

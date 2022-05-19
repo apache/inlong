@@ -25,6 +25,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+/**
+ * Test class for base test service.
+ */
 @SpringBootApplication
 @SpringBootTest(classes = ServiceBaseTest.class)
 @EnableWebMvc

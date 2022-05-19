@@ -19,13 +19,16 @@ package org.apache.inlong.agent.plugin.validator;
 
 import org.apache.inlong.agent.plugin.Validator;
 
+/**
+ * validate whether a message contains specified content
+ */
 public class PatternValidator implements Validator {
+
+    private String pattern;
 
     public PatternValidator(String pattern) {
         this.pattern = pattern;
     }
-
-    private String pattern;
 
     @Override
     public boolean validate(String messageLine) {

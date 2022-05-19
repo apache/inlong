@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.pojo.workflow.form;
 import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -38,13 +41,15 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     private InlongGroupInfo groupInfo;
 
+    @Getter
+    @Setter
+    private GroupOperateType groupOperateType = GroupOperateType.INIT;
+
     @Deprecated
     private String streamId;
 
     @Deprecated
     private List<InlongStreamInfo> streamInfos;
-
-    private List<InlongStreamInfo> streamInfoList;
 
     public InlongGroupInfo getGroupInfo() {
         return groupInfo;
@@ -82,6 +87,7 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
+        show.put("groupOperateType", this.groupOperateType);
         return show;
     }
 }

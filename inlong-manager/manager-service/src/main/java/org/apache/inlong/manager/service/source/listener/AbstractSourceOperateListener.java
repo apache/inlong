@@ -35,7 +35,6 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -49,6 +48,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Event listener of operate resources, such as delete, stop, restart sources.
+ */
 @Slf4j
 @Component
 public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {
@@ -72,13 +74,12 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
         List<SourceResponse> unOperatedSources = Lists.newArrayList();
         streamBriefResponses.forEach(streamBriefResponse ->
-                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant(),
+                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getOperator(),
                         unOperatedSources));
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType groupOperateType = getOperateType(context.getProcessForm());
             StringBuilder builder = new StringBuilder("Unsupported operate ").append(groupOperateType).append(" for (");
-            unOperatedSources.stream()
-                    .forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
+            unOperatedSources.forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
             String errMsg = builder.append(")").toString();
             throw new WorkflowListenerException(errMsg);
         } else {
@@ -86,6 +87,9 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
+    /**
+     * Operate stream sources ,such as delete, stop, restart.
+     */
     protected void operateStreamSources(String groupId, String streamId, String operator,
             List<SourceResponse> unOperatedSources) {
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
@@ -110,7 +114,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             } else {
                 log.warn("StreamSource={} cannot be operated for state={}", sourceResponse, sourceStatus);
                 TimeUnit.SECONDS.sleep(5);
-                sourceResponse = streamSourceService.get(sourceResponse.getId(), sourceResponse.getSourceType());
+                sourceResponse = streamSourceService.get(sourceResponse.getId());
             }
         }
         SourceStatus sourceStatus = SourceStatus.forCode(sourceResponse.getStatus());
@@ -124,6 +128,12 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         return false;
     }
 
+    /**
+     * Creat source request by source type.
+     *
+     * @param sourceResponse source infomation.
+     * @return source request.
+     */
     public SourceRequest createSourceRequest(SourceResponse sourceResponse) {
         String sourceType = sourceResponse.getSourceType();
         SourceType type = SourceType.valueOf(sourceType);
@@ -138,14 +148,14 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
+    /**
+     * Operate stream sources ,such as delete, stop, restart.
+     */
     public abstract void operateStreamSource(SourceRequest sourceRequest, String operator);
 
     private GroupOperateType getOperateType(ProcessForm processForm) {
         if (processForm instanceof GroupResourceProcessForm) {
-            return GroupOperateType.INIT;
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupOperateType();
+            return ((GroupResourceProcessForm) processForm).getGroupOperateType();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
@@ -157,9 +167,6 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();
-        } else if (processForm instanceof UpdateGroupProcessForm) {
-            UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-            return updateGroupProcessForm.getGroupInfo();
         } else {
             log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",

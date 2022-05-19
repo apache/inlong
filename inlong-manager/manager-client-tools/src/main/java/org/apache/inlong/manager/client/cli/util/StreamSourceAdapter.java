@@ -31,6 +31,9 @@ import org.apache.inlong.manager.common.enums.SourceType;
 
 import java.lang.reflect.Type;
 
+/**
+ * Stream source adapter.
+ */
 public class StreamSourceAdapter implements JsonDeserializer {
 
     @Override

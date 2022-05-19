@@ -20,6 +20,9 @@ package org.apache.inlong.manager.service.source.listener;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener of source restart event.
+ */
 @Component
 public class SourceRestartListener extends AbstractSourceOperateListener {
 
@@ -30,6 +33,6 @@ public class SourceRestartListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
-        streamSourceService.restart(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
+        streamSourceService.restart(sourceRequest.getId(), operator);
     }
 }

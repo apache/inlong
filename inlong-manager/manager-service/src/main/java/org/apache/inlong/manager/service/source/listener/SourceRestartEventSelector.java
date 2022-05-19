@@ -18,20 +18,23 @@
 package org.apache.inlong.manager.service.source.listener;
 
 import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of source restart event.
+ */
 public class SourceRestartEventSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
-        if (!(processForm instanceof UpdateGroupProcessForm)) {
+        if (!(processForm instanceof GroupResourceProcessForm)) {
             return false;
         }
-        UpdateGroupProcessForm updateGroupProcessForm = (UpdateGroupProcessForm) processForm;
-        return updateGroupProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
+        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
+        return groupResourceProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
     }
 }

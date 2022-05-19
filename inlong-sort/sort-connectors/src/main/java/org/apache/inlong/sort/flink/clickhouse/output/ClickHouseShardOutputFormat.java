@@ -40,6 +40,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * clickhouse shard output format using shard connections
+ * provided by ConnectionProvider
+ */
 public class ClickHouseShardOutputFormat extends AbstractClickHouseOutputFormat {
 
     private static final long serialVersionUID = 1L;

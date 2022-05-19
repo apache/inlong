@@ -17,16 +17,20 @@
 
 package org.apache.inlong.manager.dao.entity;
 
-import java.io.Serializable;
 import lombok.Data;
 
+import java.io.Serializable;
+
+/**
+ * Data consumption table, including group name, group id, topic, etc
+ */
 @Data
 public class ConsumptionPulsarEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
     private Integer consumptionId;
-    private String consumerGroupId;
+    private String consumerGroup;
     private String inlongGroupId;
     private Integer isDlq;
     private String deadLetterTopic;

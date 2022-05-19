@@ -17,6 +17,9 @@
 
 package org.apache.inlong.sort.protocol.transformation;
 
+/**
+ * order direction used in a flink sql
+ */
 public enum OrderDirection {
     /**
      * Asc for order direction

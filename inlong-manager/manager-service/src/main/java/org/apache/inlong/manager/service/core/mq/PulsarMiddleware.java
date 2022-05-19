@@ -97,7 +97,7 @@ public class PulsarMiddleware implements Middleware {
         Preconditions.checkNotNull(pulsarEntity, "Pulsar info not found by the groupId=" + groupId);
         InlongGroupPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity,
                 InlongGroupPulsarInfo::new);
-        pulsarInfo.setMiddlewareType(type().name());
+        pulsarInfo.setMqType(type().name());
         return pulsarInfo;
     }
 
@@ -126,7 +126,7 @@ public class PulsarMiddleware implements Middleware {
         topicVO.setPulsarAdminUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.PULSAR_ADMIN_URL));
         topicVO.setPulsarServiceUrl(commonOperateService.getSpecifiedParam(InlongGroupSettings.PULSAR_SERVICE_URL));
         topicVO.setInlongGroupId(groupInfo.getInlongGroupId());
-        topicVO.setMiddlewareType(type().name());
+        topicVO.setMqType(type().name());
         return topicVO;
     }
 

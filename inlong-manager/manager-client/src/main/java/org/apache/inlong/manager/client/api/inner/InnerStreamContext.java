@@ -29,6 +29,9 @@ import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * InnerStreamContext.
+ */
 @Data
 @NoArgsConstructor
 public class InnerStreamContext {

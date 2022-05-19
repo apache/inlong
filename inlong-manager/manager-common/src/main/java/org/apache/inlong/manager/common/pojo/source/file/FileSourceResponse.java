@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 
 /**
- * Response of the File source
+ * Response info of the File source
  */
 @Data
 @ToString(callSuper = true)

@@ -53,17 +53,17 @@ jobs:
           - 'kindest/node:v1.23.4'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
 
-      - name: Set up helm
+      - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
           version: v3.5.0
 
-      - name: Set up python
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
@@ -77,16 +77,16 @@ jobs:
           changed=$(ct list-changed --config ${{ env.CT_CONFIG_PATH }} --target-branch ${{ github.event.repository.default_branch }})
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
-            echo -e "\e[96mchanged charts: $changed\e[0m"
+            echo "Changed charts: $changed"
           else
-            echo -e "\e[91mCharts are not changed, they will not be linted, validated, installed and tested.\e[0m"
+            echo "Charts are not changed, they will not be linted, validated, installed and tested."
           fi
 
       # NOTE: If the charts have not changed, they will not be linted, validated, installed and tested.
       - name: Lint and validate charts
         run: ct lint --config ${{ env.CT_CONFIG_PATH }}
 
-      - name: Create kind cluster
+      - name: Create Kind cluster
         if: ${{ steps.list-changed.outputs.changed == 'true' }}
         uses: ./.github/actions/kind-action
         with:

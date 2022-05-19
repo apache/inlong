@@ -21,6 +21,9 @@ import com.beust.jcommander.IStringConverter;
 
 import java.io.File;
 
+/**
+ * File converter.
+ */
 public class FileConverter implements IStringConverter<File> {
 
     @Override

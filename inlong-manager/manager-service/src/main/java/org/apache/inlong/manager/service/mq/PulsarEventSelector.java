@@ -26,6 +26,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
+/**
+ * Selector of pulsar event for create pulsar resource.
+ */
 @Slf4j
 public class PulsarEventSelector implements EventSelector {
 
@@ -38,7 +41,7 @@ public class PulsarEventSelector implements EventSelector {
 
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
         String groupId = form.getInlongGroupId();
-        MQType mqType = MQType.forType(form.getGroupInfo().getMiddlewareType());
+        MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
             boolean enable = GlobalConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());

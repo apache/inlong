@@ -19,6 +19,9 @@ package org.apache.inlong.manager.plugin.flink.dto;
 
 import lombok.Data;
 
+/**
+ * Jars info, including filename and status.
+ */
 @Data
 public class Jars {
 

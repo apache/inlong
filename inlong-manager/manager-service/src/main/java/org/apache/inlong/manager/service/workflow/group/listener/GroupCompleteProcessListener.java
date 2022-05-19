@@ -61,7 +61,7 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        String applicant = context.getApplicant();
+        String applicant = context.getOperator();
         // Update inlong group status and other info
         groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
         groupService.update(form.getGroupInfo().genRequest(), applicant);

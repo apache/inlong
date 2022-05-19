@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.pojo.tubemq;
 import lombok.Builder;
 import lombok.Data;
 
+/**
+ * The request info of query tube topic.
+ */
 @Data
 @Builder
 public class QueryTubeTopicRequest {

@@ -23,7 +23,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * .
+ * Kv deserialization info
  */
 public class KvDeserializationInfo implements DeserializationInfo {
 

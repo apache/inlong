@@ -22,6 +22,9 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
+/**
+ * Test class for listen stop sort event.
+ */
 public class MockStopSortListener implements SortOperateListener {
 
     @Override

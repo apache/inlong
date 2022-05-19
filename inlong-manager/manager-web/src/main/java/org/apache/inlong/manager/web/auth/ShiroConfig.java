@@ -31,6 +31,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Inlong hiro config.
+ */
 @Configuration
 public class ShiroConfig {
 

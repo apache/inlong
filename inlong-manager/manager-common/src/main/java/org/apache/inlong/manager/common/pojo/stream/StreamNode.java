@@ -25,6 +25,9 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Stream node, including data node name, pre node name, post node name, field list.
+ */
 @Data
 public class StreamNode {
 

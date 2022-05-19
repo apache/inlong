@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
 
     public InlongGroupPulsarInfo() {
-        this.setMiddlewareType(MQType.PULSAR.getType());
+        this.setMqType(MQType.PULSAR.getType());
     }
 
     @ApiModelProperty(value = "Tenant name of Inlong group")

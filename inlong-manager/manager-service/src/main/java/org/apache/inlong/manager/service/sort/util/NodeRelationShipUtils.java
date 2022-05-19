@@ -55,24 +55,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Util for creat node relation ship.
+ */
 @Slf4j
 public class NodeRelationShipUtils {
 
     public static List<NodeRelationShip> createNodeRelationShipsForStream(InlongStreamInfo streamInfo) {
-        String tempView = streamInfo.getTempView();
+        String tempView = streamInfo.getExtParams();
         if (StringUtils.isEmpty(tempView)) {
             log.warn("StreamNodeRelationShip is empty for Stream={}", streamInfo);
             return Lists.newArrayList();
         }
-        StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getTempView(),
+        StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getExtParams(),
                 streamInfo.getInlongStreamId());
-        List<NodeRelationShip> nodeRelationShips = pipeline.getPipeline().stream()
+        return pipeline.getPipeline().stream()
                 .map(streamNodeRelationShip -> new NodeRelationShip(
                         Lists.newArrayList(streamNodeRelationShip.getInputNodes()),
                         Lists.newArrayList(streamNodeRelationShip.getOutputNodes())))
-                .collect(
-                        Collectors.toList());
-        return nodeRelationShips;
+                .collect(Collectors.toList());
     }
 
     public static void optimizeNodeRelationShips(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
@@ -80,19 +81,18 @@ public class NodeRelationShipUtils {
             return;
         }
         Map<String, TransformDefinition> transformTypeMap = transformResponses.stream().collect(
-                Collectors.toMap(transformResponse -> transformResponse.getTransformName(),
-                        transformResponse -> {
-                            TransformType transformType = TransformType.forType(transformResponse.getTransformType());
-                            return StreamParseUtils.parseTransformDefinition(transformResponse.getTransformDefinition(),
-                                    transformType);
-                        }));
+                Collectors.toMap(TransformResponse::getTransformName, transformResponse -> {
+                    TransformType transformType = TransformType.forType(transformResponse.getTransformType());
+                    return StreamParseUtils.parseTransformDefinition(transformResponse.getTransformDefinition(),
+                            transformType);
+                }));
         List<Node> nodes = streamInfo.getNodes();
         Map<String, TransformNode> joinNodes = nodes.stream().filter(node -> node instanceof TransformNode)
                 .map(node -> (TransformNode) node)
                 .filter(transformNode -> {
                     TransformDefinition transformDefinition = transformTypeMap.get(transformNode.getName());
                     return transformDefinition.getTransformType() == TransformType.JOINER;
-                }).collect(Collectors.toMap(transformNode -> transformNode.getName(), transformNode -> transformNode));
+                }).collect(Collectors.toMap(TransformNode::getName, transformNode -> transformNode));
         List<NodeRelationShip> relationShips = streamInfo.getRelations();
         Iterator<NodeRelationShip> shipIterator = relationShips.listIterator();
         List<NodeRelationShip> joinRelationShips = Lists.newArrayList();

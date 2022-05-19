@@ -20,6 +20,9 @@ package org.apache.inlong.manager.service.source.listener;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener of source stop event.
+ */
 @Component
 public class SourceStopListener extends AbstractSourceOperateListener {
 
@@ -30,6 +33,6 @@ public class SourceStopListener extends AbstractSourceOperateListener {
 
     @Override
     public void operateStreamSource(SourceRequest sourceRequest, String operator) {
-        streamSourceService.stop(sourceRequest.getId(), sourceRequest.getSourceType(), operator);
+        streamSourceService.stop(sourceRequest.getId(), operator);
     }
 }

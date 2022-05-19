@@ -23,6 +23,9 @@ import org.apache.flink.types.Row;
 
 import java.io.Serializable;
 
+/**
+ * partitioner for selecting a clickhouse shard
+ */
 public interface ClickHousePartitioner extends Serializable {
     int select(Tuple2<Boolean, Row> paramRowData, int paramInt);
 }

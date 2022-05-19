@@ -63,6 +63,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Common database server controller.
+ */
 @RestController
 @RequestMapping("commonserver/db")
 @Api(tags = "Common Server - DB")

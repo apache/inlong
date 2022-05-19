@@ -23,7 +23,6 @@ import java.util.List;
 
 /**
  * Data format service layer interface for inlong group
- *
  */
 public interface DataSchemaService {
 

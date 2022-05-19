@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.group.light;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupUpdateCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupUpdateFailedListener;
@@ -33,6 +33,9 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * Suspend light workflow definition for inlong group
+ */
 @Slf4j
 @Component
 public class SuspendLightGroupWorkflowDefinition implements WorkflowDefinition {
@@ -44,7 +47,7 @@ public class SuspendLightGroupWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private LightGroupUpdateFailedListener lightGroupUpdateFailedListener;
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -69,7 +72,7 @@ public class SuspendLightGroupWorkflowDefinition implements WorkflowDefinition {
         stopSortTask.setName("stopSort");
         stopSortTask.setDisplayName("Group-StopSort");
         stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(serviceTaskListenerFactory);
+        stopSortTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

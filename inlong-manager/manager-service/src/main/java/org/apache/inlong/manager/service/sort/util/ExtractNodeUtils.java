@@ -76,8 +76,8 @@ public class ExtractNodeUtils {
     /**
      * Create MySqlExtractNode based on BinlogSourceResponse
      *
-     * @param binlogSourceResponse
-     * @return
+     * @param binlogSourceResponse binlog source response info
+     * @return MySql extract node info
      */
     public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
         final String id = binlogSourceResponse.getSourceName();
@@ -133,8 +133,8 @@ public class ExtractNodeUtils {
     /**
      * Create KafkaExtractNode based KafkaSourceResponse
      *
-     * @param kafkaSourceResponse
-     * @return
+     * @param kafkaSourceResponse kafka source response
+     * @return kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
         String id = kafkaSourceResponse.getSourceName();
@@ -177,6 +177,7 @@ public class ExtractNodeUtils {
                 startupMode = ScanStartupMode.LATEST_OFFSET;
         }
         final String primaryKey = kafkaSourceResponse.getPrimaryKey();
+        String groupId = kafkaSourceResponse.getGroupId();
 
         return new KafkaExtractNode(id,
                 name,
@@ -187,6 +188,7 @@ public class ExtractNodeUtils {
                 bootstrapServers,
                 format,
                 startupMode,
-                primaryKey);
+                primaryKey,
+                groupId);
     }
 }

@@ -21,6 +21,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.TransformType;
 
+/**
+ * A class to define operation to transform.
+ */
 @Data
 public abstract class TransformDefinition {
 

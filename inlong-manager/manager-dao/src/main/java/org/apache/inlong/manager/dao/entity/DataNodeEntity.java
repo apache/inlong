@@ -22,6 +22,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Data node entity, including id, name, type, etc.
+ */
 @Data
 public class DataNodeEntity implements Serializable {
 
@@ -31,7 +34,7 @@ public class DataNodeEntity implements Serializable {
     private String type;
     private String url;
     private String username;
-    private String password;
+    private String token;
     private String inCharges;
     private Integer status;
     private Integer isDeleted;

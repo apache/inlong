@@ -142,7 +142,7 @@ public final class InLongMsgCsvFormatDeserializer extends AbstractInLongMsgForma
 
     @Override
     protected InLongMsgHead parseHead(String attr) {
-        return InLongMsgCsvUtils.parseHead(attr);
+        return InLongMsgUtils.parseHead(attr);
     }
 
     @Override

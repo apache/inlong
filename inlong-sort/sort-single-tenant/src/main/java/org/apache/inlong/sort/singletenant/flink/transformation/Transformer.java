@@ -33,6 +33,10 @@ import org.apache.inlong.sort.protocol.transformation.TransformationRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * transformer from row to row
+ * only supports field mapping
+ */
 public class Transformer extends ProcessFunction<Row, Row> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Transformer.class);

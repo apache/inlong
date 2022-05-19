@@ -129,11 +129,12 @@ const FormGenerator: React.FC<FormGeneratorProps> = props => {
     if (props.allValues) {
       setRealTimeValues(props.allValues);
     } else if (form) {
-      setTimeout(() => {
+      const timmer = setTimeout(() => {
         const { getFieldsValue } = form;
         const values = getFieldsValue(true);
         setRealTimeValues(prev => ({ ...prev, ...values }));
       }, 0);
+      return () => clearTimeout(timmer);
     }
   }, [form, props.allValues]);
 

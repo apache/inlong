@@ -32,16 +32,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Sort service test for {@link SortService}
+ */
 public class SortServiceImplTest extends ServiceBaseTest {
-
-    @Autowired
-    private SortService sortService;
-
-    @Autowired
-    SortSourceConfigEntityMapper sourceMapper;
 
     private static final String TEST_CLUSTER = "testCluster";
     private static final String TEST_TASK = "testTask";
+    @Autowired
+    SortSourceConfigEntityMapper sourceMapper;
+    @Autowired
+    private SortService sortService;
 
     @Test
     @Transactional

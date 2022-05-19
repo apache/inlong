@@ -17,6 +17,12 @@
 
 package org.apache.inlong.agent.plugin.trigger;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,12 +32,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * path pattern for file filter.
@@ -62,8 +62,6 @@ public class PathPattern {
 
     /**
      * find last existing path by pattern.
-     * @param watchDir
-     * @return
      */
     private String findRoot(String watchDir) {
         Path currentPath = Paths.get(watchDir);
@@ -81,11 +79,9 @@ public class PathPattern {
 
     /**
      * walk all suitable files under directory.
-     * @param collectResult
-     * @param maxNum
      */
     private void walkAllSuitableFiles(File dirPath, final Collection<File> collectResult,
-        int maxNum) throws IOException {
+            int maxNum) throws IOException {
         if (collectResult.size() > maxNum) {
             LOGGER.warn("max num of files is {}, please check", maxNum);
             return;
@@ -109,12 +105,9 @@ public class PathPattern {
 
     /**
      * walk root directory
-     * @param collectResult
-     * @param maxNum
-     * @throws IOException
      */
     public void walkAllSuitableFiles(final Collection<File> collectResult,
-        int maxNum) throws IOException {
+            int maxNum) throws IOException {
         walkAllSuitableFiles(new File(rootDir), collectResult, maxNum);
     }
 
@@ -129,7 +122,7 @@ public class PathPattern {
     /**
      * whether path is suitable
      *
-     * @param pathStr - pathString
+     * @param pathStr pathString
      * @return true if suit else false.
      */
     public boolean suitForWatch(String pathStr) {
@@ -150,7 +143,6 @@ public class PathPattern {
 
     /**
      * when a new file is found, update regex since time may change.
-     * @param
      */
     public void updateDateFormatRegex() {
         dateFormatRegex.setRegexWithCurrentTime(this.watchDir);
@@ -158,7 +150,6 @@ public class PathPattern {
 
     /**
      * when job is retry job, the time for searching file should be specified.
-     * @param time
      */
     public void updateDateFormatRegex(String time) {
         dateFormatRegex.setRegexWithTime(this.watchDir, time);

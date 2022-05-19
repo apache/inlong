@@ -41,7 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Sort service implementation. */
+/**
+ * Sort service implementation.
+ */
 @Service
 public class SortServiceImpl implements SortService {
 

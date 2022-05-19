@@ -23,9 +23,9 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
@@ -53,16 +53,16 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
         NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
         ConsumptionApproveForm approveForm = (ConsumptionApproveForm) context.getActionContext().getForm();
         ConsumptionInfo info = form.getConsumptionInfo();
-        if (StringUtils.equals(approveForm.getConsumerGroupId(), info.getConsumerGroupId())) {
-            return ListenerResult.success("The consumer group name has not been modified");
+        if (StringUtils.equals(approveForm.getConsumerGroup(), info.getConsumerGroup())) {
+            return ListenerResult.success("The consumer group has not been modified");
         }
-        boolean exist = consumptionService.isConsumerGroupIdExists(approveForm.getConsumerGroupId(), info.getId());
+        boolean exist = consumptionService.isConsumerGroupExists(approveForm.getConsumerGroup(), info.getId());
         if (exist) {
-            log.error("consumerGroupId already exist! duplicate :{}", approveForm.getConsumerGroupId());
-            throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_NAME_DUPLICATED);
+            log.error("consumer group {} already exist", approveForm.getConsumerGroup());
+            throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_DUPLICATED);
         }
-        return ListenerResult.success("Consumer group name from" + info.getConsumerGroupId()
-                + "change to " + approveForm.getConsumerGroupId());
+        return ListenerResult.success("Consumer group from " + info.getConsumerGroup()
+                + " change to " + approveForm.getConsumerGroup());
     }
 
     @Override

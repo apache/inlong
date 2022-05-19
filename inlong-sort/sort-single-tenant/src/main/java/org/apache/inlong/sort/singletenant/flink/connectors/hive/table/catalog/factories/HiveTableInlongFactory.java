@@ -49,6 +49,9 @@ import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.inlong.sort.singletenant.flink.connectors.hive.HiveTableSink;
 
+/**
+ * DynamicTableSourceFactory for hive table source
+ */
 public class HiveTableInlongFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
     private final HiveConf hiveConf;

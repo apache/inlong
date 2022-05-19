@@ -104,6 +104,9 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         return eventListener.async();
     }
 
+    /**
+     * Build event log.
+     */
     protected WorkflowEventLogEntity buildEventLog(WorkflowContext context) {
         WorkflowProcessEntity workflowProcessEntity = context.getProcessEntity();
         Element currentElement = context.getCurrentElement();

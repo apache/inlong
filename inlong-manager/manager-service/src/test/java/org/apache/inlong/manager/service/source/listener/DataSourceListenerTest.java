@@ -21,14 +21,13 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowServiceImplTest;
@@ -42,9 +41,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Test class for operate binlog source, such as frozen or restart.
+ */
 public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
-    public UpdateGroupProcessForm form;
+    public GroupResourceProcessForm form;
 
     public InlongGroupInfo groupInfo;
 
@@ -76,7 +78,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
                 SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
-        form = new UpdateGroupProcessForm();
+        form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         WorkflowContext context = workflowEngine.processService()
@@ -88,7 +90,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
+        SourceResponse sourceResponse = streamSourceService.get(sourceId);
         Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
@@ -107,7 +109,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
                 SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
 
-        form = new UpdateGroupProcessForm();
+        form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
         WorkflowContext context = workflowEngine.processService()
@@ -119,8 +121,6 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("restartSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId, SourceType.BINLOG.toString());
-        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_ACTIVE);
     }
 
 }

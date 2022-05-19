@@ -28,6 +28,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * defines the field for generating watermarks
+ */
 @JsonTypeName("watermark")
 @Data
 @NoArgsConstructor

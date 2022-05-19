@@ -43,6 +43,9 @@ public class AgentServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongStreamServiceTest streamServiceTest;
 
+    /**
+     * Save source info.
+     */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
@@ -54,6 +57,9 @@ public class AgentServiceTest extends ServiceBaseTest {
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
+    /**
+     * Test report snapshot.
+     */
     @Test
     public void testReportSnapshot() {
         Integer id = this.saveSource();
@@ -70,7 +76,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         Boolean result = agentService.reportSnapshot(request);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, SourceType.BINLOG.getType(), GLOBAL_OPERATOR);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
 }

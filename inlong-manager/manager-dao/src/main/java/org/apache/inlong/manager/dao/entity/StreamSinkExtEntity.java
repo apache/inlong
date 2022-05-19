@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Stream sink ext entity, including key name, key value, etc.
+ */
 @Data
 public class StreamSinkExtEntity implements Serializable {
 

@@ -63,7 +63,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         WorkflowContext context = new WorkflowContext();
         context.setProcess(process);
         context.setProcessForm(form);
-        context.setApplicant(applicant);
+        context.setOperator(applicant);
 
         return context;
     }
@@ -76,7 +76,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
 
         return new WorkflowContext()
-                .setApplicant(processEntity.getApplicant())
+                .setOperator(processEntity.getApplicant())
                 .setProcess(process)
                 .setProcessForm(WorkflowFormParserUtils.parseProcessForm(processEntity.getFormData(), process))
                 .setProcessEntity(processEntity);
@@ -122,7 +122,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
 
         return new WorkflowContext().setProcess(process)
-                .setApplicant(processEntity.getApplicant())
+                .setOperator(processEntity.getApplicant())
                 .setProcessForm(processForm)
                 .setProcessEntity(processEntity)
                 .setCurrentElement(task)

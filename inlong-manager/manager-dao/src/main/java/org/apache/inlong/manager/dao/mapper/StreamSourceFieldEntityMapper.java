@@ -35,8 +35,8 @@ public interface StreamSourceFieldEntityMapper {
     /**
      * Selete undeleted source field by source id.
      *
-     * @param sourceId
-     * @return
+     * @param sourceId source id
+     * @return stream source field list
      */
     List<StreamSourceFieldEntity> selectBySourceId(@Param("sourceId") Integer sourceId);
 
@@ -47,15 +47,15 @@ public interface StreamSourceFieldEntityMapper {
     /**
      * Insert all field list
      *
-     * @param fieldList
+     * @param fieldList stream source field list
      */
     void insertAll(@Param("list") List<StreamSourceFieldEntity> fieldList);
 
     /**
      * Delete all field list by sourceId
      *
-     * @param sourceId
-     * @return
+     * @param sourceId source id
+     * @return number of records deleted
      */
     int deleteAll(@Param("sourceId") Integer sourceId);
 

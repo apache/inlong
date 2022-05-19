@@ -42,13 +42,12 @@ public interface StreamSinkService {
     Integer save(SinkRequest request, String operator);
 
     /**
-     * Query sink information based on id and type.
+     * Query sink information based on id.
      *
      * @param id Sink id.
-     * @param sinkType Sink type.
      * @return Sink info.
      */
-    SinkResponse get(Integer id, String sinkType);
+    SinkResponse get(Integer id);
 
     /**
      * Query sink information based on inlong group id and inlong stream id.
@@ -107,11 +106,10 @@ public interface StreamSinkService {
      * Delete the stream sink by the given id and sink type.
      *
      * @param id The primary key of the sink.
-     * @param sinkType Sink type.
      * @param operator Operator's name.
      * @return Whether succeed
      */
-    Boolean delete(Integer id, String sinkType, String operator);
+    Boolean delete(Integer id, String operator);
 
     /**
      * Logically delete stream sink with the given conditions.

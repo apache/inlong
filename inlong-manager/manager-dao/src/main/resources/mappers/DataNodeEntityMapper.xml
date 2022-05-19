@@ -26,7 +26,7 @@
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
         <result column="username" jdbcType="VARCHAR" property="username"/>
-        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
         <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
@@ -37,19 +37,19 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, username, password, ext_params, in_charges, status, is_deleted,
+        id, name, type, url, username, token, ext_params, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
-        parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
+            parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         insert into data_node (id, name, type,
-                               url, username, password,
+                               url, username, token,
                                in_charges, status, is_deleted,
                                creator, modifier, create_time,
                                modify_time, ext_params)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{url,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR},
                 #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
                 #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR})
@@ -101,7 +101,7 @@
             type        = #{type,jdbcType=VARCHAR},
             url         = #{url,jdbcType=VARCHAR},
             username    = #{username,jdbcType=VARCHAR},
-            password    = #{password,jdbcType=VARCHAR},
+            token       = #{token,jdbcType=VARCHAR},
             ext_params  = #{extParams,jdbcType=LONGVARCHAR},
             in_charges  = #{inCharges,jdbcType=VARCHAR},
             status      = #{status,jdbcType=INTEGER},
@@ -127,8 +127,8 @@
             <if test="username != null">
                 username = #{username,jdbcType=VARCHAR},
             </if>
-            <if test="password != null">
-                password = #{password,jdbcType=VARCHAR},
+            <if test="token != null">
+                token = #{token,jdbcType=VARCHAR},
             </if>
             <if test="inCharges != null">
                 in_charges = #{inCharges,jdbcType=VARCHAR},

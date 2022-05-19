@@ -32,6 +32,11 @@ import org.apache.inlong.sort.meta.MetaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * pulsar multi consumer function used in multi tenancy
+ * when dataflow changes, the consumer should action accordingly
+ * see DataFlowInfoListenerImpl
+ */
 public class MultiTenancyPulsarConsumer<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MultiTenancyTubeConsumer.class);

@@ -32,7 +32,6 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
@@ -40,9 +39,7 @@ import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.mocks.MockDeleteSortListener;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
-import org.apache.inlong.manager.service.mocks.MockRestartSortListener;
 import org.apache.inlong.manager.service.mocks.MockStopSortListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
@@ -50,6 +47,7 @@ import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.WorkflowEngine;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -76,6 +74,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Test class for workflow service.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class WorkflowServiceImplTest extends ServiceBaseTest {
@@ -97,7 +98,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Autowired
     protected InlongGroupService groupService;
     @Autowired
-    protected ServiceTaskListenerFactory taskListenerFactory;
+    protected GroupTaskListenerFactory taskListenerFactory;
     @Autowired
     protected WorkflowProcessEntityMapper processEntityMapper;
     @Autowired
@@ -114,14 +115,14 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     /**
      * Init inlong group form
      */
-    public InlongGroupInfo initGroupForm(String middlewareType) {
-        return initGroupForm(middlewareType, "test" + subType);
+    public InlongGroupInfo initGroupForm(String mqType) {
+        return initGroupForm(mqType, "test" + subType);
     }
 
     /**
      * Init inlong group form
      */
-    public InlongGroupInfo initGroupForm(String middlewareType, String inLongGroupName) {
+    public InlongGroupInfo initGroupForm(String mqType, String inLongGroupName) {
         String inLongGroupId = "b_" + inLongGroupName;
         processName = ProcessName.CREATE_GROUP_RESOURCE;
         applicant = OPERATOR;
@@ -137,17 +138,15 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupInfo.setName(inLongGroupName);
         groupInfo.setInCharges(OPERATOR);
         groupInfo.setInlongGroupId(inLongGroupId);
-        groupInfo.setMiddlewareType(middlewareType);
+        groupInfo.setMqType(mqType);
         groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
-        groupInfo.setMqResourceObj("test-queue");
+        groupInfo.setMqResource("test-queue");
         groupService.save(groupInfo.genRequest(), OPERATOR);
 
         groupService.updateStatus(inLongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), OPERATOR);
-        // groupService.update(groupInfo.genRequest(), OPERATOR);
         groupService.updateStatus(inLongGroupId, GroupStatus.APPROVE_PASSED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         groupService.updateStatus(inLongGroupId, GroupStatus.CONFIG_ING.getCode(), OPERATOR);
-        // groupService.update(groupInfo.genRequest(), OPERATOR);
 
         form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
@@ -175,10 +174,9 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         InlongStreamRequest request = new InlongStreamRequest();
         request.setInlongGroupId(groupInfo.getInlongGroupId());
         request.setInlongStreamId(STREAM_ID);
-        request.setMqResourceObj(STREAM_ID);
+        request.setMqResource(STREAM_ID);
         request.setDataSeparator("124");
         request.setDataEncoding(DATA_ENCODING);
-        request.setInCharges(OPERATOR);
         request.setFieldList(createStreamFields(groupInfo.getInlongGroupId(), STREAM_ID));
         streamService.save(request, OPERATOR);
 
@@ -286,7 +284,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
-        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
@@ -302,10 +300,13 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         Assert.assertTrue(stopSortTask instanceof ServiceTask);
         List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
+        Assert.assertEquals(2, listeners.size());
 
         WorkflowTask stopSourceTask = process.getTaskByName("stopSource");
         Assert.assertTrue(stopSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(stopSourceTask.getNameToListenerMap().values());
+        Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
+        Assert.assertEquals(2, listeners.size());
     }
 
     @Test
@@ -318,7 +319,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
-        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
         taskListenerFactory.acceptPlugin(new MockPlugin());
@@ -332,12 +333,13 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask restartSort = process.getTaskByName("restartSort");
         Assert.assertTrue(restartSort instanceof ServiceTask);
+        // MockRestartSortListener + CreateSortConfigListener
         List<TaskEventListener> listeners = Lists.newArrayList(restartSort.getNameToListenerMap().values());
-        Assert.assertEquals(1, listeners.size());
-        Assert.assertTrue(listeners.get(0) instanceof MockRestartSortListener);
+        Assert.assertEquals(2, listeners.size());
 
         WorkflowTask restartSourceTask = process.getTaskByName("restartSource");
         Assert.assertTrue(restartSourceTask instanceof ServiceTask);
+        // MockRestartSourceListener + SourceRestartListener
         listeners = Lists.newArrayList(restartSourceTask.getNameToListenerMap().values());
         Assert.assertEquals(2, listeners.size());
     }
@@ -353,7 +355,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDED.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
-        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.DELETE);
         taskListenerFactory.acceptPlugin(new MockPlugin());
@@ -363,16 +365,18 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
         Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+
         WorkflowProcess process = context.getProcess();
         WorkflowTask deleteSort = process.getTaskByName("deleteSort");
         Assert.assertTrue(deleteSort instanceof ServiceTask);
+        // CreateSortConfigListener + MockDeleteSortListener
         List<TaskEventListener> listeners = Lists.newArrayList(deleteSort.getNameToListenerMap().values());
-        Assert.assertEquals(1, listeners.size());
-        Assert.assertTrue(listeners.get(0) instanceof MockDeleteSortListener);
+        Assert.assertEquals(2, listeners.size());
 
         WorkflowTask deleteSourceTask = process.getTaskByName("deleteSource");
         Assert.assertTrue(deleteSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(deleteSourceTask.getNameToListenerMap().values());
+        // SourceDeleteListener + MockDeleteSourceListener
         Assert.assertEquals(2, listeners.size());
     }
 

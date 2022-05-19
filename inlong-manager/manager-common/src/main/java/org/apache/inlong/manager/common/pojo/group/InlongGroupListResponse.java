@@ -42,9 +42,6 @@ public class InlongGroupListResponse {
     @ApiModelProperty(value = "Inlong group name")
     private String name;
 
-    @ApiModelProperty(value = "Chinese display name")
-    private String cnName;
-
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
 

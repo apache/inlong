@@ -34,6 +34,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.core.operation.InlongStreamProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +56,8 @@ public class InlongStreamController {
 
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private InlongStreamProcessOperation streamProcessOperation;
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
@@ -77,6 +80,16 @@ public class InlongStreamController {
     public Response<Boolean> batchSaveAll(@RequestBody List<FullStreamRequest> infoList) {
         boolean result = streamService.batchSaveAll(infoList, LoginUserUtils.getLoginUserDetail().getUserName());
         return Response.success(result);
+    }
+
+    @RequestMapping(value = "/exist/{groupId}/{streamId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Is exists of the inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> exist(@PathVariable String groupId, @PathVariable String streamId) {
+        return Response.success(streamService.exist(groupId, streamId));
     }
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
@@ -113,6 +126,55 @@ public class InlongStreamController {
         return Response.success(streamService.update(request, username));
     }
 
+    @RequestMapping(value = "/startProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Start inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestParam boolean sync) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
+    }
+
+    @RequestMapping(value = "/suspendProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Suspend inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> suspendProcess(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestParam boolean sync) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(streamProcessOperation.suspendProcess(groupId, streamId, operator, sync));
+    }
+
+    @RequestMapping(value = "/restartProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Restart inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> restartProcess(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestParam boolean sync) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(streamProcessOperation.restartProcess(groupId, streamId, operator, sync));
+    }
+
+    @RequestMapping(value = "/deleteProcess/{groupId}/{streamId}", method = RequestMethod.POST)
+    @ApiOperation(value = "Delete inlong stream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "groupId", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
+    })
+    public Response<Boolean> deleteProcess(@PathVariable String groupId, @PathVariable String streamId,
+            @RequestParam boolean sync) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(streamProcessOperation.deleteProcess(groupId, streamId, operator, sync));
+    }
+
+    @Deprecated
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete inlong stream info")

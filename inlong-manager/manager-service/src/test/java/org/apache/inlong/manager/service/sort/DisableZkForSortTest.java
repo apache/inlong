@@ -30,7 +30,6 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -51,6 +50,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Test class for listen delete sort event.
+ */
 public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
 
@@ -68,6 +70,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         subType = "DisableZkFor";
     }
 
+    /**
+     * Creat hvie sink by inlong stream info.
+     */
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
         HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
         hiveSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -100,6 +105,9 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return hiveSinkRequest;
     }
 
+    /**
+     * Creat kafka source info by inlong stream info.
+     */
     public KafkaSourceRequest createKafkaSource(InlongStreamInfo streamInfo) {
         KafkaSourceRequest kafkaSourceRequest = new KafkaSourceRequest();
         kafkaSourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
@@ -116,7 +124,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     public void testCreateSortConfigInCreateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
         groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setEnableZookeeper(0);
         groupService.update(groupInfo.genRequest(), OPERATOR);
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
@@ -141,14 +149,14 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
-        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setEnableZookeeper(0);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
         InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
         createHiveSink(streamInfo);
         createKafkaSource(streamInfo);
-        UpdateGroupProcessForm form = new UpdateGroupProcessForm();
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
@@ -165,7 +173,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
         Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
         ProcessForm currentProcessForm = context.getProcessForm();
-        InlongGroupInfo curGroupRequest = ((UpdateGroupProcessForm) currentProcessForm).getGroupInfo();
+        InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) currentProcessForm).getGroupInfo();
         Assert.assertEquals(1, curGroupRequest.getExtList().size());
     }
 

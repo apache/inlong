@@ -22,7 +22,7 @@
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="consumption_id" jdbcType="VARCHAR" property="consumptionId"/>
-        <result column="consumer_group_id" jdbcType="VARCHAR" property="consumerGroupId"/>
+        <result column="consumer_group" jdbcType="VARCHAR" property="consumerGroup"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="is_rlq" jdbcType="INTEGER" property="isRlq"/>
         <result column="retry_letter_topic" jdbcType="VARCHAR" property="retryLetterTopic"/>
@@ -31,7 +31,7 @@
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, consumption_id, consumer_group_id, inlong_group_id, is_rlq, retry_letter_topic,
+        id, consumption_id, consumer_group, inlong_group_id, is_rlq, retry_letter_topic,
         is_dlq, dead_letter_topic, is_deleted
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -56,10 +56,10 @@
     </delete>
 
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity">
-        insert into consumption_pulsar (id, consumption_id, consumer_group_id,
+        insert into consumption_pulsar (id, consumption_id, consumer_group,
                                         inlong_group_id, is_rlq, retry_letter_topic,
                                         is_dlq, dead_letter_topic, is_deleted)
-        values (#{id,jdbcType=INTEGER}, #{consumptionId,jdbcType=INTEGER}, #{consumerGroupId,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{consumptionId,jdbcType=INTEGER}, #{consumerGroup,jdbcType=VARCHAR},
                 #{inlongGroupId,jdbcType=VARCHAR}, #{isRlq,jdbcType=INTEGER}, #{retryLetterTopic,jdbcType=VARCHAR},
                 #{isDlq,jdbcType=INTEGER}, #{deadLetterTopic,jdbcType=VARCHAR}, #{isDeleted,jdbcType=INTEGER})
     </insert>
@@ -72,8 +72,8 @@
             <if test="consumptionId != null">
                 consumption_id,
             </if>
-            <if test="consumerGroupId != null">
-                consumer_group_id,
+            <if test="consumerGroup != null">
+                consumer_group,
             </if>
             <if test="inlongGroupId != null">
                 inlong_group_id,
@@ -98,8 +98,8 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="consumerGroupId != null">
-                #{consumerGroupId,jdbcType=VARCHAR},
+            <if test="consumerGroup != null">
+                #{consumerGroup,jdbcType=VARCHAR},
             </if>
             <if test="inlongGroupId != null">
                 #{inlongGroupId,jdbcType=VARCHAR},
@@ -128,8 +128,8 @@
             <if test="consumptionId != null">
                 consumption_id = #{consumptionId,jdbcType=INTEGER},
             </if>
-            <if test="consumerGroupId != null">
-                consumer_group_id = #{consumerGroupId,jdbcType=VARCHAR},
+            <if test="consumerGroup != null">
+                consumer_group = #{consumerGroup,jdbcType=VARCHAR},
             </if>
             <if test="inlongGroupId != null">
                 inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
@@ -155,7 +155,7 @@
     <update id="updateByConsumptionId">
         update consumption_pulsar
         <set>
-            consumer_group_id = #{consumerGroupId,jdbcType=VARCHAR},
+            consumer_group = #{consumerGroup,jdbcType=VARCHAR},
             inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
             is_rlq = #{isRlq,jdbcType=INTEGER},
             retry_letter_topic = #{retryLetterTopic,jdbcType=VARCHAR},
@@ -168,7 +168,7 @@
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity">
         update consumption_pulsar
         set consumption_id     = #{consumptionId,jdbcType=INTEGER},
-            consumer_group_id  = #{consumerGroupId,jdbcType=VARCHAR},
+            consumer_group     = #{consumerGroup,jdbcType=VARCHAR},
             inlong_group_id    = #{inlongGroupId,jdbcType=VARCHAR},
             is_rlq             = #{isRlq,jdbcType=INTEGER},
             retry_letter_topic = #{retryLetterTopic,jdbcType=VARCHAR},

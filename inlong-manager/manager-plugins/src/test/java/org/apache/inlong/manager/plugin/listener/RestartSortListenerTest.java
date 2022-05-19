@@ -20,7 +20,7 @@ package org.apache.inlong.manager.plugin.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.UpdateGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.Test;
@@ -30,16 +30,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Test class for restart sort listener.
+ */
 public class RestartSortListenerTest {
 
     @Test
     public void testListener() throws Exception {
         WorkflowContext context = new WorkflowContext();
-        UpdateGroupProcessForm updateGroupProcessForm = new UpdateGroupProcessForm();
-        context.setProcessForm(updateGroupProcessForm);
+        GroupResourceProcessForm groupResourceProcessForm = new GroupResourceProcessForm();
+        context.setProcessForm(groupResourceProcessForm);
         InlongGroupInfo inlongGroupInfo = new InlongGroupInfo();
         inlongGroupInfo.setInlongGroupId("1");
-        updateGroupProcessForm.setGroupInfo(inlongGroupInfo);
+        groupResourceProcessForm.setGroupInfo(inlongGroupInfo);
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);

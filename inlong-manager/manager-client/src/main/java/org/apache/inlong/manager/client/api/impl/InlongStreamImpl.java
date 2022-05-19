@@ -57,6 +57,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Inlong stream service implementation.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class InlongStreamImpl extends InlongStream {
@@ -303,7 +306,7 @@ public class InlongStreamImpl extends InlongStream {
         }
         streamInfo.setFieldList(InlongStreamTransfer.createStreamFields(this.streamFields, streamInfo));
         StreamPipeline streamPipeline = createPipeline();
-        streamInfo.setTempView(GsonUtil.toJson(streamPipeline));
+        streamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
         Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
         if (!updateMsg.getKey()) {
             throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
@@ -363,9 +366,8 @@ public class InlongStreamImpl extends InlongStream {
         for (SourceListResponse sourceListResponse : sourceListResponses) {
             final String sourceName = sourceListResponse.getSourceName();
             final int id = sourceListResponse.getId();
-            final String type = sourceListResponse.getSourceType();
             if (this.streamSources.get(sourceName) == null) {
-                boolean isDelete = managerClient.deleteSource(id, type);
+                boolean isDelete = managerClient.deleteSource(id);
                 if (!isDelete) {
                     throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
                 }
@@ -400,9 +402,8 @@ public class InlongStreamImpl extends InlongStream {
         for (SinkListResponse sinkListResponse : sinkListResponses) {
             final String sinkName = sinkListResponse.getSinkName();
             final int id = sinkListResponse.getId();
-            final String type = sinkListResponse.getSinkType();
             if (this.streamSinks.get(sinkName) == null) {
-                boolean isDelete = managerClient.deleteSink(id, type);
+                boolean isDelete = managerClient.deleteSink(id);
                 if (!isDelete) {
                     throw new RuntimeException(String.format("Delete sink=%s failed", sinkListResponse));
                 }

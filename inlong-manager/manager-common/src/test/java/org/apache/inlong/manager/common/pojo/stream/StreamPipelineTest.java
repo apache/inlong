@@ -22,6 +22,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Stream pipeline service test for check has circle.
+ */
 public class StreamPipelineTest {
 
     @Test

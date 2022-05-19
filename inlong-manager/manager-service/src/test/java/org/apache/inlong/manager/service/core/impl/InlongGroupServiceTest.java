@@ -68,13 +68,13 @@ public class InlongGroupServiceTest {
 
         groupInfo = new InlongGroupInfo();
         groupInfo.setName(groupName);
-        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
+        groupInfo.setMqType(MQType.PULSAR.getType());
         groupInfo.setCreator(operator);
         groupInfo.setInCharges(operator);
         groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
 
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
-        pulsarInfo.setMiddlewareType(MQType.PULSAR.getType());
+        pulsarInfo.setMqType(MQType.PULSAR.getType());
         pulsarInfo.setEnsemble(3);
         pulsarInfo.setWriteQuorum(3);
         pulsarInfo.setAckQuorum(2);

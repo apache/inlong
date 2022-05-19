@@ -14,3 +14,4 @@
 # limitations under the License.
 
 org.apache.inlong.sort.flink.kafka.KafkaDynamicTableFactory
+org.apache.inlong.sort.flink.pulsar.table.PulsarDynamicTableFactory

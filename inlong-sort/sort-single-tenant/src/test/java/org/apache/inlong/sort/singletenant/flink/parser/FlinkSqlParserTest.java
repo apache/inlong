@@ -34,6 +34,7 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -86,7 +87,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                 new StringConstantParam("5"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));
         return new KafkaExtractNode(id, "kafka_input", fields, wk, null, "workerJson",
-                "localhost:9092", new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null);
+                "localhost:9092", new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null, "groupId");
     }
 
     private KafkaLoadNode buildKafkaNode(String id) {
@@ -105,7 +106,7 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode(id, "kafka_output", fields, relations, null,
+        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "workerJson", "localhost:9092",
                 new JsonFormat(), null,
                 null, null);
@@ -134,10 +135,31 @@ public class FlinkSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
         return new HiveLoadNode(id, "hive_output",
-                fields, relations, null, 1,
+                fields, relations, null, null, 1,
                 null, "myCatalog", "default", "work2",
                 "/opt/hive/conf", "3.1.2",
                 null, null);
+    }
+
+    private FileSystemLoadNode buildFileSystemNode(String id) {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()),
+                new FieldInfo("salary", new FloatFormatInfo()),
+                new FieldInfo("ts", new TimestampFormatInfo()));
+        List<FieldRelationShip> relations = Arrays
+                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())),
+                        new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("age", new IntFormatInfo())),
+                        new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
+                                new FieldInfo("ts", new TimestampFormatInfo()))
+                );
+        return new FileSystemLoadNode(id, "hdfs_output", fields, relations,
+                null, "hdfs://localhost:9000/file", "json",
+                1, null, null, null);
     }
 
     /**
@@ -175,6 +197,33 @@ public class FlinkSqlParserTest extends AbstractTestBase {
         GroupInfo groupInfoMySqlToKafkaToHive = new GroupInfo("1",
                 Arrays.asList(streamInfoMySqlToKafkaToHive1, streamInfoMySqlToKafkaToHive2));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoMySqlToKafkaToHive);
+        parser.parse();
+    }
+
+    /**
+     * Test flink sql mysql cdc to file system
+     *
+     * @throws Exception The exception may throws when execute the case
+     */
+    @Test
+    public void testToFileSystem() {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node mysqlExtractNode = buildMySQLExtractNode("1");
+        Node fileSystemNode = buildFileSystemNode("2");
+        //mysql-->HDFS OR LOCAL FILE
+        StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mysqlExtractNode, fileSystemNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(mysqlExtractNode),
+                        Collections.singletonList(fileSystemNode))));
+        GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
         parser.parse();
     }
 

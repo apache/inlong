@@ -45,6 +45,9 @@ public abstract class WorkflowTask extends NextableElement implements SkippableE
     private Map<TaskEvent, List<TaskEventListener>> asyncListeners = Maps.newHashMap();
     private Map<String, TaskEventListener> nameToListenerMap = Maps.newHashMap();
 
+    /**
+     * Add listener for workflow task.
+     */
     public WorkflowTask addListener(TaskEventListener listener) {
         if (nameToListenerMap.containsKey(listener.name())) {
             throw new WorkflowListenerException(
@@ -60,14 +63,26 @@ public abstract class WorkflowTask extends NextableElement implements SkippableE
         return this;
     }
 
+    /**
+     * Get async task event listener list.
+     */
     public List<TaskEventListener> asyncListeners(TaskEvent taskEvent) {
         return this.asyncListeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
     }
 
+    /**
+     * Get sync task event listener list.
+     */
     public List<TaskEventListener> syncListeners(TaskEvent taskEvent) {
         return this.syncListeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
     }
 
+    /**
+     * Get task event listener by listener name.
+     *
+     * @param listenerName listener name.
+     * @return task event listener info.
+     */
     public TaskEventListener listener(String listenerName) {
         return this.nameToListenerMap.get(listenerName);
     }

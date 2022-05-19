@@ -151,7 +151,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("up_before", new TimestampFormatInfo()),
                                 new FieldInfo("up_before", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("2", "kafka_output", fields, relations,
+        return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic1", "localhost:9092",
                 new CanalJsonFormat(), null,
                 null, "id");
@@ -188,7 +188,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
         return new KafkaExtractNode("3", "kafka_input", fields,
                 null, null, "topic1", "localhost:9092",
                 new CanalJsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
-                null);
+                null, "groupId");
     }
 
     private Node buildKafkaLoadNode2() {
@@ -251,7 +251,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                         new FieldRelationShip(new FieldInfo("up_before", new TimestampFormatInfo()),
                                 new FieldInfo("up_before", new TimestampFormatInfo()))
                 );
-        return new KafkaLoadNode("4", "kafka_output2", fields, relations,
+        return new KafkaLoadNode("4", "kafka_output2", fields, relations, null,
                 null, "topic2", "localhost:9092",
                 new CanalJsonFormat(), null,
                 null, "id");

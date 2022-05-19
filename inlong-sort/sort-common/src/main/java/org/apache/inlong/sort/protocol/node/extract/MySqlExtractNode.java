@@ -35,6 +35,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
+/**
+ * Mysql extract node using debezium engine
+ */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
 @Data

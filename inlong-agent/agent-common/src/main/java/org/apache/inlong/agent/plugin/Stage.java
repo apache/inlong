@@ -27,7 +27,7 @@ public interface Stage {
     /**
      * Init job.
      *
-     * @param jobConf - job config
+     * @param jobConf job config
      */
     void init(JobProfile jobConf);
 

@@ -52,10 +52,17 @@ import static org.apache.inlong.agent.constant.JobConstants.PROXY_INLONG_STREAM_
 import static org.apache.inlong.agent.constant.JobConstants.PROXY_PACKAGE_MAX_SIZE;
 import static org.apache.inlong.agent.constant.JobConstants.PROXY_PACKAGE_MAX_TIMEOUT_MS;
 
+/**
+ * sink message data to inlong-dataproxy
+ */
 public class ProxySink extends AbstractSink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxySink.class);
     private static final String PROXY_SINK_TAG_NAME = "AgentProxySinkMetric";
+    private static AtomicLong index = new AtomicLong(0);
+    private final ExecutorService executorService = new ThreadPoolExecutor(1, 1,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private MessageFilter messageFilter;
     private SenderManager senderManager;
     private byte[] fieldSplitter;
@@ -66,11 +73,7 @@ public class ProxySink extends AbstractSink {
     private int batchFlushInterval;
     private int maxQueueNumber;
     private boolean syncSend;
-    private final ExecutorService executorService = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new AgentThreadFactory("ProxySink"));
     private volatile boolean shutdown = false;
-    private static AtomicLong index = new AtomicLong(0);
     // key is stream id, value is a batch of messages belong to the same stream id
     private ConcurrentHashMap<String, PackProxyMessage> cache;
 
@@ -89,23 +92,23 @@ public class ProxySink extends AbstractSink {
                     ProxyMessage proxyMessage = ProxyMessage.parse(message);
                     // add proxy message to cache.
                     cache.compute(proxyMessage.getBatchKey(),
-                        (s, packProxyMessage) -> {
-                            if (packProxyMessage == null) {
-                                packProxyMessage = new PackProxyMessage(
-                                    maxBatchSize, maxQueueNumber,
-                                    maxBatchTimeoutMs,
-                                    proxyMessage.getInlongStreamId()
-                                );
-                                packProxyMessage.generateExtraMap(syncSend,
-                                    proxyMessage.getDataKey());
-                            }
-                            // add message to package proxy
-                            packProxyMessage.addProxyMessage(proxyMessage);
-                            //
-                            return packProxyMessage;
-                        });
+                            (s, packProxyMessage) -> {
+                                if (packProxyMessage == null) {
+                                    packProxyMessage = new PackProxyMessage(
+                                            maxBatchSize, maxQueueNumber,
+                                            maxBatchTimeoutMs,
+                                            proxyMessage.getInlongStreamId()
+                                    );
+                                    packProxyMessage.generateExtraMap(syncSend,
+                                            proxyMessage.getDataKey());
+                                }
+                                // add message to package proxy
+                                packProxyMessage.addProxyMessage(proxyMessage);
+                                //
+                                return packProxyMessage;
+                            });
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
-                        inlongGroupId, inlongStreamId, System.currentTimeMillis());
+                            inlongGroupId, inlongStreamId, System.currentTimeMillis());
                     // increment the count of successful sinks
                     sinkMetric.incSinkSuccessCount();
                     streamMetric.incSinkSuccessCount();
@@ -122,9 +125,6 @@ public class ProxySink extends AbstractSink {
 
     /**
      * extract stream id from message if message filter is presented
-     * or use the default stream id
-     *
-     * @param message
      */
     private void extractStreamFromMessage(Message message, byte[] fieldSplitter) {
         if (messageFilter != null) {
@@ -143,7 +143,7 @@ public class ProxySink extends AbstractSink {
     /**
      * flush cache by batch
      *
-     * @return - thread runner
+     * @return thread runner
      */
     private Runnable flushCache() {
         return () -> {
@@ -156,14 +156,14 @@ public class ProxySink extends AbstractSink {
                             long sendTime = AgentUtils.getCurrentTime();
                             if (syncSend) {
                                 senderManager.sendBatchSync(inlongGroupId, result.getKey(), result.getValue(),
-                                    0, sendTime, packProxyMessage.getExtraMap());
+                                        0, sendTime, packProxyMessage.getExtraMap());
                             } else {
                                 senderManager.sendBatchAsync(jobInstanceId, inlongGroupId, result.getKey(),
-                                    result.getValue(), 0, sendTime);
+                                        result.getValue(), 0, sendTime);
                             }
                             LOGGER.info("send group id {}, message key {},with message size {}, the job id is {}, "
-                                    + "read source is {} sendTime is {} syncSend {}", inlongGroupId, batchKey,
-                                result.getRight().size(), jobInstanceId, sourceName, sendTime, syncSend);
+                                            + "read source is {} sendTime is {} syncSend {}", inlongGroupId, batchKey,
+                                    result.getRight().size(), jobInstanceId, sourceName, sendTime, syncSend);
                         }
 
                     });
@@ -215,8 +215,6 @@ public class ProxySink extends AbstractSink {
 
     /**
      * check whether all stream id messages finished
-     *
-     * @return
      */
     private boolean sinkFinish() {
         return cache.values().stream().allMatch(PackProxyMessage::isEmpty);

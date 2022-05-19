@@ -27,6 +27,9 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Stream sink configuration, including sink name, properties, etc.
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream sink configuration")

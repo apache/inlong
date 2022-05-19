@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.JsonException;
@@ -38,6 +39,7 @@ import java.util.Map;
  * JSON utils
  */
 @Slf4j
+@UtilityClass
 public class JsonUtils {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

@@ -42,14 +42,14 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     private Integer saveConsumption(String inlongGroup, String consumerGroup, String operator) {
         ConsumptionInfo consumptionInfo = new ConsumptionInfo();
         consumptionInfo.setTopic(inlongGroup);
-        consumptionInfo.setConsumerGroupName(consumerGroup);
+        consumptionInfo.setConsumerGroup(consumerGroup);
         consumptionInfo.setInlongGroupId("b_" + inlongGroup);
-        consumptionInfo.setMiddlewareType(MQType.PULSAR.getType());
+        consumptionInfo.setMqType(MQType.PULSAR.getType());
         consumptionInfo.setCreator(operator);
         consumptionInfo.setInCharges("admin");
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
-        pulsarInfo.setMiddlewareType(MQType.PULSAR.getType());
+        pulsarInfo.setMqType(MQType.PULSAR.getType());
         pulsarInfo.setIsDlq(1);
         pulsarInfo.setDeadLetterTopic("test_dlq");
         pulsarInfo.setIsRlq(0);

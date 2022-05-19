@@ -21,6 +21,9 @@ import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * User detail list VO.
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserDetailListVO {

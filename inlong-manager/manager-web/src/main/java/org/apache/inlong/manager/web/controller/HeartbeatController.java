@@ -33,6 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Heartbeat controller.
+ */
 @RestController
 @RequestMapping("/heartbeat")
 @Api(tags = "Heartbeat-API")

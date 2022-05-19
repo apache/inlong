@@ -22,6 +22,9 @@ import org.apache.inlong.sort.flink.clickhouse.ClickHouseStatementFactory;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import java.util.Optional;
 
+/**
+ * factory class for clickhouse executors
+ */
 public class ClickHouseExecutorFactory {
     public static ClickHouseExecutor generateClickHouseExecutor(
             String tableName,

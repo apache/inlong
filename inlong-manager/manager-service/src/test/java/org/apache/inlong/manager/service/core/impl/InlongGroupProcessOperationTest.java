@@ -27,13 +27,17 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperation;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+/**
+ * Inlong group process operation service test.
+ */
 @EnableAutoConfiguration
 public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
@@ -50,16 +54,19 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
     private InlongGroupProcessOperation groupProcessOperation;
 
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
+    /**
+     * Set some base information before start process.
+     */
     public void before() {
         MockPlugin mockPlugin = new MockPlugin();
-        serviceTaskListenerFactory.acceptPlugin(mockPlugin);
+        groupTaskListenerFactory.acceptPlugin(mockPlugin);
         InlongGroupRequest groupInfo = new InlongGroupRequest();
         groupInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setName(GROUP_NAME);
         groupInfo.setInCharges(OPERATOR);
-        groupInfo.setMiddlewareType(MQType.PULSAR.getType());
+        groupInfo.setMqType(MQType.PULSAR.getType());
         InlongGroupPulsarInfo pulsarInfo = new InlongGroupPulsarInfo();
         pulsarInfo.setInlongGroupId(GROUP_ID);
         groupInfo.setMqExtInfo(pulsarInfo);
@@ -113,7 +120,6 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         // testRestartProcess();
         // boolean result = groupProcessOperation.deleteProcess(GROUP_ID, OPERATOR);
         // Assert.assertTrue(result);
-
     }
 }
 

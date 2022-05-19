@@ -32,6 +32,9 @@ import org.apache.inlong.sort.protocol.transformation.TimeWindowFunction;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * identifies the end for a tumble window
+ */
 @JsonTypeName("tumbleEnd")
 @Data
 @NoArgsConstructor

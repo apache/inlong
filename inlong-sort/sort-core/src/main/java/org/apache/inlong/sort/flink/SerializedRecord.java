@@ -19,6 +19,9 @@ package org.apache.inlong.sort.flink;
 
 import java.io.Serializable;
 
+/**
+ * record after serialization
+ */
 public class SerializedRecord implements Serializable {
 
     private static final long serialVersionUID = 5418156417016358730L;

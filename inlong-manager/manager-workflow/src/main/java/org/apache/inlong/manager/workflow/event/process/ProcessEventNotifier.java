@@ -58,8 +58,7 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
     }
 
     @Override
-    public void notify(ProcessEvent event, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
+    public void notify(ProcessEvent event, WorkflowContext context) {
         WorkflowProcess process = context.getProcess();
 
         eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
@@ -71,12 +70,11 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
 
     @Override
     public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
-        final WorkflowContext context = sourceContext.clone();
-        WorkflowProcess process = context.getProcess();
+        WorkflowProcess process = sourceContext.getProcess();
 
         Optional.ofNullable(this.eventListenerManager.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
-        Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, context));
+                .ifPresent(logableNotify(forceSync, sourceContext));
+        Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, sourceContext));
     }
 
     private Consumer<ProcessEventListener> logableNotify(boolean forceSync, WorkflowContext context) {
