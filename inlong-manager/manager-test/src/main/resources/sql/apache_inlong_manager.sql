@@ -636,7 +636,6 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `field_format`       varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`           smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`         int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `column_family`      varchar(50)   DEFAULT NULL COMMENT 'Column family',
     PRIMARY KEY (`id`)
 );
 
