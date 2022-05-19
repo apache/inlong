@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -35,6 +38,9 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 /**
  * Extract node for mongo, note that mongo should work in replicaSet mode
  */
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeName("MongoExtract")
+@Data
 public class MongoExtractNode extends ExtractNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,7 +48,7 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
     private String primaryKey;
-    @JsonProperty("hosts")
+    @JsonProperty("hostname")
     private String hosts;
     @JsonProperty("username")
     private String username;
@@ -60,13 +66,13 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
         @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
         @JsonProperty("properties") Map<String, String> properties,
         @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("tableNames") @Nonnull String collection,
+        @JsonProperty("collection") @Nonnull String collection,
         @JsonProperty("hostname") String hostname,
         @JsonProperty("username") String username,
         @JsonProperty("password") String password,
         @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
-        this.collection = Preconditions.checkNotNull(collection, "tableNames is null");
+        this.collection = Preconditions.checkNotNull(collection, "collection is null");
         this.hosts = Preconditions.checkNotNull(hostname, "hostname is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");

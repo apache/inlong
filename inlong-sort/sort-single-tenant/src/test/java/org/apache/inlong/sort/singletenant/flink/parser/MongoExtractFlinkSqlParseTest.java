@@ -38,8 +38,12 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.apache.inlong.sort.singletenant.flink.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.singletenant.flink.parser.result.FlinkSqlParseResult;
+import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Test for mongodb extract node
+ */
 public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
 
     private MongoExtractNode buildMongoNode() {
@@ -98,7 +102,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         FlinkSqlParseResult result = parser.parse();
-        result.execute();
+        Assert.assertTrue(result.tryExecute());
     }
 
 }

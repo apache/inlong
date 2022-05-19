@@ -199,7 +199,7 @@
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
         <flink.connector.postgres.cdc.version>2.0.2</flink.connector.postgres.cdc.version>
         <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
-        <flink-connector-mongodb-cdc.version>2.2.1</flink-connector-mongodb-cdc.version>
+        <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
@@ -295,7 +295,7 @@
             <dependency>
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mongodb-cdc</artifactId>
-                <version>${flink-connector-mongodb-cdc.version}</version>
+                <version>${flink.connector.mongodb.cdc.version}</version>
             </dependency>
 
             <!-- hive -->
