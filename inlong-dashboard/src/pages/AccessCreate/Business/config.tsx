@@ -34,7 +34,7 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
       },
       'mqType',
       'queueModule',
-      'topicPartitionNum',
+      'partitionNum',
       {
         type: (
           <Divider orientation="left">

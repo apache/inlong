@@ -32,7 +32,7 @@ const getBusinessContent = initialValues => [
       'mqType',
       'mqResource',
       'queueModule',
-      'topicPartitionNum',
+      'partitionNum',
       'dailyRecords',
       'dailyStorage',
       'peakRecords',

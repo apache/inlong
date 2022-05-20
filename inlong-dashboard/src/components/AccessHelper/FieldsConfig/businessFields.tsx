@@ -46,10 +46,9 @@ export default (
     },
     {
       type: 'text',
-      label: 'TubeTopic',
+      label: currentValues.mqType === 'TUBE' ? 'Tube Topic' : 'Pulsar Namespace',
       name: 'mqResource',
       initialValue: currentValues.mqResource,
-      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'input',
@@ -124,8 +123,8 @@ export default (
     {
       type: 'inputnumber',
       label: 'Topic Partition Nums',
-      name: 'topicPartitionNum',
-      initialValue: currentValues.topicPartitionNum ?? 3,
+      name: 'partitionNum',
+      initialValue: currentValues.partitionNum ?? 3,
       rules: [{ required: true }],
       props: {
         min: 1,
@@ -197,8 +196,8 @@ export default (
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
-              const writeQuorum = getFieldValue(['mqExtInfo', 'writeQuorum']) || 0;
-              const ackQuorum = getFieldValue(['mqExtInfo', 'ackQuorum']) || 0;
+              const writeQuorum = getFieldValue(['writeQuorum']) || 0;
+              const ackQuorum = getFieldValue(['ackQuorum']) || 0;
               const ensemble = val;
               return ackQuorum <= writeQuorum && writeQuorum <= ensemble
                 ? Promise.resolve()
@@ -219,7 +218,7 @@ export default (
       type: 'inputnumber',
       label: 'write quorum',
       name: 'writeQuorum',
-      initialValue: currentValues.mqExtInfo?.writeQuorum ?? 3,
+      initialValue: currentValues?.writeQuorum ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumExtra'),
       props: {
@@ -232,8 +231,8 @@ export default (
     {
       type: 'inputnumber',
       label: 'ack quorum',
-      name: 'mqExtInfo.ackQuorum',
-      initialValue: currentValues.mqExtInfo?.ackQuorum ?? 2,
+      name: 'ackQuorum',
+      initialValue: currentValues?.ackQuorum ?? 2,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumExtra'),
       props: {
@@ -246,12 +245,12 @@ export default (
     {
       type: 'inputnumber',
       label: 'retention time',
-      name: 'mqExtInfo.retentionTime',
-      initialValue: currentValues.mqExtInfo?.retentionTime ?? 72,
+      name: 'retentionTime',
+      initialValue: currentValues?.retentionTime ?? 72,
       rules: [
         ({ getFieldValue }) => ({
           validator(_, val) {
-            const retentionSize = getFieldValue(['mqExtInfo', 'retentionSize']);
+            const retentionSize = getFieldValue(['retentionSize']);
             if ((val === 0 && retentionSize > 0) || (val > 0 && retentionSize === 0)) {
               return Promise.reject(
                 new Error(
@@ -260,7 +259,7 @@ export default (
               );
             }
             if (val) {
-              const unit = getFieldValue(['mqExtInfo', 'retentionTimeUnit']);
+              const unit = getFieldValue(['retentionTimeUnit']);
               const value = unit === 'hours' ? Math.ceil(val / 24) : val;
               return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
             }
@@ -270,8 +269,8 @@ export default (
       ],
       suffix: {
         type: 'select',
-        name: 'mqExtInfo.retentionTimeUnit',
-        initialValue: currentValues.rmqExtInfo?.etentionTimeUnit ?? 'hours',
+        name: 'retentionTimeUnit',
+        initialValue: currentValues?.retentionTimeUnit ?? 'hours',
         props: {
           options: [
             {
@@ -295,13 +294,13 @@ export default (
     {
       type: 'inputnumber',
       label: 'ttl',
-      name: 'mqExtInfo.ttl',
-      initialValue: currentValues.mqExtInfo?.ttl ?? 24,
+      name: 'ttl',
+      initialValue: currentValues?.ttl ?? 24,
       rules: [
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
-              const unit = getFieldValue(['mqExtInfo', 'ttlUnit']);
+              const unit = getFieldValue(['ttlUnit']);
               const value = unit === 'hours' ? Math.ceil(val / 24) : val;
               return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
             }
@@ -311,8 +310,8 @@ export default (
       ],
       suffix: {
         type: 'select',
-        name: 'mqExtInfo.ttlUnit',
-        initialValue: currentValues.mqExtInfo?.ttlUnit ?? 'hours',
+        name: 'ttlUnit',
+        initialValue: currentValues?.ttlUnit ?? 'hours',
         props: {
           options: [
             {
@@ -336,12 +335,12 @@ export default (
     {
       type: 'inputnumber',
       label: 'retention size',
-      name: 'mqExtInfo.retentionSize',
-      initialValue: currentValues.mqExtInfo?.retentionSize ?? -1,
+      name: 'retentionSize',
+      initialValue: currentValues?.retentionSize ?? -1,
       suffix: {
         type: 'select',
-        name: 'mqExtInfo.retentionSizeUnit',
-        initialValue: currentValues.mqExtInfo?.retentionSizeUnit ?? 'MB',
+        name: 'retentionSizeUnit',
+        initialValue: currentValues?.retentionSizeUnit ?? 'MB',
         props: {
           options: [
             {

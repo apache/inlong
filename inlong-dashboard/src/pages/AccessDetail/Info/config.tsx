@@ -24,12 +24,12 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
   const keys = [
     'mqType',
     'inlongGroupId',
-    'mqResource',
+    !isCreate && 'mqResource',
     'name',
     'inCharges',
     'description',
     'queueModule',
-    'topicPartitionNum',
+    'partitionNum',
     'dailyRecords',
     'dailyStorage',
     'peakRecords',
@@ -75,7 +75,7 @@ function transType(editing: boolean, conf, initialValues) {
       name: [
         'mqType',
         'queueModule',
-        'topicPartitionNum',
+        'partitionNum',
         'name',
         'dailyRecords',
         'dailyStorage',
