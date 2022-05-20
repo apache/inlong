@@ -55,13 +55,13 @@ public class SinkFieldBase {
     @ApiModelProperty("Partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
     private String partitionStrategy;
 
-    @ApiModelProperty("Partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
+    @ApiModelProperty("Bucket Number")
     private Integer bucketNum;
 
-    @ApiModelProperty("Partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
+    @ApiModelProperty("Width")
     private Integer width;
 
-    @ApiModelProperty("Partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
+    @ApiModelProperty("Extra Param in JSON style")
     private String extrParam;
 
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
