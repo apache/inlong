@@ -194,6 +194,7 @@ public class DataProxyConfigRepository implements IRepository {
                     Map<String, String> groupParams = gson.fromJson(groupIdObj.getExtParams(), Map.class);
                     params.putAll(groupParams);
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             // parse stream extparams
@@ -202,6 +203,7 @@ public class DataProxyConfigRepository implements IRepository {
                     Map<String, String> streamParams = gson.fromJson(streamIdObj.getExtParams(), Map.class);
                     params.putAll(streamParams);
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
