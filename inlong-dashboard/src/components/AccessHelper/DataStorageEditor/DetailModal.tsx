@@ -190,7 +190,7 @@ const Comp: React.FC<DetailModalProps> = ({
         rules: [
           { required: true },
           {
-            pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+            pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
             message: t('components.AccessHelper.StorageMetaData.SinkNameRule'),
           },
         ],

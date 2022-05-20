@@ -122,7 +122,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: 'Topic Partition Nums',
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.PartitionNum'),
       name: 'partitionNum',
       initialValue: currentValues.partitionNum ?? 3,
       rules: [{ required: true }],
@@ -198,8 +198,7 @@ export default (
             if (val) {
               const writeQuorum = getFieldValue(['writeQuorum']) || 0;
               const ackQuorum = getFieldValue(['ackQuorum']) || 0;
-              const ensemble = val;
-              return ackQuorum <= writeQuorum && writeQuorum <= ensemble
+              return ackQuorum <= writeQuorum && writeQuorum <= val
                 ? Promise.resolve()
                 : Promise.reject(new Error('Max match: ensemble ≥ write quorum ≥ ack quorum'));
             }
@@ -216,7 +215,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: 'write quorum',
+      label: 'Write Quorum',
       name: 'writeQuorum',
       initialValue: currentValues?.writeQuorum ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumSuffix'),
@@ -230,7 +229,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: 'ack quorum',
+      label: 'ACK Quorum',
       name: 'ackQuorum',
       initialValue: currentValues?.ackQuorum ?? 2,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumSuffix'),
@@ -244,56 +243,7 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: 'retention time',
-      name: 'retentionTime',
-      initialValue: currentValues?.retentionTime ?? 72,
-      rules: [
-        ({ getFieldValue }) => ({
-          validator(_, val) {
-            const retentionSize = getFieldValue(['retentionSize']);
-            if ((val === 0 && retentionSize > 0) || (val > 0 && retentionSize === 0)) {
-              return Promise.reject(
-                new Error(
-                  'Can not: retentionTime=0,retentionSize>0 | retentionTime>0,retentionSize=0',
-                ),
-              );
-            }
-            if (val) {
-              const unit = getFieldValue(['retentionTimeUnit']);
-              const value = unit === 'hours' ? Math.ceil(val / 24) : val;
-              return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
-            }
-            return Promise.resolve();
-          },
-        }),
-      ],
-      suffix: {
-        type: 'select',
-        name: 'retentionTimeUnit',
-        initialValue: currentValues?.retentionTimeUnit ?? 'hours',
-        props: {
-          options: [
-            {
-              label: 'D',
-              value: 'days',
-            },
-            {
-              label: 'H',
-              value: 'hours',
-            },
-          ],
-        },
-      },
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionTimeExtra'),
-      props: {
-        min: -1,
-        precision: 0,
-      },
-      visible: values => values.mqType === 'PULSAR',
-    },
-    {
-      type: 'inputnumber',
-      label: 'ttl',
+      label: 'Time To Live',
       name: 'ttl',
       initialValue: currentValues?.ttl ?? 24,
       rules: [
@@ -334,7 +284,56 @@ export default (
     },
     {
       type: 'inputnumber',
-      label: 'retention size',
+      label: 'Retention Time',
+      name: 'retentionTime',
+      initialValue: currentValues?.retentionTime ?? 72,
+      rules: [
+        ({ getFieldValue }) => ({
+          validator(_, val) {
+            const retentionSize = getFieldValue(['retentionSize']);
+            if ((val === 0 && retentionSize > 0) || (val > 0 && retentionSize === 0)) {
+              return Promise.reject(
+                new Error(
+                  'Can not: retentionTime=0, retentionSize>0 | retentionTime>0, retentionSize=0',
+                ),
+              );
+            }
+            if (val) {
+              const unit = getFieldValue(['retentionTimeUnit']);
+              const value = unit === 'hours' ? Math.ceil(val / 24) : val;
+              return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
+      suffix: {
+        type: 'select',
+        name: 'retentionTimeUnit',
+        initialValue: currentValues?.retentionTimeUnit ?? 'hours',
+        props: {
+          options: [
+            {
+              label: 'D',
+              value: 'days',
+            },
+            {
+              label: 'H',
+              value: 'hours',
+            },
+          ],
+        },
+      },
+      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionTimeExtra'),
+      props: {
+        min: -1,
+        precision: 0,
+      },
+      visible: values => values.mqType === 'PULSAR',
+    },
+    {
+      type: 'inputnumber',
+      label: 'Retention Size',
       name: 'retentionSize',
       initialValue: currentValues?.retentionSize ?? -1,
       suffix: {

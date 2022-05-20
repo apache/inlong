@@ -23,13 +23,13 @@ import { genBusinessFields } from '@/components/AccessHelper';
 export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
   const keys = [
     'mqType',
+    'queueModule',
+    'partitionNum',
     'inlongGroupId',
     !isCreate && 'mqResource',
     'name',
     'inCharges',
     'description',
-    'queueModule',
-    'partitionNum',
     'dailyRecords',
     'dailyStorage',
     'peakRecords',
@@ -44,7 +44,7 @@ export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) =
 
   return isCreate
     ? genBusinessFields(keys, initialValues).map(item => {
-        if (item.name === 'name' && isUpdate) {
+        if (item.name === 'inlongGroupId' && isUpdate) {
           return {
             ...item,
             props: {
@@ -76,7 +76,7 @@ function transType(editing: boolean, conf, initialValues) {
         'mqType',
         'queueModule',
         'partitionNum',
-        'name',
+        'inlongGroupId',
         'dailyRecords',
         'dailyStorage',
         'peakRecords',
@@ -87,6 +87,7 @@ function transType(editing: boolean, conf, initialValues) {
     },
     {
       name: [
+        'name',
         'description',
         'inCharges',
         'ensemble',
