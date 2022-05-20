@@ -497,13 +497,13 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
   org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
-  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.10.1 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
   commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (Apache License, Version 2.0)
   commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (Apache License, Version 2.0)
-  org.apache.commons:commons-compress:1.21 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress/), (Apache License, Version 2.0)
+  org.apache.commons:commons-compress:1.20 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress/), (Apache License, Version 2.0)
   commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp/), (The Apache Software License, Version 2.0)
   commons-dbutils:commons-dbutils:1.7 - Apache Commons DbUtils (https://commons.apache.org/proper/commons-dbutils/), (Apache License, Version 2.0)
   commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io/), (The Apache Software License, Version 2.0)
@@ -554,7 +554,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.kafka:kafka-tools:3.0.0 - Apache Kafka (https://kafka.apache.org), (The Apache Software License, Version 2.0)
   org.apache.logging.log4j:log4j-api:2.17.2 - Apache Log4j API (https://logging.apache.org/log4j/2.x/log4j-api/), (Apache License, Version 2.0)
   org.apache.logging.log4j:log4j-slf4j-impl:2.17.2 - Apache Log4j SLF4J Binding (https://logging.apache.org/log4j/2.x/log4j-slf4j-impl/), (Apache License, Version 2.0)
-  org.lz4:lz4-java:1.6.0 - LZ4 and xxHash (https://github.com/lz4/lz4-java/tree/1.6.0), (The Apache Software License, Version 2.0)
+  org.lz4:lz4-java:1.7.1 - LZ4 and xxHash (https://github.com/lz4/lz4-java/tree/1.7.1), (The Apache Software License, Version 2.0)
   org.mapdb:mapdb:0.9.9 - mapdb (http://www.mapdb.org), (The Apache Software License, Version 2.0)
   com.yammer.metrics:metrics-core:2.2.0 - Metrics Core Library (https://github.com/infusionsoft/yammer-metrics/tree/v2.2.0), (Apache License 2.0)
   org.apache.mina:mina-core:2.0.4 - Apache MINA Core (https://mina.apache.org/), (Apache 2.0 License)
@@ -603,8 +603,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.typesafe.akka:akka-stream_2.11:2.5.21 - akka-stream (https://github.com/akka/akka/tree/v2.5.21), (Apache License, Version 2.0)
   com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.12.3 - Jackson-JAXRS-base (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.12.3/base), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.2 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.13.2/json), (The Apache Software License, Version 2.0)
-  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.13.2 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base/tree/jackson-modules-base-2.13.2/jaxb), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.12.3 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.13.2/json), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.3 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base/tree/jackson-modules-base-2.13.2/jaxb), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.module:jackson-module-paranamer:2.10.0 - Jackson module: Paranamer (https://github.com/FasterXML/jackson-modules-base/tree/jackson-modules-base-2.10.0/paranamer), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.module:jackson-module-scala_2.11:2.10.0 - jackson-module-scala (https://github.com/FasterXML/jackson-module-scala/tree/jackson-module-scala-2.10.0), (The Apache Software License, Version 2.0)
   org.javassist:javassist:3.25.0-GA - Javassist (https://github.com/jboss-javassist/javassist/tree/rel_3_25_0_ga), (Apache License 2.0;  MPL 1.1;  LGPL 2.1)
@@ -679,7 +679,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.G
   org.scala-lang:scala-library:2.11.12 - Scala Library (https://github.com/scala/scala/tree/v2.11.12), (BSD 3-clause)
   org.scala-lang.modules:scala-parser-combinators_2.11:1.1.1 - scala-parser-combinators (http://www.scala-lang.org/), (BSD 3-clause)
   org.scala-lang:scala-reflect:2.11.12 - Scala Compiler (https://github.com/scala/scala/tree/v2.11.12), (BSD 3-clause)
-  com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni/tree/v1.4.3-1), (BSD 2-Clause License)
+  com.github.luben:zstd-jni:1.5.0-2 - zstd-jni (https://github.com/luben/zstd-jni/tree/v1.5.0-2), (BSD 2-Clause License)
 
 
 ========================================================================
@@ -724,5 +724,5 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
   org.reactivestreams:reactive-streams:1.0.2 - reactive-streams (http://www.reactive-streams.org/), (CC0)
-  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  org.tukaani:xz:1.8 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
 
