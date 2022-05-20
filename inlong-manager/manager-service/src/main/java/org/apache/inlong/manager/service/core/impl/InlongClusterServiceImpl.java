@@ -63,6 +63,7 @@ import java.util.Objects;
 public class InlongClusterServiceImpl implements InlongClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
+    public static final String SCHEMA_M0_DAY = "m0_day";
 
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
@@ -332,18 +333,18 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<DataProxyConfig> configList = new ArrayList<>();
         for (InlongGroupEntity groupEntity : groupEntityList) {
             String groupId = groupEntity.getInlongGroupId();
-            String bizResource = groupEntity.getMqResourceObj();
+            String bizResource = groupEntity.getMqResource();
 
             DataProxyConfig config = new DataProxyConfig();
-            config.setM(groupEntity.getSchemaName());
-            MQType mqType = MQType.forType(groupEntity.getMiddlewareType());
+            config.setM(SCHEMA_M0_DAY);
+            MQType mqType = MQType.forType(groupEntity.getMqType());
             if (mqType == MQType.TUBE) {
                 config.setInlongGroupId(groupId);
                 config.setTopic(bizResource);
             } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
                 List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
                 for (InlongStreamEntity stream : streamList) {
-                    String topic = stream.getMqResourceObj();
+                    String topic = stream.getMqResource();
                     String streamId = stream.getInlongStreamId();
                     config.setInlongGroupId(groupId + "/" + streamId);
                     config.setTopic("persistent://" + clusterBean.getDefaultTenant() + "/" + bizResource + "/" + topic);
