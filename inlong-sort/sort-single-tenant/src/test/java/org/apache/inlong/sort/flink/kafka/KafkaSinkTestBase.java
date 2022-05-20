@@ -130,7 +130,7 @@ public abstract class KafkaSinkTestBase {
         kafkaProperties.put("offsets.topic.replication.factor", (short) 1);
 
         KafkaConfig kafkaConfig = new KafkaConfig(kafkaProperties);
-        kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(null), new ArraySeq<>(0));
+        kafkaServer = new KafkaServer(kafkaConfig, Time.SYSTEM, Option.apply(null), null);
         kafkaServer.startup();
         brokerConnStr = hostAndPortToUrlString(
                 KAFKA_HOST,

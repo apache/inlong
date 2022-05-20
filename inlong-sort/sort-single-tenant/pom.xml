@@ -36,6 +36,7 @@
         <debezium.connector.mysql.version>1.6.4.Final</debezium.connector.mysql.version>
         <debezium.core.version>1.6.4.Final</debezium.core.version>
         <debezium.embedded.version>1.5.2.Final</debezium.embedded.version>
+        <kafka.scala.binary.version>2.13</kafka.scala.binary.version>
         <kafka.clients.version>2.7.0</kafka.clients.version>
     </properties>
 
@@ -204,7 +205,8 @@
         <!-- test -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${flink.scala.binary.version}</artifactId>
+            <artifactId>kafka_${kafka.scala.binary.version}</artifactId>
+            <version>${kafka.clients.version}</version>
             <scope>test</scope>
         </dependency>
 
