@@ -18,16 +18,25 @@
 package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 
+/**
+ * Enum of MQ type.
+ */
 public enum MQType {
 
-    PULSAR("PULSAR"),
     TUBE("TUBE"),
+    PULSAR("PULSAR"),
     TDMQ_PULSAR("TDMQ_PULSAR"),
     NONE("NONE");
 
+    public static final String MQ_TUBE = "TUBE";
+    public static final String MQ_PULSAR = "PULSAR";
+    public static final String MQ_TDMQ_PULSAR = "TDMQ_PULSAR";
+    public static final String MQ_NONE = "NONE";
+
     @Getter
-    private String type;
+    private final String type;
 
     MQType(String type) {
         this.type = type;
@@ -39,6 +48,7 @@ public enum MQType {
                 return mqType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported queue=%s for Inlong", type));
+        throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), type));
     }
+
 }

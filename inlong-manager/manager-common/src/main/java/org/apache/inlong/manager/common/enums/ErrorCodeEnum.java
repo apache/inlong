@@ -33,6 +33,7 @@ public enum ErrorCodeEnum {
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
+    GROUP_INFO_INCORRECT(1003, "Group info was incorrect"),
     GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group information"),
     GROUP_PERMISSION_DENIED(1004, "No access to this inlong group"),
     GROUP_HAS_STREAM(1005, "There are some valid inlong stream for this inlong group"),
@@ -48,7 +49,8 @@ public enum ErrorCodeEnum {
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),
 
-    MQ_TYPE_NOT_SUPPORTED(1021, "MQ_TYPE_NOT_SUPPORTED"),
+    MQ_TYPE_NOT_SUPPORTED(1022, "MQ type '%s' not supported"),
+    MQ_TYPE_NOT_SAME(1023, "Expected MQ type is '%s', but found '%s'"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
 

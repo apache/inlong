@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.client.api;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.MQType;
 
@@ -38,11 +37,6 @@ public abstract class MQBaseConf implements Serializable {
         }
     };
 
-    @ApiModelProperty("The number of partitions of Topic, 1-20")
-    private int topicPartitionNum = 3;
-
-    @ApiModelProperty("Is need create for mq resources")
-    private boolean enableCreateResource = true;
-
     public abstract MQType getType();
+
 }

@@ -15,30 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.group;
+package org.apache.inlong.manager.common.pojo.group.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Inlong group information for Pulsar
+ * Inlong group info for Pulsar
  */
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong group information for Pulsar")
-public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
+@ApiModel("Inlong group info for Pulsar")
+@JsonTypeDefine(value = MQType.MQ_PULSAR)
+public class InlongPulsarInfo extends InlongGroupInfo {
 
-    public InlongGroupPulsarInfo() {
-        this.setMqType(MQType.PULSAR.getType());
-    }
-
-    @ApiModelProperty(value = "Tenant name of Inlong group")
+    @ApiModelProperty(value = "Pulsar tenant")
     private String tenant;
+
+    @ApiModelProperty(value = "Pulsar admin URL")
+    private String adminUrl;
+
+    @ApiModelProperty(value = "Pulsar service URL")
+    private String serviceUrl;
+
+    @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
+            + "serial: single partition, low throughput, and orderly messages")
+    private String queueModule = "parallel";
+
+    @ApiModelProperty("The number of partitions of Topic, 1-20")
+    private int partitionNum = 3;
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;
@@ -49,22 +60,31 @@ public class InlongGroupPulsarInfo extends InlongGroupMqExtBase {
     @ApiModelProperty(value = "Number of responses requested")
     private Integer ackQuorum = 2;
 
-    @ApiModelProperty(value = "Message storage time")
-    private Integer retentionTime = 72;
-
-    @ApiModelProperty(value = "The unit of the message storage time")
-    private String retentionTimeUnit = "hours";
-
     @ApiModelProperty(value = "Message time-to-live duration")
     private Integer ttl = 24;
 
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
     private String ttlUnit = "hours";
 
+    @ApiModelProperty(value = "Message storage time")
+    private Integer retentionTime = 72;
+
+    @ApiModelProperty(value = "The unit of the message storage time")
+    private String retentionTimeUnit = "hours";
+
     @ApiModelProperty(value = "Message size")
     private Integer retentionSize = -1;
 
     @ApiModelProperty(value = "The unit of message size")
     private String retentionSizeUnit = "MB";
+
+    public InlongPulsarInfo() {
+        this.setMqType(MQType.PULSAR.getType());
+    }
+
+    @Override
+    public InlongPulsarRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongPulsarRequest::new);
+    }
 
 }

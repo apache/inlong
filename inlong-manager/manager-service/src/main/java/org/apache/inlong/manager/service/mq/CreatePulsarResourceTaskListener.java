@@ -22,15 +22,16 @@ import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mq.util.PulsarOptService;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -78,14 +79,15 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         if (groupInfo == null) {
             throw new WorkflowListenerException("inlong group or pulsar cluster not found for groupId=" + groupId);
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
                 String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
                 PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
                         .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                this.createPulsarProcess(groupInfo, pulsarClusterInfo);
+                this.createPulsarProcess(pulsarInfo, pulsarClusterInfo);
             }
         } catch (Exception e) {
             log.error("create pulsar resource error for groupId={}", groupId, e);
@@ -99,7 +101,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
     /**
      * Create Pulsar tenant, namespace and topic
      */
-    private void createPulsarProcess(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarClusterInfo) throws Exception {
+    private void createPulsarProcess(InlongPulsarInfo groupInfo, PulsarClusterInfo pulsarClusterInfo) throws Exception {
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={} in cluster={}", groupId, pulsarClusterInfo);
 
@@ -118,12 +120,12 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
             pulsarOptService.createNamespace(pulsarAdmin, entity, tenant, namespace);
 
             // create pulsar topic
-            Integer partitionNum = groupInfo.getTopicPartitionNum();
-            List<InlongStreamTopicResponse> streamTopicList = streamMapper.selectTopicList(groupId);
+            Integer partitionNum = groupInfo.getPartitionNum();
+            List<InlongStreamTopicInfo> streamTopicList = streamMapper.selectTopicList(groupId);
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(tenant).namespace(namespace).numPartitions(partitionNum).queueModule(queueModule).build();
 
-            for (InlongStreamTopicResponse topicVO : streamTopicList) {
+            for (InlongStreamTopicInfo topicVO : streamTopicList) {
                 topicBean.setTopicName(topicVO.getMqResource());
                 pulsarOptService.createTopic(pulsarAdmin, topicBean);
             }

@@ -23,9 +23,9 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
-import org.apache.inlong.manager.client.api.SortBaseConf;
-import org.apache.inlong.manager.client.api.UserDefinedSortConf;
+import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.common.pojo.sort.UserDefinedSortConf;
 
 import java.lang.reflect.Type;
 
@@ -35,7 +35,7 @@ import java.lang.reflect.Type;
 public class SortBaseConfAdapter implements JsonDeserializer {
 
     @Override
-    public SortBaseConf deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
+    public BaseSortConf deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
             throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sortType = jsonObject.get("type").getAsString();
@@ -43,7 +43,7 @@ public class SortBaseConfAdapter implements JsonDeserializer {
         try {
             switch (sortType) {
                 case "FLINK":
-                    return gson.fromJson(jsonElement, (Type) Class.forName((FlinkSortBaseConf.class).getName()));
+                    return gson.fromJson(jsonElement, (Type) Class.forName((FlinkSortConf.class).getName()));
                 case "USER_DEFINED":
                     return gson.fromJson(jsonElement, (Type) Class.forName((UserDefinedSortConf.class).getName()));
                 default:

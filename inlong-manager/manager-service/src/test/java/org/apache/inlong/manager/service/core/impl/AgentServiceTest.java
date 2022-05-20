@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 
 /**
- * Stream source service test
+ * Agent service test
  */
 public class AgentServiceTest extends ServiceBaseTest {
 
@@ -48,12 +48,11 @@ public class AgentServiceTest extends ServiceBaseTest {
      */
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
-
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
-        sourceInfo.setSourceName(GLOBAL_SOURCE_NAME);
+        sourceInfo.setSourceName("binlog_source_in_agent_service_test");
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 

@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.group;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 
 import java.util.List;
 
@@ -35,29 +35,29 @@ import java.util.List;
 public interface InlongGroupService {
 
     /**
-     * Save group information
+     * Save inlong group info.
      *
-     * @param groupInfo Basic group information
-     * @param operator Operator name
-     * @return Inlong group id after successfully saved
+     * @param groupInfo group request need to save
+     * @param operator name of operator
+     * @return inlong group id after saving
      */
     String save(InlongGroupRequest groupInfo, String operator);
 
     /**
-     * Query group information based on group id
+     * Get inlong group info based on inlong group id
      *
-     * @param groupId Inlong group id
-     * @return Group details
+     * @param groupId inlong group id
+     * @return detail of inlong group
      */
     InlongGroupInfo get(String groupId);
 
     /**
-     * Query group list based on conditions
+     * Page query inlong group list.
      *
-     * @param request Group pagination query request
-     * @return Group Pagination List
+     * @param request pagination query request
+     * @return group list
      */
-    PageInfo<InlongGroupListResponse> listByCondition(InlongGroupPageRequest request);
+    PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request);
 
     /**
      * Modify group information
@@ -90,10 +90,10 @@ public interface InlongGroupService {
     /**
      * Query whether the specified group id exists
      *
-     * @param groupId The group id to be queried
+     * @param groupId the group id to be queried
      * @return does it exist
      */
-    boolean exist(String groupId);
+    Boolean exist(String groupId);
 
     /**
      * Query the group information of each status of the current user
@@ -110,7 +110,7 @@ public interface InlongGroupService {
      * @return Topic information
      * @apiNote Tube corresponds to the group, only 1 topic
      */
-    InlongGroupTopicResponse getTopic(String groupId);
+    InlongGroupTopicInfo getTopic(String groupId);
 
     /**
      * Save the group modified when the approval is passed

@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -87,7 +87,7 @@ public class SourceInfoUtils {
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResource();
-        InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) groupInfo.getMqExtInfo();
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
         String tenant = clusterBean.getDefaultTenant();
         if (StringUtils.isNotEmpty(pulsarInfo.getTenant())) {
             tenant = pulsarInfo.getTenant();

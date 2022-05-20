@@ -60,7 +60,7 @@ public class CommandCreate extends CommandBase {
                     CreateGroupConf groupConf = jsonToObject(jsonFile);
 
                     InlongClient inlongClient = connect();
-                    InlongGroup group = inlongClient.forGroup(groupConf.getGroupConf());
+                    InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                     InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
                     streamBuilder.fields(groupConf.getStreamFieldList());
                     streamBuilder.source(groupConf.getStreamSource());

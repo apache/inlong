@@ -21,11 +21,11 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HbaseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
@@ -46,6 +46,7 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamSink;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.nio.charset.Charset;
@@ -112,7 +113,7 @@ public class InlongStreamSinkTransfer {
         clickHouseSinkRequest.setSinkType(clickHouseSink.getSinkType().name());
         clickHouseSinkRequest.setJdbcUrl(clickHouseSink.getJdbcUrl());
         DefaultAuthentication defaultAuthentication = clickHouseSink.getAuthentication();
-        AssertUtil.notNull(defaultAuthentication,
+        AssertUtils.notNull(defaultAuthentication,
                 String.format("Clickhouse storage:%s must be authenticated", clickHouseSink.getDbName()));
         clickHouseSinkRequest.setUsername(defaultAuthentication.getUserName());
         clickHouseSinkRequest.setPassword(defaultAuthentication.getPassword());
@@ -146,7 +147,7 @@ public class InlongStreamSinkTransfer {
             StreamSink streamSink) {
         ClickHouseSink clickHouseSink = new ClickHouseSink();
         if (streamSink != null) {
-            AssertUtil.isTrue(sinkResponse.getSinkName().equals(streamSink.getSinkName()),
+            AssertUtils.isTrue(sinkResponse.getSinkName().equals(streamSink.getSinkName()),
                     String.format("SinkName is not equal: %s != %s", sinkResponse, streamSink));
             ClickHouseSink snapshot = (ClickHouseSink) streamSink;
             clickHouseSink = CommonBeanUtils.copyProperties(snapshot, ClickHouseSink::new);
@@ -226,7 +227,7 @@ public class InlongStreamSinkTransfer {
     private static StreamSink parseKafkaSink(KafkaSinkResponse sinkResponse, StreamSink sink) {
         KafkaSink kafkaSink = new KafkaSink();
         if (sink != null) {
-            AssertUtil.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
+            AssertUtils.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             KafkaSink snapshot = (KafkaSink) sink;
             kafkaSink.setSinkName(snapshot.getSinkName());
@@ -290,7 +291,7 @@ public class InlongStreamSinkTransfer {
     private static StreamSink parseHbaseSink(HbaseSinkResponse sinkResponse, StreamSink sink) {
         HbaseSink hbaseSink = new HbaseSink();
         if (sink != null) {
-            AssertUtil.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
+            AssertUtils.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             HbaseSink snapshot = (HbaseSink) sink;
             hbaseSink.setSinkName(snapshot.getSinkName());
@@ -348,7 +349,7 @@ public class InlongStreamSinkTransfer {
         hiveSinkRequest.setHiveConfDir(hiveSink.getHiveConfDir());
         hiveSinkRequest.setHiveVersion(hiveSink.getHiveVersion());
         DefaultAuthentication defaultAuthentication = hiveSink.getAuthentication();
-        AssertUtil.notNull(defaultAuthentication,
+        AssertUtils.notNull(defaultAuthentication,
                 String.format("Hive storage:%s must be authenticated", hiveSink.getDbName()));
         hiveSinkRequest.setUsername(defaultAuthentication.getUserName());
         hiveSinkRequest.setPassword(defaultAuthentication.getPassword());
@@ -390,7 +391,7 @@ public class InlongStreamSinkTransfer {
     private static HiveSink parseHiveSink(HiveSinkResponse sinkResponse, StreamSink sink) {
         HiveSink hiveSink = new HiveSink();
         if (sink != null) {
-            AssertUtil.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
+            AssertUtils.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
                     String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
             HiveSink snapshot = (HiveSink) sink;
             hiveSink.setSinkName(snapshot.getSinkName());

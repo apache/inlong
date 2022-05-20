@@ -15,23 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.sort;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Inlong stream id and topic interaction object
+ * Sort configuration for inlong group.
  */
 @Data
-@ApiModel("Inlong stream id and topic interaction object")
-public class InlongStreamTopicResponse {
+@ApiModel("Sort configuration for inlong group")
+public abstract class BaseSortConf {
 
-    @ApiModelProperty(value = "InLong stream ID")
-    private String inlongStreamId;
+    public abstract SortType getType();
 
-    @ApiModelProperty(value = "MQ resource, the inlong stream id corresponds to the topic of Pulsar one-to-one")
-    private String mqResource;
+    public enum SortType {
+        FLINK("flink"),
+        LOCAL("local"),
+        USER_DEFINED("user_defined");
 
+        private final String type;
+
+        SortType(String type) {
+            this.type = type;
+        }
+
+        public static SortType forType(String type) {
+            for (SortType sortType : values()) {
+                if (sortType.getType().equals(type)) {
+                    return sortType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupported type=%s for Inlong", type));
+        }
+
+        public String getType() {
+            return this.type;
+        }
+
+    }
 }

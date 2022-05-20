@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 
 import java.util.List;
@@ -156,7 +156,7 @@ public interface InlongStreamService {
     /**
      * According to the inlong group id, query the Topic list
      */
-    List<InlongStreamTopicResponse> getTopicList(String groupId);
+    List<InlongStreamTopicInfo> getTopicList(String groupId);
 
     /**
      * Save the information modified when the approval is passed

@@ -19,7 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.springframework.stereotype.Repository;
 
@@ -48,7 +48,7 @@ public interface InlongStreamEntityMapper {
 
     int selectCountByGroupId(@Param("groupId") String groupId);
 
-    List<InlongStreamTopicResponse> selectTopicList(@Param("groupId") String groupId);
+    List<InlongStreamTopicInfo> selectTopicList(@Param("groupId") String groupId);
 
     int updateByPrimaryKey(InlongStreamEntity record);
 

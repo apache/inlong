@@ -40,70 +40,62 @@ public interface StreamSourceOperation {
     /**
      * Save the source info.
      *
-     * @param request The request of the source.
-     * @param groupStatus The belongs group status.
-     * @param operator The operator name.
-     * @return Source id after saving.
+     * @param request request of source
+     * @param groupStatus the belongs group status
+     * @param operator name of operator
+     * @return source id after saving
      */
     Integer saveOpt(SourceRequest request, Integer groupStatus, String operator);
 
     /**
      * Get source info by the given entity.
      *
-     * @param entity Get field value from the entity.
-     * @return Source info.
+     * @param entity get field value from the entity
+     * @return source info
      */
     SourceResponse getByEntity(StreamSourceEntity entity);
 
     /**
      * Get the target from the given entity.
      *
-     * @param entity Get field value from the entity.
-     * @param target Encapsulate value to the target.
-     * @param <T> Type of the target.
-     * @return Target after encapsulating.
+     * @param entity get field value from the entity
+     * @param target encapsulate value to the target
+     * @param <T> target type
+     * @return target after encapsulating.
      */
     <T> T getFromEntity(StreamSourceEntity entity, Supplier<T> target);
 
     /**
      * Get source list response from the given source entity page.
      *
-     * @param entityPage The given entity page.
-     * @return Source list response.
+     * @param entityPage given entity page
+     * @return source list response
      */
     PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage);
 
     /**
      * Update the source info.
      *
-     * @param request Request of update.
-     * @param groupStatus The belongs group status.
-     * @param operator Operator's name.
+     * @param request request of source
+     * @param groupStatus the belongs group status
+     * @param operator name of operator
      */
     void updateOpt(SourceRequest request, Integer groupStatus, String operator);
 
     /**
-     * Stop the source collecting.
+     * Stop the source task.
      *
-     * @param request Request of update.
-     * @param operator Operator's name.
+     * @param request request of source
+     * @param operator name of operator
      */
     void stopOpt(SourceRequest request, String operator);
 
     /**
-     * Stop the source collecting.
+     * Restart the source task.
      *
-     * @param request Request of update.
-     * @param operator Operator's name.
+     * @param request request of source
+     * @param operator name of operator
      */
     void restartOpt(SourceRequest request, String operator);
-
-    /**
-     * Stop the source collecting.
-     *
-     * @param request Request of update.
-     * @param operator Operator's name.
-     */
-    void deleteOpt(SourceRequest request, String operator);
 
 }
