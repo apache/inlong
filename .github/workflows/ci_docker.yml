@@ -19,7 +19,38 @@ name: InLong Docker Build and Push
 
 on:
   push:
+    paths:
+      - '.github/workflows/ci_docker.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
+
   pull_request:
+    paths:
+      - '.github/workflows/ci_docker.yml'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
+      - '!*.md'
 
 jobs:
   docker:
@@ -28,3 +59,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: adopt
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.7
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/org/apache/inlong
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build Docker images
+        run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
+        env:
+          CI: false
+
+      # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
+      - name: Match branch
+        id: match-branch
+        if: |
+          success()
+          && github.event_name == 'push'
+          && github.repository_owner == 'apache'
+        run: |
+          if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} || ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::set-output name=match::true"
+          fi
+
+      - name: Push Docker images to Docker Hub
+        if: ${{ success() && steps.match-branch.outputs.match == 'true' }}
+        working-directory: docker
+        run: bash +x publish.sh
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
