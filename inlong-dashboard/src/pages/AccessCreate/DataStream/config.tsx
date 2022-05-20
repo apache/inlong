@@ -23,7 +23,7 @@ import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import { Storages } from '@/components/MetaData';
 
-export const genFormContent = (currentValues, inlongGroupId, middlewareType) => {
+export const genFormContent = (currentValues, inlongGroupId, mqType) => {
   const extraParams = {
     inlongGroupId: inlongGroupId,
   };
@@ -73,7 +73,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
               {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
             </Divider>
           ),
-          visible: middlewareType === 'PULSAR',
+          visible: mqType === 'PULSAR',
         },
       ],
       currentValues,
@@ -82,7 +82,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
     ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
       item => ({
         ...item,
-        visible: middlewareType === 'PULSAR',
+        visible: mqType === 'PULSAR',
       }),
     ),
     ...genDataFields(

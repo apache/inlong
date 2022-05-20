@@ -100,7 +100,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
     },
     {
       title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.BusinessName'),
-      dataIndex: 'cnName',
+      dataIndex: 'name',
     },
     {
       title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.Owners'),

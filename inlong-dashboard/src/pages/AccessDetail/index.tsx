@@ -44,7 +44,7 @@ const Comp: React.FC = () => {
   const [id, setId] = useState(groupId || '');
 
   const childRef = useRef(null);
-  const [middlewareType, setMiddlewareType] = useState();
+  const [mqType, setMqType] = useState();
 
   const [isCreate] = useState(location.pathname.indexOf('/access/create') === 0);
 
@@ -53,9 +53,9 @@ const Comp: React.FC = () => {
   }, [current, addOpened, hasOpened]);
 
   const { data } = useRequest(`/group/get/${id}`, {
-    ready: !!id && !middlewareType,
+    ready: !!id && !mqType,
     refreshDeps: [id],
-    onSuccess: result => setMiddlewareType(result.middlewareType),
+    onSuccess: result => setMqType(result.mqType),
   });
 
   const isReadonly = useMemo(() => [0, 101, 102].includes(data?.status), [data]);
@@ -100,7 +100,7 @@ const Comp: React.FC = () => {
     try {
       const result = onOk && (await onOk());
       if (current === 0) {
-        setMiddlewareType(result.middlewareType);
+        setMqType(result.mqType);
         setId(result.inlongGroupId);
       }
       history.push({
@@ -190,7 +190,7 @@ const Comp: React.FC = () => {
               <Content
                 inlongGroupId={id}
                 readonly={isReadonly}
-                middlewareType={middlewareType}
+                mqType={mqType}
                 isCreate={isCreate}
                 ref={index === current ? childRef : null}
               />

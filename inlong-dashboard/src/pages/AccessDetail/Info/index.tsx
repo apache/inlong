@@ -62,7 +62,7 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
       mqExtInfo: {
         ...data?.mqExtInfo,
         ...values.mqExtInfo,
-        middlewareType: values.middlewareType,
+        mqType: values.mqType,
       },
     };
 

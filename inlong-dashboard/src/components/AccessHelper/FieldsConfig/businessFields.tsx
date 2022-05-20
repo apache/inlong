@@ -29,44 +29,36 @@ export default (
 ): FormItemProps[] => {
   const fields: FormItemProps[] = [
     {
-      type: 'text',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessID'),
-      name: 'inlongGroupId',
-      initialValue: currentValues.inlongGroupId,
-    },
-    {
-      type: 'text',
-      label: 'TubeTopic',
-      name: 'mqResourceObj',
-      initialValue: currentValues.mqResourceObj,
-      visible: values => values.middlewareType === 'TUBE',
-    },
-    {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishName'),
-      name: 'name',
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupId'),
+      name: 'inlongGroupId',
       props: {
         maxLength: 32,
       },
       rules: [
         { required: true },
         {
-          pattern: /^[a-z_\d]+$/,
-          message: i18n.t(
-            'components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishNameRules',
-          ),
+          pattern: /^[a-z_\-\d]+$/,
+          message: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupIdRules'),
         },
       ],
-      initialValue: currentValues.name,
+      initialValue: currentValues.inlongGroupId,
+    },
+    {
+      type: 'text',
+      label: 'TubeTopic',
+      name: 'mqResource',
+      initialValue: currentValues.mqResource,
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessLabelName'),
-      name: 'cnName',
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupName'),
+      name: 'name',
       props: {
         maxLength: 32,
       },
-      initialValue: currentValues.cnName,
+      initialValue: currentValues.name,
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
@@ -93,8 +85,8 @@ export default (
     {
       type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.MessageMiddleware'),
-      name: 'middlewareType',
-      initialValue: currentValues.middlewareType ?? 'TUBE',
+      name: 'mqType',
+      initialValue: currentValues.mqType ?? 'TUBE',
       rules: [{ required: true }],
       props: {
         options: [
@@ -127,7 +119,7 @@ export default (
           },
         ],
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
@@ -140,7 +132,7 @@ export default (
         max: 20,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR' && values.queueModule === 'parallel',
+      visible: values => values.mqType === 'PULSAR' && values.queueModule === 'parallel',
     },
     {
       type: 'inputnumber',
@@ -153,7 +145,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -166,7 +158,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -179,7 +171,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -192,13 +184,13 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
       label: 'ensemble',
-      name: 'mqExtInfo.ensemble',
-      initialValue: currentValues.mqExtInfo?.ensemble ?? 3,
+      name: 'ensemble',
+      initialValue: currentValues?.ensemble ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleExtra'),
       rules: [
@@ -221,12 +213,12 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
       label: 'write quorum',
-      name: 'mqExtInfo.writeQuorum',
+      name: 'writeQuorum',
       initialValue: currentValues.mqExtInfo?.writeQuorum ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumExtra'),
@@ -235,7 +227,7 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
@@ -249,7 +241,7 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
@@ -298,7 +290,7 @@ export default (
         min: -1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
@@ -339,7 +331,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
@@ -372,7 +364,7 @@ export default (
         min: -1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
   ] as FormItemProps[];
 

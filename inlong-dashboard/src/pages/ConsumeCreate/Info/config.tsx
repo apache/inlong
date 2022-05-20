@@ -37,13 +37,13 @@ export const getFormContent = ({ changedValues }): ReturnType<typeof genBasicFie
       'filterEnabled',
       {
         type: <Divider orientation="left">DLQ</Divider>,
-        visible: values => values.middlewareType === 'PULSAR',
+        visible: values => values.mqType === 'PULSAR',
       },
       'mqExtInfo.isDlq',
       'mqExtInfo.deadLetterTopic',
       {
         type: <Divider orientation="left">RLQ</Divider>,
-        visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+        visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
       },
       'mqExtInfo.isRlq',
       'mqExtInfo.retryLetterTopic',
