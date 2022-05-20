@@ -75,7 +75,7 @@ public class InLongMsgRowDataSerDeTest {
         // deserialize
         final Map<String, String> tableOptions =
                 InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
-                    opts.put("inlong.inner.format", "csv");
+                    opts.put("inlong-msg.inner.format", "csv");
                 });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
@@ -106,8 +106,8 @@ public class InLongMsgRowDataSerDeTest {
         // deserialize
         final Map<String, String> tableOptions =
                 InLongMsgFormatFactoryTest.getModifiedOptions(opts -> {
-                    opts.put("inlong.inner.format", "csv");
-                    opts.put("inlong.ignore-parse-errors", "true");
+                    opts.put("inlong-msg.inner.format", "csv");
+                    opts.put("inlong-msg.ignore-parse-errors", "true");
                 });
         ResolvedSchema schema = ResolvedSchema.of(
                 Column.physical("id", DataTypes.BIGINT()),
