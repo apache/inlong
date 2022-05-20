@@ -31,10 +31,7 @@
 
     <artifactId>sort-connectors</artifactId>
     <name>Apache InLong - Sort Connectors</name>
-    <properties>
-        <kafka.scala.version>2.12</kafka.scala.version>
-        <kafka.clients.version>1.13.5</kafka.clients.version>
-    </properties>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -120,8 +117,7 @@
         <!--for kafka-->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-kafka_${kafka.scala.version}</artifactId>
-            <version>${kafka.clients.version}</version>
+            <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
         </dependency>
         <!--for pulsar-->
         <dependency>

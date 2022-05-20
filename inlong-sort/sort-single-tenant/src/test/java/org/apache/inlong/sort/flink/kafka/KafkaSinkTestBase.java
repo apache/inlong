@@ -48,7 +48,6 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Option;
-import scala.collection.mutable.ArraySeq;
 
 import java.io.IOException;
 import java.time.Duration;
