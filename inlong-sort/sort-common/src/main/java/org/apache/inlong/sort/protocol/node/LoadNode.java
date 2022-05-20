@@ -28,6 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSub
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
+import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
@@ -52,7 +53,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
         @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
         @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
-        @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad")
+        @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad"),
+        @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad")
 })
 @NoArgsConstructor
 @Data
