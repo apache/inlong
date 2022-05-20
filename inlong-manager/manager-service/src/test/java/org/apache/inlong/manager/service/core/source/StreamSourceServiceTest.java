@@ -34,10 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class StreamSourceServiceTest extends ServiceBaseTest {
 
-    private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
-    private final String globalOperator = "admin";
-    private final String sourceName = "default";
+    private final String sourceName = "stream_source_service_test";
 
     @Autowired
     private StreamSourceService sourceService;
@@ -48,14 +45,14 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
      * Save source info.
      */
     public Integer saveSource() {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
         BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
-        sourceInfo.setInlongGroupId(globalGroupId);
-        sourceInfo.setInlongStreamId(globalStreamId);
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
-        return sourceService.save(sourceInfo, globalOperator);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
     @Test
@@ -63,7 +60,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         Integer id = this.saveSource();
         Assert.assertNotNull(id);
 
-        boolean result = sourceService.delete(id, globalOperator);
+        boolean result = sourceService.delete(id, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
     }
 
@@ -72,24 +69,24 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         Integer id = this.saveSource();
 
         SourceResponse source = sourceService.get(id);
-        Assert.assertEquals(globalGroupId, source.getInlongGroupId());
+        Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
-        sourceService.delete(id, globalOperator);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
         SourceResponse response = sourceService.get(id);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
 
         BinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse, BinlogSourceRequest::new);
-        boolean result = sourceService.update(request, globalOperator);
+        boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
 
-        sourceService.delete(id, globalOperator);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
 }

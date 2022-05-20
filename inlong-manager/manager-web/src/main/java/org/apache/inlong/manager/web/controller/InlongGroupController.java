@@ -25,16 +25,16 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperation;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,16 +58,17 @@ public class InlongGroupController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong group info")
-    public Response<String> save(@RequestBody InlongGroupRequest groupInfo) {
+    public Response<String> save(@RequestBody InlongGroupRequest groupRequest) {
+        groupRequest.checkParams();
         String operator = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(groupService.save(groupInfo, operator));
+        return Response.success(groupService.save(groupRequest, operator));
     }
 
     @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong group info")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
-    public Response<InlongGroupResponse> get(@PathVariable String groupId) {
-        return Response.success(groupService.get(groupId).genResponse());
+    public Response<InlongGroupInfo> get(@PathVariable String groupId) {
+        return Response.success(groupService.get(groupId));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
@@ -75,15 +76,16 @@ public class InlongGroupController {
     public Response<PageInfo<InlongGroupListResponse>> listByCondition(@RequestBody InlongGroupPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.Admin.name()));
-        return Response.success(groupService.listByCondition(request));
+        return Response.success(groupService.listByPage(request));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong group info")
-    public Response<String> update(@RequestBody InlongGroupRequest groupInfo) {
+    public Response<String> update(@RequestBody InlongGroupRequest groupRequest) {
+        groupRequest.checkParams();
         String operator = LoginUserUtils.getLoginUserDetail().getUserName();
-        return Response.success(groupService.update(groupInfo, operator));
+        return Response.success(groupService.update(groupRequest, operator));
     }
 
     @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
@@ -160,7 +162,7 @@ public class InlongGroupController {
 
     @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get topic info")
-    public Response<InlongGroupTopicResponse> getTopic(@PathVariable String groupId) {
+    public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
         return Response.success(groupService.getTopic(groupId));
     }
 

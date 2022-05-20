@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow;
 
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
@@ -46,11 +46,10 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
     @Test
     public void testGetQueueOperateListener() {
         GroupResourceProcessForm processForm = new GroupResourceProcessForm();
-        InlongGroupInfo groupInfo = new InlongGroupInfo();
-        //check pulsar listener
-        groupInfo.setMqType(MQType.PULSAR.getType());
-        groupInfo.setMqExtInfo(new InlongGroupPulsarInfo());
-        processForm.setGroupInfo(groupInfo);
+        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
+        // check pulsar listener
+        pulsarInfo.setMqType(MQType.PULSAR.getType());
+        processForm.setGroupInfo(pulsarInfo);
         WorkflowContext context = new WorkflowContext();
         context.setProcessForm(processForm);
         List<QueueOperateListener> queueOperateListeners = groupTaskListenerFactory.getQueueOperateListener(context);
@@ -62,7 +61,8 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
         Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
-        groupInfo.setMqType(MQType.TUBE.getType());
+        InlongTubeInfo tubeInfo = new InlongTubeInfo();
+        tubeInfo.setMqType(MQType.TUBE.getType());
         queueOperateListeners = groupTaskListenerFactory.getQueueOperateListener(context);
         Assert.assertEquals(2, queueOperateListeners.size());
         Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);

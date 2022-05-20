@@ -24,7 +24,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
@@ -48,12 +48,12 @@ public class InnerGroupContext {
     private Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg;
 
     public String getGroupId() {
-        AssertUtil.notNull(groupInfo, "InlongGroupRequest is not init");
+        AssertUtils.notNull(groupInfo, "InlongGroupRequest is not init");
         return groupInfo.getInlongGroupId();
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {
-        AssertUtil.isTrue(streamContext != null && streamContext.getStreamInfo() != null,
+        AssertUtils.isTrue(streamContext != null && streamContext.getStreamInfo() != null,
                 "StreamContext should not be null");
         if (MapUtils.isEmpty(streamContextMap)) {
             streamContextMap = Maps.newHashMap();
@@ -62,19 +62,17 @@ public class InnerGroupContext {
     }
 
     public void setStream(InlongStream stream) {
-        AssertUtil.isTrue(stream != null,
-                "Stream should not be null");
+        AssertUtils.isTrue(stream != null, "Stream should not be null");
         if (MapUtils.isEmpty(streamMap)) {
             streamMap = Maps.newHashMap();
         }
-        streamMap.put(stream.getName(), stream);
+        streamMap.put(stream.getStreamId(), stream);
     }
 
-    public InlongStream getStream(String name) {
-        AssertUtil.isTrue(StringUtils.isNotEmpty(name),
-                "Stream name should not be null");
+    public InlongStream getStream(String streamId) {
+        AssertUtils.isTrue(StringUtils.isNotEmpty(streamId), "Stream streamId should not be null");
         if (MapUtils.isNotEmpty(streamMap)) {
-            return streamMap.get(name);
+            return streamMap.get(streamId);
         }
         return null;
     }

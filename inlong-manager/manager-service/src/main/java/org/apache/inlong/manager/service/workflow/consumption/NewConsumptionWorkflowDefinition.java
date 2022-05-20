@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

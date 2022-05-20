@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarDTO;
 
 /**
  * Extended inlong group info of different MQs
@@ -31,8 +32,8 @@ import lombok.Data;
 @ApiModel("Extended inlong group info of different MQs")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType", defaultImpl = InlongGroupMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = "PULSAR"),
-        @JsonSubTypes.Type(value = InlongGroupPulsarInfo.class, name = "TDMQ_PULSAR")
+        @JsonSubTypes.Type(value = InlongPulsarDTO.class, name = "PULSAR"),
+        @JsonSubTypes.Type(value = InlongPulsarDTO.class, name = "TDMQ_PULSAR")
 })
 public class InlongGroupMqExtBase {
 

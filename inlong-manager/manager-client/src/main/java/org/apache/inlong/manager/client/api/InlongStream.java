@@ -34,7 +34,7 @@ public abstract class InlongStream {
     /**
      * Return name of stream.
      */
-    public abstract String getName();
+    public abstract String getStreamId();
 
     /**
      * Return field definitions of stream.

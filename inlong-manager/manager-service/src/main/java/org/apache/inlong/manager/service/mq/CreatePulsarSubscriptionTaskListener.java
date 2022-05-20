@@ -29,8 +29,8 @@ import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcess
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.mq.util.PulsarOptService;
-import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;

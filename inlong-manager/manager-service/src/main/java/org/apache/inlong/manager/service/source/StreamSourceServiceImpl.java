@@ -38,6 +38,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private SourceOperationFactory operationFactory;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
+    @Autowired
+    private StreamSourceFieldEntityMapper sourceFieldMapper;
     @Autowired
     private CommonOperateService commonOperateService;
 
@@ -184,19 +187,33 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
     public boolean delete(Integer id, String operator) {
-        LOGGER.info("begin to delete source by id={}", id);
+        LOGGER.info("begin to delete source for id={} by user={}", id, operator);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
-        SourceRequest sourceRequest = new SourceRequest();
-        CommonBeanUtils.copyProperties(entity, sourceRequest, true);
-        operation.deleteOpt(sourceRequest, operator);
+        SourceStatus curStatus = SourceStatus.forCode(entity.getStatus());
+        SourceStatus nextStatus = SourceStatus.TO_BE_ISSUED_DELETE;
+        // if source is frozen|failed|new , delete directly
+        if (curStatus == SourceStatus.SOURCE_FROZEN || curStatus == SourceStatus.SOURCE_FAILED
+                || curStatus == SourceStatus.SOURCE_NEW) {
+            nextStatus = SourceStatus.SOURCE_DISABLE;
+        }
+        if (!SourceStatus.isAllowedTransition(curStatus, nextStatus)) {
+            throw new BusinessException(String.format("Source=%s is not allowed to delete", entity));
+        }
 
-        LOGGER.info("success to delete source info: {}", entity);
+        entity.setVersion(entity.getVersion() + 1);
+        entity.setPreviousStatus(curStatus.getCode());
+        entity.setStatus(nextStatus.getCode());
+        entity.setIsDeleted(id);
+        entity.setModifyTime(new Date());
+        sourceMapper.updateByPrimaryKeySelective(entity);
+        sourceFieldMapper.deleteAll(id);
+
+        LOGGER.info("success to delete source for id={} by user={}", id, operator);
         return true;
     }
 

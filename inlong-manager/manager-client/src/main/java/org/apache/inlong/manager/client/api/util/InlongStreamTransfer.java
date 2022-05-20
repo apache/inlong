@@ -33,19 +33,18 @@ import java.util.stream.Collectors;
 public class InlongStreamTransfer {
 
     /**
-     * Create information of stream.
+     * Create inlong stream info
      */
     public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
         dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        final String streamId = "b_" + streamConf.getName();
-        dataStreamInfo.setInlongStreamId(streamId);
+        dataStreamInfo.setInlongStreamId(streamConf.getStreamId());
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
-        if (StringUtils.isEmpty(streamConf.getTopic())) {
-            dataStreamInfo.setMqResource(streamId);
+        if (StringUtils.isEmpty(streamConf.getMqResource())) {
+            dataStreamInfo.setMqResource(streamConf.getStreamId());
         } else {
-            dataStreamInfo.setMqResource(streamConf.getTopic());
+            dataStreamInfo.setMqResource(streamConf.getMqResource());
         }
         dataStreamInfo.setSyncSend(streamConf.isStrictlyOrdered() ? 1 : 0);
         dataStreamInfo.setDataSeparator(String.valueOf(streamConf.getDataSeparator().getAsciiCode()));
@@ -61,7 +60,7 @@ public class InlongStreamTransfer {
     }
 
     /**
-     * Create information of stream fields.
+     * Create inlong stream fields.
      */
     public static List<InlongStreamFieldInfo> createStreamFields(
             List<StreamField> fieldList, InlongStreamInfo streamInfo) {

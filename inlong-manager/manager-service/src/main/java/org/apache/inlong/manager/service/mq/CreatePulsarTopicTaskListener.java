@@ -22,6 +22,7 @@ import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
@@ -65,7 +66,9 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+
+        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
         try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
             List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
             for (String cluster : pulsarClusters) {
@@ -73,7 +76,7 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
                 PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
                         .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
                 String pulsarTopic = streamInfo.getMqResource();
-                this.createTopic(groupInfo, pulsarTopic, pulsarClusterInfo);
+                this.createTopic(pulsarInfo, pulsarTopic, pulsarClusterInfo);
             }
         } catch (Exception e) {
             log.error("create pulsar topic error for groupId={}, streamId={}", groupId, streamId, e);
@@ -85,9 +88,9 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
         return ListenerResult.success();
     }
 
-    private void createTopic(InlongGroupInfo bizInfo, String pulsarTopic, PulsarClusterInfo pulsarClusterInfo)
+    private void createTopic(InlongPulsarInfo groupInfo, String pulsarTopic, PulsarClusterInfo pulsarClusterInfo)
             throws Exception {
-        Integer partitionNum = bizInfo.getTopicPartitionNum();
+        Integer partitionNum = groupInfo.getPartitionNum();
         int partition = 0;
         if (partitionNum != null && partitionNum > 0) {
             partition = partitionNum;
@@ -96,10 +99,10 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(clusterBean.getDefaultTenant())
-                    .namespace(bizInfo.getMqResource())
+                    .namespace(groupInfo.getMqResource())
                     .topicName(pulsarTopic)
                     .numPartitions(partition)
-                    .queueModule(bizInfo.getQueueModule())
+                    .queueModule(groupInfo.getQueueModule())
                     .build();
             pulsarOptService.createTopic(pulsarAdmin, topicBean);
         }

@@ -34,7 +34,7 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
+const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
@@ -183,7 +183,7 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
     const list = genExtraContent({
       editingId,
       record,
-      middlewareType,
+      mqType,
       onSave,
       onEdit,
       onCancel,
@@ -293,7 +293,7 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
                           { ...realTimeValues.list?.[index] },
                           inlongGroupId,
                           readonly,
-                          middlewareType,
+                          mqType,
                         ).map(item => {
                           const obj = { ...item } as any;
                           if (obj.name) {
@@ -321,7 +321,7 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
 
       <StreamItemModal
         {...streamItemModal}
-        middlewareType={middlewareType}
+        mqType={mqType}
         onOk={async () => {
           await getList();
           setEditingId(false);

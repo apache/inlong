@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BinlogSource implements Source {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSource.class);
     private static final String BINLOG_SOURCE_TAG_NAME = "BinlogSourceMetric";
     private static AtomicLong metricsIndex = new AtomicLong(0);
     private final SourceMetrics sourceMetrics;

@@ -35,9 +35,8 @@ public class ServiceBaseTest extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBaseTest.class);
 
-    public static final String GLOBAL_SOURCE_NAME = "sourceName1";
-    public static final String GLOBAL_GROUP_ID = "b_group1";
-    public static final String GLOBAL_STREAM_ID = "stream1";
+    public static final String GLOBAL_GROUP_ID = "global_group";
+    public static final String GLOBAL_STREAM_ID = "global_stream";
     public static final String GLOBAL_OPERATOR = "admin";
 
     @Test

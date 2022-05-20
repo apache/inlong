@@ -31,11 +31,14 @@
 
     <artifactId>sort-single-tenant</artifactId>
     <name>Apache InLong - Sort Single Tenant</name>
+
     <properties>
-        <flink-connector-debezium.version>2.0.1</flink-connector-debezium.version>
-        <debezium-connector-mysql.version>1.5.4.Final</debezium-connector-mysql.version>
-        <debezium-core.version>1.5.4.Final</debezium-core.version>
+        <debezium.connector.mysql.version>1.6.4.Final</debezium.connector.mysql.version>
+        <debezium.core.version>1.6.4.Final</debezium.core.version>
+        <debezium.embedded.version>1.5.2.Final</debezium.embedded.version>
+        <kafka.clients.version>2.7.0</kafka.clients.version>
     </properties>
+
     <packaging>jar</packaging>
 
     <dependencies>
@@ -64,6 +67,18 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <artifactId>debezium-core</artifactId>
+            <groupId>io.debezium</groupId>
+            <version>${debezium.core.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.clients.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
@@ -214,6 +229,16 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>flink-connector-debezium</artifactId>
+                    <groupId>com.ververica</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>debezium-connector-mysql</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -223,14 +248,22 @@
         </dependency>
         <dependency>
             <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-debezium</artifactId>
-            <version>2.0.1</version>
+            <artifactId>flink-connector-mongodb-cdc</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>kafka-log4j-appender</artifactId>
-                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>debezium-api</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>debezium-embedded</artifactId>
+                    <groupId>io.debezium</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${debezium.embedded.version}</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -242,13 +275,6 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-core</artifactId>
-            <version>1.5.4.Final</version>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.esri.geometry</groupId>
@@ -265,32 +291,13 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
-            <version>${debezium-connector-mysql.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-core</artifactId>
-            <version>${debezium-core.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-postgres-cdc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <version>${debezium.connector.mysql.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>debezium-core</artifactId>
+                    <groupId>io.debezium</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

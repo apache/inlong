@@ -45,11 +45,11 @@ const Create: React.FC = () => {
   const businessRef = useRef(null);
   const dataStreamRef = useRef(null);
 
-  const [middlewareType, setMiddlewareType] = useState();
+  const [mqType, setMqType] = useState();
 
   useRequest(`/group/get/${inlongGroupId}`, {
-    ready: !!inlongGroupId && !middlewareType,
-    onSuccess: result => setMiddlewareType(result.middlewareType),
+    ready: !!inlongGroupId && !mqType,
+    onSuccess: result => setMqType(result.mqType),
   });
 
   const steps = [
@@ -65,7 +65,7 @@ const Create: React.FC = () => {
         <DataStream
           ref={dataStreamRef}
           inlongGroupId={inlongGroupId}
-          middlewareType={middlewareType}
+          mqType={mqType}
         />
       ),
       useCache: true,
@@ -80,7 +80,7 @@ const Create: React.FC = () => {
     try {
       const result = onOk && (await onOk());
       if (current === 0) {
-        setMiddlewareType(result.middlewareType);
+        setMqType(result.mqType);
         setGroupId(result.inlongGroupId);
         history.push({
           search: `?inlongGroupId=${result.inlongGroupId}&step=1`,
