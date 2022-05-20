@@ -59,11 +59,6 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
       ...values,
       inCharges: values.inCharges?.join(','),
       followers: values.followers?.join(','),
-      mqExtInfo: {
-        ...data?.mqExtInfo,
-        ...values.mqExtInfo,
-        middlewareType: values.middlewareType,
-      },
     };
 
     if (isUpdate) {

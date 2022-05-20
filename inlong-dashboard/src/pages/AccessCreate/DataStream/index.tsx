@@ -28,10 +28,10 @@ import { valuesToData, dataToValues } from './helper';
 
 export interface Props {
   inlongGroupId: string;
-  middlewareType: string;
+  mqType: string;
 }
 
-const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
+const Comp = ({ inlongGroupId, mqType }: Props, ref) => {
   const [form] = Form.useForm();
 
   const { t } = useTranslation();
@@ -148,7 +148,7 @@ const Comp = ({ inlongGroupId, middlewareType }: Props, ref) => {
                         ...realTimeValues.list?.[index],
                       },
                       inlongGroupId,
-                      middlewareType,
+                      mqType,
                     ).map(item => {
                       const obj = { ...item } as any;
                       if (obj.name) {

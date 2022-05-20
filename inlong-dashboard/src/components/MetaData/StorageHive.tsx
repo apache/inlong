@@ -18,7 +18,7 @@
  */
 
 import React from 'react';
-import { Button, message } from 'antd';
+// import { Button, message } from 'antd';
 import {
   getColsFromFields,
   GetStorageColumnsType,
@@ -26,7 +26,7 @@ import {
 } from '@/utils/metaData';
 import { ColumnsType } from 'antd/es/table';
 import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
-import request from '@/utils/request';
+// import request from '@/utils/request';
 import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
@@ -132,7 +132,7 @@ const getForm: GetStorageFormFieldsType = (
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
-      suffix: (
+      /*suffix: (
         <Button
           onClick={async () => {
             const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
@@ -152,7 +152,7 @@ const getForm: GetStorageFormFieldsType = (
         >
           {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
         </Button>
-      ),
+      ),*/
     },
     {
       type: 'input',

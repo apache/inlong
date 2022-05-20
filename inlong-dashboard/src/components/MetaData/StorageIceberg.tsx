@@ -29,8 +29,8 @@ import EditableTable from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import TextSwitch from '@/components/TextSwitch';
 import { sourceDataFields } from './SourceDataFields';
-import { Button, message } from 'antd';
-import request from '@/utils/request';
+// import { Button, message } from 'antd';
+// import request from '@/utils/request';
 
 const icebergFieldTypes = [
   'string',
@@ -182,7 +182,7 @@ const getForm: GetStorageFormFieldsType = (
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
-      suffix: (
+      /*suffix: (
         <Button
           onClick={async () => {
             const values = await form.validateFields(['username', 'password', 'jdbcUrl']);
@@ -202,7 +202,7 @@ const getForm: GetStorageFormFieldsType = (
         >
           {i18n.t('components.AccessHelper.StorageMetaData.Hive.ConnectionTest')}
         </Button>
-      ),
+      ),*/
     },
     {
       type: 'input',

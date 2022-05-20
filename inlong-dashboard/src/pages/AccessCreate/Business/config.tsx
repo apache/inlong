@@ -32,9 +32,9 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
           </Divider>
         ),
       },
-      'middlewareType',
+      'mqType',
       'queueModule',
-      'topicPartitionNum',
+      'partitionNum',
       {
         type: (
           <Divider orientation="left">
@@ -43,7 +43,6 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
         ),
       },
       'name',
-      'cnName',
       'inCharges',
       'description',
       {
@@ -52,7 +51,7 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
             {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
           </Divider>
         ),
-        visible: values => values.middlewareType === 'TUBE',
+        visible: values => values.mqType === 'TUBE',
       },
       'dailyRecords',
       'dailyStorage',
@@ -64,7 +63,7 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
             {i18n.t('components.AccessHelper.FieldsConfig.businessFields.DataCopyTitle')}
           </Divider>
         ),
-        visible: values => values.middlewareType === 'PULSAR',
+        visible: values => values.mqType === 'PULSAR',
       },
       'mqExtInfo.ensemble',
       'mqExtInfo.writeQuorum',
@@ -75,7 +74,7 @@ export const getFormContent = ({ changedValues, isUpdate }) =>
             {i18n.t('components.AccessHelper.FieldsConfig.businessFields.DataStoragePeriodTitle')}
           </Divider>
         ),
-        visible: values => values.middlewareType === 'PULSAR',
+        visible: values => values.mqType === 'PULSAR',
       },
       'mqExtInfo.retentionTime',
       'mqExtInfo.ttl',

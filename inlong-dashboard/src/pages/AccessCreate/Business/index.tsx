@@ -63,7 +63,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
       followers: values.followers?.join(','),
       mqExtInfo: {
         ...values.mqExtInfo,
-        middlewareType: values.middlewareType,
+        mqType: values.mqType,
       },
     };
 

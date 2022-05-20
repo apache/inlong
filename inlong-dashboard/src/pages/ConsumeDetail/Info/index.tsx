@@ -56,10 +56,10 @@ const Comp: React.FC<Props> = ({ id, isActive, readonly, extraRef }) => {
       ...values,
       inCharges: values.inCharges.join(','),
       consumerGroupId: values.consumerGroupName,
-      middlewareType: values?.middlewareType || data?.middlewareType,
+      mqType: values?.mqType || data?.mqType,
       mqExtInfo: {
         ...values.mqExtInfo,
-        middlewareType: values.middlewareType,
+        mqType: values.mqType,
       },
     };
     await request({
