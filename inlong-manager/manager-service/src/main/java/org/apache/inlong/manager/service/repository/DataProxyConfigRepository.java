@@ -32,6 +32,7 @@ import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
 import org.apache.inlong.manager.dao.entity.CacheCluster;
 import org.apache.inlong.manager.dao.entity.InlongGroupId;
+import org.apache.inlong.manager.dao.entity.InlongStreamId;
 import org.apache.inlong.manager.dao.entity.ProxyCluster;
 import org.apache.inlong.manager.dao.mapper.ClusterSetMapper;
 import org.slf4j.Logger;
@@ -150,18 +151,60 @@ public class DataProxyConfigRepository implements IRepository {
      */
     @SuppressWarnings("unchecked")
     private Map<String, List<InLongIdObject>> reloadInlongId() {
+        // parse group
+        Map<String, InlongGroupId> groupIdMap = new HashMap<>();
+        clusterSetMapper.selectInlongGroupId().forEach(value -> groupIdMap.put(value.getInlongGroupId(), value));
+        // parse stream
         Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
-        for (InlongGroupId inlongId : clusterSetMapper.selectInlongGroupId()) {
-            InLongIdObject obj = new InLongIdObject();
-            obj.setInlongId(inlongId.getInlongGroupId());
-            obj.setTopic(inlongId.getTopic());
-            try {
-                Map<String, String> params = gson.fromJson(inlongId.getExtParams(), Map.class);
-                obj.setParams(params);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+        for (InlongStreamId streamIdObj : clusterSetMapper.selectInlongStreamId()) {
+            String groupId = streamIdObj.getInlongGroupId();
+            InlongGroupId groupIdObj = groupIdMap.get(groupId);
+            if (groupId == null) {
+                continue;
             }
-            inlongIdMap.computeIfAbsent(inlongId.getClusterTag(), k -> new ArrayList<>()).add(obj);
+            // choose topic
+            String groupTopic = groupIdObj.getTopic();
+            String streamTopic = streamIdObj.getTopic();
+            String finalTopic = null;
+            if (StringUtils.isEmpty(groupTopic)) {
+                // both empty then ignore
+                if (StringUtils.isEmpty(streamTopic)) {
+                    continue;
+                } else {
+                    finalTopic = streamTopic;
+                }
+            } else {
+                if (StringUtils.isEmpty(streamTopic)) {
+                    finalTopic = groupTopic;
+                } else {
+                    // Pulsar: namespace+topic
+                    finalTopic = groupTopic + "/" + streamTopic;
+                }
+            }
+            // concat id
+            InLongIdObject obj = new InLongIdObject();
+            String inlongId = groupId + "." + streamIdObj.getInlongStreamId();
+            obj.setInlongId(inlongId);
+            obj.setTopic(finalTopic);
+            Map<String, String> params = new HashMap<>();
+            obj.setParams(params);
+            // parse group extparams
+            if (!StringUtils.isEmpty(groupIdObj.getExtParams())) {
+                try {
+                    Map<String, String> groupParams = gson.fromJson(groupIdObj.getExtParams(), Map.class);
+                    params.putAll(groupParams);
+                } catch (Exception e) {
+                }
+            }
+            // parse stream extparams
+            if (!StringUtils.isEmpty(streamIdObj.getExtParams())) {
+                try {
+                    Map<String, String> streamParams = gson.fromJson(streamIdObj.getExtParams(), Map.class);
+                    params.putAll(streamParams);
+                } catch (Exception e) {
+                }
+            }
+            inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
         }
         return inlongIdMap;
     }

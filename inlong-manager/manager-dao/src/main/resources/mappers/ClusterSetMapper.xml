@@ -46,4 +46,13 @@
         from inlong_group
         where is_deleted = 0
     </select>
+    <select id="selectInlongStreamId"
+        resultType="org.apache.inlong.manager.dao.entity.InlongStreamId">
+        select inlong_group_id,
+        inlong_stream_id,
+        mq_resource as topic,
+        ext_params
+        from inlong_stream
+        where is_deleted = 0
+    </select>
 </mapper>

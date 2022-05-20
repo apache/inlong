@@ -19,6 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.CacheCluster;
 import org.apache.inlong.manager.dao.entity.InlongGroupId;
+import org.apache.inlong.manager.dao.entity.InlongStreamId;
 import org.apache.inlong.manager.dao.entity.ProxyCluster;
 import org.springframework.stereotype.Repository;
 
@@ -35,4 +36,6 @@ public interface ClusterSetMapper {
     List<CacheCluster> selectCacheCluster();
 
     List<InlongGroupId> selectInlongGroupId();
+
+    List<InlongStreamId> selectInlongStreamId();
 }
