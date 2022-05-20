@@ -28,6 +28,7 @@ import org.apache.inlong.manager.service.mq.PulsarEventSelector;
 import org.apache.inlong.manager.service.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.CreateSortConfigListener;
+import org.apache.inlong.manager.service.sort.CreateSortConfigListenerV2;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
 import org.apache.inlong.manager.service.sort.ZookeeperEnabledSelector;
@@ -95,7 +96,7 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     @Autowired
     private PushSortConfigListener pushSortConfigListener;
     @Autowired
-    private CreateSortConfigListener createSortConfigListener;
+    private CreateSortConfigListenerV2 createSortConfigListener;
 
     @Autowired
     private LightGroupSortListener lightGroupSortListener;

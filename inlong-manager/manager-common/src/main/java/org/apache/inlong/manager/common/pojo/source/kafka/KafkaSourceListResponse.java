@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
@@ -56,5 +57,9 @@ public class KafkaSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
     private String primaryKey;
+
+    public KafkaSourceListResponse() {
+        this.setSourceType(SourceType.KAFKA.getType());
+    }
 
 }

@@ -49,6 +49,7 @@ import java.util.Map;
  * Util for build data flow info.
  */
 @Service
+@Deprecated
 public class DataFlowUtils {
 
     @Autowired

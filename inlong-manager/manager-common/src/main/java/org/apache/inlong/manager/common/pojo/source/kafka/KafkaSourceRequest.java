@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the kafka source info
+ * Request of kafka source info
  */
 @Data
 @ToString(callSuper = true)

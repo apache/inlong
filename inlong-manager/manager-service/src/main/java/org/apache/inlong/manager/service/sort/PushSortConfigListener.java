@@ -43,6 +43,7 @@ import java.util.List;
 /**
  * Push sort config when enable the ZooKeeper
  */
+@Deprecated
 @Component
 public class PushSortConfigListener implements SortOperateListener {
 

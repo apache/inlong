@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.autopush;
+package org.apache.inlong.manager.common.pojo.source.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,17 +25,36 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
- * Response info of auto push source list.
+ * Response of pulsar source list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of DataProxy SDK source paging list")
-public class AutoPushSourceListResponse extends SourceListResponse {
+@ApiModel("Response of pulsar source paging list")
+public class PulsarSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
-    private String dataProxyGroup;
+    @ApiModelProperty("Pulsar tenant")
+    private String tenant = "default";
 
-    public AutoPushSourceListResponse() {
-        this.setSourceType(SourceType.AUTO_PUSH.getType());
+    @ApiModelProperty("Pulsar namespace")
+    private String namespace;
+
+    @ApiModelProperty("Pulsar topic")
+    private String topic;
+
+    @ApiModelProperty("Pulsar adminUrl")
+    private String adminUrl;
+
+    @ApiModelProperty("Pulsar serviceUrl")
+    private String serviceUrl;
+
+    @ApiModelProperty("Primary key, needed when serialization type is csv, json, avro")
+    private String primaryKey;
+
+    @ApiModelProperty("Configure the Source's startup mode."
+            + " Available options are earliest, latest, external-subscription, and specific-offsets.")
+    private String scanStartupMode = "earliest";
+
+    public PulsarSourceListResponse() {
+        this.setSourceType(SourceType.PULSAR.getType());
     }
 }
