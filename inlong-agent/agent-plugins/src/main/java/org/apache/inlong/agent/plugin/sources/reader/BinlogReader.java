@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
@@ -27,18 +28,24 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.CommonConstants;
+import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
+import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
+import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
 import org.apache.inlong.agent.pojo.DebeziumFormat;
+import org.apache.inlong.agent.pojo.DebeziumOffset;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.DebeziumOffsetSerializer;
 import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
 import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.kafka.connect.storage.FileOffsetBackingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,27 +62,24 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
  */
 public class BinlogReader implements Reader {
 
+    public static final String COMPONENT_NAME = "BinlogReader";
+    public static final String JOB_DATABASE_USER = "job.binlogJob.user";
+    public static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
+    public static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
+    public static final String JOB_TABLE_WHITELIST = "job.binlogJob.tableWhiteList";
+    public static final String JOB_DATABASE_WHITELIST = "job.binlogJob.databaseWhiteList";
+    public static final String JOB_DATABASE_OFFSETS = "job.binlogJob.offsets";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE = "job.binlogJob.offset.specificOffsetFile";
+    public static final String JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS = "job.binlogJob.offset.specificOffsetPos";
+    public static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
+    public static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogJob.offset.intervalMs";
+    public static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogJob.history.filename";
+    public static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.binlogJob.schema";
+    public static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
+    public static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
+    public static final String JOB_DATABASE_PORT = "job.binlogJob.port";
+    public static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
-
-    private static final String COMPONENT_NAME = "BinlogReader";
-    private static final String JOB_DATABASE_USER = "job.binlogJob.user";
-    private static final String JOB_DATABASE_PASSWORD = "job.binlogJob.password";
-    private static final String JOB_DATABASE_HOSTNAME = "job.binlogJob.hostname";
-    private static final String JOB_TABLE_WHITELIST = "job.binlogJob.tableWhiteList";
-    private static final String JOB_DATABASE_WHITELIST = "job.binlogJob.databaseWhiteList";
-
-    private static final String JOB_DATABASE_OFFSETS = "job.binlogJob.offsets";
-    private static final String JOB_DATABASE_OFFSET_FILENAME = "job.binlogJob.offset.filename";
-
-    private static final String JOB_DATABASE_SERVER_TIME_ZONE = "job.binlogJob.serverTimezone";
-    private static final String JOB_DATABASE_STORE_OFFSET_INTERVAL_MS = "job.binlogJob.offset.intervalMs";
-
-    private static final String JOB_DATABASE_STORE_HISTORY_FILENAME = "job.binlogJob.history.filename";
-    private static final String JOB_DATABASE_INCLUDE_SCHEMA_CHANGES = "job.binlogJob.schema";
-    private static final String JOB_DATABASE_SNAPSHOT_MODE = "job.binlogJob.snapshot.mode";
-    private static final String JOB_DATABASE_HISTORY_MONITOR_DDL = "job.binlogJob.ddl";
-    private static final String JOB_DATABASE_PORT = "job.binlogJob.port";
-    private static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Gson gson = new Gson();
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
@@ -100,6 +104,8 @@ public class BinlogReader implements Reader {
     private String instanceId;
     private ExecutorService executor;
     private String offset;
+    private String specificOffsetFile;
+    private String specificOffsetPos;
     private BinlogSnapshotBase binlogSnapshot;
     private JobProfile jobProfile;
     private boolean destroyed = false;
@@ -152,6 +158,8 @@ public class BinlogReader implements Reader {
         finished = false;
 
         offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
+        specificOffsetFile = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE, "");
+        specificOffsetPos = jobConf.get(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS, "-1");
         binlogSnapshot = new BinlogSnapshotBase(offsetStoreFileName);
         binlogSnapshot.save(offset);
 
@@ -193,6 +201,7 @@ public class BinlogReader implements Reader {
                         committer.markBatchFinished();
                     } catch (Exception e) {
                         LOGGER.error("parse binlog message error", e);
+
                     }
 
                 })
@@ -228,11 +237,7 @@ public class BinlogReader implements Reader {
         props.setProperty("table.whitelist", tableWhiteList);
         props.setProperty("database.whitelist", databaseWhiteList);
 
-        props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
-        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
         props.setProperty("offset.flush.interval.ms", offsetFlushIntervalMs);
-        props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());
-        props.setProperty("database.history.file.filename", databaseStoreHistoryName);
         props.setProperty("database.snapshot.mode", snapshotMode);
         props.setProperty("database.history.store.only.monitored.tables.ddl", historyMonitorDdl);
         props.setProperty("database.allowPublicKeyRetrieval", "true");
@@ -240,6 +245,16 @@ public class BinlogReader implements Reader {
         props.setProperty("value.converter.schemas.enable", "false");
         props.setProperty("include.schema.changes", includeSchemaChanges);
         props.setProperty("snapshot.mode", snapshotMode);
+        props.setProperty("offset.storage.file.filename", offsetStoreFileName);
+        props.setProperty("database.history.file.filename", databaseStoreHistoryName);
+        if (SnapshotModeConstants.SPECIFIC_OFFSETS.equals(snapshotMode)) {
+            props.setProperty("offset.storage", InLongFileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty(InLongFileOffsetBackingStore.OFFSET_STATE_VALUE, serializeOffset());
+            props.setProperty("database.history", InLongDatabaseHistory.class.getCanonicalName());
+        } else {
+            props.setProperty("offset.storage", FileOffsetBackingStore.class.getCanonicalName());
+            props.setProperty("database.history", FileDatabaseHistory.class.getCanonicalName());
+        }
         props.setProperty("tombstones.on.delete", "false");
         props.setProperty("converters", "datetime");
         props.setProperty("datetime.type", "org.apache.inlong.agent.plugin.utils.BinlogTimeConverter");
@@ -251,6 +266,28 @@ public class BinlogReader implements Reader {
 
         LOGGER.info("binlog job {} start with props {}", jobProfile.getInstanceId(), props);
         return props;
+    }
+
+    private String serializeOffset() {
+        Map<String, Object> sourceOffset = new HashMap<>();
+        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE,
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_FILE + "shouldn't be null");
+        sourceOffset.put("file", specificOffsetFile);
+        Preconditions.checkNotNull(JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS,
+                JOB_DATABASE_OFFSET_SPECIFIC_OFFSET_POS + " shouldn't be null");
+        sourceOffset.put("pos", specificOffsetPos);
+        DebeziumOffset specificOffset = new DebeziumOffset();
+        specificOffset.setSourceOffset(sourceOffset);
+        Map<String, String> sourcePartition = new HashMap<>();
+        sourcePartition.put("server", instanceId);
+        specificOffset.setSourcePartition(sourcePartition);
+        byte[] serializedOffset = new byte[0];
+        try {
+            serializedOffset = DebeziumOffsetSerializer.INSTANCE.serialize(specificOffset);
+        } catch (IOException e) {
+            LOGGER.error("serialize offset message error", e);
+        }
+        return new String(serializedOffset, StandardCharsets.UTF_8);
     }
 
     @Override

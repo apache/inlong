@@ -30,7 +30,7 @@ import java.util.List;
  * Inlong group list
  */
 @Data
-@ApiModel("Inlong group List")
+@ApiModel("Inlong group list")
 public class InlongGroupListResponse {
 
     @ApiModelProperty(value = "Primary key")
@@ -54,7 +54,7 @@ public class InlongGroupListResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "StreamSources in group")
-    private List<SourceListResponse> sourceListResponses;
+    @ApiModelProperty(value = "Stream sources in the inlong group")
+    private List<SourceListResponse> sourceResponses;
 
 }

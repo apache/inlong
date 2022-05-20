@@ -29,8 +29,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,8 +69,6 @@ public class InlongStreamProcessOperation {
 
     /**
      * Create stream in synchronous/asynchronous way.
-     *
-     * @return
      */
     public boolean startProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("StartProcess for groupId={}, streamId={}", groupId, streamId);
@@ -113,8 +111,6 @@ public class InlongStreamProcessOperation {
 
     /**
      * Suspend stream in synchronous/asynchronous way.
-     *
-     * @return
      */
     public boolean suspendProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("SuspendProcess for groupId={}, streamId={}", groupId, streamId);
@@ -160,8 +156,6 @@ public class InlongStreamProcessOperation {
 
     /**
      * Restart stream in synchronous/asynchronous way.
-     *
-     * @return
      */
     public boolean restartProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("RestartProcess for groupId={}, streamId={}", groupId, streamId);
@@ -206,8 +200,6 @@ public class InlongStreamProcessOperation {
 
     /**
      * Restart stream in synchronous/asynchronous way.
-     *
-     * @return
      */
     public boolean deleteProcess(String groupId, String streamId, String operator, boolean sync) {
         log.info("DeleteProcess for groupId={}, streamId={}", groupId, streamId);

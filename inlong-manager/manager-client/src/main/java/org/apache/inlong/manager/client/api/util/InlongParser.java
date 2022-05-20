@@ -29,9 +29,11 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarDTO;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
@@ -55,6 +57,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListRes
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.List;
 
@@ -72,33 +75,44 @@ public class InlongParser {
     public static final String SINK_TYPE = "sinkType";
     public static final String SOURCE_TYPE = "sourceType";
 
+    /**
+     * Parse body to get the response.
+     */
     public static Response parseResponse(String responseBody) {
         return GsonUtil.fromJson(responseBody, Response.class);
     }
 
+    /**
+     * Parse body to get the response.
+     */
     public static <T> Response<T> parseResponse(Class<T> responseType, String responseBody) {
-        AssertUtil.notNull(responseType, "responseType must not be null");
+        AssertUtils.notNull(responseType, "responseType must not be null");
         return GsonUtil.fromJson(
                 responseBody,
                 com.google.gson.reflect.TypeToken.getParameterized(Response.class, responseType).getType()
         );
     }
 
-    public static InlongGroupResponse parseGroupInfo(Response response) {
-        Object data = response.getData();
-        JsonObject groupJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
-        InlongGroupResponse inlongGroupResponse = GsonUtil.fromJson(GsonUtil.toJson(data), InlongGroupResponse.class);
-        JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
-        if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
-            MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
-            if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(), InlongGroupPulsarInfo.class);
-                inlongGroupResponse.setMqExtInfo(pulsarInfo);
-            }
+    /**
+     * Parse response to get the inlong group info.
+     */
+    public static InlongGroupInfo parseGroupInfo(Response response) {
+        String dataJson = GsonUtil.toJson(response.getData());
+        InlongGroupInfo groupInfo = GsonUtil.fromJson(dataJson, InlongGroupInfo.class);
+
+        MQType mqType = MQType.forType(groupInfo.getMqType());
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            return GsonUtil.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
+        } else if (mqType == MQType.TUBE) {
+            return GsonUtil.<InlongTubeInfo>fromJson(dataJson, InlongTubeInfo.class);
         }
-        return inlongGroupResponse;
+
+        return groupInfo;
     }
 
+    /**
+     * Parse information of groups.
+     */
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -112,6 +126,9 @@ public class InlongParser {
         return GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
     }
 
+    /**
+     * Parse list of stream.
+     */
     public static List<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
         JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
@@ -193,6 +210,9 @@ public class InlongParser {
         return list;
     }
 
+    /**
+     * Parse list of source.
+     */
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -228,6 +248,9 @@ public class InlongParser {
         }
     }
 
+    /**
+     * Parse list of transformation.
+     */
     public static List<TransformResponse> parseTransformList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -236,6 +259,9 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse list of data sink.
+     */
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -244,6 +270,9 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse forms of group.
+     */
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
         JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
         JsonObject groupJson = formData.getAsJsonObject(GROUP_INFO);
@@ -253,8 +282,8 @@ public class InlongParser {
         if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
             MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-                InlongGroupPulsarInfo pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
-                        InlongGroupPulsarInfo.class);
+                InlongPulsarDTO pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
+                        InlongPulsarDTO.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
                 groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());
@@ -273,6 +302,9 @@ public class InlongParser {
         return Pair.of(groupApproveInfo, streamApproveList);
     }
 
+    /**
+     * Parse list of event about view log.
+     */
     public static PageInfo<EventLogView> parseEventLogViewList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);
@@ -281,6 +313,9 @@ public class InlongParser {
                 }.getType());
     }
 
+    /**
+     * Parse list of stream log.
+     */
     public static PageInfo<InlongStreamConfigLogListResponse> parseStreamLogList(Response response) {
         Object data = response.getData();
         String pageInfoJson = GsonUtil.toJson(data);

@@ -36,6 +36,8 @@ public class KafkaConstant {
     public static final String KAFKA = "kafka";
 
     /**
+     * upsert-kafka
+     * 
      * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
      *         Upsert Kafka</a>
      */

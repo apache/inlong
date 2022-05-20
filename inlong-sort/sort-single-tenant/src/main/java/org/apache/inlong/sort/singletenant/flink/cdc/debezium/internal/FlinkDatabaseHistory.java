@@ -38,7 +38,7 @@ import java.util.function.Consumer;
  *
  * <p>Note: This is not a clean solution because we depends on a global variable and all the history
  * records will be stored in state (grow infinitely). We may need to come up with a
- * FileSystemDatabaseHistory in the future to store history in HDFS.
+ * FileSystemDatabaseHistory in the future to store history in HDFS.</p>
  */
 public class FlinkDatabaseHistory extends AbstractDatabaseHistory {
 

@@ -32,17 +32,17 @@ import lombok.NoArgsConstructor;
 @ApiModel("Inlong group configuration")
 public class InlongGroupConf {
 
-    @ApiModelProperty(value = "Group name", required = true)
-    private String groupName;
+    @ApiModelProperty(value = "Group ID", required = true)
+    private String groupId;
+
+    @ApiModelProperty(value = "Group name")
+    private String name;
 
     @ApiModelProperty("Group description")
     private String description;
 
-    @ApiModelProperty("Message queue configuration")
-    private MQBaseConf mqBaseConf;
-
-    @ApiModelProperty("Sort configuration")
-    private SortBaseConf sortBaseConf;
+    @ApiModelProperty("Message queue type")
+    private String mqType;
 
     @ApiModelProperty("Number of access items per day, unit: 10,000 items per day")
     private Long dailyRecords;

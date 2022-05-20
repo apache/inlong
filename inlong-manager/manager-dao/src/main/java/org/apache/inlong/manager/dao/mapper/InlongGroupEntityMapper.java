@@ -38,8 +38,6 @@ public interface InlongGroupEntityMapper {
 
     InlongGroupEntity selectByGroupIdForUpdate(String groupId);
 
-    Integer selectIdentifierExist(String groupId);
-
     List<InlongGroupEntity> selectByCondition(InlongGroupPageRequest request);
 
     List<InlongGroupEntity> selectAll(Integer status);

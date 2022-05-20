@@ -24,13 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
+import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class InlongGroupContext implements Serializable {
 
     private String groupName;
 
-    private InlongGroupConf groupConf;
+    private InlongGroupInfo groupInfo;
 
     private Map<String, InlongStream> inlongStreamMap;
 
@@ -72,23 +72,23 @@ public class InlongGroupContext implements Serializable {
      */
     private Map<String, Map<String, List<String>>> streamErrLogs = Maps.newHashMap();
 
-    private InlongGroupStatus state;
+    private InlongGroupStatus status;
 
-    public InlongGroupContext(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
+    public InlongGroupContext(InnerGroupContext groupContext) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        AssertUtil.notNull(groupInfo);
+        AssertUtils.notNull(groupInfo);
         this.groupId = groupInfo.getInlongGroupId();
         this.groupName = groupInfo.getName();
-        this.groupConf = streamGroupConf;
+        this.groupInfo = groupInfo;
         this.inlongStreamMap = groupContext.getStreamMap();
         this.groupErrLogs = Maps.newHashMap();
         this.groupLogs = Maps.newHashMap();
-        this.state = InlongGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        this.status = InlongGroupStatus.parseStatusByCode(groupInfo.getStatus());
         recheckState();
         this.extensions = Maps.newHashMap();
         List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
         if (CollectionUtils.isNotEmpty(extInfos)) {
-            extInfos.stream().forEach(extInfo -> {
+            extInfos.forEach(extInfo -> {
                 extensions.put(extInfo.getKeyName(), extInfo.getKeyValue());
             });
         }
@@ -100,7 +100,7 @@ public class InlongGroupContext implements Serializable {
         }
         List<StreamSource> sourcesInGroup = Lists.newArrayList();
         List<StreamSource> failedSources = Lists.newArrayList();
-        this.inlongStreamMap.values().stream().forEach(inlongStream -> {
+        this.inlongStreamMap.values().forEach(inlongStream -> {
             Map<String, StreamSource> sources = inlongStream.getSources();
             if (MapUtils.isNotEmpty(sources)) {
                 for (Map.Entry<String, StreamSource> entry : sources.entrySet()) {
@@ -116,7 +116,7 @@ public class InlongGroupContext implements Serializable {
         });
         // check if any stream source is failed
         if (CollectionUtils.isNotEmpty(failedSources)) {
-            this.state = InlongGroupStatus.FAILED;
+            this.status = InlongGroupStatus.FAILED;
             for (StreamSource failedSource : failedSources) {
                 this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
                         .add(GsonUtil.toJson(failedSource));
@@ -124,12 +124,12 @@ public class InlongGroupContext implements Serializable {
             return;
         }
         // check if any stream source is in indirect state
-        switch (this.state) {
+        switch (this.status) {
             case STARTED:
                 for (StreamSource source : sourcesInGroup) {
                     if (source.getState() != State.NORMAL) {
                         log.warn("StreamSource:{} is not started", source);
-                        this.state = InlongGroupStatus.INITIALIZING;
+                        this.status = InlongGroupStatus.INITIALIZING;
                         break;
                     }
                 }
@@ -138,7 +138,7 @@ public class InlongGroupContext implements Serializable {
                 for (StreamSource source : sourcesInGroup) {
                     if (source.getState() != State.FROZEN) {
                         log.warn("StreamSource:{} is not stopped", source);
-                        this.state = InlongGroupStatus.OPERATING;
+                        this.status = InlongGroupStatus.OPERATING;
                         break;
                     }
                 }

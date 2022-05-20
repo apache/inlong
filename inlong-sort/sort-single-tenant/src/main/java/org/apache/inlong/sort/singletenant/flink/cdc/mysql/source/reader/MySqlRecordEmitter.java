@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * The {@link RecordEmitter} implementation for {@link MySqlSourceReader}.
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the binlog reader to
- * emit records rather than emit the records directly.
+ * emit records rather than emit the records directly.</p>
  */
 public final class MySqlRecordEmitter<T>
         implements RecordEmitter<SourceRecord, T, MySqlSplitState> {

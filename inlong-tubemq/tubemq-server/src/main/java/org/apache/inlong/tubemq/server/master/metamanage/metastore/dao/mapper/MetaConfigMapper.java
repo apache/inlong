@@ -352,7 +352,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      * Get deployed broker id and ip information for the special topic name set
      *
      * @param topicNameSet   the topic name set need to query
-     * @return  the topic - <broker id, broker ip>  map
+     * @return  the topic - (broker id, broker ip)  map
      */
     Map<String, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
 

@@ -20,7 +20,8 @@ package org.apache.inlong.manager.service.mq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -41,9 +42,10 @@ public class PulsarEventSelector implements EventSelector {
 
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
         String groupId = form.getInlongGroupId();
-        MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            InlongGroupPulsarInfo pulsarInfo = (InlongGroupPulsarInfo) form.getGroupInfo().getMqExtInfo();
+            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
             boolean enable = GlobalConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
             if (enable) {
                 log.info("need to create pulsar resource as the createResource was true for groupId [{}]", groupId);

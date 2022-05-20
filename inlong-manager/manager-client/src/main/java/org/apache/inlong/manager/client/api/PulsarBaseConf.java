@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.client.api.auth.Authentication;
+import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.enums.MQType;
 
 /**
@@ -40,10 +40,10 @@ public class PulsarBaseConf extends MQBaseConf {
     private MQType type = MQType.PULSAR;
 
     @ApiModelProperty("Pulsar admin URL")
-    private String pulsarAdminUrl;
+    private String adminUrl;
 
     @ApiModelProperty("Pulsar service URL")
-    private String pulsarServiceUrl;
+    private String serviceUrl;
 
     @ApiModelProperty("Pulsar tenant")
     private String tenant;
@@ -53,6 +53,13 @@ public class PulsarBaseConf extends MQBaseConf {
 
     @ApiModelProperty("Authentication")
     private Authentication authentication;
+
+    @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
+            + "serial: single partition, low throughput, and orderly messages")
+    private String queueModule = "parallel";
+
+    @ApiModelProperty("The number of partitions of Topic, 1-20")
+    private int partitionNum = 3;
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
     private Integer ensemble = 3;

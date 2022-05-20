@@ -55,8 +55,8 @@ public class InLongMsgFormatFactoryTest {
             throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         final Map<String, String> tableOptions =
                 getModifiedOptions(opts -> {
-                    opts.put("inlong.inner.format", "csv");
-                    opts.put("inlong.ignore-parse-errors", "true");
+                    opts.put("inlong-msg.inner.format", "csv");
+                    opts.put("inlong-msg.ignore-parse-errors", "true");
                 });
 
         // test Deser
@@ -117,7 +117,7 @@ public class InLongMsgFormatFactoryTest {
         options.put("connector", TestDynamicTableFactory.IDENTIFIER);
         options.put("target", "MyTarget");
         options.put("buffer-size", "1000");
-        options.put("format", "inlong");
+        options.put("format", "inlong-msg");
         return options;
     }
 

@@ -27,7 +27,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
@@ -66,9 +66,9 @@ public class InlongStreamImpl extends InlongStream {
 
     private InnerInlongManagerClient managerClient;
 
-    private String groupName;
+    private String groupId;
 
-    private String name;
+    private String streamId;
 
     private Map<String, StreamSource> streamSources = Maps.newHashMap();
 
@@ -78,11 +78,16 @@ public class InlongStreamImpl extends InlongStream {
 
     private List<StreamField> streamFields = Lists.newArrayList();
 
+    /**
+     * Constructor of InlongStreamImpl.
+     * @param fullStreamResponse
+     * @param managerClient
+     */
     public InlongStreamImpl(FullStreamResponse fullStreamResponse, InnerInlongManagerClient managerClient) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.managerClient = managerClient;
-        this.name = streamInfo.getName();
-        this.groupName = streamInfo.getInlongGroupId().substring(2);
+        this.streamId = streamInfo.getName();
+        this.groupId = streamInfo.getInlongGroupId().substring(2);
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
             this.streamFields = streamFieldInfos.stream()
@@ -105,7 +110,7 @@ public class InlongStreamImpl extends InlongStream {
                             (sink1, sink2) -> {
                                 throw new RuntimeException(
                                         String.format("duplicate sinkName:%s in stream:%s", sink1.getSinkName(),
-                                                this.name));
+                                                this.streamId));
                             }));
         }
         List<SourceResponse> sourceList = fullStreamResponse.getSourceInfo();
@@ -116,17 +121,17 @@ public class InlongStreamImpl extends InlongStream {
                             (source1, source2) -> {
                                 throw new RuntimeException(
                                         String.format("duplicate sourceName:%s in stream:%s",
-                                                source1.getSourceName(), this.name));
+                                                source1.getSourceName(), this.streamId));
                             }
                     ));
         }
 
     }
 
-    public InlongStreamImpl(String group, String name, InnerInlongManagerClient managerClient) {
+    public InlongStreamImpl(String group, String streamId, InnerInlongManagerClient managerClient) {
         this.managerClient = managerClient;
-        this.groupName = group;
-        this.name = name;
+        this.groupId = group;
+        this.streamId = streamId;
     }
 
     @Override
@@ -151,7 +156,7 @@ public class InlongStreamImpl extends InlongStream {
 
     @Override
     public InlongStream addSource(StreamSource source) {
-        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        AssertUtils.notNull(source.getSourceName(), "Source name should not be empty");
         String sourceName = source.getSourceName();
         if (streamSources.get(sourceName) != null) {
             throw new IllegalArgumentException(String.format("StreamSource=%s has already be set", source));
@@ -162,7 +167,7 @@ public class InlongStreamImpl extends InlongStream {
 
     @Override
     public InlongStream addSink(StreamSink sink) {
-        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        AssertUtils.notNull(sink.getSinkName(), "Sink name should not be empty");
         String sinkName = sink.getSinkName();
         if (streamSinks.get(sinkName) != null) {
             throw new IllegalArgumentException(String.format("StreamSink=%s has already be set", sink));
@@ -173,7 +178,7 @@ public class InlongStreamImpl extends InlongStream {
 
     @Override
     public InlongStream addTransform(StreamTransform transform) {
-        AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
+        AssertUtils.notNull(transform.getTransformName(), "Transform name should not be empty");
         String transformName = transform.getTransformName();
         if (streamTransforms.get(transformName) != null) {
             throw new IllegalArgumentException(String.format("TransformName=%s has already be set", transform));
@@ -202,21 +207,21 @@ public class InlongStreamImpl extends InlongStream {
 
     @Override
     public InlongStream updateSource(StreamSource source) {
-        AssertUtil.notNull(source.getSourceName(), "Source name should not be empty");
+        AssertUtils.notNull(source.getSourceName(), "Source name should not be empty");
         streamSources.put(source.getSourceName(), source);
         return this;
     }
 
     @Override
     public InlongStream updateSink(StreamSink sink) {
-        AssertUtil.notNull(sink.getSinkName(), "Sink name should not be empty");
+        AssertUtils.notNull(sink.getSinkName(), "Sink name should not be empty");
         streamSinks.put(sink.getSinkName(), sink);
         return this;
     }
 
     @Override
     public InlongStream updateTransform(StreamTransform transform) {
-        AssertUtil.notNull(transform.getTransformName(), "Transform name should not be empty");
+        AssertUtils.notNull(transform.getTransformName(), "Transform name should not be empty");
         streamTransforms.put(transform.getTransformName(), transform);
         return this;
     }
@@ -277,8 +282,7 @@ public class InlongStreamImpl extends InlongStream {
                 StreamNodeRelationship mergedRelationship = unmergedRelationships.get(0);
                 for (int index = 1; index < unmergedRelationships.size(); index++) {
                     StreamNodeRelationship unmergedRelationship = unmergedRelationships.get(index);
-                    unmergedRelationship.getOutputNodes().stream()
-                            .forEach(outputNode -> mergedRelationship.addOutputNode(outputNode));
+                    unmergedRelationship.getOutputNodes().forEach(mergedRelationship::addOutputNode);
                 }
                 relationships.add(mergedRelationship);
             }
@@ -297,12 +301,12 @@ public class InlongStreamImpl extends InlongStream {
     @Override
     public InlongStream update() {
         InlongStreamInfo streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongStreamId("b_" + name);
-        streamInfo.setInlongGroupId("b_" + groupName);
+        streamInfo.setInlongStreamId(streamId);
+        streamInfo.setInlongGroupId(groupId);
         streamInfo = managerClient.getStreamInfo(streamInfo);
         if (streamInfo == null) {
             throw new IllegalArgumentException(
-                    String.format("Stream is not exists for group=%s and stream=%s", groupName, name));
+                    String.format("Stream is not exists for group=%s and stream=%s", groupId, streamId));
         }
         streamInfo.setFieldList(InlongStreamTransfer.createStreamFields(this.streamFields, streamInfo));
         StreamPipeline streamPipeline = createPipeline();
@@ -318,8 +322,6 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     private void initOrUpdateTransform(InlongStreamInfo streamInfo) {
-        final String groupId = "b_" + groupName;
-        final String streamId = "b_" + name;
         List<TransformResponse> transformResponses = managerClient.listTransform(groupId, streamId);
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
@@ -359,8 +361,6 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     private void initOrUpdateSource(InlongStreamInfo streamInfo) {
-        final String groupId = "b_" + groupName;
-        final String streamId = "b_" + name;
         List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId, streamId);
         List<String> updateSourceNames = Lists.newArrayList();
         for (SourceListResponse sourceListResponse : sourceListResponses) {
@@ -395,8 +395,6 @@ public class InlongStreamImpl extends InlongStream {
     }
 
     private void initOrUpdateSink(InlongStreamInfo streamInfo) {
-        final String groupId = "b_" + groupName;
-        final String streamId = "b_" + name;
         List<SinkListResponse> sinkListResponses = managerClient.listSinks(groupId, streamId);
         List<String> updateSinkNames = Lists.newArrayList();
         for (SinkListResponse sinkListResponse : sinkListResponses) {

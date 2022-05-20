@@ -32,17 +32,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
-import org.apache.inlong.manager.client.api.auth.Authentication;
-import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -78,8 +78,8 @@ public class InnerInlongManagerClient {
         this.host = configuration.getBindHost();
         this.port = configuration.getBindPort();
         Authentication authentication = configuration.getAuthentication();
-        AssertUtil.notNull(authentication, "Inlong should be authenticated");
-        AssertUtil.isTrue(authentication instanceof DefaultAuthentication,
+        AssertUtils.notNull(authentication, "Inlong should be authenticated");
+        AssertUtils.isTrue(authentication instanceof DefaultAuthentication,
                 "Inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
         this.uname = defaultAuthentication.getUserName();
@@ -92,21 +92,21 @@ public class InnerInlongManagerClient {
                 .build();
     }
 
-    public Pair<Boolean, InlongGroupResponse> isGroupExists(InlongGroupRequest groupInfo) {
-        String inlongGroupId = groupInfo.getInlongGroupId();
-        if (StringUtils.isEmpty(inlongGroupId)) {
-            inlongGroupId = "b_" + groupInfo.getName();
-        }
+    public Pair<Boolean, InlongGroupInfo> isGroupExists(InlongGroupRequest groupRequest) {
+        String inlongGroupId = groupRequest.getInlongGroupId();
         if (isGroupExists(inlongGroupId)) {
-            InlongGroupResponse currentBizInfo = getGroupInfo(inlongGroupId);
-            return Pair.of(true, currentBizInfo);
+            InlongGroupInfo groupInfo = getGroupInfo(inlongGroupId);
+            return Pair.of(true, groupInfo);
         } else {
             return Pair.of(false, null);
         }
     }
 
+    /**
+     * Check whether a group exists based on the group ID.
+     */
     public boolean isGroupExists(String inlongGroupId) {
-        AssertUtil.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
         String path = HTTP_PATH + "/group/exist/" + inlongGroupId;
         final String url = formatUrl(path);
@@ -132,7 +132,10 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public InlongGroupResponse getGroupInfo(String inlongGroupId) {
+    /**
+     * Get information of group.
+     */
+    public InlongGroupInfo getGroupInfo(String inlongGroupId) {
         if (StringUtils.isEmpty(inlongGroupId)) {
             throw new IllegalArgumentException("InlongGroupId should not be empty");
         }
@@ -163,6 +166,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of groups.
+     */
     public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
         if (pageNum <= 0) {
             pageNum = 1;
@@ -249,7 +255,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<String> responseBody = InlongParser.parseResponse(String.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -284,6 +290,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create information of stream.
+     */
     public Double createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
         final String stream = GsonUtil.toJson(streamInfo);
@@ -300,7 +309,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -311,8 +320,8 @@ public class InnerInlongManagerClient {
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        AssertUtil.notEmpty(groupId, "InlongGroupId should not be empty");
-        AssertUtil.notEmpty(streamId, "InlongStreamId should not be empty");
+        AssertUtils.notEmpty(groupId, "InlongGroupId should not be empty");
+        AssertUtils.notEmpty(streamId, "InlongStreamId should not be empty");
         String path = HTTP_PATH + "/stream/exist/" + groupId + "/" + streamId;
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -364,6 +373,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information through information of  Inlong's stream.
+     */
     public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
@@ -392,6 +404,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of stream.
+     */
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
@@ -410,7 +425,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return InlongParser.parseStreamList(responseBody);
         } catch (Exception e) {
@@ -418,6 +433,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create a data source.
+     */
     public Double createSource(SourceRequest sourceRequest) {
         String path = HTTP_PATH + "/source/save";
         final String source = GsonUtil.toJson(sourceRequest);
@@ -432,9 +450,9 @@ public class InnerInlongManagerClient {
         try (okhttp3.Response response = call.execute()) {
             assert response.body() != null;
             String body = response.body().string();
-            AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
+            AssertUtils.isTrue(response.isSuccessful(), String.format("Inlong request failed: %s", body));
             Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -442,10 +460,16 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of sources.
+     */
     public List<SourceListResponse> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
     }
 
+    /**
+     * Get information of sources.
+     */
     public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
         final String path = HTTP_PATH + "/source/list";
         String url = formatUrl(path);
@@ -462,7 +486,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             PageInfo<SourceListResponse> sourceListResponsePageInfo = InlongParser.parseSourceList(
                     responseBody);
@@ -472,6 +496,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update data Source Information.
+     */
     public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
         final String path = HTTP_PATH + "/source/update";
         final String url = formatUrl(path);
@@ -497,8 +524,11 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete data source information by id.
+     */
     public boolean deleteSource(int id) {
-        AssertUtil.isTrue(id > 0, "sourceId is illegal");
+        AssertUtils.isTrue(id > 0, "sourceId is illegal");
         final String path = HTTP_PATH + "/source/delete/" + id;
         String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
@@ -513,7 +543,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -522,6 +552,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create a conversion function information.
+     */
     public Double createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
         final String sink = GsonUtil.toJson(transformRequest);
@@ -538,7 +571,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -546,6 +579,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get all conversion function information.
+     */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         final String path = HTTP_PATH + "/transform/list";
         String url = formatUrl(path);
@@ -560,7 +596,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             return InlongParser.parseTransformList(responseBody);
         } catch (Exception e) {
@@ -568,6 +604,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update conversion function information.
+     */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
         final String path = HTTP_PATH + "/transform/update";
         final String url = formatUrl(path);
@@ -593,10 +632,13 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete conversion function information.
+     */
     public boolean deleteTransform(TransformRequest transformRequest) {
-        AssertUtil.notEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
-        AssertUtil.notEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
-        AssertUtil.notEmpty(transformRequest.getTransformName(), "transformName should not be null");
+        AssertUtils.notEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
+        AssertUtils.notEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
+        AssertUtils.notEmpty(transformRequest.getTransformName(), "transformName should not be null");
         final String path = HTTP_PATH + "/transform/delete";
         String url = formatUrl(path);
         url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&transformName=%s", url,
@@ -615,7 +657,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -624,6 +666,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create information of data sink.
+     */
     public Double createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
         final String sink = GsonUtil.toJson(sinkRequest);
@@ -640,7 +685,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Double> responseBody = InlongParser.parseResponse(Double.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -648,8 +693,11 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete information of data sink by ID.
+     */
     public boolean deleteSink(int id) {
-        AssertUtil.isTrue(id > 0, "sinkId is illegal");
+        AssertUtils.isTrue(id > 0, "sinkId is illegal");
         final String path = HTTP_PATH + "/sink/delete/" + id;
         String url = formatUrl(path);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), "");
@@ -664,7 +712,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -673,10 +721,16 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of data sinks.
+     */
     public List<SinkListResponse> listSinks(String groupId, String streamId) {
         return listSinks(groupId, streamId, null);
     }
 
+    /**
+     * Get information of data sinks.
+     */
     public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
@@ -693,7 +747,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed:%s", responseBody.getErrMsg()));
             PageInfo<SinkListResponse> sinkListResponsePageInfo = InlongParser.parseSinkList(
                     responseBody);
@@ -703,6 +757,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update information of data sink.
+     */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         final String path = HTTP_PATH + "/sink/update";
         final String url = formatUrl(path);
@@ -745,7 +802,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<WorkflowResult> responseBody = InlongParser.parseResponse(WorkflowResult.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -784,7 +841,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<WorkflowResult> responseBody = InlongParser.parseResponse(WorkflowResult.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -860,7 +917,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response<Boolean> responseBody = InlongParser.parseResponse(Boolean.class, body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
@@ -887,7 +944,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             PageInfo<EventLogView> pageInfo = InlongParser.parseEventLogViewList(responseBody);
             return pageInfo.getList();
@@ -914,7 +971,7 @@ public class InnerInlongManagerClient {
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
             Response responseBody = InlongParser.parseResponse(body);
-            AssertUtil.isTrue(responseBody.getErrMsg() == null,
+            AssertUtils.isTrue(responseBody.getErrMsg() == null,
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             PageInfo<InlongStreamConfigLogListResponse> pageInfo = InlongParser.parseStreamLogList(responseBody);
             return pageInfo.getList();
@@ -924,7 +981,7 @@ public class InnerInlongManagerClient {
     }
 
     protected void assertHttpSuccess(okhttp3.Response response, String body, String path) {
-        AssertUtil.isTrue(response.isSuccessful(), String.format("Inlong request=%s failed: %s", path, body));
+        AssertUtils.isTrue(response.isSuccessful(), String.format("Inlong request=%s failed: %s", path, body));
     }
 
     protected String formatUrl(String path) {

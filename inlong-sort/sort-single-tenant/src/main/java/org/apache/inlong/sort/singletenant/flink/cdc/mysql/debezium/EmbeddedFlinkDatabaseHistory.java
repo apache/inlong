@@ -40,7 +40,7 @@ import org.apache.inlong.sort.singletenant.flink.cdc.mysql.source.split.MySqlSpl
 /**
  * A {@link DatabaseHistory} implementation which store the latest table schema in Flink state.
  *
- * <p>It stores/recovers history using data offered by {@link MySqlSplitState}.
+ * <p>It stores/recovers history using data offered by {@link MySqlSplitState}.</p>
  */
 public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
 

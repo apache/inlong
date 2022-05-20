@@ -58,6 +58,9 @@ import java.util.stream.Collectors;
  */
 public class FilterFunctionUtils {
 
+    /**
+     * Create functions of filter.
+     */
     public static List<FilterFunction> createFilterFunctions(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
@@ -78,6 +81,9 @@ public class FilterFunctionUtils {
         }
     }
 
+    /**
+     * Create functions of filter.
+     */
     public static List<FilterFunction> createFilterFunctions(FilterDefinition filterDefinition, String transformName) {
         FilterMode filterMode = filterDefinition.getFilterMode();
         Preconditions.checkFalse(filterMode == FilterMode.SCRIPT,

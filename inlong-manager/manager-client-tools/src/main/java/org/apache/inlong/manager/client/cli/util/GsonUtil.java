@@ -22,7 +22,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
 import org.apache.inlong.manager.client.api.MQBaseConf;
-import org.apache.inlong.manager.client.api.SortBaseConf;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
@@ -36,7 +36,7 @@ public class GsonUtil {
     public static Gson gsonBuilder() {
         return new GsonBuilder()
                 .registerTypeAdapter(MQBaseConf.class, new MQBaseConfAdapter())
-                .registerTypeAdapter(SortBaseConf.class, new SortBaseConfAdapter())
+                .registerTypeAdapter(BaseSortConf.class, new SortBaseConfAdapter())
                 .registerTypeAdapter(Charset.class, new CharsetAdapter())
                 .registerTypeAdapter(DataSeparator.class, new SeparatorAdapter())
                 .registerTypeAdapter(DataFormat.class, new DataFormatAdapter())

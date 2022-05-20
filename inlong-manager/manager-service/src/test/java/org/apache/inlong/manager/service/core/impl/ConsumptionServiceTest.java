@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ConsumptionServiceTest extends ServiceBaseTest {
 
-    String inlongGroup = "group_for_consumption_test";
+    String inlongGroupId = "group_for_consumption_test";
     String consumerGroup = "test_consumer_group";
     String operator = "admin";
 
@@ -39,11 +39,11 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongGroupServiceTest groupServiceTest;
 
-    private Integer saveConsumption(String inlongGroup, String consumerGroup, String operator) {
+    private Integer saveConsumption(String inlongGroupId, String consumerGroup, String operator) {
         ConsumptionInfo consumptionInfo = new ConsumptionInfo();
-        consumptionInfo.setTopic(inlongGroup);
+        consumptionInfo.setTopic(inlongGroupId);
         consumptionInfo.setConsumerGroup(consumerGroup);
-        consumptionInfo.setInlongGroupId("b_" + inlongGroup);
+        consumptionInfo.setInlongGroupId(inlongGroupId);
         consumptionInfo.setMqType(MQType.PULSAR.getType());
         consumptionInfo.setCreator(operator);
         consumptionInfo.setInCharges("admin");
@@ -62,8 +62,8 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     // Online test will be BusinessException: Inlong group does not exist/no operation authority
     // @Test
     public void testSaveAndDelete() {
-        groupServiceTest.saveGroup(inlongGroup, operator);
-        Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);
+        groupServiceTest.saveGroup(inlongGroupId, operator);
+        Integer id = this.saveConsumption(inlongGroupId, consumerGroup, operator);
         Assert.assertNotNull(id);
         boolean result = consumptionService.delete(id, operator);
         Assert.assertTrue(result);

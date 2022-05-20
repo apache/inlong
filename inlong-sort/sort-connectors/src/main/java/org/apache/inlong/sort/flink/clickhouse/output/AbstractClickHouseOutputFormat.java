@@ -27,7 +27,7 @@ import java.io.Flushable;
 
 /**
  * abstract class for clickhouse output format
- * the input format follows Tuple2<Boolean, Row>
+ * the input format follows {@link Tuple2<Boolean, Row>}
  */
 public abstract class AbstractClickHouseOutputFormat
         extends RichOutputFormat<Tuple2<Boolean, Row>> implements Flushable {

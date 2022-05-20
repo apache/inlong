@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.cli;
 
 import com.google.gson.Gson;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.cli.util.GsonUtil;
 

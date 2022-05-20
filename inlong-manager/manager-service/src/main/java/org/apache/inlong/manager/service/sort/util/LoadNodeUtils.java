@@ -49,6 +49,9 @@ import java.util.stream.Collectors;
  */
 public class LoadNodeUtils {
 
+    /**
+     * Create nodes of data load.
+     */
     public static List<LoadNode> createLoadNodes(List<SinkResponse> sinkResponses) {
         if (CollectionUtils.isEmpty(sinkResponses)) {
             return Lists.newArrayList();
@@ -57,6 +60,9 @@ public class LoadNodeUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Create node of data load.
+     */
     public static LoadNode createLoadNode(SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
         switch (sinkType) {
@@ -72,6 +78,9 @@ public class LoadNodeUtils {
         }
     }
 
+    /**
+     * Create node of data load about kafka.
+     */
     public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
 
         String id = kafkaSinkResponse.getSinkName();
@@ -125,6 +134,9 @@ public class LoadNodeUtils {
                 primaryKey);
     }
 
+    /**
+     * Create node of data load about hive.
+     */
     public static HiveLoadNode createLoadNode(HiveSinkResponse hiveSinkResponse) {
         String id = hiveSinkResponse.getSinkName();
         String name = hiveSinkResponse.getSinkName();
@@ -209,6 +221,9 @@ public class LoadNodeUtils {
         );
     }
 
+    /**
+     * Parse information field of data sink.
+     */
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {
         if (CollectionUtils.isEmpty(sinkFieldResponses)) {
             return Lists.newArrayList();

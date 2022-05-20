@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
  *
  * <p>The {@link HistoryRecord} will be used by {@link FlinkDatabaseHistory} which keeps full
  * history of table change events for all tables, the {@link TableChange} will be used by {@link
- * FlinkDatabaseSchemaHistory} which keeps the latest table change for each table.
+ * FlinkDatabaseSchemaHistory} which keeps the latest table change for each table.</p>
  */
 public class SchemaRecord {
 

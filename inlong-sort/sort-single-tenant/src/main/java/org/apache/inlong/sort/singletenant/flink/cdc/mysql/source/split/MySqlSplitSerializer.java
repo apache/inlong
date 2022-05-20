@@ -125,6 +125,9 @@ public final class MySqlSplitSerializer implements SimpleVersionedSerializer<MyS
         }
     }
 
+    /**
+     * deserialize
+     */
     public MySqlSplit deserializeSplit(int version, byte[] serialized) throws IOException {
         final DataInputDeserializer in = new DataInputDeserializer(serialized);
 

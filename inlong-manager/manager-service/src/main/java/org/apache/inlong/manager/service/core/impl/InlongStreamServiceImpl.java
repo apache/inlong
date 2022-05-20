@@ -40,7 +40,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -480,11 +480,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<InlongStreamTopicResponse> getTopicList(String groupId) {
+    public List<InlongStreamTopicInfo> getTopicList(String groupId) {
         LOGGER.debug("begin bo get topic list by group id={}", groupId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        List<InlongStreamTopicResponse> topicList = streamMapper.selectTopicList(groupId);
+        List<InlongStreamTopicInfo> topicList = streamMapper.selectTopicList(groupId);
         LOGGER.debug("success to get topic list by groupId={}", groupId);
         return topicList;
     }
@@ -597,8 +597,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Check whether the inlong group status is temporary
      *
-     * @param groupId Inlong group id
-     * @return usiness entity for caller reuse
+     * @param groupId inlong group id
+     * @return inlong group entity
      */
     private InlongGroupEntity checkBizIsTempStatus(String groupId) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);

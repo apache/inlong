@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
+
 import java.util.List;
 
 public interface InlongGroup {
@@ -48,25 +51,29 @@ public interface InlongGroup {
     /**
      * Update Inlong group on updated conf
      *
-     * @throws Exception the exception
+     * Update inlong group and sort conf
+     *
+     * @param originGroupInfo origin group info that need to update
+     * @param sortConf sort config that need to update
+     * @throws Exception any exception
      */
-    void update(InlongGroupConf conf) throws Exception;
+    void update(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception;
 
     /**
-     * Update Inlong group on SortBaseConf
+     * Update sort conf for Inlong group
      *
-     * @param sortBaseConf
-     * @throws Exception
+     * @param sortConf sort config that need to update
+     * @throws Exception any exception
      */
-    void update(SortBaseConf sortBaseConf) throws Exception;
+    void update(BaseSortConf sortConf) throws Exception;
 
     /**
      * ReInit inlong group after update configuration for group.
-     * Must be invoked when group is rejected,failed or started
+     * Must be invoked when group is rejected, failed or started
      *
      * @return inlong group info
      */
-    InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception;
+    InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception;
 
     /**
      * Suspend the stream group and return group info.

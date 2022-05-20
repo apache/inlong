@@ -121,7 +121,7 @@ public class DebeziumChangeFetcher<T> {
     /**
      * Take a snapshot of the Debezium handler state.
      *
-     * <p>Important: This method must be called under the checkpoint lock.
+     * <p>Important: This method must be called under the checkpoint lock.</p>
      */
     public byte[] snapshotCurrentState() throws Exception {
         // this method assumes that the checkpoint lock is held
@@ -178,7 +178,7 @@ public class DebeziumChangeFetcher<T> {
      * The metric indicates delay from data generation to entry into the system.
      *
      * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.
+     * unavailable.</p>
      */
     public long getFetchDelay() {
         return fetchDelay;
@@ -188,7 +188,7 @@ public class DebeziumChangeFetcher<T> {
      * The metric indicates delay from data generation to leaving the source operator.
      *
      * <p>Note: the metric is available during the binlog phase. Use 0 to indicate the metric is
-     * unavailable.
+     * unavailable.</p>
      */
     public long getEmitDelay() {
         return emitDelay;

@@ -88,7 +88,7 @@ import org.apache.kafka.connect.source.SourceRecord;
  *     .build();
  * }</pre>
  *
- * <p>See {@link MySqlSourceBuilder} for more details.
+ * <p>See {@link MySqlSourceBuilder} for more details.</p>
  *
  * @param <T> the output type of the source.
  */

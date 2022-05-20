@@ -80,25 +80,25 @@ import org.slf4j.LoggerFactory;
  * database and pushes the records into the {@link Handover}. The other worker consumes the records
  * from the {@link Handover} and convert the records to the data in Flink style. The reason why
  * don't use one workers is because debezium has different behaviours in snapshot phase and
- * streaming phase.
+ * streaming phase.</p>
  *
  * <p>Here we use the {@link Handover} as the buffer to submit data from the producer to the
  * consumer. Because the two threads don't communicate to each other directly, the error reporting
  * also relies on {@link Handover}. When the engine gets errors, the engine uses the {@link
  * DebeziumEngine.CompletionCallback} to report errors to the {@link Handover} and wakes up the
  * consumer to check the error. However, the source function just closes the engine and wakes up the
- * producer if the error is from the Flink side.
+ * producer if the error is from the Flink side.</p>
  *
  * <p>If the execution is canceled or finish(only snapshot phase), the exit logic is as same as the
- * logic in the error reporting.
+ * logic in the error reporting.</p>
  *
  * <p>The source function participates in checkpointing and guarantees that no data is lost during a
- * failure, and that the computation processes elements "exactly once".
+ * failure, and that the computation processes elements "exactly once".</p>
  *
- * <p>Note: currently, the source function can't run in multiple parallel instances.
+ * <p>Note: currently, the source function can't run in multiple parallel instances.</p>
  *
  * <p>Please refer to Debezium's documentation for the available configuration properties:
- * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties
+ * https://debezium.io/documentation/reference/1.5/development/engine.html#engine-properties</p>
  */
 @PublicEvolving
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
@@ -156,9 +156,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
      * <p>This map will be populated by the {@link #initializeState(FunctionInitializationContext)}
-     * method.
+     * method.</p>
      *
-     * <p>Using a String because we are encoding the offset state in JSON bytes.
+     * <p>Using a String because we are encoding the offset state in JSON bytes.</p>
      */
     private transient volatile String restoredOffsetState;
 

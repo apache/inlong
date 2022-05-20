@@ -23,16 +23,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.SortBaseConf;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.AssertUtil;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
@@ -41,7 +38,7 @@ import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupResponse;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
@@ -49,6 +46,7 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.List;
@@ -60,34 +58,32 @@ import java.util.stream.Collectors;
  */
 public class InlongGroupImpl implements InlongGroup {
 
-    private InlongGroupConf groupConf;
-
+    private final InnerGroupContext groupContext;
+    private InlongGroupInfo groupInfo;
     private InnerInlongManagerClient managerClient;
 
-    private InnerGroupContext groupContext;
-
-    public InlongGroupImpl(InlongGroupConf groupConf, InlongClientImpl inlongClient) {
-        this.groupConf = groupConf;
+    public InlongGroupImpl(InlongGroupInfo groupInfo, InlongClientImpl inlongClient) {
+        this.groupInfo = groupInfo;
         this.groupContext = new InnerGroupContext();
-        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(groupConf);
         this.groupContext.setGroupInfo(groupInfo);
         if (this.managerClient == null) {
             this.managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
         }
-        InlongGroupRequest inlongGroupRequest = groupInfo.genRequest();
-        Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(inlongGroupRequest);
+
+        InlongGroupRequest groupRequest = groupInfo.genRequest();
+        Pair<Boolean, InlongGroupInfo> existMsg = managerClient.isGroupExists(groupRequest);
         if (existMsg.getKey()) {
-            //Update current snapshot
+            // update current snapshot
             groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
             this.groupContext.setGroupInfo(groupInfo);
         } else {
-            String groupId = managerClient.createGroup(inlongGroupRequest);
+            String groupId = managerClient.createGroup(groupRequest);
             groupInfo.setInlongGroupId(groupId);
         }
     }
 
     @Override
-    public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) throws Exception {
+    public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) {
         return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient);
     }
 
@@ -101,12 +97,12 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
         WorkflowResult initWorkflowResult = managerClient.initInlongGroup(groupInfo.genRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
-        AssertUtil.notEmpty(taskViews, "Init business info failed");
+        AssertUtils.notEmpty(taskViews, "Init business info failed");
         TaskResponse taskView = taskViews.get(0);
         final int taskId = taskView.getId();
         ProcessResponse processView = initWorkflowResult.getProcessInfo();
-        AssertUtil.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
-                String.format("Business info state : %s is not corrected , should be PROCESSING",
+        AssertUtils.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
+                String.format("Process status : %s is not corrected, should be PROCESSING",
                         processView.getStatus()));
         String formData = GsonUtil.toJson(processView.getFormData());
         Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg = InlongParser
@@ -114,80 +110,85 @@ public class InlongGroupImpl implements InlongGroup {
         groupContext.setInitMsg(initMsg);
         WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, initMsg);
         processView = startWorkflowResult.getProcessInfo();
-        AssertUtil.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
+        AssertUtils.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
                 String.format("Business info state : %s is not corrected , should be COMPLETED",
                         processView.getStatus()));
         return generateSnapshot();
     }
 
     @Override
-    public void update(InlongGroupConf conf) throws Exception {
-        if (conf != null) {
-            AssertUtil.isTrue(conf.getGroupName() != null
-                            && conf.getGroupName().equals(this.groupConf.getGroupName()),
-                    "Group must have same name");
-            this.groupConf = conf;
-        } else {
-            conf = this.groupConf;
+    public void update(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
+        if (originGroupInfo == null) {
+            originGroupInfo = this.groupInfo;
         }
-        final String groupId = "b_" + conf.getGroupName();
-        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
-        InlongGroupStatus state = InlongGroupStatus.parseStatusByCode(groupResponse.getStatus());
-        AssertUtil.isTrue(state != InlongGroupStatus.INITIALIZING,
-                "Inlong Group is in init state, should not be updated");
-        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(conf);
+
+        final String groupId = originGroupInfo.getInlongGroupId();
+        AssertUtils.isTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
+                "groupId must be same");
+
+        InlongGroupInfo existGroupInfo = managerClient.getGroupInfo(groupId);
+        InlongGroupStatus status = InlongGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
+        AssertUtils.isTrue(status != InlongGroupStatus.INITIALIZING,
+                "Inlong Group is in init status, should not be updated");
+
+        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
-        AssertUtil.isNull(errMsg, errMsg);
+        AssertUtils.isNull(errMsg, errMsg);
+
+        this.groupContext.setGroupInfo(groupInfo);
+        this.groupInfo = groupInfo;
+    }
+
+    @Override
+    public void update(BaseSortConf sortConf) throws Exception {
+        AssertUtils.notNull(sortConf, "SortConf should not be empty");
+
+        final String groupId = this.groupInfo.getInlongGroupId();
+        InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
+
+        InlongGroupStatus status = InlongGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        AssertUtils.isTrue(status != InlongGroupStatus.INITIALIZING,
+                "Inlong Group is in init status, should not be updated");
+
+        groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
+
+        InlongGroupRequest groupRequest = groupInfo.genRequest();
+        Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
+        String errMsg = idAndErr.getValue();
+        AssertUtils.isNull(errMsg, errMsg);
         this.groupContext.setGroupInfo(groupInfo);
     }
 
     @Override
-    public void update(SortBaseConf sortBaseConf) throws Exception {
-        AssertUtil.notNull(sortBaseConf, "SortBaseConf should not be empty");
-        this.groupConf.setSortBaseConf(sortBaseConf);
-        final String groupName = this.groupConf.getGroupName();
-        final String groupId = "b_" + groupName;
-        InlongGroupResponse groupResponse = managerClient.getGroupInfo(groupId);
-        InlongGroupStatus state = InlongGroupStatus.parseStatusByCode(groupResponse.getStatus());
-        AssertUtil.isTrue(state != InlongGroupStatus.INITIALIZING,
-                "Inlong Group is in init state, should not be updated");
-        InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(this.groupConf);
-        InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
-        String errMsg = idAndErr.getValue();
-        AssertUtil.isNull(errMsg, errMsg);
-        this.groupContext.setGroupInfo(groupInfo);
-    }
+    public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
+        this.update(originGroupInfo, sortConf);
 
-    @Override
-    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
-        update(conf);
         InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
         InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<Boolean, InlongGroupResponse> existMsg = managerClient.isGroupExists(groupRequest);
+        Pair<Boolean, InlongGroupInfo> existMsg = managerClient.isGroupExists(groupRequest);
         if (existMsg.getKey()) {
             groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
             this.groupContext.setGroupInfo(groupInfo);
             return init();
         } else {
-            throw new RuntimeException(String.format("Group is not found by groupName=%s", groupInfo.getName()));
+            throw new RuntimeException(String.format("Group not found by groupId=%s", groupInfo.getInlongGroupId()));
         }
     }
 
     @Override
-    public InlongGroupContext suspend() throws Exception {
+    public InlongGroupContext suspend() {
         return suspend(false);
     }
 
     @Override
-    public InlongGroupContext suspend(boolean async) throws Exception {
+    public InlongGroupContext suspend(boolean async) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
-        AssertUtil.isNull(errMsg, errMsg);
+        AssertUtils.isNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, InlongGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
@@ -203,7 +204,7 @@ public class InlongGroupImpl implements InlongGroup {
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
-        AssertUtil.isNull(errMsg, errMsg);
+        AssertUtils.isNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, InlongGroupStatus.STARTED, async);
         return generateSnapshot();
     }
@@ -215,11 +216,10 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public InlongGroupContext delete(boolean async) throws Exception {
-        InlongGroupResponse groupResponse = managerClient.getGroupInfo(
-                groupContext.getGroupId());
-        boolean isDeleted = managerClient.deleteInlongGroup(groupResponse.getInlongGroupId(), async);
+        InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupContext.getGroupId());
+        boolean isDeleted = managerClient.deleteInlongGroup(groupInfo.getInlongGroupId(), async);
         if (isDeleted) {
-            groupResponse.setStatus(GroupStatus.DELETED.getCode());
+            groupInfo.setStatus(GroupStatus.DELETED.getCode());
         }
         return generateSnapshot();
     }
@@ -231,44 +231,42 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     private InlongGroupContext generateSnapshot() {
-        //Fetch current group
-        InlongGroupResponse groupResponse = managerClient.getGroupInfo(
-                groupContext.getGroupId());
-        InlongGroupInfo currentGroupInfo = CommonBeanUtils.copyProperties(groupResponse, InlongGroupInfo::new);
-        groupContext.setGroupInfo(currentGroupInfo);
-        String inlongGroupId = currentGroupInfo.getInlongGroupId();
-        //Fetch stream in group
+        // fetch current group
+        InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupContext.getGroupId());
+        groupContext.setGroupInfo(groupInfo);
+        String inlongGroupId = groupInfo.getInlongGroupId();
+        // fetch stream in group
         List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
         if (CollectionUtils.isNotEmpty(dataStreams)) {
-            dataStreams.forEach(dataStream -> groupContext.setStream(dataStream));
+            dataStreams.forEach(groupContext::setStream);
         }
-        //Create group context
-        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext, groupConf);
-        //Fetch group logs
+
+        // create group context
+        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext);
+        // fetch group logs
         List<EventLogView> logViews = managerClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
-            Map<String, List<String>> errMsgs = Maps.newHashMap();
-            Map<String, List<String>> groupLogs = Maps.newHashMap();
+            Map<String, List<String>> errMsgMap = Maps.newHashMap();
+            Map<String, List<String>> groupLogMap = Maps.newHashMap();
             logViews.stream()
                     .filter(x -> StringUtils.isNotEmpty(x.getElementName()))
                     .forEach(eventLogView -> {
                         String taskName = eventLogView.getElementName();
                         if (StringUtils.isNotEmpty(eventLogView.getException())) {
-                            errMsgs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
+                            errMsgMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
                         }
                         if (StringUtils.isNotEmpty(eventLogView.getRemark())) {
-                            groupLogs.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
+                            groupLogMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
                         }
                     });
-            inlongGroupContext.setGroupErrLogs(errMsgs);
-            inlongGroupContext.setGroupLogs(groupLogs);
+            inlongGroupContext.setGroupErrLogs(errMsgMap);
+            inlongGroupContext.setGroupLogs(groupLogMap);
         }
-        //Fetch stream logs
+
+        // fetch stream logs
         Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
-        streams.keySet().stream().forEach(streamName -> {
-            String inlongStreamId = "b_" + streamName;
-            List<InlongStreamConfigLogListResponse> logList = managerClient.getStreamLogs(inlongGroupId,
-                    inlongStreamId);
+        streams.keySet().forEach(streamId -> {
+            List<InlongStreamConfigLogListResponse> logList = managerClient.getStreamLogs(inlongGroupId, streamId);
             if (CollectionUtils.isNotEmpty(logList)) {
                 Map<String, List<String>> streamLogs = Maps.newHashMap();
                 logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
@@ -277,7 +275,7 @@ public class InlongGroupImpl implements InlongGroup {
                             String log = GsonUtil.toJson(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
-                inlongGroupContext.getStreamErrLogs().put(streamName, streamLogs);
+                inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);
             }
         });
         return inlongGroupContext;
