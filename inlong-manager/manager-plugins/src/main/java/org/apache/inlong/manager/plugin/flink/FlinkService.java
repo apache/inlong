@@ -61,6 +61,9 @@ public class FlinkService {
     private final String savepointDirectory;
     private final Configuration configuration;
 
+    /**
+     * Constructor of FlinkService.
+     */
     public FlinkService(String endpoint) throws Exception {
         FlinkConfiguration flinkConfiguration = new FlinkConfiguration();
         flinkConfig = flinkConfiguration.getFlinkConfig();

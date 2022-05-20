@@ -177,8 +177,10 @@ public class ClientMgr {
     public ClientMgr(ProxyClientConfig configure, Sender sender) throws Exception {
         this(configure, sender, null);
     }
-
-    // Build up the connection between the server and client.
+    
+    /**
+     * Build up the connection between the server and client.
+     */
     public ClientMgr(ProxyClientConfig configure, Sender sender, ThreadFactory selfDefineFactory) throws Exception {
         /* Initialize the bootstrap. */
         if (selfDefineFactory == null) {

@@ -24,6 +24,7 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -34,6 +35,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -47,6 +49,9 @@ import java.util.stream.Collectors;
  */
 public class LoadNodeUtils {
 
+    /**
+     * Create nodes of data load.
+     */
     public static List<LoadNode> createLoadNodes(List<SinkResponse> sinkResponses) {
         if (CollectionUtils.isEmpty(sinkResponses)) {
             return Lists.newArrayList();
@@ -55,6 +60,9 @@ public class LoadNodeUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Create node of data load.
+     */
     public static LoadNode createLoadNode(SinkResponse sinkResponse) {
         SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
         switch (sinkType) {
@@ -62,12 +70,17 @@ public class LoadNodeUtils {
                 return createLoadNode((KafkaSinkResponse) sinkResponse);
             case HIVE:
                 return createLoadNode((HiveSinkResponse) sinkResponse);
+            case HBASE:
+                return createLoadNode((HbaseSinkResponse) sinkResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
         }
     }
 
+    /**
+     * Create node of data load about kafka.
+     */
     public static KafkaLoadNode createLoadNode(KafkaSinkResponse kafkaSinkResponse) {
 
         String id = kafkaSinkResponse.getSinkName();
@@ -121,6 +134,9 @@ public class LoadNodeUtils {
                 primaryKey);
     }
 
+    /**
+     * Create node of data load about hive.
+     */
     public static HiveLoadNode createLoadNode(HiveSinkResponse hiveSinkResponse) {
         String id = hiveSinkResponse.getSinkName();
         String name = hiveSinkResponse.getSinkName();
@@ -161,6 +177,53 @@ public class LoadNodeUtils {
         );
     }
 
+    /**
+     * Create hbase load node from response.
+     *
+     * @param hbaseSinkResponse hbaseSinkResponse
+     * @return hbaseLoadNode
+     */
+    public static HbaseLoadNode createLoadNode(HbaseSinkResponse hbaseSinkResponse) {
+        String id = hbaseSinkResponse.getSinkName();
+        String name = hbaseSinkResponse.getSinkName();
+        String tableName = hbaseSinkResponse.getTableName();
+        String nameSpace = hbaseSinkResponse.getNamespace();
+        String rowKey = hbaseSinkResponse.getRowKey();
+        String zookeeperQuorum = hbaseSinkResponse.getZookeeperQuorum();
+        String sinkBufferFlushMaxSize = hbaseSinkResponse.getSinkBufferFlushMaxSize();
+        String zookeeperZnodeParent = hbaseSinkResponse.getZookeeperZnodeParent();
+        String sinkBufferFlushMaxRows = hbaseSinkResponse.getSinkBufferFlushMaxRows();
+        String sinkBufferFlushInterval = hbaseSinkResponse.getSinkBufferFlushInterval();
+        List<SinkFieldResponse> sinkFieldResponses = hbaseSinkResponse.getFieldList();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = hbaseSinkResponse.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new HbaseLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                Lists.newArrayList(),
+                null,
+                null,
+                properties,
+                tableName,
+                nameSpace,
+                zookeeperQuorum,
+                rowKey,
+                sinkBufferFlushMaxSize,
+                zookeeperZnodeParent,
+                sinkBufferFlushMaxRows,
+                sinkBufferFlushInterval
+        );
+    }
+
+    /**
+     * Parse information field of data sink.
+     */
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {
         if (CollectionUtils.isEmpty(sinkFieldResponses)) {
             return Lists.newArrayList();

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api.inner;
 
-import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -104,6 +105,10 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Check whether a group exists based on the group ID.
+     * @param inlongGroupId
+     */
     public boolean isGroupExists(String inlongGroupId) {
         AssertUtil.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
@@ -131,6 +136,10 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of group.
+     * @param inlongGroupId
+     */
     public InlongGroupResponse getGroupInfo(String inlongGroupId) {
         if (StringUtils.isEmpty(inlongGroupId)) {
             throw new IllegalArgumentException("InlongGroupId should not be empty");
@@ -162,17 +171,20 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of groups.
+     */
     public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
         if (pageNum <= 0) {
             pageNum = 1;
         }
 
-        JSONObject groupQuery = new JSONObject();
+        ObjectNode groupQuery = JsonUtils.OBJECT_MAPPER.createObjectNode();
         groupQuery.put("keyword", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
         groupQuery.put("pageSize", pageSize);
-        String operationData = GsonUtil.toJson(groupQuery);
+        String operationData = groupQuery.toString();
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), operationData);
         String path = HTTP_PATH + "/group/list";
@@ -283,6 +295,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create information of stream.
+     */
     public Double createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
         final String stream = GsonUtil.toJson(streamInfo);
@@ -363,6 +378,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information through information of  Inlong's stream.
+     */
     public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
@@ -391,6 +409,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of stream.
+     */
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
@@ -417,6 +438,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create a data source.
+     */
     public Double createSource(SourceRequest sourceRequest) {
         String path = HTTP_PATH + "/source/save";
         final String source = GsonUtil.toJson(sourceRequest);
@@ -441,10 +465,16 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of sources.
+     */
     public List<SourceListResponse> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
     }
 
+    /**
+     * Get information of sources.
+     */
     public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
         final String path = HTTP_PATH + "/source/list";
         String url = formatUrl(path);
@@ -471,6 +501,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update data Source Information.
+     */
     public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
         final String path = HTTP_PATH + "/source/update";
         final String url = formatUrl(path);
@@ -496,6 +529,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete data source information by id.
+     */
     public boolean deleteSource(int id) {
         AssertUtil.isTrue(id > 0, "sourceId is illegal");
         final String path = HTTP_PATH + "/source/delete/" + id;
@@ -521,6 +557,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create a conversion function information.
+     */
     public Double createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
         final String sink = GsonUtil.toJson(transformRequest);
@@ -545,6 +584,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get all conversion function information.
+     */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         final String path = HTTP_PATH + "/transform/list";
         String url = formatUrl(path);
@@ -567,6 +609,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update conversion function information.
+     */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
         final String path = HTTP_PATH + "/transform/update";
         final String url = formatUrl(path);
@@ -592,6 +637,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete conversion function information.
+     */
     public boolean deleteTransform(TransformRequest transformRequest) {
         AssertUtil.notEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
         AssertUtil.notEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
@@ -623,6 +671,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Create information of data sink.
+     */
     public Double createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
         final String sink = GsonUtil.toJson(sinkRequest);
@@ -647,6 +698,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Delete information of data sink by ID.
+     */
     public boolean deleteSink(int id) {
         AssertUtil.isTrue(id > 0, "sinkId is illegal");
         final String path = HTTP_PATH + "/sink/delete/" + id;
@@ -672,10 +726,16 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Get information of data sinks.
+     */
     public List<SinkListResponse> listSinks(String groupId, String streamId) {
         return listSinks(groupId, streamId, null);
     }
 
+    /**
+     * Get information of data sinks.
+     */
     public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
         final String path = HTTP_PATH + "/sink/list";
         String url = formatUrl(path);
@@ -702,6 +762,9 @@ public class InnerInlongManagerClient {
         }
     }
 
+    /**
+     * Update information of data sink.
+     */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         final String path = HTTP_PATH + "/sink/update";
         final String url = formatUrl(path);
@@ -756,17 +819,18 @@ public class InnerInlongManagerClient {
     public WorkflowResult startInlongGroup(int taskId,
             Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
 
-        JSONObject workflowTaskOperation = new JSONObject();
-        workflowTaskOperation.put("transferTo", Lists.newArrayList());
+        ObjectMapper objectMapper = JsonUtils.OBJECT_MAPPER;
+        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
-        JSONObject inlongGroupApproveForm = new JSONObject();
-        inlongGroupApproveForm.put("groupApproveInfo", initMsg.getKey());
-        inlongGroupApproveForm.put("streamApproveInfoList", initMsg.getValue());
+        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", initMsg.getKey());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", initMsg.getValue());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
-        workflowTaskOperation.put("form", inlongGroupApproveForm);
+        workflowTaskOperation.set("form", inlongGroupApproveForm);
 
-        String operationData = GsonUtil.toJson(workflowTaskOperation);
+        String operationData = workflowTaskOperation.toString();
 
         final String path = HTTP_PATH + "/workflow/approve/" + taskId;
         final String url = formatUrl(path);

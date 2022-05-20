@@ -97,6 +97,9 @@ public class StreamConfigLogMetric implements Runnable {
         });
     }
 
+    /**
+     * Update value by config.
+     */
     private void updateDataValue(StreamConfigLogInfo streamConfigLogInfo,
             String inlongGroupId, String inlongStreamId, String configName,
             ConfigLogTypeEnum configLogTypeEnum, String log) {
@@ -111,6 +114,9 @@ public class StreamConfigLogMetric implements Runnable {
         streamConfigLogInfo.setLogType(configLogTypeEnum.getType());
     }
 
+    /**
+     * Logic entrance of Metric.
+     */
     public void run() {
         try {
             Set<Entry<String, StreamConfigLogInfo>> set = dataCacheMap.entrySet();

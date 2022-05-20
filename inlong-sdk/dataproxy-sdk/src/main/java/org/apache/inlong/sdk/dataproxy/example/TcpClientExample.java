@@ -34,6 +34,9 @@ public class TcpClientExample {
 
     public static String localIP = "127.0.0.1";
 
+    /**
+     * Example of client tcp.
+     */
     public static void main(String[] args) throws InterruptedException {
 
         String dataProxyGroup = "test_test";

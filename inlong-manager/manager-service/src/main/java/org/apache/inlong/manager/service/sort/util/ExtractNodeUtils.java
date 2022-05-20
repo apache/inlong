@@ -177,6 +177,7 @@ public class ExtractNodeUtils {
                 startupMode = ScanStartupMode.LATEST_OFFSET;
         }
         final String primaryKey = kafkaSourceResponse.getPrimaryKey();
+        String groupId = kafkaSourceResponse.getGroupId();
 
         return new KafkaExtractNode(id,
                 name,
@@ -187,6 +188,7 @@ public class ExtractNodeUtils {
                 bootstrapServers,
                 format,
                 startupMode,
-                primaryKey);
+                primaryKey,
+                groupId);
     }
 }

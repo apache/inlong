@@ -146,13 +146,6 @@ public class PulsarClientService {
 
     /**
      * send message
-     *
-     * @param poolIndex
-     * @param topic
-     * @param event
-     * @param sendMessageCallBack
-     * @param es
-     * @return
      */
     public boolean sendMessage(int poolIndex, String topic, Event event,
                                SendMessageCallBack sendMessageCallBack, EventStat es) {
@@ -345,6 +338,9 @@ public class PulsarClientService {
         return builder.build();
     }
 
+    /**
+     * Producer initialization.
+     */
     public List<TopicProducerInfo> initTopicProducer(String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {

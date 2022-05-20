@@ -35,6 +35,9 @@ import java.util.Map;
  */
 public class PulsarSourceBuilder {
 
+    /**
+     * Create data source of Pulsar.
+     */
     public static PulsarSourceFunction<SerializedRecord> buildPulsarSource(
             PulsarSourceInfo sourceInfo,
             Configuration config,
@@ -62,6 +65,9 @@ public class PulsarSourceBuilder {
         );
     }
 
+    /**
+     * Create data source of TDMQPulsar.
+     */
     public static TDMQPulsarSourceFunction<SerializedRecord> buildTDMQPulsarSource(
             TDMQPulsarSourceInfo tdmqPulsarSourceInfo,
             Configuration config,
@@ -87,6 +93,9 @@ public class PulsarSourceBuilder {
         );
     }
 
+    /**
+     * Pulsar deserialization.
+     */
     public static class PulsarDeserializationSchemaImpl implements PulsarDeserializationSchema<SerializedRecord> {
 
         private static final long serialVersionUID = -3642110610339179932L;

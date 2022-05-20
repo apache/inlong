@@ -43,7 +43,7 @@ public interface MySqlSplitAssigner {
      * Gets the next split.
      *
      * <p>When this method returns an empty {@code Optional}, then the set of splits is assumed to
-     * be done and the source will finish once the readers finished their current splits.
+     * be done and the source will finish once the readers finished their current splits.</p>
      */
     Optional<MySqlSplit> getNext();
 
@@ -77,14 +77,14 @@ public interface MySqlSplitAssigner {
      * <p>The snapshot should contain the latest state of the assigner: It should assume that all
      * operations that happened before the snapshot have successfully completed. For example all
      * splits assigned to readers via {@link #getNext()} don't need to be included in the snapshot
-     * anymore.
+     * anymore.</p>
      *
      * <p>This method takes the ID of the checkpoint for which the state is snapshotted. Most
      * implementations should be able to ignore this parameter, because for the contents of the
      * snapshot, it doesn't matter for which checkpoint it gets created. This parameter can be
      * interesting for source connectors with external systems where those systems are themselves
      * aware of checkpoints; for example in cases where the enumerator notifies that system about a
-     * specific checkpoint being triggered.
+     * specific checkpoint being triggered.</p>
      *
      * @param checkpointId The ID of the checkpoint for which the snapshot is created.
      * @return an object containing the state of the split enumerator.

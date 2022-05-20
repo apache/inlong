@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -59,9 +60,9 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public String toString() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(USER_NAME, this.getUserName());
-        jsonObject.put(PASSWORD, this.getPassword());
-        return jsonObject.toString();
+        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        objectNode.put(USER_NAME, this.getUserName());
+        objectNode.put(PASSWORD, this.getPassword());
+        return objectNode.toString();
     }
 }

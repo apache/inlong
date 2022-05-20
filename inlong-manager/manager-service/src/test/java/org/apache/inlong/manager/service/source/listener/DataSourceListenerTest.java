@@ -66,9 +66,11 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         sourceRequest.setSourceName("binlog-collect");
         return streamSourceService.save(sourceRequest, OPERATOR);
     }
-
-    // There will be concurrency problems in the overall operation,This method temporarily fails the test
-    // @Test
+    
+    /**
+     * There will be concurrency problems in the overall operation,This method temporarily fails the test
+     */
+    //@Test
     public void testFrozenSource() {
         groupInfo = initGroupForm("PULSAR", "test1");
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);

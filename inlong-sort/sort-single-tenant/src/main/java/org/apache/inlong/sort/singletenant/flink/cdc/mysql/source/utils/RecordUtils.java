@@ -176,6 +176,8 @@ public class RecordUtils {
                                     String.format(
                                             "Binlog record shouldn't use READ operation, the the record is %s.",
                                             binlog));
+                        default:
+                            break;
                     }
                 }
             }
@@ -259,7 +261,7 @@ public class RecordUtils {
      * Return the timestamp when the change event is produced in MySQL.
      *
      * <p>The field `source.ts_ms` in {@link SourceRecord} data struct is the time when the change
-     * event is operated in MySQL.
+     * event is operated in MySQL.</p>
      */
     public static Long getMessageTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();
@@ -280,7 +282,7 @@ public class RecordUtils {
      * Return the timestamp when the change event is fetched in {@link DebeziumReader}.
      *
      * <p>The field `ts_ms` in {@link SourceRecord} data struct is the time when the record fetched
-     * by debezium reader, use it as the process time in Source.
+     * by debezium reader, use it as the process time in Source.</p>
      */
     public static Long getFetchTimestamp(SourceRecord record) {
         Schema schema = record.valueSchema();

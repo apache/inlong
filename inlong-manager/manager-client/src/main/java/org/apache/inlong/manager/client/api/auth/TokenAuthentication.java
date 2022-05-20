@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.client.api.auth;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.client.api.util.AssertUtil;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -52,8 +53,8 @@ public class TokenAuthentication implements Authentication {
 
     @Override
     public String toString() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TOKEN, this.getToken());
-        return jsonObject.toString();
+        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        objectNode.put(TOKEN, this.getToken());
+        return objectNode.toString();
     }
 }

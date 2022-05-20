@@ -37,6 +37,9 @@ public class StatementUtils {
 
     }
 
+    /**
+     * Query value of min and max.
+     */
     public static Object[] queryMinMax(JdbcConnection jdbc, TableId tableId, String columnName)
             throws SQLException {
         final String minMaxQuery =
@@ -57,6 +60,9 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query approximate value.
+     */
     public static long queryApproximateRowCnt(JdbcConnection jdbc, TableId tableId)
             throws SQLException {
         // The statement used to get approximate row count which is less
@@ -77,6 +83,9 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query value of min.
+     */
     public static Object queryMin(
             JdbcConnection jdbc, TableId tableId, String columnName, Object excludedLowerBound)
             throws SQLException {
@@ -98,6 +107,9 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Query chunk of max.
+     */
     public static Object queryNextChunkMax(
             JdbcConnection jdbc,
             TableId tableId,
@@ -131,6 +143,9 @@ public class StatementUtils {
                 });
     }
 
+    /**
+     * Create split scan.
+     */
     public static String buildSplitScanQuery(
             TableId tableId, RowType pkRowType, boolean isFirstSplit, boolean isLastSplit) {
         return buildSplitQuery(tableId, pkRowType, isFirstSplit, isLastSplit, -1, true);
@@ -189,6 +204,9 @@ public class StatementUtils {
         }
     }
 
+    /**
+     * Get data statement of table.
+     */
     public static PreparedStatement readTableSplitDataStatement(
             JdbcConnection jdbc,
             String sql,
@@ -225,10 +243,16 @@ public class StatementUtils {
         }
     }
 
+    /**
+     * quote
+     */
     public static String quote(String dbOrTableName) {
         return "`" + dbOrTableName + "`";
     }
 
+    /**
+     * quote
+     */
     public static String quote(TableId tableId) {
         return tableId.toQuotedString('`');
     }

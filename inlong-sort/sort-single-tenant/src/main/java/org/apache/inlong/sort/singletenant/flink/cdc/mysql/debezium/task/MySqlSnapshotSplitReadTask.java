@@ -277,7 +277,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
      * Read JDBC return value and deal special type like time, timestamp.
      *
      * <p>Note https://issues.redhat.com/browse/DBZ-3238 has fixed this issue, please remove this
-     * method once we bump Debezium version to 1.6
+     * method once we bump Debezium version to 1.6</p>
      */
     private Object readField(ResultSet rs, int fieldNo, Column actualColumn, Table actualTable)
             throws SQLException {

@@ -40,6 +40,8 @@ public class GroupInfo implements Serializable {
     private List<StreamInfo> streams;
 
     /**
+     * Information of group.
+     * 
      * @param groupId Uniquely identifies of GroupInfo
      * @param streams The StreamInfo list that GroupInfo contains
      */

@@ -63,6 +63,9 @@ import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STAN
 
 public class CommonUtils {
 
+    /**
+     * Get table schema.
+     */
     public static TableSchema getTableSchema(FieldInfo[] fieldInfos) {
         TableSchema.Builder builder = new Builder();
 
@@ -75,6 +78,9 @@ public class CommonUtils {
         return builder.build();
     }
 
+    /**
+     * Convert information of field to Row type.
+     */
     public static org.apache.flink.api.java.typeutils.RowTypeInfo convertFieldInfosToRowTypeInfo(
             FieldInfo[] fieldInfos
     ) {
@@ -92,6 +98,9 @@ public class CommonUtils {
         return new org.apache.flink.api.java.typeutils.RowTypeInfo(typeInformationArray, fieldNames);
     }
 
+    /**
+     * Convert information of field to logical type.
+     */
     public static LogicalType convertFieldInfosToLogicalType(FieldInfo[] fieldInfos) {
         int fieldLength = fieldInfos.length;
         String[] fieldNames = new String[fieldLength];
@@ -105,6 +114,9 @@ public class CommonUtils {
         return deriveLogicalType(rowFormatInfo);
     }
 
+    /**
+     * Create Avro schema in json.
+     */
     public static String buildAvroRecordSchemaInJson(FieldInfo[] fieldInfos) {
         LogicalType logicalType = convertFieldInfosToLogicalType(fieldInfos);
         Schema schema = convertToSchema(logicalType);
@@ -115,16 +127,25 @@ public class CommonUtils {
         return schema.toString();
     }
 
+    /**
+     * Convert information of field to Data type.
+     */
     public static DataType convertFieldInfosToDataType(FieldInfo[] fieldInfos) {
         LogicalType logicalType = convertFieldInfosToLogicalType(fieldInfos);
         return toDataType(logicalType);
     }
 
+    /**
+     * Create converter.
+     */
     public static DataFormatConverters.RowConverter createRowConverter(FieldInfo[] fieldInfos) {
         DataType[] fieldDataTypes = getTableSchema(fieldInfos).getFieldDataTypes();
         return new DataFormatConverters.RowConverter(fieldDataTypes);
     }
 
+    /**
+     * Convert information of field to Row type.
+     */
     public static RowType convertFieldInfosToRowType(FieldInfo[] fieldInfos) {
         int fieldLength = fieldInfos.length;
         String[] fieldNames = new String[fieldLength];
@@ -137,6 +158,9 @@ public class CommonUtils {
         return RowType.of(fieldLogicalTypes, fieldNames);
     }
 
+    /**
+     * Get standard timestamp.
+     */
     public static TimestampFormat getTimestampFormatStandard(String input) {
         if (DATE_AND_TIME_STANDARD_SQL.equalsIgnoreCase(input)) {
             return TimestampFormat.SQL;
@@ -147,6 +171,9 @@ public class CommonUtils {
         throw new IllegalArgumentException("Unsupported timestamp format standard: " + input);
     }
 
+    /**
+     * Deep copy.
+     */
     public static Object deepCopy(Serializable input) throws IOException, ClassNotFoundException {
         byte[] bytes;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -179,6 +206,9 @@ public class CommonUtils {
         return copiedInfos;
     }
 
+    /**
+     * Judge standard timestamp.
+     */
     public static boolean isStandardTimestampFormat(FormatInfo formatInfo) {
         if (formatInfo instanceof DateFormatInfo) {
             String format = ((DateFormatInfo) formatInfo).getFormat();
@@ -194,6 +224,9 @@ public class CommonUtils {
         return false;
     }
 
+    /**
+     * Extract formatting information.
+     */
     public static FormatInfo[] extractFormatInfos(FieldInfo[] fieldInfos) {
         int length = fieldInfos.length;
         FormatInfo[] output = new FormatInfo[length];
@@ -204,6 +237,9 @@ public class CommonUtils {
         return output;
     }
 
+    /**
+     * Extract information of field.
+     */
     public static FieldInfo[] extractNonBuiltInFieldInfos(FieldInfo[] fieldInfos, boolean includeData) {
         return Arrays.stream(fieldInfos)
                 .filter(fieldInfo -> !(fieldInfo instanceof BuiltInFieldInfo)
@@ -212,6 +248,9 @@ public class CommonUtils {
                 .toArray(FieldInfo[]::new);
     }
 
+    /**
+     * Check information of field.
+     */
     public static boolean checkWhetherMigrateAll(FieldInfo[] fieldInfos) {
         for (FieldInfo fieldInfo : fieldInfos) {
             if (fieldInfo instanceof BuiltInFieldInfo && ((BuiltInFieldInfo) fieldInfo).getBuiltInField()
@@ -223,6 +262,9 @@ public class CommonUtils {
         return false;
     }
 
+    /**
+     * Get field information of producer.
+     */
     public static FieldInfo[] getProducedFieldInfos(FieldInfo[] physicalFieldInfos) {
         List<FieldInfo> results = new ArrayList<>();
         results.add(new FieldInfo(
@@ -232,6 +274,9 @@ public class CommonUtils {
         return results.toArray(new FieldInfo[0]);
     }
 
+    /**
+     * Get ID of group and stream.
+     */
     public static Pair<String, String> getInLongGroupIdAndStreamId(DataFlowInfo dataFlowInfo) {
         String groupId = "";
         String streamId = "";

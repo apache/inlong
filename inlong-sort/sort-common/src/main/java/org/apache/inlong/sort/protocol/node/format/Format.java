@@ -37,7 +37,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = AvroFormat.class, name = "avroFormat"),
         @JsonSubTypes.Type(value = DebeziumJsonFormat.class, name = "debeziumJsonFormat"),
         @JsonSubTypes.Type(value = CanalJsonFormat.class, name = "canalJsonFormat"),
-        @JsonSubTypes.Type(value = CsvFormat.class, name = "csvFormat")
+        @JsonSubTypes.Type(value = CsvFormat.class, name = "csvFormat"),
+        @JsonSubTypes.Type(value = InLongMsgFormat.class, name = "inLongMsgFormat")
 })
 public interface Format extends Serializable {
 

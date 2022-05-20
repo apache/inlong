@@ -46,7 +46,7 @@ import org.apache.inlong.sort.singletenant.flink.cdc.mysql.table.StartupOptions;
  * }</pre>
  *
  * <p>Check the Java docs of each individual method to learn more about the settings to build a
- * {@link MySqlSource}.
+ * {@link MySqlSource}.</p>
  */
 @PublicEvolving
 public class MySqlSourceBuilder<T> {

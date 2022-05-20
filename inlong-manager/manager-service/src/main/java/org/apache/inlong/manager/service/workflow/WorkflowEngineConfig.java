@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
@@ -38,6 +39,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @Component
 @Configuration
+@Slf4j
 public class WorkflowEngineConfig {
 
     @Autowired
@@ -54,7 +56,7 @@ public class WorkflowEngineConfig {
     private PlatformTransactionManager platformTransactionManager;
 
     @Bean
-    public WorkflowEngine workflowEngineer() {
+    public WorkflowEngine workflowEngine() {
         WorkflowConfig workflowConfig = new WorkflowConfig()
                 .setQueryService(queryService)
                 .setProcessEntityMapper(processEntityMapper)
