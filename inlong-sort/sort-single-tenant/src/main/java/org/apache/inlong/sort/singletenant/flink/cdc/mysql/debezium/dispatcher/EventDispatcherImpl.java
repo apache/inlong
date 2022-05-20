@@ -73,6 +73,9 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
     private final Schema schemaChangeKeySchema;
     private final Schema schemaChangeValueSchema;
 
+    /**
+     * Constructor of EventDispatcherImpl.
+     */
     public EventDispatcherImpl(
             CommonConnectorConfig connectorConfig,
             TopicSelector<T> topicSelector,

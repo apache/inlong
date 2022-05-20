@@ -47,7 +47,7 @@ public class InLongMsgDeserializationSchema implements DeserializationSchema<Row
     /** {@link TypeInformation} of the produced {@link RowData} (physical + meta data). */
     private final TypeInformation<RowData> producedTypeInfo;
 
-    /**  */
+    /** status of error */
     private final boolean ignoreErrors;
 
     public InLongMsgDeserializationSchema(

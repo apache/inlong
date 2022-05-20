@@ -53,9 +53,9 @@ import org.apache.inlong.sort.formats.json.debezium.DebeziumJsonDecodingFormat.R
  * RowData}. The deserialization schema knows Debezium's schema definition and can extract the
  * database data and convert into {@link RowData} with {@link RowKind}.
  *
- * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.
+ * <p>Deserializes a <code>byte[]</code> message as a JSON object and reads the specified fields.</p>
  *
- * <p>Failures during deserialization are forwarded as wrapped IOExceptions.
+ * <p>Failures during deserialization are forwarded as wrapped IOExceptions.</p>
  *
  * @see <a href="https://debezium.io/">Debezium</a>
  */
@@ -108,6 +108,9 @@ public final class DebeziumJsonDeserializationSchema implements DeserializationS
 
     private final boolean isMigrateAll;
 
+    /**
+     * Constructor of DebeziumJsonDeserializationSchema.
+     */
     public DebeziumJsonDeserializationSchema(
             DataType physicalDataType,
             List<ReadableMetadata> requestedMetadata,

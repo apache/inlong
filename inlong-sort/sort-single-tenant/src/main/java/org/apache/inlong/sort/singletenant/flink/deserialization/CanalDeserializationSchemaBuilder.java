@@ -92,6 +92,9 @@ public class CanalDeserializationSchemaBuilder {
         return wrapCanalDeserializationSchema(canalSchema, originPhysicalFieldInfos, convertedPhysicalFieldInfos);
     }
 
+    /**
+     * Wrap deserialization schema of Canal.
+     */
     private static DeserializationSchema<Row> wrapCanalDeserializationSchema(
             DeserializationSchema<RowData> canalSchema,
             FieldInfo[] originPhysicalFieldInfos,
@@ -106,6 +109,9 @@ public class CanalDeserializationSchemaBuilder {
                 extractFormatInfos(getProducedFieldInfos(originPhysicalFieldInfos)));
     }
 
+    /**
+     * Get information of metadata fields.
+     */
     public static FieldInfo[] getMetadataFieldInfos(FieldInfo[] fieldInfos) {
         List<FieldInfo> metadataFieldInfos = new ArrayList<>();
         Arrays.stream(fieldInfos)

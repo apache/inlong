@@ -42,6 +42,9 @@ public class AuditMsgConsumerServer implements InitializingBean {
     @Autowired
     private StoreConfig storeConfig;
 
+    /**
+     * Initializing bean
+     */
     public void afterPropertiesSet() {
         BaseConsume mqConsume;
         if (mqConfig.isPulsar()) {

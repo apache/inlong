@@ -74,6 +74,9 @@ public class InlongGroupContext implements Serializable {
 
     private InlongGroupStatus state;
 
+    /**
+     * Constructor of InlongGroupContext.
+     */
     public InlongGroupContext(InnerGroupContext groupContext, InlongGroupConf streamGroupConf) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
         AssertUtil.notNull(groupInfo);

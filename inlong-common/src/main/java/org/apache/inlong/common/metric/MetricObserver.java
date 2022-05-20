@@ -107,6 +107,9 @@ public class MetricObserver {
         return listenerList;
     }
 
+    /**
+     * Get properties.
+     */
     public static ImmutableMap<String, String> getSubProperties(Map<String, String> commonProperties,
             String prefix) {
         Preconditions

@@ -48,7 +48,7 @@ import org.apache.inlong.sort.singletenant.flink.cdc.debezium.history.FlinkJsonT
  * <p>Considering the data structure maintained in the {@link FlinkDatabaseSchemaHistory} is much
  * different from the {@link FlinkDatabaseHistory}, it's not compatible with the {@link
  * FlinkDatabaseHistory}. Because it only maintains the latest schema of the table rather than all
- * history DDLs, it's useful to prevent OOM when meet massive history DDLs.
+ * history DDLs, it's useful to prevent OOM when meet massive history DDLs.</p>
  */
 public class FlinkDatabaseSchemaHistory implements DatabaseHistory {
 

@@ -94,6 +94,9 @@ public class AbstractReporter<T> {
         this.httpClient = httpClient;
     }
 
+    /**
+     * Report data by sync.
+     */
     public Response syncReportData(T data, String serverUrl) throws Exception {
         if (StringUtils.isEmpty(serverUrl)) {
             LOGGER.warn("Report config log server url is empty, so config log can not be "
@@ -114,6 +117,9 @@ public class AbstractReporter<T> {
         }
     }
 
+    /**
+     * Report data by sync.
+     */
     public Response syncReportData(T data) throws Exception {
         return this.syncReportData(data, serverUrl);
     }
@@ -126,6 +132,9 @@ public class AbstractReporter<T> {
         return EntityUtils.toString(response.getEntity());
     }
 
+    /**
+     * Report data by async.
+     */
     public Future<Response>  asyncReportData(T data, String serverUrl) {
         CompletableFuture<Response> completableFuture = new CompletableFuture<>();
 
@@ -138,10 +147,16 @@ public class AbstractReporter<T> {
         return completableFuture;
     }
 
+    /**
+     * Report data by async.
+     */
     public Future<Response> asyncReportData(T data) {
         return asyncReportData(data, serverUrl);
     }
 
+    /**
+     * Parse json data.
+     */
     public Response parse(String json) throws Exception {
 
         if (StringUtils.isEmpty(json)) {

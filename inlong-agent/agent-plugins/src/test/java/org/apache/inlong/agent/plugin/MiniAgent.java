@@ -40,6 +40,9 @@ public class MiniAgent {
     private final AgentManager manager;
     private final LinkedBlockingQueue<JobProfile> queueJobs;
 
+    /**
+     * Constructor of MiniAgent.
+     */
     public MiniAgent() throws Exception {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setInt(AGENT_FETCH_CENTER_INTERVAL_SECONDS, 1);

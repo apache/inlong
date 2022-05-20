@@ -165,6 +165,9 @@ public class HiveWriter extends ProcessFunction<Row, PartitionCommitInfo>
         });
     }
 
+    /**
+     * Access resource via doAs.
+     */
     public <R> R doAsWithUGI(UserGroupInformation ugi, Callable<R> callable) throws IOException {
         if (ugi != null) {
             try {

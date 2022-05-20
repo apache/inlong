@@ -61,6 +61,12 @@ public class FieldMappingTransformer implements Serializable {
         this.outputFieldInfos = checkNotNull(outputFieldInfos);
     }
 
+    /**
+     * Function of transformation.
+     * @param sourceRow
+     * @param dt
+     * @return Row
+     */
     public Row transform(Row sourceRow, long dt) {
         final Row outputRow = new Row(outputFieldInfos.length);
         int sourceRowIndex = SOURCE_FIELD_SKIP_STEP;

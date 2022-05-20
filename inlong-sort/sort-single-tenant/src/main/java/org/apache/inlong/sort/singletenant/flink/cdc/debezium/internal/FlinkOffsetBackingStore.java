@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * data in JSON format. It is set into the config when recovery from failover by {@link
  * DebeziumSourceFunction} before startup the {@link DebeziumEngine}. If it is not a restoration,
  * the {@link #OFFSET_STATE_VALUE} is empty. {@link DebeziumEngine} relies on the {@link
- * OffsetBackingStore} for failover recovery.
+ * OffsetBackingStore} for failover recovery.</p>
  *
  * @see DebeziumSourceFunction
  */

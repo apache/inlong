@@ -367,6 +367,8 @@ public final class RowDataDebeziumDeserializeSchema
                             return (int) ((long) dbzObj / 1000);
                         case NanoTime.SCHEMA_NAME:
                             return (int) ((long) dbzObj / 1000_000);
+                        default:
+                            break;
                     }
                 } else if (dbzObj instanceof Integer) {
                     return dbzObj;
@@ -402,6 +404,8 @@ public final class RowDataDebeziumDeserializeSchema
                             long nano = (long) dbzObj;
                             return TimestampData.fromEpochMillis(
                                     nano / 1000_000, (int) (nano % 1000_000));
+                        default:
+                            break;
                     }
                 }
                 LocalDateTime localDateTime =
