@@ -462,3 +462,21 @@
  Source  : flink-cdc-connectors 2.0.1 (Please note that the software have been modified.)
  License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
 
+1.3.6 inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveValidator.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveTableSink.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveTableMetaStoreFactory.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveRowPartitionComputer.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveRowDataPartitionComputer.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HiveOptions.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/HadoopFileSystemFactory.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/connectors/hive/table/catalog/factories/HiveTableInlongFactory.java
+ Source  : flink-connector-hive 1.13.5 (Please note that the software have been modified.)
+ License : https://github.com/apache/flink/blob/master/LICENSE
+
+1.3.7 inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/flink/pulsar/table/DynamicPulsarSerializationSchema.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/flink/pulsar/table/PulsarDynamicTableFactory.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/flink/pulsar/table/PulsarDynamicTableSink.java
+      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/flink/pulsar/table/UpsertPulsarDynamicTableFactory.java
+ Source  : pulsar-flink-connector_2.11 1.13.6.1-rc9 (Please note that the software have been modified.)
+ License : https://github.com/streamnative/pulsar-flink/blob/master/LICENSE
+
