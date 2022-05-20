@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class RowToJsonKafkaSinkTest extends KafkaSinkTestBase {
     @Override
     protected void prepareData() throws IOException, ClassNotFoundException {

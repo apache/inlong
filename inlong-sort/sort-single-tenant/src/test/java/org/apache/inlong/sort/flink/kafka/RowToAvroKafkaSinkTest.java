@@ -43,10 +43,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 
 import static org.apache.inlong.sort.singletenant.flink.utils.CommonUtils.buildAvroRecordSchemaInJson;
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class RowToAvroKafkaSinkTest extends KafkaSinkTestBase {
 
     @Override
