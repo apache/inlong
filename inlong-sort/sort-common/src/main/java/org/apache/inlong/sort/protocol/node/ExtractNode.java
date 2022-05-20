@@ -29,6 +29,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -48,7 +49,8 @@ import java.util.Map;
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
         @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
-        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract")
+        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
+        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "MongoExtract")
 })
 @Data
 @NoArgsConstructor

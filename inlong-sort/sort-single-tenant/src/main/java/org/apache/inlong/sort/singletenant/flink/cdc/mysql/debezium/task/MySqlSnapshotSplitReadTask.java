@@ -30,7 +30,6 @@ import io.debezium.pipeline.EventDispatcher;
 import io.debezium.pipeline.source.AbstractSnapshotChangeEventSource;
 import io.debezium.pipeline.source.spi.SnapshotProgressListener;
 import io.debezium.pipeline.spi.ChangeRecordEmitter;
-import io.debezium.pipeline.spi.OffsetContext;
 import io.debezium.pipeline.spi.SnapshotResult;
 import io.debezium.relational.Column;
 import io.debezium.relational.RelationalSnapshotChangeEventSource;
@@ -61,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Task to read snapshot split of table. */
-public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource {
+public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource<MySqlOffsetContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitReadTask.class);
 
@@ -88,7 +87,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
             TopicSelector<TableId> topicSelector,
             Clock clock,
             MySqlSnapshotSplit snapshotSplit) {
-        super(connectorConfig, previousOffset, snapshotProgressListener);
+        super(connectorConfig, snapshotProgressListener);
         this.offsetContext = previousOffset;
         this.connectorConfig = connectorConfig;
         this.databaseSchema = databaseSchema;
@@ -101,7 +100,8 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     @Override
-    public SnapshotResult execute(ChangeEventSourceContext context) throws InterruptedException {
+    public SnapshotResult<MySqlOffsetContext> execute(ChangeEventSourceContext context,
+        MySqlOffsetContext previousOffset) throws InterruptedException {
         SnapshottingTask snapshottingTask = getSnapshottingTask(previousOffset);
         final SnapshotContext ctx;
         try {
@@ -111,7 +111,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
             throw new RuntimeException(e);
         }
         try {
-            return doExecute(context, ctx, snapshottingTask);
+            return doExecute(context, previousOffset, ctx, snapshottingTask);
         } catch (InterruptedException e) {
             LOG.warn("Snapshot was interrupted before completion");
             throw e;
@@ -120,49 +120,52 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         }
     }
 
-    @Override
-    protected SnapshotResult doExecute(
-            ChangeEventSourceContext context,
-            SnapshotContext snapshotContext,
-            SnapshottingTask snapshottingTask)
-            throws Exception {
-        final RelationalSnapshotChangeEventSource.RelationalSnapshotContext ctx =
-                (RelationalSnapshotChangeEventSource.RelationalSnapshotContext) snapshotContext;
-        ctx.offset = offsetContext;
-        final SignalEventDispatcher signalEventDispatcher =
-                new SignalEventDispatcher(
-                        offsetContext.getPartition(),
-                        topicSelector.topicNameFor(snapshotSplit.getTableId()),
-                        dispatcher.getQueue());
+    protected SnapshotResult<MySqlOffsetContext> doExecute(
+        ChangeEventSourceContext context,
+        MySqlOffsetContext previousOffset,
+        SnapshotContext<MySqlOffsetContext> snapshotContext,
+        SnapshottingTask snapshottingTask)
+        throws Exception {
+        final RelationalSnapshotChangeEventSource.RelationalSnapshotContext<MySqlOffsetContext>
+            ctx =
+            (RelationalSnapshotChangeEventSource.RelationalSnapshotContext<
+                MySqlOffsetContext>)
+                snapshotContext;
+        ctx.offset = previousOffset;
+        SignalEventDispatcher signalEventDispatcher =
+            new SignalEventDispatcher(
+                previousOffset.getPartition(),
+                topicSelector.topicNameFor(snapshotSplit.getTableId()),
+                dispatcher.getQueue());
 
         final BinlogOffset lowWatermark = currentBinlogOffset(jdbcConnection);
         LOG.info(
-                "Snapshot step 1 - Determining low watermark {} for split {}",
-                lowWatermark,
-                snapshotSplit);
+            "Snapshot step 1 - Determining low watermark {} for split {}",
+            lowWatermark,
+            snapshotSplit);
         ((SnapshotSplitReader.SnapshotSplitChangeEventSourceContextImpl) (context))
-                .setLowWatermark(lowWatermark);
+            .setLowWatermark(lowWatermark);
         signalEventDispatcher.dispatchWatermarkEvent(
-                snapshotSplit, lowWatermark, SignalEventDispatcher.WatermarkKind.LOW);
+            snapshotSplit, lowWatermark, SignalEventDispatcher.WatermarkKind.LOW);
 
         LOG.info("Snapshot step 2 - Snapshotting data");
         createDataEvents(ctx, snapshotSplit.getTableId());
 
         final BinlogOffset highWatermark = currentBinlogOffset(jdbcConnection);
         LOG.info(
-                "Snapshot step 3 - Determining high watermark {} for split {}",
-                highWatermark,
-                snapshotSplit);
+            "Snapshot step 3 - Determining high watermark {} for split {}",
+            highWatermark,
+            snapshotSplit);
         signalEventDispatcher.dispatchWatermarkEvent(
-                snapshotSplit, highWatermark, SignalEventDispatcher.WatermarkKind.HIGH);
+            snapshotSplit, highWatermark, SignalEventDispatcher.WatermarkKind.HIGH);
         ((SnapshotSplitReader.SnapshotSplitChangeEventSourceContextImpl) (context))
-                .setHighWatermark(highWatermark);
+            .setHighWatermark(highWatermark);
 
         return SnapshotResult.completed(ctx.offset);
     }
 
     @Override
-    protected SnapshottingTask getSnapshottingTask(OffsetContext previousOffset) {
+    protected SnapshottingTask getSnapshottingTask(MySqlOffsetContext mySqlOffsetContext) {
         return new SnapshottingTask(false, true);
     }
 

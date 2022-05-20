@@ -582,6 +582,17 @@ Flink : Connectors : Kafka
 Copyright 2014-2021 The Apache Software Foundation
 
 
+========================================================================
+
+flink-connector-mongodb-cdc NOTICE
+========================================================================
+
+flink-connector-mongodb-cdc
+Copyright 2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
 
 ========================================================================
 
@@ -1742,7 +1753,6 @@ Copyright 2013-2021 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
-
 
 
 ========================================================================
