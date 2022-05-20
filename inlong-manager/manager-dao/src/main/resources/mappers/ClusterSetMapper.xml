@@ -23,14 +23,14 @@
     namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
     <select id="selectProxyCluster"
         resultType="org.apache.inlong.manager.dao.entity.ProxyCluster">
-        select cluster_name, cluster_tag, ext_tag, ext_params
+        select name as cluster_name, cluster_tag, ext_tag, ext_params
         from inlong_cluster
         where type='DATA_PROXY'
         and is_deleted='0'
     </select>
     <select id="selectCacheCluster"
         resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
-        select cluster_name, type, cluster_tag, ext_tag,
+        select name as cluster_name, type, cluster_tag, ext_tag,
         ext_params
         from inlong_cluster
         where type in ('PULSAR','KAFKA','TUBE')

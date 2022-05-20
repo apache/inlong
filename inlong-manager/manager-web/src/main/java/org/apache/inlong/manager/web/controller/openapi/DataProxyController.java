@@ -35,6 +35,9 @@ import java.util.List;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
+/**
+ * Data proxy controller.
+ */
 @RestController
 @RequestMapping("/openapi/dataproxy")
 @Api(tags = "DataProxy-Config")
