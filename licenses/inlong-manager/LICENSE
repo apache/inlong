@@ -534,6 +534,9 @@ The text of each license is the standard Apache 2.0 license.
   org.elasticsearch:elasticsearch-x-content:6.8.23 - x-content (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
   it.unimi.dsi:fastutil:6.5.6 - fastutil (https://github.com/vigna/fastutil/tree/7.0.4), (Apache 2.0)
+
+  org.apache.flink:flink-table-runtime-blink_2.11:jar:1.13.5 - Flink : Runtime Blink (https://flink.apache.org/flink-table/flink-table-runtime-blink_2.11), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-table-api-java:jar:1.13.5 - Flink : API Java (https://flink.apache.org/flink-table/flink-table-api-java), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-annotations:1.13.5 - Flink : Annotations (https://github.com/apache/flink/tree/release-1.13.5/flink-annotations), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-clients_2.11:1.13.5 - Flink : Clients (https://github.com/apache/flink/tree/release-1.13.5/flink-clients), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-core:1.13.5 - Flink : Core (https://github.com/apache/flink/tree/release-1.13.5/flink-core), (The Apache Software License, Version 2.0)

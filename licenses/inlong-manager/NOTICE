@@ -573,7 +573,45 @@ Flink : Connectors : File Sink Common
 Copyright 2014-2021 The Apache Software Foundation
 
 
+========================================================================
 
+Flink : Table : API Java NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : API Java
+Copyright 2014-2021 The Apache Software Foundation
+
+========================================================================
+
+Flink : Table : Runtime Blink NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : Runtime Blink
+Copyright 2014-2021 The Apache Software Foundation
 ========================================================================
 
 Flink : FileSystems : Hadoop FS NOTICE
