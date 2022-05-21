@@ -31,8 +31,22 @@
 
     <artifactId>sort-connectors</artifactId>
     <name>Apache InLong - Sort Connectors</name>
+    <packaging>pom</packaging>
 
-    <packaging>jar</packaging>
+    <modules>
+        <module>sort-hive</module>
+        <module>sort-mysql-cdc</module>
+        <module>sort-kafka</module>
+        <module>sort-jdbc</module>
+        <module>sort-pulsar</module>
+    </modules>
+
+    <properties>
+        <debezium.connector.mysql.version>1.6.4.Final</debezium.connector.mysql.version>
+        <debezium.core.version>1.6.4.Final</debezium.core.version>
+        <debezium.embedded.version>1.5.2.Final</debezium.embedded.version>
+        <kafka.clients.version>2.7.0</kafka.clients.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -40,16 +54,7 @@
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--for flink core-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
@@ -75,119 +80,119 @@
             <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
-        </dependency>
-        <!--for clickhouse-->
-        <dependency>
-            <groupId>ru.yandex.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-        </dependency>
-        <!--for hive-->
+        <!--for hadoop common-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.orc</groupId>
-                    <artifactId>orc-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>parquet-hadoop-bundle</artifactId>
-                    <groupId>org.apache.parquet</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!--for iceberg-->
         <dependency>
             <groupId>org.apache.iceberg</groupId>
             <artifactId>iceberg-flink-1.13</artifactId>
         </dependency>
-        <!--for doris-->
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>ST4</artifactId>
-        </dependency>
         <!--for kafka-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka_${flink.scala.binary.version}</artifactId>
         </dependency>
-        <!--for pulsar-->
         <dependency>
-            <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client-all</artifactId>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.clients.version}</version>
         </dependency>
         <!--for hbase-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
         </dependency>
-        <!--for postgresql-->
+        <!--for mongodb-->
         <dependency>
             <groupId>com.ververica</groupId>
-            <artifactId>flink-connector-postgres-cdc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-        <!--for jdbc-->
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
-        </dependency>
-
-        <!--format dependency-->
-        <dependency>
-            <groupId>org.apache.orc</groupId>
-            <artifactId>orc-core</artifactId>
-            <classifier>nohive</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-hadoop</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro</artifactId>
-        </dependency>
-        <!--test-->
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-minicluster</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.streamnative.connectors</groupId>
-            <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-            <scope>test</scope>
+            <artifactId>flink-connector-mongodb-cdc</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <artifactId>debezium-api</artifactId>
+                    <groupId>io.debezium</groupId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
+                    <artifactId>debezium-embedded</artifactId>
+                    <groupId>io.debezium</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
-
-
+        <!--for debezium-->
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${debezium.embedded.version}</version>
+        </dependency>
+        <dependency>
+            <artifactId>debezium-core</artifactId>
+            <groupId>io.debezium</groupId>
+            <version>${debezium.core.version}</version>
+        </dependency>
+        <!--for sort format-->
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-csv</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-kv</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-inlongmsg-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-inlongmsg-csv</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-format-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- flink json -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-json</artifactId>
+        </dependency>
+        <!--for csv-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-csv</artifactId>
+        </dependency>
+        <!--for avro-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-avro</artifactId>
+        </dependency>
+        <!--for orc-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-orc_${scala.binary.version}</artifactId>
+        </dependency>
+        <!--for parquet-->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-parquet_${flink.scala.binary.version}</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
