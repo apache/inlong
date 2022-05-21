@@ -92,7 +92,7 @@ import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
  * <p>
  * Factory for creating configured instances of {@link KafkaDynamicSource} and {@link
- * KafkaDynamicSink}.We modify KafkaDynamicTableSink to support format metadata writeable.
+ * KafkaDynamicSink}.We modify KafkaDynamicTableSink to support format metadata writeable.</p>
  */
 @Internal
 public class KafkaDynamicTableFactory

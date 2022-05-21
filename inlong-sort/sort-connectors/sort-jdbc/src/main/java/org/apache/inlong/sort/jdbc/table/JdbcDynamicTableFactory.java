@@ -50,7 +50,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  * <p>
  * Factory for creating configured instances of {@link JdbcDynamicTableSource} and {@link
- * JdbcDynamicTableSink}.We modify it to strengthen capacity of registering other dialect.
+ * JdbcDynamicTableSink}.We modify it to strengthen capacity of registering other dialect.</p>
  */
 public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, DynamicTableSinkFactory {
 
