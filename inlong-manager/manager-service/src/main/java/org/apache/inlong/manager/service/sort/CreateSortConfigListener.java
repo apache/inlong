@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Create sort config when disable the ZooKeeper
  */
+@Deprecated
 @Component
 public class CreateSortConfigListener implements SortOperateListener {
 
