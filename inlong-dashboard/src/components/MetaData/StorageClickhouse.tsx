@@ -24,7 +24,7 @@ import {
 } from '@/utils/metaData';
 import i18n from '@/i18n';
 import { ColumnsType } from 'antd/es/table';
-import EditableTable from '@/components/EditableTable';
+import EditableTable, { ColumnsItemProps } from '@/components/EditableTable';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
 
@@ -203,7 +203,6 @@ const getForm: GetStorageFormFieldsType = (
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       visible: values => values.isDistributed,
-      _inTable: true,
     },
     {
       name: 'partitionFields',
@@ -211,6 +210,40 @@ const getForm: GetStorageFormFieldsType = (
       label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionFields'),
       rules: [{ required: true }],
       visible: values => values.isDistributed && values.partitionStrategy === 'HASH',
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'engine',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.Engine'),
+      initialValue: 'Log',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'orderBy',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.OrderBy'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'partitionBy',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PartitionBy'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
+      name: 'primaryKey',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.PrimaryKey'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
@@ -260,6 +293,42 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
+      title: 'DefaultType',
+      dataIndex: 'defaultType',
+      type: 'autocomplete',
+      props: (text, record, idx, isNew) => ({
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+        options: ['DEFAULT', 'EPHEMERAL', 'MATERIALIZED', 'ALIAS'].map(item => ({
+          label: item,
+          value: item,
+        })),
+      }),
+    },
+    {
+      title: 'DefaultExpr',
+      dataIndex: 'defaultExpr',
+      type: 'input',
+      props: (text, record, idx, isNew) => ({
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+      }),
+      visible: (text, record) =>
+        ['DEFAULT', 'EPHEMERAL', 'MATERIALIZED', 'ALIAS'].includes(record.defaultType as string),
+    },
+    {
+      title: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.CompressionCode'),
+      dataIndex: 'compressionCode',
+      props: (text, record, idx, isNew) => ({
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+      }),
+    },
+    {
+      title: i18n.t('components.AccessHelper.StorageMetaData.Clickhouse.TtlExpr'),
+      dataIndex: 'ttlExpr',
+      props: (text, record, idx, isNew) => ({
+        disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
+      }),
+    },
+    {
       title: `ClickHouse${i18n.t(
         'components.AccessHelper.StorageMetaData.Clickhouse.FieldDescription',
       )}`,
@@ -268,7 +337,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
       }),
     },
-  ];
+  ] as ColumnsItemProps[];
 };
 
 const tableColumns = getForm('col') as ColumnsType;
