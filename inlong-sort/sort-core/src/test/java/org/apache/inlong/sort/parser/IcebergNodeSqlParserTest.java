@@ -40,6 +40,7 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,7 +53,6 @@ import java.util.stream.Collectors;
  * Test for Iceberg SQL parser.
  */
 public class IcebergNodeSqlParserTest extends AbstractTestBase {
-
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),

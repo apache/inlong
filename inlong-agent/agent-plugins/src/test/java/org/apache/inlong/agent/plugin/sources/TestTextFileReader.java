@@ -80,7 +80,7 @@ public class TestTextFileReader {
     @Test
     public void testStreamClose() throws Exception {
         Path uri = Paths.get(Objects.requireNonNull(
-                getClass().getClassLoader().getResource("log4j.properties")).toURI());
+                getClass().getClassLoader().getResource("agent.properties")).toURI());
         Stream<String> stream = null;
         BufferedReader reader = null;
         try {
