@@ -44,21 +44,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>provided</scope>
@@ -91,7 +76,7 @@
                 <configuration>
                     <!-- Enforce single fork execution due to heavy mini cluster use in the tests -->
                     <forkCount>1</forkCount>
-                    <argLine>-Xms256m -Xmx1024m -Dlog4j.configuration=${log4j.configuration}
+                    <argLine>-Xms256m -Xmx1024m -Dlog4j.configurationFile=${log4j.configurationfile}
                         -Dmvn.forkNumber=${surefire.forkNumber} -XX:-UseGCOverheadLimit
                     </argLine>
                 </configuration>
