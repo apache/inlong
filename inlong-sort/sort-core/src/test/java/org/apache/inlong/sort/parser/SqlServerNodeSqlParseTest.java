@@ -21,14 +21,20 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
+import org.apache.inlong.sort.formats.common.FloatFormatInfo;
+import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
@@ -62,6 +68,31 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 "inlong", null, null,
                 null, null);
     }
+
+    private SqlServerExtractNode buildSqlServerExtractNode(String id) {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()));
+        return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
+                null, "localhost", 1433, "SA", "INLONG*123",
+                "column_type_test", "dbo", "full_types", null);
+    }
+
+
+    private KafkaLoadNode buildKafkaNode(String id) {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()));
+        List<FieldRelationShip> relations = Arrays
+                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelationShip(new FieldInfo("val_char", new StringFormatInfo()),
+                                new FieldInfo("val_char", new StringFormatInfo()))
+                );
+        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
+                "sqlserver", "localhost:9092",
+                new JsonFormat(), null,
+                null, "id");
+    }
+
 
     /**
      * Build sqlserver load node.
