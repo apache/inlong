@@ -37,154 +37,109 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
             <artifactId>sort-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connectors</artifactId>
+            <artifactId>sort-connector-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>tubemq-client</artifactId>
+            <artifactId>sort-connector-pulsar</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-base</artifactId>
+            <artifactId>sort-connector-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-common</artifactId>
+            <artifactId>sort-connector-mysql-cdc</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-csv</artifactId>
+            <artifactId>sort-connector-kafka</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-kv</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-inlongmsg-base</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-format-inlongmsg-csv</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
+        <!--audit sdk-->
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>audit-sdk</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-common</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-api</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
+        <!--flink core-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java_${flink.scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
-
+        <!-- flink connector -->
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hive_${flink.scala.binary.version}</artifactId>
         </dependency>
-
+        <!-- flink chdfs -->
         <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-test</artifactId>
-            <scope>test</scope>
+            <groupId>com.qcloud</groupId>
+            <artifactId>chdfs_hadoop_plugin_network</artifactId>
         </dependency>
-
+        <!--for cos-->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>com.qcloud.cos</groupId>
+            <artifactId>flink-cos-fs-hadoop</artifactId>
         </dependency>
-
+        <!--for jackson-->
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-minicluster</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
-
+        <!--for xml-->
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-metastore</artifactId>
-            <scope>test</scope>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.avro</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.calcite</groupId>
-                    <artifactId>calcite-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
+        <!--for audit-->
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
+        <!-- for test -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${flink.scala.binary.version}</artifactId>
@@ -201,33 +156,16 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>pulsar</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${flink.scala.binary.version}</artifactId>
-            <version>${flink.version}</version>
-            <type>test-jar</type>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-minicluster</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>3.1</version>
-        </dependency>
-
     </dependencies>
 
 </project>
