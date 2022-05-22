@@ -34,11 +34,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>sort-hive</module>
-        <module>sort-mysql-cdc</module>
-        <module>sort-kafka</module>
-        <module>sort-jdbc</module>
-        <module>sort-pulsar</module>
+        <module>hive</module>
+        <module>mysql-cdc</module>
+        <module>kafka</module>
+        <module>jdbc</module>
+        <module>pulsar</module>
     </modules>
 
     <properties>
