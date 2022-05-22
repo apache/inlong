@@ -204,24 +204,26 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         final String streamId = streamInfo.getInlongStreamId();
         List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId, streamId);
         List<String> updateSourceNames = Lists.newArrayList();
-        for (SourceListResponse sourceListResponse : sourceListResponses) {
-            final String sourceName = sourceListResponse.getSourceName();
-            final int id = sourceListResponse.getId();
-            if (sourceRequests.get(sourceName) == null) {
-                boolean isDelete = managerClient.deleteSource(id);
-                if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
+        if (CollectionUtils.isNotEmpty(sourceListResponses)) {
+            for (SourceListResponse sourceListResponse : sourceListResponses) {
+                final String sourceName = sourceListResponse.getSourceName();
+                final int id = sourceListResponse.getId();
+                if (sourceRequests.get(sourceName) == null) {
+                    boolean isDelete = managerClient.deleteSource(id);
+                    if (!isDelete) {
+                        throw new RuntimeException(String.format("Delete source failed by id=%s", id));
+                    }
+                } else {
+                    SourceRequest sourceRequest = sourceRequests.get(sourceName);
+                    sourceRequest.setId(id);
+                    Pair<Boolean, String> updateState = managerClient.updateSource(sourceRequest);
+                    if (!updateState.getKey()) {
+                        throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
+                                updateState.getValue()));
+                    }
+                    updateSourceNames.add(sourceName);
+                    sourceRequest.setId(sourceListResponse.getId());
                 }
-            } else {
-                SourceRequest sourceRequest = sourceRequests.get(sourceName);
-                sourceRequest.setId(id);
-                Pair<Boolean, String> updateState = managerClient.updateSource(sourceRequest);
-                if (!updateState.getKey()) {
-                    throw new RuntimeException(String.format("Update source=%s failed with err=%s", sourceRequest,
-                            updateState.getValue()));
-                }
-                updateSourceNames.add(sourceName);
-                sourceRequest.setId(sourceListResponse.getId());
             }
         }
         for (Map.Entry<String, SourceRequest> requestEntry : sourceRequests.entrySet()) {

@@ -74,6 +74,8 @@ public class JobProfileDto {
         BinlogJob.Offset offset = new BinlogJob.Offset();
         offset.setIntervalMs(binlogJobTaskConfig.getIntervalMs());
         offset.setFilename(binlogJobTaskConfig.getOffsetFilename());
+        offset.setSpecificOffsetFile(binlogJobTaskConfig.getSpecificOffsetFile());
+        offset.setSpecificOffsetPos(binlogJobTaskConfig.getSpecificOffsetPos());
 
         binlogJob.setOffset(offset);
 

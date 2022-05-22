@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.common.pojo.sort;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.Map;
 
@@ -32,8 +34,10 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for flink cluster")
+@JsonTypeDefine(value = BaseSortConf.SORT_FLINK)
 public class FlinkSortConf extends BaseSortConf {
 
+    @JsonIgnore
     @ApiModelProperty(value = "Sort type")
     private SortType type = SortType.FLINK;
 

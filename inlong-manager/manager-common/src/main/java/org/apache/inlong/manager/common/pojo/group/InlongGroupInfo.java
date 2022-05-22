@@ -116,7 +116,6 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty("Authentication info, will transfer into extList")
     private Authentication authentication;
 
-    @JsonIgnore
     @ApiModelProperty("Sort configuration, will transfer into extList")
     private BaseSortConf sortConf;
 

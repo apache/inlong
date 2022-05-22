@@ -93,6 +93,12 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
     private String primaryKey;
 
+    @ApiModelProperty("Directly read binlog from the specified offset filename")
+    public String specificOffsetFile;
+
+    @ApiModelProperty("Directly read binlog from the specified offset position")
+    public Integer specificOffsetPos;
+
     public MySQLBinlogSource() {
         this.setSourceType(SourceType.BINLOG.name());
     }
@@ -101,5 +107,4 @@ public class MySQLBinlogSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, MySQLBinlogSourceRequest::new);
     }
-
 }

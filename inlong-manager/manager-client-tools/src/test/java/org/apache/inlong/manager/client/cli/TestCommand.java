@@ -45,4 +45,10 @@ public class TestCommand {
         String[] arg = {"describe", "group", "-g", "test", "-s", "130"};
         Assertions.assertTrue(inlongAdminTool.run(arg));
     }
+
+    // @Test
+    public void testCreateGroup() {
+        String[] arg = {"create", "group", "-f", "src/test/resources/create_group.json"};
+        Assertions.assertTrue(inlongAdminTool.run(arg));
+    }
 }
