@@ -21,11 +21,8 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
-import org.apache.inlong.sort.formats.common.FloatFormatInfo;
-import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
@@ -49,7 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Test for SqlServer{@link SqlServerLoadNode} SQL parser.
+ * Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode} SQL parser.
  */
 public class SqlServerNodeSqlParseTest extends AbstractTestBase {
 
@@ -69,6 +66,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 null, null);
     }
 
+    /**
+     * Build sqlserver extract node.
+     */
     private SqlServerExtractNode buildSqlServerExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("val_char", new StringFormatInfo()));
@@ -77,7 +77,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 "column_type_test", "dbo", "full_types", null);
     }
 
-
+    /**
+     * Build kafka load node.
+     */
     private KafkaLoadNode buildKafkaNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("val_char", new StringFormatInfo()));
@@ -92,8 +94,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 new JsonFormat(), null,
                 null, "id");
     }
-
-
+    
     /**
      * Build sqlserver load node.
      */
@@ -139,6 +140,30 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
         StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mySqlExtractNode),
                         Collections.singletonList(sqlServerLoadNode))));
+        GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
+        Assert.assertTrue(parser.parse().tryExecute());
+    }
+
+    /**
+     * Test extract data from sqlserver and load data to kafka.
+     */
+    @Test
+    public void testSqlServerExtract() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node sqlServerExtractNode = buildSqlServerExtractNode("1");
+        Node kafkaLoadNode = buildKafkaNode("2");
+        StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(sqlServerExtractNode),
+                        Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
         Assert.assertTrue(parser.parse().tryExecute());
