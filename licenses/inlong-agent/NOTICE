@@ -947,6 +947,8 @@ ServiceLocator Default Implementation NOTICE
 ------------------------------------------------------
 HK2 Implementation Utilities NOTICE
 ------------------------------------------------------
+Jackson module: JAXB Annotations NOTICE
+------------------------------------------------------
 Jakarta Annotations API NOTICE
 ------------------------------------------------------
 javax.inject:1 as OSGi bundle NOTICE

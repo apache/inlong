@@ -94,8 +94,8 @@ public class LightGroupSortListener implements SortOperateListener {
         return ListenerResult.success();
     }
 
-    private GroupInfo createGroupInfo(InlongGroupInfo inlongGroupInfo, List<InlongStreamInfo> inlongStreamInfos) {
-        final String groupId = inlongGroupInfo.getInlongGroupId();
+    private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+        final String groupId = groupInfo.getInlongGroupId();
         List<SourceResponse> sourceResponses = sourceService.listSource(groupId, null);
         Map<String, List<SourceResponse>> sourceResponseMap = sourceResponses.stream()
                 .collect(Collectors.groupingBy(sourceResponse -> sourceResponse.getInlongStreamId(), HashMap::new,
@@ -108,7 +108,7 @@ public class LightGroupSortListener implements SortOperateListener {
         Map<String, List<TransformResponse>> transformResponseMap = transformResponses.stream()
                 .collect(Collectors.groupingBy(transformResponse -> transformResponse.getInlongStreamId(), HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
-        List<StreamInfo> streamInfos = inlongStreamInfos.stream()
+        List<StreamInfo> streamInfos = streamInfoList.stream()
                 .map(inlongStreamInfo -> new StreamInfo(inlongStreamInfo.getInlongStreamId(),
                         createNodesForStream(
                                 sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
@@ -116,11 +116,12 @@ public class LightGroupSortListener implements SortOperateListener {
                                 sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())),
                         NodeRelationShipUtils.createNodeRelationShipsForStream(inlongStreamInfo)))
                 .collect(Collectors.toList());
+        // Rebuild joinerNode relationship
         streamInfos.stream().forEach(streamInfo -> {
             List<TransformResponse> transformResponseList = transformResponseMap.get(streamInfo.getStreamId());
             NodeRelationShipUtils.optimizeNodeRelationShips(streamInfo, transformResponseList);
         });
-        return new GroupInfo(inlongGroupInfo.getInlongGroupId(), streamInfos);
+        return new GroupInfo(groupInfo.getInlongGroupId(), streamInfos);
     }
 
     private List<Node> createNodesForStream(

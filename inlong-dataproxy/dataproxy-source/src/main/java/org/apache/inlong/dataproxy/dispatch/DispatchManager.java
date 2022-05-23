@@ -17,6 +17,12 @@
 
 package org.apache.inlong.dataproxy.dispatch;
 
+import org.apache.flume.Context;
+import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -24,11 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.flume.Context;
-import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * DispatchManager
@@ -98,6 +99,40 @@ public class DispatchManager {
     }
 
     /**
+     * addPackEvent
+     * @param packEvent
+     */
+    public void addPackEvent(ProxyPackEvent packEvent) {
+        String eventUid = packEvent.getUid();
+        long dispatchTime = packEvent.getMsgTime() - packEvent.getMsgTime() % MINUTE_MS;
+        DispatchProfile dispatchProfile = new DispatchProfile(eventUid, packEvent.getInlongGroupId(),
+                packEvent.getInlongStreamId(), dispatchTime);
+        // callback
+        DispatchProfileCallback callback = new DispatchProfileCallback(packEvent.getEvents().size(),
+                packEvent.getCallback());
+        dispatchProfile.setCallback(callback);
+        // offer queue
+        for (ProxyEvent event : packEvent.getEvents()) {
+            inCounter.incrementAndGet();
+            boolean addResult = dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
+            // dispatch profile is full
+            if (!addResult) {
+                outCounter.addAndGet(dispatchProfile.getCount());
+                this.dispatchQueue.offer(dispatchProfile);
+                dispatchProfile = new DispatchProfile(eventUid, event.getInlongGroupId(), event.getInlongStreamId(),
+                        dispatchTime);
+                dispatchProfile.setCallback(callback);
+                dispatchProfile.addEvent(event, maxPackCount, maxPackSize);
+            }
+        }
+        // last dispatch profile
+        if (dispatchProfile.getEvents().size() > 0) {
+            outCounter.addAndGet(dispatchProfile.getCount());
+            this.dispatchQueue.offer(dispatchProfile);
+        }
+    }
+
+    /**
      * outputOvertimeData
      * 
      * @return
@@ -124,13 +159,13 @@ public class DispatchManager {
         removeKeys.forEach((key) -> {
             DispatchProfile dispatchProfile = this.profileCache.remove(key);
             if (dispatchProfile != null) {
-            dispatchQueue.offer(dispatchProfile);
-            outCounter.addAndGet(dispatchProfile.getCount());
+                dispatchQueue.offer(dispatchProfile);
+                outCounter.addAndGet(dispatchProfile.getCount());
             }
         });
         LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
                 + "inCounter:{},outCounter:{}",
-                profileCache.size(), dispatchQueue.size(), eventCount, 
+                profileCache.size(), dispatchQueue.size(), eventCount,
                 inCounter.getAndSet(0), outCounter.getAndSet(0));
     }
 

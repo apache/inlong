@@ -48,7 +48,6 @@ import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
 import org.apache.inlong.common.config.IDataProxyConfigHolder;
 import org.apache.inlong.common.metric.MetricObserver;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -85,15 +84,25 @@ public class Application {
     private final ReentrantLock lifecycleLock = new ReentrantLock();
     private AdminTask adminTask;
 
+    /**
+     * Constructor
+     */
     public Application() {
         this(new ArrayList<LifecycleAware>(0));
     }
 
+    /**
+     * Constructor
+     * @param components
+     */
     public Application(List<LifecycleAware> components) {
         this.components = components;
         supervisor = new LifecycleSupervisor();
     }
 
+    /**
+     * start
+     */
     public void start() {
         lifecycleLock.lock();
         try {
@@ -115,6 +124,10 @@ public class Application {
         }
     }
 
+    /**
+     * handleConfigurationEvent
+     * @param conf
+     */
     @Subscribe
     public void handleConfigurationEvent(MaterializedConfiguration conf) {
         try {
@@ -132,6 +145,9 @@ public class Application {
         }
     }
 
+    /**
+     * stop
+     */
     public void stop() {
         lifecycleLock.lock();
         stopAllComponents();
@@ -149,6 +165,9 @@ public class Application {
         }
     }
 
+    /**
+     * stopAllComponents
+     */
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
             logger.info("Shutting down configuration: {}", this.materializedConfiguration);
@@ -187,6 +206,10 @@ public class Application {
         }
     }
 
+    /**
+     * startAllComponents
+     * @param materializedConfiguration
+     */
     private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
         logger.info("Starting new configuration:{}", materializedConfiguration);
 
@@ -244,6 +267,9 @@ public class Application {
         this.loadMonitoring();
     }
 
+    /**
+     * loadMonitoring
+     */
     @SuppressWarnings("unchecked")
     private void loadMonitoring() {
         Properties systemProps = System.getProperties();
@@ -403,7 +429,7 @@ public class Application {
                 }
             }
             // metrics
-            MetricObserver.init(ConfigManager.getInstance().getCommonProperties());
+            MetricObserver.init(CommonPropertiesHolder.get());
             // audit
             AuditUtils.initAudit();
 
@@ -431,8 +457,7 @@ public class Application {
      * @param commandLine
      */
     private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = ConfigManager.getInstance().getCommonProperties()
-                .get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         ManagerPropertiesConfigurationProvider configurationProvider = new ManagerPropertiesConfigurationProvider(
                 proxyName);
         Application application = new Application();

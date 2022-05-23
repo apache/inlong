@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.workflow.core.impl;
 
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
@@ -26,28 +27,24 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * WorkflowProcess service
  */
+@Service
 public class ProcessServiceImpl implements ProcessService {
 
-    private final ProcessorExecutor processorExecutor;
-    private final WorkflowContextBuilder workflowContextBuilder;
-    private final WorkflowTaskEntityMapper taskEntityMapper;
-
-    public ProcessServiceImpl(
-            ProcessorExecutor processorExecutor,
-            WorkflowContextBuilder workflowContextBuilder,
-            WorkflowTaskEntityMapper taskEntityMapper) {
-        this.processorExecutor = processorExecutor;
-        this.workflowContextBuilder = workflowContextBuilder;
-        this.taskEntityMapper = taskEntityMapper;
-    }
+    @Autowired
+    private ProcessorExecutor processorExecutor;
+    @Autowired
+    private WorkflowContextBuilder workflowContextBuilder;
+    @Autowired
+    private WorkflowTaskEntityMapper taskEntityMapper;
 
     @Override
     public WorkflowContext start(String name, String applicant, ProcessForm form) {

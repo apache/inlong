@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.mq.util;
 
 import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
@@ -45,14 +45,16 @@ public class PulsarUtilsTest {
         groupExtInfo1.setInlongGroupId("group1");
         groupExtInfo1.setKeyName(InlongGroupSettings.PULSAR_ADMIN_URL);
         groupExtInfo1.setKeyValue("http://127.0.0.1:8080");
+
         InlongGroupExtInfo groupExtInfo2 = new InlongGroupExtInfo();
         groupExtInfo2.setId(2);
         groupExtInfo2.setInlongGroupId("group1");
         groupExtInfo2.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION);
         groupExtInfo2.setKeyValue("QWEASDZXC");
         ArrayList<InlongGroupExtInfo> groupExtInfoList = Lists.newArrayList(groupExtInfo1, groupExtInfo2);
-        InlongGroupInfo groupInfo = new InlongGroupInfo();
+        InlongPulsarInfo groupInfo = new InlongPulsarInfo();
         groupInfo.setExtList(groupExtInfoList);
+
         final String defaultServiceUrl = "http://127.0.0.1:10080";
         try {
             PulsarAdmin admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);

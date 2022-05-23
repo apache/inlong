@@ -26,6 +26,7 @@ import org.apache.inlong.manager.client.api.sink.HbaseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;
 import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.client.api.sink.PostgresSink;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
@@ -43,6 +44,8 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamSink;
@@ -69,6 +72,8 @@ public class InlongStreamSinkTransfer {
                 return createClickHouseRequest(streamSink, streamInfo);
             case HBASE:
                 return createHbaseRequest(streamSink, streamInfo);
+            case POSTGRES:
+                return createPostgresRequest(streamSink, streamInfo);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
@@ -93,6 +98,8 @@ public class InlongStreamSinkTransfer {
                 return parseClickHouseSink((ClickHouseSinkResponse) sinkResponse, streamSink);
             case HBASE:
                 return parseHbaseSink((HbaseSinkResponse) sinkResponse, streamSink);
+            case POSTGRES:
+                return parsePostgresSink((PostgresSinkResponse) sinkResponse, streamSink);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported sink type : %s for Inlong", sinkType));
         }
@@ -432,4 +439,73 @@ public class InlongStreamSinkTransfer {
         return hiveSink;
     }
 
+    /**
+     * Create postgres request
+     *
+     * @param streamSink streamSink
+     * @param streamInfo streamInfo
+     * @return postgres sinkRequest
+     */
+    private static SinkRequest createPostgresRequest(StreamSink streamSink, InlongStreamInfo streamInfo) {
+        PostgresSinkRequest postgresSinkRequest = new PostgresSinkRequest();
+        PostgresSink postgresSink = (PostgresSink) streamSink;
+        postgresSinkRequest.setJdbcUrl(postgresSink.getJdbcUrl());
+        postgresSinkRequest.setUsername(postgresSink.getAuthentication().getUserName());
+        postgresSinkRequest.setPassword(postgresSink.getAuthentication().getPassword());
+        postgresSinkRequest.setDbName(postgresSink.getDbName());
+        postgresSinkRequest.setTableName(postgresSink.getTableName());
+
+        postgresSinkRequest.setSinkName(postgresSink.getSinkName());
+        postgresSinkRequest.setSinkType(postgresSink.getSinkType().name());
+        postgresSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        postgresSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+
+        postgresSinkRequest.setProperties(postgresSink.getProperties());
+        postgresSinkRequest.setPrimaryKey(postgresSink.getPrimaryKey());
+
+        if (CollectionUtils.isNotEmpty(postgresSink.getSinkFields())) {
+            List<SinkFieldRequest> fieldRequests = createSinkFieldRequests(postgresSink.getSinkFields());
+            postgresSinkRequest.setFieldList(fieldRequests);
+        }
+        return postgresSinkRequest;
+    }
+
+    /**
+     * parse postgres sink
+     * 
+     * @param sinkResponse sinkResponse
+     * @param sink sink
+     * @return postgres streamSink
+     */
+    private static StreamSink parsePostgresSink(PostgresSinkResponse sinkResponse, StreamSink sink) {
+        PostgresSink postgresSink = new PostgresSink();
+        if (sink != null) {
+            AssertUtils.isTrue(sinkResponse.getSinkName().equals(sink.getSinkName()),
+                    String.format("SinkName is not equal: %s != %s", sinkResponse, sink));
+            PostgresSink snapshot = (PostgresSink) sink;
+
+            postgresSink.setSinkName(snapshot.getSinkName());
+            postgresSink.setAuthentication(snapshot.getAuthentication());
+
+            postgresSink.setJdbcUrl(snapshot.getJdbcUrl());
+            postgresSink.setTableName(snapshot.getTableName());
+            postgresSink.setDbName(snapshot.getDbName());
+        } else {
+            postgresSink.setSinkName(sinkResponse.getSinkName());
+            String password = sinkResponse.getPassword();
+            String uname = sinkResponse.getUsername();
+            postgresSink.setAuthentication(new DefaultAuthentication(uname, password));
+
+            postgresSink.setJdbcUrl(sinkResponse.getJdbcUrl());
+            postgresSink.setTableName(sinkResponse.getTableName());
+            postgresSink.setDbName(sinkResponse.getDbName());
+        }
+        postgresSink.setPrimaryKey(sinkResponse.getPrimaryKey());
+        postgresSink.setProperties(sinkResponse.getProperties());
+        postgresSink.setSinkType(SinkType.POSTGRES);
+        if (CollectionUtils.isNotEmpty(sinkResponse.getFieldList())) {
+            postgresSink.setSinkFields(convertToSinkFields(sinkResponse.getFieldList()));
+        }
+        return postgresSink;
+    }
 }

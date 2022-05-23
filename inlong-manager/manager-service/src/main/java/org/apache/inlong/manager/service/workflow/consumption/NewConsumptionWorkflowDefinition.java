@@ -99,7 +99,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         // System administrator approval
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName(UT_ADMINT_NAME);
-        adminUserTask.setDisplayName("System Administrator");
+        adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(ConsumptionApproveForm.class);
         adminUserTask.setApproverAssign(this::adminUserTaskApprover);
         adminUserTask.addListener(consumptionPassTaskListener);

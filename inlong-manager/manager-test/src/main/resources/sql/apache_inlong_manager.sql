@@ -35,9 +35,9 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `max_length`             int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
     `in_charges`             varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `followers`              varchar(512)      DEFAULT NULL COMMENT 'Name of followers, separated by commas',
-    `enable_zookeeper`       tinyint(2)        DEFAULT '1' COMMENT 'Need zookeeper support, 0: false, 1: true',
-    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create mq resource? 0: disable, 1: enable. Default is 1',
-    `lightweight`            tinyint(2)        DEFAULT '1' COMMENT 'Whether to use lightweight mode, 0: false, 1: true. Default is 1',
+    `enable_zookeeper`       tinyint(2)        DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
+    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
+    `lightweight`            tinyint(2)        DEFAULT '1' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
     `inlong_cluster_tag`     varchar(128)      DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     `ext_params`             text              DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num,',
     `status`                 int(4)            DEFAULT '100' COMMENT 'Inlong group status',
@@ -49,30 +49,6 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`)
-);
-
--- ----------------------------
--- Table structure for inlong_group_pulsar
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `inlong_group_pulsar`
-(
-    `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
-    `tenant`                 varchar(128)      DEFAULT '' COMMENT 'Tenant of pulsar config',
-    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create mq resource? 0: disable, 1: enable. default is 1',
-    `ensemble`               int(3)            DEFAULT '3' COMMENT 'The writable nodes number of ledger',
-    `write_quorum`           int(3)            DEFAULT '3' COMMENT 'The copies number of ledger',
-    `ack_quorum`             int(3)            DEFAULT '2' COMMENT 'The number of requested acks',
-    `retention_time`         int(11)           DEFAULT '72' COMMENT 'Message storage time',
-    `retention_time_unit`    char(20)          DEFAULT 'hours' COMMENT 'The unit of the message storage time',
-    `ttl`                    int(11)           DEFAULT '24' COMMENT 'Message time-to-live duration',
-    `ttl_unit`               varchar(20)       DEFAULT 'hours' COMMENT 'The unit of time-to-live duration',
-    `retention_size`         int(11)           DEFAULT '-1' COMMENT 'Message size',
-    `retention_size_unit`    varchar(20)       DEFAULT 'MB' COMMENT 'The unit of message size',
-    `is_deleted`             int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
 );
 
 -- ----------------------------
@@ -124,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `parent_id`   int(11)      NOT NULL COMMENT 'Id of the parent cluster',
     `type`        varchar(20)       DEFAULT '' COMMENT 'Cluster type, such as: DATA_PROXY, AGENT, etc',
-    `ip`          varchar(512) NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
+    `ip`          varchar(512) NOT NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
     `port`        int(6)       NULL COMMENT 'Cluster port',
     `ext_params`  text              DEFAULT NULL COMMENT 'Another fields will be saved as JSON string',
     `status`      int(4)            DEFAULT '0' COMMENT 'Cluster status',
@@ -505,8 +481,8 @@ CREATE TABLE IF NOT EXISTS `stream_source`
     `report_time`        timestamp    NULL COMMENT 'Snapshot time',
     `ext_params`         text                  DEFAULT NULL COMMENT 'Another fields will be saved as JSON string, such as filePath, dbName, tableName, etc',
     `version`            int(11)               DEFAULT '1' COMMENT 'Stream source version',
-    `status`             int(4)                DEFAULT '0' COMMENT 'Data source status',
-    `previous_status`    int(4)                DEFAULT '0' COMMENT 'Previous status',
+    `status`             int(4)                DEFAULT '110' COMMENT 'Data source status',
+    `previous_status`    int(4)                DEFAULT '110' COMMENT 'Previous status',
     `is_deleted`         int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`            varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`           varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
@@ -552,15 +528,15 @@ CREATE TABLE IF NOT EXISTS `stream_sink`
     `sink_type`              varchar(15)           DEFAULT 'HIVE' COMMENT 'Sink type, including: HIVE, ES, etc',
     `sink_name`              varchar(128) NOT NULL DEFAULT '' COMMENT 'Sink name',
     `description`            varchar(500) NULL COMMENT 'Sink description',
-    `enable_create_resource` tinyint(2)            DEFAULT '1' COMMENT 'Whether to enable create sink resource? 0: disable, 1: enable. default is 1',
+    `enable_create_resource` tinyint(2)            DEFAULT '1' COMMENT 'Whether to enable create sink resource? 0-disable, 1-enable',
     `inlong_cluster_name`    varchar(128)          DEFAULT NULL COMMENT 'Cluster name, which links to inlong_cluster table',
     `data_node_name`         varchar(128)          DEFAULT NULL COMMENT 'Node name, which links to data_node table',
     `sort_task_name`         varchar(512)          DEFAULT NULL COMMENT 'Sort task name or task ID',
     `sort_consumer_group`    varchar(512)          DEFAULT NULL COMMENT 'Consumer group name for Sort task',
     `ext_params`             text COMMENT 'Another fields, will be saved as JSON type',
     `operate_log`            varchar(5000)         DEFAULT NULL COMMENT 'Background operate log',
-    `status`                 int(11)               DEFAULT '0' COMMENT 'Status',
-    `previous_status`        int(11)               DEFAULT '0' COMMENT 'Previous status',
+    `status`                 int(11)               DEFAULT '100' COMMENT 'Status',
+    `previous_status`        int(11)               DEFAULT '100' COMMENT 'Previous status',
     `is_deleted`             int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',

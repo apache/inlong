@@ -29,12 +29,16 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -67,6 +71,10 @@ public class ExtractNodeUtils {
                 return createExtractNode((BinlogSourceResponse) sourceResponse);
             case KAFKA:
                 return createExtractNode((KafkaSourceResponse) sourceResponse);
+            case PULSAR:
+                return createExtractNode((PulsarSourceResponse) sourceResponse);
+            case POSTGRES:
+                return createExtractNode((PostgresSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -190,5 +198,80 @@ public class ExtractNodeUtils {
                 startupMode,
                 primaryKey,
                 groupId);
+    }
+
+    /**
+     * Create PulsarExtractNode based PulsarSourceResponse
+     *
+     * @param pulsarSourceResponse pulsar source response
+     * @return pulsar extract node info
+     */
+    public static PulsarExtractNode createExtractNode(PulsarSourceResponse pulsarSourceResponse) {
+        String id = pulsarSourceResponse.getSourceName();
+        String name = pulsarSourceResponse.getSourceName();
+        List<InlongStreamFieldInfo> streamFieldInfos = pulsarSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        String topic = pulsarSourceResponse.getTopic();
+
+        Format format = null;
+        DataTypeEnum dataType = DataTypeEnum.forName(pulsarSourceResponse.getSerializationType());
+        switch (dataType) {
+            case CSV:
+                format = new CsvFormat();
+                break;
+            case AVRO:
+                format = new AvroFormat();
+                break;
+            case JSON:
+                format = new JsonFormat();
+                break;
+            case CANAL:
+                format = new CanalJsonFormat();
+                break;
+            case DEBEZIUM_JSON:
+                format = new DebeziumJsonFormat();
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+        }
+        ScanStartupMode startupMode = ScanStartupMode.forName(pulsarSourceResponse.getScanStartupMode());
+        final String primaryKey = pulsarSourceResponse.getPrimaryKey();
+        final String serviceUrl = pulsarSourceResponse.getServiceUrl();
+        final String adminUrl = pulsarSourceResponse.getAdminUrl();
+
+        return new PulsarExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                Maps.newHashMap(),
+                topic,
+                adminUrl,
+                serviceUrl,
+                format,
+                startupMode.getValue(),
+                primaryKey);
+    }
+
+    /**
+     * Create PostgresExtractNode based PostgresSourceResponse
+     *
+     * @param postgresSourceResponse postgres source response
+     * @return postgres extract node info
+     */
+    public static PostgresExtractNode createExtractNode(PostgresSourceResponse postgresSourceResponse) {
+        List<InlongStreamFieldInfo> streamFieldInfos = postgresSourceResponse.getFieldList();
+        String id = postgresSourceResponse.getSourceName();
+        String name = postgresSourceResponse.getSourceName();
+        List<FieldInfo> fields = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        return new PostgresExtractNode(id, name, fields, null, null,
+                postgresSourceResponse.getPrimaryKey(), postgresSourceResponse.getTableNames(),
+                postgresSourceResponse.getHostname(), postgresSourceResponse.getUsername(),
+                postgresSourceResponse.getPassword(), postgresSourceResponse.getDatabase(),
+                postgresSourceResponse.getSchema(), postgresSourceResponse.getPort(),
+                postgresSourceResponse.getDecodingPluginName());
     }
 }

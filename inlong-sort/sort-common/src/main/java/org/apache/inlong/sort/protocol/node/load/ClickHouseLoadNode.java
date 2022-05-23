@@ -90,7 +90,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put("connector", "jdbc-inlong");
-        options.put("dialect-impl", "org.apache.inlong.sort.flink.clickhouse.table.ClickHouseDialect");
+        options.put("dialect-impl", "org.apache.inlong.sort.jdbc.dialect.ClickHouseDialect");
         options.put("url", url);
         options.put("table-name", tableName);
         options.put("username", userName);

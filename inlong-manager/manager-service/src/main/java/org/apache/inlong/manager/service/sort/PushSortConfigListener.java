@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.sort;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
@@ -43,6 +43,7 @@ import java.util.List;
 /**
  * Push sort config when enable the ZooKeeper
  */
+@Deprecated
 @Component
 public class PushSortConfigListener implements SortOperateListener {
 
@@ -56,6 +57,8 @@ public class PushSortConfigListener implements SortOperateListener {
     private StreamSinkService streamSinkService;
     @Autowired
     private DataFlowUtils dataFlowUtils;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public TaskEvent event() {
@@ -85,13 +88,9 @@ public class PushSortConfigListener implements SortOperateListener {
                 LOGGER.debug("sink info: {}", sinkResponse);
             }
 
-            DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, sinkResponse);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("try to push config to sort: {}", JsonUtils.toJson(dataFlowInfo));
-            }
-
             Integer sinkId = sinkResponse.getId();
             try {
+                DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, sinkResponse);
                 String zkUrl = clusterBean.getZkUrl();
                 String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk
@@ -99,6 +98,10 @@ public class PushSortConfigListener implements SortOperateListener {
                 ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, sinkId, zkUrl, zkRoot);
                 // add sink id to zk
                 ZkTools.addDataFlowToCluster(sortClusterName, sinkId, zkUrl, zkRoot);
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("success to push config to sort: {}", objectMapper.writeValueAsString(dataFlowInfo));
+                }
             } catch (Exception e) {
                 LOGGER.error("push sort config to zookeeper failed, sinkId={} ", sinkId, e);
                 throw new WorkflowListenerException("push sort config to zookeeper failed: " + e.getMessage());

@@ -81,7 +81,7 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
         // System administrator approval
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName("ut_admin");
-        adminUserTask.setDisplayName("System Administrator");
+        adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
         adminUserTask.addListener(groupAfterApprovedListener);

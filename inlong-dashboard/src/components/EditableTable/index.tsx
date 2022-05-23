@@ -41,7 +41,7 @@ export interface ColumnsItemProps {
   dataIndex: string;
   initialValue?: unknown;
   width?: number;
-  type?: 'text' | 'input' | 'inputnumber' | 'select';
+  type?: 'text' | 'input' | 'inputnumber' | 'select' | 'autocomplete';
   // Props passed to form(input, select, ...)
   props?:
     | FormCompProps

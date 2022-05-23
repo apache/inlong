@@ -17,26 +17,26 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
-import java.util.HashSet;
-import java.util.Map;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.audit.AuditImp;
 import org.apache.inlong.audit.util.AuditConfig;
-import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.utils.Constants;
+
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * 
  * AuditUtils
  */
 public class AuditUtils {
+
     public static final String AUDIT_KEY_FILE_PATH = "audit.filePath";
     public static final String AUDIT_DEFAULT_FILE_PATH = "/data/inlong/audit/";
     public static final String AUDIT_KEY_MAX_CACHE_ROWS = "audit.maxCacheRows";
@@ -54,10 +54,10 @@ public class AuditUtils {
      */
     public static void initAudit() {
         // IS_AUDIT
-        IS_AUDIT = BooleanUtils.toBoolean(ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_IS_AUDIT));
+        IS_AUDIT = BooleanUtils.toBoolean(CommonPropertiesHolder.getString(AUDIT_KEY_IS_AUDIT));
         if (IS_AUDIT) {
             // AuditProxy
-            String strIpPorts = ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_PROXYS);
+            String strIpPorts = CommonPropertiesHolder.getString(AUDIT_KEY_PROXYS);
             HashSet<String> proxys = new HashSet<>();
             if (!StringUtils.isBlank(strIpPorts)) {
                 String[] ipPorts = strIpPorts.split("\\s+");
@@ -67,10 +67,9 @@ public class AuditUtils {
             }
             AuditImp.getInstance().setAuditProxy(proxys);
             // AuditConfig
-            String filePath = ConfigManager.getInstance().getCommonProperties().getOrDefault(AUDIT_KEY_FILE_PATH,
-                    AUDIT_DEFAULT_FILE_PATH);
+            String filePath = CommonPropertiesHolder.getString(AUDIT_KEY_FILE_PATH, AUDIT_DEFAULT_FILE_PATH);
             int maxCacheRow = NumberUtils.toInt(
-                    ConfigManager.getInstance().getCommonProperties().get(AUDIT_KEY_MAX_CACHE_ROWS),
+                    CommonPropertiesHolder.getString(AUDIT_KEY_MAX_CACHE_ROWS),
                     AUDIT_DEFAULT_MAX_CACHE_ROWS);
             AuditConfig auditConfig = new AuditConfig(filePath, maxCacheRow);
             AuditImp.getInstance().setAuditConfig(auditConfig);

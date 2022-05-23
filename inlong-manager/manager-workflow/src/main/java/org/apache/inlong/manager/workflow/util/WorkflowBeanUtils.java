@@ -17,16 +17,20 @@
 
 package org.apache.inlong.manager.workflow.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +44,17 @@ import java.util.stream.Collectors;
  */
 public class WorkflowBeanUtils {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowBeanUtils.class);
 
     /**
      * Build workflow context from WorkflowProcess and WorkflowProcessEntity
      */
-    public static WorkflowContext buildContext(WorkflowProcess process, WorkflowProcessEntity processEntity) {
+    public static WorkflowContext buildContext(ObjectMapper objectMapper, WorkflowProcess process,
+            WorkflowProcessEntity processEntity) {
         ProcessForm processForm = null;
         try {
-            processForm = WorkflowFormParserUtils.parseProcessForm(processEntity.getFormData(), process);
+            processForm = WorkflowFormParserUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process);
         } catch (Exception e) {
             LOGGER.error("build context from process form failed with id: {}", processEntity.getId(), e);
         }
@@ -91,7 +97,8 @@ public class WorkflowBeanUtils {
         if (entity == null) {
             return null;
         }
-        return ProcessResponse.builder()
+
+        ProcessResponse processResponse = ProcessResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .displayName(entity.getDisplayName())
@@ -101,9 +108,26 @@ public class WorkflowBeanUtils {
                 .status(ProcessStatus.valueOf(entity.getStatus()))
                 .startTime(entity.getStartTime())
                 .endTime(entity.getEndTime())
-                .formData(JsonUtils.parse(entity.getFormData()))
-                .extParams(JsonUtils.parse(entity.getExtParams()))
                 .build();
+
+        try {
+            JsonNode formData = null;
+            if (StringUtils.isNotBlank(entity.getFormData())) {
+                formData = OBJECT_MAPPER.readTree(entity.getFormData());
+            }
+            processResponse.setFormData(formData);
+
+            JsonNode extParams = null;
+            if (StringUtils.isNotBlank(entity.getExtParams())) {
+                extParams = OBJECT_MAPPER.readTree(entity.getExtParams());
+            }
+            processResponse.setExtParams(extParams);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("parse form data error: ", e);
+            throw new JsonException("parse form data or ext params error");
+        }
+
+        return processResponse;
     }
 
     /**

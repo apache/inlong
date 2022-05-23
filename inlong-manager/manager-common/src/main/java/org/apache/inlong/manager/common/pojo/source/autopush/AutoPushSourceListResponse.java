@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
@@ -33,4 +34,8 @@ public class AutoPushSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;
+
+    public AutoPushSourceListResponse() {
+        this.setSourceType(SourceType.AUTO_PUSH.getType());
+    }
 }

@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -49,7 +50,7 @@ import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.core.WorkflowEngine;
+import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
@@ -94,7 +95,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Autowired
     protected WorkflowServiceImpl workflowService;
     @Autowired
-    protected WorkflowEngine workflowEngine;
+    protected ProcessService processService;
     @Autowired
     protected InlongGroupService groupService;
     @Autowired
@@ -139,7 +140,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         } else if (MQType.forType(mqType) == MQType.TUBE) {
             groupInfo = new InlongPulsarInfo();
         } else {
-            groupInfo = new InlongGroupInfo();
+            groupInfo = new InlongNoneMqInfo();
         }
 
         groupInfo.setName(groupId);
@@ -250,7 +251,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public void testStartCreatePulsarWorkflow() {
         initGroupForm(MQType.PULSAR.getType(), "test14" + subType);
         mockTaskListenerFactory();
-        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
+        WorkflowContext context = processService.start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
         // This method temporarily fails the test, so comment it out first
@@ -270,7 +271,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public void testStartCreateTubeWorkflow() {
         initGroupForm(MQType.TUBE.getType(), "test10" + subType);
         mockTaskListenerFactory();
-        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
+        WorkflowContext context = processService.start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -296,7 +297,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
-        WorkflowContext context = workflowEngine.processService()
+        WorkflowContext context = processService
                 .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
@@ -331,7 +332,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         form.setGroupOperateType(GroupOperateType.RESTART);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
-        WorkflowContext context = workflowEngine.processService()
+        WorkflowContext context = processService
                 .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
@@ -367,7 +368,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         form.setGroupOperateType(GroupOperateType.DELETE);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
-        WorkflowContext context = workflowEngine.processService()
+        WorkflowContext context = processService
                 .start(ProcessName.DELETE_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -26,11 +27,10 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -49,6 +49,8 @@ import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStack
  */
 @Slf4j
 public class RestartSortListener implements SortOperateListener {
+
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public TaskEvent event() {
@@ -80,7 +82,7 @@ public class RestartSortListener implements SortOperateListener {
             return ListenerResult.fail(message);
         }
 
-        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(JsonUtils.OBJECT_MAPPER.readTree(sortExt),
+        Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
                 new TypeReference<Map<String, String>>() {
                 });
         kvConf.putAll(result);
@@ -97,8 +99,8 @@ public class RestartSortListener implements SortOperateListener {
         }
 
         // TODO Support more than one dataflow in one sort job
-        Map<String, JsonNode> dataflowMap = JsonUtils.OBJECT_MAPPER.convertValue(
-                JsonUtils.OBJECT_MAPPER.readTree(dataFlows), new TypeReference<Map<String, JsonNode>>() {
+        Map<String, JsonNode> dataflowMap = OBJECT_MAPPER.convertValue(
+                OBJECT_MAPPER.readTree(dataFlows), new TypeReference<Map<String, JsonNode>>() {
                 });
         Optional<JsonNode> dataflowOptional = dataflowMap.values().stream().findFirst();
         JsonNode dataFlow = null;

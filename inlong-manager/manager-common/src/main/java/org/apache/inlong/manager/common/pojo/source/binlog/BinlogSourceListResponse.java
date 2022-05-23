@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
@@ -81,4 +82,8 @@ public class BinlogSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
     private String primaryKey;
+
+    public BinlogSourceListResponse() {
+        this.setSourceType(SourceType.BINLOG.getType());
+    }
 }

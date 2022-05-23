@@ -17,10 +17,10 @@
 
 package org.apache.inlong.dataproxy.dispatch;
 
+import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
 
 /**
  * 
@@ -36,6 +36,7 @@ public class DispatchProfile {
     private long count = 0;
     private long size = 0;
     private long dispatchTime;
+    private DispatchProfileCallback callback;
 
     /**
      * Constructor
@@ -169,6 +170,49 @@ public class DispatchProfile {
      */
     public long getDispatchTime() {
         return dispatchTime;
+    }
+
+    /**
+     * ack
+     */
+    public void ack() {
+        if (callback != null) {
+            callback.ack(this.events.size());
+        }
+    }
+
+    /**
+     * fail
+     * @return
+     */
+    public void fail() {
+        if (callback != null) {
+            callback.fail();
+        }
+    }
+
+    /**
+     * isResend
+     * @return
+     */
+    public boolean isResend() {
+        return callback == null;
+    }
+
+    /**
+     * get callback
+     * @return the callback
+     */
+    public DispatchProfileCallback getCallback() {
+        return callback;
+    }
+
+    /**
+     * set callback
+     * @param callback the callback to set
+     */
+    public void setCallback(DispatchProfileCallback callback) {
+        this.callback = callback;
     }
 
 }

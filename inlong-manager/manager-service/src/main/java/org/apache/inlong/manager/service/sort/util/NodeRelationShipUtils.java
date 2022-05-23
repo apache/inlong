@@ -78,6 +78,7 @@ public class NodeRelationShipUtils {
 
     /**
      * Optimize relationship of node.
+     * JoinerRelationship must be rebuild.
      */
     public static void optimizeNodeRelationShips(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
