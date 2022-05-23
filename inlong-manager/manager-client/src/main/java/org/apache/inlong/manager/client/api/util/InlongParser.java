@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
@@ -105,9 +106,9 @@ public class InlongParser {
             return GsonUtil.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
         } else if (mqType == MQType.TUBE) {
             return GsonUtil.<InlongTubeInfo>fromJson(dataJson, InlongTubeInfo.class);
+        } else {
+            return GsonUtil.<InlongTubeInfo>fromJson(dataJson, InlongNoneMqInfo.class);
         }
-
-        return groupInfo;
     }
 
     /**

@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -139,7 +140,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         } else if (MQType.forType(mqType) == MQType.TUBE) {
             groupInfo = new InlongPulsarInfo();
         } else {
-            groupInfo = new InlongGroupInfo();
+            groupInfo = new InlongNoneMqInfo();
         }
 
         groupInfo.setName(groupId);

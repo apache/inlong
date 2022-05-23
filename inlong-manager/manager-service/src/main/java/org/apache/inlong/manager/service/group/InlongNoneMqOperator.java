@@ -23,6 +23,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.slf4j.Logger;
@@ -58,7 +59,7 @@ public class InlongNoneMqOperator extends AbstractGroupOperator {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
 
-        InlongGroupInfo groupInfo = new InlongGroupInfo();
+        InlongNoneMqInfo groupInfo = new InlongNoneMqInfo();
         CommonBeanUtils.copyProperties(entity, groupInfo);
         return groupInfo;
     }

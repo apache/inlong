@@ -40,10 +40,10 @@ public class InlongGroupEntity implements Serializable {
     private Integer peakRecords;
     private Integer maxLength;
 
-    private String enableCreateResource;
     private Integer enableZookeeper;
+    private Integer enableCreateResource;
     private Integer lightweight;
-    private Integer inlongClusterTag;
+    private String inlongClusterTag;
 
     private String extParams;
     private String inCharges;

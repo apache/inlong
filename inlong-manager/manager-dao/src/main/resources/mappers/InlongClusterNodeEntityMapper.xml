@@ -35,9 +35,8 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , parent_id, type, ip, port, ext_params, status, is_deleted, creator, modifier,
-        create_time, modify_time
+        id, parent_id, type, ip, port, ext_params, status, is_deleted,
+        creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
