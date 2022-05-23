@@ -32,6 +32,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
@@ -85,12 +86,21 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
 
-        Map<String, String> props = new HashMap<>();
-        props.put("catalog-type", "hadoop");
-        props.put("catalog-name", "hadoop_prod");
-        props.put("warehouse", "hdfs://localhost:9000/iceberg/warehouse");
-        IcebergLoadNode node = new IcebergLoadNode("iceberg", "iceberg_output", fields, relations,
-                null, null, null, props, "inlong", "inlong_iceberg");
+        IcebergLoadNode node = new IcebergLoadNode(
+                "iceberg",
+                "iceberg_output",
+                fields,
+                relations,
+                null,
+                null,
+                null,
+                null,
+                "inlong",
+                "inlong_iceberg",
+                null,
+                CatalogType.HADOOP,
+                null,
+                "hdfs://localhost:9000/iceberg/warehouse");
         return node;
     }
 
@@ -111,14 +121,21 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 );
 
         // set HIVE_CONF_DIR,or set uri and warehouse
-        Map<String, String> props = new HashMap<>();
-        props.put("catalog-type", "hive");
-        props.put("catalog-name", "hive_prod");
-        props.put("catalog-database", "default");
-        props.put("uri", "thrift://localhost:9083");
-        props.put("warehouse", "/hive/warehouse");
-        IcebergLoadNode node = new IcebergLoadNode("iceberg", "iceberg_output", fields, relations,
-                null, null, null, props, "inlong", "inlong_iceberg");
+        IcebergLoadNode node = new IcebergLoadNode(
+                "iceberg",
+                "iceberg_output",
+                fields,
+                relations,
+                null,
+                null,
+                null,
+                null,
+                "inlong",
+                "inlong_iceberg",
+                null,
+                CatalogType.HIVE,
+                "thrift://localhost:9083",
+                "/hive/warehouse");
         return node;
     }
 
