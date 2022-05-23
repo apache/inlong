@@ -29,9 +29,11 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
+import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
@@ -62,7 +64,10 @@ import java.util.Map;
         @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad"),
         @JsonSubTypes.Type(value = TDSQLPostgresLoadNode.class, name = "tdsqlPostgresLoad"),
         @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad"),
-        @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad")
+        @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad"),
+        @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad"),
+        @JsonSubTypes.Type(value = IcebergLoadNode.class, name = "icebergLoad"),
+        @JsonSubTypes.Type(value = DLCIcebergLoadNode.class, name = "dlcIcebergLoad")
 })
 @NoArgsConstructor
 @Data
