@@ -93,7 +93,11 @@ public class SortConfigRepository implements IRepository {
     @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.debug("start to reload sort config.");
-        reloadAllClusterConfig();
+        try {
+            reloadAllClusterConfig();
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
         LOGGER.debug("end to reload config");
     }
 
@@ -161,17 +165,23 @@ public class SortConfigRepository implements IRepository {
         // get all task and group by cluster
         List<SortTaskDTO> tasks = sortClusterMapper.selectAllTasks();
         Map<String, List<SortTaskDTO>> clusterTaskMap =
-                tasks.stream().collect(Collectors.groupingBy(SortTaskDTO::getSortClusterName));
+                tasks.stream()
+                        .filter(dto -> dto.getSortClusterName() != null)
+                        .collect(Collectors.groupingBy(SortTaskDTO::getSortClusterName));
 
         // get all id params and group by task
         List<SortIdParamsDTO> idParams = sortClusterMapper.selectAllIdParams();
         Map<String, List<SortIdParamsDTO>> taskIdParamMap =
-                idParams.stream().collect(Collectors.groupingBy(SortIdParamsDTO::getSortTaskName));
+                idParams.stream()
+                        .filter(dto -> dto.getSortTaskName() != null)
+                        .collect(Collectors.groupingBy(SortIdParamsDTO::getSortTaskName));
 
         // get all sink params and group by data node name
         List<SortSinkParamsDTO> sinkParams = sortClusterMapper.selectAllSinkParams();
         Map<String, SortSinkParamsDTO> taskSinkParamMap =
-                sinkParams.stream().collect(Collectors.toMap(SortSinkParamsDTO::getName, param -> param));
+                sinkParams.stream()
+                        .filter(dto -> dto.getName() != null)
+                        .collect(Collectors.toMap(SortSinkParamsDTO::getName, param -> param));
 
         // update config of each cluster
         Map<String, SortClusterConfig> newConfigMap = new ConcurrentHashMap<>();
