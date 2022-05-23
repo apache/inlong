@@ -20,7 +20,6 @@ package org.apache.inlong.manager.workflow.event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.EventStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
@@ -63,10 +62,10 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         WorkflowEventLogEntity workflowEventLogEntity = buildEventLog(context);
         try {
             ListenerResult result = eventListener.listen(context);
-            log.debug("listener execute result:{} - {}", workflowEventLogEntity, result);
+            log.debug("listener execute result: {} - {}", workflowEventLogEntity, result);
             return result;
         } catch (Exception e) {
-            log.error("listener exception:{}", workflowEventLogEntity, e);
+            log.error("execute listener {} error: {}", workflowEventLogEntity, e);
             if (!async()) {
                 throw new WorkflowListenerException(e);
             }
@@ -87,7 +86,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         } catch (Exception e) {
             logEntity.setStatus(EventStatus.FAILED.getStatus());
             logEntity.setException(e.getMessage());
-            log.error("listener exception:{}", JsonUtils.toJson(logEntity), e);
+            log.error("execute listener {} error: {}", logEntity, e);
             if (!async()) {
                 throw new WorkflowListenerException(e.getMessage());
             }

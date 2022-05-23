@@ -17,10 +17,15 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.exceptions.JsonException;
+import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -30,11 +35,11 @@ import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -42,19 +47,18 @@ import java.util.Map;
 /**
  * Workflow context builder
  */
+@Slf4j
+@Service
 public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
-    private final ProcessDefinitionRepository definitionRepository;
-    private final WorkflowProcessEntityMapper processEntityMapper;
-    private final WorkflowTaskEntityMapper taskEntityMapper;
-
-    public WorkflowContextBuilderImpl(ProcessDefinitionRepository definitionRepository,
-            WorkflowProcessEntityMapper processEntityMapper,
-            WorkflowTaskEntityMapper taskEntityMapper) {
-        this.definitionRepository = definitionRepository;
-        this.processEntityMapper = processEntityMapper;
-        this.taskEntityMapper = taskEntityMapper;
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private ProcessDefinitionRepository definitionRepository;
+    @Autowired
+    private WorkflowProcessEntityMapper processEntityMapper;
+    @Autowired
+    private WorkflowTaskEntityMapper taskEntityMapper;
 
     @SneakyThrows
     @Override
@@ -78,7 +82,8 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
         return new WorkflowContext()
                 .setOperator(processEntity.getApplicant())
                 .setProcess(process)
-                .setProcessForm(WorkflowFormParserUtils.parseProcessForm(processEntity.getFormData(), process))
+                .setProcessForm(
+                        WorkflowFormParserUtils.parseProcessForm(objectMapper, processEntity.getFormData(), process))
                 .setProcessEntity(processEntity);
     }
 
@@ -104,7 +109,7 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     public WorkflowContext buildContextForTask(Integer taskId, WorkflowAction action) {
         WorkflowTaskEntity taskEntity = taskEntityMapper.selectById(taskId);
         WorkflowProcess process = definitionRepository.get(taskEntity.getProcessName()).clone();
-        TaskForm taskForm = WorkflowFormParserUtils.parseTaskForm(taskEntity, process);
+        TaskForm taskForm = WorkflowFormParserUtils.parseTaskForm(objectMapper, taskEntity, process);
         List<String> transferToUsers = getTransferToUsers(taskEntity.getExtParams());
         return buildContextForTask(taskId, action, taskForm, transferToUsers, taskEntity.getRemark(),
                 taskEntity.getOperator());
@@ -118,7 +123,8 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
 
         WorkflowProcessEntity processEntity = processEntityMapper.selectById(taskEntity.getProcessId());
         WorkflowProcess process = definitionRepository.get(processEntity.getName()).clone();
-        ProcessForm processForm = WorkflowFormParserUtils.parseProcessForm(processEntity.getFormData(), process);
+        ProcessForm processForm = WorkflowFormParserUtils.parseProcessForm(objectMapper, processEntity.getFormData(),
+                process);
         WorkflowTask task = process.getTaskByName(taskEntity.getName());
 
         return new WorkflowContext().setProcess(process)
@@ -126,29 +132,34 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
                 .setProcessForm(processForm)
                 .setProcessEntity(processEntity)
                 .setCurrentElement(task)
-                .setActionContext(
-                        new WorkflowContext.ActionContext()
-                                .setAction(action)
-                                .setTaskEntity(taskEntity)
-                                .setTask(task)
-                                .setForm(taskForm)
-                                .setTransferToUsers(transferToUsers)
-                                .setOperator(operator)
-                                .setRemark(remark)
+                .setActionContext(new WorkflowContext.ActionContext()
+                        .setAction(action)
+                        .setTaskEntity(taskEntity)
+                        .setTask(task)
+                        .setForm(taskForm)
+                        .setTransferToUsers(transferToUsers)
+                        .setOperator(operator)
+                        .setRemark(remark)
                 );
     }
 
+    @SuppressWarnings("unchecked")
     private List<String> getTransferToUsers(String ext) {
         if (StringUtils.isEmpty(ext)) {
             return Lists.newArrayList();
         }
-        Map<String, Object> extMap = JsonUtils.parseMap(ext, String.class, Object.class);
-        if (!extMap.containsKey(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY)) {
-            return Lists.newArrayList();
-        }
-
-        if (extMap.get(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY) instanceof List) {
-            return (List<String>) extMap.get(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY);
+        try {
+            Map<String, Object> extMap = objectMapper.readValue(ext,
+                    objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+            if (!extMap.containsKey(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY)) {
+                return Lists.newArrayList();
+            }
+            if (extMap.get(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY) instanceof List) {
+                return (List<String>) extMap.get(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY);
+            }
+        } catch (JsonProcessingException e) {
+            log.error("parse transfer users error: ", e);
+            throw new JsonException("parse transfer users error");
         }
 
         return null;
