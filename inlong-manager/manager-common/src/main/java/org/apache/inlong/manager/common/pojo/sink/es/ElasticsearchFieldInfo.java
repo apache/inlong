@@ -59,7 +59,6 @@ public class ElasticsearchFieldInfo {
     /**
      * Get the extra param from the Json
      */
-
     public static ElasticsearchFieldInfo getFromJson(@NotNull String extParams) {
         if (StringUtils.isEmpty(extParams)) {
             return new ElasticsearchFieldInfo();

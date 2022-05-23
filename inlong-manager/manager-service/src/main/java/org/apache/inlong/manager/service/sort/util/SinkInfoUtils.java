@@ -237,6 +237,9 @@ public class SinkInfoUtils {
         }
     }
 
+    /**
+     * Creat Elasticsearch sink info.
+     */
     private static ElasticsearchSinkInfo createElasticsearchSinkInfo(ElasticsearchSinkResponse sinkResponse,
             List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(sinkResponse.getHost())) {
