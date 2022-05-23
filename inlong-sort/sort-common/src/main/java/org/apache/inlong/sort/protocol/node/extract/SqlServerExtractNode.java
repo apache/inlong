@@ -37,7 +37,7 @@ import java.util.Map;
  * SqlServer extract node using debezium engine.
  */
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("SqlServerExtract")
+@JsonTypeName("sqlserverExtract")
 @Data
 public class SqlServerExtractNode extends ExtractNode implements Serializable {
 

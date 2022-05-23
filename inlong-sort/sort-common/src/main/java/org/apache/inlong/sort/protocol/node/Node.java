@@ -55,7 +55,7 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
         @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
         @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
-        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlServerExtract"),
+        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
         @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
         @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),

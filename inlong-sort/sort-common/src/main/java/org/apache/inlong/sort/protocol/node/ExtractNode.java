@@ -52,7 +52,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
         @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
         @JsonSubTypes.Type(value = MongoExtractNode.class, name = "MongoExtract"),
-        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlServerExtract"),
+        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
 })
 @Data
 @NoArgsConstructor
