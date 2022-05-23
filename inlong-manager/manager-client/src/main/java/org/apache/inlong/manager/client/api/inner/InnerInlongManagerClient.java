@@ -55,6 +55,7 @@ import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
