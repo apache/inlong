@@ -61,7 +61,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     @JsonProperty("partitionFields")
     private List<FieldInfo> partitionFields;
 
-    private String tampTableName;
+    private String tempTableName;
 
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
@@ -82,7 +82,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
         this.format = Preconditions.checkNotNull(format, "format type is null");
         this.path = Preconditions.checkNotNull(path, "path is null");
         this.partitionFields = partitionFields;
-        this.tampTableName = name;
+        this.tempTableName = name;
         this.serverTimeZone = serverTimeZone;
     }
 
@@ -118,7 +118,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
 
     @Override
     public String genTableName() {
-        return "node_" + super.getId() + "_" + tampTableName;
+        return "node_" + super.getId() + "_" + tempTableName;
     }
 
 }
