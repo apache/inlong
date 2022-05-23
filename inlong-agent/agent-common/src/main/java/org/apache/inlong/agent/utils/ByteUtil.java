@@ -135,7 +135,6 @@ public class ByteUtil {
      * within {@code array} starting at {@code fromIndex} , or {@code -1} if there is no such
      * occurrence.
      *
-     * <p>
      * Returns the lowest index {@code k} such that {@code k >= fromIndex} and {@code
      * java.util.Arrays.copyOfRange(array, k, k + target.length)} contains exactly the same elements
      * as {@code target}.
