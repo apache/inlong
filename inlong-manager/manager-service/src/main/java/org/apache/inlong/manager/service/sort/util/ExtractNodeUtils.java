@@ -40,6 +40,7 @@ import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
@@ -89,6 +90,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((OracleSource) sourceInfo);
             case SQLSERVER:
                 return createExtractNode((SqlServerSource) sourceInfo);
+            case MONGO:
+                return createExtractNode((MongoSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -274,6 +277,40 @@ public class ExtractNodeUtils {
     }
 
     /**
+     * Create mongoDB extract node
+     *
+     * @param mongoSourceResponse  mongo source response info
+     * @return Mongo extract node info
+     */
+    public static MongoExtractNode createExtractNode(MongoSourceResponse mongoSourceResponse) {
+        String id = mongoSourceResponse.getSourceName();
+        String name = mongoSourceResponse.getSourceName();
+        List<InlongStreamFieldInfo> streamFieldInfos = mongoSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        String primaryKey =  mongoSourceResponse.getPrimaryKey();
+        String hostname =  mongoSourceResponse.getHosts();
+        String userName = mongoSourceResponse.getUsername();
+        String password = mongoSourceResponse.getPassword();
+        String database = mongoSourceResponse.getDatabase();
+        String collection = mongoSourceResponse.getCollection();
+        return new MongoExtractNode(
+                id,
+                name,
+                fieldInfos,
+                null,
+                null,
+                primaryKey,
+                collection,
+                hostname,
+                userName,
+                password,
+                database
+        );
+    }
+
+    /**
      * Create PostgreSQL extract node
      *
      * @param postgresSource PostgreSQL source info
@@ -295,7 +332,7 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create Oracle extract node 
+     * Create Oracle extract node
      *
      * @param oracleSource Oracle source info
      * @return oracle extract node info
