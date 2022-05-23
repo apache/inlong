@@ -180,6 +180,7 @@
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
         <flume.version>1.9.0</flume.version>
+        <hbase.version>2.4.12</hbase.version>
 
         <velocity.tools.generic.version>3.1</velocity.tools.generic.version>
         <velocity.engine.core.version>2.3</velocity.engine.core.version>
@@ -479,6 +480,13 @@
                 <groupId>ru.yandex.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${clickhouse-jdbc.version}</version>
+            </dependency>
+
+            <!-- hbase -->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
             </dependency>
 
             <!-- db -->
