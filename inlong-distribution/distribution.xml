@@ -64,10 +64,10 @@
 
         <!-- package InLong-Sort-->
         <fileSet>
-            <directory>../inlong-sort/sort-dis/target</directory>
+            <directory>../inlong-sort/sort-dist/target</directory>
             <outputDirectory>inlong-sort</outputDirectory>
             <includes>
-                <include>sort-dis-${project.version}.jar</include>
+                <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
 
