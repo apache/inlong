@@ -45,9 +45,7 @@ const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: 
     const savedFormData = defaultData?.currentTask?.formData;
     if (savedFormData && Object.keys(savedFormData).length) {
       const obj = {
-        form: {
-          ...savedFormData.businessApproveInfo,
-        },
+        ...savedFormData.groupApproveInfo,
       };
       form.setFieldsValue(obj);
     }

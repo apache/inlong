@@ -103,7 +103,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
         {
           type: 'select',
           label: 'Cluster',
-          name: ['form', 'inlongClusterTag'],
+          name: ['inlongClusterTag'],
           rules: [{ required: true }],
           props: {
             disabled: isFinished,
@@ -121,8 +121,8 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
                 formatResult: result =>
                   result?.list?.map(item => ({
                     ...item,
-                    label: item.name,
-                    value: item.id,
+                    label: item.clusterTag,
+                    value: item.clusterTag,
                   })),
               },
             },
