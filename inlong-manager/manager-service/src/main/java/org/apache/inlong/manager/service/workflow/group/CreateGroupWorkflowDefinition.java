@@ -20,11 +20,11 @@ package org.apache.inlong.manager.service.workflow.group;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupCompleteProcessListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupFailedProcessListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupInitProcessListener;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -85,14 +85,6 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initMQResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initMQResourceTask);
 
-        // init Sort resource
-        ServiceTask initSortResourceTask = new ServiceTask();
-        initSortResourceTask.setName("initSort");
-        initSortResourceTask.setDisplayName("Group-InitSort");
-        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortResourceTask.addListenerProvider(groupTaskListenerFactory);
-        process.addTask(initSortResourceTask);
-
         // init sink
         ServiceTask initSinkTask = new ServiceTask();
         initSinkTask.setName("initSink");
@@ -101,15 +93,23 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initSinkTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSinkTask);
 
+        // init Sort resource
+        ServiceTask initSortResourceTask = new ServiceTask();
+        initSortResourceTask.setName("initSort");
+        initSortResourceTask.setDisplayName("Group-InitSort");
+        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortResourceTask.addListenerProvider(groupTaskListenerFactory);
+        process.addTask(initSortResourceTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
         startEvent.addNext(initDataSourceTask);
         initDataSourceTask.addNext(initMQResourceTask);
-        initMQResourceTask.addNext(initSortResourceTask);
-        initSortResourceTask.addNext(initSinkTask);
-        initSinkTask.addNext(endEvent);
+        initMQResourceTask.addNext(initSinkTask);
+        initSinkTask.addNext(initSortResourceTask);
+        initSortResourceTask.addNext(endEvent);
 
         return process;
     }
