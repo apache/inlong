@@ -64,7 +64,7 @@
                 #{fieldType,jdbcType=VARCHAR}, #{fieldComment,jdbcType=VARCHAR},
                 #{sourceFieldName,jdbcType=VARCHAR}, #{sourceFieldType,jdbcType=VARCHAR},
                 #{fieldLength,jdbcType=INTEGER}, #{fieldPrecision,jdbcType=INTEGER},
-                #{fieldScale,jdbcType=INTEGER}, #{partitionStrategy,jdbcType=VARCHAR}, #{extrParam,jdbcType=VARCHAR},
+                #{fieldScale,jdbcType=INTEGER}, #{partitionStrategy,jdbcType=VARCHAR}, #{extrParam,jdbcType=LONGVARCHAR},
                 #{isMetaField,jdbcType=SMALLINT}, #{fieldFormat,jdbcType=VARCHAR},
                 #{rankNum,jdbcType=SMALLINT}, #{isDeleted,jdbcType=INTEGER})
     </insert>
@@ -90,7 +90,7 @@
             #{item.sourceFieldName,jdbcType=VARCHAR}, #{item.sourceFieldType,jdbcType=VARCHAR},
             #{item.fieldLength,jdbcType=INTEGER}, #{item.fieldPrecision,jdbcType=INTEGER},
             #{item.fieldScale,jdbcType=INTEGER}, #{item.partitionStrategy,jdbcType=VARCHAR},
-            #{item.extrParam,jdbcType=VARCHAR},
+            #{item.extrParam,jdbcType=LONGVARCHAR},
             #{item.isMetaField,jdbcType=SMALLINT}, #{item.fieldFormat,jdbcType=VARCHAR},
             #{item.rankNum,jdbcType=SMALLINT}, #{item.isDeleted,jdbcType=INTEGER}
             )
