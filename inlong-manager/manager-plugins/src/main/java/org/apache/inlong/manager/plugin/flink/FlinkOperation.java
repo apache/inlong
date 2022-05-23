@@ -43,7 +43,7 @@ public class FlinkOperation {
             + "or task already terminated or savepoint path is null";
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
-    private static final String SORT_JAR_PATTERN = "^sort-single-tenant.*jar$";
+    private static final String SORT_JAR_PATTERN = "^sort-dis.*jar$";
 
     private final FlinkService flinkService;
 
