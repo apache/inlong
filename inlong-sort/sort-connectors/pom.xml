@@ -40,7 +40,9 @@
         <module>kafka</module>
         <module>jdbc</module>
         <module>pulsar</module>
+
         <module>iceberg</module>
+        <module>iceberg-dlc</module>
         <module>hbase</module>
         <module>postgres-cdc</module>
         <module>mongodb-cdc</module>
