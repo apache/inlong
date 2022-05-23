@@ -691,6 +691,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `field_precision`    int(4)        DEFAULT NULL COMMENT 'Field precision',
     `field_scale`        int(4)        DEFAULT NULL COMMENT 'Field scale',
     `partition_strategy` varchar(20)   DEFAULT NULL COMMENT 'Field partition strategy',
+    `extr_param`         text COMMENT 'Field extr param',
     `is_meta_field`      smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
     `field_format`       varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`           smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',

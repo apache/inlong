@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
@@ -36,6 +37,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
+import org.apache.inlong.sort.protocol.sink.ElasticsearchSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
@@ -75,6 +77,8 @@ public class SinkInfoUtils {
             sinkInfo = createIcebergSinkInfo((IcebergSinkResponse) sinkResponse, sinkFields);
         } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
             sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse, sinkFields);
+        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
+            sinkInfo = createElasticsearchSinkInfo((ElasticsearchSinkResponse) sinkResponse, sinkFields);
         } else {
             throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
         }
@@ -231,6 +235,24 @@ public class SinkInfoUtils {
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
+    }
+
+    /**
+     * Creat Elasticsearch sink info.
+     */
+    private static ElasticsearchSinkInfo createElasticsearchSinkInfo(ElasticsearchSinkResponse sinkResponse,
+            List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(sinkResponse.getHost())) {
+            throw new BusinessException(String.format("ClickHouse={%s} server host cannot be empty", sinkResponse));
+        } else if (StringUtils.isEmpty(sinkResponse.getIndexName())) {
+            throw new BusinessException(String.format("ClickHouse={%s} indexName cannot be empty", sinkResponse));
+        }
+
+        return new ElasticsearchSinkInfo(sinkResponse.getHost(), sinkResponse.getPort(),
+                sinkResponse.getIndexName(), sinkResponse.getUsername(), sinkResponse.getPassword(),
+                sinkFields.toArray(new FieldInfo[0]), new String[0],
+                sinkResponse.getFlushInterval(), sinkResponse.getFlushRecord(),
+                sinkResponse.getRetryTimes());
     }
 
 }
