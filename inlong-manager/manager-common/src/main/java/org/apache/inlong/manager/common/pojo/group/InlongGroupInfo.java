@@ -19,15 +19,13 @@ package org.apache.inlong.manager.common.pojo.group;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -36,11 +34,9 @@ import java.util.List;
  * Inlong group info
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("Inlong group info")
-public class InlongGroupInfo {
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
+public abstract class InlongGroupInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -114,8 +110,6 @@ public class InlongGroupInfo {
     @ApiModelProperty("Sort configuration, will transfer into extList")
     private BaseSortConf sortConf;
 
-    public InlongGroupRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, InlongGroupRequest::new);
-    }
+    public abstract InlongGroupRequest genRequest();
 
 }

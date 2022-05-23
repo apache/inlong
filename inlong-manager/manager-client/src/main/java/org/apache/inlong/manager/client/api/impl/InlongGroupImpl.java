@@ -47,7 +47,6 @@ import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -70,14 +69,11 @@ public class InlongGroupImpl implements InlongGroup {
             this.managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
         }
 
-        InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<Boolean, InlongGroupInfo> existMsg = managerClient.isGroupExists(groupRequest);
-        if (existMsg.getKey()) {
-            // update current snapshot
-            groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
+        InlongGroupInfo newGroupInfo = managerClient.getGroupIfExists(groupInfo.getInlongGroupId());
+        if (newGroupInfo != null) {
             this.groupContext.setGroupInfo(groupInfo);
         } else {
-            String groupId = managerClient.createGroup(groupRequest);
+            String groupId = managerClient.createGroup(groupInfo.genRequest());
             groupInfo.setInlongGroupId(groupId);
         }
     }
@@ -165,16 +161,15 @@ public class InlongGroupImpl implements InlongGroup {
     public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
         this.update(originGroupInfo, sortConf);
 
-        InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
-        InlongGroupRequest groupRequest = groupInfo.genRequest();
-        Pair<Boolean, InlongGroupInfo> existMsg = managerClient.isGroupExists(groupRequest);
-        if (existMsg.getKey()) {
-            groupInfo = CommonBeanUtils.copyProperties(existMsg.getValue(), InlongGroupInfo::new);
-            this.groupContext.setGroupInfo(groupInfo);
-            return init();
+        String inlongGroupId = this.groupContext.getGroupInfo().getInlongGroupId();
+        InlongGroupInfo newGroupInfo = managerClient.getGroupIfExists(inlongGroupId);
+        if (newGroupInfo != null) {
+            this.groupContext.setGroupInfo(newGroupInfo);
         } else {
-            throw new RuntimeException(String.format("Group not found by groupId=%s", groupInfo.getInlongGroupId()));
+            throw new RuntimeException(String.format("Group not found by inlongGroupId=%s", inlongGroupId));
         }
+
+        return init();
     }
 
     @Override

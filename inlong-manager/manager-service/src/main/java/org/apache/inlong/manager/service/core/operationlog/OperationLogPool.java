@@ -19,6 +19,13 @@ package org.apache.inlong.manager.service.core.operationlog;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.dao.entity.OperationLogEntity;
+import org.apache.inlong.manager.dao.mapper.OperationLogEntityMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,13 +35,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.dao.entity.OperationLogEntity;
-import org.apache.inlong.manager.dao.mapper.OperationLogEntityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * Operation log thread pool
@@ -47,7 +47,8 @@ public class OperationLogPool {
     private static final int MAX_WAIT_TIME_SECOND = 30;
     private static final int MAX_QUEUE_SIZE = 10000;
     private static final int THREAD_NUM = 3;
-    private static ArrayBlockingQueue<OperationLogEntity> pool = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE);
+    private static final ArrayBlockingQueue<OperationLogEntity> OPERATION_POOL = new ArrayBlockingQueue<>(
+            MAX_QUEUE_SIZE);
 
     private final ExecutorService executorService = new ThreadPoolExecutor(
             THREAD_NUM,
@@ -62,8 +63,8 @@ public class OperationLogPool {
     private OperationLogEntityMapper operationLogEntityMapper;
 
     public static void publish(OperationLogEntity operation) {
-        if (!pool.offer(operation)) {
-            log.info("discard log {}", JsonUtils.toJson(operation));
+        if (!OPERATION_POOL.offer(operation)) {
+            log.info("discard operation log: {}", operation);
         }
     }
 
@@ -80,19 +81,18 @@ public class OperationLogPool {
             buffer.clear();
             int size = 0;
             try {
-                size = Queues.drain(pool, buffer, BUFFER_SIZE, MAX_WAIT_TIME_SECOND, TimeUnit.SECONDS);
+                size = Queues.drain(OPERATION_POOL, buffer, BUFFER_SIZE, MAX_WAIT_TIME_SECOND, TimeUnit.SECONDS);
                 if (buffer.isEmpty()) {
                     continue;
                 }
                 long startTime = System.currentTimeMillis();
                 operationLogEntityMapper.insertBatch(buffer);
-                log.info("receive {} logs and saved cost :{} ms", size,
-                        System.currentTimeMillis() - startTime);
+                log.info("receive {} logs and saved cost {} ms", size, System.currentTimeMillis() - startTime);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("save operation log interrupted", e);
                 break;
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("save operation log error: ", e);
             }
         }
     }
