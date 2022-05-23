@@ -18,11 +18,13 @@
 package org.apache.inlong.dataproxy.source.tcp;
 
 import org.apache.flume.Event;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.source.SourceContext;
 import org.apache.inlong.sdk.commons.protocol.EventUtils;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePack;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessagePackHeader;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.ResponseInfo;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -98,9 +101,9 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
             // save index, reset it if buffer is not satisfied.
             cb.markReaderIndex();
             int totalPackLength = cb.readInt();
-            cb.resetReaderIndex();
             if (readableLength < totalPackLength + LENGTH_PARAM_LENGTH) {
                 // reset index.
+                cb.resetReaderIndex();
                 this.addMetric(false, 0, null);
                 throw new Exception("err msg, channel buffer is not satisfied, and  readableLength="
                         + readableLength + ", and totalPackLength=" + totalPackLength);
@@ -137,7 +140,65 @@ public class InlongTcpChannelHandler extends ChannelInboundHandlerAdapter {
         }
         // uncompress
         List<ProxyEvent> events = EventUtils.decodeSdkPack(packObject);
-        // topic
+        // response success if event size is zero
+        if (events.size() == 0) {
+            this.responsePackage(ctx, ResultCode.SUCCUSS, packObject);
+        }
+        // process
+        if (!CommonPropertiesHolder.isResponseAfterSave()) {
+            this.processAndResponse(ctx, packObject, events);
+        } else {
+            this.processAndWaitingSave(ctx, packObject, events);
+        }
+    }
+
+    /**
+     * processAndWaitingSave
+     * @param ctx
+     * @param packObject
+     * @param events
+     * @throws Exception
+     */
+    private void processAndWaitingSave(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+            throws Exception {
+        MessagePackHeader header = packObject.getHeader();
+        InlongTcpSourceCallback callback = new InlongTcpSourceCallback(ctx, header);
+        String inlongGroupId = header.getInlongGroupId();
+        String inlongStreamId = header.getInlongStreamId();
+        ProxyPackEvent packEvent = new ProxyPackEvent(inlongGroupId, inlongStreamId, events, callback);
+        // put to channel
+        try {
+            sourceContext.getSource().getChannelProcessor().processEvent(packEvent);
+            events.forEach(event -> {
+                this.addMetric(true, event.getBody().length, event);
+            });
+            boolean awaitResult = callback.getLatch().await(CommonPropertiesHolder.getMaxResponseTimeout(),
+                    TimeUnit.MILLISECONDS);
+            if (!awaitResult) {
+                if (!callback.getHasResponsed().getAndSet(true)) {
+                    this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
+                }
+            }
+        } catch (Throwable ex) {
+            LOG.error("Process Controller Event error can't write event to channel.", ex);
+            events.forEach(event -> {
+                this.addMetric(false, event.getBody().length, event);
+            });
+            if (!callback.getHasResponsed().getAndSet(true)) {
+                this.responsePackage(ctx, ResultCode.ERR_REJECT, packObject);
+            }
+        }
+    }
+
+    /**
+     * processAndResponse
+     * @param ctx
+     * @param packObject
+     * @param events
+     * @throws Exception
+     */
+    private void processAndResponse(ChannelHandlerContext ctx, MessagePack packObject, List<ProxyEvent> events)
+            throws Exception {
         for (ProxyEvent event : events) {
             String uid = event.getUid();
             String topic = sourceContext.getIdHolder().getTopic(uid);

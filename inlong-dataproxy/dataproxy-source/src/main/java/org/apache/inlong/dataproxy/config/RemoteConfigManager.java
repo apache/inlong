@@ -17,17 +17,7 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import com.google.gson.Gson;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -50,10 +40,21 @@ import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxySink;
 import org.apache.inlong.common.pojo.dataproxy.ProxySource;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * RemoteConfigManager
@@ -102,12 +103,10 @@ public class RemoteConfigManager implements IRepository {
             if (!isInit) {
                 instance = new RemoteConfigManager();
                 try {
-                    String strReloadInterval = ConfigManager.getInstance().getCommonProperties()
-                            .get(KEY_CONFIG_CHECK_INTERVAL);
+                    String strReloadInterval = CommonPropertiesHolder.getString(KEY_CONFIG_CHECK_INTERVAL);
                     instance.reloadInterval = NumberUtils.toLong(strReloadInterval, DEFAULT_HEARTBEAT_INTERVAL_MS);
                     //
-                    String ipListParserType = ConfigManager.getInstance().getCommonProperties()
-                            .get(IManagerIpListParser.KEY_MANAGER_TYPE);
+                    String ipListParserType = CommonPropertiesHolder.getString(IManagerIpListParser.KEY_MANAGER_TYPE);
                     Class<? extends IManagerIpListParser> ipListParserClass;
                     ipListParserClass = (Class<? extends IManagerIpListParser>) Class
                             .forName(ipListParserType);
@@ -134,13 +133,13 @@ public class RemoteConfigManager implements IRepository {
      */
     public void reload() {
         LOGGER.info("start to reload config.");
-        String proxyClusterName = ConfigManager.getInstance().getCommonProperties().get(KEY_PROXY_CLUSTER_NAME);
-        String setName = ConfigManager.getInstance().getCommonProperties().get(KEY_SET_NAME);
+        String proxyClusterName = CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
+        String setName = CommonPropertiesHolder.getString(KEY_SET_NAME);
         if (StringUtils.isBlank(proxyClusterName) || StringUtils.isBlank(setName)) {
             return;
         }
         //
-        this.ipListParser.setCommonProperties(ConfigManager.getInstance().getCommonProperties());
+        this.ipListParser.setCommonProperties(CommonPropertiesHolder.get());
         List<String> managerIpList = this.ipListParser.getIpList();
         if (managerIpList == null || managerIpList.size() == 0) {
             return;
@@ -255,7 +254,7 @@ public class RemoteConfigManager implements IRepository {
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getName();
         }
-        return ConfigManager.getInstance().getCommonProperties().get(KEY_PROXY_CLUSTER_NAME);
+        return CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
     }
 
     /**
@@ -268,7 +267,7 @@ public class RemoteConfigManager implements IRepository {
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getSetName();
         }
-        return ConfigManager.getInstance().getCommonProperties().get(KEY_SET_NAME);
+        return CommonPropertiesHolder.getString(KEY_SET_NAME);
     }
 
     /**

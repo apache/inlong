@@ -17,10 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsarzone;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
@@ -33,6 +29,10 @@ import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
 import org.apache.inlong.dataproxy.sink.SinkContext;
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.INLONG_COMPRESSED_TYPE;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -214,6 +214,21 @@ public class PulsarZoneSinkContext extends SinkContext {
         inlongStreamId = (StringUtils.isBlank(inlongStreamId)) ? "-" : inlongStreamId;
         dimensions.put(DataProxyMetricItem.KEY_INLONG_GROUP_ID, inlongGroupId);
         dimensions.put(DataProxyMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
+    }
+
+    /**
+     * processSendFail
+     * @param currentRecord
+     * @param producerTopic
+     * @param sendTime
+     */
+    public void processSendFail(DispatchProfile currentRecord, String producerTopic, long sendTime) {
+        if (currentRecord.isResend()) {
+            dispatchQueue.offer(currentRecord);
+            this.addSendResultMetric(currentRecord, producerTopic, false, sendTime);
+        } else {
+            currentRecord.fail();
+        }
     }
 
     /**
