@@ -25,9 +25,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchFieldInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkExtrParamDTO;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkIndexDTO;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchIndexInfo;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.SinkResourceOperator;
@@ -91,7 +89,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
 
         try {
             ElasticsearchConfig config = new ElasticsearchConfig();
-            ElasticsearchSinkIndexDTO esInfo = ElasticsearchSinkIndexDTO.getFromJson(sinkInfo.getExtParams());
+            ElasticsearchSinkDTO esInfo = ElasticsearchSinkDTO.getFromJson(sinkInfo.getExtParams());
             if (StringUtils.isNotEmpty(esInfo.getUsername())) {
                 config.setAuthEnable(true);
                 config.setUsername(esInfo.getUsername());
@@ -103,15 +101,15 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             ElasticsearchApi client = new ElasticsearchApi();
             client.setEsConfig(config);
 
-            ElasticsearchIndexInfo indexInfo = ElasticsearchSinkIndexDTO.getElasticSearchIndexInfo(esInfo, fieldList);
-            boolean indexExists = client.indexExists(indexInfo.getIndexName());
+            String indexName = ElasticsearchSinkDTO.getElasticSearchIndexName(esInfo, fieldList);
+            boolean indexExists = client.indexExists(indexName);
 
             // 3. index not exists, create it
             if (!indexExists) {
-                client.createIndexAndMapping(indexInfo, fieldList);
+                client.createIndexAndMapping(indexName, fieldList);
             } else {
                 // 4. index exists, add fields - skip the exists fields
-                client.addNotExistFields(indexInfo.getIndexName(), fieldList);
+                client.addNotExistFields(indexName, fieldList);
             }
 
             // 5. update the sink status to success
@@ -132,10 +130,10 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             ElasticsearchFieldInfo fieldInfo = new ElasticsearchFieldInfo();
             fieldInfo.setName(entry.getFieldName());
             fieldInfo.setType(entry.getFieldType());
-            fieldInfo.setScalingFactor(entry.getFieldScale());
             fieldInfo.setFormat(entry.getFieldFormat());
-            ElasticsearchSinkExtrParamDTO filedExtrParam =
-                    ElasticsearchSinkExtrParamDTO.getFromJson(entry.getExtrParam());
+            ElasticsearchFieldInfo filedExtrParam =
+                    ElasticsearchFieldInfo.getFromJson(entry.getExtrParam());
+            fieldInfo.setScalingFactor(filedExtrParam.getScalingFactor());
             fieldInfo.setAnalyzer(filedExtrParam.getAnalyzer());
             fieldInfo.setSearchAnalyzer(filedExtrParam.getSearchAnalyzer());
             fieldList.add(fieldInfo);

@@ -17,21 +17,59 @@
 
 package org.apache.inlong.manager.common.pojo.sink.es;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ElasticsearchFieldInfo {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @ApiModelProperty("Elasticsearch Field name")
     private String name;
+
+    @ApiModelProperty("Elasticsearch Field type")
     private String type;
 
-    /* extra attr for text type */
-    private String analyzer;
-    private String searchAnalyzer;
-
-    /* extra attr for date type */
+    @ApiModelProperty("Elasticsearch Field text format")
     private String format;
 
-    /* extra attr for float type */
+    @ApiModelProperty("Elasticsearch Analyzer")
+    private String analyzer;
+
+    @ApiModelProperty("Elasticsearch Search Analyzer")
+    private String searchAnalyzer;
+
+    @ApiModelProperty("Elasticsearch Scaling Factor")
     private Integer scalingFactor;
+
+    /**
+     * Get the extra param from the Json
+     */
+
+    public static ElasticsearchFieldInfo getFromJson(@NotNull String extParams) {
+        if (StringUtils.isEmpty(extParams)) {
+            return new ElasticsearchFieldInfo();
+        }
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, ElasticsearchFieldInfo.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+        }
+    }
+
 }

@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkIndexDTO;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
@@ -91,7 +91,7 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        ElasticsearchSinkIndexDTO dto = ElasticsearchSinkIndexDTO.getFromRequest(sinkRequest);
+        ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
@@ -164,7 +164,7 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
         Preconditions.checkTrue(SinkType.SINK_ELASTICSEARCH.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ELASTICSEARCH, existType));
 
-        ElasticsearchSinkIndexDTO dto = ElasticsearchSinkIndexDTO.getFromJson(entity.getExtParams());
+        ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -190,7 +190,7 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
         ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         CommonBeanUtils.copyProperties(sinkRequest, entity, true);
         try {
-            ElasticsearchSinkIndexDTO dto = ElasticsearchSinkIndexDTO.getFromRequest(sinkRequest);
+            ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());

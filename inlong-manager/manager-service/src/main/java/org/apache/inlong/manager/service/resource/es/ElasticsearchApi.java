@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchFieldInfo;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchIndexInfo;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -149,13 +148,13 @@ public class ElasticsearchApi {
     /**
      * Create index and mapping
      *
-     * @param indexInfo Index info of creating
+     * @param indexName Index name of creating
      * @param fieldInfos Field infos
      * @throws IOException The exception may throws
      */
-    public void createIndexAndMapping(ElasticsearchIndexInfo indexInfo,
+    public void createIndexAndMapping(String indexName,
             List<ElasticsearchFieldInfo> fieldInfos) throws IOException {
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexInfo.getIndexName());
+        CreateIndexRequest createIndexRequest = new CreateIndexRequest(indexName);
         List<String> fieldList = getMappingInfo(fieldInfos);
         StringBuilder mapping = new StringBuilder().append("{\n      \"properties\" : {\n")
                 .append(StringUtils.join(fieldList, ",\n")).append("\n      }\n}");
@@ -163,7 +162,7 @@ public class ElasticsearchApi {
 
         CreateIndexResponse createIndexResponse = getEsClient().indices()
                 .create(createIndexRequest, RequestOptions.DEFAULT);
-        LOG.info("create {}:{}", indexInfo.getIndexName(), createIndexResponse.isAcknowledged());
+        LOG.info("create {}:{}", indexName, createIndexResponse.isAcknowledged());
     }
 
     /**
