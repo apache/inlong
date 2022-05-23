@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class TokenAuthentication implements Authentication {
 
     @Override
     public String toString() {
-        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        ObjectNode objectNode = OBJECT_MAPPER.createObjectNode();
         objectNode.put(TOKEN, this.getToken());
         return objectNode.toString();
     }

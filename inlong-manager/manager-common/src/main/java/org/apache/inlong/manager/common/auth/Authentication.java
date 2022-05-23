@@ -17,21 +17,24 @@
 
 package org.apache.inlong.manager.common.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Locale;
 import java.util.Map;
 
 public interface Authentication {
+
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    AuthType getAuthType();
+
+    void configure(Map<String, String> properties);
 
     enum AuthType {
         UNAME_PASSWD,
         TOKEN,
         SECRET,
         SECRET_AND_TOKEN;
-
-        @Override
-        public String toString() {
-            return this.name().toLowerCase(Locale.ROOT);
-        }
 
         public static AuthType forType(String type) {
             for (AuthType authType : values()) {
@@ -41,9 +44,10 @@ public interface Authentication {
             }
             throw new IllegalArgumentException(String.format("Unsupported authType=%s for Inlong", type));
         }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase(Locale.ROOT);
+        }
     }
-
-    AuthType getAuthType();
-
-    void configure(Map<String, String> properties);
 }
