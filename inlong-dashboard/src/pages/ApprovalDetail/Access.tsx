@@ -17,14 +17,14 @@
  * under the License.
  */
 
-import React, { useMemo, forwardRef, useImperativeHandle } from 'react';
+import React, { useMemo, forwardRef, useImperativeHandle, useEffect } from 'react';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { CommonInterface } from './common';
 import { getFormContent } from './AccessConfig';
 
 export type Props = CommonInterface;
 
-const Comp = ({ defaultData, isViwer, suffixContent }: Props, ref) => {
+const Comp = ({ defaultData, isViwer, suffixContent, noExtraForm, isFinished }: Props, ref) => {
   const [form] = useForm();
 
   const onOk = async (useValidate = true) => {
@@ -40,6 +40,18 @@ const Comp = ({ defaultData, isViwer, suffixContent }: Props, ref) => {
 
     return { ...values, form: data };
   };
+
+  useEffect(() => {
+    const savedFormData = defaultData?.currentTask?.formData;
+    if (savedFormData && Object.keys(savedFormData).length) {
+      const obj = {
+        form: {
+          ...savedFormData.businessApproveInfo,
+        },
+      };
+      form.setFieldsValue(obj);
+    }
+  }, [defaultData, form]);
 
   useImperativeHandle(ref, () => ({
     onOk,
@@ -60,6 +72,8 @@ const Comp = ({ defaultData, isViwer, suffixContent }: Props, ref) => {
           isViwer,
           formData: defaultData?.processInfo?.formData,
           suffixContent,
+          noExtraForm,
+          isFinished,
         })}
       />
     )

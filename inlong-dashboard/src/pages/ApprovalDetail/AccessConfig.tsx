@@ -61,7 +61,7 @@ const getBusinessContent = initialValues => [
   }),
 ];
 
-export const getFormContent = ({ isViwer, formData, suffixContent }) => {
+export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, isFinished }) => {
   const array = [
     {
       type: (
@@ -97,6 +97,39 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
     },
   ];
 
+  const extraForm = noExtraForm
+    ? []
+    : [
+        {
+          type: 'select',
+          label: 'Cluster',
+          name: ['form', 'inlongClusterTag'],
+          rules: [{ required: true }],
+          props: {
+            disabled: isFinished,
+            options: {
+              requestAuto: isFinished,
+              requestService: {
+                url: '/cluster/list',
+                method: 'POST',
+                data: {
+                  pageNum: 1,
+                  pageSize: 100,
+                },
+              },
+              requestParams: {
+                formatResult: result =>
+                  result?.list?.map(item => ({
+                    ...item,
+                    label: item.name,
+                    value: item.id,
+                  })),
+              },
+            },
+          },
+        },
+      ];
+
   return isViwer
     ? array
     : array.concat([
@@ -107,6 +140,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
             </Divider>
           ),
         },
+        ...extraForm,
         ...suffixContent,
       ]);
 };
