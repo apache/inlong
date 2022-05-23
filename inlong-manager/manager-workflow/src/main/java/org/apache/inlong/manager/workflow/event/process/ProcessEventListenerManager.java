@@ -22,6 +22,8 @@ import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.event.EventListenerManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import java.util.Map;
 /**
  * System default process event listener manager
  */
+@Service
 public class ProcessEventListenerManager implements EventListenerManager<ProcessEvent, ProcessEventListener> {
 
     private static final List<ProcessEventListener> EMPTY = Lists.newArrayList();
@@ -36,6 +39,7 @@ public class ProcessEventListenerManager implements EventListenerManager<Process
     private final Map<ProcessEvent, List<ProcessEventListener>> asyncProcessEventListeners = Maps.newHashMap();
     private final Map<String, ProcessEventListener> processEventListeners = Maps.newHashMap();
 
+    @Autowired
     private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override

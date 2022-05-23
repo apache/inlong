@@ -25,6 +25,8 @@ import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.EventListenerManager;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +40,7 @@ import java.util.function.Consumer;
  * WorkflowProcess event notifier
  */
 @Slf4j
+@Service
 public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
 
     private final ExecutorService executorService = new ThreadPoolExecutor(
@@ -49,8 +52,10 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
             new ThreadFactoryBuilder().setNameFormat("async-task-event-notifier-%s").build(),
             new CallerRunsPolicy());
 
-    private final EventListenerManager<TaskEvent, TaskEventListener> eventListenerManager;
-    private final WorkflowEventLogEntityMapper eventLogMapper;
+    @Autowired
+    private EventListenerManager<TaskEvent, TaskEventListener> eventListenerManager;
+    @Autowired
+    private WorkflowEventLogEntityMapper eventLogMapper;
 
     public TaskEventNotifier(TaskEventListenerManager listenerManager, WorkflowEventLogEntityMapper eventLogMapper) {
         this.eventListenerManager = listenerManager;

@@ -17,51 +17,54 @@
 
 package org.apache.inlong.manager.workflow.processor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
+import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
-import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
  * User task processor
  */
+@Slf4j
+@Service
 public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
     private static final Set<WorkflowAction> SHOULD_CHECK_OPERATOR_ACTIONS = ImmutableSet
             .of(WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER);
-
     private static final Set<WorkflowAction> SUPPORT_ACTIONS = ImmutableSet.of(
             WorkflowAction.APPROVE, WorkflowAction.REJECT, WorkflowAction.TRANSFER, WorkflowAction.CANCEL,
             WorkflowAction.TERMINATE
     );
-    private final TaskEventNotifier taskEventNotifier;
 
-    public UserTaskProcessor(WorkflowTaskEntityMapper taskEntityMapper, WorkflowEventNotifier eventNotifier) {
-        super(taskEntityMapper);
-        this.taskEventNotifier = eventNotifier.getTaskEventNotifier();
-    }
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private TaskEventNotifier taskEventNotifier;
 
     @Override
     public Class<UserTask> watch() {
@@ -170,17 +173,33 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         taskEntity.setRemark(actionContext.getRemark());
 
         UserTask userTask = (UserTask) actionContext.getTask();
-        if (needForm(userTask, actionContext.getAction())) {
-            Preconditions.checkNotNull(actionContext.getForm(), "form cannot be null");
-            Preconditions.checkTrue(actionContext.getForm().getClass().isAssignableFrom(userTask.getFormClass()),
-                    "form type not match, should be class " + userTask.getFormClass());
-            actionContext.getForm().validate();
-            taskEntity.setFormData(JsonUtils.toJson(actionContext.getForm()));
-        } else {
-            Preconditions.checkNull(actionContext.getForm(), "no form required");
+        try {
+            TaskForm taskForm = actionContext.getForm();
+            if (needForm(userTask, actionContext.getAction())) {
+                Preconditions.checkNotNull(taskForm, "form cannot be null");
+                Preconditions.checkTrue(taskForm.getClass().isAssignableFrom(userTask.getFormClass()),
+                        "form type not match, should be class " + userTask.getFormClass());
+                taskForm.validate();
+                taskEntity.setFormData(objectMapper.writeValueAsString(taskForm));
+            } else {
+                Preconditions.checkNull(taskForm, "no form required");
+            }
+            taskEntity.setEndTime(new Date());
+
+            Map<String, Object> extMap = new HashMap<>();
+            if (StringUtils.isNotBlank(taskEntity.getExtParams())) {
+                extMap = objectMapper.readValue(taskEntity.getExtParams(),
+                        objectMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class));
+                if (WorkflowAction.TRANSFER.equals(actionContext.getAction())) {
+                    extMap.put(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY, actionContext.getTransferToUsers());
+                }
+            }
+            String extParams = objectMapper.writeValueAsString(extMap);
+            taskEntity.setExtParams(extParams);
+        } catch (JsonProcessingException e) {
+            log.error("parse transfer users error: ", e);
+            throw new JsonException("parse transfer users error");
         }
-        taskEntity.setEndTime(new Date());
-        taskEntity.setExtParams(handlerExt(actionContext, taskEntity.getExtParams()));
         taskEntityMapper.update(taskEntity);
     }
 
@@ -190,18 +209,6 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         }
 
         return WorkflowAction.APPROVE.equals(workflowAction) || WorkflowAction.COMPLETE.equals(workflowAction);
-    }
-
-    private String handlerExt(WorkflowContext.ActionContext actionContext, String oldExt) {
-        Map<String, Object> extMap = Optional.ofNullable(oldExt)
-                .map(e -> JsonUtils.parseMap(oldExt, String.class, Object.class))
-                .orElseGet(Maps::newHashMap);
-
-        if (WorkflowAction.TRANSFER.equals(actionContext.getAction())) {
-            extMap.put(WorkflowTaskEntity.EXT_TRANSFER_USER_KEY, actionContext.getTransferToUsers());
-        }
-
-        return JsonUtils.toJson(extMap);
     }
 
     private TaskStatus toTaskState(WorkflowAction workflowAction) {

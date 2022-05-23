@@ -25,6 +25,8 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.event.EventListenerManager;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +40,7 @@ import java.util.function.Consumer;
  * WorkflowProcess event notifier
  */
 @Slf4j
+@Service
 public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent> {
 
     private final ExecutorService executorService = new ThreadPoolExecutor(
@@ -49,13 +52,10 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
             new ThreadFactoryBuilder().setNameFormat("async-process-event-notifier-%s").build(),
             new CallerRunsPolicy());
 
-    private final EventListenerManager<ProcessEvent, ProcessEventListener> eventListenerManager;
-    private final WorkflowEventLogEntityMapper eventLogMapper;
-
-    public ProcessEventNotifier(ProcessEventListenerManager manager, WorkflowEventLogEntityMapper eventLogMapper) {
-        this.eventListenerManager = manager;
-        this.eventLogMapper = eventLogMapper;
-    }
+    @Autowired
+    private EventListenerManager<ProcessEvent, ProcessEventListener> eventListenerManager;
+    @Autowired
+    private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override
     public void notify(ProcessEvent event, WorkflowContext context) {

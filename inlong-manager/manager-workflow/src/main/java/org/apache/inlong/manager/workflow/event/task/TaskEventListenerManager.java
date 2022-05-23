@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.event.EventListenerManager;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Map;
 /**
  * Internal default task listener management
  */
+@Service
 public class TaskEventListenerManager implements EventListenerManager<TaskEvent, TaskEventListener> {
 
     private final Map<TaskEvent, List<TaskEventListener>> syncTaskEventListeners = Maps.newHashMap();

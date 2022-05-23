@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.Map;
 
@@ -60,7 +59,7 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public String toString() {
-        ObjectNode objectNode = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        ObjectNode objectNode = OBJECT_MAPPER.createObjectNode();
         objectNode.put(USER_NAME, this.getUserName());
         objectNode.put(PASSWORD, this.getPassword());
         return objectNode.toString();

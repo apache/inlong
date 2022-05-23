@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,6 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
@@ -50,6 +50,8 @@ public class CommonOperateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommonOperateService.class);
 
+    @Autowired
+    public ObjectMapper objectMapper;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -137,14 +139,22 @@ public class CommonOperateService {
         if (clusterEntity == null || StringUtils.isBlank(clusterEntity.getExtParams())) {
             throw new BusinessException("pulsar cluster or pulsar ext params is empty");
         }
-        Map<String, String> configParams = JsonUtils.parse(clusterEntity.getExtParams(), Map.class);
-        PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder().brokerServiceUrl(
-                clusterEntity.getUrl()).token(clusterEntity.getToken()).build();
-        String adminUrl = configParams.get(InlongGroupSettings.PULSAR_ADMIN_URL);
-        Preconditions.checkNotNull(adminUrl, "adminUrl is empty, check third party cluster table");
-        pulsarClusterInfo.setAdminUrl(adminUrl);
-        pulsarClusterInfo.setType(clusterEntity.getType());
-        return pulsarClusterInfo;
+
+        PulsarClusterInfo pulsarCluster = PulsarClusterInfo.builder()
+                .brokerServiceUrl(clusterEntity.getUrl())
+                .token(clusterEntity.getToken())
+                .build();
+        try {
+            Map<String, String> configParams = objectMapper.readValue(clusterEntity.getExtParams(), Map.class);
+            String adminUrl = configParams.get(InlongGroupSettings.PULSAR_ADMIN_URL);
+            pulsarCluster.setAdminUrl(adminUrl);
+        } catch (Exception e) {
+            LOGGER.error("parse pulsar cluster info error: ", e);
+        }
+
+        Preconditions.checkNotNull(pulsarCluster.getAdminUrl(), "adminUrl is empty, check third party cluster table");
+        pulsarCluster.setType(clusterEntity.getType());
+        return pulsarCluster;
     }
 
     /**

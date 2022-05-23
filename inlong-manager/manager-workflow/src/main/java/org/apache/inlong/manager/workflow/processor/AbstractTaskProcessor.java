@@ -26,6 +26,7 @@ import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ApproverAssign;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 
@@ -35,11 +36,8 @@ import java.util.Date;
 public abstract class AbstractTaskProcessor<T extends WorkflowTask> extends
         AbstractNextableElementProcessor<T> implements SkipableElementProcessor<T> {
 
+    @Autowired
     protected WorkflowTaskEntityMapper taskEntityMapper;
-
-    protected AbstractTaskProcessor(WorkflowTaskEntityMapper taskEntityMapper) {
-        this.taskEntityMapper = taskEntityMapper;
-    }
 
     @Override
     public void skip(T task, WorkflowContext context) {

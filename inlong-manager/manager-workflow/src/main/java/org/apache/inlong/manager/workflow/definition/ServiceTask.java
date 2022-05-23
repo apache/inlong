@@ -20,13 +20,15 @@ package org.apache.inlong.manager.workflow.definition;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.EventListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.util.CollectionUtils;
 
@@ -42,6 +44,8 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class ServiceTask extends WorkflowTask {
+
+    public static final Gson GSON = new GsonBuilder().create();
 
     private static final Set<WorkflowAction> SUPPORTED_ACTIONS = ImmutableSet
             .of(WorkflowAction.COMPLETE, WorkflowAction.CANCEL, WorkflowAction.TERMINATE);
@@ -101,7 +105,7 @@ public class ServiceTask extends WorkflowTask {
                     try {
                         return (ConditionNextElement) ele.clone();
                     } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
+                        log.error("clone service task error: ", e);
                     }
                     return null;
                 }).collect(Collectors.toList())));
@@ -124,9 +128,9 @@ public class ServiceTask extends WorkflowTask {
             }
             List<TaskEventListener> listeners = Lists.newArrayList(
                     listenerProvider.get(workflowContext, serviceTaskType));
-            log.info("ServiceTask:{} is init for listeners:{}", getName(),
-                    JsonUtils.toJson(listeners.stream().map(listener -> listener.name()).collect(
-                            Collectors.toList())));
+
+            List<String> listenerNames = listeners.stream().map(EventListener::name).collect(Collectors.toList());
+            log.info("ServiceTask:{} is init for listeners:{}", getName(), GSON.toJson(listenerNames));
             addListeners(listeners);
         } else {
             log.info("ServiceTask:{} is already init", getName());
