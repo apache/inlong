@@ -39,7 +39,6 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
