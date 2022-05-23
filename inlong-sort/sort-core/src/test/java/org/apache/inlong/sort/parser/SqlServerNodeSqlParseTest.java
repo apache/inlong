@@ -47,6 +47,9 @@ import java.util.stream.Collectors;
  */
 public class SqlServerNodeSqlParseTest extends AbstractTestBase {
 
+    /**
+     * Build mysql extract node.
+     */
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -60,6 +63,9 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 null, null);
     }
 
+    /**
+     * Build sqlserver load node.
+     */
     private SqlServerLoadNode buildSqlServerLoadNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
@@ -74,12 +80,18 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 "INLONG*123", "column_type_test.dbo", "work1", null);
     }
 
+    /**
+     * Build node relation.
+     */
     private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         return new NodeRelationShip(inputIds, outputIds);
     }
 
+    /**
+     * Test extract data from mysql and load data to sqlserver.
+     */
     @Test
     public void testSqlServerLoad() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
