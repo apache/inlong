@@ -86,7 +86,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                                 new FieldInfo("ts", new TimestampFormatInfo()))
                 );
 
-        IcebergLoadNode node = new IcebergLoadNode(
+        return new IcebergLoadNode(
                 "iceberg",
                 "iceberg_output",
                 fields,
@@ -101,7 +101,6 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 CatalogType.HADOOP,
                 null,
                 "hdfs://localhost:9000/iceberg/warehouse");
-        return node;
     }
 
     private IcebergLoadNode buildIcebergLoadNodeWithHiveCatalog() {
@@ -121,7 +120,7 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 );
 
         // set HIVE_CONF_DIR,or set uri and warehouse
-        IcebergLoadNode node = new IcebergLoadNode(
+        return new IcebergLoadNode(
                 "iceberg",
                 "iceberg_output",
                 fields,
@@ -136,7 +135,6 @@ public class IcebergNodeSqlParserTest extends AbstractTestBase {
                 CatalogType.HIVE,
                 "thrift://localhost:9083",
                 "/hive/warehouse");
-        return node;
     }
 
     /**
