@@ -497,13 +497,13 @@ The following components are provided under the Apache License. See project link
 The text of each license is the standard Apache 2.0 license.
 
   org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/), (Apache License, Version 2.0)
-  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.10.1 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
   commons-codec:commons-codec:1.15 - Apache Commons Codec (https://commons.apache.org/proper/commons-codec), (The Apache Software License, Version 2.0)
   commons-collections:commons-collections:3.2.2 - Apache Commons Collections (https://commons.apache.org/proper/commons-collections), (The Apache Software License, Version 2.0)
-  org.apache.commons:commons-compress:1.21 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress), (The Apache Software License, Version 2.0)
+  org.apache.commons:commons-compress:1.20 - Apache Commons Compress (https://commons.apache.org/proper/commons-compress), (The Apache Software License, Version 2.0)
   commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp), (The Apache Software License, Version 2.0)
   commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io), (The Apache Software License, Version 2.0)
   commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
@@ -594,7 +594,7 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  com.google.protobuf:protobuf-java:2.5.0 - Protocol Buffer Java API (https://github.com/protocolbuffers/protobuf), (New BSD license)
+  com.google.protobuf:protobuf-java:3.19.4 - Protocol Buffers [Core] (https://github.com/protocolbuffers/protobuf/tree/v3.19.4), (3-Clause BSD License)
   com.github.luben:zstd-jni:1.4.3-1 - zstd-jni (https://github.com/luben/zstd-jni), (BSD 2-Clause License)
 
 
@@ -634,6 +634,6 @@ The following components are provided under Public Domain license. See project l
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
-  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  org.tukaani:xz:1.8 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
 
 
