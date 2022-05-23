@@ -41,6 +41,7 @@ import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
@@ -52,6 +53,8 @@ import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
@@ -169,6 +172,11 @@ public class InlongParser {
                                 AutoPushSourceRequest.class);
                         sourceResponses.add(autoPushSourceResponse);
                         break;
+                    case POSTGRES:
+                        PostgresSourceResponse postgresSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                                PostgresSourceResponse.class);
+                        sourceResponses.add(postgresSourceResponse);
+                        break;
                     default:
                         throw new RuntimeException(String.format("Unsupported sourceType=%s for Inlong", sourceType));
                 }
@@ -202,6 +210,11 @@ public class InlongParser {
                         ClickHouseSinkResponse clickHouseSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
                                 ClickHouseSinkResponse.class);
                         sinkResponses.add(clickHouseSinkResponse);
+                        break;
+                    case POSTGRES:
+                        PostgresSinkResponse postgresSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                                PostgresSinkResponse.class);
+                        sinkResponses.add(postgresSinkResponse);
                         break;
                     default:
                         throw new RuntimeException(String.format("Unsupported sinkType=%s for Inlong", sinkType));
@@ -239,6 +252,10 @@ public class InlongParser {
                 case AUTO_PUSH:
                     return GsonUtil.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<AutoPushSourceListResponse>>() {
+                            }.getType());
+                case POSTGRES:
+                    return GsonUtil.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<PostgresSourceListResponse>>() {
                             }.getType());
                 default:
                     throw new IllegalArgumentException(

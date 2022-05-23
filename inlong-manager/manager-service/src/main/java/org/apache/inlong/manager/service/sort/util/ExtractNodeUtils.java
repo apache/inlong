@@ -30,6 +30,7 @@ import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
@@ -37,6 +38,7 @@ import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -71,6 +73,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((KafkaSourceResponse) sourceResponse);
             case PULSAR:
                 return createExtractNode((PulsarSourceResponse) sourceResponse);
+            case POSTGRES:
+                return createExtractNode((PostgresSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -248,5 +252,26 @@ public class ExtractNodeUtils {
                 format,
                 startupMode.getValue(),
                 primaryKey);
+    }
+
+    /**
+     * Create PostgresExtractNode based PostgresSourceResponse
+     *
+     * @param postgresSourceResponse postgres source response
+     * @return postgres extract node info
+     */
+    public static PostgresExtractNode createExtractNode(PostgresSourceResponse postgresSourceResponse) {
+        List<InlongStreamFieldInfo> streamFieldInfos = postgresSourceResponse.getFieldList();
+        String id = postgresSourceResponse.getSourceName();
+        String name = postgresSourceResponse.getSourceName();
+        List<FieldInfo> fields = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        return new PostgresExtractNode(id, name, fields, null, null,
+                postgresSourceResponse.getPrimaryKey(), postgresSourceResponse.getTableNames(),
+                postgresSourceResponse.getHostname(), postgresSourceResponse.getUsername(),
+                postgresSourceResponse.getPassword(), postgresSourceResponse.getDatabase(),
+                postgresSourceResponse.getSchema(), postgresSourceResponse.getPort(),
+                postgresSourceResponse.getDecodingPluginName());
     }
 }

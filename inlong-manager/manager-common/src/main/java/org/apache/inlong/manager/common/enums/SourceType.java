@@ -32,7 +32,8 @@ public enum SourceType {
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
     KAFKA("KAFKA", TaskTypeEnum.KAFKA),
-    PULSAR("PULSAR", TaskTypeEnum.PULSAR);
+    PULSAR("PULSAR", TaskTypeEnum.PULSAR),
+    POSTGRES("POSTGRES", TaskTypeEnum.POSTGRES);
 
     public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
     public static final String SOURCE_FILE = "FILE";
@@ -40,6 +41,7 @@ public enum SourceType {
     public static final String SOURCE_BINLOG = "BINLOG";
     public static final String SOURCE_KAFKA = "KAFKA";
     public static final String SOURCE_PULSAR = "PULSAR";
+    public static final String SOURCE_POSTGRES = "POSTGRES";
 
     @Getter
     private final String type;

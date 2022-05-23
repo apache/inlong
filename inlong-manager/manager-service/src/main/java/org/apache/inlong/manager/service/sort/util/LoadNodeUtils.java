@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -38,6 +39,7 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.List;
@@ -72,6 +74,8 @@ public class LoadNodeUtils {
                 return createLoadNode((HiveSinkResponse) sinkResponse);
             case HBASE:
                 return createLoadNode((HbaseSinkResponse) sinkResponse);
+            case POSTGRES:
+                return createLoadNode((PostgresSinkResponse) sinkResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -222,6 +226,29 @@ public class LoadNodeUtils {
     }
 
     /**
+     * create postgres load node
+     * @param postgresSinkResponse postgresSinkResponse
+     * @return postgres load node
+     */
+    public static PostgresLoadNode createLoadNode(PostgresSinkResponse postgresSinkResponse) {
+        List<SinkFieldResponse> sinkFieldResponses = postgresSinkResponse.getFieldList();
+
+        String name = postgresSinkResponse.getSinkName();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
+                        name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        return new PostgresLoadNode(postgresSinkResponse.getSinkName(),
+                postgresSinkResponse.getSinkName(),
+                fields, fieldRelationShips, null, null, 1,
+                null, postgresSinkResponse.getJdbcUrl(), postgresSinkResponse.getUsername(),
+                postgresSinkResponse.getPassword(),
+                postgresSinkResponse.getDbName() + "." + postgresSinkResponse.getTableName(),
+                postgresSinkResponse.getPrimaryKey());
+    }
+    
+    /**f
      * Parse information field of data sink.
      */
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {

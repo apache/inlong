@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.client.api.source.AutoPushSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
+import org.apache.inlong.manager.client.api.source.PostgresSource;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -37,6 +38,8 @@ import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
@@ -60,6 +63,8 @@ public class InlongStreamSourceTransfer {
                 return createFileSourceRequest((AgentFileSource) streamSource, streamInfo);
             case AUTO_PUSH:
                 return createAutoPushSourceRequest((AutoPushSource) streamSource, streamInfo);
+            case POSTGRES:
+                return createPostgresSourceRequest((PostgresSource) streamSource, streamInfo);
             default:
                 throw new RuntimeException(String.format("Unsupported source=%s for Inlong", sourceType));
         }
@@ -79,6 +84,9 @@ public class InlongStreamSourceTransfer {
         }
         if (sourceType == SourceType.AUTO_PUSH && sourceResponse instanceof AutoPushSourceResponse) {
             return parseAutoPushSource((AutoPushSourceResponse) sourceResponse);
+        }
+        if (sourceType == SourceType.POSTGRES && sourceResponse instanceof AutoPushSourceResponse) {
+            return parsePostgresSource((PostgresSourceResponse) sourceResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
     }
@@ -156,6 +164,26 @@ public class InlongStreamSourceTransfer {
         autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
         autoPushSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return autoPushSource;
+    }
+
+    private static PostgresSource parsePostgresSource(PostgresSourceResponse response) {
+        PostgresSource postgresSource = new PostgresSource();
+        postgresSource.setSourceName(response.getSourceName());
+        postgresSource.setState(State.parseByStatus(response.getStatus()));
+        postgresSource.setDataFormat(DataFormat.NONE);
+        postgresSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
+
+        postgresSource.setDbName(response.getDatabase());
+        postgresSource.setDecodingPluginName(response.getDecodingPluginName());
+        postgresSource.setHostname(response.getHostname());
+        postgresSource.setPassword(response.getPassword());
+        postgresSource.setPort(response.getPort());
+        postgresSource.setSchema(response.getSchema());
+        postgresSource.setTableNameList(response.getTableNames());
+        postgresSource.setUsername(response.getUsername());
+        postgresSource.setSourceName(response.getSourceName());
+
+        return postgresSource;
     }
 
     private static KafkaSourceRequest createKafkaSourceRequest(KafkaSource kafkaSource, InlongStreamInfo streamInfo) {
@@ -247,6 +275,30 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(source.getSourceType().getType());
         sourceRequest.setDataProxyGroup(source.getDataProxyGroup());
+        sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(source.getFields(), streamInfo));
+        return sourceRequest;
+    }
+
+    private static PostgresSourceRequest createPostgresSourceRequest(PostgresSource source,
+            InlongStreamInfo streamInfo) {
+        PostgresSourceRequest sourceRequest = new PostgresSourceRequest();
+        sourceRequest.setSourceName(source.getSourceName());
+        if (StringUtils.isEmpty(sourceRequest.getSourceName())) {
+            sourceRequest.setSourceName(streamInfo.getName());
+        }
+        sourceRequest.setDatabase(source.getDbName());
+        sourceRequest.setDecodingPluginName(source.getDecodingPluginName());
+        sourceRequest.setHostname(source.getHostname());
+        sourceRequest.setPassword(source.getPassword());
+        sourceRequest.setPort(source.getPort());
+        sourceRequest.setPrimaryKey(source.getPrimaryKey());
+        sourceRequest.setSchema(source.getSchema());
+        sourceRequest.setTableNameList(source.getTableNameList());
+        sourceRequest.setUsername(source.getUsername());
+
+        sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        sourceRequest.setSourceType(source.getSourceType().getType());
         sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(source.getFields(), streamInfo));
         return sourceRequest;
     }
