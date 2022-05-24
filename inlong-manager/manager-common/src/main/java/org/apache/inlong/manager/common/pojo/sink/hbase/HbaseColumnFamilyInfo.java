@@ -17,23 +17,49 @@
 
 package org.apache.inlong.manager.common.pojo.sink.hbase;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Hbase column family info
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class HbaseColumnFamilyInfo {
 
-    private String name;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @ApiModelProperty("Column family name")
+    private String cfName;
+
+    @ApiModelProperty("Column family ttl")
     private Integer ttl;
 
-    private Boolean inMemory;
-    private Boolean keepDeletedCells;
-    private String bloomFilter;
-    private String dataBlockEncoding;
-    private Boolean blockCache;
-    private Integer blockSize;
-    private String compression;
-    private Integer versions;
+    /**
+     * Get the extra param from the Json
+     */
+    public static HbaseColumnFamilyInfo getFromJson(@NotNull String extParams) {
+        if (StringUtils.isEmpty(extParams)) {
+            return new HbaseColumnFamilyInfo();
+        }
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, HbaseColumnFamilyInfo.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+        }
+    }
+
 }

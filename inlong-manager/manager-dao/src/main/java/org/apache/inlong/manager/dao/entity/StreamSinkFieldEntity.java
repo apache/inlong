@@ -37,7 +37,6 @@ public class StreamSinkFieldEntity implements Serializable {
     private String fieldName;
     private String fieldType;
     private String fieldComment;
-    private String columnFamily;
     private Integer isRequired;
     private String sourceFieldName;
     private String sourceFieldType;

@@ -111,9 +111,9 @@ public class HbaseResourceOperator implements SinkResourceOperator {
                 // 4. or update table columns
                 List<HbaseColumnFamilyInfo> existColumnFamilies = HbaseApiUtils.getColumnFamilies(zkAddress, zkNode,
                                 namespace, tableName).stream()
-                        .sorted(Comparator.comparing(HbaseColumnFamilyInfo::getName)).collect(toList());
+                        .sorted(Comparator.comparing(HbaseColumnFamilyInfo::getCfName)).collect(toList());
                 List<HbaseColumnFamilyInfo> requestColumnFamilies = tableInfo.getColumnFamilies().stream()
-                        .sorted(Comparator.comparing(HbaseColumnFamilyInfo::getName)).collect(toList());
+                        .sorted(Comparator.comparing(HbaseColumnFamilyInfo::getCfName)).collect(toList());
                 List<HbaseColumnFamilyInfo> newColumnFamilies = requestColumnFamilies.stream()
                         .skip(existColumnFamilies.size()).collect(toList());
 
@@ -135,14 +135,18 @@ public class HbaseResourceOperator implements SinkResourceOperator {
 
     private List<HbaseColumnFamilyInfo> getColumnFamilies(SinkInfo sinkInfo) {
         List<StreamSinkFieldEntity> fieldList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
+        Set<String> seen = new HashSet<>();
 
-        Set<HbaseColumnFamilyInfo> columnFamilies = new HashSet<>();
+        List<HbaseColumnFamilyInfo> columnFamilies = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            HbaseColumnFamilyInfo columnFamily = new HbaseColumnFamilyInfo();
-            columnFamily.setName(field.getColumnFamily());
+            HbaseColumnFamilyInfo columnFamily = HbaseColumnFamilyInfo.getFromJson(field.getExtrParam());
+            if (seen.contains(columnFamily.getCfName())) {
+                continue;
+            }
+            seen.add(columnFamily.getCfName());
             columnFamilies.add(columnFamily);
         }
 
-        return new ArrayList<>(columnFamilies);
+        return columnFamilies;
     }
 }

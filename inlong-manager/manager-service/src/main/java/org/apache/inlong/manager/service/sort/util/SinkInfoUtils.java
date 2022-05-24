@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
@@ -38,8 +38,8 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
-import org.apache.inlong.sort.protocol.sink.HbaseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.ElasticsearchSinkInfo;
+import org.apache.inlong.sort.protocol.sink.HbaseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
@@ -266,6 +266,7 @@ public class SinkInfoUtils {
                 sinkResponse.getSinkBufferFlushInterval());
 
     }
+
     /**
      * Creat Elasticsearch sink info.
      */

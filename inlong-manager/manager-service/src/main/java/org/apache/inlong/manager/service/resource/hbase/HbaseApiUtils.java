@@ -87,7 +87,7 @@ public class HbaseApiUtils {
         for (HbaseColumnFamilyInfo cf : tableInfo.getColumnFamilies()) {
             // properties of column families can also be set here with builder
             // frontend doesn't introduce much at this moment
-            desc.setColumnFamily(ColumnFamilyDescriptorBuilder.of(cf.getName()));
+            desc.setColumnFamily(ColumnFamilyDescriptorBuilder.of(cf.getCfName()));
         }
         try (Connection conn = getConnection(zkAddress, zkNode)) {
             Admin admin = conn.getAdmin();
@@ -118,9 +118,8 @@ public class HbaseApiUtils {
             Table table = conn.getTable(tableName);
             for (ColumnFamilyDescriptor cf : table.getDescriptor().getColumnFamilies()) {
                 HbaseColumnFamilyInfo info = new HbaseColumnFamilyInfo();
-                info.setName(cf.getNameAsString());
+                info.setCfName(cf.getNameAsString());
                 info.setTtl(cf.getTimeToLive());
-                info.setCompression(cf.getCompressionType().getName());
                 cfList.add(info);
             }
         }
@@ -138,7 +137,7 @@ public class HbaseApiUtils {
             admin.disableTable(tableName);
             try {
                 for (HbaseColumnFamilyInfo info : columnFamilies) {
-                    admin.addColumnFamily(tableName, ColumnFamilyDescriptorBuilder.of(info.getName()));
+                    admin.addColumnFamily(tableName, ColumnFamilyDescriptorBuilder.of(info.getCfName()));
                 }
             } finally {
                 admin.enableTable(tableName);
