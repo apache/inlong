@@ -107,16 +107,6 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>debezium-api</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>debezium-embedded</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!--for debezium-->
         <dependency>
