@@ -37,7 +37,7 @@ public class RestartStreamSelector implements EventSelector {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add restartStream listener as StreamResourceProcessForm for groupId [{}]",
+            log.info("not add restartStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
@@ -46,7 +46,7 @@ public class RestartStreamSelector implements EventSelector {
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
         boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
         if (!flag) {
-            log.info("not add restartStream listener as the operate RESTART for groupId [{}] and streamId [{}]",
+            log.info("not add restartStream listener, as the operate was not RESTART for groupId [{}] and streamId [{}]",
                     groupId, streamId);
             return false;
         }
