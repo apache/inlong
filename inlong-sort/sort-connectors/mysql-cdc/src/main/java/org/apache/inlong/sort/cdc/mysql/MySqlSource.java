@@ -36,7 +36,7 @@ import static org.apache.inlong.sort.cdc.debezium.DebeziumSourceFunction.LEGACY_
  * A builder to build a SourceFunction which can read snapshot and continue to consume binlog.
  *
  * @deprecated please use {@link org.apache.inlong.sort.cdc.mysql.source.MySqlSource} instead
- * which supports more rich features, e.g. parallel reading from historical data. The {@link
+ *     which supports more rich features, e.g. parallel reading from historical data. The {@link
  * MySqlSource} will be dropped in the future version.
  */
 @Deprecated
@@ -53,7 +53,7 @@ public class MySqlSource {
      *
      * @deprecated please use {@link
      * org.apache.inlong.sort.cdc.mysql.source.MySqlSource#builder()} instead which supports
-     * more rich features, e.g. parallel reading from historical data. The {@link
+     *     more rich features, e.g. parallel reading from historical data. The {@link
      * Builder} will be dropped in the future version.
      */
     @Deprecated

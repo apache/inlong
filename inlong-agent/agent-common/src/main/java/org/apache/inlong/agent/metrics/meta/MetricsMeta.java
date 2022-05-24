@@ -35,7 +35,7 @@ public class MetricsMeta {
     }
 
     /**
-     * build metricsMeta based on {@link Metrics} and {@link List<MetricMeta>} params
+     * build metricsMeta based on {@link Metrics} and the {@link List} of {@link MetricMeta} params
      */
     public static MetricsMeta build(Metrics metrics,
             List<MetricMeta> metricMetaList) {
