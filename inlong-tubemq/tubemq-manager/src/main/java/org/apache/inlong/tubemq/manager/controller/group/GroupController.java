@@ -60,6 +60,13 @@ public class GroupController {
     @Autowired
     private TopicServiceImpl topicService;
 
+    /**
+     * Consumer group related request operations
+     *
+     * @param method
+     * @param req
+     * @return
+     */
     @PostMapping("")
     public @ResponseBody
         TubeMQResult groupMethodProxy(

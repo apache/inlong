@@ -67,6 +67,12 @@ public class AddTopicExecutor {
     @Autowired
     MasterService masterService;
 
+    /**
+     * Add topic info
+     *
+     * @param clusterId
+     * @param topicTasks topic info
+     */
     @Async("asyncExecutor")
     public void addTopicConfig(Long clusterId, List<TopicTaskEntry> topicTasks) {
         if (CollectionUtils.isEmpty(topicTasks)) {

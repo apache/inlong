@@ -151,6 +151,11 @@ public class TaskServiceImpl implements TaskService {
         updateCreateTopicTaskStatus(clusterId);
     }
 
+    /**
+     * Modify the status of creating a topic task
+     *
+     * @param clusterId
+     */
     @Transactional(rollbackOn = Exception.class)
     public void updateCreateTopicTaskStatus(long clusterId) {
         List<TopicTaskEntry> topicTasks = topicTaskRepository
