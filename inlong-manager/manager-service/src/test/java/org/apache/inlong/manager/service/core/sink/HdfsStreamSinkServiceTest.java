@@ -17,7 +17,12 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
+import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkResponse;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -27,13 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1_hbase";
+    private static final String globalGroupId = "b_group_hdfs";
+    private static final String globalStreamId = "stream1_hdfs";
     private static final String globalOperator = "admin";
-    private static final String tableName = "table1";
-    private static final String nameSpace = "space1";
-    private static final String rowkey = "rowkey1";
-    private static final String zookeeperQuorum = "127.0.0.1:9092";
+    private static final String fileFormat = "TextFile";
+    private static final String dataPath = "hdfs://ip:port/usr/hive/warehouse/test.db";
+    private static final String serverTimeZone = "GMT%2b8";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -46,49 +50,47 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
 
-        //HbaseSinkRequest sinkInfo = new HbaseSinkRequest();
-        //sinkInfo.setInlongGroupId(globalGroupId);
-        //sinkInfo.setInlongStreamId(globalStreamId);
-        //sinkInfo.setSinkType(SinkType.SINK_HBASE);
-        //sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-        //sinkInfo.setSinkName(sinkName);
-        //sinkInfo.setTableName(tableName);
-        //sinkInfo.setNameSpace(nameSpace);
-        //sinkInfo.setRowKey(rowkey);
-        //sinkInfo.setZookeeperQuorum(zookeeperQuorum);
-        //return sinkService.save(sinkInfo, globalOperator);
-        return null;
+        HdfsSinkRequest hdfsSinkRequest = new HdfsSinkRequest();
+        hdfsSinkRequest.setInlongGroupId(globalGroupId);
+        hdfsSinkRequest.setInlongStreamId(globalStreamId);
+        hdfsSinkRequest.setSinkType(SinkType.SINK_HDFS);
+        hdfsSinkRequest.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        hdfsSinkRequest.setSinkName(sinkName);
+        hdfsSinkRequest.setFileFormat(fileFormat);
+        hdfsSinkRequest.setDataPath(dataPath);
+        hdfsSinkRequest.setServerTimeZone(serverTimeZone);
+        return sinkService.save(hdfsSinkRequest, globalOperator);
     }
 
     /**
-     * Delete Hbase sink info by sink id.
+     * Delete Hdfs sink info by sink id.
      */
-    public void deleteHbaseSink(Integer hbaseSinkId) {
-        boolean result = sinkService.delete(hbaseSinkId, globalOperator);
+    public void deleteHdfsSink(Integer hdfsSinkId) {
+        boolean result = sinkService.delete(hdfsSinkId, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer hbaseSinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(hbaseSinkId);
+        Integer hdfsSinkId = this.saveSink("default_hdfs");
+        SinkResponse sink = sinkService.get(hdfsSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteHbaseSink(hbaseSinkId);
+        deleteHdfsSink(hdfsSinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer hbaseSinkId = this.saveSink("default2");
-        SinkResponse response = sinkService.get(hbaseSinkId);
+        Integer hdfsSinkId = this.saveSink("default_hdfs");
+        SinkResponse response = sinkService.get(hdfsSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        //HbaseSinkResponse hbaseSinkResponse = (HbaseSinkResponse) response;
-        //hbaseSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
-        //
-        //HbaseSinkRequest request = CommonBeanUtils.copyProperties(hbaseSinkResponse, HbaseSinkRequest::new);
-        //boolean result = sinkService.update(request, globalOperator);
-        //Assert.assertTrue(result);
-        //deleteHbaseSink(hbaseSinkId);
+        HdfsSinkResponse hdfsSinkResponse = (HdfsSinkResponse) response;
+        hdfsSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+
+        HdfsSinkRequest request = CommonBeanUtils.copyProperties(hdfsSinkResponse, HdfsSinkRequest::new);
+        boolean result = sinkService.update(request, globalOperator);
+        Assert.assertTrue(result);
+        deleteHdfsSink(hdfsSinkId);
     }
 
 }
