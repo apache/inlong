@@ -20,36 +20,38 @@ package org.apache.inlong.manager.plugin.eventselect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of suspend process event.
+ * Selector of delete stream event.
  */
 @Slf4j
-public class SuspendProcessSelector implements EventSelector {
+public class DeleteStreamSelector implements EventSelector {
 
     @SneakyThrows
     @Override
-    public boolean accept(WorkflowContext workflowContext) {
-        ProcessForm processForm = workflowContext.getProcessForm();
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add suspendProcess listener as GroupResourceProcessForm for groupId [{}]",
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add deleteStream listener as StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
 
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
+        boolean flag = streamResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
         if (!flag) {
-            log.info("not add suspendProcess listener as the operate SUSPEND for groupId [{}]", groupId);
+            log.info("not add deleteStream listener as the operate DELETE for groupId [{}] and streamId [{}]", groupId,
+                    streamId);
             return false;
         }
 
-        log.info("add suspendProcess listener for groupId [{}]", groupId);
+        log.info("add deleteStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
         return true;
     }
 }

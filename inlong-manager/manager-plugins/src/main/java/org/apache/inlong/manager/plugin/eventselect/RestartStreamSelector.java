@@ -20,36 +20,38 @@ package org.apache.inlong.manager.plugin.eventselect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of suspend process event.
+ * Selector of restart stream event.
  */
 @Slf4j
-public class SuspendProcessSelector implements EventSelector {
+public class RestartStreamSelector implements EventSelector {
 
     @SneakyThrows
     @Override
     public boolean accept(WorkflowContext workflowContext) {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add suspendProcess listener as GroupResourceProcessForm for groupId [{}]",
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add restartStream listener as StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
 
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
+        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
+        String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
+        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
         if (!flag) {
-            log.info("not add suspendProcess listener as the operate SUSPEND for groupId [{}]", groupId);
+            log.info("not add restartStream listener as the operate RESTART for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
             return false;
         }
 
-        log.info("add suspendProcess listener for groupId [{}]", groupId);
+        log.info("add restartStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
         return true;
     }
 }

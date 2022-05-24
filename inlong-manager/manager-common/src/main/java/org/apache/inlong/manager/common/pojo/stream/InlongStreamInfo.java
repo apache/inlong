@@ -109,6 +109,9 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Field list")
     private List<InlongStreamFieldInfo> fieldList;
 
+    @ApiModelProperty(value = "Inlong stream Extension properties")
+    private List<InlongStreamExtInfo> extList;
+
     public InlongStreamResponse genResponse() {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
     }
