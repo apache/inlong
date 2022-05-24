@@ -46,7 +46,7 @@ public class RestartStreamSelector implements EventSelector {
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
         boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
         if (!flag) {
-            log.info("not add restartStream listener, as the operate was not RESTART for groupId [{}] and streamId [{}]",
+            log.info("not add restartStream listener, as the operate was not RESTART for groupId [{}] streamId [{}]",
                     groupId, streamId);
             return false;
         }
