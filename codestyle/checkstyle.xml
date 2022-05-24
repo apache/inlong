@@ -422,10 +422,12 @@
             <property name="severity" value="error"/>
             <property name="ignoreInlineTags" value="true"/>
         </module>
+        <!--
         <module name="MissingJavadocMethod">
             <property name="severity" value="info"/>
             <property name="scope" value="public"/>
         </module>
+        -->
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="expected"/>
         </module>
