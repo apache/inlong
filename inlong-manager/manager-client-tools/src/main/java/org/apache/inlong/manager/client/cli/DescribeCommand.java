@@ -20,34 +20,49 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
- * Get commond describe info of resources.
+ * Describe the info of resources.
  */
 @Parameters(commandDescription = "Display details of one or more resources")
-public class CommandDescribe extends CommandBase {
+public class DescribeCommand extends AbstractCommand {
 
     @Parameter()
     private java.util.List<String> params;
 
-    public CommandDescribe() {
+    public DescribeCommand() {
         super("describe");
-        jcommander.addCommand("stream", new DescribeStream());
-        jcommander.addCommand("group", new DescribeGroup());
-        jcommander.addCommand("sink", new DescribeSink());
-        jcommander.addCommand("source", new DescribeSource());
+        InlongClientImpl inlongClient;
+        try {
+            inlongClient = ClientUtils.getClient();
+        } catch (IOException e) {
+            System.err.println("get inlong client error");
+            System.err.println(e.getMessage());
+            return;
+        }
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
+
+        jcommander.addCommand("stream", new DescribeStream(managerClient));
+        jcommander.addCommand("group", new DescribeGroup(managerClient));
+        jcommander.addCommand("sink", new DescribeSink(managerClient));
+        jcommander.addCommand("source", new DescribeSource(managerClient));
     }
 
     @Parameters(commandDescription = "Get stream details")
-    private class DescribeStream extends CommandUtil {
+    private static class DescribeStream extends AbstractCommandRunner {
+
+        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -55,10 +70,13 @@ public class CommandDescribe extends CommandBase {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
 
+        DescribeStream(InnerInlongManagerClient managerClient) {
+            this.managerClient = managerClient;
+        }
+
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
                 fullStreamResponseList.forEach(response -> PrintUtils.printJson(response.getStreamInfo()));
             } catch (Exception e) {
@@ -68,7 +86,9 @@ public class CommandDescribe extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get group details")
-    private class DescribeGroup extends CommandUtil {
+    private static class DescribeGroup extends AbstractCommandRunner {
+
+        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -82,10 +102,13 @@ public class CommandDescribe extends CommandBase {
         @Parameter(names = {"-n", "--num"}, description = "the number displayed")
         private int pageSize = 10;
 
+        DescribeGroup(InnerInlongManagerClient managerClient) {
+            this.managerClient = managerClient;
+        }
+
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
                 groupPageInfo.getList().forEach(PrintUtils::printJson);
             } catch (Exception e) {
@@ -95,7 +118,9 @@ public class CommandDescribe extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get sink details")
-    private class DescribeSink extends CommandUtil {
+    private static class DescribeSink extends AbstractCommandRunner {
+
+        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -106,9 +131,12 @@ public class CommandDescribe extends CommandBase {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
+        DescribeSink(InnerInlongManagerClient managerClient) {
+            this.managerClient = managerClient;
+        }
+
         @Override
         void run() {
-            InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
             try {
                 List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
                 sinkListResponses.forEach(PrintUtils::printJson);
@@ -119,7 +147,9 @@ public class CommandDescribe extends CommandBase {
     }
 
     @Parameters(commandDescription = "Get source details")
-    private class DescribeSource extends CommandUtil {
+    private static class DescribeSource extends AbstractCommandRunner {
+
+        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -133,10 +163,13 @@ public class CommandDescribe extends CommandBase {
         @Parameter(names = {"-t", "--type"}, description = "sink type")
         private String type;
 
+        DescribeSource(InnerInlongManagerClient managerClient) {
+            this.managerClient = managerClient;
+        }
+
         @Override
         void run() {
             try {
-                InnerInlongManagerClient managerClient = new InnerInlongManagerClient(connect().getConfiguration());
                 List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
                 sourceListResponses.forEach(PrintUtils::printJson);
             } catch (Exception e) {

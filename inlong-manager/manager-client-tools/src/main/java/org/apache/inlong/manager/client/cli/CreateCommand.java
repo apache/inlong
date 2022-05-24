@@ -20,9 +20,13 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
+import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
+import org.apache.inlong.manager.client.cli.util.ClientUtils;
+import org.apache.inlong.manager.client.cli.util.GsonUtils;
 
 import java.io.File;
 
@@ -30,18 +34,18 @@ import java.io.File;
  * Create resource by json file.
  */
 @Parameters(commandDescription = "Create resource by json file")
-public class CommandCreate extends CommandBase {
+public class CreateCommand extends AbstractCommand {
 
     @Parameter()
     private java.util.List<String> params;
 
-    public CommandCreate() {
+    public CreateCommand() {
         super("create");
-        jcommander.addCommand("group", new CommandCreate.CreateGroup());
+        jcommander.addCommand("group", new CreateGroup());
     }
 
     @Parameters(commandDescription = "Create group by json file")
-    private class CreateGroup extends CommandUtil {
+    private static class CreateGroup extends AbstractCommandRunner {
 
         @Parameter()
         private java.util.List<String> params;
@@ -55,20 +59,22 @@ public class CommandCreate extends CommandBase {
         @Override
         void run() {
             try {
-                String jsonFile = readFile(file);
-                if (!jsonFile.isEmpty()) {
-                    CreateGroupConf groupConf = jsonToObject(jsonFile);
-
-                    InlongClient inlongClient = connect();
-                    InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
-                    InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
-                    streamBuilder.fields(groupConf.getStreamFieldList());
-                    streamBuilder.source(groupConf.getStreamSource());
-                    streamBuilder.sink(groupConf.getStreamSink());
-                    streamBuilder.initOrUpdate();
-                    group.init();
-                    System.out.println("Create group success!");
+                String fileContent = ClientUtils.readFile(file);
+                if (StringUtils.isBlank(fileContent)) {
+                    System.out.println("Create group failed: file was empty!");
+                    return;
                 }
+
+                CreateGroupConf groupConf = GsonUtils.GSON.fromJson(fileContent, CreateGroupConf.class);
+                InlongClient inlongClient = ClientUtils.getClient();
+                InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
+                InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
+                streamBuilder.fields(groupConf.getStreamFieldList());
+                streamBuilder.source(groupConf.getStreamSource());
+                streamBuilder.sink(groupConf.getStreamSink());
+                streamBuilder.initOrUpdate();
+                group.init();
+                System.out.println("Create group success!");
             } catch (Exception e) {
                 System.out.println("Create group failed!");
                 System.out.println(e.getMessage());

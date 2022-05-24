@@ -15,19 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.converter;
+package org.apache.inlong.manager.client.cli.pojo;
 
-import com.beust.jcommander.IStringConverter;
+import lombok.Data;
+import org.apache.inlong.manager.client.api.InlongStreamConf;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.stream.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
-import java.io.File;
+import java.util.List;
 
 /**
- * File converter.
+ * The config of group, including stream config, stream source, stream sink, etc.
  */
-public class FileConverter implements IStringConverter<File> {
+@Data
+public class CreateGroupConf {
 
-    @Override
-    public File convert(String value) {
-        return new File(value);
-    }
+    private InlongGroupInfo groupInfo;
+    private InlongStreamConf streamConf;
+    private List<StreamField> streamFieldList;
+    private StreamSource streamSource;
+    private StreamSink streamSink;
 }

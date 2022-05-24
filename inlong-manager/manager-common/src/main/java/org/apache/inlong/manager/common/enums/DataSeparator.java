@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.enums;
 
+/**
+ * Enum of data separator and related ASCII code.
+ */
 public enum DataSeparator {
+
     VERTICAL_BAR("|", 124),
     COMMA(",", 44),
     COLON(":", 58),
@@ -27,21 +31,13 @@ public enum DataSeparator {
     STX("\002", 2),
     ETX("\003", 3);
 
-    private String seperator;
+    private final String separator;
 
-    private int asciiCode;
+    private final Integer asciiCode;
 
-    public String getSeperator() {
-        return this.seperator;
-    }
-
-    public int getAsciiCode() {
-        return this.asciiCode;
-    }
-
-    DataSeparator(String seperator, int asciiCode) {
+    DataSeparator(String separator, int asciiCode) {
         this.asciiCode = asciiCode;
-        this.seperator = seperator;
+        this.separator = separator;
     }
 
     public static DataSeparator forAscii(int asciiCode) {
@@ -51,5 +47,13 @@ public enum DataSeparator {
             }
         }
         throw new IllegalArgumentException(String.format("Unsupported ascii for %s", asciiCode));
+    }
+
+    public String getSeparator() {
+        return this.separator;
+    }
+
+    public Integer getAsciiCode() {
+        return this.asciiCode;
     }
 }

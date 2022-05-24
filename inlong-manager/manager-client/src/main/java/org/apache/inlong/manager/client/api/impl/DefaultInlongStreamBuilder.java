@@ -28,7 +28,7 @@ import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
@@ -120,7 +120,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream init() {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        streamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
+        streamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
         Double streamIndex = managerClient.createStreamInfo(streamInfo);
         streamInfo.setId(streamIndex.intValue());
         //Create source and update index
@@ -145,7 +145,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream initOrUpdate() {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        dataStreamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
+        dataStreamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
         Boolean isExist = managerClient.isStreamExists(dataStreamInfo);
         if (isExist) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);

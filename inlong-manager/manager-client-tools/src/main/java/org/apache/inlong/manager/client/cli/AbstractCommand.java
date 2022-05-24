@@ -24,14 +24,14 @@ import com.beust.jcommander.ParameterException;
 /**
  * Class for parse command.
  */
-abstract class CommandBase {
+public abstract class AbstractCommand {
 
     protected final JCommander jcommander;
 
     @Parameter(names = {"-h", "--help"}, help = true, hidden = true)
     private boolean help;
 
-    public CommandBase(String cmdName) {
+    public AbstractCommand(String cmdName) {
         jcommander = new JCommander();
         jcommander.setProgramName("managerctl " + cmdName);
     }
@@ -57,13 +57,12 @@ abstract class CommandBase {
             return false;
         } else {
             JCommander obj = jcommander.getCommands().get(cmd);
-            CommandUtil cmdObj = (CommandUtil) obj.getObjects().get(0);
+            AbstractCommandRunner commandRunner = (AbstractCommandRunner) obj.getObjects().get(0);
             try {
-                cmdObj.run();
+                commandRunner.run();
                 return true;
             } catch (ParameterException e) {
-                System.err.println(e.getMessage());
-                System.err.println();
+                System.err.println(e.getMessage() + System.lineSeparator());
                 return false;
             } catch (Exception e) {
                 e.printStackTrace();
