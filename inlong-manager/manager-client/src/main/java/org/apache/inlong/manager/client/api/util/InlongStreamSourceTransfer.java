@@ -20,12 +20,12 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.base.Joiner;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.client.api.source.AutoPushSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.client.api.source.PostgresSource;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -118,7 +118,8 @@ public class InlongStreamSourceTransfer {
         MySQLBinlogSource binlogSource = new MySQLBinlogSource();
         binlogSource.setSourceName(response.getSourceName());
         binlogSource.setHostname(response.getHostname());
-        binlogSource.setDataFormat(DataFormat.NONE);
+        DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
+        binlogSource.setDataFormat(dataFormat);
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
         binlogSource.setState(State.parseByStatus(response.getStatus()));
@@ -148,7 +149,8 @@ public class InlongStreamSourceTransfer {
         AgentFileSource fileSource = new AgentFileSource();
         fileSource.setSourceName(response.getSourceName());
         fileSource.setState(State.parseByStatus(response.getStatus()));
-        fileSource.setDataFormat(DataFormat.NONE);
+        DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
+        fileSource.setDataFormat(dataFormat);
         fileSource.setPattern(response.getPattern());
         fileSource.setIp(response.getIp());
         fileSource.setTimeOffset(response.getTimeOffset());
@@ -160,7 +162,8 @@ public class InlongStreamSourceTransfer {
         AutoPushSource autoPushSource = new AutoPushSource();
         autoPushSource.setSourceName(response.getSourceName());
         autoPushSource.setState(State.parseByStatus(response.getStatus()));
-        autoPushSource.setDataFormat(DataFormat.NONE);
+        DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
+        autoPushSource.setDataFormat(dataFormat);
         autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
         autoPushSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
         return autoPushSource;
@@ -170,7 +173,8 @@ public class InlongStreamSourceTransfer {
         PostgresSource postgresSource = new PostgresSource();
         postgresSource.setSourceName(response.getSourceName());
         postgresSource.setState(State.parseByStatus(response.getStatus()));
-        postgresSource.setDataFormat(DataFormat.NONE);
+        DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
+        postgresSource.setDataFormat(dataFormat);
         postgresSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
 
         postgresSource.setDbName(response.getDatabase());
@@ -227,6 +231,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());
         sourceRequest.setAllMigration(binlogSource.isAllMigration());
+        sourceRequest.setSerializationType(binlogSource.getDataFormat().getName());
         sourceRequest.setPrimaryKey(binlogSource.getPrimaryKey());
         if (CollectionUtils.isNotEmpty(binlogSource.getDbNames())) {
             String dbNames = Joiner.on(",").join(binlogSource.getDbNames());
@@ -249,6 +254,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(fileSource.getSourceType().getType());
+        sourceRequest.setSerializationType(fileSource.getDataFormat().getName());
         if (StringUtils.isEmpty(fileSource.getIp())) {
             throw new IllegalArgumentException(
                     String.format("AgentIp should not be null for fileSource=%s", fileSource));
@@ -275,6 +281,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(source.getSourceType().getType());
         sourceRequest.setDataProxyGroup(source.getDataProxyGroup());
+        sourceRequest.setSerializationType(source.getDataFormat().getName());
         sourceRequest.setFieldList(InlongStreamTransfer.createStreamFields(source.getFields(), streamInfo));
         return sourceRequest;
     }
@@ -295,7 +302,7 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setSchema(source.getSchema());
         sourceRequest.setTableNameList(source.getTableNameList());
         sourceRequest.setUsername(source.getUsername());
-
+        sourceRequest.setSerializationType(source.getDataFormat().getName());
         sourceRequest.setInlongGroupId(streamInfo.getInlongGroupId());
         sourceRequest.setInlongStreamId(streamInfo.getInlongStreamId());
         sourceRequest.setSourceType(source.getSourceType().getType());
