@@ -65,7 +65,4 @@ public class SinkFieldBase {
     @ApiModelProperty("Field order")
     private Short rankNum;
 
-    @ApiModelProperty("Column family for columnar storage e.g.hbase")
-    private String columnFamily;
-
 }
