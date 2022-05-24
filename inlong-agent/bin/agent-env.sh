@@ -49,8 +49,7 @@ AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 CONFIG_DIR=${BASE_DIR}"/conf/"
 JAR_LIBS=${BASE_DIR}"/lib/*"
-JAR_MAIN=${BASE_DIR}"/lib/"${APPLICATION_JAR}
-CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
+CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}
 
 JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
 if [[ $JMX_ENABLED == 1 ]]; then
