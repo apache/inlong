@@ -84,14 +84,6 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initMQResourceTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initMQResourceTask);
 
-        // init sort config
-        ServiceTask initSortResourceTask = new ServiceTask();
-        initSortResourceTask.setName("initSort");
-        initSortResourceTask.setDisplayName("Stream-InitSort");
-        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortResourceTask.addListenerProvider(streamTaskListenerFactory);
-        process.addTask(initSortResourceTask);
-
         // init DataSink
         ServiceTask initSinkTask = new ServiceTask();
         initSinkTask.setName("initSink");
@@ -100,15 +92,23 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initSinkTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initSinkTask);
 
+        // init sort config
+        ServiceTask initSortResourceTask = new ServiceTask();
+        initSortResourceTask.setName("initSort");
+        initSortResourceTask.setDisplayName("Stream-InitSort");
+        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortResourceTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSortResourceTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
         startEvent.addNext(initDataSourceTask);
         initDataSourceTask.addNext(initMQResourceTask);
-        initMQResourceTask.addNext(initSortResourceTask);
-        initSortResourceTask.addNext(initSinkTask);
-        initSinkTask.addNext(endEvent);
+        initMQResourceTask.addNext(initSinkTask);
+        initSinkTask.addNext(initSortResourceTask);
+        initSortResourceTask.addNext(endEvent);
 
         return process;
     }
