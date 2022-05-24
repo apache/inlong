@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * copy from flink-jdbc
  * modify upsert statement implement
  */
-public class PostgresDialect extends AbstractJdbcDialect {
+public class TDSQLPostgresDialect extends AbstractJdbcDialect {
 
     private static final long serialVersionUID = 1L;
 

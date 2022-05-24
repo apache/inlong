@@ -31,7 +31,7 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.junit.Assert;
@@ -45,9 +45,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Test for {@link PostgresLoadNode}
+ * Test for {@link TDSQLPostgresLoadNode}
  */
-public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
+public class TDSQLPostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
 
     /**
      * build mysql extract node
@@ -66,22 +66,22 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * build postgres load node
+     * build  load node
      *
-     * @return postgres load node
+     * @return TDSQL Postgres load node
      */
-    private PostgresLoadNode buildPostgresLoadNode() {
-        return new PostgresLoadNode("2", "postgres_output", Arrays.asList(new FieldInfo("name",
+    private TDSQLPostgresLoadNode buildTDSQLPostgresLoadNode() {
+        return new TDSQLPostgresLoadNode("2", "tdsqlPostgres_output", Arrays.asList(new FieldInfo("name",
                 new StringFormatInfo()), new FieldInfo("age", new IntFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
                         new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo()))), null, null, 1, null,
-                "jdbc:postgresql://localhost:5432/postgres",
-                "postgres",
+                "jdbc:postgresql://localhost:5432/tdsql",
+                "tdsqlpostgres",
                 "inlong",
-                "public.user",
-                "name,age");
+                "public.test",
+                "name");
     }
 
     /**
@@ -98,7 +98,8 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
     }
 
     /**
-     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is postgres {@link PostgresLoadNode}
+     * Test flink sql task for extract is mysql {@link MySqlExtractNode} and load is tdsql postgres
+     * {@link TDSQLPostgresLoadNode}
      *
      * @throws Exception The exception may be thrown when executing
      */
@@ -115,7 +116,7 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMySQLExtractNode();
-        Node outputNode = buildPostgresLoadNode();
+        Node outputNode = buildTDSQLPostgresLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));

@@ -26,9 +26,9 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import java.util.Arrays;
 
 /**
- * Test for {@link PostgresLoadNode}
+ * Test for {@link TDSQLPostgresLoadNode}
  */
-public class PostgresLoadNodeTest extends SerializeBaseTest<PostgresLoadNode> {
+public class TDSQLPostgresLoadNodeTest extends SerializeBaseTest<TDSQLPostgresLoadNode> {
 
     /**
      * Get test object
@@ -36,8 +36,8 @@ public class PostgresLoadNodeTest extends SerializeBaseTest<PostgresLoadNode> {
      * @return The test object
      */
     @Override
-    public PostgresLoadNode getTestObject() {
-        return new PostgresLoadNode("1", "postgres_output", Arrays.asList(new FieldInfo("name",
+    public TDSQLPostgresLoadNode getTestObject() {
+        return new TDSQLPostgresLoadNode("1", "tdsqlPostgres_output", Arrays.asList(new FieldInfo("name",
                 new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo()))), null, null, 1, null,
