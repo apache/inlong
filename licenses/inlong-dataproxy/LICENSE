@@ -514,7 +514,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.curator:curator-framework:2.12.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
   org.apache.curator:curator-recipes:2.12.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
   org.apache.derby:derby:10.14.1.0 - Apache Derby Database Engine and Embedded JDBC Driver (http://db.apache.org/derby), (Apache 2)
-  com.alibaba:fastjson:1.2.79 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
+  com.alibaba:fastjson:1.2.83 - fastjson (https://github.com/alibaba/fastjson), (Apache 2)
   org.apache.flume.flume-ng-channels:flume-file-channel:1.9.0 - Flume NG file-based channel (https://github.com/apache/flume/tree/flume-1.9/flume-ng-channels/flume-file-channel), (The Apache Software License, Version 2.0)
   org.apache.flume.flume-ng-sinks:flume-hdfs-sink:1.9.0 - Flume NG HDFS Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-hdfs-sink), (The Apache Software License, Version 2.0)
   org.apache.flume.flume-ng-sinks:flume-irc-sink:1.9.0 - Flume NG IRC Sink (https://github.com/apache/flume/tree/flume-1.9/flume-ng-sinks/flume-irc-sink), (The Apache Software License, Version 2.0)
