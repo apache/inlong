@@ -154,7 +154,7 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Modify the status of creating a topic task
      *
-     * @param clusterId
+     * @param clusterId this is the cluster id
      */
     @Transactional(rollbackOn = Exception.class)
     public void updateCreateTopicTaskStatus(long clusterId) {

@@ -113,8 +113,8 @@ public class TubeHttpTopicInfoList {
     /**
      * topic add information
      *
-     * @param brokerIds
-     * @param targetTopicNames
+     * @param brokerIds this is the broker ids
+     * @param targetTopicNames The topic name of the target
      * @param token authorized key
      * @return
      */

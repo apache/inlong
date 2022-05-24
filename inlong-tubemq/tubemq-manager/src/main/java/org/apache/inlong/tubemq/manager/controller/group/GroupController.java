@@ -63,14 +63,13 @@ public class GroupController {
     /**
      * Consumer group related request operations
      *
-     * @param method
-     * @param req
+     * @param method method type
+     * @param req incoming data
      * @return
      */
+    @ResponseBody
     @PostMapping("")
-    public @ResponseBody
-        TubeMQResult groupMethodProxy(
-            @RequestParam String method, @RequestBody String req) {
+    public TubeMQResult groupMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return batchAddGroup(gson.fromJson(req, BatchAddGroupAuthReq.class));

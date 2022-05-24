@@ -70,7 +70,7 @@ public class AddTopicExecutor {
     /**
      * Add topic info
      *
-     * @param clusterId
+     * @param clusterId this is the cluster id
      * @param topicTasks topic info
      */
     @Async("asyncExecutor")
