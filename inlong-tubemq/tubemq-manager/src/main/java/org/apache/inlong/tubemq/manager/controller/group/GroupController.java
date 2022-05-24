@@ -65,7 +65,7 @@ public class GroupController {
      *
      * @param method method type
      * @param req incoming data
-     * @return
+     * @return return request data
      */
     @ResponseBody
     @PostMapping("")

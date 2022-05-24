@@ -116,7 +116,7 @@ public class TubeHttpTopicInfoList {
      * @param brokerIds this is the broker ids
      * @param targetTopicNames The topic name of the target
      * @param token authorized key
-     * @return
+     * @return topic data
      */
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
 
