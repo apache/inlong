@@ -204,6 +204,8 @@
                     <groupId>javax.servlet</groupId>
                 </exclusion>
                 <exclusion>
+                    <!-- jdk.tools, the source code and LICENSE declaration are not found,
+                         MUST be excluded in the distribution package -->
                     <artifactId>jdk.tools</artifactId>
                     <groupId>jdk.tools</groupId>
                 </exclusion>
