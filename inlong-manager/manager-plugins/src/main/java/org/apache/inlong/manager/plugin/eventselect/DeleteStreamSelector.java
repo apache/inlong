@@ -37,7 +37,7 @@ public class DeleteStreamSelector implements EventSelector {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add deleteStream listener as StreamResourceProcessForm for groupId [{}]",
+            log.info("not add deleteStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
@@ -46,8 +46,8 @@ public class DeleteStreamSelector implements EventSelector {
         String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
         boolean flag = streamResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
         if (!flag) {
-            log.info("not add deleteStream listener as the operate DELETE for groupId [{}] and streamId [{}]", groupId,
-                    streamId);
+            log.info("not add deleteStream listener, as the operate was not DELETE for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
             return false;
         }
 
