@@ -59,31 +59,6 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
 -- ----------------------------
--- Table structure for inlong_group_pulsar
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `inlong_group_pulsar`
-(
-    `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
-    `tenant`                 varchar(128)      DEFAULT '' COMMENT 'Tenant of pulsar config',
-    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create mq resource? 0: disable, 1: enable. default is 1',
-    `ensemble`               int(3)            DEFAULT '3' COMMENT 'The writable nodes number of ledger',
-    `write_quorum`           int(3)            DEFAULT '3' COMMENT 'The copies number of ledger',
-    `ack_quorum`             int(3)            DEFAULT '2' COMMENT 'The number of requested acks',
-    `retention_time`         int(11)           DEFAULT '72' COMMENT 'Message storage time',
-    `retention_time_unit`    char(20)          DEFAULT 'hours' COMMENT 'The unit of the message storage time',
-    `ttl`                    int(11)           DEFAULT '24' COMMENT 'Message time-to-live duration',
-    `ttl_unit`               varchar(20)       DEFAULT 'hours' COMMENT 'The unit of time-to-live duration',
-    `retention_size`         int(11)           DEFAULT '-1' COMMENT 'Message size',
-    `retention_size_unit`    varchar(20)       DEFAULT 'MB' COMMENT 'The unit of message size',
-    `is_deleted`             int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar info table';
-
--- ----------------------------
 -- Table structure for inlong_group_ext
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `inlong_group_ext`

@@ -28,14 +28,14 @@ import java.util.Map;
  * An interface to manipulate Inlong Cluster
  * <p/>
  * Example:
- * <p/>
  *
  * <pre>
  * <code>
+ *
  * ClientConfiguration configuration = ..
  * InlongClient client = InlongClient.create(${serviceUrl}, configuration);
- * InlongGroupConf groupConf = ..
- * InlongGroup group = client.createGroup(groupConf);
+ * InlongGroupInfo groupInfo = ..
+ * InlongGroup group = client.createGroup(groupInfo);
  * InlongStreamConf streamConf = ..
  * InlongStreamBuilder builder = group.createStream(streamConf);
  * StreamSource source = ..
