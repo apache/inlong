@@ -386,8 +386,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_ext`
     PRIMARY KEY (`id`),
     UNIQUE KEY `stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`),
     KEY `index_stream_id` (`inlong_group_id`, `inlong_stream_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream extension table';
+) ;
 
 -- ----------------------------
 -- Table structure for inlong_stream_field
