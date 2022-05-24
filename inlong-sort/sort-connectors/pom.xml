@@ -98,20 +98,15 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
         </dependency>
+        <!--for postgres cdc -->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-postgres-cdc</artifactId>
+        </dependency>
         <!--for mongodb-->
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>debezium-api</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>debezium-embedded</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!--for debezium-->
         <dependency>

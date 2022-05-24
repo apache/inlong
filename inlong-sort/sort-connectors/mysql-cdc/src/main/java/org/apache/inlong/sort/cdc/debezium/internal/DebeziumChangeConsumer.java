@@ -18,6 +18,7 @@
 
 package org.apache.inlong.sort.cdc.debezium.internal;
 
+import io.debezium.embedded.EmbeddedEngineChangeEvent;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.DebeziumEngine.RecordCommitter;

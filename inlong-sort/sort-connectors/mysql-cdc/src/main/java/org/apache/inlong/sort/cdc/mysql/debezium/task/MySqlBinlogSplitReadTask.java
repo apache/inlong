@@ -31,7 +31,7 @@ import io.debezium.relational.TableId;
 import io.debezium.util.Clock;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.EventDispatcherImpl;
 import org.apache.inlong.sort.cdc.mysql.debezium.dispatcher.SignalEventDispatcher;
-import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader;
+import org.apache.inlong.sort.cdc.mysql.debezium.reader.SnapshotSplitReader.SnapshotBinlogSplitChangeEventSourceContextImpl;
 import org.apache.inlong.sort.cdc.mysql.source.offset.BinlogOffset;
 import org.apache.inlong.sort.cdc.mysql.source.split.MySqlBinlogSplit;
 import org.slf4j.Logger;
@@ -70,6 +70,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
             MySqlBinlogSplit binlogSplit) {
         super(
                 connectorConfig,
+                offsetContext,
                 connection,
                 dispatcher,
                 errorHandler,
@@ -86,15 +87,14 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
     }
 
     @Override
-    public void execute(ChangeEventSourceContext context, MySqlOffsetContext offsetContext)
-            throws InterruptedException {
+    public void execute(ChangeEventSourceContext context) throws InterruptedException {
         this.context = context;
-        super.execute(context, offsetContext);
+        super.execute(context);
     }
 
     @Override
-    protected void handleEvent(MySqlOffsetContext offsetContext, Event event) {
-        super.handleEvent(offsetContext, event);
+    protected void handleEvent(Event event) {
+        super.handleEvent(event);
         // check do we need to stop for read binlog for snapshot split.
         if (isBoundedRead()) {
             final BinlogOffset currentBinlogOffset = getBinlogPosition(offsetContext.getOffset());
@@ -112,7 +112,7 @@ public class MySqlBinlogSplitReadTask extends MySqlStreamingChangeEventSource {
                             new DebeziumException("Error processing binlog signal event", e));
                 }
                 // tell reader the binlog task finished
-                ((SnapshotSplitReader.SnapshotBinlogSplitChangeEventSourceContextImpl) context).finished();
+                ((SnapshotBinlogSplitChangeEventSourceContextImpl) context).finished();
             }
         }
     }

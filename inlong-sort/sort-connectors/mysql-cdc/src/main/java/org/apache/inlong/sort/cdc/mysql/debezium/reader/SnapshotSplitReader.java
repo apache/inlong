@@ -110,8 +110,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
                         final SnapshotSplitChangeEventSourceContextImpl sourceContext =
                                 new SnapshotSplitChangeEventSourceContextImpl();
                         SnapshotResult snapshotResult =
-                                splitSnapshotReadTask.execute(sourceContext,
-                                        statefulTaskContext.getOffsetContext());
+                                splitSnapshotReadTask.execute(sourceContext);
                         final MySqlBinlogSplit backfillBinlogSplit =
                                 createBackfillBinlogSplit(sourceContext);
                         // optimization that skip the binlog read when the low watermark equals high
@@ -130,14 +129,8 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecord, MySqlSp
                         if (snapshotResult.isCompletedOrSkipped()) {
                             final MySqlBinlogSplitReadTask backfillBinlogReadTask =
                                     createBackfillBinlogReadTask(backfillBinlogSplit);
-                            final MySqlOffsetContext.Loader loader =
-                                    new MySqlOffsetContext.Loader(
-                                            statefulTaskContext.getConnectorConfig());
-                            final MySqlOffsetContext mySqlOffsetContext =
-                                    loader.load(
-                                            backfillBinlogSplit.getStartingOffset().getOffset());
                             backfillBinlogReadTask.execute(
-                                    new SnapshotBinlogSplitChangeEventSourceContextImpl(), mySqlOffsetContext);
+                                    new SnapshotBinlogSplitChangeEventSourceContextImpl());
                         } else {
                             readException =
                                     new IllegalStateException(

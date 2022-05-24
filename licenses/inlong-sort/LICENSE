@@ -670,10 +670,10 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
   io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9 - StreamNative :: Pulsar Flink Connector :: Scala 2.11 (https://github.com/streamnative/pulsar-flink/blob/release-1.13/LICENSE), (Apache License, Version 2.0)
-  io.debezium:debezium-connector-sqlserver:1.6.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.6.4.Final/debezium-connector-sqlserver), (Apache License, Version 2.0)
-  io.debezium:debezium-core:1.6.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.6.4.Final/debezium-core), (Apache License, Version 2.0) 
-  io.debezium:debezium-embedded:1.6.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.6.4.Final/debezium-embedded), (Apache License, Version 2.0) 
-  io.debezium:debezium-api:1.6.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.6.4.Final/debezium-api), (Apache License, Version 2.0) 
+  io.debezium:debezium-connector-sqlserver:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-connector-sqlserver), (Apache License, Version 2.0)
+  io.debezium:debezium-core:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-core), (Apache License, Version 2.0)
+  io.debezium:debezium-embedded:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-embedded), (Apache License, Version 2.0)
+  io.debezium:debezium-api:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-api), (Apache License, Version 2.0)
 
 
 ========================================================================
