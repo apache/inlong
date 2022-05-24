@@ -46,26 +46,34 @@ public class SqlServerExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("hostname")
     @Nonnull
     private String hostname;
+    
     @JsonProperty("port")
     @Nonnull
     private Integer port;
+    
     @JsonProperty("username")
     @Nonnull
     private String username;
+    
     @JsonProperty("password")
     @Nonnull
     private String password;
+    
     @JsonProperty("database")
     @Nonnull
     private String database;
+    
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     @Nonnull
     private String schemaName;
+    
     @JsonProperty("tableName")
     @Nonnull
     private String tableName;
+    
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
+    
     @JsonProperty("primaryKey")
     private String primaryKey;
 
