@@ -42,7 +42,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
         @Type(value = KafkaSinkInfo.class, name = Constants.SINK_TYPE_KAFKA),
         @Type(value = HiveSinkInfo.class, name = Constants.SINK_TYPE_HIVE),
         @Type(value = IcebergSinkInfo.class, name = Constants.SINK_TYPE_ICEBERG),
-        @Type(value = IcebergSinkInfo.class, name = Constants.SINK_TYPE_HBASE)}
+        @Type(value = HbaseSinkInfo.class, name = Constants.SINK_TYPE_HBASE),
+        @Type(value = ElasticsearchSinkInfo.class, name = Constants.SINK_TYPE_ES)}
 )
 public abstract class SinkInfo implements Serializable {
 
