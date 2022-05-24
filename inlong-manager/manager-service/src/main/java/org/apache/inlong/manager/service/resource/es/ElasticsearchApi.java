@@ -169,7 +169,8 @@ public class ElasticsearchApi {
      * Get fields
      *
      * @param indexName The index name of Elasticsearch
-     * @return Map<String, MappingMetaData> index information
+     * @return a {@link Map} collection that contains {@link String}
+     *     as key and {@link MappingMetaData} as value.
      * @throws IOException The exception may throws
      */
     public Map<String, MappingMetaData> getFields(String indexName) throws IOException {
