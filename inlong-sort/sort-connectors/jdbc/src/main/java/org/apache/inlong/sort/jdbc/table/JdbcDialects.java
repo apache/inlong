@@ -20,7 +20,7 @@ package org.apache.inlong.sort.jdbc.table;
 
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.connector.jdbc.dialect.MySQLDialect;
-import org.apache.flink.connector.jdbc.dialect.PostgresDialect;
+import org.apache.inlong.sort.jdbc.dialect.PostgresDialect;
 import org.apache.inlong.sort.jdbc.dialect.SqlServerDialect;
 
 import java.util.ArrayList;

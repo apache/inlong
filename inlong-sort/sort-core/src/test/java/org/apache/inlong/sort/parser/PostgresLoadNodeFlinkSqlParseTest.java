@@ -22,13 +22,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
-import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
-import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
+import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.PostgresFamily;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
@@ -81,7 +82,7 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
                 "postgres",
                 "inlong",
                 "public.user",
-                "name,age");
+                "name,age", PostgresFamily.POSTGRES);
     }
 
     /**

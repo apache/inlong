@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.PostgresFamily;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
@@ -245,7 +246,7 @@ public class LoadNodeUtils {
                 null, postgresSinkResponse.getJdbcUrl(), postgresSinkResponse.getUsername(),
                 postgresSinkResponse.getPassword(),
                 postgresSinkResponse.getDbName() + "." + postgresSinkResponse.getTableName(),
-                postgresSinkResponse.getPrimaryKey());
+                postgresSinkResponse.getPrimaryKey(), PostgresFamily.POSTGRES);
     }
     
     /**f

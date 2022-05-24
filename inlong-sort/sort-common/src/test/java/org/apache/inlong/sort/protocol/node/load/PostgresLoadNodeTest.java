@@ -21,6 +21,7 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.enums.PostgresFamily;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
@@ -45,6 +46,6 @@ public class PostgresLoadNodeTest extends SerializeBaseTest<PostgresLoadNode> {
                 "postgres",
                 "inlong",
                 "user",
-                "name");
+                "name", PostgresFamily.POSTGRES);
     }
 }

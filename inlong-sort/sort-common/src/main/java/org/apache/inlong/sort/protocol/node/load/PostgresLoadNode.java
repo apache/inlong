@@ -27,6 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.PostgresConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
+import org.apache.inlong.sort.protocol.enums.PostgresFamily;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
@@ -67,6 +68,9 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonProperty("postgresFamily")
+    private PostgresFamily postgresFamily;
+
     public PostgresLoadNode(
             @JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -80,19 +84,32 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
-            @JsonProperty("primaryKey") String primaryKey) {
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("postgresFamily") PostgresFamily postgresFamily) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.tableName = Preconditions.checkNotNull(tableName, "tableName is null");
         this.primaryKey = primaryKey;
+        this.postgresFamily = Preconditions.checkNotNull(postgresFamily, "postgresFamily is null");
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put(PostgresConstant.CONNECTOR, PostgresConstant.JDBC);
+        String connector = null;
+        switch (this.postgresFamily) {
+            case POSTGRES:
+            case GREENPLUM:
+                connector = PostgresConstant.JDBC;
+                break;
+            case TBASE:
+                connector = PostgresConstant.JDBC_INLONG;
+                break;
+            default:
+        }
+        options.put(PostgresConstant.CONNECTOR, connector);
         options.put(PostgresConstant.URL, url);
         options.put(PostgresConstant.USERNAME, username);
         options.put(PostgresConstant.PASSWORD, password);
