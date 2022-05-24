@@ -15,21 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
 /**
- * CacheClusterExt
+ * ProxyCluster
  */
-public class CacheClusterExt {
+public class ProxyCluster {
 
     private String clusterName;
-    private String keyName;
-    private String keyValue;
-    private Integer isDeleted;
+    private String clusterTag;
+    private String extTag;
+    private String extParams;
 
     /**
      * get clusterName
-     * 
      * @return the clusterName
      */
     public String getClusterName() {
@@ -38,7 +37,6 @@ public class CacheClusterExt {
 
     /**
      * set clusterName
-     * 
      * @param clusterName the clusterName to set
      */
     public void setClusterName(String clusterName) {
@@ -46,53 +44,51 @@ public class CacheClusterExt {
     }
 
     /**
-     * get keyName
-     * 
-     * @return the keyName
+     * get clusterTag
+     * @return the clusterTag
      */
-    public String getKeyName() {
-        return keyName;
+    public String getClusterTag() {
+        return clusterTag;
     }
 
     /**
-     * set keyName
-     * 
-     * @param keyName the keyName to set
+     * set clusterTag
+     * @param clusterTag the clusterTag to set
      */
-    public void setKeyName(String keyName) {
-        this.keyName = keyName;
+    public void setClusterTag(String clusterTag) {
+        this.clusterTag = clusterTag;
     }
 
     /**
-     * get keyValue
-     * 
-     * @return the keyValue
+     * get extTag
+     * @return the extTag
      */
-    public String getKeyValue() {
-        return keyValue;
+    public String getExtTag() {
+        return extTag;
     }
 
     /**
-     * set keyValue
-     * 
-     * @param keyValue the keyValue to set
+     * set extTag
+     * @param extTag the extTag to set
      */
-    public void setKeyValue(String keyValue) {
-        this.keyValue = keyValue;
+    public void setExtTag(String extTag) {
+        this.extTag = extTag;
     }
 
     /**
-     * getJIsDeleted
+     * get extParams
+     * @return the extParams
      */
-    public Integer getJIsDeleted() {
-        return isDeleted;
+    public String getExtParams() {
+        return extParams;
     }
 
     /**
-     * setIsDeleted
+     * set extParams
+     * @param extParams the extParams to set
      */
-    public void setIsDeleted(Integer isDeleted) {
-        this.isDeleted = isDeleted;
+    public void setExtParams(String extParams) {
+        this.extParams = extParams;
     }
 
 }
