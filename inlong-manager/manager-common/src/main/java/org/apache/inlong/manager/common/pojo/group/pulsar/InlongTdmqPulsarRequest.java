@@ -15,30 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.common.pojo.group.pulsar;
 
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
-import org.springframework.stereotype.Repository;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-@Repository
-public interface InlongGroupPulsarEntityMapper {
+/**
+ * Inlong group request for Tdmq Pulsar
+ */
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Inlong group request for Tdmq Pulsar")
+@JsonTypeDefine(value = MQType.MQ_TDMQ_PULSAR)
+public class InlongTdmqPulsarRequest extends InlongPulsarRequest {
 
-    int deleteByPrimaryKey(Integer id);
-
-    int logicDeleteByGroupId(String groupId);
-
-    int insert(InlongGroupPulsarEntity record);
-
-    int insertSelective(InlongGroupPulsarEntity record);
-
-    InlongGroupPulsarEntity selectByPrimaryKey(Integer id);
-
-    InlongGroupPulsarEntity selectByGroupId(String groupId);
-
-    int updateByPrimaryKeySelective(InlongGroupPulsarEntity record);
-
-    int updateByPrimaryKey(InlongGroupPulsarEntity record);
-
-    int updateByIdentifierSelective(InlongGroupPulsarEntity record);
+    public InlongTdmqPulsarRequest() {
+        this.setMqType(MQType.TDMQ_PULSAR.getType());
+    }
 
 }

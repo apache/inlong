@@ -18,23 +18,14 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
-import org.apache.inlong.manager.client.api.InlongGroupNoneConf;
-import org.apache.inlong.manager.client.api.InlongGroupPulsarConf;
-import org.apache.inlong.manager.client.api.InlongGroupTubeConf;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
@@ -44,7 +35,6 @@ import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The transfer util for Inlong Group
@@ -52,132 +42,6 @@ import java.util.Map;
 public class InlongGroupTransfer {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    /**
-     * Parse MQ config from inlong group info.
-     */
-    public static InlongGroupConf parseMQConf(InlongGroupInfo groupInfo) {
-        if (null == groupInfo) {
-            return null;
-        }
-
-        MQType mqType = MQType.forType(groupInfo.getMqType());
-        switch (mqType) {
-            case PULSAR:
-            case TDMQ_PULSAR:
-                return parsePulsarConf(groupInfo);
-            case TUBE:
-                return parseTubeConf(groupInfo);
-            case NONE:
-                return new InlongGroupNoneConf();
-            default:
-                throw new RuntimeException(String.format("Illegal MQ type=%s for Inlong", mqType));
-        }
-    }
-
-    /**
-     * Parse sort config from the inlong group.
-     */
-    public static BaseSortConf parseSortConf(InlongGroupInfo groupInfo) {
-        List<InlongGroupExtInfo> groupExtInfos = groupInfo.getExtList();
-        if (CollectionUtils.isEmpty(groupExtInfos)) {
-            return null;
-        }
-        String type = null;
-        for (InlongGroupExtInfo extInfo : groupExtInfos) {
-            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_TYPE)) {
-                type = extInfo.getKeyValue();
-                break;
-            }
-        }
-        if (type == null) {
-            return null;
-        }
-        SortType sortType = SortType.forType(type);
-        switch (sortType) {
-            case FLINK:
-                return parseFlinkSortConf(groupExtInfos);
-            case USER_DEFINED:
-                return parseUdf(groupExtInfos);
-            default:
-                throw new IllegalArgumentException(String.format("Unsupported sort type=%s for Inlong", sortType));
-        }
-    }
-
-    /**
-     * Parse sort config of Flink.
-     */
-    private static FlinkSortConf parseFlinkSortConf(List<InlongGroupExtInfo> groupExtInfos) {
-        FlinkSortConf flinkSortConf = new FlinkSortConf();
-        for (InlongGroupExtInfo extInfo : groupExtInfos) {
-            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_URL)) {
-                flinkSortConf.setServiceUrl(extInfo.getKeyValue());
-            }
-            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_PROPERTIES)) {
-                Map<String, String> properties = GsonUtil.fromJson(extInfo.getKeyValue(),
-                        new TypeToken<Map<String, String>>() {
-                        }.getType());
-                flinkSortConf.setProperties(properties);
-            }
-        }
-        return flinkSortConf;
-    }
-
-    /**
-     * Parse sort config of UDF.
-     */
-    private static UserDefinedSortConf parseUdf(List<InlongGroupExtInfo> groupExtInfos) {
-        UserDefinedSortConf sortConf = new UserDefinedSortConf();
-        for (InlongGroupExtInfo extInfo : groupExtInfos) {
-            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_NAME)) {
-                sortConf.setSortName(extInfo.getKeyValue());
-            }
-            if (extInfo.getKeyName().equals(InlongGroupSettings.SORT_PROPERTIES)) {
-                Map<String, String> properties = GsonUtil.fromJson(extInfo.getKeyValue(),
-                        new TypeToken<Map<String, String>>() {
-                        }.getType());
-                sortConf.setProperties(properties);
-            }
-        }
-        return sortConf;
-    }
-
-    /**
-     * Parse Pulsar config from inlong group info.
-     */
-    private static InlongGroupPulsarConf parsePulsarConf(InlongGroupInfo groupInfo) {
-        InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-        InlongGroupPulsarConf pulsarConf = new InlongGroupPulsarConf();
-        pulsarConf.setTenant(pulsarInfo.getTenant());
-        pulsarConf.setAdminUrl(pulsarInfo.getAdminUrl());
-        pulsarConf.setServiceUrl(pulsarInfo.getServiceUrl());
-        pulsarConf.setQueueModule(pulsarInfo.getQueueModule());
-        pulsarConf.setPartitionNum(pulsarInfo.getPartitionNum());
-        pulsarConf.setEnsemble(pulsarInfo.getEnsemble());
-        pulsarConf.setWriteQuorum(pulsarInfo.getWriteQuorum());
-        pulsarConf.setAckQuorum(pulsarInfo.getAckQuorum());
-        pulsarConf.setTtl(pulsarInfo.getTtl());
-        pulsarConf.setTtlUnit(pulsarInfo.getTtlUnit());
-        pulsarConf.setRetentionTime(pulsarInfo.getRetentionTime());
-        pulsarConf.setRetentionTimeUnit(pulsarInfo.getRetentionTimeUnit());
-        pulsarConf.setRetentionSize(pulsarInfo.getRetentionSize());
-        pulsarConf.setRetentionSizeUnit(pulsarInfo.getRetentionSizeUnit());
-
-        return pulsarConf;
-    }
-
-    /**
-     * Parse Tube config from inlong group info.
-     */
-    private static InlongGroupTubeConf parseTubeConf(InlongGroupInfo groupInfo) {
-        InlongTubeInfo tubeInfo = (InlongTubeInfo) groupInfo;
-        InlongGroupTubeConf tubeConf = new InlongGroupTubeConf();
-        tubeConf.setManagerUrl(tubeInfo.getManagerUrl());
-        tubeConf.setMasterUrl(tubeInfo.getMasterUrl());
-        tubeConf.setClusterId(tubeInfo.getClusterId());
-
-        return tubeConf;
-    }
 
     /**
      * Create inlong group info from group config.

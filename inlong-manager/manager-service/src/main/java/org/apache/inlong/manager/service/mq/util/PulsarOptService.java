@@ -17,11 +17,12 @@
 
 package org.apache.inlong.manager.service.mq.util;
 
-import java.util.List;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
+
+import java.util.List;
 
 /**
  * Interface of Pulsar operation
@@ -30,7 +31,7 @@ public interface PulsarOptService {
 
     void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException;
 
-    void createNamespace(PulsarAdmin pulsarAdmin, InlongGroupPulsarEntity pulsarEntity, String tenant,
+    void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo groupInfo, String tenant,
             String namespace) throws PulsarAdminException;
 
     void createTopic(PulsarAdmin pulsarAdmin, PulsarTopicBean topicBean) throws PulsarAdminException;

@@ -19,9 +19,9 @@ package org.apache.inlong.manager.client.cli.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.MQBaseConf;
+import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.StreamSink;
 import org.apache.inlong.manager.common.pojo.stream.StreamSource;
@@ -33,9 +33,12 @@ import java.nio.charset.Charset;
  */
 public class GsonUtil {
 
+    /**
+     * Init gson instance with register type adapter.
+     */
     public static Gson gsonBuilder() {
         return new GsonBuilder()
-                .registerTypeAdapter(MQBaseConf.class, new MQBaseConfAdapter())
+                .registerTypeAdapter(InlongGroupInfo.class, new InlongGroupInfoAdapter())
                 .registerTypeAdapter(BaseSortConf.class, new SortBaseConfAdapter())
                 .registerTypeAdapter(Charset.class, new CharsetAdapter())
                 .registerTypeAdapter(DataSeparator.class, new SeparatorAdapter())
