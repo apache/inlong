@@ -13,33 +13,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.sort.jdbc.sqlserver;
 
-import lombok.Data;
-
-import java.io.Serializable;
+import org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter;
+import org.apache.flink.table.types.logical.RowType;
 
 /**
- * InlongGroupPulsarEntity, including inlong group id, ensemble, etc.
+ * Runtime converter that responsible to convert between JDBC object and Flink internal object for
+ * SqlServer.
  */
-@Data
-public class InlongGroupPulsarEntity implements Serializable {
+public class SqlServerRowConvert extends AbstractJdbcRowConverter {
+    
+    public SqlServerRowConvert(RowType rowType) {
+        super(rowType);
+    }
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String inlongGroupId;
-    private String tenant;
-    private Integer ensemble;
-    private Integer writeQuorum;
-    private Integer ackQuorum;
-    private Integer retentionTime;
-    private String retentionTimeUnit;
-    private Integer ttl;
-    private String ttlUnit;
-    private Integer retentionSize;
-    private String retentionSizeUnit;
-    private Integer isDeleted;
-    private Integer enableCreateResource;
+    @Override
+    public String converterName() {
+        return "SqlServer";
+    }
 }

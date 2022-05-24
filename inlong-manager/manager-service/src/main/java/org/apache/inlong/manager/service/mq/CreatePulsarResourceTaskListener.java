@@ -27,8 +27,6 @@ import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -59,8 +57,6 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
     private CommonOperateService commonOperateService;
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongGroupPulsarEntityMapper groupPulsarMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
 
@@ -116,8 +112,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
             pulsarOptService.createTenant(pulsarAdmin, tenant);
 
             // create pulsar namespace
-            InlongGroupPulsarEntity entity = groupPulsarMapper.selectByGroupId(groupId);
-            pulsarOptService.createNamespace(pulsarAdmin, entity, tenant, namespace);
+            pulsarOptService.createNamespace(pulsarAdmin, groupInfo, tenant, namespace);
 
             // create pulsar topic
             Integer partitionNum = groupInfo.getPartitionNum();

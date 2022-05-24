@@ -42,11 +42,9 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.InlongStringUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
@@ -77,8 +75,6 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     private ClusterBean clusterBean;
     @Autowired
     private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private InlongGroupPulsarEntityMapper pulsarEntityMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
     @Autowired
@@ -315,10 +311,10 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
                     String streamId = stream.getInlongStreamId();
                     String topic = stream.getMqResource();
                     String tenant = clusterBean.getDefaultTenant();
-                    InlongGroupPulsarEntity pulsarEntity = pulsarEntityMapper.selectByGroupId(groupId);
+                    /*InlongGroupPulsarEntity pulsarEntity = pulsarEntityMapper.selectByGroupId(groupId);
                     if (pulsarEntity != null && StringUtils.isNotEmpty(pulsarEntity.getTenant())) {
                         tenant = pulsarEntity.getTenant();
-                    }
+                    }*/
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
                     topicList.add(topicConfig);

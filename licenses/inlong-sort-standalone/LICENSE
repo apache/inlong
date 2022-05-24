@@ -506,8 +506,9 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.arrow:arrow-format:0.8.0 - Arrow Format (https://arrow.apache.org/), (Apache License, Version 2.0)
   org.apache.arrow:arrow-memory:0.8.0 - Arrow Memory (https://arrow.apache.org/), (Apache License, Version 2.0)
   org.apache.arrow:arrow-vector:0.8.0 - Arrow Vectors (https://arrow.apache.org/), (Apache License, Version 2.0)
-  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/audience-annotations), (Apache License, Version 2.0)
+  org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.10.1 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   commons-beanutils:commons-beanutils:1.9.4 - Apache Commons BeanUtils (https://commons.apache.org/proper/commons-beanutils/), (Apache License, Version 2.0)
   commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
@@ -518,7 +519,6 @@ The text of each license is the standard Apache 2.0 license.
   commons-daemon:commons-daemon:1.0.13 - Commons Daemon (https://commons.apache.org/proper/commons-daemon/), (The Apache Software License, Version 2.0)
   commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp/), (The Apache Software License, Version 2.0)
   commons-digester:commons-digester:1.8 - Digester (https://commons.apache.org/proper/commons-digester/), (The Apache Software License, Version 2.0)
-  commons-httpclient:commons-httpclient:3.1 - HttpClient (https://hc.apache.org/httpclient-legacy/), (Apache License)
   commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io/), (The Apache Software License, Version 2.0)
   commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
   org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
@@ -570,12 +570,12 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.hive:hive-serde:3.1.2 - Hive Serde (https://github.com/apache/hive/tree/release-3.1.2-rc0/serde)
   org.apache.hive:hive-service:3.1.2 - Hive Service (https://github.com/apache/hive/tree/release-3.1.2-rc0/service)
   org.apache.hive:hive-service-rpc:3.1.2 - Hive Service RPC (https://github.com/apache/hive/tree/release-3.1.2-rc0/service-rpc)
-  org.apache.hive:hive-shims:3.1.2 - Hive Shims (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims)
-  org.apache.hive:hive-storage-api:2.7.0 - Hive Storage API (https://github.com/apache/hive/tree/rel/storage-release-2.7.0/storage-api)
-  org.apache.hive:hive-upgrade-acid:3.1.2 - Hive Upgrade Acid (https://github.com/apache/hive/tree/release-3.1.2-rc0/upgrade-acid/)
   org.apache.hive.shims:hive-shims-0.23:3.1.2 - Hive Shims 0.23 (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/0.23)
+  org.apache.hive:hive-shims:3.1.2 - Hive Shims (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims)
   org.apache.hive.shims:hive-shims-common:3.1.2 - Hive Shims Common (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/common)
   org.apache.hive.shims:hive-shims-scheduler:3.1.2 - Hive Shims Scheduler (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/scheduler)
+  org.apache.hive:hive-storage-api:2.7.0 - Hive Storage API (https://github.com/apache/hive/tree/rel/storage-release-2.7.0/storage-api)
+  org.apache.hive:hive-upgrade-acid:3.1.2 - Hive Upgrade Acid (https://github.com/apache/hive/tree/release-3.1.2-rc0/upgrade-acid/)
   org.apache.htrace:htrace-core4:4.1.0-incubating - htrace-core4 (http://incubator.apache.org/projects/htrace.html), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpasyncclient:4.1.2 - Apache HttpAsyncClient (http://hc.apache.org/httpcomponents-asyncclient), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (http://hc.apache.org/httpcomponents-client), (Apache License, Version 2.0)
@@ -638,8 +638,6 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1/simpleclient_tracer/simpleclient_tracer_otel_agent), (The Apache Software License, Version 2.0)
   org.yaml:snakeyaml:1.17 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.17/), (Apache License, Version 2.0)
   org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (The Apache Software License, Version 2.0)
-  org.apache.taglibs:taglibs-standard-impl:1.2.5 - Apache Standard Taglib Implementation (http://tomcat.apache.org/taglibs/standard-1.2.5/taglibs-standard-impl), (The Apache Software License, Version 2.0)
-  org.apache.taglibs:taglibs-standard-spec:1.2.5 - Apache Standard Taglib Specification API (http://tomcat.apache.org/taglibs/standard-1.2.5/taglibs-standard-spec), (The Apache Software License, Version 2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest), (The Apache Software License, Version 2.0)
   com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:1.0.5 - tencentcloud-cls-sdk-java (https://github.com/TencentCloud/tencentcloud-cls-sdk-java/tree/v1.0.5), (Apache License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
@@ -660,8 +658,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.apache.ant:ant:1.9.1 - Apache Ant Core (http://ant.apache.org/), (Apache License, Version 2.0)
   org.apache.ant:ant-launcher:1.9.1 - Apache Ant Launcher (http://ant.apache.org/), (Apache License, Version 2.0)
-  org.eclipse.jetty:apache-jsp:9.3.20.v20170531 - Jetty :: Apache JSP Implementation (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/apache-jsp), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:apache-jstl:9.3.20.v20170531 - Apache :: JSTL module (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/apache-jstl), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.apache.commons:commons-math3:3.1.1 - Commons Math (https://commons.apache.org/proper/commons-math/), (The Apache Software License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.3 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.3) (Apache License 2.0)
   org.apache.hadoop:hadoop-annotations:2.10.1 - Apache Hadoop Annotations (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-annotations), (Apache License, Version 2.0)
@@ -688,17 +684,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.mortbay.jetty:jetty:6.1.26 - Jetty Server (http://www.eclipse.org/jetty/jetty-parent/project/modules/jetty), (Apache Software License - Version 2.0;  EPL 1.0)
   org.mortbay.jetty:jetty-sslengine:6.1.26 - Jetty SSLEngine (http://jetty.mortbay.org), (Apache License Version 2)
   org.mortbay.jetty:jetty-util:6.1.26 - Jetty Utilities (http://www.eclipse.org/jetty/jetty-parent/project/jetty-util), (Apache Software License - Version 2.0;  EPL 1.0)
-  org.eclipse.jetty:jetty-annotations:9.3.20.v20170531 - Jetty :: Servlet Annotations (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-annotations), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-client:9.3.20.v20170531 - Jetty :: Asynchronous HTTP Client (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-client), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-jaas:9.3.20.v20170531 - Jetty :: JAAS (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-jaas), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (https://github.com/eclipse/jetty.project/tree/jetty-9.4.6.v20170531/jetty-jmx), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-jndi:9.3.20.v20170531 - Jetty :: JNDI Naming (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-jndi), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-plus:9.3.20.v20170531 - Jetty :: Plus (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-plus), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-rewrite:9.3.20.v20170531 - Jetty :: Rewrite Handler (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-rewrite), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-runner:9.3.20.v20170531 - Jetty :: Runner (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-runner), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.toolchain:jetty-schemas:3.1 - Jetty :: Schemas (https://github.com/eclipse/jetty.toolchain/tree/jetty-schemas-3.1), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-server:9.4.44.v20210927 - - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
@@ -729,11 +719,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.apache.lucene:lucene-suggest:7.7.3 - Lucene Suggest (http://lucene.apache.org), (Apache 2)
   org.apache.parquet:parquet-hadoop-bundle:1.10.0 - Apache Parquet Hadoop Bundle (https://parquet.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
-  org.eclipse.jetty.websocket:websocket-api:9.3.20.v20170531 - Jetty :: Websocket :: API (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-api), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-client:9.3.20.v20170531 - Jetty :: Websocket :: Client (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-client), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-common:9.3.20.v20170531 - Jetty :: Websocket :: Common (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-common), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-server:9.3.20.v20170531 - Jetty :: Websocket :: Server (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-servlet:9.3.20.v20170531 - Jetty :: Websocket :: Servlet Interface (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
 
 
 ========================================================================
@@ -744,9 +729,7 @@ The following components are provided under BSD license. See project link for de
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   asm:asm:3.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_3_1), (BSD)
-  org.ow2.asm:asm:5.0.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
-  org.ow2.asm:asm-commons:5.0.1 - ASM Commons (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
-  org.ow2.asm:asm-tree:5.0.1 - ASM Tree (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
+  org.ow2.asm:asm:5.0.4 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_4), (BSD)
   dnsjava:dnsjava:2.1.7 - dnsjava (https://github.com/dnsjava/dnsjava/tree/v2.1.7), (BSD 2-Clause license)
   javolution:javolution:5.5.1 - Javolution (http://javolution.org), (BSD License)
   jline:jline:2.12 - JLine (https://jline.github.io), (The BSD License)
@@ -797,6 +780,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.sun.jersey:jersey-server:1.9 - jersey-server (https://github.com/javaee/jersey-1.x/tree/post-1.9/jersey-server), (CDDL 1.1;  GPL2 w/ CPE)
   com.sun.jersey.contribs:jersey-guice:1.9 - jersey-guice (https://github.com/javaee/jersey-1.x/tree/post-1.9/contribs/jersey-guice), (CDDL 1.1;  GPL2 w/ CPE)
   com.sun.jersey:jersey-servlet:1.19 - jersey-servlet (https://jersey.java.net/jersey-servlet/), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.servlet.jsp:jsp-api:2.1 - jsp-api (https://github.com/javaee/javaee-jsp-api/tree/jsp-api-2.2), (CDDL 1.1, GPL2.0)
   javax.servlet:servlet-api:2.5 - servlet-api (https://mvnrepository.com/artifact/javax.servlet/servlet-api/2.5), (CDDL v1.0)
 
   
@@ -810,7 +794,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   aopalliance:aopalliance:1.0 - - AOP alliance (http://aopalliance.sourceforge.net), (Public Domain)
   org.hdrhistogram:HdrHistogram:2.1.9 - HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/), (Public Domain, per Creative Commons CC0)
   net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
-  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  org.tukaani:xz:1.8 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
 
 
 ========================================================================
@@ -830,7 +814,6 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.eclipse.jdt.core.compiler:ecj:4.4.2 - Eclipse ECJ (http://www.eclipse.org/jdt/), (Eclipse Public License v1.0)
   ch.qos.logback:logback-classic:1.2.10 - Logback Classic Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
   ch.qos.logback:logback-core:1.2.10 - Logback Core Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
 

@@ -34,6 +34,7 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
@@ -62,7 +63,8 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
         @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad"),
         @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
-        @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad")
+        @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad"),
+        @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad")
 })
 public interface Node {
 

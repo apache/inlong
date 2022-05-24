@@ -22,9 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.enums.Constant;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
@@ -71,7 +71,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
     }
 
     @Override
-    public void createNamespace(PulsarAdmin pulsarAdmin, InlongGroupPulsarEntity pulsarEntity,
+    public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo,
             String tenant, String namespace) throws PulsarAdminException {
         Preconditions.checkNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
@@ -92,22 +92,22 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             namespaces.createNamespace(namespaceName, Sets.newHashSet(clusters));
 
             // Configure message TTL
-            Integer ttl = pulsarEntity.getTtl();
+            Integer ttl = pulsarInfo.getTtl();
             if (ttl > 0) {
                 namespaces.setNamespaceMessageTTL(namespaceName, conversionHandle.handleConversion(ttl,
-                        pulsarEntity.getTtlUnit().toLowerCase() + "_seconds"));
+                        pulsarInfo.getTtlUnit().toLowerCase() + "_seconds"));
             }
 
             // retentionTimeInMinutes retentionSizeInMB
-            Integer retentionTime = pulsarEntity.getRetentionTime();
+            Integer retentionTime = pulsarInfo.getRetentionTime();
             if (retentionTime > 0) {
                 retentionTime = conversionHandle.handleConversion(retentionTime,
-                        pulsarEntity.getRetentionTimeUnit().toLowerCase() + "_minutes");
+                        pulsarInfo.getRetentionTimeUnit().toLowerCase() + "_minutes");
             }
-            Integer retentionSize = pulsarEntity.getRetentionSize();
+            Integer retentionSize = pulsarInfo.getRetentionSize();
             if (retentionSize > 0) {
                 retentionSize = conversionHandle.handleConversion(retentionSize,
-                        pulsarEntity.getRetentionSizeUnit().toLowerCase() + "_mb");
+                        pulsarInfo.getRetentionSizeUnit().toLowerCase() + "_mb");
             }
 
             // Configure retention policies
@@ -115,10 +115,9 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             namespaces.setRetention(namespaceName, retentionPolicies);
 
             // Configure persistence policies
-            PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarEntity.getEnsemble(),
-                    pulsarEntity.getWriteQuorum(), pulsarEntity.getAckQuorum(), 0);
+            PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarInfo.getEnsemble(),
+                    pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), 0);
             namespaces.setPersistence(namespaceName, persistencePolicies);
-
             log.info("success to create namespace={}", tenant);
         } catch (PulsarAdminException e) {
             log.error("create namespace={} error", tenant, e);

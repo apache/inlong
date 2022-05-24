@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.group.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Inlong group config without MQ.
+ * Inlong group info for Tdmq Pulsar
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong group config without MQ")
-public class InlongGroupNoneConf extends InlongGroupConf {
+@ApiModel("Inlong group info for Tdmq Pulsar")
+@JsonTypeDefine(value = MQType.MQ_TDMQ_PULSAR)
+public class InlongTdmqPulsarInfo extends InlongPulsarInfo {
 
-    public InlongGroupNoneConf() {
-        this.setMqType(MQType.NONE.getType());
+    public InlongTdmqPulsarInfo() {
+        this.setMqType(MQType.TDMQ_PULSAR.getType());
+    }
+
+    @Override
+    public InlongTdmqPulsarRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongTdmqPulsarRequest::new);
     }
 
 }

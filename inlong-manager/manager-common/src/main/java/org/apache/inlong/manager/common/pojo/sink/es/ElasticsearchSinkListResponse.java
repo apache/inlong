@@ -15,38 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api;
+package org.apache.inlong.manager.common.pojo.sink.es;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 
 /**
- * Base configuration for Tube.
+ * Response of Elasticsearch sink list
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-@NoArgsConstructor
-@ApiModel("Base configuration for Tube")
-public class TubeBaseConf extends MQBaseConf {
+@ApiModel("Response of Elasticsearch sink paging list")
+public class ElasticsearchSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("Message queue type")
-    private MQType type = MQType.TUBE;
+    @ApiModelProperty("Elasticsearch Host")
+    private String host;
 
-    @ApiModelProperty("Tube manager URL")
-    private String tubeManagerUrl;
+    @ApiModelProperty("Elasticsearch Port")
+    private Integer port;
 
-    @ApiModelProperty("Tube master URL")
-    private String tubeMasterUrl;
+    @ApiModelProperty("Elasticsearch index name")
+    private String indexName;
 
-    @ApiModelProperty("Tube Cluster Id")
-    private int tubeClusterId = 1;
+    @ApiModelProperty("Flush interval, unit: second, default is 1s")
+    private Integer flushInterval;
 
-    @ApiModelProperty("GroupName for tube producer")
-    private String groupName;
+    @ApiModelProperty("Flush when record number reaches flushRecord")
+    private Integer flushRecord;
+
+    @ApiModelProperty("Write max retry times, default is 3")
+    private Integer retryTimes;
+
 }
