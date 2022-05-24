@@ -201,187 +201,113 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+--------------------------------------------------------------------------------
 
-APACHE COMMONS MATH DERIVATIVE WORKS: 
+This product includes a gradle wrapper.
 
-The Apache commons-math library includes a number of subcomponents
-whose implementation is derived from original sources written
-in C or Fortran.  License terms of the original sources
-are reproduced below.
+* gradlew and gradle/wrapper/gradle-wrapper.properties
 
-===============================================================================
-For the lmder, lmpar and qrsolv Fortran routine from minpack and translated in
-the LevenbergMarquardtOptimizer class in package
-org.apache.commons.math3.optimization.general 
-Original source copyright and license statement:
+Copyright: 2010-2019 Gradle Authors.
+Home page: https://github.com/gradle/gradle
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-Minpack Copyright Notice (1999) University of Chicago.  All rights reserved
+--------------------------------------------------------------------------------
 
-Redistribution and use in source and binary forms, with or
-without modification, are permitted provided that the
-following conditions are met:
+This product includes code from Apache Avro.
 
-1. Redistributions of source code must retain the above
-copyright notice, this list of conditions and the following
-disclaimer.
+* Conversion in DecimalWriter is based on Avro's Conversions.DecimalConversion.
 
-2. Redistributions in binary form must reproduce the above
-copyright notice, this list of conditions and the following
-disclaimer in the documentation and/or other materials
-provided with the distribution.
+Copyright: 2014-2017 The Apache Software Foundation.
+Home page: https://parquet.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-3. The end-user documentation included with the
-redistribution, if any, must include the following
-acknowledgment:
+--------------------------------------------------------------------------------
 
-   "This product includes software developed by the
-   University of Chicago, as Operator of Argonne National
-   Laboratory.
+This product includes code from Apache Parquet.
 
-Alternately, this acknowledgment may appear in the software
-itself, if and wherever such third-party acknowledgments
-normally appear.
+* DynMethods.java
+* DynConstructors.java
+* AssertHelpers.java
 
-4. WARRANTY DISCLAIMER. THE SOFTWARE IS SUPPLIED "AS IS"
-WITHOUT WARRANTY OF ANY KIND. THE COPYRIGHT HOLDER, THE
-UNITED STATES, THE UNITED STATES DEPARTMENT OF ENERGY, AND
-THEIR EMPLOYEES: (1) DISCLAIM ANY WARRANTIES, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO ANY IMPLIED WARRANTIES
-OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE
-OR NON-INFRINGEMENT, (2) DO NOT ASSUME ANY LEGAL LIABILITY
-OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR
-USEFULNESS OF THE SOFTWARE, (3) DO NOT REPRESENT THAT USE OF
-THE SOFTWARE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS, (4)
-DO NOT WARRANT THAT THE SOFTWARE WILL FUNCTION
-UNINTERRUPTED, THAT IT IS ERROR-FREE OR THAT ANY ERRORS WILL
-BE CORRECTED.
+Copyright: 2014-2017 The Apache Software Foundation.
+Home page: https://parquet.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-5. LIMITATION OF LIABILITY. IN NO EVENT WILL THE COPYRIGHT
-HOLDER, THE UNITED STATES, THE UNITED STATES DEPARTMENT OF
-ENERGY, OR THEIR EMPLOYEES: BE LIABLE FOR ANY INDIRECT,
-INCIDENTAL, CONSEQUENTIAL, SPECIAL OR PUNITIVE DAMAGES OF
-ANY KIND OR NATURE, INCLUDING BUT NOT LIMITED TO LOSS OF
-PROFITS OR LOSS OF DATA, FOR ANY REASON WHATSOEVER, WHETHER
-SUCH LIABILITY IS ASSERTED ON THE BASIS OF CONTRACT, TORT
-(INCLUDING NEGLIGENCE OR STRICT LIABILITY), OR OTHERWISE,
-EVEN IF ANY OF SAID PARTIES HAS BEEN WARNED OF THE
-POSSIBILITY OF SUCH LOSS OR DAMAGES.
-===============================================================================
+--------------------------------------------------------------------------------
 
-Copyright and license statement for the odex Fortran routine developed by
-E. Hairer and G. Wanner and translated in GraggBulirschStoerIntegrator class
-in package org.apache.commons.math3.ode.nonstiff:
+This product includes code from Cloudera Kite.
 
+* SchemaVisitor and visit methods
 
-Copyright (c) 2004, Ernst Hairer
+Copyright: 2013-2017 Cloudera Inc.
+Home page: https://kitesdk.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are 
-met:
+--------------------------------------------------------------------------------
 
-- Redistributions of source code must retain the above copyright 
-notice, this list of conditions and the following disclaimer.
+This product includes code from Presto.
 
-- Redistributions in binary form must reproduce the above copyright 
-notice, this list of conditions and the following disclaimer in the 
-documentation and/or other materials provided with the distribution.
+* Retry wait and jitter logic in Tasks.java
+* S3FileIO logic derived from PrestoS3FileSystem.java in S3InputStream.java
+  and S3OutputStream.java
+* SQL grammar rules for parsing CALL statements in IcebergSqlExtensions.g4
+* some aspects of handling stored procedures
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS 
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-===============================================================================
+Copyright: 2016 Facebook and contributors
+Home page: https://prestodb.io/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-Copyright and license statement for the original lapack fortran routines
-translated in EigenDecompositionImpl class in package
-org.apache.commons.math3.linear:
+--------------------------------------------------------------------------------
 
-Copyright (c) 1992-2008 The University of Tennessee.  All rights reserved.
+This product includes code from Apache iBATIS.
 
-$COPYRIGHT$
+* Hive ScriptRunner.java
 
-Additional copyrights may follow
+Copyright: 2004 Clinton Begin
+Home page: https://ibatis.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-$HEADER$
+--------------------------------------------------------------------------------
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
+This product includes code from Apache Hive.
 
-- Redistributions of source code must retain the above copyright
-  notice, this list of conditions and the following disclaimer. 
-  
-- Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer listed
-  in this license in the documentation and/or other materials
-  provided with the distribution.
-  
-- Neither the name of the copyright holders nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-  
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT  
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT  
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
-===============================================================================
+* Hive metastore derby schema in hive-schema-3.1.0.derby.sql
 
-Copyright and license statement for the original Mersenne twister C
-routines translated in MersenneTwister class in package 
-org.apache.commons.math3.random:
+Copyright: 2011-2018 The Apache Software Foundation
+Home page: https://hive.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-   Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
-   All rights reserved.                          
+--------------------------------------------------------------------------------
 
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions
-   are met:
+This product includes code from Apache Spark.
 
-     1. Redistributions of source code must retain the above copyright
-        notice, this list of conditions and the following disclaimer.
+* dev/check-license script
+* vectorized reading of definition levels in BaseVectorizedParquetValuesReader.java
+* portions of the extensions parser
+* casting logic in AssignmentAlignmentSupport
+* implementation of SetAccumulator.
+* Connector expressions.
 
-     2. Redistributions in binary form must reproduce the above copyright
-        notice, this list of conditions and the following disclaimer in the
-        documentation and/or other materials provided with the distribution.
+Copyright: 2011-2018 The Apache Software Foundation
+Home page: https://spark.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-     3. The names of its contributors may not be used to endorse or promote 
-        products derived from this software without specific prior written 
-        permission.
+--------------------------------------------------------------------------------
 
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+This product includes code from Delta Lake.
 
-===============================================================================
+* AssignmentAlignmentSupport is an independent development but UpdateExpressionsSupport in Delta was used as a reference.
 
-The class "org.apache.commons.math3.exception.util.LocalizedFormatsTest" is
-an adapted version of "OrekitMessagesTest" test class for the Orekit library
-The "org.apache.commons.math3.analysis.interpolation.HermiteInterpolator"
-has been imported from the Orekit space flight dynamics library.
+Copyright: 2020 The Delta Lake Project Authors.
+Home page: https://delta.io/
+License: https://www.apache.org/licenses/LICENSE-2.0
 
-Th Orekit library is described at:
-  https://www.orekit.org/forge/projects/orekit
-The original files are distributed under the terms of the Apache 2 license
-which is: Copyright 2010 CS Communication & Systèmes
+--------------------------------------------------------------------------------
+
+This product includes code from Apache Commons.
+
+* Core ArrayUtil.
+
+Copyright: 2020 The Apache Software Foundation
+Home page: https://commons.apache.org/
+License: https://www.apache.org/licenses/LICENSE-2.0
