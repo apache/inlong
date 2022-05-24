@@ -21,13 +21,15 @@ import java.util.Locale;
 
 public enum SinkType {
 
-    HIVE, KAFKA, ICEBERG, CLICKHOUSE, HBASE;
+    HIVE, KAFKA, ICEBERG, CLICKHOUSE, HBASE, POSTGRES, ELASTICSEARCH;
 
     public static final String SINK_HIVE = "HIVE";
     public static final String SINK_KAFKA = "KAFKA";
     public static final String SINK_HBASE = "HBASE";
     public static final String SINK_ICEBERG = "ICEBERG";
     public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
+    public static final String SINK_POSTGRES = "POSTGRES";
+    public static final String SINK_ELASTICSEARCH = "ELASTICSEARCH";
 
     /**
      * Get the SinkType enum via the given sinkType string

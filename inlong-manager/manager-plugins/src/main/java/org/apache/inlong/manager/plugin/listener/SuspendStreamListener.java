@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -27,7 +28,6 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -47,6 +47,8 @@ import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStack
  */
 @Slf4j
 public class SuspendStreamListener implements SortOperateListener {
+
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public TaskEvent event() {
@@ -79,7 +81,7 @@ public class SuspendStreamListener implements SortOperateListener {
             return ListenerResult.fail(message);
         }
 
-        Map<String, String> result = JsonUtils.OBJECT_MAPPER.convertValue(JsonUtils.OBJECT_MAPPER.readTree(sortExt),
+        Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
                 new TypeReference<Map<String, String>>() {
                 });
         kvConf.putAll(result);

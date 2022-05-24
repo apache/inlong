@@ -110,6 +110,14 @@ public class TubeHttpTopicInfoList {
         return data.get(0).getTopicInfo();
     }
 
+    /**
+     * topic add information
+     *
+     * @param brokerIds this is the broker ids
+     * @param targetTopicNames The topic name of the target
+     * @param token authorized key
+     * @return topic data
+     */
     public AddTopicReq getAddTopicReq(List<Integer> brokerIds, List<String> targetTopicNames, String token) {
 
         AddTopicReq req = new AddTopicReq();

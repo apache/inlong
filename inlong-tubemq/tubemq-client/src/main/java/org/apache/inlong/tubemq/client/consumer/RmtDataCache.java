@@ -390,6 +390,14 @@ public class RmtDataCache implements Closeable {
         return (partConfig.getF1() == 1);
     }
 
+    /**
+     * Get subscribable partition information
+     *
+     * @param partitionKey   the partition key to query
+     * @param result         the topic meta information
+     * @param sBuffer        the string buffer
+     * @return               whether query success
+     */
     public boolean getSubscribablePartition(String partitionKey,
                                             ProcessResult result,
                                             StringBuilder sBuffer) {
@@ -461,6 +469,12 @@ public class RmtDataCache implements Closeable {
         nextWithAuthInfo2M.set(requireAuth);
     }
 
+    /**
+     * Book and get Master's authentication status
+     *
+     * @param isForce    whether force authentication
+     * @return           whether to require authentication
+     */
     public boolean markAndGetAuthStatus(boolean isForce) {
         boolean needAuth = false;
         if (isForce) {
@@ -473,6 +487,13 @@ public class RmtDataCache implements Closeable {
         return needAuth;
     }
 
+    /**
+     * Book and get Broker's authentication status
+     *
+     * @param brokerId     the broker id to query
+     * @param isForce    whether force authentication
+     * @return           whether to require authentication
+     */
     public boolean markAndGetBrokerAuthStatus(int brokerId, boolean isForce) {
         boolean needAuth = false;
         AtomicBoolean authStatus = nextWithAuthInfo2BMap.get(brokerId);
@@ -527,6 +548,11 @@ public class RmtDataCache implements Closeable {
         }
     }
 
+    /**
+     * get client subscribe report information
+     *
+     * @return the client subscribe information
+     */
     public ClientMaster.ClientSubRepInfo buildClientSubRepInfo() {
         ClientMaster.ClientSubRepInfo.Builder builder =
                 ClientMaster.ClientSubRepInfo.newBuilder();
@@ -869,6 +895,23 @@ public class RmtDataCache implements Closeable {
         }
     }
 
+    /**
+     * Release response's partition.
+     *
+     * @param partitionKey  the partition key to relased
+     * @param topicName     the topic name
+     * @param usedToken     the used token
+     * @param isLastPackConsumed  whether consumed
+     * @param currOffset    current offset of the partition
+     * @param reqProcType   the request process type
+     * @param errCode       the error code
+     * @param isEscLimit    Whether to escape the limit
+     * @param msgSize       the message size
+     * @param limitDlt      the limit delta
+     * @param isFilterConsume   whether filter consume
+     * @param curDataDlt    the current data delta
+     * @param maxOffset     current max offset of the partition
+     */
     public void errRspRelease(String partitionKey, String topicName,
                               long usedToken, boolean isLastPackConsumed,
                               long currOffset, int reqProcType, int errCode,
@@ -1002,6 +1045,15 @@ public class RmtDataCache implements Closeable {
         return strSubInfoList;
     }
 
+    /**
+     * Remove and get required partitions
+     * @param unRegisterInfoMap  the unregistered partitions
+     * @param partitionKeys      the partition keys
+     * @param inUseWaitPeriodMs  the wait period in ms
+     * @param isWaitTimeoutRollBack  whether wait timout
+     *
+     * @return the removed partitions
+     */
     public Map<BrokerInfo, List<PartitionSelectResult>> removeAndGetPartition(
             Map<BrokerInfo, List<Partition>> unRegisterInfoMap,
             List<String> partitionKeys, long inUseWaitPeriodMs,
@@ -1065,6 +1117,16 @@ public class RmtDataCache implements Closeable {
         return unNewRegisterInfoMap;
     }
 
+    /**
+     * Remove and get required partitions
+     * @param partitionKey      the partition key
+     * @param inUseWaitPeriodMs  the wait period in ms
+     * @param isWaitTimeoutRollBack  whether wait timout
+     * @param result  the process result
+     * @param sBuffer  the string buffer
+     *
+     * @return removed or not
+     */
     public boolean removeAndGetPartition(String partitionKey, long inUseWaitPeriodMs,
                                          boolean isWaitTimeoutRollBack, ProcessResult result,
                                          StringBuilder sBuffer) {
@@ -1226,6 +1288,12 @@ public class RmtDataCache implements Closeable {
         return retPartition;
     }
 
+    /**
+     * Filter cached partition information
+     *
+     * @param registerInfoMap     the partitions to register
+     * @param unRegPartitionList  the unregistered partition list
+     */
     public void filterCachedPartitionInfo(Map<BrokerInfo, List<Partition>> registerInfoMap,
                                           List<Partition> unRegPartitionList) {
         List<BrokerInfo> brokerInfoList = new ArrayList<>();
@@ -1259,6 +1327,12 @@ public class RmtDataCache implements Closeable {
         return this.brokerPartitionConMap.get(brokerInfo);
     }
 
+    /**
+     * Resume consume timeout partitions
+     *
+     * @param isPullConsume       whether is pull consume
+     * @param allowedPeriodTimes  allowed hold duration
+     */
     public void resumeTimeoutConsumePartitions(boolean isPullConsume, long allowedPeriodTimes) {
         if (isPullConsume) {
             // For pull consume, do timeout check on partitions pulled without confirm
@@ -1295,6 +1369,12 @@ public class RmtDataCache implements Closeable {
         }
     }
 
+    /**
+     * Freeze or unfreeze partitons
+     *
+     * @param partitionKeys    the operation targets
+     * @param isFreeze         Freeze or unfreeze operation
+     */
     public void freezeOrUnFreezeParts(List<String> partitionKeys, boolean isFreeze) {
         if (partitionKeys == null || partitionKeys.isEmpty()) {
             return;

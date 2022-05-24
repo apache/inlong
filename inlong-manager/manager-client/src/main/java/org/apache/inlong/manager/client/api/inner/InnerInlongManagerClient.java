@@ -32,11 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
-import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.auth.Authentication;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.util.GsonUtil;
 import org.apache.inlong.manager.client.api.util.InlongParser;
+import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -56,7 +55,7 @@ import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.List;
 
@@ -66,6 +65,7 @@ import java.util.List;
 @Slf4j
 public class InnerInlongManagerClient {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     protected static final String HTTP_PATH = "api/inlong/manager";
 
     protected final OkHttpClient httpClient;
@@ -92,13 +92,17 @@ public class InnerInlongManagerClient {
                 .build();
     }
 
-    public Pair<Boolean, InlongGroupInfo> isGroupExists(InlongGroupRequest groupRequest) {
-        String inlongGroupId = groupRequest.getInlongGroupId();
-        if (isGroupExists(inlongGroupId)) {
-            InlongGroupInfo groupInfo = getGroupInfo(inlongGroupId);
-            return Pair.of(true, groupInfo);
+    /**
+     * Get inlong group by the given inlong group id.
+     *
+     * @param inlongGroupId the given inlong group id
+     * @return inlong group info if exists, null will be returned if not exits
+     */
+    public InlongGroupInfo getGroupIfExists(String inlongGroupId) {
+        if (this.isGroupExists(inlongGroupId)) {
+            return getGroupInfo(inlongGroupId);
         } else {
-            return Pair.of(false, null);
+            return null;
         }
     }
 
@@ -174,7 +178,7 @@ public class InnerInlongManagerClient {
             pageNum = 1;
         }
 
-        ObjectNode groupQuery = JsonUtils.OBJECT_MAPPER.createObjectNode();
+        ObjectNode groupQuery = OBJECT_MAPPER.createObjectNode();
         groupQuery.put("keyword", keyword);
         groupQuery.put("status", status);
         groupQuery.put("pageNum", pageNum);
@@ -230,9 +234,9 @@ public class InnerInlongManagerClient {
             assert response.body() != null;
             String body = response.body().string();
             assertHttpSuccess(response, body, path);
-            return JsonUtils.parse(body,
-                    new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
-                    });
+
+            return OBJECT_MAPPER.readValue(body, new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
+            });
         }
     }
 
@@ -814,12 +818,11 @@ public class InnerInlongManagerClient {
     public WorkflowResult startInlongGroup(int taskId,
             Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
 
-        ObjectMapper objectMapper = JsonUtils.OBJECT_MAPPER;
-        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        ObjectNode workflowTaskOperation = OBJECT_MAPPER.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
-        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
+        ObjectNode inlongGroupApproveForm = OBJECT_MAPPER.createObjectNode();
         inlongGroupApproveForm.putPOJO("groupApproveInfo", initMsg.getKey());
         inlongGroupApproveForm.putPOJO("streamApproveInfoList", initMsg.getValue());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");

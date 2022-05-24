@@ -44,7 +44,7 @@ public class Constants {
 
     public static final String TYPE = "type";
 
-    public static final String ENTRYPOINT_CLASS = "org.apache.inlong.sort.singletenant.flink.Entrance";
+    public static final String ENTRYPOINT_CLASS = "org.apache.inlong.sort.Entrance";
 
     public static final String INLONG = "INLONG_";
 

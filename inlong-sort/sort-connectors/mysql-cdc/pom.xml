@@ -52,7 +52,6 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-mysql</artifactId>
-            <version>${debezium.connector.mysql.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>debezium-core</artifactId>

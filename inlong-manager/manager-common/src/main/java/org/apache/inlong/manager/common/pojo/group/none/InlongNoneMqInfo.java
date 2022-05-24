@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.group.none;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -29,6 +30,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
  * Inlong group info without MQ.
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Inlong group info without MQ")
 @JsonTypeDefine(value = MQType.MQ_NONE)

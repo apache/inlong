@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.reflect.TypeToken;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -40,7 +41,6 @@ import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.common.pojo.sort.UserDefinedSortConf;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +50,8 @@ import java.util.Map;
  * The transfer util for Inlong Group
  */
 public class InlongGroupTransfer {
+
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
      * Parse MQ config from inlong group info.
@@ -256,7 +258,11 @@ public class InlongGroupTransfer {
         if (MapUtils.isNotEmpty(flinkSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
-            flinkProperties.setKeyValue(JsonUtils.toJson(flinkSortConf.getProperties()));
+            try {
+                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(flinkSortConf.getProperties()));
+            } catch (Exception e) {
+                throw new RuntimeException("get json for sort properties error: " + e.getMessage());
+            }
             extInfos.add(flinkProperties);
         }
         return extInfos;
@@ -278,7 +284,12 @@ public class InlongGroupTransfer {
         if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
-            flinkProperties.setKeyValue(JsonUtils.toJson(userDefinedSortConf.getProperties()));
+            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
+            try {
+                flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
+            } catch (Exception e) {
+                throw new RuntimeException("get json for sort properties error: " + e.getMessage());
+            }
             extInfos.add(flinkProperties);
         }
         return extInfos;

@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * "x-352-109", x-333-110". The process will know that the original create succeeded an the znode it
  * created is "x-352-109".
  *
- * @see "http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling"
+ * See "http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling"
  *
  * Copied from <a href="http://hbase.apache.org">Apache HBase Project</a>
  */

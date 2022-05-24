@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This demo shows how to consume message by client balance consumer.
  *
- * <p>Consume message in client balance mode achieved by
+ * Consume message in client balance mode achieved by
  * {@link ClientBalanceConsumer#getMessage(ConsumeResult)}.
  * Note that whenever {@link ClientBalanceConsumer#getMessage(ConsumeResult)}
  * returns successfully, the return value(whether or not to be {@code null})

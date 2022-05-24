@@ -130,7 +130,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         createHiveSink(streamInfo);
         createKafkaSource(streamInfo);
         mockTaskListenerFactory();
-        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
+        WorkflowContext context = processService.start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -161,8 +161,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
-        WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);

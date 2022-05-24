@@ -41,13 +41,6 @@
         <module>pulsar</module>
     </modules>
 
-    <properties>
-        <debezium.connector.mysql.version>1.6.4.Final</debezium.connector.mysql.version>
-        <debezium.core.version>1.6.4.Final</debezium.core.version>
-        <debezium.embedded.version>1.5.2.Final</debezium.embedded.version>
-        <kafka.clients.version>2.7.0</kafka.clients.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.inlong</groupId>
@@ -99,7 +92,6 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${kafka.clients.version}</version>
         </dependency>
         <!--for hbase-->
         <dependency>
@@ -125,12 +117,10 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-embedded</artifactId>
-            <version>${debezium.embedded.version}</version>
         </dependency>
         <dependency>
             <artifactId>debezium-core</artifactId>
             <groupId>io.debezium</groupId>
-            <version>${debezium.core.version}</version>
         </dependency>
         <!--for sort format-->
         <dependency>

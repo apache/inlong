@@ -28,29 +28,35 @@ import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.event.EventListenerManagerFactory;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventListenerManager;
+import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListenerManager;
+import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Event listener service
  */
+@Service
 public class EventListenerServiceImpl implements EventListenerService {
 
-    private final WorkflowContextBuilder workflowContextBuilder;
-    private final WorkflowEventNotifier workflowEventNotifier;
-    private final EventListenerManagerFactory listenerManagerFactory;
-    private final WorkflowEventLogEntityMapper eventLogMapper;
-
-    public EventListenerServiceImpl(WorkflowContextBuilder contextBuilder, WorkflowEventNotifier eventNotifier,
-            EventListenerManagerFactory listenerManagerFactory, WorkflowEventLogEntityMapper eventLogMapper) {
-        this.workflowContextBuilder = contextBuilder;
-        this.workflowEventNotifier = eventNotifier;
-        this.listenerManagerFactory = listenerManagerFactory;
-        this.eventLogMapper = eventLogMapper;
-    }
+    @Autowired
+    private WorkflowContextBuilder workflowContextBuilder;
+    @Autowired
+    private ProcessEventNotifier processEventNotifier;
+    @Autowired
+    private TaskEventNotifier taskEventNotifier;
+    @Autowired
+    private ProcessEventListenerManager processListenerManager;
+    @Autowired
+    private TaskEventListenerManager taskListenerManager;
+    @Autowired
+    private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override
     public void executeEventListener(Integer eventLogId) {
@@ -75,7 +81,7 @@ public class EventListenerServiceImpl implements EventListenerService {
         ProcessEvent processEvent = getProcessEventListener(context.getProcess(), listener).event();
         context.setCurrentElement(getCurrentElement(context.getProcess(), processEvent));
 
-        workflowEventNotifier.getProcessEventNotifier().notify(listener, true, context);
+        processEventNotifier.notify(listener, true, context);
     }
 
     @Override
@@ -83,21 +89,21 @@ public class EventListenerServiceImpl implements EventListenerService {
         WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, null);
         TaskEventListener eventListener = getTaskEventListener((WorkflowTask) context.getCurrentElement(), listener);
         context.getActionContext().setAction(WorkflowAction.fromTaskEvent(eventListener.event()));
-        workflowEventNotifier.getTaskEventNotifier().notify(listener, true, context);
+        taskEventNotifier.notify(listener, true, context);
     }
 
     @Override
     public void triggerProcessEvent(Integer processId, ProcessEvent processEvent) {
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         context.setCurrentElement(getCurrentElement(context.getProcess(), processEvent));
-        workflowEventNotifier.getProcessEventNotifier().notify(processEvent, context);
+        processEventNotifier.notify(processEvent, context);
     }
 
     @Override
     public void triggerTaskEvent(Integer taskId, TaskEvent taskEvent) {
         WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.fromTaskEvent(taskEvent));
-        workflowEventNotifier.getTaskEventNotifier().notify(taskEvent, context);
+        taskEventNotifier.notify(taskEvent, context);
     }
 
     private Element getCurrentElement(WorkflowProcess process, ProcessEvent processEvent) {
@@ -113,7 +119,7 @@ public class EventListenerServiceImpl implements EventListenerService {
             return listener;
         }
 
-        listener = listenerManagerFactory.getProcessListenerManager().listener(listenerName);
+        listener = processListenerManager.listener(listenerName);
         Preconditions.checkNotNull(listener, "process listener not exist with name: " + listenerName);
         return listener;
     }
@@ -124,7 +130,7 @@ public class EventListenerServiceImpl implements EventListenerService {
             return listener;
         }
 
-        listener = listenerManagerFactory.getTaskListenerManager().listener(listenerName);
+        listener = taskListenerManager.listener(listenerName);
         Preconditions.checkNotNull(listener, "task listener not exist with name: " + listenerName);
         return listener;
     }

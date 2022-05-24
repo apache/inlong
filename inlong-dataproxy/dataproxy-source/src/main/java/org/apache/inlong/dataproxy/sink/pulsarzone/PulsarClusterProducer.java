@@ -17,17 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.pulsarzone;
 
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -47,6 +36,17 @@ import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.SizeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 /**
  * PulsarClusterProducer
@@ -131,8 +131,8 @@ public class PulsarClusterProducer implements LifecycleAware {
                     .connectionsPerBroker(context.getInteger(KEY_CONNECTIONSPERBROKER, 10))
                     .build();
             this.baseBuilder = client.newProducer();
-//            Map<String, Object> builderConf = new HashMap<>();
-//            builderConf.putAll(context.getParameters());
+            // Map<String, Object> builderConf = new HashMap<>();
+            // builderConf.putAll(context.getParameters());
             this.baseBuilder
                     .sendTimeout(context.getInteger(KEY_SENDTIMEOUT, 0), TimeUnit.MILLISECONDS)
                     .maxPendingMessages(context.getInteger(KEY_MAXPENDINGMESSAGES, 500))
@@ -222,6 +222,7 @@ public class PulsarClusterProducer implements LifecycleAware {
             String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
             if (baseTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+                event.fail();
                 return false;
             }
             // get producer
@@ -251,8 +252,7 @@ public class PulsarClusterProducer implements LifecycleAware {
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.getDispatchQueue().offer(event);
-                sinkContext.addSendResultMetric(event, producerTopic, false, 0);
+                sinkContext.processSendFail(event, producerTopic, 0);
                 return false;
             }
             // headers
@@ -268,17 +268,16 @@ public class PulsarClusterProducer implements LifecycleAware {
                 if (ex != null) {
                     LOG.error("Send fail:{}", ex.getMessage());
                     LOG.error(ex.getMessage(), ex);
-                    sinkContext.getDispatchQueue().offer(event);
-                    sinkContext.addSendResultMetric(event, producerTopic, false, sendTime);
+                    sinkContext.processSendFail(event, producerTopic, sendTime);
                 } else {
                     sinkContext.addSendResultMetric(event, producerTopic, true, sendTime);
+                    event.ack();
                 }
             });
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sinkContext.getDispatchQueue().offer(event);
-            sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+            sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
     }

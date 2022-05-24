@@ -19,7 +19,7 @@ package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.plugin.flink.enums.Constants;
@@ -41,9 +41,9 @@ public class DeleteSortListenerTest {
         WorkflowContext context = new WorkflowContext();
         GroupResourceProcessForm groupResourceProcessForm = new GroupResourceProcessForm();
         context.setProcessForm(groupResourceProcessForm);
-        InlongGroupInfo inlongGroupInfo = new InlongGroupInfo();
-        inlongGroupInfo.setInlongGroupId("1");
-        groupResourceProcessForm.setGroupInfo(inlongGroupInfo);
+        InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
+        pulsarInfo.setInlongGroupId("1");
+        groupResourceProcessForm.setGroupInfo(pulsarInfo);
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
@@ -69,7 +69,7 @@ public class DeleteSortListenerTest {
         inlongGroupExtInfo6.setKeyValue("resource-39xnu3rw,resource-25dysywn");
         inlongGroupExtInfos.add(inlongGroupExtInfo6);
 
-        inlongGroupInfo.setExtList(inlongGroupExtInfos);
+        pulsarInfo.setExtList(inlongGroupExtInfos);
 
         DeleteSortListener deleteSortListener = new DeleteSortListener();
         // This method temporarily fails the test, so comment it out first

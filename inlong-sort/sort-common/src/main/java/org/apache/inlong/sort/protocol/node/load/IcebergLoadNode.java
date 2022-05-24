@@ -26,6 +26,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
@@ -49,9 +51,21 @@ public class IcebergLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String tableName;
 
-    @JsonProperty("tableName")
+    @JsonProperty("dbName")
     @Nonnull
     private String dbName;
+
+    @JsonProperty("primaryKey")
+    private String primaryKey;
+
+    @JsonProperty("catalogType")
+    private IcebergConstant.CatalogType catalogType;
+
+    @JsonProperty("uri")
+    private String uri;
+
+    @JsonProperty("warehouse")
+    private String warehouse;
 
     @JsonCreator
     public IcebergLoadNode(@JsonProperty("id") String id,
@@ -63,10 +77,18 @@ public class IcebergLoadNode extends LoadNode implements Serializable {
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @Nonnull @JsonProperty("dbName") String dbName,
-            @Nonnull @JsonProperty("tableName") String tableName) {
+            @Nonnull @JsonProperty("tableName") String tableName,
+            @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("catalogType") IcebergConstant.CatalogType catalogType,
+            @JsonProperty("uri") String uri,
+            @JsonProperty("warehouse") String warehouse) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.dbName = Preconditions.checkNotNull(dbName, "db name is null");
+        this.primaryKey = primaryKey;
+        this.catalogType = catalogType == null ? CatalogType.HIVE : catalogType;
+        this.uri = uri;
+        this.warehouse = warehouse;
     }
 
     @Override
@@ -76,6 +98,14 @@ public class IcebergLoadNode extends LoadNode implements Serializable {
         options.put("catalog-database", dbName);
         options.put("catalog-table", tableName);
         options.put("default-database", dbName);
+        options.put("catalog-type", catalogType.name());
+        options.put("catalog-name", catalogType.name());
+        if (null != uri) {
+            options.put("uri", uri);
+        }
+        if (null != warehouse) {
+            options.put("warehouse", warehouse);
+        }
         return options;
     }
 
@@ -86,7 +116,7 @@ public class IcebergLoadNode extends LoadNode implements Serializable {
 
     @Override
     public String getPrimaryKey() {
-        return super.getPrimaryKey();
+        return primaryKey;
     }
 
     @Override

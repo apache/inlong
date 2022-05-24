@@ -20,6 +20,8 @@ package org.apache.inlong.manager.workflow.core;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowNoRollbackException;
 import org.apache.inlong.manager.common.exceptions.WorkflowRollbackOnceException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
@@ -34,13 +36,11 @@ import java.lang.reflect.UndeclaredThrowableException;
  * Transaction Helper
  */
 @Slf4j
+@Service
 public class TransactionHelper {
 
-    private final PlatformTransactionManager transactionManager;
-
-    public TransactionHelper(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     /**
      * Execute in transaction

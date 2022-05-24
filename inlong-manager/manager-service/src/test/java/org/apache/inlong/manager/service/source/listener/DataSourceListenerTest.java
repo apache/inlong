@@ -64,7 +64,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         sourceRequest.setSourceName("binlog-collect");
         return streamSourceService.save(sourceRequest, OPERATOR);
     }
-    
+
     /**
      * There will be concurrency problems in the overall operation,This method temporarily fails the test
      */
@@ -81,8 +81,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
-        WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
@@ -112,8 +111,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
-        WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);

@@ -21,17 +21,17 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionRepository;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * WorkflowProcess definition service
  */
+@Service
 public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
 
-    private final ProcessDefinitionRepository definitionRepository;
-
-    public ProcessDefinitionServiceImpl(ProcessDefinitionRepository definitionRepository) {
-        this.definitionRepository = definitionRepository;
-    }
+    @Autowired
+    private ProcessDefinitionRepository definitionRepository;
 
     @Override
     public void register(WorkflowProcess process) {
