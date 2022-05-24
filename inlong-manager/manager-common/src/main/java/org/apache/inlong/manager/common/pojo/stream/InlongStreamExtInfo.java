@@ -15,38 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink.dto;
+package org.apache.inlong.manager.common.pojo.stream;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-
-import java.util.List;
 
 /**
- * Flink infomation, including end point, job name, source type, etc.
+ * Inlong stream extension information
  */
 @Data
-public class FlinkInfo {
+@ApiModel("Inlong stream extension information")
+public class InlongStreamExtInfo {
 
-    private String endpoint;
+    @ApiModelProperty(value = "id")
+    private Integer id;
 
-    private String jobName;
+    @ApiModelProperty(value = "inlong group id", required = true)
+    private String inlongGroupId;
 
-    private List<InlongStreamInfo> inlongStreamInfoList;
+    @ApiModelProperty(value = "inlong stream id", required = true)
+    private String inlongStreamId;
 
-    private String localJarPath;
+    @ApiModelProperty(value = "property name")
+    private String keyName;
 
-    private String localConfPath;
-
-    private String sourceType;
-
-    private String sinkType;
-
-    private String jobId;
-
-    private String savepointPath;
-
-    private boolean isException = false;
-
-    private String exceptionMsg;
+    @ApiModelProperty(value = "property value")
+    private String keyValue;
 }

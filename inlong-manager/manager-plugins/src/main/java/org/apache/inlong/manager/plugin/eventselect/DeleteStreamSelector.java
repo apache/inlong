@@ -20,36 +20,38 @@ package org.apache.inlong.manager.plugin.eventselect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of delete process event.
+ * Selector of delete stream event.
  */
 @Slf4j
-public class DeleteProcessSelector implements EventSelector {
+public class DeleteStreamSelector implements EventSelector {
 
     @SneakyThrows
     @Override
     public boolean accept(WorkflowContext context) {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add deleteProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add deleteStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
 
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
+        boolean flag = streamResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
         if (!flag) {
-            log.info("not add deleteProcess listener, as the operate was not DELETE for groupId [{}]", groupId);
+            log.info("not add deleteStream listener, as the operate was not DELETE for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
             return false;
         }
 
-        log.info("add deleteProcess listener for groupId [{}]", groupId);
+        log.info("add deleteStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
         return true;
     }
 }

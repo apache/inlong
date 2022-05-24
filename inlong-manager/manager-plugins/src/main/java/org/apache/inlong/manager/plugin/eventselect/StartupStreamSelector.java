@@ -20,36 +20,36 @@ package org.apache.inlong.manager.plugin.eventselect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of delete process event.
+ * Selector of startup stream event.
  */
 @Slf4j
-public class DeleteProcessSelector implements EventSelector {
+public class StartupStreamSelector implements EventSelector {
 
     @SneakyThrows
     @Override
-    public boolean accept(WorkflowContext context) {
-        ProcessForm processForm = context.getProcessForm();
+    public boolean accept(WorkflowContext workflowContext) {
+        ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add deleteProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add startupStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
-
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
+        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
+        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.INIT;
+        String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
         if (!flag) {
-            log.info("not add deleteProcess listener, as the operate was not DELETE for groupId [{}]", groupId);
+            log.info("not add startupStream listener, as the operate was not INIT for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
             return false;
         }
-
-        log.info("add deleteProcess listener for groupId [{}]", groupId);
+        log.info("add startupStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
         return true;
     }
 }

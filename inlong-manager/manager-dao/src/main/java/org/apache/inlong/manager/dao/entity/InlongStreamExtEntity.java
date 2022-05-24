@@ -15,38 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.plugin.flink.dto;
+package org.apache.inlong.manager.dao.entity;
 
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * Flink infomation, including end point, job name, source type, etc.
+ * InlongStreamExtEntity, including key name, key value, etc.
  */
 @Data
-public class FlinkInfo {
+public class InlongStreamExtEntity implements Serializable {
 
-    private String endpoint;
+    private static final long serialVersionUID = 1L;
 
-    private String jobName;
+    private Integer id;
 
-    private List<InlongStreamInfo> inlongStreamInfoList;
+    private String inlongGroupId;
 
-    private String localJarPath;
+    private String inlongStreamId;
 
-    private String localConfPath;
+    private String keyName;
 
-    private String sourceType;
+    private String keyValue;
 
-    private String sinkType;
+    private Integer isDeleted;
 
-    private String jobId;
-
-    private String savepointPath;
-
-    private boolean isException = false;
-
-    private String exceptionMsg;
+    private Date modifyTime;
 }

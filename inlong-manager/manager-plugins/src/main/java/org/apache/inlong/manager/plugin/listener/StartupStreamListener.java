@@ -23,8 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
@@ -42,10 +44,10 @@ import java.util.stream.Collectors;
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
 
 /**
- * Listener of startup sort.
+ * Listener for startup stream sort
  */
 @Slf4j
-public class StartupSortListener implements SortOperateListener {
+public class StartupStreamListener implements SortOperateListener {
 
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -57,22 +59,21 @@ public class StartupSortListener implements SortOperateListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         ProcessForm processForm = context.getProcessForm();
-        String groupId = processForm.getInlongGroupId();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
-            String message = String.format("process form was not GroupResource for groupId [%s]", groupId);
-            log.error(message);
-            return ListenerResult.fail(message);
-        }
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        InlongGroupInfo groupInfo = streamResourceProcessForm.getGroupInfo();
+        List<InlongGroupExtInfo> groupExtList = groupInfo.getExtList();
+        log.info("inlong group :{} ext info: {}", groupInfo.getInlongGroupId(), groupExtList);
+        InlongStreamInfo streamInfo = streamResourceProcessForm.getStreamInfo();
+        List<InlongStreamExtInfo> streamExtList = streamInfo.getExtList();
+        log.info("inlong stream :{} ext info: {}", streamInfo.getInlongStreamId(), streamExtList);
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
 
-        GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
-        InlongGroupInfo inlongGroupInfo = groupResourceForm.getGroupInfo();
-        List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
-        log.info("inlong group ext info: {}", extList);
-
-        Map<String, String> kvConf = extList.stream().filter(v -> StringUtils.isNotEmpty(v.getKeyName())
-                && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
-                InlongGroupExtInfo::getKeyName,
-                InlongGroupExtInfo::getKeyValue));
+        Map<String, String> kvConf = groupExtList.stream().collect(
+                Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
+        streamExtList.stream().forEach(extInfo -> {
+            kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
+        });
         String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
         if (StringUtils.isNotEmpty(sortExt)) {
             Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
@@ -83,7 +84,7 @@ public class StartupSortListener implements SortOperateListener {
 
         String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
-            String message = String.format("dataflow is empty for groupId [%s]", groupId);
+            String message = String.format("dataflow is empty for groupId [%s] and streamId [%s]", groupId, streamId);
             log.error(message);
             return ListenerResult.fail(message);
         }
@@ -93,7 +94,6 @@ public class StartupSortListener implements SortOperateListener {
         flinkInfo.setJobName(jobName);
         String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
-        flinkInfo.setInlongStreamInfoList(groupResourceForm.getStreamInfos());
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
@@ -108,12 +108,12 @@ public class StartupSortListener implements SortOperateListener {
             flinkInfo.setExceptionMsg(getExceptionStackMsg(e));
             flinkOperation.pollJobStatus(flinkInfo);
 
-            String message = String.format("startup sort failed for groupId [%s] ", groupId);
+            String message = String.format("startup sort failed for groupId [%s] streamId [%s]", groupId, streamId);
             log.error(message, e);
             return ListenerResult.fail(message + e.getMessage());
         }
 
-        saveInfo(groupId, InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(), extList);
+        saveInfo(groupId, streamId, InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(), streamExtList);
         flinkOperation.pollJobStatus(flinkInfo);
         return ListenerResult.success();
     }
@@ -121,9 +121,11 @@ public class StartupSortListener implements SortOperateListener {
     /**
      * Save ext info into list.
      */
-    private void saveInfo(String inlongGroupId, String keyName, String keyValue, List<InlongGroupExtInfo> extInfoList) {
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+    private void saveInfo(String inlongGroupId, String inlongStreamId, String keyName, String keyValue,
+            List<InlongStreamExtInfo> extInfoList) {
+        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
         extInfo.setInlongGroupId(inlongGroupId);
+        extInfo.setInlongStreamId(inlongStreamId);
         extInfo.setKeyName(keyName);
         extInfo.setKeyValue(keyValue);
         extInfoList.add(extInfo);

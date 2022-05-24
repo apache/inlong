@@ -37,15 +37,15 @@ public class RestartProcessSelector implements EventSelector {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add restartProcess listener as the form was not GroupResourceProcessForm for groupId [{}]",
+            log.info("not add restartProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
 
-        GroupResourceProcessForm updateProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = updateProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        boolean flag = groupProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
         if (!flag) {
-            log.info("not add restartProcess listener as the operate was not RESTART for groupId [{}]", groupId);
+            log.info("\"not add restartProcess listener, as the operate was not RESTART for groupId [{}]", groupId);
             return false;
         }
 

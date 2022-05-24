@@ -373,6 +373,24 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream table';
 
 -- ----------------------------
+-- Table structure for inlong_stream_ext
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `inlong_stream_ext`
+(
+    `id`               int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `key_name`         varchar(256) NOT NULL COMMENT 'Configuration item name',
+    `key_value`        text COMMENT 'The value of the configuration item',
+    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `stream_key_idx` (`inlong_group_id`, `inlong_stream_id`, `key_name`),
+    KEY `index_stream_id` (`inlong_group_id`, `inlong_stream_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong stream extension table';
+
+-- ----------------------------
 -- Table structure for inlong_stream_field
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `inlong_stream_field`
