@@ -17,10 +17,10 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.CacheCluster;
-import org.apache.inlong.manager.dao.entity.InlongGroupId;
-import org.apache.inlong.manager.dao.entity.InlongStreamId;
-import org.apache.inlong.manager.dao.entity.ProxyCluster;
+import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
+import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
+import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
+import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

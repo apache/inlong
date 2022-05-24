@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.dataproxy;
 
 /**
- * InlongStreamId
+ * InlongGroupId
  */
-public class InlongStreamId {
+public class InlongGroupId {
 
     private String inlongGroupId;
-    private String inlongStreamId;
+    private String clusterTag;
     private String topic;
     private String extParams;
 
@@ -44,19 +44,19 @@ public class InlongStreamId {
     }
 
     /**
-     * get inlongStreamId
-     * @return the inlongStreamId
+     * get clusterTag
+     * @return the clusterTag
      */
-    public String getInlongStreamId() {
-        return inlongStreamId;
+    public String getClusterTag() {
+        return clusterTag;
     }
 
     /**
-     * set inlongStreamId
-     * @param inlongStreamId the inlongStreamId to set
+     * set clusterTag
+     * @param clusterTag the clusterTag to set
      */
-    public void setInlongStreamId(String inlongStreamId) {
-        this.inlongStreamId = inlongStreamId;
+    public void setClusterTag(String clusterTag) {
+        this.clusterTag = clusterTag;
     }
 
     /**

@@ -22,14 +22,14 @@
 <mapper
     namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
     <select id="selectProxyCluster"
-        resultType="org.apache.inlong.manager.dao.entity.ProxyCluster">
+        resultType="org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster">
         select name as cluster_name, cluster_tag, ext_tag, ext_params
         from inlong_cluster
         where type='DATA_PROXY'
         and is_deleted='0'
     </select>
     <select id="selectCacheCluster"
-        resultType="org.apache.inlong.manager.dao.entity.CacheCluster">
+        resultType="org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster">
         select name as cluster_name, type, cluster_tag, ext_tag,
         ext_params
         from inlong_cluster
@@ -37,7 +37,7 @@
         and is_deleted='0'
     </select>
     <select id="selectInlongGroupId"
-        resultType="org.apache.inlong.manager.dao.entity.InlongGroupId">
+        resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId">
         select inlong_group_id,
         inlong_cluster_tag as
         cluster_tag,
@@ -47,7 +47,7 @@
         where is_deleted = 0
     </select>
     <select id="selectInlongStreamId"
-        resultType="org.apache.inlong.manager.dao.entity.InlongStreamId">
+        resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId">
         select inlong_group_id,
         inlong_stream_id,
         mq_resource as topic,
