@@ -133,12 +133,6 @@
             <artifactId>tubemq-client</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--for audit-->
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>audit-sdk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- for test -->
         <dependency>
             <groupId>org.apache.flink</groupId>
