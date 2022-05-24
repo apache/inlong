@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -27,10 +26,10 @@ import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessF
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -38,8 +37,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.inlong.manager.plugin.util.FlinkUtils.getExceptionStackMsg;
@@ -96,21 +93,6 @@ public class RestartSortListener implements SortOperateListener {
             return ListenerResult.fail(message);
         }
 
-        // TODO Support more than one dataflow in one sort job
-        Map<String, JsonNode> dataflowMap = JsonUtils.OBJECT_MAPPER.convertValue(
-                JsonUtils.OBJECT_MAPPER.readTree(dataFlows), new TypeReference<Map<String, JsonNode>>() {
-                });
-        Optional<JsonNode> dataflowOptional = dataflowMap.values().stream().findFirst();
-        JsonNode dataFlow = null;
-        if (dataflowOptional.isPresent()) {
-            dataFlow = dataflowOptional.get();
-        }
-        if (Objects.isNull(dataFlow)) {
-            String message = String.format("dataflow is empty for groupId [%s]", groupId);
-            log.warn(message);
-            return ListenerResult.fail(message);
-        }
-
         FlinkInfo flinkInfo = new FlinkInfo();
         flinkInfo.setJobId(jobId);
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
@@ -121,7 +103,7 @@ public class RestartSortListener implements SortOperateListener {
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
-            flinkOperation.genPath(flinkInfo, dataFlow.toString());
+            flinkOperation.genPath(flinkInfo, dataFlows);
             flinkOperation.restart(flinkInfo);
             log.info("job restart success for [{}]", jobId);
             return ListenerResult.success();

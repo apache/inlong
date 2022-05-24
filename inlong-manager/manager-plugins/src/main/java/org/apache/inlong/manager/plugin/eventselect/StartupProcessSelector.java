@@ -37,7 +37,8 @@ public class StartupProcessSelector implements EventSelector {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add startupProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]", groupId);
+            log.info("not add startupProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
+                    groupId);
             return false;
         }
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;

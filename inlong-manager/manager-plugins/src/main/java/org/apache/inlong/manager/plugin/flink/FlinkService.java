@@ -192,7 +192,7 @@ public class FlinkService {
     private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
         File jarFile = new File(localJarPath);
-        String[] programArgs = genProgramArgs(flinkInfo, flinkConfig);
+        String[] programArgs = genProgramArgsV2(flinkInfo, flinkConfig);
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)
@@ -240,7 +240,8 @@ public class FlinkService {
     /**
      * Build the program of the Flink job.
      */
-    private String[] genProgramArgs(FlinkInfo flinkInfo,FlinkConfig flinkConfig) {
+    @Deprecated
+    private String[] genProgramArgs(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
         List<String> list = new ArrayList<>();
         list.add("-cluster-id");
         list.add(flinkInfo.getJobName());
@@ -259,6 +260,17 @@ public class FlinkService {
             list.add("-job.orderly.output");
             list.add(String.valueOf(inlongStreamInfo.getSyncSend()));
         }
+        return list.toArray(new String[0]);
+    }
+
+    private String[] genProgramArgsV2(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
+        List<String> list = new ArrayList<>();
+        list.add("-cluster-id");
+        list.add(flinkInfo.getJobName());
+        list.add("-dataflow.info.file");
+        list.add(flinkInfo.getLocalConfPath());
+        list.add("-checkpoint.interval");
+        list.add("60000");
         return list.toArray(new String[0]);
     }
 
