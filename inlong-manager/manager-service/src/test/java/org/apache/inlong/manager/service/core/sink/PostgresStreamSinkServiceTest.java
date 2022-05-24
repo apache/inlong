@@ -17,16 +17,25 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.resource.postgres.PostgresJdbcUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -97,4 +106,53 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
         deletePostgresSink(postgresSinkId);
     }
 
+    /**
+     *  just using in local test
+     */
+    @Ignore
+    public void testDbResource() {
+        String url = "jdbc:postgresql://localhost:5432/test";
+        String user = "postgres";
+        String password = "123456";
+        String dbName = "test";
+        String tableName = "test_123";
+        try {
+            PostgresJdbcUtils.createDb(url, user, password, dbName);
+            List<PostgresColumnInfo> columnInfoList = new ArrayList<>();
+            PostgresColumnInfo info = new PostgresColumnInfo();
+            info.setType("integer");
+            info.setName("idd");
+            columnInfoList.add(info);
+            info = new PostgresColumnInfo();
+            info.setType("integer");
+            info.setName("iddd");
+            columnInfoList.add(info);
+            info = new PostgresColumnInfo();
+            info.setType("integer");
+            info.setName("idddd");
+            columnInfoList.add(info);
+            PostgresTableInfo tableInfo = new PostgresTableInfo();
+            tableInfo.setDbName(dbName);
+            tableInfo.setColumns(columnInfoList);
+            tableInfo.setTableName(tableName);
+            boolean tableExists = PostgresJdbcUtils.checkTablesExist(url, user, password, dbName, tableName);
+            if (!tableExists) {
+                PostgresJdbcUtils.createTable(url, user, password, tableInfo);
+            } else {
+                List<PostgresColumnInfo> existColumns = PostgresJdbcUtils.getColumns(url,
+                        user, password, tableName);
+                List<String> columnNameList = new ArrayList<>();
+                if (existColumns != null) {
+                    existColumns.stream().forEach(e -> columnNameList.add(e.getName()));
+                }
+                List<PostgresColumnInfo> needAddColumns = tableInfo.getColumns().stream()
+                        .filter((pgcInfo) -> !columnNameList.contains(pgcInfo.getName())).collect(toList());
+                if (CollectionUtils.isNotEmpty(needAddColumns)) {
+                    PostgresJdbcUtils.addColumns(url, user, password, tableName, needAddColumns);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

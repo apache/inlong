@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.postgres;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -88,6 +89,23 @@ public class PostgresSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * get postgres table info
+     *
+     * @param pgInfo
+     * @param columnList
+     * @return
+     */
+    public static PostgresTableInfo getPostgresTableInfo(PostgresSinkDTO pgInfo,
+            List<PostgresColumnInfo> columnList) {
+        PostgresTableInfo tableInfo = new PostgresTableInfo();
+        tableInfo.setDbName(pgInfo.getDbName());
+        tableInfo.setTableName(pgInfo.getTableName());
+        tableInfo.setPrimaryKey(pgInfo.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
     }
 
 }
