@@ -29,21 +29,23 @@ import org.apache.inlong.manager.common.pojo.source.SourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
+import org.apache.inlong.sort.protocol.node.format.InLongMsgFormat;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 
 import java.util.List;
@@ -175,14 +177,14 @@ public class ExtractNodeUtils {
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSourceResponse.getAutoOffsetReset());
-        ScanStartupMode startupMode = null;
+        KafkaScanStartupMode startupMode = null;
         switch (kafkaOffset) {
             case EARLIEST:
-                startupMode = ScanStartupMode.EARLIEST_OFFSET;
+                startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
                 break;
             case LATEST:
             default:
-                startupMode = ScanStartupMode.LATEST_OFFSET;
+                startupMode = KafkaScanStartupMode.LATEST_OFFSET;
         }
         final String primaryKey = kafkaSourceResponse.getPrimaryKey();
         String groupId = kafkaSourceResponse.getGroupId();
@@ -236,7 +238,11 @@ public class ExtractNodeUtils {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
-        ScanStartupMode startupMode = ScanStartupMode.forName(pulsarSourceResponse.getScanStartupMode());
+        if (pulsarSourceResponse.isInlongComponent()) {
+            Format innerFormat = format;
+            format = new InLongMsgFormat(innerFormat, false);
+        }
+        PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSourceResponse.getScanStartupMode());
         final String primaryKey = pulsarSourceResponse.getPrimaryKey();
         final String serviceUrl = pulsarSourceResponse.getServiceUrl();
         final String adminUrl = pulsarSourceResponse.getAdminUrl();

@@ -44,7 +44,7 @@ public class AutoPushSource extends StreamSource {
     private SyncType syncType = SyncType.INCREMENT;
 
     @ApiModelProperty("Data format type")
-    private DataFormat dataFormat = DataFormat.NONE;
+    private DataFormat dataFormat = DataFormat.JSON;
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")
     private String dataProxyGroup;

@@ -26,7 +26,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.KafkaConstant;
-import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
@@ -63,7 +63,7 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     private Format format;
 
     @JsonProperty("scanStartupMode")
-    private ScanStartupMode scanStartupMode;
+    private KafkaScanStartupMode kafkaScanStartupMode;
 
     @JsonProperty("primaryKey")
     private String primaryKey;
@@ -80,14 +80,14 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("topic") String topic,
             @Nonnull @JsonProperty("bootstrapServers") String bootstrapServers,
             @Nonnull @JsonProperty("format") Format format,
-            @JsonProperty("scanStartupMode") ScanStartupMode scanStartupMode,
+            @JsonProperty("scanStartupMode") KafkaScanStartupMode kafkaScanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
             @JsonProperty("groupId") String groupId) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
         this.format = Preconditions.checkNotNull(format, "kafka format is empty");
-        this.scanStartupMode = Preconditions.checkNotNull(scanStartupMode, "kafka scanStartupMode is empty");
+        this.kafkaScanStartupMode = Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
         this.primaryKey = primaryKey;
         this.groupId = groupId;
     }
@@ -105,7 +105,7 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
         if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
-                options.put(KafkaConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
+                options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
@@ -113,7 +113,7 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             }
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
-            options.put(KafkaConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
+            options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");

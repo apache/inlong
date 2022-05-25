@@ -44,7 +44,7 @@ public class AgentFileSource extends StreamSource {
     private SyncType syncType = SyncType.INCREMENT;
 
     @ApiModelProperty("Data format type")
-    private DataFormat dataFormat = DataFormat.NONE;
+    private DataFormat dataFormat = DataFormat.JSON;
 
     @ApiModelProperty(value = "Agent IP address", required = true)
     private String ip;
