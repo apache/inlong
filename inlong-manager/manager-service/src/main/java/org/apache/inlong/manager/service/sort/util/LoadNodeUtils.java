@@ -43,6 +43,8 @@ import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +81,8 @@ public class LoadNodeUtils {
                 return createLoadNode((PostgresSink) streamSink);
             case CLICKHOUSE:
                 return createLoadNode((ClickHouseSink) streamSink);
+            case SQLSERVER:
+                return createLoadNode((SqlServerSinkResponse) sinkResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -251,6 +255,48 @@ public class LoadNodeUtils {
                 ckSink.getJdbcUrl(),
                 ckSink.getUsername(),
                 ckSink.getPassword());
+    }
+
+    /**
+
+    /**
+     * Create SqlServerExtractNode based on sqlServerSinkResponse
+     *
+     * @param sqlServerSinkResponse SqlServer source response info
+     * @return SqlServer extract node info
+     */
+    public static SqlServerLoadNode createLoadNode(SqlServerSinkResponse sqlServerSinkResponse) {
+        final String id = sqlServerSinkResponse.getSinkName();
+        final String name = sqlServerSinkResponse.getSinkName();
+        final String primaryKey = sqlServerSinkResponse.getPrimaryKey();
+        final String jdbcUrl = sqlServerSinkResponse.getJdbcUrl();
+        final String userName = sqlServerSinkResponse.getUsername();
+        final String password = sqlServerSinkResponse.getPassword();
+        final String schemaName = sqlServerSinkResponse.getSchemaName();
+        final String tablename = sqlServerSinkResponse.getTableName();
+        List<SinkFieldResponse> sinkFieldResponses = sqlServerSinkResponse.getFieldList();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = sqlServerSinkResponse.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new SqlServerLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                null,
+                properties,
+                jdbcUrl,
+                userName,
+                password,
+                schemaName,
+                tablename,
+                primaryKey
+                );
     }
 
     /**
