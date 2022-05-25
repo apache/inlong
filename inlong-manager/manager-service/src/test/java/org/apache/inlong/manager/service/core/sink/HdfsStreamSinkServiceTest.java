@@ -67,6 +67,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteHdfsSink(Integer hdfsSinkId) {
         boolean result = sinkService.delete(hdfsSinkId, globalOperator);
+        // Verify that the deletion was successful
         Assert.assertTrue(result);
     }
 
@@ -74,6 +75,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer hdfsSinkId = this.saveSink("default_hdfs");
         SinkResponse sink = sinkService.get(hdfsSinkId);
+        // verify globalGroupId
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteHdfsSink(hdfsSinkId);
     }
