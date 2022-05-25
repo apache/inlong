@@ -588,12 +588,8 @@ public class ProxyConfigManager extends Thread {
         Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
         proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
-        if (localProxyAddrJson.has("data")) {
-            JsonArray data = localProxyAddrJson.getAsJsonArray("data");
-            if (data != null) {
-                String id = data.get(0).getAsJsonObject().get("id").getAsString();
-                proxyEntry.setClusterId(id);
-            }
+        if (localProxyAddrJson.has("cluster_id")) {
+            proxyEntry.setClusterId(localProxyAddrJson.get("cluster_id").getAsString());
         }
         return proxyEntry;
     }
@@ -702,10 +698,13 @@ public class ProxyConfigManager extends Thread {
         Map<String, Integer> streamIdMap = getStreamIdMap(jsonRes);
         proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
-        if (jsonRes.has("cluster_id")) {
-            proxyEntry.setClusterId(jsonRes.get("cluster_id").getAsString());
+        if (jsonRes.has("data")) {
+            JsonArray data = jsonRes.getAsJsonArray("data");
+            if (data != null) {
+                String id = data.get(0).getAsJsonObject().get("id").getAsString();
+                proxyEntry.setClusterId(id);
+            }
         }
-
         return proxyEntry;
     }
 
