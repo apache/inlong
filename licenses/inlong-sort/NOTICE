@@ -616,6 +616,14 @@ This distribution has a binary dependency on jersey, which is available under th
 License. The source code of jersey can be found at https://github.com/jersey/jersey/.
 
 
+========================================================================
+
+flink-connector-oracle-cdc
+Copyright 2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
 
 ========================================================================
 

@@ -108,6 +108,11 @@
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
         </dependency>
+        <!--for oracle-->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-oracle-cdc</artifactId>
+        </dependency>
         <!--for debezium-->
         <dependency>
             <groupId>io.debezium</groupId>

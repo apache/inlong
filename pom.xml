@@ -17,8 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -202,6 +202,7 @@
         <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
         <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
+        <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
@@ -987,6 +988,12 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-postgres-cdc</artifactId>
                 <version>${flink.connector.postgres.cdc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-oracle-cdc</artifactId>
+                <version>${flink.connector.oracle.cdc.version}</version>
             </dependency>
 
             <dependency>
