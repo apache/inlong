@@ -87,7 +87,9 @@ public class SqlServerSourceDTO {
                 .primaryKey(request.getPrimaryKey())
                 .build();
     }
-
+    /**
+     * Get the dto instance from json
+     */
     public static SqlServerSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
