@@ -27,8 +27,7 @@ public enum TaskTypeEnum {
     PULSAR(5),
     POSTGRES(6),
     ORACLE(7),
-
-    ;
+    SQLSERVER(8);
 
     private final int type;
 
@@ -54,6 +53,8 @@ public enum TaskTypeEnum {
                 return POSTGRES;
             case 7:
                 return ORACLE;
+            case 8:
+                return SQLSERVER;
             default:
                 throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
         }

@@ -43,6 +43,9 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -85,6 +88,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((PostgresSource) sourceInfo);
             case ORACLE:
                 return createExtractNode((OracleSource) sourceInfo);
+            case SQLSERVER:
+                return createExtractNode((SqlServerSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -329,5 +334,48 @@ public class ExtractNodeUtils {
                 port,
                 scanStartupMode
                 );
+    }
+
+    /**
+     * Create SqlServerExtractNode based on sqlserverSourceResponse
+     *
+     * @param sqlserverSourceResponse SqlServer source response info
+     * @return SqlServer extract node info
+     */
+    public static SqlServerExtractNode createExtractNode(SqlServerSourceResponse sqlserverSourceResponse) {
+        final String id = sqlserverSourceResponse.getSourceName();
+        final String name = sqlserverSourceResponse.getSourceName();
+        final String database = sqlserverSourceResponse.getDatabase();
+        final String primaryKey = sqlserverSourceResponse.getPrimaryKey();
+        final String hostName = sqlserverSourceResponse.getHostname();
+        final String userName = sqlserverSourceResponse.getUsername();
+        final String password = sqlserverSourceResponse.getPassword();
+        final Integer port = sqlserverSourceResponse.getPort();
+        final String schemaName = sqlserverSourceResponse.getSchemaName();
+
+        String tablename = sqlserverSourceResponse.getTableName();
+        final List<InlongStreamFieldInfo> streamFieldInfos = sqlserverSourceResponse.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        final String serverTimeZone = sqlserverSourceResponse.getServerTimezone();
+
+        // TODO Needs to be configurable for those parameters
+        Map<String, String> properties = Maps.newHashMap();
+
+        return new SqlServerExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                primaryKey,
+                hostName,
+                port,
+                userName,
+                password,
+                database,
+                schemaName,
+                tablename,
+                serverTimeZone);
     }
 }
