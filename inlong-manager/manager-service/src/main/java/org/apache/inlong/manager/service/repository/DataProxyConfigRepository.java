@@ -19,33 +19,21 @@ package org.apache.inlong.manager.service.repository;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
-import org.apache.inlong.common.pojo.dataproxy.CacheTopicObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
-import org.apache.inlong.common.pojo.dataproxy.ProxyChannel;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
-import org.apache.inlong.common.pojo.dataproxy.ProxySink;
-import org.apache.inlong.common.pojo.dataproxy.ProxySource;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
-import org.apache.inlong.manager.dao.entity.CacheCluster;
-import org.apache.inlong.manager.dao.entity.CacheClusterExt;
-import org.apache.inlong.manager.dao.entity.CacheTopic;
-import org.apache.inlong.manager.dao.entity.ClusterSet;
-import org.apache.inlong.manager.dao.entity.FlumeChannel;
-import org.apache.inlong.manager.dao.entity.FlumeChannelExt;
-import org.apache.inlong.manager.dao.entity.FlumeSink;
-import org.apache.inlong.manager.dao.entity.FlumeSinkExt;
-import org.apache.inlong.manager.dao.entity.FlumeSource;
-import org.apache.inlong.manager.dao.entity.FlumeSourceExt;
-import org.apache.inlong.manager.dao.entity.InLongId;
-import org.apache.inlong.manager.dao.entity.ProxyCluster;
-import org.apache.inlong.manager.dao.entity.ProxyClusterToCacheCluster;
+import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
+import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
+import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
+import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
 import org.apache.inlong.manager.dao.mapper.ClusterSetMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,31 +41,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PostConstruct;
 
 /**
  * DataProxyConfigRepository
  */
-@SuppressWarnings("UnstableApiUsage")
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
     private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
+    public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
+    public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
     private static final Gson gson = new Gson();
 
-    private final Map<String, ProxyClusterObject> proxyClusterMap = new HashMap<>();
-    private final Map<String, CacheClusterObject> cacheClusterMap = new HashMap<>();
-    private Map<String, DataProxyClusterSet> clusterSets = new HashMap<>();
+    // key: proxyClusterName, value: jsonString
+    private Map<String, String> proxyConfigJson = new ConcurrentHashMap<>();
+    // key: proxyClusterName, value: md5
+    private Map<String, String> proxyMd5Map = new ConcurrentHashMap<>();
+
     private long reloadInterval;
 
     @Autowired
@@ -102,41 +94,121 @@ public class DataProxyConfigRepository implements IRepository {
     @Transactional(rollbackFor = Exception.class)
     public void reload() {
         LOGGER.info("start to reload config.");
-        List<ClusterSet> setList = clusterSetMapper.selectClusterSet();
-        if (setList.size() == 0) {
+        Map<String, ProxyClusterObject> proxyClusterMap = this.reloadProxyCluster();
+        if (proxyClusterMap.size() == 0) {
             return;
         }
-
-        Map<String, DataProxyClusterSet> newClusterSets = new HashMap<>();
-        for (ClusterSet set : setList) {
-            String setName = set.getSetName();
-            DataProxyClusterSet setObj = new DataProxyClusterSet();
-            setObj.setSetName(setName);
-            setObj.getCacheClusterSet().setSetName(setName);
-            setObj.getCacheClusterSet().setType(set.getMiddlewareType());
-            newClusterSets.put(setName, setObj);
+        Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = this.reloadCacheCluster();
+        Map<String, List<InLongIdObject>> inlongIdMap = this.reloadInlongId();
+        // mapping inlongIdMap
+        for (Entry<String, ProxyClusterObject> entry : proxyClusterMap.entrySet()) {
+            String clusterTag = entry.getValue().getSetName();
+            List<InLongIdObject> inlongIds = inlongIdMap.get(clusterTag);
+            if (inlongIds != null) {
+                entry.getValue().setInlongIds(inlongIds);
+            }
         }
-        this.proxyClusterMap.clear();
-        this.cacheClusterMap.clear();
-        this.reloadCacheCluster(newClusterSets);
-        this.reloadCacheClusterExt(newClusterSets);
-        this.reloadCacheTopic(newClusterSets);
-        this.reloadFlumeChannel(newClusterSets);
-        this.reloadFlumeChannelExt(newClusterSets);
-        this.reloadFlumeSource(newClusterSets);
-        this.reloadFlumeSourceExt(newClusterSets);
-        this.reloadFlumeSink(newClusterSets);
-        this.reloadFlumeSinkExt(newClusterSets);
-        // reload inlongid
-        this.reloadInlongId(newClusterSets);
-        this.reloadProxyCluster(newClusterSets);
-        this.reloadProxy2Cache(newClusterSets);
-        this.generateClusterJson(newClusterSets);
 
-        // replace
-        this.clusterSets = newClusterSets;
+        // generateClusterJson
+        this.generateClusterJson(proxyClusterMap, cacheClusterMap);
 
         LOGGER.info("end to reload config.");
+    }
+
+    /**
+     * reloadProxyCluster
+     */
+    private Map<String, ProxyClusterObject> reloadProxyCluster() {
+        Map<String, ProxyClusterObject> proxyClusterMap = new HashMap<>();
+        for (ProxyCluster proxyCluster : clusterSetMapper.selectProxyCluster()) {
+            ProxyClusterObject obj = new ProxyClusterObject();
+            obj.setName(proxyCluster.getClusterName());
+            obj.setSetName(proxyCluster.getClusterTag());
+            obj.setZone(proxyCluster.getExtTag());
+            proxyClusterMap.put(obj.getName(), obj);
+        }
+        return proxyClusterMap;
+    }
+
+    /**
+     * reloadCacheCluster
+     */
+    private Map<String, Map<String, List<CacheCluster>>> reloadCacheCluster() {
+        Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = new HashMap<>();
+        for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
+            Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
+            String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
+            if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString())) {
+                cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTag(), k -> new HashMap<>())
+                        .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
+            }
+        }
+        return cacheClusterMap;
+    }
+
+    /**
+     * reloadInlongId
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, List<InLongIdObject>> reloadInlongId() {
+        // parse group
+        Map<String, InlongGroupId> groupIdMap = new HashMap<>();
+        clusterSetMapper.selectInlongGroupId().forEach(value -> groupIdMap.put(value.getInlongGroupId(), value));
+        // parse stream
+        Map<String, List<InLongIdObject>> inlongIdMap = new HashMap<>();
+        for (InlongStreamId streamIdObj : clusterSetMapper.selectInlongStreamId()) {
+            String groupId = streamIdObj.getInlongGroupId();
+            InlongGroupId groupIdObj = groupIdMap.get(groupId);
+            if (groupId == null) {
+                continue;
+            }
+            // choose topic
+            String groupTopic = groupIdObj.getTopic();
+            String streamTopic = streamIdObj.getTopic();
+            String finalTopic = null;
+            if (StringUtils.isEmpty(groupTopic)) {
+                // both empty then ignore
+                if (StringUtils.isEmpty(streamTopic)) {
+                    continue;
+                } else {
+                    finalTopic = streamTopic;
+                }
+            } else {
+                if (StringUtils.isEmpty(streamTopic)) {
+                    finalTopic = groupTopic;
+                } else {
+                    // Pulsar: namespace+topic
+                    finalTopic = groupTopic + "/" + streamTopic;
+                }
+            }
+            // concat id
+            InLongIdObject obj = new InLongIdObject();
+            String inlongId = groupId + "." + streamIdObj.getInlongStreamId();
+            obj.setInlongId(inlongId);
+            obj.setTopic(finalTopic);
+            Map<String, String> params = new HashMap<>();
+            obj.setParams(params);
+            // parse group extparams
+            if (!StringUtils.isEmpty(groupIdObj.getExtParams())) {
+                try {
+                    Map<String, String> groupParams = gson.fromJson(groupIdObj.getExtParams(), Map.class);
+                    params.putAll(groupParams);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
+            // parse stream extparams
+            if (!StringUtils.isEmpty(streamIdObj.getExtParams())) {
+                try {
+                    Map<String, String> streamParams = gson.fromJson(streamIdObj.getExtParams(), Map.class);
+                    params.putAll(streamParams);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
+            inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
+        }
+        return inlongIdMap;
     }
 
     /**
@@ -149,301 +221,104 @@ public class DataProxyConfigRepository implements IRepository {
     }
 
     /**
-     * get clusterSets
-     *
-     * @return the clusterSets
-     */
-    public Map<String, DataProxyClusterSet> getClusterSets() {
-        return clusterSets;
-    }
-
-    /**
-     * reloadCacheCluster
-     *
-     * @param newClusterSets
-     */
-    private void reloadCacheCluster(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
-            CacheClusterObject obj = new CacheClusterObject();
-            obj.setName(cacheCluster.getClusterName());
-            obj.setZone(cacheCluster.getZone());
-            cacheClusterMap.put(obj.getName(), obj);
-            String setName = cacheCluster.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getCacheClusterSet().getCacheClusters().add(obj);
-        }
-    }
-
-    /**
-     * getOrCreateDataProxyClusterSet
-     *
-     * @param clusterSets
-     * @param setName
-     * @return
-     */
-    private DataProxyClusterSet getOrCreateDataProxyClusterSet(Map<String, DataProxyClusterSet> clusterSets,
-            String setName) {
-        DataProxyClusterSet setObj = clusterSets.get(setName);
-        if (setObj == null) {
-            setObj = new DataProxyClusterSet();
-            setObj.setSetName(setName);
-            clusterSets.put(setName, setObj);
-        }
-        return setObj;
-    }
-
-    /**
-     * reloadCacheClusterExt
-     *
-     * @param newClusterSets
-     */
-    private void reloadCacheClusterExt(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (CacheClusterExt ext : clusterSetMapper.selectCacheClusterExt()) {
-            String clusterName = ext.getClusterName();
-            CacheClusterObject cacheClusterObject = cacheClusterMap.get(clusterName);
-            if (cacheClusterObject != null) {
-                cacheClusterObject.getParams().put(ext.getKeyName(), ext.getKeyValue());
-            }
-        }
-    }
-
-    /**
-     * reloadCacheTopic
-     *
-     * @param newClusterSets
-     */
-    private void reloadCacheTopic(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (CacheTopic cacheTopic : clusterSetMapper.selectCacheTopic()) {
-            CacheTopicObject obj = new CacheTopicObject();
-            obj.setTopic(cacheTopic.getTopicName());
-            obj.setPartitionNum(cacheTopic.getPartitionNum());
-            String setName = cacheTopic.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getCacheClusterSet().getTopics().add(obj);
-        }
-    }
-
-    /**
-     * reloadProxyCluster
-     *
-     * @param newClusterSets
-     */
-    private void reloadProxyCluster(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (ProxyCluster proxyCluster : clusterSetMapper.selectProxyCluster()) {
-            String setName = proxyCluster.getSetName();
-            ProxyClusterObject obj = new ProxyClusterObject();
-            obj.setName(proxyCluster.getClusterName());
-            obj.setSetName(setName);
-            obj.setZone(proxyCluster.getZone());
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getProxyClusterList().add(obj);
-            this.proxyClusterMap.put(obj.getName(), obj);
-            // channels
-            obj.getChannels().addAll(setObj.getProxyChannelMap().values());
-            // inlongids
-            obj.getInlongIds().addAll(setObj.getInlongIds());
-            // sinks
-            obj.getSinks().addAll(setObj.getProxySinkMap().values());
-            // sources
-            obj.getSources().addAll(setObj.getProxySourceMap().values());
-        }
-    }
-
-    /**
-     * reloadFlumeChannel
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeChannel(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeChannel flumeChannel : clusterSetMapper.selectFlumeChannel()) {
-            ProxyChannel obj = new ProxyChannel();
-            obj.setName(flumeChannel.getChannelName());
-            obj.setType(flumeChannel.getType());
-            String setName = flumeChannel.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getProxyChannelMap().put(obj.getName(), obj);
-        }
-    }
-
-    /**
-     * reloadFlumeChannelExt
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeChannelExt(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeChannelExt ext : clusterSetMapper.selectFlumeChannelExt()) {
-            String setName = ext.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            ProxyChannel obj = setObj.getProxyChannelMap().get(ext.getParentName());
-            if (obj != null) {
-                obj.getParams().put(ext.getKeyName(), ext.getKeyValue());
-            }
-        }
-    }
-
-    /**
-     * reloadFlumeSource
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeSource(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeSource flumeSource : clusterSetMapper.selectFlumeSource()) {
-            ProxySource obj = new ProxySource();
-            obj.setName(flumeSource.getSourceName());
-            obj.setSelectorType(flumeSource.getSelectorType());
-            obj.setType(flumeSource.getType());
-            String channels = flumeSource.getChannels();
-            obj.getChannels().addAll(Arrays.asList(channels.split("\\s+")));
-            String setName = flumeSource.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getProxySourceMap().put(obj.getName(), obj);
-        }
-    }
-
-    /**
-     * reloadFlumeSourceExt
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeSourceExt(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeSourceExt ext : clusterSetMapper.selectFlumeSourceExt()) {
-            String setName = ext.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            ProxySource obj = setObj.getProxySourceMap().get(ext.getParentName());
-            if (obj != null) {
-                obj.getParams().put(ext.getKeyName(), ext.getKeyValue());
-            }
-        }
-    }
-
-    /**
-     * reloadFlumeSink
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeSink(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeSink flumeSink : clusterSetMapper.selectFlumeSink()) {
-            ProxySink obj = new ProxySink();
-            obj.setName(flumeSink.getSinkName());
-            obj.setType(flumeSink.getType());
-            obj.setChannel(flumeSink.getChannel());
-            String setName = flumeSink.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getProxySinkMap().put(obj.getName(), obj);
-        }
-    }
-
-    /**
-     * reloadFlumeSinkExt
-     *
-     * @param newClusterSets
-     */
-    private void reloadFlumeSinkExt(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (FlumeSinkExt ext : clusterSetMapper.selectFlumeSinkExt()) {
-            String setName = ext.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            ProxySink obj = setObj.getProxySinkMap().get(ext.getParentName());
-            if (obj != null) {
-                obj.getParams().put(ext.getKeyName(), ext.getKeyValue());
-            }
-        }
-    }
-
-    /**
-     * reloadInlongId
-     *
-     * @param newClusterSets
-     */
-    private void reloadInlongId(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (InLongId inlongId : clusterSetMapper.selectInlongId()) {
-            InLongIdObject obj = new InLongIdObject();
-            obj.setInlongId(inlongId.getInlongId());
-            obj.setTopic(inlongId.getTopic());
-            if (inlongId.getParams() != null) {
-                Map<String, String> params = MAP_SPLITTER.split(inlongId.getParams());
-                obj.getParams().putAll(params);
-            }
-            String setName = inlongId.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.getInlongIds().add(obj);
-        }
-    }
-
-    /**
-     * reloadInlongId
-     *
-     * @param newClusterSets
-     */
-    private void reloadProxy2Cache(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (ProxyClusterToCacheCluster proxy2Cache : clusterSetMapper.selectProxyClusterToCacheCluster()) {
-            String proxyClusterName = proxy2Cache.getProxyClusterName();
-            String cacheClusterName = proxy2Cache.getCacheClusterName();
-            ProxyClusterObject proxyObj = this.proxyClusterMap.get(proxyClusterName);
-            if (proxyObj == null) {
-                continue;
-            }
-            CacheClusterObject cacheObj = this.cacheClusterMap.get(cacheClusterName);
-            if (cacheObj == null) {
-                continue;
-            }
-            String setName = proxyObj.getSetName();
-            DataProxyClusterSet setObj = this.getOrCreateDataProxyClusterSet(newClusterSets, setName);
-            setObj.addProxy2Cache(proxyClusterName, cacheClusterName);
-        }
-    }
-
-    /**
      * generateClusterJson
      *
      * @param newClusterSets
      */
-    private void generateClusterJson(Map<String, DataProxyClusterSet> newClusterSets) {
-        for (Entry<String, DataProxyClusterSet> entry : newClusterSets.entrySet()) {
-            for (ProxyClusterObject proxyObj : entry.getValue().getProxyClusterList()) {
-                // proxy
-                DataProxyCluster clusterObj = new DataProxyCluster();
-                clusterObj.setProxyCluster(proxyObj);
-                // cache
-                CacheClusterSetObject allCacheCluster = entry.getValue().getCacheClusterSet();
-                CacheClusterSetObject proxyCacheClusterSet = clusterObj.getCacheClusterSet();
-                proxyCacheClusterSet.setSetName(allCacheCluster.getSetName());
-                proxyCacheClusterSet.setType(allCacheCluster.getType());
-                proxyCacheClusterSet.setTopics(allCacheCluster.getTopics());
-                // cacheCluster
-                Set<String> cacheClusterNameSet = entry.getValue().getProxy2Cache().get(proxyObj.getName());
-                if (cacheClusterNameSet != null) {
-                    for (String cacheClusterName : cacheClusterNameSet) {
-                        CacheClusterObject cacheObj = this.cacheClusterMap.get(cacheClusterName);
-                        if (cacheObj == null) {
-                            continue;
+    @SuppressWarnings("unchecked")
+    private void generateClusterJson(Map<String, ProxyClusterObject> proxyClusterMap,
+            Map<String, Map<String, List<CacheCluster>>> cacheClusterMap) {
+        Map<String, String> newProxyConfigJson = new ConcurrentHashMap<>();
+        Map<String, String> newProxyMd5Map = new ConcurrentHashMap<>();
+        Map<String, Map<String, String>> tagCache = new HashMap<>();
+        for (Entry<String, ProxyClusterObject> entry : proxyClusterMap.entrySet()) {
+            ProxyClusterObject proxyObj = entry.getValue();
+            // proxy
+            DataProxyCluster clusterObj = new DataProxyCluster();
+            clusterObj.setProxyCluster(proxyObj);
+            // cache
+            String clusterTag = proxyObj.getSetName();
+            String extTag = proxyObj.getZone();
+            Map<String, List<CacheCluster>> cacheClusterZoneMap = cacheClusterMap.get(clusterTag);
+            if (cacheClusterZoneMap != null) {
+                Map<String, String> subTagMap = tagCache.computeIfAbsent(extTag, k -> MAP_SPLITTER.split(extTag));
+                for (Entry<String, List<CacheCluster>> cacheEntry : cacheClusterZoneMap.entrySet()) {
+                    if (cacheEntry.getValue().size() == 0) {
+                        continue;
+                    }
+                    Map<String, String> wholeTagMap = tagCache.computeIfAbsent(cacheEntry.getKey(),
+                            k -> MAP_SPLITTER.split(cacheEntry.getKey()));
+                    if (isSubTag(wholeTagMap, subTagMap)) {
+                        CacheClusterSetObject cacheSet = clusterObj.getCacheClusterSet();
+                        cacheSet.setSetName(clusterTag);
+                        List<CacheCluster> cacheClusterList = cacheEntry.getValue();
+                        cacheSet.setType(cacheClusterList.get(0).getType());
+                        List<CacheClusterObject> cacheClusters = new ArrayList<>(cacheClusterList.size());
+                        cacheSet.setCacheClusters(cacheClusters);
+                        for (CacheCluster cacheCluster : cacheClusterList) {
+                            CacheClusterObject obj = new CacheClusterObject();
+                            obj.setName(cacheCluster.getClusterName());
+                            obj.setZone(cacheCluster.getExtTag());
+                            try {
+                                Map<String, String> params = gson.fromJson(cacheCluster.getExtParams(), Map.class);
+                                obj.setParams(params);
+                            } catch (Exception e) {
+                                LOGGER.error(e.getMessage(), e);
+                            }
+                            cacheClusters.add(obj);
                         }
-                        proxyCacheClusterSet.getCacheClusters().add(cacheObj);
                     }
                 }
-                //
-                String jsonDataProxyCluster = gson.toJson(clusterObj);
-                String md5 = DigestUtils.md5Hex(jsonDataProxyCluster);
-                DataProxyConfigResponse response = new DataProxyConfigResponse();
-                response.setResult(true);
-                response.setErrCode(DataProxyConfigResponse.SUCC);
-                response.setMd5(md5);
-                response.setData(clusterObj);
-                String jsonResponse = gson.toJson(response);
-                entry.getValue().getProxyConfigJson().put(proxyObj.getName(), jsonResponse);
-                entry.getValue().getMd5Map().put(proxyObj.getName(), md5);
-                entry.getValue().setDefaultConfigJson(jsonResponse);
             }
+            // json
+            String jsonDataProxyCluster = gson.toJson(clusterObj);
+            String md5 = DigestUtils.md5Hex(jsonDataProxyCluster);
+            DataProxyConfigResponse response = new DataProxyConfigResponse();
+            response.setResult(true);
+            response.setErrCode(DataProxyConfigResponse.SUCC);
+            response.setMd5(md5);
+            response.setData(clusterObj);
+            String jsonResponse = gson.toJson(response);
+            newProxyConfigJson.put(proxyObj.getName(), jsonResponse);
+            newProxyMd5Map.put(proxyObj.getName(), md5);
         }
+
+        // replace
+        this.proxyConfigJson = newProxyConfigJson;
+        this.proxyMd5Map = newProxyMd5Map;
     }
 
     /**
-     * getDataProxyClusterSet
-     *
-     * @param setName
+     * isSubTag
+     * @param wholeTagMap
+     * @param subTagMap
      * @return
      */
-    public DataProxyClusterSet getDataProxyClusterSet(String setName) {
-        return this.clusterSets.get(setName);
+    private boolean isSubTag(Map<String, String> wholeTagMap, Map<String, String> subTagMap) {
+        for (Entry<String, String> entry : subTagMap.entrySet()) {
+            String value = wholeTagMap.get(entry.getKey());
+            if (value == null || !value.equals(entry.getValue())) {
+                return false;
+            }
+        }
+        return true;
     }
 
+    /**
+     * getProxyMd5
+     * @param clusterName
+     * @return
+     */
+    public String getProxyMd5(String clusterName) {
+        return this.proxyMd5Map.get(clusterName);
+    }
+
+    /**
+     * getProxyConfigJson
+     * @param clusterName
+     * @return
+     */
+    public String getProxyConfigJson(String clusterName) {
+        return this.proxyConfigJson.get(clusterName);
+    }
 }

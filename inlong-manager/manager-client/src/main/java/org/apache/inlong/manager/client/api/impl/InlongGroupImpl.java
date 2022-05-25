@@ -30,7 +30,7 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -100,7 +100,7 @@ public class InlongGroupImpl implements InlongGroup {
         AssertUtils.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
                 String.format("Process status : %s is not corrected, should be PROCESSING",
                         processView.getStatus()));
-        String formData = GsonUtil.toJson(processView.getFormData());
+        String formData = GsonUtils.toJson(processView.getFormData());
         Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg = InlongParser
                 .parseGroupForm(formData);
         groupContext.setInitMsg(initMsg);
@@ -267,7 +267,7 @@ public class InlongGroupImpl implements InlongGroup {
                 logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
                         .forEach(streamLog -> {
                             String componentName = streamLog.getComponentName();
-                            String log = GsonUtil.toJson(streamLog);
+                            String log = GsonUtils.toJson(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
                 inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);

@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api.util;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.client.api.DataSeparator;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
 import org.apache.inlong.manager.client.api.sink.HbaseSink;
 import org.apache.inlong.manager.client.api.sink.HiveSink;

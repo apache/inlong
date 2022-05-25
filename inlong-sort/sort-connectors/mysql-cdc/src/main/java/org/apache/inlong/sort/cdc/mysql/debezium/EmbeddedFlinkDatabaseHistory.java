@@ -142,7 +142,7 @@ public class EmbeddedFlinkDatabaseHistory implements DatabaseHistory {
     }
 
     @Override
-    public boolean storeOnlyCapturedTables() {
+    public boolean storeOnlyMonitoredTables() {
         return storeOnlyMonitoredTablesDdl;
     }
 

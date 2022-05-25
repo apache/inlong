@@ -496,7 +496,7 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  net.minidev:accessors-smart:1.2 - ASM Based Accessors Helper Used By JSON Smart (https://urielch.github.io), (Apache License, Version 2.0)
+  net.minidev:accessors-smart:1.2 - ASM Based Accessors Helper Used By JSON Smart (https://github.com/netplex/json-smart-v2), (Apache License, Version 2.0)
   org.elasticsearch.plugin:aggs-matrix-stats-client:6.8.23 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   io.airlift:aircompressor:0.10 - aircompressor (https://github.com/airlift/aircompressor/tree/0.10), (Apache License 2.0)
   org.apache.directory.server:apacheds-i18n:2.0.0-M15 - ApacheDS I18n (https://directory.apache.org/apacheds/), (The Apache Software License, Version 2.0)

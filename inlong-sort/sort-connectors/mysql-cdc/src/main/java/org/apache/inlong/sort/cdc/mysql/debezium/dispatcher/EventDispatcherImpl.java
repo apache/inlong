@@ -134,7 +134,7 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
             T dataCollectionId, SchemaChangeEventEmitter schemaChangeEventEmitter)
             throws InterruptedException {
         if (dataCollectionId != null && !filter.isIncluded(dataCollectionId)) {
-            if (historizedSchema == null || historizedSchema.storeOnlyCapturedTables()) {
+            if (historizedSchema == null || historizedSchema.storeOnlyMonitoredTables()) {
                 LOG.trace("Filtering schema change event for {}", dataCollectionId);
                 return;
             }
@@ -158,7 +158,7 @@ public class EventDispatcherImpl<T extends DataCollectionId> extends EventDispat
             }
         }
         if (!anyNonfilteredEvent) {
-            if (historizedSchema == null || historizedSchema.storeOnlyCapturedTables()) {
+            if (historizedSchema == null || historizedSchema.storeOnlyMonitoredTables()) {
                 LOG.trace("Filtering schema change event for {}", dataCollectionIds);
                 return;
             }

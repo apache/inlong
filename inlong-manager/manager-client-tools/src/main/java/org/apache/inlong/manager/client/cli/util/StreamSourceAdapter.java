@@ -23,25 +23,25 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 
 import java.lang.reflect.Type;
 
 /**
  * Stream source adapter.
  */
-public class StreamSourceAdapter implements JsonDeserializer {
+public class StreamSourceAdapter implements JsonDeserializer<StreamSource> {
 
     @Override
-    public StreamSource deserialize(JsonElement jsonElement, Type type,
-            JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public StreamSource deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
+            throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sourceType = jsonObject.get("sourceType").getAsString();
-        Gson gson = GsonUtil.gsonBuilder();
+        Gson gson = GsonUtils.GSON;
         try {
             switch (sourceType) {
                 case SourceType.SOURCE_KAFKA:
@@ -51,10 +51,10 @@ public class StreamSourceAdapter implements JsonDeserializer {
                 case SourceType.SOURCE_FILE:
                     return gson.fromJson(jsonElement, (Type) Class.forName((AgentFileSource.class).getName()));
                 default:
-                    throw new ClassNotFoundException(
+                    throw new IllegalArgumentException(
                             String.format("Unsupported source type=%s for Inlong", sourceType));
             }
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

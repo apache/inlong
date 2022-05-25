@@ -37,7 +37,7 @@ public class DeleteProcessSelector implements EventSelector {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add deleteProcess listener as the form was not GroupResourceProcessForm for groupId [{}]",
+            log.info("not add deleteProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
@@ -45,7 +45,7 @@ public class DeleteProcessSelector implements EventSelector {
         GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
         boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
         if (!flag) {
-            log.info("not add deleteProcess listener as the operate was not DELETE for groupId [{}]", groupId);
+            log.info("not add deleteProcess listener, as the operate was not DELETE for groupId [{}]", groupId);
             return false;
         }
 

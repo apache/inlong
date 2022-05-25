@@ -28,6 +28,7 @@ import io.debezium.pipeline.EventDispatcher;
 import io.debezium.pipeline.source.AbstractSnapshotChangeEventSource;
 import io.debezium.pipeline.source.spi.SnapshotProgressListener;
 import io.debezium.pipeline.spi.ChangeRecordEmitter;
+import io.debezium.pipeline.spi.OffsetContext;
 import io.debezium.pipeline.spi.SnapshotResult;
 import io.debezium.relational.Column;
 import io.debezium.relational.RelationalSnapshotChangeEventSource;
@@ -60,16 +61,12 @@ import java.util.Calendar;
 
 import static org.apache.inlong.sort.cdc.mysql.debezium.DebeziumUtils.currentBinlogOffset;
 
-/**
- * Task to read snapshot split of table.
- */
-public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource<MySqlOffsetContext> {
+/** Task to read snapshot split of table. */
+public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSnapshotSplitReadTask.class);
 
-    /**
-     * Interval for showing a log statement with the progress while scanning a single table.
-     */
+    /** Interval for showing a log statement with the progress while scanning a single table. */
     private static final Duration LOG_INTERVAL = Duration.ofMillis(10_000);
 
     private final MySqlConnectorConfig connectorConfig;
@@ -92,7 +89,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
             TopicSelector<TableId> topicSelector,
             Clock clock,
             MySqlSnapshotSplit snapshotSplit) {
-        super(connectorConfig, snapshotProgressListener);
+        super(connectorConfig, previousOffset, snapshotProgressListener);
         this.offsetContext = previousOffset;
         this.connectorConfig = connectorConfig;
         this.databaseSchema = databaseSchema;
@@ -105,8 +102,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     @Override
-    public SnapshotResult<MySqlOffsetContext> execute(ChangeEventSourceContext context,
-                                                      MySqlOffsetContext previousOffset) throws InterruptedException {
+    public SnapshotResult execute(ChangeEventSourceContext context) throws InterruptedException {
         SnapshottingTask snapshottingTask = getSnapshottingTask(previousOffset);
         final SnapshotContext ctx;
         try {
@@ -116,7 +112,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
             throw new RuntimeException(e);
         }
         try {
-            return doExecute(context, previousOffset, ctx, snapshottingTask);
+            return doExecute(context, ctx, snapshottingTask);
         } catch (InterruptedException e) {
             LOG.warn("Snapshot was interrupted before completion");
             throw e;
@@ -125,21 +121,18 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         }
     }
 
-    protected SnapshotResult<MySqlOffsetContext> doExecute(
+    @Override
+    protected SnapshotResult doExecute(
             ChangeEventSourceContext context,
-            MySqlOffsetContext previousOffset,
-            SnapshotContext<MySqlOffsetContext> snapshotContext,
+            SnapshotContext snapshotContext,
             SnapshottingTask snapshottingTask)
             throws Exception {
-        final RelationalSnapshotChangeEventSource.RelationalSnapshotContext<MySqlOffsetContext>
-                ctx =
-                (RelationalSnapshotChangeEventSource.RelationalSnapshotContext<
-                        MySqlOffsetContext>)
-                        snapshotContext;
-        ctx.offset = previousOffset;
-        SignalEventDispatcher signalEventDispatcher =
+        final RelationalSnapshotChangeEventSource.RelationalSnapshotContext ctx =
+                (RelationalSnapshotChangeEventSource.RelationalSnapshotContext) snapshotContext;
+        ctx.offset = offsetContext;
+        final SignalEventDispatcher signalEventDispatcher =
                 new SignalEventDispatcher(
-                        previousOffset.getPartition(),
+                        offsetContext.getPartition(),
                         topicSelector.topicNameFor(snapshotSplit.getTableId()),
                         dispatcher.getQueue());
 
@@ -170,7 +163,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     }
 
     @Override
-    protected SnapshottingTask getSnapshottingTask(MySqlOffsetContext mySqlOffsetContext) {
+    protected SnapshottingTask getSnapshottingTask(OffsetContext previousOffset) {
         return new SnapshottingTask(false, true);
     }
 
@@ -178,6 +171,14 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
     protected SnapshotContext prepare(ChangeEventSourceContext changeEventSourceContext)
             throws Exception {
         return new MySqlSnapshotContext();
+    }
+
+    private static class MySqlSnapshotContext
+            extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
+
+        public MySqlSnapshotContext() throws SQLException {
+            super("");
+        }
     }
 
     private void createDataEvents(
@@ -192,9 +193,7 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
         snapshotReceiver.completeSnapshot();
     }
 
-    /**
-     * Dispatches the data change events for the records of a single table.
-     */
+    /** Dispatches the data change events for the records of a single table. */
     private void createDataEventsForTable(
             RelationalSnapshotChangeEventSource.RelationalSnapshotContext snapshotContext,
             EventDispatcher.SnapshotReceiver snapshotReceiver,
@@ -217,16 +216,16 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
                 selectSql);
 
         try (PreparedStatement selectStatement =
-                     StatementUtils.readTableSplitDataStatement(
-                             jdbcConnection,
-                             selectSql,
-                             snapshotSplit.getSplitStart() == null,
-                             snapshotSplit.getSplitEnd() == null,
-                             snapshotSplit.getSplitStart(),
-                             snapshotSplit.getSplitEnd(),
-                             snapshotSplit.getSplitKeyType().getFieldCount(),
-                             connectorConfig.getQueryFetchSize());
-             ResultSet rs = selectStatement.executeQuery()) {
+                        StatementUtils.readTableSplitDataStatement(
+                                jdbcConnection,
+                                selectSql,
+                                snapshotSplit.getSplitStart() == null,
+                                snapshotSplit.getSplitEnd() == null,
+                                snapshotSplit.getSplitStart(),
+                                snapshotSplit.getSplitEnd(),
+                                snapshotSplit.getSplitKeyType().getFieldCount(),
+                                connectorConfig.getQueryFetchSize());
+                ResultSet rs = selectStatement.executeQuery()) {
 
             ColumnUtils.ColumnArray columnArray = ColumnUtils.toArray(rs, table);
             long rows = 0;
@@ -353,20 +352,12 @@ public class MySqlSnapshotSplitReadTask extends AbstractSnapshotChangeEventSourc
 
         try {
             return MySqlValueConverters.containsZeroValuesInDatePart(
-                    (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
+                            (new String(b.getBytes(1, (int) (b.length())), "UTF-8")), column, table)
                     ? null
                     : rs.getTimestamp(fieldNo, Calendar.getInstance());
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not read MySQL TIME value as UTF-8");
             throw new RuntimeException(e);
-        }
-    }
-
-    private static class MySqlSnapshotContext
-            extends RelationalSnapshotChangeEventSource.RelationalSnapshotContext {
-
-        public MySqlSnapshotContext() throws SQLException {
-            super("");
         }
     }
 }

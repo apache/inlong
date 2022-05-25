@@ -18,15 +18,15 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.gson.Gson;
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyClusterSet;
 import org.apache.inlong.manager.service.core.DataProxyClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DataProxy cluster service layer implementation class
@@ -43,12 +43,8 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
      *
      * @return data proxy config
      */
-    public String getAllConfig(String clusterName, String setName, String md5) {
-        DataProxyClusterSet setObj = proxyRepository.getDataProxyClusterSet(setName);
-        if (setObj == null) {
-            return this.getErrorAllConfig();
-        }
-        String configMd5 = setObj.getMd5Map().get(clusterName);
+    public String getAllConfig(String clusterName, String md5) {
+        String configMd5 = proxyRepository.getProxyMd5(clusterName);
         if (configMd5 == null) {
             return this.getErrorAllConfig();
         }
@@ -62,7 +58,7 @@ public class DataProxyClusterServiceImpl implements DataProxyClusterService {
             Gson gson = new Gson();
             return gson.toJson(response);
         }
-        String configJson = setObj.getProxyConfigJson().get(clusterName);
+        String configJson = proxyRepository.getProxyConfigJson(clusterName);
         if (configJson == null) {
             return this.getErrorAllConfig();
         }

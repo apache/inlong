@@ -29,6 +29,9 @@ import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
@@ -43,7 +46,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Test for SqlServer{@link SqlServerLoadNode} SQL parser.
+ * Test for SqlServer{@link SqlServerLoadNode} and {@link SqlServerExtractNode} SQL parser.
  */
 public class SqlServerNodeSqlParseTest extends AbstractTestBase {
 
@@ -63,6 +66,35 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                 null, null);
     }
 
+    /**
+     * Build sqlserver extract node.
+     */
+    private SqlServerExtractNode buildSqlServerExtractNode(String id) {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()));
+        return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
+                null, "localhost", 1433, "SA", "INLONG*123",
+                "column_type_test", "dbo", "full_types", null);
+    }
+
+    /**
+     * Build kafka load node.
+     */
+    private KafkaLoadNode buildKafkaNode(String id) {
+        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()));
+        List<FieldRelationShip> relations = Arrays
+                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("id", new LongFormatInfo())),
+                        new FieldRelationShip(new FieldInfo("val_char", new StringFormatInfo()),
+                                new FieldInfo("val_char", new StringFormatInfo()))
+                );
+        return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
+                "sqlserver", "localhost:9092",
+                new JsonFormat(), null,
+                null, "id");
+    }
+    
     /**
      * Build sqlserver load node.
      */
@@ -108,6 +140,30 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
         StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mySqlExtractNode),
                         Collections.singletonList(sqlServerLoadNode))));
+        GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
+        Assert.assertTrue(parser.parse().tryExecute());
+    }
+
+    /**
+     * Test extract data from sqlserver and load data to kafka.
+     */
+    @Test
+    public void testSqlServerExtract() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node sqlServerExtractNode = buildSqlServerExtractNode("1");
+        Node kafkaLoadNode = buildKafkaNode("2");
+        StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
+                Collections.singletonList(buildNodeRelation(Collections.singletonList(sqlServerExtractNode),
+                        Collections.singletonList(kafkaLoadNode))));
         GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
         Assert.assertTrue(parser.parse().tryExecute());

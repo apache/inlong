@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.sort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
@@ -141,7 +142,10 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             List<SourceResponse> sourceResponses = sourceService.listSource(groupInfo.getInlongGroupId(),
                     streamInfo.getInlongStreamId());
             for (SourceResponse sourceResponse : sourceResponses) {
-                pulsarSourceResponse.setSerializationType(sourceResponse.getSerializationType());
+                if (StringUtils.isEmpty(pulsarSourceResponse.getSerializationType())
+                        && StringUtils.isNotEmpty(sourceResponse.getSerializationType())) {
+                    pulsarSourceResponse.setSerializationType(sourceResponse.getSerializationType());
+                }
                 if (SourceType.forType(sourceResponse.getSourceType()) == SourceType.KAFKA) {
                     pulsarSourceResponse.setPrimaryKey(((KafkaSourceResponse) sourceResponse).getPrimaryKey());
                 }
@@ -163,7 +167,8 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationShipsForStream(List<SourceResponse> sourceResponses,
+    private List<NodeRelationShip> createNodeRelationShipsForStream(
+            List<SourceResponse> sourceResponses,
             List<SinkResponse> sinkResponses) {
         NodeRelationShip relationShip = new NodeRelationShip();
         List<String> inputs = sourceResponses.stream().map(sourceResponse -> sourceResponse.getSourceName())

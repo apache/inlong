@@ -67,7 +67,7 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <table tableName="data_node" domainObjectName="DataNodeEntity"
+        <table tableName="inlong_stream_ext" domainObjectName="InlongStreamExtEntity"
                 enableInsert="true" enableSelectByPrimaryKey="true"
                 enableUpdateByPrimaryKey="true" enableDeleteByPrimaryKey="true"
                 enableCountByExample="false" enableDeleteByExample="false"

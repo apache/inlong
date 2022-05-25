@@ -57,7 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -366,17 +365,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList) {
-        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, infoList);
-        if (CollectionUtils.isEmpty(infoList)) {
+    public void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> exts) {
+        LOGGER.info("begin to save or update inlong group ext info, groupId={}, ext={}", groupId, exts);
+        if (CollectionUtils.isEmpty(exts)) {
             return;
         }
 
-        List<InlongGroupExtEntity> entityList = CommonBeanUtils.copyListProperties(infoList, InlongGroupExtEntity::new);
-        Date date = new Date();
+        List<InlongGroupExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongGroupExtEntity::new);
         for (InlongGroupExtEntity entity : entityList) {
             entity.setInlongGroupId(groupId);
-            entity.setModifyTime(date);
         }
         groupExtMapper.insertOnDuplicateKeyUpdate(entityList);
         LOGGER.info("success to save or update inlong group ext for groupId={}", groupId);
