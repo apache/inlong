@@ -46,20 +46,23 @@ public class SqlServerLoadNode extends LoadNode implements Serializable {
     private static final long serialVersionUID = 3083735489161823965L;
 
     /**
-     * jdbc:sqlserver://host:port
+     * jdbc:sqlserver://host:port;databaseName=database
      */
     @JsonProperty("url")
     private String url;
+    
     @JsonProperty("username")
     private String username;
+    
     @JsonProperty("password")
     private String password;
-    @JsonProperty("database")
-    private String database;
+    
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     private String schemaName;
+    
     @JsonProperty("tableName")
     private String tableName;
+    
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -97,6 +100,11 @@ public class SqlServerLoadNode extends LoadNode implements Serializable {
         options.put("password", password);
         options.put("table-name", schemaName + "." + tableName);
         return options;
+    }
+
+    @Override
+    public String getPrimaryKey() {
+        return primaryKey;
     }
 
     @Override

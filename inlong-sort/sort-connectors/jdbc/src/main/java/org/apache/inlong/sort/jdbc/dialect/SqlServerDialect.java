@@ -144,7 +144,6 @@ public class SqlServerDialect extends AbstractJdbcDialect {
             sb.append(" WHEN MATCHED THEN UPDATE SET ")
                     .append(updateSql);
         }
-
         sb.append(" WHEN NOT MATCHED THEN " + "INSERT (")
                 .append(
                         Arrays
@@ -167,7 +166,7 @@ public class SqlServerDialect extends AbstractJdbcDialect {
         String collect =
                 Arrays
                         .stream(column)
-                        .map(col -> " ? " + quoteIdentifier(col))
+                        .map(col -> " :".concat(col).concat(" ") + quoteIdentifier(col))
                         .collect(Collectors.joining(", "));
         sb.append(collect);
         return sb.toString();

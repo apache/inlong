@@ -108,8 +108,8 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
                                 new FieldInfo("name", new StringFormatInfo()))
                 );
         return new SqlServerLoadNode(id, "sqlserver_out", fields, relations, null, null, 1,
-                null, "jdbc:sqlserver://localhost:1433", "SA",
-                "INLONG*123", "column_type_test.dbo", "work1", null);
+                null, "jdbc:sqlserver://localhost:1433;databaseName=column_type_test", "SA",
+                "INLONG*123", "dbo", "work1", "id");
     }
 
     /**
@@ -137,11 +137,11 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node mySqlExtractNode = buildMySQLExtractNode("1");
         Node sqlServerLoadNode = buildSqlServerLoadNode("2");
-        StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
+        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(mySqlExtractNode, sqlServerLoadNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(mySqlExtractNode),
                         Collections.singletonList(sqlServerLoadNode))));
-        GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
-        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
+        GroupInfo groupInf = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInf);
         Assert.assertTrue(parser.parse().tryExecute());
     }
 
@@ -161,11 +161,11 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node sqlServerExtractNode = buildSqlServerExtractNode("1");
         Node kafkaLoadNode = buildKafkaNode("2");
-        StreamInfo streamInfoToHDFS = new StreamInfo("1L", Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
+        StreamInfo streamInfo = new StreamInfo("1L", Arrays.asList(sqlServerExtractNode, kafkaLoadNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(sqlServerExtractNode),
                         Collections.singletonList(kafkaLoadNode))));
-        GroupInfo groupInfoToHDFS = new GroupInfo("1", Collections.singletonList(streamInfoToHDFS));
-        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfoToHDFS);
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         Assert.assertTrue(parser.parse().tryExecute());
     }
 
