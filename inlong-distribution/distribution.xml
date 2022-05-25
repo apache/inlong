@@ -70,6 +70,32 @@
                 <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/**/target/*</directory>
+            <outputDirectory>inlong-sort</outputDirectory>
+            <includes>
+                <include>sort-connector-hbase-${project.version}.jar</include>
+                <include>sort-connector-hive-${project.version}.jar</include>
+                <include>sort-connector-iceberg-${project.version}.jar</include>
+                <include>sort-connector-jdbc-${project.version}.jar</include>
+                <include>sort-connector-kafka-${project.version}.jar</include>
+                <include>sort-connector-mongodb-cdc-${project.version}.jar</include>
+                <include>sort-connector-mysql-cdc-${project.version}.jar</include>
+                <include>sort-connector-postgres-cdc-${project.version}.jar</include>
+                <include>sort-connector-pulsar-${project.version}.jar</include>
+                <include>sort-connector-sqlserver-cdc-${project.version}.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-formats/**/target/*</directory>
+            <outputDirectory>inlong-sort</outputDirectory>
+            <includes>
+                <include>sort-format-csv-${project.version}.jar</include>
+                <include>sort-format-json-${project.version}.jar</include>
+                <include>sort-format-inlongmsg-base-${project.version}.jar</include>
+                <include>sort-format-inlongmsg-csv-${project.version}.jar</include>
+            </includes>
+        </fileSet>
 
         <!-- package InLong-Dashboard-->
         <fileSet>
