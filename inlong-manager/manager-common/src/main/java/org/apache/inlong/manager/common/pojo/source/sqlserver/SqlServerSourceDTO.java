@@ -87,6 +87,7 @@ public class SqlServerSourceDTO {
                 .primaryKey(request.getPrimaryKey())
                 .build();
     }
+
     /**
      * Get the dto instance from json
      */
