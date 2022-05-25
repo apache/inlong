@@ -40,6 +40,7 @@ import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -86,7 +87,7 @@ public interface Node {
 
     @JsonInclude(Include.NON_NULL)
     default Map<String, String> tableOptions() {
-        Map<String, String> options = new TreeMap<>();
+        Map<String, String> options = new LinkedHashMap<>();
         if (getProperties() != null && !getProperties().isEmpty()) {
             options.putAll(getProperties());
         }

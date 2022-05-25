@@ -25,13 +25,13 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +70,7 @@ public class OracleExtractNode extends ExtractNode implements Serializable {
     @Nullable
     @JsonProperty("scanStartupMode")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private String scanStartupMode;
+    private OracleConstant.ScanStartUpMode scanStartupMode;
 
     @JsonCreator
     public OracleExtractNode(@JsonProperty("id") String id,
@@ -86,7 +86,8 @@ public class OracleExtractNode extends ExtractNode implements Serializable {
                              @JsonProperty("schemaName") String schemaName,
                              @JsonProperty("tableName") String tableName,
                              @JsonProperty(value = "port", defaultValue = "1521") Integer port,
-                             @Nullable @JsonProperty("scanStartupMode") String scanStartupMode) {
+                             @Nullable @JsonProperty("scanStartupMode")
+                             OracleConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
@@ -102,24 +103,31 @@ public class OracleExtractNode extends ExtractNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options = new LinkedHashMap<>();
-        options.put("connector", "oracle-cdc");
-        options.put("hostname", hostname);
-        options.put("username", username);
-        options.put("password", password);
-        options.put("database-name", database);
-        options.put("schema-name", schemaName);
-        options.put("table-name", tableName);
-        options.put("debezium.database.tablename.case.insensitive", "false");
-        options.put("debezium.log.mining.strategy", "online_catalog");
-        options.put("debezium.log.mining.continuous.mine", "true");
-//        options.put("debezium.log.mining.batch.size.min", "1");
-//        options.put("debezium.log.mining.batch.size.default", "1");
+        options.put(OracleConstant.CONNECTOR, OracleConstant.ORACLE_CDC);
+        options.put(OracleConstant.HOSTNAME, hostname);
+        options.put(OracleConstant.USERNAME, username);
+        options.put(OracleConstant.PASSWORD, password);
+        options.put(OracleConstant.DATABASE_NAME, database);
+        options.put(OracleConstant.SCHEMA_NAME, schemaName);
+        options.put(OracleConstant.TABLE_NAME, tableName);
+        if (!options.containsKey(OracleConstant.TABLENAME_CASE_INSENSITIVE)) {
+            // Set a default value:false to avoid retrieving unlisted tables in oracle 11g.
+            // You can set null to replace it if your oracle version is more than oracle 11g.
+            options.put(OracleConstant.TABLENAME_CASE_INSENSITIVE, "false");
+        }
+        if (!options.containsKey(OracleConstant.LOG_MINING_STRATEGY)) {
+            // Set a default value:online_catalog to improve performance and reduce latency
+            options.put(OracleConstant.LOG_MINING_STRATEGY, "online_catalog");
+        }
+        if (!options.containsKey(OracleConstant.LOG_MINING_CONTINUOUS_MINE)) {
+            // Set a default value:true to improve performance and reduce latency
+            options.put(OracleConstant.LOG_MINING_CONTINUOUS_MINE, "true");
+        }
         if (port != null) {
-            options.put("port", port.toString());
+            options.put(OracleConstant.PORT, port.toString());
         }
         if (scanStartupMode != null) {
-            options.put("scan.startup.mode", scanStartupMode);
+            options.put(OracleConstant.SCAN_STARTUP_MODE, scanStartupMode.getValue());
         }
         return options;
     }
