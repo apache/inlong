@@ -85,14 +85,6 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initMQResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initMQResourceTask);
 
-        // init sink
-        ServiceTask initSinkTask = new ServiceTask();
-        initSinkTask.setName("initSink");
-        initSinkTask.setDisplayName("Group-InitSink");
-        initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
-        initSinkTask.addListenerProvider(groupTaskListenerFactory);
-        process.addTask(initSinkTask);
-
         // init Sort resource
         ServiceTask initSortResourceTask = new ServiceTask();
         initSortResourceTask.setName("initSort");
@@ -101,15 +93,24 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         initSortResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSortResourceTask);
 
+        // init sink
+        ServiceTask initSinkTask = new ServiceTask();
+        initSinkTask.setName("initSink");
+        initSinkTask.setDisplayName("Group-InitSink");
+        initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
+        initSinkTask.addListenerProvider(groupTaskListenerFactory);
+        process.addTask(initSinkTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(initDataSourceTask);
-        initDataSourceTask.addNext(initMQResourceTask);
+        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
+        startEvent.addNext(initMQResourceTask);
         initMQResourceTask.addNext(initSinkTask);
         initSinkTask.addNext(initSortResourceTask);
-        initSortResourceTask.addNext(endEvent);
+        initSortResourceTask.addNext(initDataSourceTask);
+        initDataSourceTask.addNext(endEvent);
 
         return process;
     }
