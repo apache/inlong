@@ -28,11 +28,10 @@ import java.nio.charset.Charset;
 /**
  * Charset adapter.
  */
-public class CharsetAdapter implements JsonDeserializer {
+public class CharsetAdapter implements JsonDeserializer<Charset> {
 
     @Override
-    public Charset deserialize(JsonElement jsonElement, Type type,
-            JsonDeserializationContext jsonDeserializationContext)
+    public Charset deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
             throws JsonParseException {
         return Charset.forName(jsonElement.getAsString());
     }

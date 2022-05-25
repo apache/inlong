@@ -27,8 +27,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
@@ -51,6 +50,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -80,8 +80,6 @@ public class InlongStreamImpl extends InlongStream {
 
     /**
      * Constructor of InlongStreamImpl.
-     * @param fullStreamResponse
-     * @param managerClient
      */
     public InlongStreamImpl(FullStreamResponse fullStreamResponse, InnerInlongManagerClient managerClient) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
@@ -310,7 +308,7 @@ public class InlongStreamImpl extends InlongStream {
         }
         streamInfo.setFieldList(InlongStreamTransfer.createStreamFields(this.streamFields, streamInfo));
         StreamPipeline streamPipeline = createPipeline();
-        streamInfo.setExtParams(GsonUtil.toJson(streamPipeline));
+        streamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
         Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
         if (!updateMsg.getKey()) {
             throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));

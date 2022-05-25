@@ -27,25 +27,22 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Slf4j
-public class GsonUtil {
+public class GsonUtils {
 
-    private static Gson gson;
-    private static Gson gsonWithNull;
+    private static final Gson GSON;
+    private static final Gson GSON_WITH_NULL;
 
-    private static JsonDeserializer<Date> dataJsonDeserializer = new JsonDeserializer<Date>() {
+    private static final JsonDeserializer<Date> DATE_JSON_DESERIALIZER = new JsonDeserializer<Date>() {
 
-        private Pattern pattern = Pattern.compile("[0-9]+.?[0-9E]+");
+        private final Pattern pattern = Pattern.compile("[0-9]+.?[0-9E]+");
 
         @SneakyThrows
         @Override
@@ -65,34 +62,28 @@ public class GsonUtil {
 
     static {
         final GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Date.class, dataJsonDeserializer);
-        gson = builder.create();
+        builder.registerTypeAdapter(Date.class, DATE_JSON_DESERIALIZER);
+        GSON = builder.create();
         final GsonBuilder builderWithNull = new GsonBuilder().serializeNulls();
-        builder.registerTypeAdapter(Date.class, dataJsonDeserializer);
-        gsonWithNull = builderWithNull.create();
+        builder.registerTypeAdapter(Date.class, DATE_JSON_DESERIALIZER);
+        GSON_WITH_NULL = builderWithNull.create();
     }
 
-    private GsonUtil() {
+    private GsonUtils() {
     }
 
-    public static Gson getGson() {
-        return gson;
-    }
-
-    public static Gson getGsonWithNull() {
-        return gsonWithNull;
-    }
-
-    public static void jsonObjectToMap(Map<String, String> parameterMap, JsonObject jsonObject) {
-        String key = null;
-        String value = null;
-        Iterator<String> iterator = jsonObject.keySet().iterator();
-        while (iterator.hasNext()) {
-            key = iterator.next();
+    /**
+     * Transfer the Json object to map
+     */
+    public static void jsonObjectToMap(JsonObject jsonObject, Map<String, String> parameterMap) {
+        String key;
+        String value;
+        for (String s : jsonObject.keySet()) {
+            key = s;
             JsonElement jsonElement = jsonObject.get(key);
 
             if (jsonElement instanceof JsonObject || jsonElement instanceof JsonArray) {
-                value = getGson().toJson(jsonElement);
+                value = GSON.toJson(jsonElement);
             } else {
                 value = jsonElement.getAsString();
             }
@@ -100,21 +91,24 @@ public class GsonUtil {
         }
     }
 
+    /**
+     * Get JsonObject from the given object.
+     */
     public static JsonObject getJsonObjectFromObject(Object object) {
-        JsonElement element = getGson().fromJson(getGson().toJson(object), JsonElement.class);
+        JsonElement element = GSON.fromJson(GSON.toJson(object), JsonElement.class);
         return element.getAsJsonObject();
     }
 
     public static String toJson(Object src) {
-        return gson.toJson(src);
+        return GSON.toJson(src);
     }
 
     public static <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
-        return gson.fromJson(json, typeOfT);
+        return GSON.fromJson(json, typeOfT);
     }
 
     public static String toJsonHasNull(Object src) {
-        return gsonWithNull.toJson(src);
+        return GSON_WITH_NULL.toJson(src);
     }
 
 }

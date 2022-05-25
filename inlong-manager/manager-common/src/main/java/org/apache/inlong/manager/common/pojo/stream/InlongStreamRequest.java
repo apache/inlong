@@ -20,7 +20,9 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -53,10 +55,10 @@ public class InlongStreamRequest {
     private String dataType;
 
     @ApiModelProperty(value = "Data encoding format: UTF-8, GBK")
-    private String dataEncoding;
+    private String dataEncoding = StandardCharsets.UTF_8.toString();
 
     @ApiModelProperty(value = "Data separator, stored as ASCII code")
-    private String dataSeparator;
+    private String dataSeparator = DataSeparator.VERTICAL_BAR.getAsciiCode().toString();
 
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
@@ -64,7 +66,7 @@ public class InlongStreamRequest {
     @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
             notes = "Each task under this stream sends data synchronously, "
                     + "which will affect the throughput of data collection, please choose carefully")
-    private Integer syncSend;
+    private Integer syncSend = 0;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;

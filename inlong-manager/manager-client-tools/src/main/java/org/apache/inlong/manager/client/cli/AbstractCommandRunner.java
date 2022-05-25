@@ -17,24 +17,15 @@
 
 package org.apache.inlong.manager.client.cli;
 
-import lombok.Data;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
-
-import java.util.List;
-
 /**
- * The config of group, including stream config, stream source, stream sink, etc.
+ * The runner of command.
+ * of command for creat connect by config file.
  */
-@Data
-public class CreateGroupConf {
+public abstract class AbstractCommandRunner {
 
-    private InlongGroupInfo groupInfo;
-    private InlongStreamConf streamConf;
-    private List<StreamField> streamFieldList;
-    private StreamSource streamSource;
-    private StreamSink streamSink;
+    /**
+     * Execute the specified command.
+     */
+    abstract void run() throws Exception;
+
 }

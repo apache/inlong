@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli;
+package org.apache.inlong.manager.client.cli.util;
 
-import com.google.gson.Gson;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.client.cli.util.GsonUtil;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,21 +33,21 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
- * Util of command for creat connect by config file.
+ * The utils for manager client.
  */
-abstract class CommandUtil {
+public class ClientUtils {
 
     private static final String CONFIG_FILE = "application.properties";
 
-    public InlongClientImpl connect() {
+    /**
+     * Get an inlong client instance.
+     */
+    public static InlongClientImpl getClient() throws IOException {
         Properties properties = new Properties();
         String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-        try {
-            InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
-            properties.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
+        properties.load(inputStream);
+
         String serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
         String user = properties.getProperty("default.admin.user");
         String password = properties.getProperty("default.admin.password");
@@ -60,7 +58,10 @@ abstract class CommandUtil {
         return new InlongClientImpl(serviceUrl, configuration);
     }
 
-    String readFile(File file) {
+    /**
+     * Get the file content.
+     */
+    public static String readFile(File file) {
         if (!file.exists()) {
             System.out.println("File does not exist.");
         } else {
@@ -83,10 +84,4 @@ abstract class CommandUtil {
         return null;
     }
 
-    CreateGroupConf jsonToObject(String string) {
-        Gson gson = GsonUtil.gsonBuilder();
-        return gson.fromJson(string, CreateGroupConf.class);
-    }
-
-    abstract void run() throws Exception;
 }
