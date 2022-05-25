@@ -131,6 +131,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         pulsarSourceResponse.setTopic(streamInfo.getMqResource());
         pulsarSourceResponse.setAdminUrl(pulsarCluster.getAdminUrl());
         pulsarSourceResponse.setServiceUrl(pulsarCluster.getBrokerServiceUrl());
+        pulsarSourceResponse.setInlongComponent(true);
         List<SourceResponse> sourceResponses = streamSourceService.listSource(groupInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId());
         for (SourceResponse sourceResponse : sourceResponses) {

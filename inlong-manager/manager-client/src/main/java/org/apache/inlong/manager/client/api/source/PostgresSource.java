@@ -45,7 +45,7 @@ public class PostgresSource extends StreamSource {
     private SyncType syncType = SyncType.INCREMENT;
 
     @ApiModelProperty("Data format type")
-    private DataFormat dataFormat = DataFormat.NONE;
+    private DataFormat dataFormat = DataFormat.CSV;
 
     @ApiModelProperty("Db server username")
     private String username;

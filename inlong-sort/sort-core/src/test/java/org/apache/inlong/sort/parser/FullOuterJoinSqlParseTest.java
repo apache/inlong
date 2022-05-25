@@ -31,7 +31,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
@@ -75,7 +75,7 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input_1", fields, null,
                 null, "topic_input_1", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "groupId");
     }
 
@@ -89,7 +89,7 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()));
         return new KafkaExtractNode("2", "kafka_input_2", fields, null,
                 null, "topic_input_2", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "groupId");
     }
 
@@ -104,7 +104,7 @@ public class FullOuterJoinSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         return new KafkaExtractNode("3", "kafka_input_3", fields, null,
                 null, "topic_input_3", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null, "groupId");
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId");
     }
 
     /**
