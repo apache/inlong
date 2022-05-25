@@ -20,7 +20,10 @@ package org.apache.inlong.manager.common.pojo.group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 import java.util.Date;
@@ -30,6 +33,9 @@ import java.util.List;
  * Inlong group list
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong group list")
 public class InlongGroupListResponse {
 

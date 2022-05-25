@@ -19,7 +19,10 @@ package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
@@ -29,6 +32,9 @@ import java.util.List;
  * All response info on the inlong stream page, including inlong stream, source, and stream sink
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("All response info on the inlong stream page")
 public class FullStreamResponse {
 

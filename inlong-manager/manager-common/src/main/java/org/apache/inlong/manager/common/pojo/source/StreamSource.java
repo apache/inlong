@@ -18,21 +18,51 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
 import java.util.List;
 
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_AUTO_PUSH;
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_BINLOG;
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_FILE;
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_KAFKA;
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_POSTGRES;
+import static org.apache.inlong.manager.common.enums.SourceType.SOURCE_PULSAR;
+
 /**
  * Stream source info, including source name, agent ip, etc.
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "sourceType", visible = true)
+@JsonSubTypes(value = {
+        @JsonSubTypes.Type(value = AutoPushSource.class, name = SOURCE_AUTO_PUSH),
+        @JsonSubTypes.Type(value = MySQLBinlogSource.class, name = SOURCE_BINLOG),
+        @JsonSubTypes.Type(value = FileSource.class, name = SOURCE_FILE),
+        @JsonSubTypes.Type(value = KafkaSource.class, name = SOURCE_KAFKA),
+        @JsonSubTypes.Type(value = PostgresSource.class, name = SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PulsarSource.class, name = SOURCE_PULSAR),
+})
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
 

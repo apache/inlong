@@ -31,7 +31,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -109,11 +108,9 @@ public class InlongClientImpl implements InlongClient {
         request.setPageNum(1);
         request.setPageSize(groupNames.size());
         request.setListSources(true);
-        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = managerClient.listGroups(request);
-        if (!pageInfoResponse.isSuccess() || pageInfoResponse.getErrMsg() != null) {
-            throw new RuntimeException("listGroupStateFailed:" + pageInfoResponse.getErrMsg());
-        }
-        List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getData().getList();
+
+        PageInfo<InlongGroupListResponse> pageInfoResponse = managerClient.listGroups(request);
+        List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getList();
         Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
         groupListResponses.forEach(groupListResponse -> {
             String groupId = groupListResponse.getInlongGroupId();

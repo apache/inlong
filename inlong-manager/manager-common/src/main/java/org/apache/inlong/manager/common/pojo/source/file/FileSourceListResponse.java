@@ -19,8 +19,10 @@ package org.apache.inlong.manager.common.pojo.source.file;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
@@ -28,6 +30,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
  * Response info of File source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of File source paging list")
 public class FileSourceListResponse extends SourceListResponse {

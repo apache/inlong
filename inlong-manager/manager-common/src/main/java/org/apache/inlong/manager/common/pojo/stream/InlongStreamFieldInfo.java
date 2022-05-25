@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.group;
+package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,25 +25,49 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Inlong group extension information
+ * Inlong stream field info.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong group extension information")
-public class InlongGroupExtInfo {
+@ApiModel("Inlong stream field info")
+public class InlongStreamFieldInfo {
 
-    @ApiModelProperty(value = "id")
     private Integer id;
 
     @ApiModelProperty(value = "inlong group id", required = true)
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "property name")
-    private String keyName;
+    @ApiModelProperty(value = "inlong stream id", required = true)
+    private String inlongStreamId;
 
-    @ApiModelProperty(value = "property value")
-    private String keyValue;
+    @ApiModelProperty(value = "is predefined field, 1: ye, 0: no")
+    private Integer isPredefinedField;
+
+    @ApiModelProperty(value = "Field name")
+    private String fieldName;
+
+    @ApiModelProperty(value = "Field value")
+    private String fieldValue;
+
+    @ApiModelProperty(value = "value expression of predefined field")
+    private String preExpression;
+
+    @ApiModelProperty("Field type")
+    private String fieldType;
+
+    @ApiModelProperty("Field comment")
+    private String fieldComment;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    private String fieldFormat;
+
+    @ApiModelProperty(value = "field rank num")
+    private Short rankNum;
 
 }

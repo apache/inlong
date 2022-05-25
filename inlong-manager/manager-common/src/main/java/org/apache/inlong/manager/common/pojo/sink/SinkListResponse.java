@@ -18,16 +18,52 @@
 package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
 
 import java.util.Date;
 import java.util.Map;
+
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_CLICKHOUSE;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_ELASTICSEARCH;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_HBASE;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_HIVE;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_ICEBERG;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_KAFKA;
+import static org.apache.inlong.manager.common.enums.SinkType.SINK_POSTGRES;
 
 /**
  * Response of the sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "sinkType",
+        visible = true)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClickHouseSinkListResponse.class, name = SINK_CLICKHOUSE),
+        @JsonSubTypes.Type(value = ElasticsearchSinkListResponse.class, name = SINK_ELASTICSEARCH),
+        @JsonSubTypes.Type(value = HBaseSinkListResponse.class, name = SINK_HBASE),
+        @JsonSubTypes.Type(value = HiveSinkListResponse.class, name = SINK_HIVE),
+        @JsonSubTypes.Type(value = IcebergSinkListResponse.class, name = SINK_ICEBERG),
+        @JsonSubTypes.Type(value = KafkaSinkListResponse.class, name = SINK_KAFKA),
+        @JsonSubTypes.Type(value = PostgresSinkListResponse.class, name = SINK_POSTGRES)
+})
 public class SinkListResponse {
 
     @ApiModelProperty(value = "Primary key")

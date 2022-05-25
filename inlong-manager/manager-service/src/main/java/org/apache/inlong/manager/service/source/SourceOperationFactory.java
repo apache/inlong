@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory for {@link StreamSourceOperation}.
@@ -39,14 +38,11 @@ public class SourceOperationFactory {
      * Get a sink operation instance via the given sourceType
      */
     public StreamSourceOperation getInstance(SourceType sourceType) {
-        Optional<StreamSourceOperation> instance = sourceOperationList.stream()
+        return sourceOperationList.stream()
                 .filter(inst -> inst.accept(sourceType))
-                .findFirst();
-        if (!instance.isPresent()) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
-                    String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(), sourceType));
-        }
-        return instance.get();
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
+                        String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(), sourceType)));
     }
 
 }

@@ -19,15 +19,19 @@ package org.apache.inlong.manager.common.pojo.source.mysql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.SourceType;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 /**
  * Response info of binlog source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of binlog source paging list")
 public class MySQLBinlogSourceListResponse extends SourceListResponse {

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.FieldType;
@@ -29,6 +30,7 @@ import org.apache.inlong.manager.common.enums.MetaFieldType;
  * Stream filed, including field name, field type, etc.
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Stream field configuration")

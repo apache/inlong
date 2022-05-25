@@ -19,14 +19,20 @@ package org.apache.inlong.manager.common.pojo.sink.es;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 
 /**
  * Response of Elasticsearch sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Elasticsearch sink paging list")
 public class ElasticsearchSinkListResponse extends SinkListResponse {
