@@ -40,11 +40,8 @@ public class SqlServerSinkResponse extends SinkResponse {
     @ApiModelProperty("Password of the Sqlserver")
     private String password;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port")
+    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
-
-    @ApiModelProperty("database of the Sqlserver")
-    private String database;
 
     @ApiModelProperty("schemaName of the Sqlserver")
     private String schemaName;

@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Postgres sink info")
+@ApiModel(value = "Request of the sqlserver sink info")
 @JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
 public class SqlServerSinkRequest extends SinkRequest {
 
@@ -42,11 +42,8 @@ public class SqlServerSinkRequest extends SinkRequest {
     @ApiModelProperty("Password of the Sqlserver")
     private String password;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port")
+    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
-
-    @ApiModelProperty("database of the Sqlserver")
-    private String database;
 
     @ApiModelProperty("schemaName of the Sqlserver")
     private String schemaName;

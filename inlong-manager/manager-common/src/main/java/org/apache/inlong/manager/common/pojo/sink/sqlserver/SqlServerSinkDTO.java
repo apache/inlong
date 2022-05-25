@@ -46,11 +46,8 @@ public class SqlServerSinkDTO {
     @ApiModelProperty("Password of the Sqlserver")
     private String password;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port")
+    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
-
-    @ApiModelProperty("database of the Sqlserver")
-    private String database;
 
     @ApiModelProperty("schemaName of the Sqlserver")
     private String schemaName;
@@ -75,7 +72,6 @@ public class SqlServerSinkDTO {
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .jdbcUrl(request.getJdbcUrl())
-                .database(request.getDatabase())
                 .schemaName(request.getSchemaName())
                 .tableName(request.getTableName())
                 .serverTimezone(request.getServerTimezone())

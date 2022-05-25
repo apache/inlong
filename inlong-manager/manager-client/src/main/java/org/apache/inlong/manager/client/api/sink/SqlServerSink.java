@@ -44,14 +44,11 @@ public class SqlServerSink extends StreamSink {
     @ApiModelProperty(value = "Sink type", required = true)
     private SinkType sinkType = SinkType.SQLSERVER;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port")
+    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
 
     @ApiModelProperty("Auth for Sqlserver")
     private DefaultAuthentication authentication;
-
-    @ApiModelProperty("database of the Sqlserver")
-    private String database;
 
     @ApiModelProperty("schemaName of the Sqlserver")
     private String schemaName;
