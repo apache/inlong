@@ -70,31 +70,38 @@
                 <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
+        <!--base connector and base format-->
         <fileSet>
-            <directory>../inlong-sort/sort-connectors/**/target/*</directory>
-            <outputDirectory>inlong-sort</outputDirectory>
+            <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
+            <outputDirectory>sort-plugin/connectors</outputDirectory>
             <includes>
-                <include>sort-connector-hbase-${project.version}.jar</include>
-                <include>sort-connector-hive-${project.version}.jar</include>
-                <include>sort-connector-iceberg-${project.version}.jar</include>
-                <include>sort-connector-jdbc-${project.version}.jar</include>
-                <include>sort-connector-kafka-${project.version}.jar</include>
-                <include>sort-connector-mongodb-cdc-${project.version}.jar</include>
-                <include>sort-connector-mysql-cdc-${project.version}.jar</include>
-                <include>sort-connector-postgres-cdc-${project.version}.jar</include>
                 <include>sort-connector-pulsar-${project.version}.jar</include>
-                <include>sort-connector-sqlserver-cdc-${project.version}.jar</include>
             </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../inlong-sort/sort-formats/**/target/*</directory>
-            <outputDirectory>inlong-sort</outputDirectory>
+            <directory>../inlong-sort/sort-connectors/hive/target</directory>
+            <outputDirectory>sort-plugin/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-hive-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-formats/format-inlongmsg-base/target</directory>
+            <outputDirectory>sort-plugin/formats</outputDirectory>
+            <includes>
+                <include>sort-format-inlongmsg-base-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-formats/format-csv/target</directory>
+            <outputDirectory>sort-plugin/formats</outputDirectory>
             <includes>
                 <include>sort-format-csv-${project.version}.jar</include>
-                <include>sort-format-json-${project.version}.jar</include>
-                <include>sort-format-inlongmsg-base-${project.version}.jar</include>
-                <include>sort-format-inlongmsg-csv-${project.version}.jar</include>
             </includes>
+            <fileMode>0644</fileMode>
         </fileSet>
 
         <!-- package InLong-Dashboard-->
