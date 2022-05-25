@@ -58,7 +58,6 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setJdbcUrl("jdbc:sqlserver://localhost:5432/sqlserver");
         sinkInfo.setUsername("sqlserver");
         sinkInfo.setPassword("inlong");
-        sinkInfo.setDatabase("public");
         sinkInfo.setTableName("user");
         sinkInfo.setSchemaName("test");
         sinkInfo.setPrimaryKey("name,age");
