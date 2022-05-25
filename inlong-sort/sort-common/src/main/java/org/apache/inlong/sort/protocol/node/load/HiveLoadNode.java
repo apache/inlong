@@ -64,11 +64,13 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String database;
 
+    /**
+     * hive conf directory in which contains hive-site.xml(vital)
+     */
     @JsonProperty("hiveConfDir")
     private String hiveConfDir;
 
     @JsonProperty("hiveVersion")
-    @Nonnull
     private String hiveVersion;
 
     @JsonProperty("hadoopConfDir")
@@ -96,8 +98,8 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
-        this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
-        this.hiveConfDir = hiveConfDir;
+        this.hiveConfDir = Preconditions.checkNotNull(hiveConfDir, "hive conf directory is null");
+        this.hiveVersion = hiveVersion;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
@@ -124,7 +126,9 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         Map<String, String> map = super.tableOptions();
         map.put("connector", "hive");
         map.put("default-database", database);
-        map.put("hive-version", hiveVersion);
+        if (null != hiveVersion) {
+            map.put("hive-version", hiveVersion);
+        }
         if (null != hadoopConfDir) {
             map.put("hadoop-conf-dir", hadoopConfDir);
         }
