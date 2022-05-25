@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -71,8 +72,7 @@ public class WorkflowBeanUtils {
         if (taskEntity == null) {
             return null;
         }
-
-        TaskResponse taskResponse = TaskResponse.builder()
+        return TaskResponse.builder()
                 .id(taskEntity.getId())
                 .type(taskEntity.getType())
                 .processId(taskEntity.getProcessId())
@@ -88,18 +88,6 @@ public class WorkflowBeanUtils {
                 .startTime(taskEntity.getStartTime())
                 .endTime(taskEntity.getEndTime())
                 .build();
-
-        try {
-            JsonNode formData = null;
-            if (StringUtils.isNotBlank(taskEntity.getFormData())) {
-                formData = OBJECT_MAPPER.readTree(taskEntity.getFormData());
-            }
-            taskResponse.setFormData(formData);
-        } catch (Exception e) {
-            LOGGER.error("parse form data error: ", e);
-        }
-
-        return taskResponse;
     }
 
     /**
@@ -134,7 +122,7 @@ public class WorkflowBeanUtils {
                 extParams = OBJECT_MAPPER.readTree(entity.getExtParams());
             }
             processResponse.setExtParams(extParams);
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             LOGGER.error("parse form data error: ", e);
             throw new JsonException("parse form data or ext params error");
         }
