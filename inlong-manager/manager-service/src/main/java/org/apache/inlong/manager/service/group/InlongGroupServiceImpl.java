@@ -343,7 +343,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return topicInfo;
     }
 
-    // TODO
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator) {
