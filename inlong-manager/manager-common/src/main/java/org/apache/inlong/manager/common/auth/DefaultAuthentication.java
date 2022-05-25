@@ -30,7 +30,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class DefaultAuthentication implements Authentication {
 
-    public static final String USER_NAME = "user_name";
+    public static final String USERNAME = "username";
 
     public static final String PASSWORD = "password";
 
@@ -52,15 +52,15 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtils.notEmpty(properties, "Properties should not be empty when init DefaultAuthentification");
-        this.userName = properties.get(USER_NAME);
+        AssertUtils.notEmpty(properties, "Properties should not be empty when init DefaultAuthentication");
+        this.userName = properties.get(USERNAME);
         this.password = properties.get(PASSWORD);
     }
 
     @Override
     public String toString() {
         ObjectNode objectNode = OBJECT_MAPPER.createObjectNode();
-        objectNode.put(USER_NAME, this.getUserName());
+        objectNode.put(USERNAME, this.getUserName());
         objectNode.put(PASSWORD, this.getPassword());
         return objectNode.toString();
     }
