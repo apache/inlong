@@ -65,7 +65,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
             log.debug("listener execute result: {} - {}", workflowEventLogEntity, result);
             return result;
         } catch (Exception e) {
-            log.error("execute listener " + workflowEventLogEntity + " error: ", e);
+            log.error("execute listener {} error: {}", workflowEventLogEntity, e);
             if (!async()) {
                 throw new WorkflowListenerException(e);
             }
@@ -86,7 +86,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         } catch (Exception e) {
             logEntity.setStatus(EventStatus.FAILED.getStatus());
             logEntity.setException(e.getMessage());
-            log.error("execute listener " + logEntity + " error: ", e);
+            log.error("execute listener {} error: {}", logEntity, e);
             if (!async()) {
                 throw new WorkflowListenerException(e.getMessage());
             }
