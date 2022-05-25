@@ -27,10 +27,10 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -51,17 +51,17 @@ public class MongoSourceOperation extends AbstractSourceOperation {
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.KAFKA == sourceType;
+        return SourceType.MONGO == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.KAFKA.getType();
+        return SourceType.MONGO.getType();
     }
 
     @Override
     protected SourceResponse getResponse() {
-        return new KafkaSourceResponse();
+        return new MongoSourceResponse();
     }
 
     @Override
