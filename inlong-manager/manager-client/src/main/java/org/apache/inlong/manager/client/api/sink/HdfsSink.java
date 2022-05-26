@@ -1,1 +1,0 @@
-package org.apache.inlong.manager.client.api.sink;
