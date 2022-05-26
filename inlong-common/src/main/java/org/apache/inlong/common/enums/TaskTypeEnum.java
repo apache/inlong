@@ -20,7 +20,7 @@ package org.apache.inlong.common.enums;
 import static java.util.Objects.requireNonNull;
 
 public enum TaskTypeEnum {
-    DATABASE_MIGRATION(0),SQL(1), BINLOG(2), FILE(3), KAFKA(4), PULSAR(5), POSTGRES(6);
+    DATABASE_MIGRATION(0),SQL(1), BINLOG(2), FILE(3), KAFKA(4), PULSAR(5), POSTGRES(6), ORACLE(7);
 
     private int type;
 
@@ -45,6 +45,8 @@ public enum TaskTypeEnum {
                 return PULSAR;
             case 6:
                 return POSTGRES;
+            case 7:
+                return ORACLE;
             default:
                 throw new RuntimeException("such task type doesn't exist");
         }

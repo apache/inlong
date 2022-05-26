@@ -38,6 +38,7 @@ import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -80,6 +81,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((PulsarSource) sourceInfo);
             case POSTGRES:
                 return createExtractNode((PostgresSource) sourceInfo);
+            case ORACLE:
+                return createExtractNode((OracleSourceResponse) sourceResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -282,5 +285,45 @@ public class ExtractNodeUtils {
                 postgresSource.getPassword(), postgresSource.getDatabase(),
                 postgresSource.getSchema(), postgresSource.getPort(),
                 postgresSource.getDecodingPluginName());
+    }
+
+    /**
+     * Create oracleExtractNode based on OracleSourceResponse
+     *
+     * @param oracleSourceResponse oracle source response info
+     * @return oracle extract node info
+     */
+    public static OracleExtractNode createExtractNode(OracleSourceResponse oracleSourceResponse) {
+        final String id = oracleSourceResponse.getSourceName();
+        final String name = oracleSourceResponse.getSourceName();
+        final String database = oracleSourceResponse.getDatabase();
+        final String schemaname = oracleSourceResponse.getSchemaName();
+        final String tablename = oracleSourceResponse.getTableName();
+        final String primaryKey = oracleSourceResponse.getPrimaryKey();
+        final String hostName = oracleSourceResponse.getHostname();
+        final String userName = oracleSourceResponse.getUsername();
+        final String password = oracleSourceResponse.getPassword();
+        final Integer port = oracleSourceResponse.getPort();
+
+        final List<InlongStreamFieldInfo> streamFieldInfos = oracleSourceResponse.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        Map<String, String> properties = Maps.newHashMap();
+        return new OracleExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                primaryKey,
+                hostName,
+                userName,
+                password,
+                database,
+                schemaname,
+                tablename,
+                port,
+                null
+                );
     }
 }
