@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
@@ -38,6 +39,7 @@ import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
 import org.apache.inlong.sort.protocol.sink.ElasticsearchSinkInfo;
+import org.apache.inlong.sort.protocol.sink.HbaseSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
 import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
@@ -69,18 +71,27 @@ public class SinkInfoUtils {
             List<FieldInfo> sinkFields) {
         String sinkType = sinkResponse.getSinkType();
         SinkInfo sinkInfo;
-        if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            sinkInfo = createHiveSinkInfo((HiveSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
-            sinkInfo = createKafkaSinkInfo(sourceResponse, (KafkaSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.SINK_ICEBERG.equals(sinkType)) {
-            sinkInfo = createIcebergSinkInfo((IcebergSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
-            sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
-            sinkInfo = createElasticsearchSinkInfo((ElasticsearchSinkResponse) sinkResponse, sinkFields);
-        } else {
-            throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
+        switch (SinkType.forType(sinkType)) {
+            case HIVE:
+                sinkInfo = createHiveSinkInfo((HiveSinkResponse) sinkResponse, sinkFields);
+                break;
+            case KAFKA:
+                sinkInfo = createKafkaSinkInfo(sourceResponse, (KafkaSinkResponse) sinkResponse, sinkFields);
+                break;
+            case ICEBERG:
+                sinkInfo = createIcebergSinkInfo((IcebergSinkResponse) sinkResponse, sinkFields);
+                break;
+            case CLICKHOUSE:
+                sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse, sinkFields);
+                break;
+            case HBASE:
+                sinkInfo = createHbaseSinkInfo((HbaseSinkResponse) sinkResponse, sinkFields);
+                break;
+            case ELASTICSEARCH:
+                sinkInfo = createElasticsearchSinkInfo((ElasticsearchSinkResponse) sinkResponse, sinkFields);
+                break;
+            default:
+                throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
         }
         return sinkInfo;
     }
@@ -235,6 +246,25 @@ public class SinkInfoUtils {
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
+    }
+
+    /**
+     * Creat HBase sink info.
+     */
+    private static HbaseSinkInfo createHbaseSinkInfo(HbaseSinkResponse sinkResponse, List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(sinkResponse.getZookeeperQuorum())) {
+            throw new BusinessException(String.format("HBase={%s} zookeeper quorum url cannot be empty", sinkResponse));
+        } else if (StringUtils.isEmpty(sinkResponse.getZookeeperZnodeParent())) {
+            throw new BusinessException(String.format("HBase={%s} zookeeper node cannot be empty", sinkResponse));
+        } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
+            throw new BusinessException(String.format("HBase={%s} table name cannot be empty", sinkResponse));
+        }
+
+        return new HbaseSinkInfo(sinkFields.toArray(new FieldInfo[0]), sinkResponse.getZookeeperQuorum(),
+                sinkResponse.getZookeeperZnodeParent(), sinkResponse.getNamespace(), sinkResponse.getTableName(),
+                sinkResponse.getSinkBufferFlushMaxSize(), sinkResponse.getSinkBufferFlushMaxSize(),
+                sinkResponse.getSinkBufferFlushInterval());
+
     }
 
     /**

@@ -17,17 +17,17 @@
 
 package org.apache.inlong.sort.protocol.sink;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.Serializable;
-import java.util.Arrays;
-
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.configuration.Constants;
 import org.apache.inlong.sort.protocol.FieldInfo;
+
+import java.io.Serializable;
+import java.util.Arrays;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * The base class of the data sink in the metadata.
@@ -40,8 +40,9 @@ import org.apache.inlong.sort.protocol.FieldInfo;
         @Type(value = ClickHouseSinkInfo.class, name = Constants.SINK_TYPE_CLICKHOUSE),
         @Type(value = HiveSinkInfo.class, name = Constants.SINK_TYPE_HIVE),
         @Type(value = KafkaSinkInfo.class, name = Constants.SINK_TYPE_KAFKA),
-        @Type(value = HiveSinkInfo.class, name = Constants.SINK_TYPE_HIVE),
-        @Type(value = IcebergSinkInfo.class, name = Constants.SINK_TYPE_ICEBERG)}
+        @Type(value = IcebergSinkInfo.class, name = Constants.SINK_TYPE_ICEBERG),
+        @Type(value = HbaseSinkInfo.class, name = Constants.SINK_TYPE_HBASE),
+        @Type(value = ElasticsearchSinkInfo.class, name = Constants.SINK_TYPE_ES)}
 )
 public abstract class SinkInfo implements Serializable {
 
