@@ -37,13 +37,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Postgres load node can load data into Postgres
+ * TDSQLPostgres load node can load data into TDSQL Postgres
+ * @see <a herf="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a>
+ * TDSQL Postgres is an enterprise-level distributed HTAP database. Through a single database cluster to provide
+ * users with highly consistent distributed database services and high-performance data warehouse services,
+ * a set of integrated enterprise-level solutions is formed.
  */
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("postgresLoad")
+@JsonTypeName("tdsqlPostgresLoad")
 @Data
 @NoArgsConstructor
-public class PostgresLoadNode extends LoadNode implements Serializable {
+public class TDSQLPostgresLoadNode extends LoadNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,14 +66,13 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
     @JsonProperty("tableName")
     private String tableName;
     /**
-     * Please declare primary key for sink table when query contains update/delete record if your version support
-     * upsert. You can change source stream mode is "append" if your version can't support upsert.
+     * Please declare primary key for sink table when query contains update/delete record.
      */
     @JsonProperty("primaryKey")
     private String primaryKey;
 
     @JsonCreator
-    public PostgresLoadNode(
+    public TDSQLPostgresLoadNode(
             @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
@@ -94,7 +97,7 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put(PostgresConstant.CONNECTOR, PostgresConstant.JDBC);
+        options.put(PostgresConstant.CONNECTOR, PostgresConstant.JDBC_INLONG);
         options.put(PostgresConstant.URL, url);
         options.put(PostgresConstant.USERNAME, username);
         options.put(PostgresConstant.PASSWORD, password);
