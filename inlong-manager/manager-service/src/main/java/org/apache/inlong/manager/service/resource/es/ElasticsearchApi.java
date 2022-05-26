@@ -115,28 +115,28 @@ public class ElasticsearchApi {
      */
     private List<String> getMappingInfo(List<ElasticsearchFieldInfo> fieldsInfo) {
         List<String> fieldList = new ArrayList<>();
-        for (ElasticsearchFieldInfo entry : fieldsInfo) {
-            StringBuilder fieldStr = new StringBuilder().append("        \"").append(entry.getName())
+        for (ElasticsearchFieldInfo field : fieldsInfo) {
+            StringBuilder fieldStr = new StringBuilder().append("        \"").append(field.getName())
                     .append("\" : {\n          \"type\" : \"")
-                    .append(entry.getType()).append("\"");
-            if (entry.getType().equals("text")) {
-                if (StringUtils.isNotEmpty(entry.getAnalyzer())) {
+                    .append(field.getType()).append("\"");
+            if (field.getType().equals("text")) {
+                if (StringUtils.isNotEmpty(field.getAnalyzer())) {
                     fieldStr.append(",\n          \"analyzer\" : \"")
-                            .append(entry.getAnalyzer()).append("\"");
+                            .append(field.getAnalyzer()).append("\"");
                 }
-                if (StringUtils.isNotEmpty(entry.getSearchAnalyzer())) {
+                if (StringUtils.isNotEmpty(field.getSearchAnalyzer())) {
                     fieldStr.append(",\n          \"search_analyzer\" : \"")
-                            .append(entry.getSearchAnalyzer()).append("\"");
+                            .append(field.getSearchAnalyzer()).append("\"");
                 }
-            } else if (entry.getType().equals("date")) {
-                if (StringUtils.isNotEmpty(entry.getFormat())) {
+            } else if (field.getType().equals("date")) {
+                if (StringUtils.isNotEmpty(field.getFormat())) {
                     fieldStr.append(",\n          \"format\" : \"")
-                            .append(entry.getFormat()).append("\"");
+                            .append(field.getFormat()).append("\"");
                 }
-            } else if (entry.getType().contains("float")) {
-                if (StringUtils.isNotEmpty(entry.getFormat())) {
+            } else if (field.getType().equals("scaled_float")) {
+                if (StringUtils.isNotEmpty(field.getScalingFactor())) {
                     fieldStr.append(",\n          \"scaling_factor\" : \"")
-                            .append(entry.getFormat()).append("\"");
+                            .append(field.getScalingFactor()).append("\"");
                 }
             }
             fieldStr.append("\n        }");
@@ -212,9 +212,9 @@ public class ElasticsearchApi {
         Map<String, MappingMetaData> mapping = getFields(indexName);
         Map<String, Object> filedMap = (Map<String, Object>)mapping.get(indexName).getSourceAsMap().get(FIELD_KEY);
         for (String key : filedMap.keySet()) {
-            for (ElasticsearchFieldInfo entry : notExistFieldInfos) {
-                if (entry.getName().equals(key)) {
-                    notExistFieldInfos.remove(entry);
+            for (ElasticsearchFieldInfo field : notExistFieldInfos) {
+                if (field.getName().equals(key)) {
+                    notExistFieldInfos.remove(field);
                     break;
                 }
             }
