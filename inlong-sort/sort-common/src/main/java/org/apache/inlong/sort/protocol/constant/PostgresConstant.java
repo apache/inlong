@@ -49,6 +49,8 @@ public class PostgresConstant {
 
     public static final String URL = "url";
 
-    public static final String JDBC = "jdbc-inlong";
+    public static final String JDBC_INLONG = "jdbc-inlong";
+
+    public static final String JDBC = "jdbc";
 
 }

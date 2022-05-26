@@ -108,6 +108,11 @@
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
         </dependency>
+        <!--for oracle-->
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-oracle-cdc</artifactId>
+        </dependency>
         <!--for debezium-->
         <dependency>
             <groupId>io.debezium</groupId>
@@ -181,16 +186,6 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-sqlserver-cdc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.debezium</groupId>
-                    <artifactId>debezium-connector-sqlserver</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-connector-sqlserver</artifactId>
         </dependency>
     </dependencies>
 

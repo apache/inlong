@@ -44,6 +44,10 @@ public class Constants {
 
     public static final String SINK_TYPE_KAFKA = "kafka";
 
+    public static final String SINK_TYPE_HBASE = "hbase";
+
+    public static final String SINK_TYPE_ES = "elasticsearch";
+
     public static final String METRIC_DATA_OUTPUT_TAG_ID = "metric_data_side_output";
 
     public static final int METRIC_AUDIT_ID_FOR_INPUT = 7;

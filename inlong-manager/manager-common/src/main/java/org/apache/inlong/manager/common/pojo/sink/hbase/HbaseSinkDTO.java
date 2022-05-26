@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,6 +96,18 @@ public class HbaseSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * Get hbase table info
+     */
+    public static HbaseTableInfo getHbaseTableInfo(HbaseSinkDTO hbaseInfo, List<HbaseColumnFamilyInfo> columnFamilies) {
+        HbaseTableInfo info = new HbaseTableInfo();
+        info.setNamespace(hbaseInfo.getNamespace());
+        info.setTableName(hbaseInfo.getTableName());
+        info.setTblProperties(hbaseInfo.getProperties());
+        info.setColumnFamilies(columnFamilies);
+        return info;
     }
 
 }

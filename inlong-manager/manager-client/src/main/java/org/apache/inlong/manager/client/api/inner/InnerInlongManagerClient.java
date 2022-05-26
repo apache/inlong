@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
@@ -221,7 +221,7 @@ public class InnerInlongManagerClient {
      * @return Response encapsulate of inlong group list
      */
     public Response<PageInfo<InlongGroupListResponse>> listGroups(InlongGroupPageRequest pageRequest) throws Exception {
-        String requestParams = GsonUtil.toJson(pageRequest);
+        String requestParams = GsonUtils.toJson(pageRequest);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
         String path = HTTP_PATH + "/group/list";
         final String url = formatUrl(path);
@@ -245,7 +245,7 @@ public class InnerInlongManagerClient {
      */
     public String createGroup(InlongGroupRequest groupInfo) {
         String path = HTTP_PATH + "/group/save";
-        final String biz = GsonUtil.toJson(groupInfo);
+        final String biz = GsonUtils.toJson(groupInfo);
         final RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), biz);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -274,7 +274,7 @@ public class InnerInlongManagerClient {
      */
     public Pair<String, String> updateGroup(InlongGroupRequest groupRequest) {
         String path = HTTP_PATH + "/group/update";
-        final String group = GsonUtil.toJson(groupRequest);
+        final String group = GsonUtils.toJson(groupRequest);
         final RequestBody groupBody = RequestBody.create(MediaType.parse("application/json"), group);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -299,7 +299,7 @@ public class InnerInlongManagerClient {
      */
     public Double createStreamInfo(InlongStreamInfo streamInfo) {
         String path = HTTP_PATH + "/stream/save";
-        final String stream = GsonUtil.toJson(streamInfo);
+        final String stream = GsonUtils.toJson(streamInfo);
         final RequestBody streamBody = RequestBody.create(MediaType.parse("application/json"), stream);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -354,7 +354,7 @@ public class InnerInlongManagerClient {
         streamInfo.setModifyTime(null);
         final String path = HTTP_PATH + "/stream/update";
         final String url = formatUrl(path);
-        final String stream = GsonUtil.toJson(streamInfo);
+        final String stream = GsonUtils.toJson(streamInfo);
         RequestBody bizBody = RequestBody.create(MediaType.parse("application/json"), stream);
         Request request = new Request.Builder()
                 .post(bizBody)
@@ -414,7 +414,7 @@ public class InnerInlongManagerClient {
     public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
-        String requestParams = GsonUtil.toJson(pageRequest);
+        String requestParams = GsonUtils.toJson(pageRequest);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), requestParams);
         final String path = HTTP_PATH + "/stream/listAll";
         final String url = formatUrl(path);
@@ -442,7 +442,7 @@ public class InnerInlongManagerClient {
      */
     public Double createSource(SourceRequest sourceRequest) {
         String path = HTTP_PATH + "/source/save";
-        final String source = GsonUtil.toJson(sourceRequest);
+        final String source = GsonUtils.toJson(sourceRequest);
         final RequestBody sourceBody = RequestBody.create(MediaType.parse("application/json"), source);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -506,7 +506,7 @@ public class InnerInlongManagerClient {
     public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
         final String path = HTTP_PATH + "/source/update";
         final String url = formatUrl(path);
-        final String storage = GsonUtil.toJson(sourceRequest);
+        final String storage = GsonUtils.toJson(sourceRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
         Request request = new Request.Builder()
                 .post(storageBody)
@@ -561,7 +561,7 @@ public class InnerInlongManagerClient {
      */
     public Double createTransform(TransformRequest transformRequest) {
         String path = HTTP_PATH + "/transform/save";
-        final String sink = GsonUtil.toJson(transformRequest);
+        final String sink = GsonUtils.toJson(transformRequest);
         final RequestBody transformBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -614,7 +614,7 @@ public class InnerInlongManagerClient {
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
         final String path = HTTP_PATH + "/transform/update";
         final String url = formatUrl(path);
-        final String transform = GsonUtil.toJson(transformRequest);
+        final String transform = GsonUtils.toJson(transformRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), transform);
         Request request = new Request.Builder()
                 .method("POST", storageBody)
@@ -675,7 +675,7 @@ public class InnerInlongManagerClient {
      */
     public Double createSink(SinkRequest sinkRequest) {
         String path = HTTP_PATH + "/sink/save";
-        final String sink = GsonUtil.toJson(sinkRequest);
+        final String sink = GsonUtils.toJson(sinkRequest);
         final RequestBody sinkBody = RequestBody.create(MediaType.parse("application/json"), sink);
         final String url = formatUrl(path);
         Request request = new Request.Builder()
@@ -767,7 +767,7 @@ public class InnerInlongManagerClient {
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         final String path = HTTP_PATH + "/sink/update";
         final String url = formatUrl(path);
-        final String storage = GsonUtil.toJson(sinkRequest);
+        final String storage = GsonUtils.toJson(sinkRequest);
         final RequestBody storageBody = RequestBody.create(MediaType.parse("application/json"), storage);
         Request request = new Request.Builder()
                 .post(storageBody)

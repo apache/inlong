@@ -83,7 +83,7 @@ public class InlongParser {
      * Parse body to get the response.
      */
     public static Response parseResponse(String responseBody) {
-        return GsonUtil.fromJson(responseBody, Response.class);
+        return GsonUtils.fromJson(responseBody, Response.class);
     }
 
     /**
@@ -91,7 +91,7 @@ public class InlongParser {
      */
     public static <T> Response<T> parseResponse(Class<T> responseType, String responseBody) {
         AssertUtils.notNull(responseType, "responseType must not be null");
-        return GsonUtil.fromJson(
+        return GsonUtils.fromJson(
                 responseBody,
                 com.google.gson.reflect.TypeToken.getParameterized(Response.class, responseType).getType()
         );
@@ -101,16 +101,16 @@ public class InlongParser {
      * Parse response to get the inlong group info.
      */
     public static InlongGroupInfo parseGroupInfo(Response response) {
-        String dataJson = GsonUtil.toJson(response.getData());
-        InlongGroupInfo groupInfo = GsonUtil.fromJson(dataJson, InlongGroupInfo.class);
+        String dataJson = GsonUtils.toJson(response.getData());
+        InlongGroupInfo groupInfo = GsonUtils.fromJson(dataJson, InlongGroupInfo.class);
 
         MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            return GsonUtil.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
+            return GsonUtils.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
         } else if (mqType == MQType.TUBE) {
-            return GsonUtil.<InlongTubeInfo>fromJson(dataJson, InlongTubeInfo.class);
+            return GsonUtils.<InlongTubeInfo>fromJson(dataJson, InlongTubeInfo.class);
         } else {
-            return GsonUtil.<InlongTubeInfo>fromJson(dataJson, InlongNoneMqInfo.class);
+            return GsonUtils.<InlongTubeInfo>fromJson(dataJson, InlongNoneMqInfo.class);
         }
     }
 
@@ -119,15 +119,15 @@ public class InlongParser {
      */
     public static PageInfo<InlongGroupListResponse> parseGroupList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        return GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<InlongGroupListResponse>>() {
                 }.getType());
     }
 
     public static InlongStreamInfo parseStreamInfo(Response response) {
         Object data = response.getData();
-        return GsonUtil.fromJson(GsonUtil.toJson(data), InlongStreamInfo.class);
+        return GsonUtils.fromJson(GsonUtils.toJson(data), InlongStreamInfo.class);
     }
 
     /**
@@ -135,12 +135,12 @@ public class InlongParser {
      */
     public static List<FullStreamResponse> parseStreamList(Response response) {
         Object data = response.getData();
-        JsonObject pageInfoJson = GsonUtil.fromJson(GsonUtil.toJson(data), JsonObject.class);
+        JsonObject pageInfoJson = GsonUtils.fromJson(GsonUtils.toJson(data), JsonObject.class);
         JsonArray fullStreamArray = pageInfoJson.getAsJsonArray("list");
         List<FullStreamResponse> list = Lists.newArrayList();
         for (int streamIndex = 0; streamIndex < fullStreamArray.size(); streamIndex++) {
             JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(streamIndex);
-            FullStreamResponse fullStreamResponse = GsonUtil.fromJson(fullStreamJson.toString(),
+            FullStreamResponse fullStreamResponse = GsonUtils.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
             //Parse sourceResponse in each stream
@@ -153,27 +153,27 @@ public class InlongParser {
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
                     case BINLOG:
-                        BinlogSourceResponse binlogSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        BinlogSourceResponse binlogSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
                                 BinlogSourceResponse.class);
                         sourceResponses.add(binlogSourceResponse);
                         break;
                     case KAFKA:
-                        KafkaSourceResponse kafkaSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        KafkaSourceResponse kafkaSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
                                 KafkaSourceResponse.class);
                         sourceResponses.add(kafkaSourceResponse);
                         break;
                     case FILE:
-                        FileSourceResponse fileSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        FileSourceResponse fileSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
                                 FileSourceResponse.class);
                         sourceResponses.add(fileSourceResponse);
                         break;
                     case AUTO_PUSH:
-                        AutoPushSourceResponse autoPushSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        AutoPushSourceResponse autoPushSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
                                 AutoPushSourceRequest.class);
                         sourceResponses.add(autoPushSourceResponse);
                         break;
                     case POSTGRES:
-                        PostgresSourceResponse postgresSourceResponse = GsonUtil.fromJson(sourceJson.toString(),
+                        PostgresSourceResponse postgresSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
                                 PostgresSourceResponse.class);
                         sourceResponses.add(postgresSourceResponse);
                         break;
@@ -192,27 +192,27 @@ public class InlongParser {
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
                     case HIVE:
-                        HiveSinkResponse hiveSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                        HiveSinkResponse hiveSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
                                 HiveSinkResponse.class);
                         sinkResponses.add(hiveSinkResponse);
                         break;
                     case KAFKA:
-                        KafkaSinkResponse kafkaSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                        KafkaSinkResponse kafkaSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
                                 KafkaSinkResponse.class);
                         sinkResponses.add(kafkaSinkResponse);
                         break;
                     case ICEBERG:
-                        IcebergSinkResponse icebergSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                        IcebergSinkResponse icebergSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
                                 IcebergSinkResponse.class);
                         sinkResponses.add(icebergSinkResponse);
                         break;
                     case CLICKHOUSE:
-                        ClickHouseSinkResponse clickHouseSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                        ClickHouseSinkResponse clickHouseSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
                                 ClickHouseSinkResponse.class);
                         sinkResponses.add(clickHouseSinkResponse);
                         break;
                     case POSTGRES:
-                        PostgresSinkResponse postgresSinkResponse = GsonUtil.fromJson(sinkJson.toString(),
+                        PostgresSinkResponse postgresSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
                                 PostgresSinkResponse.class);
                         sinkResponses.add(postgresSinkResponse);
                         break;
@@ -229,8 +229,8 @@ public class InlongParser {
      */
     public static PageInfo<SourceListResponse> parseSourceList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        PageInfo<SourceListResponse> pageInfo = GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        PageInfo<SourceListResponse> pageInfo = GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<SourceListResponse>>() {
                 }.getType());
         if (pageInfo.getList() != null && !pageInfo.getList().isEmpty()) {
@@ -238,23 +238,23 @@ public class InlongParser {
             SourceType sourceType = SourceType.forType(sourceListResponse.getSourceType());
             switch (sourceType) {
                 case BINLOG:
-                    return GsonUtil.fromJson(pageInfoJson,
+                    return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<BinlogSourceListResponse>>() {
                             }.getType());
                 case KAFKA:
-                    return GsonUtil.fromJson(pageInfoJson,
+                    return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<KafkaSourceListResponse>>() {
                             }.getType());
                 case FILE:
-                    return GsonUtil.fromJson(pageInfoJson,
+                    return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<FileSourceListResponse>>() {
                             }.getType());
                 case AUTO_PUSH:
-                    return GsonUtil.fromJson(pageInfoJson,
+                    return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<AutoPushSourceListResponse>>() {
                             }.getType());
                 case POSTGRES:
-                    return GsonUtil.fromJson(pageInfoJson,
+                    return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<PostgresSourceListResponse>>() {
                             }.getType());
                 default:
@@ -271,8 +271,8 @@ public class InlongParser {
      */
     public static List<TransformResponse> parseTransformList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        return GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<List<TransformResponse>>() {
                 }.getType());
     }
@@ -282,8 +282,8 @@ public class InlongParser {
      */
     public static PageInfo<SinkListResponse> parseSinkList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        return GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<SinkListResponse>>() {
                 }.getType());
     }
@@ -292,15 +292,15 @@ public class InlongParser {
      * Parse forms of group.
      */
     public static Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> parseGroupForm(String formJson) {
-        JsonObject formData = GsonUtil.fromJson(formJson, JsonObject.class);
+        JsonObject formData = GsonUtils.fromJson(formJson, JsonObject.class);
         JsonObject groupJson = formData.getAsJsonObject(GROUP_INFO);
-        InlongGroupApproveRequest groupApproveInfo = GsonUtil.fromJson(groupJson.toString(),
+        InlongGroupApproveRequest groupApproveInfo = GsonUtils.fromJson(groupJson.toString(),
                 InlongGroupApproveRequest.class);
         JsonObject mqExtInfo = groupJson.getAsJsonObject(MQ_EXT_INFO);
         if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
             MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-                InlongPulsarDTO pulsarInfo = GsonUtil.fromJson(mqExtInfo.toString(),
+                InlongPulsarDTO pulsarInfo = GsonUtils.fromJson(mqExtInfo.toString(),
                         InlongPulsarDTO.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
@@ -314,7 +314,7 @@ public class InlongParser {
             }
         }
         JsonArray streamJson = formData.getAsJsonArray("streamInfoList");
-        List<InlongStreamApproveRequest> streamApproveList = GsonUtil.fromJson(streamJson.toString(),
+        List<InlongStreamApproveRequest> streamApproveList = GsonUtils.fromJson(streamJson.toString(),
                 new TypeToken<List<InlongStreamApproveRequest>>() {
                 }.getType());
         return Pair.of(groupApproveInfo, streamApproveList);
@@ -325,8 +325,8 @@ public class InlongParser {
      */
     public static PageInfo<EventLogView> parseEventLogViewList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        return GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<EventLogView>>() {
                 }.getType());
     }
@@ -336,8 +336,8 @@ public class InlongParser {
      */
     public static PageInfo<InlongStreamConfigLogListResponse> parseStreamLogList(Response response) {
         Object data = response.getData();
-        String pageInfoJson = GsonUtil.toJson(data);
-        return GsonUtil.fromJson(pageInfoJson,
+        String pageInfoJson = GsonUtils.toJson(data);
+        return GsonUtils.fromJson(pageInfoJson,
                 new TypeToken<PageInfo<InlongStreamConfigLogListResponse>>() {
                 }.getType());
     }

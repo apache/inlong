@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -67,6 +68,7 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonCreator
     public PostgresLoadNode(
             @JsonProperty("id") String id,
             @JsonProperty("name") String name,

@@ -51,13 +51,14 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public WorkflowProcess defineProcess() {
+
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
         process.addListener(streamInitProcessListener);
         process.addListener(streamFailedProcessListener);
         process.addListener(streamCompleteProcessListener);
 
-        process.setType("Stream resource creation");
+        process.setType("Stream Resource Creation");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(StreamResourceProcessForm.class);
@@ -68,31 +69,15 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        // init DataSource
-        ServiceTask initDataSourceTask = new ServiceTask();
-        initDataSourceTask.setName("initSource");
-        initDataSourceTask.setDisplayName("Stream-InitSource");
-        initDataSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
-        initDataSourceTask.addListenerProvider(streamTaskListenerFactory);
-        process.addTask(initDataSourceTask);
+        // init MQ
+        ServiceTask initMQTask = new ServiceTask();
+        initMQTask.setName("initMQ");
+        initMQTask.setDisplayName("Stream-InitMQ");
+        initMQTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
+        initMQTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initMQTask);
 
-        // init MQ topic
-        ServiceTask initMQResourceTask = new ServiceTask();
-        initMQResourceTask.setName("initMQ");
-        initMQResourceTask.setDisplayName("Stream-InitMQ");
-        initMQResourceTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
-        initMQResourceTask.addListenerProvider(streamTaskListenerFactory);
-        process.addTask(initMQResourceTask);
-
-        // init sort config
-        ServiceTask initSortResourceTask = new ServiceTask();
-        initSortResourceTask.setName("initSort");
-        initSortResourceTask.setDisplayName("Stream-InitSort");
-        initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortResourceTask.addListenerProvider(streamTaskListenerFactory);
-        process.addTask(initSortResourceTask);
-
-        // init DataSink
+        // init Sink
         ServiceTask initSinkTask = new ServiceTask();
         initSinkTask.setName("initSink");
         initSinkTask.setDisplayName("Stream-InitSink");
@@ -100,15 +85,33 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
         initSinkTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initSinkTask);
 
+        // init Sort
+        ServiceTask initSortTask = new ServiceTask();
+        initSortTask.setName("initSort");
+        initSortTask.setDisplayName("Stream-InitSort");
+        initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSortTask);
+
+        // init Source
+        ServiceTask initSourceTask = new ServiceTask();
+        initSourceTask.setName("initSource");
+        initSourceTask.setDisplayName("Stream-InitSource");
+        initSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
+        initSourceTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSourceTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        startEvent.addNext(initDataSourceTask);
-        initDataSourceTask.addNext(initMQResourceTask);
-        initMQResourceTask.addNext(initSortResourceTask);
-        initSortResourceTask.addNext(initSinkTask);
-        initSinkTask.addNext(endEvent);
+        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
+        // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
+        startEvent.addNext(initMQTask);
+        initMQTask.addNext(initSinkTask);
+        initSinkTask.addNext(initSortTask);
+        initSortTask.addNext(initSourceTask);
+        initSourceTask.addNext(endEvent);
 
         return process;
     }

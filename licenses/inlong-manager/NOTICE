@@ -45,6 +45,58 @@ Apache Ant Launcher NOTICE
 
 ========================================================================
 
+ApacheDS I18n NOTICE
+========================================================================
+
+ApacheDS I18n
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+ApacheDS Protocol Kerberos Codec NOTICE
+========================================================================
+
+ApacheDS Protocol Kerberos Codec
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Directory API ASN.1 API NOTICE
+========================================================================
+
+Apache Directory API ASN.1 API
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Directory LDAP API Utilities NOTICE
+========================================================================
+
+Apache Directory LDAP API Utilities
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 Arrow Format NOTICE
 ========================================================================
 
@@ -89,6 +141,19 @@ Apache Yetus - Audience Annotations NOTICE
 
 Apache Yetus - Audience Annotations
 Copyright 2015-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Calcite Avatica NOTICE
+========================================================================
+
+Apache Calcite -- Avatica
+Copyright 2012-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -290,11 +355,63 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
+Apache Commons Configuration NOTICE
+========================================================================
+
+Apache Commons Configuration
+Copyright 2001-2008 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Commons Crypto NOTICE
+========================================================================
+
+Apache Commons Crypto
+Copyright 2016-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Commons Daemon NOTICE
+========================================================================
+
+Apache Commons Daemon
+Copyright 1999-2013 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 Commons DBCP NOTICE
 ========================================================================
 
 Apache Commons DBCP
 Copyright 2001-2010 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Digester NOTICE
+========================================================================
+
+Apache Jakarta Commons Digester
+Copyright 2001-2006 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
@@ -355,18 +472,14 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache Commons Math NOTICE
+Commons Net NOTICE
 ========================================================================
 
-Apache Commons Math
-Copyright 2001-2015 The Apache Software Foundation
+Apache Commons Net
+Copyright 2001-2012 The Apache Software Foundation
 
-This product includes software developed at
+This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
-
-This product includes software developed for Orekit by
-CS Syst��mes d'Information (http://www.c-s.fr/)
-Copyright 2010-2012 CS Syst��mes d'Information
 
 
 
@@ -402,7 +515,7 @@ Curator Client NOTICE
 ========================================================================
 
 Curator Client
-Copyright 2011-2017 The Apache Software Foundation
+Copyright 2011-2018 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -472,29 +585,6 @@ Foundation (http://www.apache.org/).
 
 ========================================================================
 
-fastjson NOTICE
-========================================================================
-
-/*
- * Copyright 1999-2017 Alibaba Group.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
-
-========================================================================
-
 Flink : Annotations NOTICE
 ========================================================================
 
@@ -533,6 +623,50 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 Flink : Clients
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Connectors : Base NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Connectors : Base
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Connectors : Files NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Connectors : Files
 Copyright 2014-2021 The Apache Software Foundation
 
 
@@ -580,45 +714,7 @@ Flink : Connectors : File Sink Common
 Copyright 2014-2021 The Apache Software Foundation
 
 
-========================================================================
 
-Flink : Table : API Java NOTICE
-========================================================================
-
-// ------------------------------------------------------------------
-// NOTICE file corresponding to the section 4d of The Apache License,
-// Version 2.0, in this case for Apache Flink
-// ------------------------------------------------------------------
-
-Apache Flink
-Copyright 2006-2021 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-Flink : Table : API Java
-Copyright 2014-2021 The Apache Software Foundation
-
-========================================================================
-
-Flink : Table : Runtime Blink NOTICE
-========================================================================
-
-// ------------------------------------------------------------------
-// NOTICE file corresponding to the section 4d of The Apache License,
-// Version 2.0, in this case for Apache Flink
-// ------------------------------------------------------------------
-
-Apache Flink
-Copyright 2006-2021 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-Flink : Table : Runtime Blink
-Copyright 2014-2021 The Apache Software Foundation
 ========================================================================
 
 Flink : FileSystems : Hadoop FS NOTICE
@@ -753,6 +849,94 @@ Copyright 2014-2021 The Apache Software Foundation
 
 ========================================================================
 
+Flink : Table : API Java NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : API Java
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Table : API Java bridge NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : API Java bridge
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Table : Common NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : Common
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Table : Runtime Blink NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : Runtime Blink
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
 Flink : Tools : Force Shading NOTICE
 ========================================================================
 
@@ -784,6 +968,181 @@ Google Guice - Extensions - AssistedInject NOTICE
 
 Google Guice - Extensions - AssistedInject
 Copyright 2006-2011 Google, Inc.
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Google Guice - Extensions - Servlet NOTICE
+========================================================================
+
+Google Guice - Extensions - Servlet
+Copyright 2006-2011 Google, Inc.
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Hbase - Client NOTICE
+========================================================================
+
+Apache HBase - Client
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Common NOTICE
+========================================================================
+
+Apache HBase - Common
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Hadoop Two Compatibility NOTICE
+========================================================================
+
+Apache HBase - Hadoop Two Compatibility
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Hadoop Compatibility NOTICE
+========================================================================
+
+Apache HBase - Hadoop Compatibility
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Logging NOTICE
+========================================================================
+
+Apache HBase - Logging
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Metrics Implementation NOTICE
+========================================================================
+
+Apache HBase - Metrics Implementation
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Metrics API NOTICE
+========================================================================
+
+Apache HBase - Metrics API
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Protocol NOTICE
+========================================================================
+
+Apache HBase - Protocol
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase - Shaded Protocol NOTICE
+========================================================================
+
+Apache HBase - Shaded Protocol
+Copyright 2007-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase Relocated (Shaded) GSON Libs NOTICE
+========================================================================
+
+Apache HBase Relocated (Shaded) GSON Libs
+Copyright 2017-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HBase Relocated (Shaded) Third-party Miscellaneous Libs NOTICE
+========================================================================
+
+Apache Commons Collections
+Copyright 2001-2019 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Apache HBase Relocated (Shaded) Third-party Miscellaneous Libs
+Copyright 2017-2020 The Apache Software Foundation
+
+Apache Commons CLI
+Copyright 2001-2017 The Apache Software Foundation
+
+
+
+========================================================================
+
+Apache HBase Relocated (Shaded) Netty Libs NOTICE
+========================================================================
+
+Apache HBase Relocated (Shaded) Netty Libs
+Copyright 2017-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -1155,6 +1514,30 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
+An open source Java toolkit for Amazon S3 NOTICE
+========================================================================
+
+   =========================================================================
+   ==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+   ==  Version 2.0, in this case for the distribution of jets3t.          ==
+   =========================================================================
+
+   This product includes software developed by:
+
+   The Apache Software Foundation (http://www.apache.org/).
+
+   The ExoLab Project (http://www.exolab.org/)
+
+   Sun Microsystems (http://www.sun.com/)
+
+   Codehaus (http://castor.codehaus.org)
+
+   Tatu Saloranta (http://wiki.fasterxml.com/TatuSaloranta)
+
+
+
+========================================================================
+
 Joda-Time NOTICE
 ========================================================================
 
@@ -1163,6 +1546,22 @@ Joda-Time NOTICE
 =============================================================================
 This product includes software developed by
 Joda.org (https://www.joda.org/).
+
+
+
+========================================================================
+
+Apache Kafka NOTICE
+========================================================================
+
+Apache Kafka
+Copyright 2020 The Apache Software Foundation.
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+This distribution has a binary dependency on jersey, which is available under the CDDL
+License. The source code of jersey can be found at https://github.com/jersey/jersey/.
 
 
 
@@ -1502,15 +1901,34 @@ http://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
 
 Spring AOP NOTICE
 ------------------------------------------------------
+Spring Context Support NOTICE
+------------------------------------------------------
+Spring Expression Language (SpEL) NOTICE
+------------------------------------------------------
+Spring Web MVC NOTICE
+========================================================================
+
+Spring Framework 5.3.18
+Copyright (c) 2002-2022 Pivotal, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License"). You may not use this product except in compliance with
+the License.
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the license.txt file.
+
+
+
+========================================================================
+
 Spring Beans NOTICE
 ------------------------------------------------------
 Spring Context NOTICE
 ------------------------------------------------------
-Spring Context Support NOTICE
-------------------------------------------------------
 Spring Core NOTICE
-------------------------------------------------------
-Spring Expression Language (SpEL) NOTICE
 ------------------------------------------------------
 Spring Commons Logging Bridge NOTICE
 ------------------------------------------------------
@@ -1518,12 +1936,12 @@ Spring JDBC NOTICE
 ------------------------------------------------------
 Spring Transaction NOTICE
 ------------------------------------------------------
-Spring Web NOTICE
+Spring Object/Relational Mapping NOTICE
 ------------------------------------------------------
-Spring Web MVC NOTICE
+Spring Web NOTICE
 ========================================================================
 
-Spring Framework 5.3.18
+Spring Framework 5.3.19
 Copyright (c) 2002-2022 Pivotal, Inc.
 
 This product is licensed to you under the Apache License, Version 2.0
@@ -1676,6 +2094,55 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
+Xerces2 Java Parser NOTICE
+========================================================================
+
+   =========================================================================
+   ==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+   ==  Version 2.0, in this case for the Apache Xerces Java distribution. ==
+   =========================================================================
+
+   Apache Xerces Java
+   Copyright 1999-2018 The Apache Software Foundation
+
+   This product includes software developed at
+   The Apache Software Foundation (http://www.apache.org/).
+
+   Portions of this software were originally based on the following:
+     - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+     - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+     - voluntary contributions made by Paul Eng on behalf of the
+       Apache Software Foundation that were originally developed at iClick, Inc.,
+       software copyright (c) 1999.
+
+
+
+========================================================================
+
+XML Commons External Components XML APIs NOTICE
+========================================================================
+
+   =========================================================================
+   ==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+   ==  Version 2.0, in this case for the Apache xml-commons xml-apis      ==
+   ==  distribution.                                                      ==
+   =========================================================================
+
+   Apache XML Commons XML APIs
+   Copyright 1999-2009 The Apache Software Foundation.
+
+   This product includes software developed at
+   The Apache Software Foundation (http://www.apache.org/).
+
+   Portions of this software were originally based on the following:
+     - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+     - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+     - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
+
+
+
+========================================================================
+
 Apache ZooKeeper - Server NOTICE
 ------------------------------------------------------
 Apache ZooKeeper - Jute NOTICE
@@ -1699,6 +2166,8 @@ https://github.com/airlift/airlift/blob/master/LICENSE
 
 Apache Iceberg - API NOTICE
 ------------------------------------------------------
+Apache Iceberg Common NOTICE
+------------------------------------------------------
 Apache Iceberg - Core NOTICE
 ------------------------------------------------------
 Apache Iceberg - Hive Metastore NOTICE
@@ -1715,24 +2184,14 @@ the following copyright notice:
 
 
 
-========================================================================
-
-Apache Hbase - Client
-========================================================================
-
-Apache HBase - Client
-Copyright 2007-2020 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
 
 ========================================================================
 
 aircompressor NOTICE
 ------------------------------------------------------
 Apache Commons Compress NOTICE
+------------------------------------------------------
+Commons Math NOTICE
 ------------------------------------------------------
 DataNucleus JDO API plugin NOTICE
 ------------------------------------------------------
@@ -1744,6 +2203,8 @@ Apache Derby Database Engine and Embedded JDBC Driver NOTICE
 ------------------------------------------------------
 Flink : Runtime NOTICE
 ------------------------------------------------------
+Flink : Table : Planner Blink NOTICE
+------------------------------------------------------
 flink-shaded-asm-7 NOTICE
 ------------------------------------------------------
 flink-shaded-guava-18 NOTICE
@@ -1754,11 +2215,25 @@ flink-shaded-netty-4 NOTICE
 ------------------------------------------------------
 flink-shaded-zookeeper-3.4 NOTICE
 ------------------------------------------------------
+Apache Hadoop Annotations NOTICE
+------------------------------------------------------
+Apache Hadoop Auth NOTICE
+------------------------------------------------------
+Apache Hadoop Common NOTICE
+------------------------------------------------------
 Apache Hadoop HDFS NOTICE
 ------------------------------------------------------
 Apache Hadoop HDFS Client NOTICE
 ------------------------------------------------------
 Apache Hadoop MapReduce Client Core NOTICE
+------------------------------------------------------
+Apache Hadoop YARN API NOTICE
+------------------------------------------------------
+Apache Hadoop YARN Client NOTICE
+------------------------------------------------------
+Apache HBase Patched and Relocated (Shaded) Protobuf NOTICE
+------------------------------------------------------
+Apache Iceberg Bundled-guava NOTICE
 ------------------------------------------------------
 JavaBeans Activation Framework API jar NOTICE
 ------------------------------------------------------
@@ -1803,6 +2278,8 @@ Lucene Suggest NOTICE
 mybatis NOTICE
 ------------------------------------------------------
 mybatis-spring NOTICE
+------------------------------------------------------
+Netty NOTICE
 ------------------------------------------------------
 Netty/All-in-One NOTICE
 ------------------------------------------------------

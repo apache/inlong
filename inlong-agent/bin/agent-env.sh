@@ -47,7 +47,9 @@ AGENT_JVM_ARGS="$HEAP_OPTS $GC_OPTS"
 # Add Agent Rmi Args when necessary
 AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
+CONFIG_DIR=${BASE_DIR}"/conf/"
+JAR_LIBS=${BASE_DIR}"/lib/*"
+CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}
 
 JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
 if [[ $JMX_ENABLED == 1 ]]; then

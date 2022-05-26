@@ -25,7 +25,7 @@ import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
@@ -82,7 +82,7 @@ public class InlongStreamImplTest {
         inlongStream.addTransform(singleDependencyTransform1);
         inlongStream.addTransform(singleDependencyTransform2);
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        String pipelineView = GsonUtil.toJson(streamPipeline);
+        String pipelineView = GsonUtils.toJson(streamPipeline);
         Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
         Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
     }

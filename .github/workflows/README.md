@@ -42,7 +42,7 @@ This directory contains all InLong CI checks.
   label new pull requests based on the paths of files being changed using the [actions/labeler](https://github.com/actions/labeler) action.
   And here is the [labeler configuration](../labeler.yml)
 
-- [![InLong Close Stale Issues and PRs](https://github.com/apache/incubator-inlong/actions/workflows/ci_stale.yml/badge.svg)](https://github.com/apache/incubator-inlong/actions/workflows/ci_stale.yml)
+- [![InLong Mark Stale Issues and PRs](https://github.com/apache/incubator-inlong/actions/workflows/ci_stale.yml/badge.svg)](https://github.com/apache/incubator-inlong/actions/workflows/ci_stale.yml)
 
   Mark issues and pull requests that have not had recent interaction using the [actions/stale](https://github.com/actions/stale) action.
 

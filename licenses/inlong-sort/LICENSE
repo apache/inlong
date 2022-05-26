@@ -500,7 +500,7 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  net.minidev:accessors-smart:1.2 - ASM based accessors helper used by json-smart (https://urielch.github.io), (The Apache Software License, Version 2.0)
+  net.minidev:accessors-smart:1.2 - ASM based accessors helper used by json-smart (https://github.com/netplex/json-smart-v2), (The Apache Software License, Version 2.0)
   io.airlift:aircompressor:0.16 - aircompressor (http://github.com/airlift/aircompressor), (Apache License 2.0)
   org.jetbrains:annotations:17.0.0 - JetBrains Java Annotations (https://github.com/JetBrains/java-annotations/tree/17.0.0), (The Apache Software License, Version 2.0)
   org.apache.directory.server:apacheds-i18n:2.0.0-M15 - ApacheDS I18n (https://directory.apache.org/apacheds/), (The Apache Software License, Version 2.0)
@@ -670,8 +670,6 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
   io.streamnative.connectors:pulsar-flink-connector_2.11:1.13.6.1-rc9 - StreamNative :: Pulsar Flink Connector :: Scala 2.11 (https://github.com/streamnative/pulsar-flink/blob/release-1.13/LICENSE), (Apache License, Version 2.0)
-  io.debezium:debezium-connector-sqlserver:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-connector-sqlserver), (Apache License, Version 2.0)
-  io.debezium:debezium-connector-mysql:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-connector-mysql), (Apache License, Version 2.0)
   io.debezium:debezium-core:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-core), (Apache License, Version 2.0)
   io.debezium:debezium-embedded:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-embedded), (Apache License, Version 2.0)
   io.debezium:debezium-api:1.5.4.Final - Apache debezium (https://github.com/debezium/debezium/tree/v1.5.4.Final/debezium-api), (Apache License, Version 2.0)
@@ -690,6 +688,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.eclipse.jetty:apache-jstl:9.3.20.v20170531 - Apache :: JSTL module (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/apache-jstl), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   com.ververica:flink-connector-mysql-cdc:2.2.1 - flink-connector-mysql-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-sql-connector-mysql-cdc/), (The Apache Software License, Version 2.0)
   com.ververica:flink-connector-mongodb-cdc:2.2.1 - flink-connector-mongodb-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-connector-mongodb-cdc/), (The Apache Software License, Version 2.0)
+  com.ververica:flink-connector-oracle-cdc:2.2.1 - flink-connector-oracle-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-connector-oracle-cdc/), (The Apache Software License, Version 2.0)
   com.ververica:flink-connector-postgres-cdc:2.2.1 - flink-connector-postgres-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-sql-connector-postgres-cdc/), (The Apache Software License, Version 2.0)
   com.ververica:flink-connector-sqlserver-cdc:2.2.1 - flink-connector-sqlserver-cdc (https://github.com/ververica/flink-cdc-connectors/tree/master/flink-connector-sqlserver-cdc/),  (The Apache Software License, Version 2.0)
   org.apache.hadoop:hadoop-annotations:2.10.1 - Apache Hadoop Annotations (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-annotations), (Apache License, Version 2.0)

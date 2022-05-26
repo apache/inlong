@@ -23,6 +23,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -342,9 +343,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         return topicInfo;
     }
 
-    // TODO
     @Override
-    @Transactional(rollbackFor = Throwable.class)
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator) {
         LOGGER.debug("begin to update inlong group after approve={}", approveInfo);
 
@@ -356,8 +356,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.checkNotNull(mqType, "MQ type cannot by empty");
 
         // Update status to [GROUP_APPROVE_PASSED]
-        // If you need to change inlong group info after approve, just do in here
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
+
+        // update other info for inlong group after approve
+        if (StringUtils.isNotBlank(approveInfo.getInlongClusterTag())) {
+            InlongGroupEntity entity = new InlongGroupEntity();
+            entity.setInlongGroupId(approveInfo.getInlongGroupId());
+            entity.setInlongClusterTag(approveInfo.getInlongClusterTag());
+            entity.setModifier(operator);
+            groupMapper.updateByIdentifierSelective(entity);
+        }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
         return true;

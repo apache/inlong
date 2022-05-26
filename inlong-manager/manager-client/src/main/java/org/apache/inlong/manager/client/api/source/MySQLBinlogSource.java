@@ -47,7 +47,7 @@ public class MySQLBinlogSource extends StreamSource {
     private SyncType syncType;
 
     @ApiModelProperty("Data format type for binlog")
-    private DataFormat dataFormat = DataFormat.NONE;
+    private DataFormat dataFormat = DataFormat.DEBEZIUM_JSON;
 
     @ApiModelProperty("Auth for binlog")
     private DefaultAuthentication authentication;

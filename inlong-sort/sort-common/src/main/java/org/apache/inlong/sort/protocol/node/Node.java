@@ -26,19 +26,22 @@ import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
-import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -58,15 +61,17 @@ import java.util.TreeMap;
         @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
         @JsonSubTypes.Type(value = PulsarExtractNode.class, name = "pulsarExtract"),
         @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
+        @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract"),
         @JsonSubTypes.Type(value = TransformNode.class, name = "baseTransform"),
-        @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
         @JsonSubTypes.Type(value = DistinctNode.class, name = "distinct"),
+        @JsonSubTypes.Type(value = KafkaLoadNode.class, name = "kafkaLoad"),
         @JsonSubTypes.Type(value = HiveLoadNode.class, name = "hiveLoad"),
         @JsonSubTypes.Type(value = HbaseLoadNode.class, name = "hbaseLoad"),
         @JsonSubTypes.Type(value = PostgresLoadNode.class, name = "postgresLoad"),
         @JsonSubTypes.Type(value = FileSystemLoadNode.class, name = "fileSystemLoad"),
         @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad"),
-        @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad")
+        @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad"),
+        @JsonSubTypes.Type(value = TDSQLPostgresLoadNode.class, name = "tdsqlPostgresLoad"),
 })
 public interface Node {
 
@@ -84,7 +89,7 @@ public interface Node {
 
     @JsonInclude(Include.NON_NULL)
     default Map<String, String> tableOptions() {
-        Map<String, String> options = new TreeMap<>();
+        Map<String, String> options = new LinkedHashMap<>();
         if (getProperties() != null && !getProperties().isEmpty()) {
             options.putAll(getProperties());
         }

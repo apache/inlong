@@ -21,14 +21,14 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.DataSeparator;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 
 import java.lang.reflect.Type;
 
 /**
  * Separator adapter.
  */
-public class SeparatorAdapter implements JsonDeserializer {
+public class SeparatorAdapter implements JsonDeserializer<DataSeparator> {
 
     @Override
     public DataSeparator deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)

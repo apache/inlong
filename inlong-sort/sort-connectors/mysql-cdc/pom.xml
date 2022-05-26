@@ -37,27 +37,6 @@
         <dependency>
             <groupId>com.ververica</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>flink-connector-debezium</artifactId>
-                    <groupId>com.ververica</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>debezium-connector-mysql</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>io.debezium</groupId>
-            <artifactId>debezium-connector-mysql</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>debezium-core</artifactId>
-                    <groupId>io.debezium</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
     </dependencies>

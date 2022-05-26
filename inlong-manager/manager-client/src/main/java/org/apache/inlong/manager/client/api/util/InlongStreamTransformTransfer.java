@@ -51,7 +51,7 @@ public class InlongStreamTransformTransfer {
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
         transformRequest.setVersion(1);
-        transformRequest.setTransformDefinition(GsonUtil.toJson(transformDefinition));
+        transformRequest.setTransformDefinition(GsonUtils.toJson(transformDefinition));
         if (CollectionUtils.isNotEmpty(streamTransform.getPreNodes())) {
             transformRequest.setPreNodeNames(Joiner.on(",").join(streamTransform.getPreNodes()));
         }

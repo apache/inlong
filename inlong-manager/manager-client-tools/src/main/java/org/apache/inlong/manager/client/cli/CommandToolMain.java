@@ -40,9 +40,9 @@ public class CommandToolMain {
         jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
 
-        commandMap.put("list", CommandList.class);
-        commandMap.put("describe", CommandDescribe.class);
-        commandMap.put("create", CommandCreate.class);
+        commandMap.put("list", ListCommand.class);
+        commandMap.put("describe", DescribeCommand.class);
+        commandMap.put("create", CreateCommand.class);
 
         for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
             try {
@@ -78,7 +78,7 @@ public class CommandToolMain {
 
         String cmd = args[0];
         JCommander obj = jcommander.getCommands().get(cmd);
-        CommandBase cmdObj = (CommandBase) obj.getObjects().get(0);
+        AbstractCommand cmdObj = (AbstractCommand) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
     }
 }

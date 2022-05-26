@@ -34,7 +34,7 @@ import java.lang.reflect.Type;
 /**
  * Inlong group info adapter for JSON deserialize.
  */
-public class InlongGroupInfoAdapter implements JsonDeserializer {
+public class InlongGroupInfoAdapter implements JsonDeserializer<InlongGroupInfo> {
 
     @Override
     public InlongGroupInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)

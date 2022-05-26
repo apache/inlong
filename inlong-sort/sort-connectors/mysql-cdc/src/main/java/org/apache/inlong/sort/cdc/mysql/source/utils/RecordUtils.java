@@ -315,7 +315,7 @@ public class RecordUtils {
      * Return the finished snapshot split information.
      *
      * @return [splitId, splitStart, splitEnd, highWatermark], the information will be used to
-     * filter binlog events when read binlog of table.
+     *     filter binlog events when read binlog of table.
      */
     public static FinishedSnapshotSplitInfo getSnapshotSplitInfo(
             MySqlSnapshotSplit split, SourceRecord highWatermark) {

@@ -17,25 +17,25 @@
 
 package org.apache.inlong.sort.standalone.dispatch;
 
+import org.apache.flume.Context;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.flume.Context;
-import org.apache.inlong.sort.standalone.channel.BufferQueueChannel;
-import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.slf4j.Logger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * DispatchManager
  */
 public class DispatchManager {
 
-    public static final Logger LOG = InlongLoggerFactory.getLogger(BufferQueueChannel.class);
+    public static final Logger LOG = InlongLoggerFactory.getLogger(DispatchManager.class);
     public static final String KEY_DISPATCH_TIMEOUT = "dispatchTimeout";
     public static final String KEY_DISPATCH_MAX_PACKCOUNT = "dispatchMaxPackCount";
     public static final String KEY_DISPATCH_MAX_PACKSIZE = "dispatchMaxPackSize";
@@ -44,13 +44,15 @@ public class DispatchManager {
     public static final long DEFAULT_DISPATCH_MAX_PACKSIZE = 327680;
     public static final long MINUTE_MS = 60L * 1000;
 
-    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private final long dispatchTimeout;
     private final long maxPackCount;
     private final long maxPackSize;
+    private LinkedBlockingQueue<DispatchProfile> dispatchQueue;
     private ConcurrentHashMap<String, DispatchProfile> profileCache = new ConcurrentHashMap<>();
-    //
+    // flag that manager need to output overtime data.
     private AtomicBoolean needOutputOvertimeData = new AtomicBoolean(false);
+    private AtomicLong inCounter = new AtomicLong(0);
+    private AtomicLong outCounter = new AtomicLong(0);
 
     /**
      * Constructor
@@ -71,10 +73,6 @@ public class DispatchManager {
      * @param event
      */
     public void addEvent(ProfileEvent event) {
-        if (needOutputOvertimeData.get()) {
-            this.outputOvertimeData();
-            this.needOutputOvertimeData.set(false);
-        }
         // parse
         String eventUid = event.getUid();
         long dispatchTime = event.getRawLogTime() - event.getRawLogTime() % MINUTE_MS;
@@ -93,8 +91,10 @@ public class DispatchManager {
                     event.getInlongStreamId(), dispatchTime);
             DispatchProfile oldDispatchProfile = this.profileCache.put(dispatchKey, newDispatchProfile);
             this.dispatchQueue.offer(oldDispatchProfile);
+            outCounter.addAndGet(dispatchProfile.getCount());
             newDispatchProfile.addEvent(event, maxPackCount, maxPackSize);
         }
+        inCounter.incrementAndGet();
     }
 
     /**
@@ -103,6 +103,9 @@ public class DispatchManager {
      * @return
      */
     public void outputOvertimeData() {
+        if (!needOutputOvertimeData.getAndSet(false)) {
+            return;
+        }
         LOG.info("start to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{}",
                 profileCache.size(), dispatchQueue.size());
         long currentTime = System.currentTimeMillis();
@@ -119,10 +122,16 @@ public class DispatchManager {
         }
         // output
         removeKeys.forEach((key) -> {
-            dispatchQueue.offer(this.profileCache.remove(key));
+            DispatchProfile dispatchProfile = this.profileCache.remove(key);
+            if (dispatchProfile != null) {
+                dispatchQueue.offer(dispatchProfile);
+                outCounter.addAndGet(dispatchProfile.getCount());
+            }
         });
-        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{}",
-                profileCache.size(), dispatchQueue.size(), eventCount);
+        LOG.info("end to outputOvertimeData profileCacheSize:{},dispatchQueueSize:{},eventCount:{},"
+                + "inCounter:{},outCounter:{}",
+                profileCache.size(), dispatchQueue.size(), eventCount,
+                inCounter.getAndSet(0), outCounter.getAndSet(0));
     }
 
     /**
@@ -156,6 +165,6 @@ public class DispatchManager {
      * setNeedOutputOvertimeData
      */
     public void setNeedOutputOvertimeData() {
-        this.needOutputOvertimeData.set(true);
+        this.needOutputOvertimeData.getAndSet(true);
     }
 }

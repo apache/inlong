@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -119,7 +119,7 @@ public class InlongGroupContext implements Serializable {
             this.status = InlongGroupStatus.FAILED;
             for (StreamSource failedSource : failedSources) {
                 this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
-                        .add(GsonUtil.toJson(failedSource));
+                        .add(GsonUtils.toJson(failedSource));
             }
             return;
         }

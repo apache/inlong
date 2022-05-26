@@ -30,6 +30,7 @@ public enum DataFormat {
     AVRO("avro"),
     CANAL("canal"),
     JSON("json"),
+    DEBEZIUM_JSON("debezium_json"),
     NONE("none");
 
     @Getter
