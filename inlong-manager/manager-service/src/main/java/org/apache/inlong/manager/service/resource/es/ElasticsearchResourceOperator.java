@@ -131,11 +131,11 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             fieldInfo.setName(entry.getFieldName());
             fieldInfo.setType(entry.getFieldType());
             fieldInfo.setFormat(entry.getFieldFormat());
-            ElasticsearchFieldInfo filedExtrParam =
-                    ElasticsearchFieldInfo.getFromJson(entry.getExtrParam());
-            fieldInfo.setScalingFactor(filedExtrParam.getScalingFactor());
-            fieldInfo.setAnalyzer(filedExtrParam.getAnalyzer());
-            fieldInfo.setSearchAnalyzer(filedExtrParam.getSearchAnalyzer());
+            ElasticsearchFieldInfo fieldExtParam =
+                    ElasticsearchFieldInfo.getFromJson(entry.getExtParam());
+            fieldInfo.setScalingFactor(fieldExtParam.getScalingFactor());
+            fieldInfo.setAnalyzer(fieldExtParam.getAnalyzer());
+            fieldInfo.setSearchAnalyzer(fieldExtParam.getSearchAnalyzer());
             fieldList.add(fieldInfo);
         }
         return fieldList;

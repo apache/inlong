@@ -56,7 +56,7 @@ public class SinkFieldBase {
     private String partitionStrategy;
 
     @ApiModelProperty("Extra Param in JSON style")
-    private String extrParam;
+    private String extParam;
 
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
