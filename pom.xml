@@ -982,6 +982,13 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mysql-cdc</artifactId>
                 <version>${flink.connector.mysql.cdc.version}</version>
+                <!-- mysql-connector-java is LGPL license and needs to be excluded -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

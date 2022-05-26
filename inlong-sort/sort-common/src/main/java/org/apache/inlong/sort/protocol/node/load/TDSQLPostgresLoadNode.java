@@ -38,10 +38,11 @@ import java.util.Map;
 
 /**
  * TDSQLPostgres load node can load data into TDSQL Postgres
- * @see <a herf="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a>
- * TDSQL Postgres is an enterprise-level distributed HTAP database. Through a single database cluster to provide
- * users with highly consistent distributed database services and high-performance data warehouse services,
- * a set of integrated enterprise-level solutions is formed.
+ *
+ * @see <a href="https://cloud.tencent.com/product/tbase">TDSQL Postgres</a>
+ *         TDSQL Postgres is an enterprise-level distributed HTAP database. Through a single database cluster
+ *         to provide users with highly consistent distributed database services and high-performance
+ *         data warehouse services, a set of integrated enterprise-level solutions is formed.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tdsqlPostgresLoad")
