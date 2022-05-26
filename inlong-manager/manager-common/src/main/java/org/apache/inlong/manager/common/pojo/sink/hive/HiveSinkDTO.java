@@ -24,11 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -92,10 +94,12 @@ public class HiveSinkDTO {
      * Get the dto instance from the request
      */
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request) {
+        Base64 bas64 = new Base64();
+        String passwd = bas64.encodeToString(request.getPassword().getBytes(StandardCharsets.UTF_8));
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
@@ -117,7 +121,7 @@ public class HiveSinkDTO {
     public static HiveSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class).decodePassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -150,6 +154,13 @@ public class HiveSinkDTO {
         }
 
         return tableInfo;
+    }
+
+    private HiveSinkDTO decodePassword() {
+        Base64 base = new Base64();
+        String decodePassword = new String(base.decode(this.password), StandardCharsets.UTF_8);
+        this.password = decodePassword;
+        return this;
     }
 
 }
