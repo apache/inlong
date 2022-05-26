@@ -18,7 +18,7 @@
   -->
 
 <assembly>
-    <id>sort-plugin</id>
+    <id>sort-connectors</id>
 
     <formats>
         <format>dir</format>

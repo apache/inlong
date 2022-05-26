@@ -62,7 +62,7 @@
                         </goals>
                         <configuration>
                             <descriptors>
-                                <descriptor>src/main/assemblies/sort-plugin.xml</descriptor>
+                                <descriptor>src/main/assemblies/sort-connectors.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
