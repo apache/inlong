@@ -133,10 +133,10 @@ public class ElasticsearchApi {
                     fieldStr.append(",\n          \"format\" : \"")
                             .append(entry.getFormat()).append("\"");
                 }
-            } else if (entry.getType().contains("float")) {
-                if (StringUtils.isNotEmpty(entry.getFormat())) {
+            } else if (entry.getType().equals("scaled_float")) {
+                if (StringUtils.isNotEmpty(entry.getScalingFactor())) {
                     fieldStr.append(",\n          \"scaling_factor\" : \"")
-                            .append(entry.getFormat()).append("\"");
+                            .append(entry.getScalingFactor()).append("\"");
                 }
             }
             fieldStr.append("\n        }");
