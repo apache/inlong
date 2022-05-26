@@ -36,7 +36,6 @@
         <dependency>
             <groupId>io.streamnative.connectors</groupId>
             <artifactId>pulsar-flink-connector-origin</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
