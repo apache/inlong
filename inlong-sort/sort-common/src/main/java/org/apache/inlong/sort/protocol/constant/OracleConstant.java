@@ -75,7 +75,7 @@ public class OracleConstant {
      */
     public static final String LOG_MINING_STRATEGY = "debezium.log.mining.strategy";
     /**
-     * If true,CONTINUOUS_MINE option will be addec to the log mining session.
+     * If true,CONTINUOUS_MINE option will be added to the log mining session.
      * This will manage log files switches seamlessly.
      */
     public static final String LOG_MINING_CONTINUOUS_MINE = "debezium.log.mining.continuous.mine";
