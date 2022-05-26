@@ -575,6 +575,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.flink:flink-table-api-java:1.13.5 - Flink : Table : API Java (https://flink.apache.org/flink-table/flink-table-api-java), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-table-api-java-bridge_2.11:1.13.5 - Flink : Table : API Java bridge (https://flink.apache.org/flink-table/flink-table-api-java-bridge_2.11), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-table-common:jar:1.13.5 - Flink : Table : Common (https://flink.apache.org/flink-table/flink-table-common), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-table-planner-blink_2.11:1.13.5 - Flink : Table : Planner Blink (https://flink.apache.org/flink-table/flink-table-planner-blink_2.11), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-table-runtime-blink_2.11:1.13.5 - Flink : Table : Runtime Blink (https://flink.apache.org/flink-table/flink-table-runtime-blink_2.11), (The Apache Software License, Version 2.0)
   org.apache.flink:force-shading:1.13.5 - Flink : Tools : Force Shading (https://github.com/apache/flink/tree/release-1.13.5/tools/force-shading), (The Apache Software License, Version 2.0)
   com.google.code.gson:gson:2.8.6 - Gson (https://github.com/google/gson/gson), (Apache 2.0)

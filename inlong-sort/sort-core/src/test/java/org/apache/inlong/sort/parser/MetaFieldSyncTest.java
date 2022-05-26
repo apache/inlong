@@ -36,7 +36,7 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
@@ -187,7 +187,7 @@ public class MetaFieldSyncTest extends AbstractTestBase {
         );
         return new KafkaExtractNode("3", "kafka_input", fields,
                 null, null, "topic1", "localhost:9092",
-                new CanalJsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
+                new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "groupId");
     }
 

@@ -56,6 +56,8 @@ public class PulsarSourceResponse extends SourceResponse {
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
     private String scanStartupMode = "earliest";
 
+    private boolean isInlongComponent = false;
+
     public PulsarSourceResponse() {
         this.setSourceType(SourceType.PULSAR.getType());
     }

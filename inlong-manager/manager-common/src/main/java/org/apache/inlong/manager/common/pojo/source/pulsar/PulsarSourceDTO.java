@@ -60,6 +60,7 @@ public class PulsarSourceDTO {
 
     @ApiModelProperty("Configure the Source's startup mode. "
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @Builder.Default
     private String scanStartupMode = "earliest";
 
     /**

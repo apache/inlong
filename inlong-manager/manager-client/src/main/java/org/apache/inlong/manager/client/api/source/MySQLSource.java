@@ -65,5 +65,5 @@ public class MySQLSource extends StreamSource {
     private String dataSql;
 
     @ApiModelProperty("Data format type of source")
-    private DataFormat dataFormat;
+    private DataFormat dataFormat = DataFormat.CSV;
 }

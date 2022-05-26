@@ -226,7 +226,7 @@ public class IcebergCatalogUtils {
 
     /**
      * Update iceberg table column schema.
-     * It's unfortunate that the updating api is different from the creating api so the column type switch is
+     * It's unfortunate that the updating api is different from the creating api so the partition type switch is
      * repeated here.
      */
     private static void updateColumnSpec(IcebergColumnInfo column, UpdatePartitionSpec builder) {

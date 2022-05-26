@@ -2203,6 +2203,8 @@ Apache Derby Database Engine and Embedded JDBC Driver NOTICE
 ------------------------------------------------------
 Flink : Runtime NOTICE
 ------------------------------------------------------
+Flink : Table : Planner Blink NOTICE
+------------------------------------------------------
 flink-shaded-asm-7 NOTICE
 ------------------------------------------------------
 flink-shaded-guava-18 NOTICE

@@ -33,7 +33,7 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
-import org.apache.inlong.sort.protocol.enums.ScanStartupMode;
+import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
@@ -68,7 +68,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new BuiltInFieldInfo("proctime", new TimestampFormatInfo(), BuiltInField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "groupId");
     }
 
@@ -84,7 +84,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new TimeUnitConstantParam(TimeUnit.SECOND));
         return new KafkaExtractNode("1", "kafka_input", fields, wk,
                 null, "topic_input", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET,
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "groupId");
     }
 
@@ -96,7 +96,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("ts", new TimestampFormatInfo()));
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
-                new JsonFormat(), ScanStartupMode.EARLIEST_OFFSET, null, "groupId");
+                new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET, null, "groupId");
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {

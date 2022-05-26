@@ -23,13 +23,11 @@ import java.util.Locale;
 /**
  * kafka consumer scan startup mode enum
  */
-public enum ScanStartupMode {
+public enum KafkaScanStartupMode {
     EARLIEST_OFFSET("earliest-offset"),
-    LATEST_OFFSET("latest-offset"),
-    EXTERNAL_SUBSCRIPTION("external-subscription"),
-    SPECIFIC_OFFSETS("specific-offsets");
+    LATEST_OFFSET("latest-offset");
 
-    ScanStartupMode(String value) {
+    KafkaScanStartupMode(String value) {
         this.value = value;
     }
 
@@ -39,13 +37,13 @@ public enum ScanStartupMode {
         return value;
     }
 
-    public static ScanStartupMode forName(String name) {
-        for (ScanStartupMode startupMode : values()) {
+    public static KafkaScanStartupMode forName(String name) {
+        for (KafkaScanStartupMode startupMode : values()) {
             if (startupMode.getValue().equals(name.toLowerCase(Locale.ROOT))) {
                 return startupMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported ScanStartupMode=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported KafkaScanStartupMode=%s for Inlong", name));
     }
 
 }

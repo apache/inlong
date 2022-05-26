@@ -15,40 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
-
-import lombok.Getter;
+package org.apache.inlong.sort.protocol.enums;
 
 import java.util.Locale;
 
-/**
- * Enum of data format.
- */
-public enum DataFormat {
+public enum PulsarScanStartupMode {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    DEBEZIUM_JSON("debezium_json"),
-    NONE("none");
+    EARLIEST("earliest"),
+    LATEST("latest"),
+    EXTERNAL_SUBSCRIPTION("external-subscription"),
+    SPECIFIC_OFFSETS("specific-offsets");
 
-    @Getter
-    private final String name;
-
-    DataFormat(String name) {
-        this.name = name;
+    PulsarScanStartupMode(String value) {
+        this.value = value;
     }
 
-    /**
-     * Get dataformat for inlong by name.
-     */
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
-            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataFormat;
+    private final String value;
+
+    public String getValue() {
+        return value;
+    }
+
+    public static PulsarScanStartupMode forName(String name) {
+        for (PulsarScanStartupMode startupMode : values()) {
+            if (startupMode.getValue().equals(name.toLowerCase(Locale.ROOT))) {
+                return startupMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported PulsarScanStartupMode=%s for Inlong", name));
     }
+
 }

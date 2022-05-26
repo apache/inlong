@@ -15,40 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.sink.hbase;
 
-import lombok.Getter;
+import lombok.Data;
 
-import java.util.Locale;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Enum of data format.
+ * Hbase table info
  */
-public enum DataFormat {
+@Data
+public class HbaseTableInfo {
 
-    CSV("csv"),
-    AVRO("avro"),
-    CANAL("canal"),
-    JSON("json"),
-    DEBEZIUM_JSON("debezium_json"),
-    NONE("none");
-
-    @Getter
-    private final String name;
-
-    DataFormat(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Get dataformat for inlong by name.
-     */
-    public static DataFormat forName(String name) {
-        for (DataFormat dataFormat : values()) {
-            if (dataFormat.getName().equals(name.toLowerCase(Locale.ROOT))) {
-                return dataFormat;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
-    }
+    private String namespace;
+    private String tableName;
+    private String tableDesc;
+    private Map<String, Object> tblProperties;
+    private List<HbaseColumnFamilyInfo> columnFamilies;
 }
