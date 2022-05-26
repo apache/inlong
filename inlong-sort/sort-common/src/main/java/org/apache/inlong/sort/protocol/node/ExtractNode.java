@@ -31,6 +31,7 @@ import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -51,8 +52,9 @@ import java.util.Map;
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
         @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
         @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
-        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "MongoExtract"),
+        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
         @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
+        @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract")
 })
 @Data
 @NoArgsConstructor

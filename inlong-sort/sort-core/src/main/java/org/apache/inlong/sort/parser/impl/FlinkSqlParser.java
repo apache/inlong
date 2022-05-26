@@ -36,6 +36,7 @@ import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
@@ -686,6 +687,8 @@ public class FlinkSqlParser implements Parser {
         }
         if (node instanceof MySqlExtractNode) {
             sb.append(parseMySqlExtractNodeMetaField(metaField));
+        } else if (node instanceof OracleExtractNode) {
+            sb.append(parseOracleExtractNodeMetaField(metaField));
         } else if (node instanceof KafkaExtractNode) {
             sb.append(parseKafkaExtractNodeMetaField(metaField));
         } else if (node instanceof KafkaLoadNode) {
@@ -701,21 +704,26 @@ public class FlinkSqlParser implements Parser {
         String metaType;
         switch (metaField.getBuiltInField()) {
             case MYSQL_METADATA_TABLE:
+            case TABLE_NAME:
                 metaType = "STRING METADATA FROM 'value.table'";
                 break;
             case MYSQL_METADATA_DATABASE:
+            case DATABASE_NAME:
                 metaType = "STRING METADATA FROM 'value.database'";
                 break;
             case MYSQL_METADATA_EVENT_TIME:
+            case OP_TS:
                 metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
                 break;
             case MYSQL_METADATA_EVENT_TYPE:
+            case OP_TYPE:
                 metaType = "STRING METADATA FROM 'value.op-type'";
                 break;
             case MYSQL_METADATA_DATA:
                 metaType = "STRING METADATA FROM 'value.data'";
                 break;
             case MYSQL_METADATA_IS_DDL:
+            case IS_DDL:
                 metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
                 break;
             case METADATA_TS:
@@ -746,9 +754,11 @@ public class FlinkSqlParser implements Parser {
         String metaType;
         switch (metaField.getBuiltInField()) {
             case MYSQL_METADATA_TABLE:
+            case TABLE_NAME:
                 metaType = "STRING METADATA FROM 'value.table'";
                 break;
             case MYSQL_METADATA_DATABASE:
+            case DATABASE_NAME:
                 metaType = "STRING METADATA FROM 'value.database'";
                 break;
             case METADATA_SQL_TYPE:
@@ -761,13 +771,16 @@ public class FlinkSqlParser implements Parser {
                 metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
                 break;
             case MYSQL_METADATA_EVENT_TIME:
+            case OP_TS:
                 metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.event-timestamp'";
                 break;
             // additional metadata
             case MYSQL_METADATA_EVENT_TYPE:
+            case OP_TYPE:
                 metaType = "STRING METADATA FROM 'value.op-type'";
                 break;
             case MYSQL_METADATA_IS_DDL:
+            case IS_DDL:
                 metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
                 break;
             case METADATA_MYSQL_TYPE:
@@ -789,21 +802,26 @@ public class FlinkSqlParser implements Parser {
         String metaType;
         switch (metaField.getBuiltInField()) {
             case MYSQL_METADATA_TABLE:
+            case TABLE_NAME:
                 metaType = "STRING METADATA FROM 'meta.table_name' VIRTUAL";
                 break;
             case MYSQL_METADATA_DATABASE:
+            case DATABASE_NAME:
                 metaType = "STRING METADATA FROM 'meta.database_name' VIRTUAL";
                 break;
             case MYSQL_METADATA_EVENT_TIME:
+            case OP_TS:
                 metaType = "TIMESTAMP(3) METADATA FROM 'meta.op_ts' VIRTUAL";
                 break;
             case MYSQL_METADATA_EVENT_TYPE:
+            case OP_TYPE:
                 metaType = "STRING METADATA FROM 'meta.op_type' VIRTUAL";
                 break;
             case MYSQL_METADATA_DATA:
                 metaType = "STRING METADATA FROM 'meta.data' VIRTUAL";
                 break;
             case MYSQL_METADATA_IS_DDL:
+            case IS_DDL:
                 metaType = "BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL";
                 break;
             case METADATA_TS:
@@ -823,6 +841,27 @@ public class FlinkSqlParser implements Parser {
                 break;
             case METADATA_UPDATE_BEFORE:
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
+                break;
+            default:
+                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
+        }
+        return metaType;
+    }
+
+    private String parseOracleExtractNodeMetaField(BuiltInFieldInfo metaField) {
+        String metaType;
+        switch (metaField.getBuiltInField()) {
+            case TABLE_NAME:
+                metaType = "STRING METADATA FROM 'table_name' VIRTUAL";
+                break;
+            case SCHEMA_NAME:
+                metaType = "STRING METADATA FROM 'schema_name' VIRTUAL";
+                break;
+            case DATABASE_NAME:
+                metaType = "STRING METADATA FROM 'database_name' VIRTUAL";
+                break;
+            case OP_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL";
                 break;
             default:
                 metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
