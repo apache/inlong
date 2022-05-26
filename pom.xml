@@ -119,6 +119,7 @@
 
         <checkstyle.version>6.19</checkstyle.version>
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
+        <testcontainers.version>1.17.2</testcontainers.version>
         <docker.organization>inlong</docker.organization>
 
         <netty.version>4.1.72.Final</netty.version>
@@ -1456,6 +1457,30 @@
                 <groupId>org.awaitility</groupId>
                 <scope>test</scope>
                 <version>${awaitility.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>kafka</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
