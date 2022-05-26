@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -304,6 +305,19 @@ public class ExtractNodeUtils {
         final String userName = oracleSourceResponse.getUsername();
         final String password = oracleSourceResponse.getPassword();
         final Integer port = oracleSourceResponse.getPort();
+        final String scanstartupMode = oracleSourceResponse.getScanStartupMode();
+        OracleConstant.ScanStartUpMode scanStartupMode;
+        switch (scanstartupMode) {
+            case "initial":
+                scanStartupMode = OracleConstant.ScanStartUpMode.forName("initial");
+                break;
+            case "latest-offset":
+                scanStartupMode = OracleConstant.ScanStartUpMode.forName("latest-offset");
+                break;
+            default:
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source",
+                        scanstartupMode));
+        }
 
         final List<InlongStreamFieldInfo> streamFieldInfos = oracleSourceResponse.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
@@ -323,7 +337,7 @@ public class ExtractNodeUtils {
                 schemaname,
                 tablename,
                 port,
-                null
+                scanStartupMode
                 );
     }
 }

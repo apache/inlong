@@ -43,7 +43,7 @@ public enum SourceType {
     public static final String SOURCE_KAFKA = "KAFKA";
     public static final String SOURCE_PULSAR = "PULSAR";
     public static final String SOURCE_POSTGRES = "POSTGRES";
-    public static final String SOURCE_ORACLE = "oracle";
+    public static final String SOURCE_ORACLE = "ORACLE";
 
     @Getter
     private final String type;

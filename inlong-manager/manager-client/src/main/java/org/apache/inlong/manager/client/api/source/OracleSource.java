@@ -41,11 +41,8 @@ public class OracleSource extends StreamSource {
     @ApiModelProperty(value = "DataSource type", required = true)
     private SourceType sourceType = SourceType.BINLOG;
 
-    @ApiModelProperty("SyncType for Oracle")
+    @ApiModelProperty("SyncType for oracle")
     private SyncType syncType;
-
-    @ApiModelProperty("Data format type for oracle")
-    private DataFormat dataFormat = DataFormat.NONE;
 
     @ApiModelProperty("Auth for oracle")
     private DefaultAuthentication authentication;
@@ -54,7 +51,7 @@ public class OracleSource extends StreamSource {
     private String hostname;
 
     @ApiModelProperty("Exposed port of the DB server")
-    private int port = 1521;
+    private Integer port = 1521;
 
     @ApiModelProperty("Database name")
     private String database;
@@ -73,4 +70,9 @@ public class OracleSource extends StreamSource {
 
     @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
+
+    @Override
+    public DataFormat getDataFormat() {
+        return DataFormat.NONE;
+    }
 }

@@ -36,7 +36,7 @@ public class OracleSourceListResponse extends SourceListResponse {
     private String hostname;
 
     @ApiModelProperty("Exposed port of the DB server")
-    private int port = 1521;
+    private Integer port = 1521;
 
     @ApiModelProperty("Username of the DB server")
     private String username;

@@ -20,6 +20,8 @@ package org.apache.inlong.sort.protocol.constant;
 
 import lombok.Getter;
 
+import java.util.Locale;
+
 /**
  * Oracle options constant
  */
@@ -110,6 +112,15 @@ public class OracleConstant {
 
         ScanStartUpMode(String value) {
             this.value = value;
+        }
+
+        public static ScanStartUpMode forName(String name) {
+            for (ScanStartUpMode dataType : ScanStartUpMode.values()) {
+                if (dataType.getValue().equals(name.toLowerCase(Locale.ROOT))) {
+                    return dataType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport ScanStartUpMode for oracle source:%s", name));
         }
     }
 
