@@ -19,8 +19,6 @@ package org.apache.inlong.manager.common.enums;
 
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Locale;
-
 /**
  * Iceberg partition type
  */
@@ -32,6 +30,7 @@ public enum IcebergPartition {
     MONTH,
     DAY,
     HOUR,
+    NONE,
     ;
 
     /**
@@ -40,7 +39,7 @@ public enum IcebergPartition {
     public static IcebergPartition forName(String name) {
         Preconditions.checkNotNull(name, "IcebergPartition should not be null");
         for (IcebergPartition value : values()) {
-            if (value.toString().equals(name) || value.toString().equals(name.toUpperCase(Locale.ROOT))) {
+            if (value.toString().equalsIgnoreCase(name)) {
                 return value;
             }
         }
