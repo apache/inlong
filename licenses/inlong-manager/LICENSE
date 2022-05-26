@@ -844,7 +844,7 @@ BSD licenses
 The following components are provided under BSD license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.antlr:antlr-runtime:3.5.2 - ANTLR 3 Runtime (https://github.com/antlr/antlr3/tree/3.5.2/runtime/Java), (BSD licence)
+  org.antlr:antlr-runtime:3.5.2 - ANTLR 3 Runtime (https://github.com/antlr/antlr3/tree/3.5.2), (BSD licence)
   asm:asm:3.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_3_1), (BSD)
   org.ow2.asm:asm:5.0.4 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_4), (BSD)
   org.codehaus.janino:commons-compiler:3.0.11 - Commons Compiler (https://github.com/janino-compiler/janino), (New BSD License)
