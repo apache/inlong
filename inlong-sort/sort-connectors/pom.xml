@@ -44,6 +44,7 @@
         <module>postgres-cdc</module>
         <module>mongodb-cdc</module>
         <module>sqlserver-cdc</module>
+        <module>oracle-cdc</module>
     </modules>
 
     <dependencies>
