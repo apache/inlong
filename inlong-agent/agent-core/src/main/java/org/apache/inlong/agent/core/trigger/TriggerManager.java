@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
@@ -106,9 +107,23 @@ public class TriggerManager extends AbstractDaemon {
                     triggerProfile.toJsonStr(), this.triggerMap.size(), maxRunningNum);
             return false;
         }
+        preprocessTrigger(triggerProfile);
         triggerProfileDB.storeTrigger(triggerProfile);
         addTrigger(triggerProfile);
         return true;
+    }
+
+    /**
+     * Preprocessing before adding trigger
+     *
+     * @param profile
+     */
+    public void preprocessTrigger(TriggerProfile profile) {
+        String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, "");
+        if (FileCollectType.FULL.equals(syncType)) {
+            LOGGER.info("Initialize submit full path. trigger {} ", profile.getTriggerId());
+            manager.getJobManager().submitFileJobProfile(profile);
+        }
     }
 
     private Runnable jobFetchThread() {

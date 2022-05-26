@@ -164,4 +164,8 @@ public class JobWrapper extends AbstractStateWrapper {
             jobManager.markJobAsSuccess(job.getJobInstanceId());
         }));
     }
+
+    public List<Task> getAllTasks() {
+        return allTasks;
+    }
 }
