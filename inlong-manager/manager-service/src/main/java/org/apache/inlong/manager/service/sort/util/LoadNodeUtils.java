@@ -24,6 +24,7 @@ import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HbaseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
@@ -36,6 +37,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
+import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
@@ -76,6 +78,8 @@ public class LoadNodeUtils {
                 return createLoadNode((HbaseSinkResponse) sinkResponse);
             case POSTGRES:
                 return createLoadNode((PostgresSinkResponse) sinkResponse);
+            case CLICKHOUSE:
+                return createLoadNode((ClickHouseSinkResponse) sinkResponse);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -227,6 +231,7 @@ public class LoadNodeUtils {
 
     /**
      * create postgres load node
+     *
      * @param postgresSinkResponse postgresSinkResponse
      * @return postgres load node
      */
@@ -247,8 +252,31 @@ public class LoadNodeUtils {
                 postgresSinkResponse.getDbName() + "." + postgresSinkResponse.getTableName(),
                 postgresSinkResponse.getPrimaryKey());
     }
-    
-    /**f
+
+    /**
+     * create clickHouse load node
+     *
+     * @param clickHouseSinkResponse clickHouseSinkResponse
+     * @return
+     */
+    public static ClickHouseLoadNode createLoadNode(ClickHouseSinkResponse clickHouseSinkResponse) {
+        List<SinkFieldResponse> sinkFieldResponses = clickHouseSinkResponse.getFieldList();
+        String name = clickHouseSinkResponse.getSinkName();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
+                        name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        return new ClickHouseLoadNode(clickHouseSinkResponse.getSinkName(),
+                clickHouseSinkResponse.getSinkName(),
+                fields, fieldRelationShips, null, null, 1,
+                null, clickHouseSinkResponse.getTableName(),
+                clickHouseSinkResponse.getJdbcUrl(),
+                clickHouseSinkResponse.getUsername(),
+                clickHouseSinkResponse.getPassword());
+    }
+
+    /**
      * Parse information field of data sink.
      */
     public static List<FieldRelationShip> parseSinkFields(List<SinkFieldResponse> sinkFieldResponses, String sinkName) {
