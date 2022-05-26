@@ -70,7 +70,7 @@
                 <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
-        <!--base connector and base format-->
+        <!--basic connector-->
         <fileSet>
             <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
             <outputDirectory>sort-plugin/connectors</outputDirectory>
@@ -87,22 +87,7 @@
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>../inlong-sort/sort-formats/format-inlongmsg-base/target</directory>
-            <outputDirectory>sort-plugin/formats</outputDirectory>
-            <includes>
-                <include>sort-format-inlongmsg-base-${project.version}.jar</include>
-            </includes>
-            <fileMode>0644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>../inlong-sort/sort-formats/format-csv/target</directory>
-            <outputDirectory>sort-plugin/formats</outputDirectory>
-            <includes>
-                <include>sort-format-csv-${project.version}.jar</include>
-            </includes>
-            <fileMode>0644</fileMode>
-        </fileSet>
+
 
         <!-- package InLong-Dashboard-->
         <fileSet>

@@ -50,12 +50,6 @@
             <artifactId>sort-format-base</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--audit sdk-->
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>audit-sdk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!--flink core-->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -81,22 +75,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <!--for jackson-->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <!--for xml-->
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>tubemq-client</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <!-- for test -->
@@ -192,6 +170,11 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-format-csv</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

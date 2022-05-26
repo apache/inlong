@@ -63,7 +63,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>shade-sort-connector</id>
+                        <id>shade-flink</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
