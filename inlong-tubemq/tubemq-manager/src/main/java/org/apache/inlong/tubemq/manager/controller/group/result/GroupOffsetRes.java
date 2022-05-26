@@ -17,15 +17,13 @@
 
 package org.apache.inlong.tubemq.manager.controller.group.result;
 
-import java.util.List;
-
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class OffsetQueryRes {
-    private boolean result;
-    private int errCode;
-    private String errMsg;
-    private List<GroupOffsetRes> dataSet;
-    private int totalCnt;
+public class GroupOffsetRes {
+    private String groupName;
+    private List<TopicOffsetRes> subInfo;
+    private int topicCount;
 }
