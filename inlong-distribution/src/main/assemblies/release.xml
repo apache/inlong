@@ -70,6 +70,24 @@
                 <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
+        <!--basic connector-->
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
+            <outputDirectory>sort-plugin/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-pulsar-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/hive/target</directory>
+            <outputDirectory>sort-plugin/connectors</outputDirectory>
+            <includes>
+                <include>sort-connector-hive-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
 
         <!-- package InLong-Dashboard-->
         <fileSet>

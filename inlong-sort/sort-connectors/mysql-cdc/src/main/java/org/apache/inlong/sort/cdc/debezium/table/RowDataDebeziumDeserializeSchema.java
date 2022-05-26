@@ -51,7 +51,6 @@ import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -581,7 +580,6 @@ public final class RowDataDebeziumDeserializeSchema
         }
     }
 
-    @NotNull
     private DeserializationRuntimeConverter getAllMigrationConverter() {
         return new DeserializationRuntimeConverter() {
 
