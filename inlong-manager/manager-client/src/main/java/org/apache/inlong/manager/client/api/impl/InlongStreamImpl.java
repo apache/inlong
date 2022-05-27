@@ -84,8 +84,8 @@ public class InlongStreamImpl extends InlongStream {
     public InlongStreamImpl(FullStreamResponse fullStreamResponse, InnerInlongManagerClient managerClient) {
         InlongStreamInfo streamInfo = fullStreamResponse.getStreamInfo();
         this.managerClient = managerClient;
-        this.streamId = streamInfo.getName();
-        this.groupId = streamInfo.getInlongGroupId().substring(2);
+        this.streamId = streamInfo.getInlongStreamId();
+        this.groupId = streamInfo.getInlongGroupId();
         List<InlongStreamFieldInfo> streamFieldInfos = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFieldInfos)) {
             this.streamFields = streamFieldInfos.stream()

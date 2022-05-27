@@ -148,7 +148,6 @@ public class InlongGroupTransfer {
         if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
-            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
             try {
                 flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
             } catch (Exception e) {
