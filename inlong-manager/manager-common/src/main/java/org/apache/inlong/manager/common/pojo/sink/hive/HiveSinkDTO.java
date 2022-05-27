@@ -95,7 +95,10 @@ public class HiveSinkDTO {
      */
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request) {
         Base64 bas64 = new Base64();
-        String passwd = bas64.encodeToString(request.getPassword().getBytes(StandardCharsets.UTF_8));
+        String passwd = new String();
+        if (request.getPassword() != null) {
+            passwd = bas64.encodeToString(request.getPassword().getBytes(StandardCharsets.UTF_8));
+        }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
@@ -157,9 +160,11 @@ public class HiveSinkDTO {
     }
 
     private HiveSinkDTO decodePassword() {
-        Base64 base = new Base64();
-        String decodePassword = new String(base.decode(this.password), StandardCharsets.UTF_8);
-        this.password = decodePassword;
+        if (this.password != null) {
+            Base64 base = new Base64();
+            String decodePassword = new String(base.decode(this.password), StandardCharsets.UTF_8);
+            this.password = decodePassword;
+        }
         return this;
     }
 
