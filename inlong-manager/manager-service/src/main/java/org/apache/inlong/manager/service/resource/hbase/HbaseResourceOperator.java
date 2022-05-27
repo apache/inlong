@@ -139,7 +139,7 @@ public class HbaseResourceOperator implements SinkResourceOperator {
 
         List<HbaseColumnFamilyInfo> columnFamilies = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            HbaseColumnFamilyInfo columnFamily = HbaseColumnFamilyInfo.getFromJson(field.getExtParam());
+            HbaseColumnFamilyInfo columnFamily = HbaseColumnFamilyInfo.getFromJson(field.getExtParams());
             if (seen.contains(columnFamily.getCfName())) {
                 continue;
             }

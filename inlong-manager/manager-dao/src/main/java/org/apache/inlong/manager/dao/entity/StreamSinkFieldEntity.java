@@ -40,7 +40,7 @@ public class StreamSinkFieldEntity implements Serializable {
     private Integer isRequired;
     private String sourceFieldName;
     private String sourceFieldType;
-    private String extParam;
+    private String extParams;
 
     private Integer isMetaField;
     private String fieldFormat;

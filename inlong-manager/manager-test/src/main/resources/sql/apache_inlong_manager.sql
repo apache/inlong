@@ -644,7 +644,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
-    `ext_param`         text COMMENT 'Field ext param',
+    `ext_params`        text COMMENT 'Field ext params',
     `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
     `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
