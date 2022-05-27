@@ -102,9 +102,8 @@ public class InlongParser {
      */
     public static InlongGroupInfo parseGroupInfo(Response response) {
         String dataJson = GsonUtils.toJson(response.getData());
-        InlongGroupInfo groupInfo = GsonUtils.fromJson(dataJson, InlongGroupInfo.class);
-
-        MQType mqType = MQType.forType(groupInfo.getMqType());
+        JsonObject pageInfoJson = GsonUtils.fromJson(dataJson, JsonObject.class);
+        MQType mqType = MQType.forType(pageInfoJson.get("mqType").getAsString());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             return GsonUtils.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
         } else if (mqType == MQType.TUBE) {

@@ -93,8 +93,6 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     private SinkResourceListener sinkResourceListener;
 
     @Autowired
-    private PushSortConfigListener pushSortConfigListener;
-    @Autowired
     private CreateSortConfigListenerV2 createSortConfigListener;
 
     @Autowired
@@ -112,7 +110,6 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
         queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
         queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(pushSortConfigListener, new ZookeeperEnabledSelector());
         sortOperateListeners.put(createSortConfigListener, new ZookeeperDisabledSelector());
         sortOperateListeners.put(lightGroupSortListener, new LightGroupSortSelector());
     }
