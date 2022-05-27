@@ -61,7 +61,7 @@ public class PostgresLoadNodeFlinkSqlParseTest extends AbstractTestBase {
         return new MySqlExtractNode("1", "mysql_input", fields,
                 null, map, null,
                 Collections.singletonList("user"), "localhost", "root", "inlong",
-                "test", null, null,
+                "test", 3306, null,
                 false, "GMT+8");
     }
 
