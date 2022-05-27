@@ -16,14 +16,13 @@
  *  limitations under the License.
  */
 
-package org.apache.inlong.sort.jdbc.clickhouse;
+package org.apache.inlong.sort.jdbc.converter.clickhouse;
 
-import org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
 /**
- * Runtime converter that responsible to convert between JDBC object and Flink internal object for
- * Derby.
+ * Runtime converter that responsible to convert between JDBC object and Flink internal object for ClickHouse.
  */
 public class ClickHouseRowConverter extends AbstractJdbcRowConverter {
 

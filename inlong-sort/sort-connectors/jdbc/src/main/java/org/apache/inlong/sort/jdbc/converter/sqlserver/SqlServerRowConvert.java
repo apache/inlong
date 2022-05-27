@@ -16,17 +16,17 @@
  *
  */
 
-package org.apache.inlong.sort.jdbc.sqlserver;
+package org.apache.inlong.sort.jdbc.converter.sqlserver;
 
-import org.apache.flink.connector.jdbc.internal.converter.AbstractJdbcRowConverter;
 import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
 /**
  * Runtime converter that responsible to convert between JDBC object and Flink internal object for
  * SqlServer.
  */
 public class SqlServerRowConvert extends AbstractJdbcRowConverter {
-    
+
     public SqlServerRowConvert(RowType rowType) {
         super(rowType);
     }
