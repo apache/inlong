@@ -39,6 +39,7 @@ import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkResponse;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -60,7 +61,9 @@ import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,6 +115,8 @@ public class LoadNodeUtils {
                 return createLoadNode((MySQLSink) streamSink);
             case ORACLE:
                 return createLoadNode((OracleSink) streamSink);
+            case TDSQLPOSTGRES:
+                return createLoadNode((TDSQLPostgresSinkResponse) sinkResponse);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -522,6 +527,30 @@ public class LoadNodeUtils {
                 oracleSink.getPassword(),
                 oracleSink.getTableName(),
                 oracleSink.getPrimaryKey());
+    }
+
+    /**
+     * create TDSQLPostgres load node
+     *
+     * @param response TDSQLPostgresSinkResponse
+     * @return TDSQLPostgres load node
+     */
+    public static TDSQLPostgresLoadNode createLoadNode(TDSQLPostgresSinkResponse response) {
+        List<SinkFieldResponse> sinkFieldResponses = response.getFieldList();
+
+        String name = response.getSinkName();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
+                        name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        return new TDSQLPostgresLoadNode(response.getSinkName(),
+                response.getSinkName(),
+                fields, fieldRelationShips, null, null, 1,
+                null, response.getJdbcUrl(), response.getUsername(),
+                response.getPassword(),
+                response.getDbName() + "." + response.getTableName(),
+                response.getPrimaryKey());
     }
 
     /**
