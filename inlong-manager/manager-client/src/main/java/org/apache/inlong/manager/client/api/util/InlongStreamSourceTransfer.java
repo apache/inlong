@@ -183,7 +183,7 @@ public class InlongStreamSourceTransfer {
         postgresSource.setPassword(response.getPassword());
         postgresSource.setPort(response.getPort());
         postgresSource.setSchema(response.getSchema());
-        postgresSource.setTableNameList(response.getTableNames());
+        postgresSource.setTableNameList(response.getTableNameList());
         postgresSource.setUsername(response.getUsername());
         postgresSource.setSourceName(response.getSourceName());
 
