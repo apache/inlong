@@ -82,7 +82,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("tableName") String tableName,
-            @JsonProperty("nameSpace") String namespace,
+            @JsonProperty("namespace") String namespace,
             @JsonProperty("zookeeperQuorum") String zookeeperQuorum,
             @JsonProperty("rowKey") String rowKey,
             @JsonProperty("sinkBufferFlushMaxSize") String sinkBufferFlushMaxSize,
