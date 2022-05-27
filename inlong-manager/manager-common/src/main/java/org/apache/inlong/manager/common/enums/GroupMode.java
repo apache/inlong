@@ -18,12 +18,7 @@
 package org.apache.inlong.manager.common.enums;
 
 import lombok.Getter;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-
-import java.util.List;
 
 /**
  * Mode of inlong group
@@ -58,14 +53,8 @@ public enum GroupMode {
     }
 
     public static GroupMode parseGroupMode(InlongGroupInfo groupInfo) {
-        List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
-        if (CollectionUtils.isEmpty(extInfos)) {
-            return GroupMode.NORMAL;
-        }
-        for (InlongGroupExtInfo extInfo : extInfos) {
-            if (InlongGroupSettings.GROUP_MODE.equals(extInfo.getKeyName())) {
-                return GroupMode.forMode(extInfo.getKeyValue());
-            }
+        if (groupInfo.getLightweight() != null && groupInfo.getLightweight() == 1) {
+            return GroupMode.LIGHT;
         }
         return GroupMode.NORMAL;
     }
