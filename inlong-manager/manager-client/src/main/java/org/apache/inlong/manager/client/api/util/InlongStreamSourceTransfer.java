@@ -85,7 +85,7 @@ public class InlongStreamSourceTransfer {
         if (sourceType == SourceType.AUTO_PUSH && sourceResponse instanceof AutoPushSourceResponse) {
             return parseAutoPushSource((AutoPushSourceResponse) sourceResponse);
         }
-        if (sourceType == SourceType.POSTGRES && sourceResponse instanceof AutoPushSourceResponse) {
+        if (sourceType == SourceType.POSTGRES && sourceResponse instanceof PostgresSourceResponse) {
             return parsePostgresSource((PostgresSourceResponse) sourceResponse);
         }
         throw new IllegalArgumentException(String.format("Unsupported source type : %s for Inlong", sourceType));
