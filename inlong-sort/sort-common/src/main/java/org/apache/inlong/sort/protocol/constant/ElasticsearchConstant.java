@@ -19,7 +19,7 @@
 package org.apache.inlong.sort.protocol.constant;
 
 /**
- * Postgres options constant
+ * Elasticsearch options constant
  */
 public class ElasticsearchConstant {
 
