@@ -59,5 +59,5 @@ public class PostgresSourceResponse extends SourceResponse {
     private String decodingPluginName;
 
     @ApiModelProperty("List of tables")
-    private List<String> tableNames;
+    private List<String> tableNameList;
 }

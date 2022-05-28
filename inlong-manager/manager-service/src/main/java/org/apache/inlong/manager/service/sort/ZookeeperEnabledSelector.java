@@ -29,6 +29,7 @@ import org.apache.inlong.manager.workflow.event.EventSelector;
  * Event selector for whether ZooKeeper is enabled.
  */
 @Slf4j
+@Deprecated
 public class ZookeeperEnabledSelector implements EventSelector {
 
     @Override

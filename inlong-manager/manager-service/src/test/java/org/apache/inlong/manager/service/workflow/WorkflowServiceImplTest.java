@@ -47,7 +47,6 @@ import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
-import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
@@ -238,11 +237,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(sinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setSinkResourceListener(sinkResourceListener);
 
-        PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
-        when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(pushSortConfigListener.name()).thenReturn(PushSortConfigListener.class.getSimpleName());
-        when(pushSortConfigListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setPushSortConfigListener(pushSortConfigListener);
         taskListenerFactory.clearListeners();
         taskListenerFactory.init();
     }
