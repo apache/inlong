@@ -54,6 +54,7 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -104,6 +105,8 @@ public class LoadNodeUtils {
                 return createLoadNode((HdfsSink) streamSink);
             case GREENPLUM:
                 return createLoadNode((GreenplumSink) streamSink);
+            case BINLOG:
+                return createLoadNode((BinlogSinkResponse) sinkResponse);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -454,6 +457,38 @@ public class LoadNodeUtils {
                 greenplumSink.getPassword(),
                 greenplumSink.getTableName(),
                 greenplumSink.getPrimaryKey());
+    }
+
+    /**
+     * create postgres load node
+     *
+     * @param binlogSinkResponse binlogSinkResponse
+     * @return postgres load node
+     */
+    public static MySqlLoadNode createLoadNode(BinlogSinkResponse binlogSinkResponse) {
+        List<SinkFieldResponse> sinkFieldResponses = binlogSinkResponse.getFieldList();
+
+        String name = binlogSinkResponse.getSinkName();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
+                        name))
+                .collect(Collectors.toList());
+        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = binlogSinkResponse.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new MySqlLoadNode(binlogSinkResponse.getSinkName(),
+                binlogSinkResponse.getSinkName(),
+                fields,
+                fieldRelationShips,
+                Lists.newArrayList(),
+                null,
+                null,
+                properties,
+                binlogSinkResponse.getJdbcUrl(),
+                binlogSinkResponse.getUsername(),
+                binlogSinkResponse.getPassword(),
+                binlogSinkResponse.getTableName(),
+                binlogSinkResponse.getPrimaryKey());
     }
 
     /**
