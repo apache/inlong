@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -72,6 +72,6 @@ public class SourceRequest {
     private Integer version;
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
-    private List<InlongStreamFieldInfo> fieldList;
+    private List<StreamField> fieldList;
 
 }

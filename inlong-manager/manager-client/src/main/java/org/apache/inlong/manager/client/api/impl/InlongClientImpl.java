@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
+import org.apache.inlong.manager.common.pojo.source.StreamSource.Status;
 import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.List;
@@ -137,29 +137,29 @@ public class InlongClientImpl implements InlongClient {
 
     private InlongGroupStatus recheckGroupState(InlongGroupStatus groupState,
             List<SourceListResponse> sourceListResponses) {
-        Map<State, List<SourceListResponse>> stateListMap = Maps.newHashMap();
+        Map<Status, List<SourceListResponse>> stateListMap = Maps.newHashMap();
         sourceListResponses.forEach(sourceListResponse -> {
-            State state = State.parseByStatus(sourceListResponse.getStatus());
-            stateListMap.computeIfAbsent(state, k -> Lists.newArrayList()).add(sourceListResponse);
+            Status status = Status.parseByStatus(sourceListResponse.getStatus());
+            stateListMap.computeIfAbsent(status, k -> Lists.newArrayList()).add(sourceListResponse);
         });
-        if (CollectionUtils.isNotEmpty(stateListMap.get(State.FAILED))) {
+        if (CollectionUtils.isNotEmpty(stateListMap.get(Status.FAILED))) {
             return InlongGroupStatus.FAILED;
         }
         switch (groupState) {
             case STARTED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(State.INIT))) {
+                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.INIT))) {
                     return InlongGroupStatus.INITIALIZING;
                 } else {
                     return groupState;
                 }
             case STOPPED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(State.FROZING))) {
+                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.FREEZING))) {
                     return InlongGroupStatus.OPERATING;
                 } else {
                     return groupState;
                 }
             case DELETED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(State.DELETING))) {
+                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.DELETING))) {
                     return InlongGroupStatus.OPERATING;
                 } else {
                     return groupState;

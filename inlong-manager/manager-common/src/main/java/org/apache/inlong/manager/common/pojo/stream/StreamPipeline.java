@@ -49,7 +49,7 @@ public class StreamPipeline {
         this.pipeline = pipeline;
     }
 
-    public void addRelationShip(StreamNodeRelationship relationship) {
+    public void addRelationship(StreamNodeRelationship relationship) {
         pipeline.add(relationship);
     }
 

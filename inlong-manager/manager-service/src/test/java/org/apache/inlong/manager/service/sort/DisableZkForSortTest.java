@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -71,38 +71,38 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     }
 
     /**
-     * Creat hvie sink by inlong stream info.
+     * Create Hive sink by inlong stream info.
      */
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
-        HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
-        hiveSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
-        hiveSinkRequest.setSinkType("HIVE");
-        hiveSinkRequest.setSinkName("HIVE");
-        hiveSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        List<SinkFieldRequest> sinkFieldRequests = createStreamFields(streamInfo.getInlongGroupId(),
+        HiveSinkRequest sinkRequest = new HiveSinkRequest();
+        sinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sinkRequest.setSinkType("HIVE");
+        sinkRequest.setSinkName("HIVE");
+        sinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        List<SinkField> sinkFields = createStreamFields(streamInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId())
                 .stream()
-                .map(streamFieldInfo -> {
-                    SinkFieldRequest fieldInfo = new SinkFieldRequest();
-                    fieldInfo.setFieldName(streamFieldInfo.getFieldName());
-                    fieldInfo.setFieldType(streamFieldInfo.getFieldType());
-                    fieldInfo.setFieldComment(streamFieldInfo.getFieldComment());
+                .map(streamField -> {
+                    SinkField fieldInfo = new SinkField();
+                    fieldInfo.setFieldName(streamField.getFieldName());
+                    fieldInfo.setFieldType(streamField.getFieldType());
+                    fieldInfo.setFieldComment(streamField.getFieldComment());
                     return fieldInfo;
                 })
                 .collect(Collectors.toList());
-        hiveSinkRequest.setFieldList(sinkFieldRequests);
-        hiveSinkRequest.setEnableCreateTable(0);
-        hiveSinkRequest.setUsername(OPERATOR);
-        hiveSinkRequest.setPassword("password");
-        hiveSinkRequest.setDbName("default");
-        hiveSinkRequest.setTableName("kip_test");
-        hiveSinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
-        hiveSinkRequest.setFileFormat("TextFile");
-        hiveSinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
-        hiveSinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
-        hiveSinkRequest.setDataSeparator("124");
-        streamSinkService.save(hiveSinkRequest, OPERATOR);
-        return hiveSinkRequest;
+        sinkRequest.setFieldList(sinkFields);
+        sinkRequest.setEnableCreateResource(0);
+        sinkRequest.setUsername(OPERATOR);
+        sinkRequest.setPassword("password");
+        sinkRequest.setDbName("default");
+        sinkRequest.setTableName("kip_test");
+        sinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
+        sinkRequest.setFileFormat("TextFile");
+        sinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
+        sinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
+        sinkRequest.setDataSeparator("124");
+        streamSinkService.save(sinkRequest, OPERATOR);
+        return sinkRequest;
     }
 
     /**

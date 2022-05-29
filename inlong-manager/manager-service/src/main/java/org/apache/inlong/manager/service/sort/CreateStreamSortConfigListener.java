@@ -95,8 +95,8 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         try {
             List<SourceResponse> sourceResponses = createPulsarSources(groupInfo, streamInfo);
             List<Node> nodes = createNodesForStream(sourceResponses, sinkResponses);
-            List<NodeRelationShip> nodeRelationShips = createNodeRelationShipsForStream(sourceResponses, sinkResponses);
-            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelationShips);
+            List<NodeRelationShip> nodeRelationships = createNodeRelationshipsForStream(sourceResponses, sinkResponses);
+            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelationships);
             GroupInfo sortGroupInfo = new GroupInfo(groupId, Lists.newArrayList(sortStreamInfo));
             String dataFlows = OBJECT_MAPPER.writeValueAsString(sortGroupInfo);
             InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
@@ -120,7 +120,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
     private List<SourceResponse> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
         MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported MqType={} for Inlong", mqType);
+            String errMsg = String.format("Unsupported MqType={%s} for Inlong", mqType);
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
@@ -157,17 +157,17 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationShipsForStream(
+    private List<NodeRelationShip> createNodeRelationshipsForStream(
             List<SourceResponse> sourceResponses,
             List<SinkResponse> sinkResponses) {
-        NodeRelationShip relationShip = new NodeRelationShip();
-        List<String> inputs = sourceResponses.stream().map(sourceResponse -> sourceResponse.getSourceName())
+        NodeRelationShip relationship = new NodeRelationShip();
+        List<String> inputs = sourceResponses.stream().map(SourceResponse::getSourceName)
                 .collect(Collectors.toList());
-        List<String> outputs = sinkResponses.stream().map(sinkResponse -> sinkResponse.getSinkName())
+        List<String> outputs = sinkResponses.stream().map(SinkResponse::getSinkName)
                 .collect(Collectors.toList());
-        relationShip.setInputs(inputs);
-        relationShip.setOutputs(outputs);
-        return Lists.newArrayList(relationShip);
+        relationship.setInputs(inputs);
+        relationship.setOutputs(outputs);
+        return Lists.newArrayList(relationship);
     }
 
     private void upsertDataFlow(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {

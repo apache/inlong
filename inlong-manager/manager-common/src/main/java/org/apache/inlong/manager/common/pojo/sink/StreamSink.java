@@ -15,14 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.sink;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.List;
 import java.util.Map;
@@ -35,16 +38,37 @@ import java.util.Map;
 @ApiModel("Stream sink configuration")
 public abstract class StreamSink extends StreamNode {
 
-    @ApiModelProperty(value = "DataSink name", required = true)
+    @ApiModelProperty("Sink id")
+    private Integer id;
+
+    @ApiModelProperty("Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty("Inlong stream id")
+    private String inlongStreamId;
+
+    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
+    private String sinkType;
+
+    @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 
-    @ApiModelProperty("Other properties if need")
-    private Map<String, Object> properties;
+    @JsonIgnore
+    @ApiModelProperty("Data format type for stream sink")
+    private DataFormat dataFormat;
 
-    public abstract SinkType getSinkType();
+    @JsonIgnore
+    @ApiModelProperty("Authentication info if needed")
+    private DefaultAuthentication authentication;
 
-    public abstract List<SinkField> getSinkFields();
+    @ApiModelProperty("Sink field list")
+    private List<SinkField> fieldList;
 
-    public abstract DataFormat getDataFormat();
+    @ApiModelProperty("Other properties if needed")
+    private Map<String, Object> properties = Maps.newHashMap();
+
+    public DataFormat getDataFormat() {
+        return DataFormat.NONE;
+    }
 
 }

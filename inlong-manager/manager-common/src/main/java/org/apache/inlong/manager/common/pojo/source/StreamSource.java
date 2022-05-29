@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.source;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 /**
  * Stream source configuration, including source name, agent ip, etc.
@@ -33,13 +34,32 @@ import org.apache.inlong.manager.common.enums.SourceType;
 @ApiModel("Stream source configuration")
 public abstract class StreamSource extends StreamNode {
 
-    public enum State {
-        INIT, NORMAL, FROZING, FROZEN, FAILED, DELETING, DELETE;
+    @ApiModelProperty(value = "DataSource name", required = true)
+    private String sourceName;
+
+    @ApiModelProperty("Ip of the agent running the task")
+    private String agentIp;
+
+    @ApiModelProperty("Mac uuid of the agent running the task")
+    private String uuid = "";
+
+    @ApiModelProperty("Status of stream source")
+    private Status status;
+
+    public abstract SourceType getSourceType();
+
+    public abstract SyncType getSyncType();
+
+    public abstract DataFormat getDataFormat();
+
+    public enum Status {
+
+        INIT, NORMAL, FREEZING, FROZEN, FAILED, DELETING, DELETE;
 
         /**
          * Parse status of stream source.
          */
-        public static State parseByStatus(int status) {
+        public static Status parseByStatus(int status) {
             SourceStatus sourceStatus = SourceStatus.forCode(status);
             switch (sourceStatus) {
                 case SOURCE_NEW:
@@ -52,7 +72,7 @@ public abstract class StreamSource extends StreamNode {
                     return NORMAL;
                 case TO_BE_ISSUED_FROZEN:
                 case BEEN_ISSUED_FROZEN:
-                    return FROZING;
+                    return FREEZING;
                 case SOURCE_FROZEN:
                     return FROZEN;
                 case SOURCE_FAILED:
@@ -64,7 +84,7 @@ public abstract class StreamSource extends StreamNode {
                     return DELETE;
                 default:
                     throw new IllegalStateException(
-                            String.format("Unsupported source state=%s for Inlong", sourceStatus));
+                            String.format("Unsupported source status=%s for Inlong", sourceStatus));
             }
         }
     }
@@ -72,22 +92,4 @@ public abstract class StreamSource extends StreamNode {
     public enum SyncType {
         FULL, INCREMENT
     }
-
-    @ApiModelProperty(value = "DataSource name", required = true)
-    private String sourceName;
-
-    @ApiModelProperty("Ip of the agent running the task")
-    private String agentIp;
-
-    @ApiModelProperty("Mac uuid of the agent running the task")
-    private String uuid = "";
-
-    @ApiModelProperty("State of stream source")
-    private State state;
-
-    public abstract SourceType getSourceType();
-
-    public abstract SyncType getSyncType();
-
-    public abstract DataFormat getDataFormat();
 }

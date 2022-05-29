@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
 public class SinkPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
-    @NotNull
+    @NotNull(message = "inlongGroupId cannot be null")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong stream id")

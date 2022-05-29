@@ -36,24 +36,36 @@ public class StreamField {
 
     public static final StreamField PROCESSING_TIME = new StreamField(
             100,
-            FieldType.BIGINT,
+            FieldType.BIGINT.toString(),
             MetaFieldType.PROCESSING_TIME.getName(),
             null, null, 1);
 
     @ApiModelProperty("Field index")
     private Integer id;
 
-    @ApiModelProperty(value = "Field type", required = true)
-    private FieldType fieldType;
+    @ApiModelProperty(value = "inlong group id", required = true)
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "inlong stream id", required = true)
+    private String inlongStreamId;
 
     @ApiModelProperty(value = "Field name", required = true)
     private String fieldName;
+
+    @ApiModelProperty(value = "Field type", required = true)
+    private String fieldType;
 
     @ApiModelProperty(value = "Field comment")
     private String fieldComment;
 
     @ApiModelProperty(value = "Field value for constants")
     private String fieldValue;
+
+    @ApiModelProperty(value = "Is predefined field, 1: yes, 0: no")
+    private Integer isPredefinedField;
+
+    @ApiModelProperty(value = "Value expression of predefined field")
+    private String preExpression;
 
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
@@ -68,7 +80,10 @@ public class StreamField {
     @ApiModelProperty("Origin field name before transform operation")
     private String originFieldName;
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {
+    @ApiModelProperty("Extra Param in JSON style")
+    private String extParams;
+
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue) {
         this.id = index;
         this.fieldType = fieldType;
         this.fieldName = fieldName;
@@ -76,20 +91,20 @@ public class StreamField {
         this.fieldValue = fieldValue;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
             Integer isMetaField) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
             Integer isMetaField, String originNodeName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.originNodeName = originNodeName;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
             Integer isMetaField, String originNodeName, String originFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;

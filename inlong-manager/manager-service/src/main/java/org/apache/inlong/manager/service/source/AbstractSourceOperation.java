@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -121,8 +121,8 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
 
         SourceResponse sourceResponse = this.getFromEntity(entity, this::getResponse);
         List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(entity.getId());
-        List<InlongStreamFieldInfo> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
-                InlongStreamFieldInfo::new);
+        List<StreamField> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
+                StreamField::new);
         sourceResponse.setFieldList(fieldInfos);
         return sourceResponse;
     }
@@ -200,7 +200,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         sourceMapper.updateByPrimaryKeySelective(curEntity);
     }
 
-    private void updateFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+    private void updateFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
         Integer sourceId = entity.getId();
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;
@@ -214,7 +214,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         LOGGER.info("success to update field");
     }
 
-    private void saveFieldOpt(StreamSourceEntity entity, List<InlongStreamFieldInfo> fieldInfos) {
+    private void saveFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
         LOGGER.info("begin to save source field={}", fieldInfos);
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;
@@ -226,7 +226,7 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
         String streamId = entity.getInlongStreamId();
         String sourceType = entity.getSourceType();
         Integer sourceId = entity.getId();
-        for (InlongStreamFieldInfo fieldInfo : fieldInfos) {
+        for (StreamField fieldInfo : fieldInfos) {
             StreamSourceFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo,
                     StreamSourceFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {

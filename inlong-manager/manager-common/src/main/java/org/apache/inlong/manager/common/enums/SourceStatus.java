@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * State of stream source
+ * Status of stream source
  */
 public enum SourceStatus {
 

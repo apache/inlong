@@ -19,9 +19,8 @@ package org.apache.inlong.manager.common.enums;
 
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Locale;
-
 public enum FieldType {
+
     INT,
     TINYINT,
     SMALLINT,
@@ -40,18 +39,18 @@ public enum FieldType {
     TIME,
     TIMESTAMP;
 
-    @Override
-    public String toString() {
-        return name();
-    }
-
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");
         for (FieldType value : values()) {
-            if (value.toString().equals(name) || value.toString().equals(name.toUpperCase(Locale.ROOT))) {
+            if (value.toString().equals(name)) {
                 return value;
             }
         }
         throw new IllegalArgumentException(String.format("Unsupported FieldType : %s", name));
+    }
+
+    @Override
+    public String toString() {
+        return name();
     }
 }
