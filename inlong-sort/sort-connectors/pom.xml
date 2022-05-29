@@ -31,6 +31,7 @@
 
     <artifactId>sort-connectors</artifactId>
     <name>Apache InLong - Sort Connectors</name>
+
     <packaging>pom</packaging>
 
     <modules>
@@ -45,6 +46,7 @@
         <module>mongodb-cdc</module>
         <module>sqlserver-cdc</module>
         <module>oracle-cdc</module>
+        <module>elasticsearch</module>
     </modules>
 
     <dependencies>
@@ -73,6 +75,7 @@
             <artifactId>flink-table-runtime-blink_${flink.scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
 </project>

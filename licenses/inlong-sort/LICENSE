@@ -567,6 +567,7 @@ The text of each license is the standard Apache 2.0 license.
   com.ververica:flink-connector-sqlserver-cdc:2.2.1 - flink-connector-sqlserver-cdc (https://github.com/ververica/flink-cdc-connectors/tree/release-2.2.1/flink-connector-sqlserver-cdc),  (The Apache Software License, Version 2.0)
   org.apache.flink:flink-core:1.13.5 - Flink : Core (https://github.com/apache/flink/tree/release-1.13.5/flink-core), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-csv:1.13.5 - Flink : Formats : Csv (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-csv), (The Apache Software License, Version 2.0)
+  org.apache.flink:flink-connector-elasticsearch6_1.16 - Flink : Connectors : Elasticsearch 6 (https://github.com/apache/flink/blob/release-1.13.5/flink-connectors/flink-connector-elasticsearch6), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-file-sink-common:1.13.5 - Flink : Connectors : File Sink Common (https://github.com/apache/flink/tree/release-1.13.5/flink-connectors/flink-file-sink-common), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-json:1.13.5 - Flink : Formats : Json (https://github.com/apache/flink/tree/release-1.13.5/flink-formats/flink-json), (The Apache Software License, Version 2.0)
   org.apache.flink:flink-metrics-core:1.13.5 - Flink : Metrics : Core (https://github.com/apache/flink/tree/release-1.13.5/flink-metrics/flink-metrics-core), (The Apache Software License, Version 2.0)
