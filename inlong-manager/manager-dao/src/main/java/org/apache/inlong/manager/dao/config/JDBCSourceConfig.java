@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
+import java.util.Objects;
 
 /**
  * Main data source config
@@ -53,7 +54,7 @@ public class JDBCSourceConfig {
         bean.setDataSource(dataSource());
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
 
-        bean.getObject().getConfiguration().setMapUnderscoreToCamelCase(true);
+        Objects.requireNonNull(bean.getObject()).getConfiguration().setMapUnderscoreToCamelCase(true);
         return bean.getObject();
     }
 

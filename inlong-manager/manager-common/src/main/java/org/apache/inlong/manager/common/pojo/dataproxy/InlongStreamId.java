@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -29,6 +29,7 @@ public class InlongStreamId {
 
     /**
      * get inlongGroupId
+     *
      * @return the inlongGroupId
      */
     public String getInlongGroupId() {
@@ -37,6 +38,7 @@ public class InlongStreamId {
 
     /**
      * set inlongGroupId
+     *
      * @param inlongGroupId the inlongGroupId to set
      */
     public void setInlongGroupId(String inlongGroupId) {
@@ -45,6 +47,7 @@ public class InlongStreamId {
 
     /**
      * get inlongStreamId
+     *
      * @return the inlongStreamId
      */
     public String getInlongStreamId() {
@@ -53,6 +56,7 @@ public class InlongStreamId {
 
     /**
      * set inlongStreamId
+     *
      * @param inlongStreamId the inlongStreamId to set
      */
     public void setInlongStreamId(String inlongStreamId) {
@@ -61,6 +65,7 @@ public class InlongStreamId {
 
     /**
      * get topic
+     *
      * @return the topic
      */
     public String getTopic() {
@@ -69,6 +74,7 @@ public class InlongStreamId {
 
     /**
      * set topic
+     *
      * @param topic the topic to set
      */
     public void setTopic(String topic) {
@@ -77,6 +83,7 @@ public class InlongStreamId {
 
     /**
      * get extParams
+     *
      * @return the extParams
      */
     public String getExtParams() {
@@ -85,6 +92,7 @@ public class InlongStreamId {
 
     /**
      * set extParams
+     *
      * @param extParams the extParams to set
      */
     public void setExtParams(String extParams) {
