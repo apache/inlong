@@ -170,7 +170,7 @@ const getForm: GetStorageFormFieldsType = (
       label: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDir'),
       name: 'hiveConfDir',
       rules: [{ required: true }],
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.ConfDirHelp'),
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDirHelp'),
       props: {
         placeholder: '/usr/hive/conf',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
