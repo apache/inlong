@@ -218,6 +218,8 @@ public class IcebergCatalogUtils {
             case HOUR:
                 builder.hour(column.getName());
                 break;
+            case NONE:
+                break;
             default:
                 throw new IllegalArgumentException(
                         "unknown iceberg partition strategy: " + column.getPartitionStrategy());
@@ -254,6 +256,8 @@ public class IcebergCatalogUtils {
                 break;
             case HOUR:
                 builder.addField(Expressions.hour(column.getName()));
+                break;
+            case NONE:
                 break;
             default:
                 throw new IllegalArgumentException(

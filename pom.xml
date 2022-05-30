@@ -17,8 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -112,6 +112,7 @@
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
         <plugin.surefire.version>2.22.2</plugin.surefire.version>
         <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
+        <plugin.shade.version>3.2.4</plugin.shade.version>
         <plugin.maven.source>3.0.1</plugin.maven.source>
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
@@ -201,7 +202,9 @@
         <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
         <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
         <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
+        <flink.protobuf.version>2.7.6</flink.protobuf.version>
         <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
+        <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
@@ -940,6 +943,21 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-avro</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-shaded-jackson</artifactId>
                 <version>${flink.jackson.version}</version>
             </dependency>
@@ -981,12 +999,25 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mysql-cdc</artifactId>
                 <version>${flink.connector.mysql.cdc.version}</version>
+                <!-- mysql-connector-java is LGPL license and needs to be excluded -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-postgres-cdc</artifactId>
                 <version>${flink.connector.postgres.cdc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-oracle-cdc</artifactId>
+                <version>${flink.connector.oracle.cdc.version}</version>
             </dependency>
 
             <dependency>
@@ -1005,6 +1036,16 @@
                 <groupId>io.streamnative.connectors</groupId>
                 <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
                 <version>${flink.pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.streamnative.connectors</groupId>
+                <artifactId>pulsar-flink-connector-origin</artifactId>
+                <version>${flink.pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.streamnative.connectors</groupId>
+                <artifactId>flink-protobuf</artifactId>
+                <version>${flink.protobuf.version}</version>
             </dependency>
 
             <dependency>
@@ -1435,6 +1476,11 @@
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${plugin.maven.source}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -17,22 +17,65 @@
 
 package org.apache.inlong.manager.common.pojo.sink.iceberg;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
 
 /**
  * Iceberg column info
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class IcebergColumnInfo {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @ApiModelProperty("Length of fixed type")
+    private Integer length;
+
+    @ApiModelProperty("Precision of decimal type")
+    private Integer precision;
+
+    @ApiModelProperty("Scale of decimal type")
+    private Integer scale;
+
+    @ApiModelProperty("Field partition strategy, including: None, Identity, Year, Month, Day, Hour, Bucket, Truncate")
+    private String partitionStrategy;
+
+    @ApiModelProperty("Bucket num param of bucket partition")
+    private Integer bucketNum;
+
+    @ApiModelProperty("Width param of truncate partition")
+    private Integer width;
+
+    // The following are passed from base field and need not be part of API for extra param
     private String name;
     private String type;
     private String desc;
     private boolean required;
-    private Integer length;
-    private String partitionStrategy;
-    private Integer precision;
-    private Integer scale;
-    private Integer bucketNum;
-    private Integer width;
+
+    /**
+     * Get the extra param from the Json
+     */
+    public static IcebergColumnInfo getFromJson(String extParams) {
+        if (StringUtils.isEmpty(extParams)) {
+            return new IcebergColumnInfo();
+        }
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, IcebergColumnInfo.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+        }
+    }
 }

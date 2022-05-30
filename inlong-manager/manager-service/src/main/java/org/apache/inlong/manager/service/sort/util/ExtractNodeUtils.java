@@ -274,7 +274,7 @@ public class ExtractNodeUtils {
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         return new PostgresExtractNode(id, name, fields, null, null,
-                postgresSourceResponse.getPrimaryKey(), postgresSourceResponse.getTableNames(),
+                postgresSourceResponse.getPrimaryKey(), postgresSourceResponse.getTableNameList(),
                 postgresSourceResponse.getHostname(), postgresSourceResponse.getUsername(),
                 postgresSourceResponse.getPassword(), postgresSourceResponse.getDatabase(),
                 postgresSourceResponse.getSchema(), postgresSourceResponse.getPort(),

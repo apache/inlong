@@ -634,25 +634,21 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_sink_field`
 (
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `inlong_group_id`    varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `inlong_stream_id`   varchar(256) NOT NULL COMMENT 'Inlong stream id',
-    `sink_id`            int(11)      NOT NULL COMMENT 'Sink id',
-    `sink_type`          varchar(15)  NOT NULL COMMENT 'Sink type',
-    `source_field_name`  varchar(50)   DEFAULT NULL COMMENT 'Source field name',
-    `source_field_type`  varchar(50)   DEFAULT NULL COMMENT 'Source field type',
-    `field_name`         varchar(50)  NOT NULL COMMENT 'Field name',
-    `field_type`         varchar(50)  NOT NULL COMMENT 'Field type',
-    `field_comment`      varchar(2000) DEFAULT NULL COMMENT 'Field description',
-    `field_length`       int(4)        DEFAULT NULL COMMENT 'Field length',
-    `field_precision`    int(4)        DEFAULT NULL COMMENT 'Field precision',
-    `field_scale`        int(4)        DEFAULT NULL COMMENT 'Field scale',
-    `partition_strategy` varchar(20)   DEFAULT NULL COMMENT 'Field partition strategy',
-    `extr_param`         text COMMENT 'Field extr param',
-    `is_meta_field`      smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
-    `field_format`       varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
-    `rank_num`           smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
-    `is_deleted`         int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `id`                int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
+    `inlong_group_id`   varchar(256) NOT NULL COMMENT 'Inlong group id',
+    `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
+    `sink_id`           int(11)      NOT NULL COMMENT 'Sink id',
+    `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
+    `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
+    `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
+    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
+    `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
+    `ext_params`        text COMMENT 'Field ext params',
+    `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
+    `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
+    `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 );
 
@@ -789,197 +785,6 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`)
 );
-
--- ----------------------------
--- Table structure for cluster_set
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `cluster_set`
-(
-    `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `set_name`        varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `cn_name`         varchar(256) COMMENT 'Chinese display name',
-    `description`     varchar(256) COMMENT 'ClusterSet Introduction',
-    `middleware_type` varchar(10)       DEFAULT 'TUBE' COMMENT 'The middleware type of message queue, high throughput: TUBE, high consistency: PULSAR',
-    `in_charges`      varchar(512) COMMENT 'Name of responsible person, separated by commas',
-    `followers`       varchar(512) COMMENT 'Name of followers, separated by commas',
-    `status`          int(4)            DEFAULT '21' COMMENT 'ClusterSet status',
-    `is_deleted`      int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `creator`         varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`        varchar(64)  NULL COMMENT 'Modifier name',
-    `create_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`     timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cluster_set` (`set_name`)
-);
-
--- ----------------------------
--- Table structure for cluster_set_inlongid
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `cluster_set_inlongid`
-(
-    `id`              int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `set_name`        varchar(256) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `inlong_group_id` varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cluster_set_inlongid` (`set_name`, `inlong_group_id`)
-);
-
--- ----------------------------
--- Table structure for cache_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `cache_cluster`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-    `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `zone`         varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cache_cluster` (`cluster_name`)
-);
-
--- ----------------------------
--- Table structure for cache_cluster_ext
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `cache_cluster_ext`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-    `key_name`     varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`    text         NULL COMMENT 'The value of the configuration item',
-    `is_deleted`   int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time`  timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_cache_cluster` (`cluster_name`)
-);
-
--- ----------------------------
--- Table structure for cache_topic
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `cache_topic`
-(
-    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `topic_name`    varchar(128) NOT NULL COMMENT 'Topic name, English, numbers and underscore',
-    `set_name`      varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `partition_num` int(11)      NOT NULL COMMENT 'Partition number',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cache_topic` (`topic_name`, `set_name`)
-);
-
--- ----------------------------
--- Table structure for proxy_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `proxy_cluster`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `cluster_name` varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
-    `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `zone`         varchar(128) NOT NULL COMMENT 'Zone, sz/sh/tj',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_proxy_cluster` (`cluster_name`, `set_name`)
-);
-
--- ----------------------------
--- Table structure for proxy_cluster_to_cache_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `proxy_cluster_to_cache_cluster`
-(
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `proxy_cluster_name` varchar(128) NOT NULL COMMENT 'ProxyCluster name, English, numbers and underscore',
-    `cache_cluster_name` varchar(128) NOT NULL COMMENT 'CacheCluster name, English, numbers and underscore',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_proxy_cluster_to_cache_cluster` (`proxy_cluster_name`, `cache_cluster_name`)
-);
-
--- ----------------------------
--- Table structure for flume_source
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_source`
-(
-    `id`            int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `source_name`   varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
-    `set_name`      varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `type`          varchar(128) NOT NULL COMMENT 'FlumeSource classname',
-    `channels`      varchar(128) NOT NULL COMMENT 'The channels of FlumeSource, separated by space',
-    `selector_type` varchar(128) NOT NULL COMMENT 'FlumeSource channel selector classname',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_flume_source` (`source_name`, `set_name`)
-);
-
--- ----------------------------
--- Table structure for flume_source_ext
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_source_ext`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `parent_name` varchar(128) NOT NULL COMMENT 'FlumeSource name, English, numbers and underscore',
-    `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `key_name`    varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`   text         NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_source_ext` (`parent_name`)
-);
-
--- ----------------------------
--- Table structure for flume_channel
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_channel`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `channel_name` varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
-    `set_name`     varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `type`         varchar(128) NOT NULL COMMENT 'FlumeChannel classname',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_flume_channel` (`channel_name`, `set_name`)
-);
-
--- ----------------------------
--- Table structure for flume_channel_ext
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_channel_ext`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `parent_name` varchar(128) NOT NULL COMMENT 'FlumeChannel name, English, numbers and underscore',
-    `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `key_name`    varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`   text         NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, 1: deleted',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_channel_ext` (`parent_name`)
-);
-
--- ----------------------------
--- Table structure for flume_sink
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_sink`
-(
-    `id`        int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `sink_name` varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
-    `set_name`  varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `type`      varchar(128) NOT NULL COMMENT 'FlumeSink classname',
-    `channel`   varchar(128) NOT NULL COMMENT 'FlumeSink channel',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_flume_sink` (`sink_name`, `set_name`)
-);
-
--- ----------------------------
--- Table structure for flume_sink_ext
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `flume_sink_ext`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `parent_name` varchar(128) NOT NULL COMMENT 'FlumeSink name, English, numbers and underscore',
-    `set_name`    varchar(128) NOT NULL COMMENT 'ClusterSet name, English, numbers and underscore',
-    `key_name`    varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`   text         NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `index_flume_sink_ext` (`parent_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='FlumeSink extension table';
 
 -- ----------------------------
 -- Table structure for db_collector_detail_task

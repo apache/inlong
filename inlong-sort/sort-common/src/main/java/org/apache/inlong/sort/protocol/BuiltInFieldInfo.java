@@ -74,6 +74,7 @@ public class BuiltInFieldInfo extends FieldInfo {
         /**
          * The event time of flink
          */
+        @Deprecated
         DATA_TIME,
         /**
          * The process time of flink
@@ -81,23 +82,63 @@ public class BuiltInFieldInfo extends FieldInfo {
         PROCESS_TIME,
         /**
          * The name of the database containing this Row
+         * It is deprecated and can be replaced by ${@link BuiltInField#DATABASE_NAME}
+         * and will be removed in a future version.
          */
+        @Deprecated
         MYSQL_METADATA_DATABASE,
         /**
          * The name of the table containing this Row
+         * It is deprecated and can be replaced by ${@link BuiltInField#TABLE_NAME}
+         * and will be removed in a future version.
          */
+        @Deprecated
         MYSQL_METADATA_TABLE,
         /**
-         * The time when the Row made changes in the database
+         * The time when the Row made changes in the database.
+         * It is deprecated and can be replaced by ${@link BuiltInField#OP_TS}
+         * and will be removed in a future version.
          */
+        @Deprecated
         MYSQL_METADATA_EVENT_TIME,
+        /**
+         * Name of the schema that contain the row.
+         */
+        SCHEMA_NAME,
+        /**
+         * Name of the database that contain the row.
+         */
+        DATABASE_NAME,
+        /**
+         * Name of the table that contain the row.
+         */
+        TABLE_NAME,
+        /**
+         * It indicates the time that the change was made in the database.
+         * If the record is read from snapshot of the table instead of the change stream, the value is always 0
+         */
+        OP_TS,
         /**
          * Whether the DDL statement
          */
+        IS_DDL,
+        /**
+         * Whether the DDL statement
+         * It is deprecated and can be replaced by ${@link BuiltInField#IS_DDL}
+         * and will be removed in a future version.
+         */
+        @Deprecated
         MYSQL_METADATA_IS_DDL,
         /**
          * Type of database operation, such as INSERT/DELETE, etc.
          */
+        OP_TYPE,
+        /**
+         * Type of database operation, such as INSERT/DELETE, etc.
+         * It is deprecated and can be replaced by ${@link BuiltInField#OP_TYPE}
+         * and will be removed in a future version.
+         */
+        @Deprecated
         MYSQL_METADATA_EVENT_TYPE,
         /**
          * MySQL binlog data Row

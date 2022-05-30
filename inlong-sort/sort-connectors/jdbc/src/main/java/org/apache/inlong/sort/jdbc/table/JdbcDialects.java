@@ -20,8 +20,8 @@ package org.apache.inlong.sort.jdbc.table;
 
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.connector.jdbc.dialect.MySQLDialect;
-import org.apache.flink.connector.jdbc.dialect.PostgresDialect;
 import org.apache.inlong.sort.jdbc.dialect.SqlServerDialect;
+import org.apache.inlong.sort.jdbc.dialect.TDSQLPostgresDialect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public final class JdbcDialects {
 
     static {
         DIALECTS.add(new MySQLDialect());
-        DIALECTS.add(new PostgresDialect());
+        DIALECTS.add(new TDSQLPostgresDialect());
         DIALECTS.add(new SqlServerDialect());
     }
 
