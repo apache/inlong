@@ -49,9 +49,10 @@ public class LeftOuterJoinNodeRelation extends JoinRelation {
      *         the value of joinConditionMap is a list of join contidition
      */
     @JsonCreator
-    public LeftOuterJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
-                                     @JsonProperty("outputs") List<String> outputs,
-                                     @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public LeftOuterJoinNodeRelation(
+            @JsonProperty("inputs") List<String> inputs,
+            @JsonProperty("outputs") List<String> outputs,
+            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 

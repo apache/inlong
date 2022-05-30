@@ -42,16 +42,17 @@ public class RightOuterJoinNodeRelation extends JoinRelation {
     /**
      * RightOuterJoinNodeRelation Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
+     * @param inputs           The inputs is a list of input node id
+     * @param outputs          The outputs is a list of output node id
      * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     *                         the key of joinConditionMap is the node id of join node
+     *                         the value of joinConditionMap is a list of join contidition
      */
     @JsonCreator
-    public RightOuterJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
-                                      @JsonProperty("outputs") List<String> outputs,
-                                      @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public RightOuterJoinNodeRelation(
+            @JsonProperty("inputs") List<String> inputs,
+            @JsonProperty("outputs") List<String> outputs,
+            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 

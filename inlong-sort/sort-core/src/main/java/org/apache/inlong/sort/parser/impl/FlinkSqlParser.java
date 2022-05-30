@@ -29,6 +29,7 @@ import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -666,7 +667,10 @@ public class FlinkSqlParser implements Parser {
         StringBuilder sb = new StringBuilder();
         for (FieldInfo field : fields) {
             sb.append("    `").append(field.getName()).append("` ");
-            if (field instanceof BuiltInFieldInfo) {
+            if (field instanceof MetaFieldInfo) {
+                MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
+                parseMetaField(node, metaFieldInfo, sb);
+            } else if (field instanceof BuiltInFieldInfo) {
                 BuiltInFieldInfo builtInFieldInfo = (BuiltInFieldInfo) field;
                 parseMetaField(node, builtInFieldInfo, sb);
             } else {
@@ -680,6 +684,7 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
+    @Deprecated
     private void parseMetaField(Node node, BuiltInFieldInfo metaField, StringBuilder sb) {
         if (metaField.getBuiltInField() == BuiltInField.PROCESS_TIME) {
             sb.append(" AS PROCTIME()");
@@ -700,6 +705,27 @@ public class FlinkSqlParser implements Parser {
         }
     }
 
+    private void parseMetaField(Node node, MetaFieldInfo metaFieldInfo, StringBuilder sb) {
+        if (metaFieldInfo.getMetaField() == MetaFieldInfo.MetaField.PROCESS_TIME) {
+            sb.append(" AS PROCTIME()");
+            return;
+        }
+        if (node instanceof MySqlExtractNode) {
+            sb.append(parseMySqlExtractNodeMetaField(metaFieldInfo));
+        } else if (node instanceof OracleExtractNode) {
+            sb.append(parseOracleExtractNodeMetaField(metaFieldInfo));
+        } else if (node instanceof KafkaExtractNode) {
+            sb.append(parseKafkaExtractNodeMetaField(metaFieldInfo));
+        } else if (node instanceof KafkaLoadNode) {
+            sb.append(parseKafkaLoadNodeMetaField(metaFieldInfo));
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("This node:%s does not currently support metadata fields",
+                            node.getClass().getName()));
+        }
+    }
+
+    @Deprecated
     private String parseKafkaLoadNodeMetaField(BuiltInFieldInfo metaField) {
         String metaType;
         switch (metaField.getBuiltInField()) {
@@ -745,11 +771,59 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaField.getBuiltInField()));
         }
         return metaType;
     }
 
+    private String parseKafkaLoadNodeMetaField(MetaFieldInfo metaFieldInfo) {
+        String metaType;
+        switch (metaFieldInfo.getMetaField()) {
+            case TABLE_NAME:
+                metaType = "STRING METADATA FROM 'value.table'";
+                break;
+            case DATABASE_NAME:
+                metaType = "STRING METADATA FROM 'value.database'";
+                break;
+            case OP_TS:
+                metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
+                break;
+            case OP_TYPE:
+                metaType = "STRING METADATA FROM 'value.op-type'";
+                break;
+            case DATA:
+                metaType = "STRING METADATA FROM 'value.data'";
+                break;
+            case IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
+                break;
+            case TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
+                break;
+            case SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
+                break;
+            case MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
+                break;
+            case PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
+                break;
+            case BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'value.batch-id'";
+                break;
+            case UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaFieldInfo.getMetaField()));
+        }
+        return metaType;
+    }
+
+    @Deprecated
     private String parseKafkaExtractNodeMetaField(BuiltInFieldInfo metaField) {
         String metaType;
         switch (metaField.getBuiltInField()) {
@@ -793,7 +867,98 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaField.getBuiltInField()));
+        }
+        return metaType;
+    }
+
+    private String parseKafkaExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
+        String metaType;
+        switch (metaFieldInfo.getMetaField()) {
+            case TABLE_NAME:
+                metaType = "STRING METADATA FROM 'value.table'";
+                break;
+            case DATABASE_NAME:
+                metaType = "STRING METADATA FROM 'value.database'";
+                break;
+            case SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
+                break;
+            case PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
+                break;
+            case TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
+                break;
+            case OP_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.event-timestamp'";
+                break;
+            // additional metadata
+            case OP_TYPE:
+                metaType = "STRING METADATA FROM 'value.op-type'";
+                break;
+            case IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
+                break;
+            case MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
+                break;
+            case BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'value.batch-id'";
+                break;
+            case UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaFieldInfo.getMetaField()));
+        }
+        return metaType;
+    }
+
+    private String parseMySqlExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
+        String metaType;
+        switch (metaFieldInfo.getMetaField()) {
+            case TABLE_NAME:
+                metaType = "STRING METADATA FROM 'meta.table_name' VIRTUAL";
+                break;
+            case DATABASE_NAME:
+                metaType = "STRING METADATA FROM 'meta.database_name' VIRTUAL";
+                break;
+            case OP_TS:
+                metaType = "TIMESTAMP(3) METADATA FROM 'meta.op_ts' VIRTUAL";
+                break;
+            case OP_TYPE:
+                metaType = "STRING METADATA FROM 'meta.op_type' VIRTUAL";
+                break;
+            case DATA:
+                metaType = "STRING METADATA FROM 'meta.data' VIRTUAL";
+                break;
+            case IS_DDL:
+                metaType = "BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL";
+                break;
+            case TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'meta.ts' VIRTUAL";
+                break;
+            case SQL_TYPE:
+                metaType = "MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL";
+                break;
+            case MYSQL_TYPE:
+                metaType = "MAP<STRING, STRING> METADATA FROM 'meta.mysql_type' VIRTUAL";
+                break;
+            case PK_NAMES:
+                metaType = "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL";
+                break;
+            case BATCH_ID:
+                metaType = "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL";
+                break;
+            case UPDATE_BEFORE:
+                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaFieldInfo.getMetaField()));
         }
         return metaType;
     }
@@ -843,11 +1008,13 @@ public class FlinkSqlParser implements Parser {
                 metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaField.getBuiltInField()));
         }
         return metaType;
     }
 
+    @Deprecated
     private String parseOracleExtractNodeMetaField(BuiltInFieldInfo metaField) {
         String metaType;
         switch (metaField.getBuiltInField()) {
@@ -864,7 +1031,30 @@ public class FlinkSqlParser implements Parser {
                 metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL";
                 break;
             default:
-                metaType = TableFormatUtils.deriveLogicalType(metaField.getFormatInfo()).asSummaryString();
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaField.getBuiltInField()));
+        }
+        return metaType;
+    }
+
+    private String parseOracleExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
+        String metaType;
+        switch (metaFieldInfo.getMetaField()) {
+            case TABLE_NAME:
+                metaType = "STRING METADATA FROM 'table_name' VIRTUAL";
+                break;
+            case SCHEMA_NAME:
+                metaType = "STRING METADATA FROM 'schema_name' VIRTUAL";
+                break;
+            case DATABASE_NAME:
+                metaType = "STRING METADATA FROM 'database_name' VIRTUAL";
+                break;
+            case OP_TS:
+                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
+                        metaFieldInfo.getMetaField()));
         }
         return metaType;
     }

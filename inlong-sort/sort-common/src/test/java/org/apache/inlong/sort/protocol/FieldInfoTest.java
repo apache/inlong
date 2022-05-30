@@ -41,7 +41,7 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
     @Test
     public void testDeserializeWithNodeId() throws JsonProcessingException {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
-        fieldInfo.setNodeId("1L");
+        fieldInfo.setNodeId("1");
         ObjectMapper objectMapper = new ObjectMapper();
         String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\","
                 + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
