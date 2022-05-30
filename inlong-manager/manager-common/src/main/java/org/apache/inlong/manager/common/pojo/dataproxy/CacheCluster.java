@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -30,6 +30,7 @@ public class CacheCluster {
 
     /**
      * get clusterName
+     *
      * @return the clusterName
      */
     public String getClusterName() {
@@ -38,6 +39,7 @@ public class CacheCluster {
 
     /**
      * set clusterName
+     *
      * @param clusterName the clusterName to set
      */
     public void setClusterName(String clusterName) {
@@ -46,6 +48,7 @@ public class CacheCluster {
 
     /**
      * get type
+     *
      * @return the type
      */
     public String getType() {
@@ -54,6 +57,7 @@ public class CacheCluster {
 
     /**
      * set type
+     *
      * @param type the type to set
      */
     public void setType(String type) {
@@ -62,6 +66,7 @@ public class CacheCluster {
 
     /**
      * get clusterTag
+     *
      * @return the clusterTag
      */
     public String getClusterTag() {
@@ -70,6 +75,7 @@ public class CacheCluster {
 
     /**
      * set clusterTag
+     *
      * @param clusterTag the clusterTag to set
      */
     public void setClusterTag(String clusterTag) {
@@ -78,6 +84,7 @@ public class CacheCluster {
 
     /**
      * get extTag
+     *
      * @return the extTag
      */
     public String getExtTag() {
@@ -86,6 +93,7 @@ public class CacheCluster {
 
     /**
      * set extTag
+     *
      * @param extTag the extTag to set
      */
     public void setExtTag(String extTag) {
@@ -94,6 +102,7 @@ public class CacheCluster {
 
     /**
      * get extParams
+     *
      * @return the extParams
      */
     public String getExtParams() {
@@ -102,6 +111,7 @@ public class CacheCluster {
 
     /**
      * set extParams
+     *
      * @param extParams the extParams to set
      */
     public void setExtParams(String extParams) {
