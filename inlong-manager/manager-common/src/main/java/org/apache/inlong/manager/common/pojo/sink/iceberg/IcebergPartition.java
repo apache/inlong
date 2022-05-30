@@ -15,32 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.sink.iceberg;
+
+import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
- * Operation type
+ * Iceberg partition type
  */
-@Deprecated
-public enum DBCollectorTaskReturnCode {
-
-    SUCC(0, "success"),
-    EMPTY(1, "empty"),
-    INVALID_VERSION(2, "version is invalid"),
-    INVALID_STATE(3, "task state is invalid"),
+public enum IcebergPartition {
+    IDENTITY,
+    BUCKET,
+    TRUNCATE,
+    YEAR,
+    MONTH,
+    DAY,
+    HOUR,
+    NONE,
     ;
-    private final Integer code;
-    private final String description;
 
-    DBCollectorTaskReturnCode(Integer code, String description) {
-        this.code = code;
-        this.description = description;
+    /**
+     * Get partition type from name
+     */
+    public static IcebergPartition forName(String name) {
+        Preconditions.checkNotNull(name, "IcebergPartition should not be null");
+        for (IcebergPartition value : values()) {
+            if (value.toString().equalsIgnoreCase(name)) {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported IcebergPartition : %s", name));
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
+    @Override
+    public String toString() {
+        return name();
     }
 }

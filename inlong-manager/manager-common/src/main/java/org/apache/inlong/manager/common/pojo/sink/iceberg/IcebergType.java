@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.sink.iceberg;
 
 import lombok.Getter;
 
@@ -40,7 +40,7 @@ public enum IcebergType {
     BINARY("binary");
 
     @Getter
-    private String type;
+    private final String type;
 
     IcebergType(String type) {
         this.type = type;
