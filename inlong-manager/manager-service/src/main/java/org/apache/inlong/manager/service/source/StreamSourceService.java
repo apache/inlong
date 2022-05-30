@@ -21,7 +21,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public interface StreamSourceService {
      * @param id source id.
      * @return Source info
      */
-    SourceResponse get(Integer id);
+    StreamSource get(Integer id);
 
     /**
      * Query source information based on inlong group id and inlong stream id.
@@ -54,7 +54,7 @@ public interface StreamSourceService {
      * @param streamId Inlong stream id, can be null.
      * @return Source info list.
      */
-    List<SourceResponse> listSource(String groupId, String streamId);
+    List<StreamSource> listSource(String groupId, String streamId);
 
     /**
      * Query the number of undeleted source info based on inlong group and inlong stream id.

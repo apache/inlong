@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -73,7 +73,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSink();
 
-        SinkResponse sink = sinkService.get(id);
+        StreamSink sink = sinkService.get(id);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
 
         sinkService.delete(id, globalOperator);
@@ -82,12 +82,11 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id);
+        StreamSink response = sinkService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        HiveSinkResponse hiveResponse = (HiveSinkResponse) response;
+        HiveSink hiveResponse = (HiveSink) response;
         hiveResponse.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-
         HiveSinkRequest request = CommonBeanUtils.copyProperties(hiveResponse, HiveSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);

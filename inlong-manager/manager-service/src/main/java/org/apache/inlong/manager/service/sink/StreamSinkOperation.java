@@ -22,7 +22,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 
 import java.util.function.Supplier;
@@ -62,7 +62,7 @@ public interface StreamSinkOperation {
      * @param entity the given entity.
      * @return Sink info.
      */
-    SinkResponse getByEntity(StreamSinkEntity entity);
+    StreamSink getByEntity(StreamSinkEntity entity);
 
     /**
      * Get the target from the given entity.

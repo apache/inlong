@@ -30,11 +30,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -134,13 +134,13 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(StreamSinkEntity entity) {
+    public StreamSink getByEntity(StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, existType));
 
-        SinkResponse response = this.getFromEntity(entity, IcebergSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, IcebergSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkField::new);

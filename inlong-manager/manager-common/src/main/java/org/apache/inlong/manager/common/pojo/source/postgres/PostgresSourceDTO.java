@@ -20,14 +20,15 @@ package org.apache.inlong.manager.common.pojo.source.postgres;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Postgres source info
@@ -39,6 +40,9 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 public class PostgresSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+
+    @ApiModelProperty("Primary key")
+    private String primaryKey;
 
     @ApiModelProperty("Username of the DB server")
     private String username;
@@ -52,20 +56,17 @@ public class PostgresSourceDTO {
     @ApiModelProperty("Exposed port of the DB server")
     private int port;
 
-    @ApiModelProperty("schema")
-    private String schema;
-
-    @ApiModelProperty(value = "database name")
+    @ApiModelProperty("Exposed database of the DB")
     private String database;
 
-    @ApiModelProperty(value = "List of tables to be collected")
-    private List<String> tableNameList;
+    @ApiModelProperty("Schema info")
+    private String schema;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
-    private String primaryKey;
-
-    @ApiModelProperty(value = "decoding pulgin name")
+    @ApiModelProperty("Decoding plugin name")
     private String decodingPluginName;
+
+    @ApiModelProperty("List of tables name")
+    private List<String> tableNameList;
 
     /**
      * Get the dto instance from the request

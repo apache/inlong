@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
@@ -132,8 +132,8 @@ public class ListCommand extends AbstractCommand {
                 pageRequest.setPageNum(1).setPageSize(pageSize);
 
                 // set default status to STARTED
-                status = status == null ? InlongGroupStatus.STARTED.toString() : status;
-                List<Integer> statusList = InlongGroupStatus.parseStatusCodeByStr(status);
+                status = status == null ? SimpleGroupStatus.STARTED.toString() : status;
+                List<Integer> statusList = SimpleGroupStatus.parseStatusCodeByStr(status);
                 pageRequest.setStatusList(statusList);
 
                 Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = managerClient.listGroups(pageRequest);

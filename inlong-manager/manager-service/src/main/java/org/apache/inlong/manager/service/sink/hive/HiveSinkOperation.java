@@ -30,11 +30,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -137,13 +137,13 @@ public class HiveSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(@NotNull StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_HIVE.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_HIVE, existType));
 
-        SinkResponse response = this.getFromEntity(entity, HiveSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, HiveSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkField::new);

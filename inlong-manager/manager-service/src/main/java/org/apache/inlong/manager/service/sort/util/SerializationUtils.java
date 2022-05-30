@@ -20,11 +20,11 @@ package org.apache.inlong.manager.service.sort.util;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.sort.protocol.deserialization.AvroDeserializationInfo;
 import org.apache.inlong.sort.protocol.deserialization.CanalDeserializationInfo;
@@ -47,14 +47,13 @@ public class SerializationUtils {
     /**
      * Create deserialization info
      */
-    public static DeserializationInfo createDeserialInfo(SourceResponse sourceResponse,
-            InlongStreamInfo streamInfo) {
-        SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
+    public static DeserializationInfo createDeserialInfo(StreamSource sourceInfo, InlongStreamInfo streamInfo) {
+        SourceType sourceType = SourceType.forType(sourceInfo.getSourceType());
         switch (sourceType) {
             case BINLOG:
-                return deserializeForBinlog((BinlogSourceResponse) sourceResponse);
+                return deserializeForBinlog((MySQLBinlogSource) sourceInfo);
             case KAFKA:
-                return deserializeForKafka((KafkaSourceResponse) sourceResponse, streamInfo);
+                return deserializeForKafka((KafkaSource) sourceInfo, streamInfo);
             case FILE:
                 return deserializeForFile(streamInfo);
             case AUTO_PUSH:
@@ -67,13 +66,13 @@ public class SerializationUtils {
     /**
      * Create serialization info
      */
-    public static SerializationInfo createSerialInfo(SourceResponse sourceResponse, SinkResponse sinkResponse) {
-        SinkType sinkType = SinkType.forType(sinkResponse.getSinkType());
+    public static SerializationInfo createSerialInfo(StreamSource sourceInfo, StreamSink streamSink) {
+        SinkType sinkType = SinkType.forType(streamSink.getSinkType());
         switch (sinkType) {
             case HIVE:
                 return null;
             case KAFKA:
-                return serializeForKafka(sourceResponse, (KafkaSinkResponse) sinkResponse);
+                return serializeForKafka(sourceInfo, (KafkaSink) streamSink);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported sinkType: %s", sinkType));
         }
@@ -82,14 +81,14 @@ public class SerializationUtils {
     /**
      * Get serialization info for Binlog
      */
-    private static DeserializationInfo deserializeForBinlog(BinlogSourceResponse sourceResponse) {
-        return new DebeziumDeserializationInfo(true, sourceResponse.getTimestampFormatStandard());
+    private static DeserializationInfo deserializeForBinlog(MySQLBinlogSource binlogSource) {
+        return new DebeziumDeserializationInfo(true, binlogSource.getTimestampFormatStandard());
     }
 
     /**
      * Get deserialization info for Kafka
      */
-    private static DeserializationInfo deserializeForKafka(KafkaSourceResponse source, InlongStreamInfo stream) {
+    private static DeserializationInfo deserializeForKafka(KafkaSource source, InlongStreamInfo stream) {
         String serializationType = source.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
@@ -112,8 +111,8 @@ public class SerializationUtils {
     /**
      * Get serialization info for Kafka
      */
-    private static SerializationInfo serializeForKafka(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse) {
-        String serializationType = sinkResponse.getSerializationType();
+    private static SerializationInfo serializeForKafka(StreamSource streamSource, KafkaSink kafkaSink) {
+        String serializationType = kafkaSink.getSerializationType();
         DataTypeEnum dataType = DataTypeEnum.forName(serializationType);
         switch (dataType) {
             case AVRO:
@@ -123,9 +122,9 @@ public class SerializationUtils {
             case CANAL:
                 return new CanalSerializationInfo();
             case DEBEZIUM_JSON:
-                Assert.isInstanceOf(BinlogSourceResponse.class, sourceResponse,
+                Assert.isInstanceOf(MySQLBinlogSource.class, streamSource,
                         "Unsupported serializationType for Kafka");
-                BinlogSourceResponse binlogSource = (BinlogSourceResponse) sourceResponse;
+                MySQLBinlogSource binlogSource = (MySQLBinlogSource) streamSource;
                 return new DebeziumSerializationInfo(binlogSource.getTimestampFormatStandard(),
                         "FAIL", "", false);
             default:

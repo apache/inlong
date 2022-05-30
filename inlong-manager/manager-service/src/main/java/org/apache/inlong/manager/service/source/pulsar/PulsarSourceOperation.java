@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -67,8 +67,8 @@ public class PulsarSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new PulsarSourceResponse();
+    protected StreamSource getSource() {
+        return new PulsarSource();
     }
 
     @Override

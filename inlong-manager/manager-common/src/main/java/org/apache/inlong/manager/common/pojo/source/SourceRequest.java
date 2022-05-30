@@ -37,30 +37,37 @@ public class SourceRequest {
 
     private Integer id;
 
-    @NotNull
+    @NotNull(message = "inlongGroupId cannot be null")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull
+    @NotNull(message = "inlongStreamId cannot be null")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
+    @NotNull(message = "sourceType cannot be null")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
-    @NotNull
+    @NotNull(message = "sourceName cannot be null")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
+
+    @ApiModelProperty("Ip of the agent running the task")
+    private String agentIp;
 
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @ApiModelProperty("Data node name")
-    private String dataNodeName;
-
+    @Deprecated
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
+
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Serialization type, support: csv, json, canal, avro, etc")
     private String serializationType;

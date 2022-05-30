@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
 
 import java.nio.charset.StandardCharsets;
@@ -92,8 +92,8 @@ public class BaseExample {
         return pulsarInfo;
     }
 
-    public HiveSinkRequest createHiveSink() {
-        HiveSinkRequest hiveSink = new HiveSinkRequest();
+    public HiveSink createHiveSink() {
+        HiveSink hiveSink = new HiveSink();
         hiveSink.setDbName("{db.name}");
         hiveSink.setJdbcUrl("jdbc:hive2://{ip:port}");
         hiveSink.setAuthentication(new DefaultAuthentication("hive", "hive"));

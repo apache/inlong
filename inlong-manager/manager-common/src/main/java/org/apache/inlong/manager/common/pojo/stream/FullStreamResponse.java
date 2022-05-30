@@ -20,8 +20,8 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.util.List;
 
@@ -36,9 +36,9 @@ public class FullStreamResponse {
     private InlongStreamInfo streamInfo;
 
     @ApiModelProperty("Stream source information")
-    private List<SourceResponse> sourceInfo;
+    private List<StreamSource> sourceInfo;
 
     @ApiModelProperty("Stream sink information")
-    private List<SinkResponse> sinkInfo;
+    private List<StreamSink> sinkInfo;
 
 }

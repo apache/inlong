@@ -25,10 +25,10 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
@@ -100,12 +100,12 @@ public class File2HiveExample extends BaseExample {
         return streamConf;
     }
 
-    private AgentFileSource createAgentFileSource() {
-        AgentFileSource agentFileSource = new AgentFileSource();
-        agentFileSource.setAgentIp("{agent.ip}");
-        agentFileSource.setPattern("/a/b/*.txt");
-        agentFileSource.setTimeOffset("-1h");
-        return agentFileSource;
+    private FileSource createAgentFileSource() {
+        FileSource fileSource = new FileSource();
+        fileSource.setAgentIp("{agent.ip}");
+        fileSource.setPattern("/a/b/*.txt");
+        fileSource.setTimeOffset("-1h");
+        return fileSource;
     }
 
     private List<StreamField> createStreamFields() {

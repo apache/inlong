@@ -28,14 +28,14 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.StreamSource.Status;
 import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.List;
@@ -102,7 +102,7 @@ public class InlongClientImpl implements InlongClient {
      * List group state
      */
     @Override
-    public Map<String, InlongGroupStatus> listGroupState(List<String> groupNames) throws Exception {
+    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setNameList(groupNames);
@@ -114,15 +114,15 @@ public class InlongClientImpl implements InlongClient {
             throw new RuntimeException("listGroupStateFailed:" + pageInfoResponse.getErrMsg());
         }
         List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getData().getList();
-        Map<String, InlongGroupStatus> groupStateMap = Maps.newHashMap();
+        Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
         groupListResponses.forEach(groupListResponse -> {
             String groupId = groupListResponse.getInlongGroupId();
-            InlongGroupStatus groupState = InlongGroupStatus.parseStatusByCode(groupListResponse.getStatus());
+            SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(groupListResponse.getStatus());
             List<SourceListResponse> sourceListResponses = groupListResponse.getSourceResponses();
-            groupState = recheckGroupState(groupState, sourceListResponses);
-            groupStateMap.put(groupId, groupState);
+            groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
+            groupStatusMap.put(groupId, groupStatus);
         });
-        return groupStateMap;
+        return groupStatusMap;
     }
 
     @Override
@@ -135,37 +135,37 @@ public class InlongClientImpl implements InlongClient {
         return new InlongGroupImpl(groupInfo, this);
     }
 
-    private InlongGroupStatus recheckGroupState(InlongGroupStatus groupState,
+    private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus,
             List<SourceListResponse> sourceListResponses) {
-        Map<Status, List<SourceListResponse>> stateListMap = Maps.newHashMap();
-        sourceListResponses.forEach(sourceListResponse -> {
-            Status status = Status.parseByStatus(sourceListResponse.getStatus());
-            stateListMap.computeIfAbsent(status, k -> Lists.newArrayList()).add(sourceListResponse);
+        Map<SimpleSourceStatus, List<SourceListResponse>> statusListMap = Maps.newHashMap();
+        sourceListResponses.forEach(source -> {
+            SimpleSourceStatus status = SimpleSourceStatus.parseByStatus(source.getStatus());
+            statusListMap.computeIfAbsent(status, k -> Lists.newArrayList()).add(source);
         });
-        if (CollectionUtils.isNotEmpty(stateListMap.get(Status.FAILED))) {
-            return InlongGroupStatus.FAILED;
+        if (CollectionUtils.isNotEmpty(statusListMap.get(SimpleSourceStatus.FAILED))) {
+            return SimpleGroupStatus.FAILED;
         }
-        switch (groupState) {
+        switch (groupStatus) {
             case STARTED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.INIT))) {
-                    return InlongGroupStatus.INITIALIZING;
+                if (CollectionUtils.isNotEmpty(statusListMap.get(SimpleSourceStatus.INIT))) {
+                    return SimpleGroupStatus.INITIALIZING;
                 } else {
-                    return groupState;
+                    return groupStatus;
                 }
             case STOPPED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.FREEZING))) {
-                    return InlongGroupStatus.OPERATING;
+                if (CollectionUtils.isNotEmpty(statusListMap.get(SimpleSourceStatus.FREEZING))) {
+                    return SimpleGroupStatus.OPERATING;
                 } else {
-                    return groupState;
+                    return groupStatus;
                 }
             case DELETED:
-                if (CollectionUtils.isNotEmpty(stateListMap.get(Status.DELETING))) {
-                    return InlongGroupStatus.OPERATING;
+                if (CollectionUtils.isNotEmpty(statusListMap.get(SimpleSourceStatus.DELETING))) {
+                    return SimpleGroupStatus.OPERATING;
                 } else {
-                    return groupState;
+                    return groupStatus;
                 }
             default:
-                return groupState;
+                return groupStatus;
         }
     }
 }

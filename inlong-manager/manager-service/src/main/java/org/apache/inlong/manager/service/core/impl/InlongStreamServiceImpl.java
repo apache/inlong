@@ -29,9 +29,9 @@ import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
@@ -474,11 +474,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             pageInfo.setStreamInfo(streamInfo);
 
             // Query stream sources information
-            List<SourceResponse> sourceList = sourceService.listSource(groupId, streamId);
+            List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
             pageInfo.setSourceInfo(sourceList);
 
             // Query various stream sinks and its extended information, field information
-            List<SinkResponse> sinkList = sinkService.listSink(groupId, streamId);
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
             pageInfo.setSinkInfo(sinkList);
 
             // Add a single result to the paginated list

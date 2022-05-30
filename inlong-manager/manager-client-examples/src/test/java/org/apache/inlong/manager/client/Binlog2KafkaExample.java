@@ -24,16 +24,14 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -139,17 +137,18 @@ public class Binlog2KafkaExample extends BaseExample {
     }
 
     private MySQLBinlogSource createMysqlSource() {
-        MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setDbNames(Collections.singletonList("{db.name}"));
-        mySQLBinlogSource.setHostname("{db.url}");
-        mySQLBinlogSource.setAuthentication(new DefaultAuthentication("root", "inlong"));
-        mySQLBinlogSource.setSourceName("{mysql.source.name}");
-        mySQLBinlogSource.setAllMigration(true);
-        return mySQLBinlogSource;
+        MySQLBinlogSource binlogSource = new MySQLBinlogSource();
+        binlogSource.setDatabaseWhiteList("{db.name}");
+        binlogSource.setHostname("{db.url}");
+        binlogSource.setUser("{user}");
+        binlogSource.setPassword("{password}");
+        binlogSource.setSourceName("{mysql.source.name}");
+        binlogSource.setAllMigration(true);
+        return binlogSource;
     }
 
-    private KafkaSinkRequest createKafkaSink() {
-        KafkaSinkRequest kafkaSink = new KafkaSinkRequest();
+    private KafkaSink createKafkaSink() {
+        KafkaSink kafkaSink = new KafkaSink();
         kafkaSink.setBootstrapServers("{kafka.bootstrap}");
         kafkaSink.setTopicName("{kafka.topic}");
         kafkaSink.setEnableCreateResource(0);

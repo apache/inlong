@@ -20,14 +20,14 @@ package org.apache.inlong.manager.client.cli.pojo;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 import java.util.List;
 
 /**
- * The config of group, including stream config, stream source, stream sink, etc.
+ * The config of group, including inlong stream, stream source, stream sink, etc.
  */
 @Data
 public class CreateGroupConf {
@@ -36,5 +36,6 @@ public class CreateGroupConf {
     private InlongStreamConf streamConf;
     private List<StreamField> streamFieldList;
     private StreamSource streamSource;
-    private SinkRequest sinkRequest;
+    private StreamSink streamSink;
+
 }

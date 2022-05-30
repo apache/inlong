@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -80,15 +80,15 @@ public class CreateSortConfigListener implements SortOperateListener {
             return ListenerResult.success();
         }
 
-        List<SinkResponse> sinkResponseList = streamSinkService.listSink(groupId, null);
-        if (CollectionUtils.isEmpty(sinkResponseList)) {
+        List<StreamSink> streamSinks = streamSinkService.listSink(groupId, null);
+        if (CollectionUtils.isEmpty(streamSinks)) {
             LOGGER.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
         }
 
         try {
             // TODO Support more than one sinks under a stream
-            Map<String, DataFlowInfo> dataFlowInfoMap = sinkResponseList.stream().map(sink -> {
+            Map<String, DataFlowInfo> dataFlowInfoMap = streamSinks.stream().map(sink -> {
                         DataFlowInfo flowInfo = dataFlowUtils.createDataFlow(groupInfo, sink);
                         return Pair.of(sink.getInlongStreamId(), flowInfo);
                     }
@@ -104,7 +104,7 @@ public class CreateSortConfigListener implements SortOperateListener {
             }
             upsertDataFlow(groupInfo, extInfo);
         } catch (Exception e) {
-            LOGGER.error("create sort config failed for sink list={} ", sinkResponseList, e);
+            LOGGER.error("create sort config failed for sink list={} ", streamSinks, e);
             throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
         return ListenerResult.success();

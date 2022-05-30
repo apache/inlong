@@ -24,10 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
@@ -123,8 +123,8 @@ public class InlongGroupImpl implements InlongGroup {
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = managerClient.getGroupInfo(groupId);
-        InlongGroupStatus status = InlongGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
-        AssertUtils.isTrue(status != InlongGroupStatus.INITIALIZING,
+        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
+        AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
                 "Inlong Group is in init status, should not be updated");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
@@ -144,8 +144,8 @@ public class InlongGroupImpl implements InlongGroup {
         final String groupId = this.groupInfo.getInlongGroupId();
         InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
 
-        InlongGroupStatus status = InlongGroupStatus.parseStatusByCode(groupInfo.getStatus());
-        AssertUtils.isTrue(status != InlongGroupStatus.INITIALIZING,
+        SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
+        AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
                 "Inlong Group is in init status, should not be updated");
 
         groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
@@ -184,7 +184,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtils.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupStatus.STOPPED, async);
+        managerClient.operateInlongGroup(groupId, SimpleGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
 
@@ -200,7 +200,7 @@ public class InlongGroupImpl implements InlongGroup {
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
         AssertUtils.isNull(errMsg, errMsg);
-        managerClient.operateInlongGroup(groupId, InlongGroupStatus.STARTED, async);
+        managerClient.operateInlongGroup(groupId, SimpleGroupStatus.STARTED, async);
         return generateSnapshot();
     }
 
