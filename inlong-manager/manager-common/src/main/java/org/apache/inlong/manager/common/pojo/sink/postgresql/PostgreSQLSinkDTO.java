@@ -24,8 +24,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -66,11 +68,16 @@ public class PostgreSQLSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) {
+
+    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception{
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+        }
         return PostgreSQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .dbName(request.getDbName())
                 .primaryKey(request.getPrimaryKey())
                 .tableName(request.getTableName())
@@ -87,7 +94,7 @@ public class PostgreSQLSinkDTO {
     public static PostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, PostgreSQLSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, PostgreSQLSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -103,6 +110,13 @@ public class PostgreSQLSinkDTO {
         tableInfo.setPrimaryKey(pgSink.getPrimaryKey());
         tableInfo.setColumns(columnList);
         return tableInfo;
+    }
+
+    private PostgreSQLSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+        }
+        return this;
     }
 
 }

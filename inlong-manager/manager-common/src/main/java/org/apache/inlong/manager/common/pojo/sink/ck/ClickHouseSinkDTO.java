@@ -24,8 +24,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -97,11 +100,15 @@ public class ClickHouseSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) {
+    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception{
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+        }
         return ClickHouseSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .flushInterval(request.getFlushInterval())
@@ -122,7 +129,7 @@ public class ClickHouseSinkDTO {
     public static ClickHouseSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ClickHouseSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ClickHouseSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -140,6 +147,13 @@ public class ClickHouseSinkDTO {
         tableInfo.setColumns(columnList);
 
         return tableInfo;
+    }
+
+    private ClickHouseSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+        }
+        return this;
     }
 
 }

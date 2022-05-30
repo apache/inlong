@@ -24,13 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
 
 import javax.validation.constraints.NotNull;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -93,11 +93,10 @@ public class HiveSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static HiveSinkDTO getFromRequest(HiveSinkRequest request) {
-        Base64 bas64 = new Base64();
-        String passwd = new String();
-        if (request.getPassword() != null) {
-            passwd = bas64.encodeToString(request.getPassword().getBytes(StandardCharsets.UTF_8));
+    public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
         }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -124,7 +123,7 @@ public class HiveSinkDTO {
     public static HiveSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class).decodePassword();
+            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -159,11 +158,9 @@ public class HiveSinkDTO {
         return tableInfo;
     }
 
-    private HiveSinkDTO decodePassword() {
-        if (this.password != null) {
-            Base64 base = new Base64();
-            String decodePassword = new String(base.decode(this.password), StandardCharsets.UTF_8);
-            this.password = decodePassword;
+    private HiveSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            this.password = EncryptUtil.decryptByConfigAsString(this.password);
         }
         return this;
     }

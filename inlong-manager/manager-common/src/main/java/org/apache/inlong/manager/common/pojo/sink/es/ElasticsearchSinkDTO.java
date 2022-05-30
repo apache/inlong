@@ -24,8 +24,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -83,11 +85,15 @@ public class ElasticsearchSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) {
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception{
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+        }
         return ElasticsearchSinkDTO.builder()
                 .host(request.getHost())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .indexName(request.getIndexName())
                 .flushInterval(request.getFlushInterval())
                 .flushRecord(request.getFlushRecord())
@@ -105,10 +111,22 @@ public class ElasticsearchSinkDTO {
     public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    public static String getElasticSearchIndexName(ElasticsearchSinkDTO esInfo,
+            List<ElasticsearchFieldInfo> fieldList) {
+        return esInfo.getIndexName();
+    }
+
+    private ElasticsearchSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+        }
+        return this;
     }
 
 }
