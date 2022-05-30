@@ -29,27 +29,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Inner join relationship class which defines the inner join relationship
+ * Right outer join relation class which defines the right outer join relation
  */
-@JsonTypeName("innerJoin")
+@JsonTypeName("rightOutJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class InnerJoinNodeRelationShip extends JoinRelationShip {
+public class RightOuterJoinNodeRelation extends JoinRelation {
 
-    private static final long serialVersionUID = -5446480979888656724L;
+    private static final long serialVersionUID = 9202862229428483437L;
 
     /**
-     * InnerJoinNodeRelationShip Constructor
+     * RightOuterJoinNodeRelation Constructor
      *
-     * @param inputs The inputs is a list of input node id
-     * @param outputs The outputs is a list of output node id
+     * @param inputs           The inputs is a list of input node id
+     * @param outputs          The outputs is a list of output node id
      * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
+     *                         the key of joinConditionMap is the node id of join node
+     *                         the value of joinConditionMap is a list of join contidition
      */
     @JsonCreator
-    public InnerJoinNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
+    public RightOuterJoinNodeRelation(
+            @JsonProperty("inputs") List<String> inputs,
             @JsonProperty("outputs") List<String> outputs,
             @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
@@ -57,6 +58,6 @@ public class InnerJoinNodeRelationShip extends JoinRelationShip {
 
     @Override
     public String format() {
-        return "INNER JOIN";
+        return "RIGHT OUTER JOIN";
     }
 }

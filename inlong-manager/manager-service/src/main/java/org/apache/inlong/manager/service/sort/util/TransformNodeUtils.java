@@ -63,7 +63,7 @@ public class TransformNodeUtils {
      * Create distinct node based on deDuplicationDefinition
      */
     public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
-            TransformResponse transformResponse) {
+                                                  TransformResponse transformResponse) {
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
         List<FieldInfo> distinctFields = streamFields.stream()
                 .map(FieldInfoUtils::parseStreamField)
@@ -87,7 +87,7 @@ public class TransformNodeUtils {
         return new DistinctNode(transformNode.getId(),
                 transformNode.getName(),
                 transformNode.getFields(),
-                transformNode.getFieldRelationShips(),
+                transformNode.getFieldRelations(),
                 transformNode.getFilters(),
                 transformNode.getFilterStrategy(),
                 distinctFields,
@@ -106,7 +106,7 @@ public class TransformNodeUtils {
         List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream()
                 .map(FieldInfoUtils::parseStreamField).collect(Collectors.toList());
         transformNode.setFields(fieldInfos);
-        transformNode.setFieldRelationShips(FieldRelationShipUtils.createFieldRelationShips(transformResponse));
+        transformNode.setFieldRelations(FieldRelationUtils.createFieldRelations(transformResponse));
         transformNode.setFilters(
                 FilterFunctionUtils.createFilterFunctions(transformResponse));
         transformNode.setFilterStrategy(FilterFunctionUtils.parseFilterStrategy(transformResponse));

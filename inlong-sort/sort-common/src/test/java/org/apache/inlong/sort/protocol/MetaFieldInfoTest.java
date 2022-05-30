@@ -15,19 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation.relation;
+package org.apache.inlong.sort.protocol;
 
 import org.apache.inlong.sort.SerializeBaseTest;
 
-import java.util.Arrays;
-
 /**
- * Tests for {@link NodeRelation}
+ * Test for {@link MetaFieldInfo}
  */
-public class NodeRelationTest extends SerializeBaseTest<NodeRelation> {
+public class MetaFieldInfoTest extends SerializeBaseTest<MetaFieldInfo> {
 
     @Override
-    public NodeRelation getTestObject() {
-        return new NodeRelation(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
+    public MetaFieldInfo getTestObject() {
+        return new MetaFieldInfo("f1", MetaFieldInfo.MetaField.DATABASE_NAME);
     }
 }

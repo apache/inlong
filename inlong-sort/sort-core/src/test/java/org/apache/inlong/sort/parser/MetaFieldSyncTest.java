@@ -42,8 +42,8 @@ import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -119,36 +119,36 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
                         new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
         );
-        List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("database", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("database", new TimestampFormatInfo()),
                                 new FieldInfo("database", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("table", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("table", new TimestampFormatInfo()),
                                 new FieldInfo("table", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("pk_names", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("pk_names", new TimestampFormatInfo()),
                                 new FieldInfo("pk_names", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("event_time", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("event_time", new TimestampFormatInfo()),
                                 new FieldInfo("event_time", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("event_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("event_type", new TimestampFormatInfo()),
                                 new FieldInfo("event_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("isddl", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("isddl", new TimestampFormatInfo()),
                                 new FieldInfo("isddl", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("batch_id", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("batch_id", new TimestampFormatInfo()),
                                 new FieldInfo("batch_id", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("mysql_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("mysql_type", new TimestampFormatInfo()),
                                 new FieldInfo("mysql_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("sql_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("sql_type", new TimestampFormatInfo()),
                                 new FieldInfo("sql_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("meta_ts", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("meta_ts", new TimestampFormatInfo()),
                                 new FieldInfo("meta_ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("up_before", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("up_before", new TimestampFormatInfo()),
                                 new FieldInfo("up_before", new TimestampFormatInfo()))
                 );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
@@ -219,36 +219,36 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
                         new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
         );
-        List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", new LongFormatInfo()),
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", new IntFormatInfo()),
+                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("ts", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("database", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("database", new TimestampFormatInfo()),
                                 new FieldInfo("database", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("table", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("table", new TimestampFormatInfo()),
                                 new FieldInfo("table", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("pk_names", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("pk_names", new TimestampFormatInfo()),
                                 new FieldInfo("pk_names", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("event_time", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("event_time", new TimestampFormatInfo()),
                                 new FieldInfo("event_time", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("event_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("event_type", new TimestampFormatInfo()),
                                 new FieldInfo("event_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("isddl", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("isddl", new TimestampFormatInfo()),
                                 new FieldInfo("isddl", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("batch_id", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("batch_id", new TimestampFormatInfo()),
                                 new FieldInfo("batch_id", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("mysql_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("mysql_type", new TimestampFormatInfo()),
                                 new FieldInfo("mysql_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("sql_type", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("sql_type", new TimestampFormatInfo()),
                                 new FieldInfo("sql_type", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("meta_ts", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("meta_ts", new TimestampFormatInfo()),
                                 new FieldInfo("meta_ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("up_before", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("up_before", new TimestampFormatInfo()),
                                 new FieldInfo("up_before", new TimestampFormatInfo()))
                 );
         return new KafkaLoadNode("4", "kafka_output2", fields, relations, null,
@@ -257,10 +257,10 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 null, "id");
     }
 
-    public NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
+    public NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
-        return new NodeRelationShip(inputIds, outputIds);
+        return new NodeRelation(inputIds, outputIds);
     }
 
     /**

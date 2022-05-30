@@ -21,7 +21,7 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Collections;
 
@@ -34,7 +34,7 @@ public class MySqlLoadNodeTest extends SerializeBaseTest<MySqlLoadNode> {
     public MySqlLoadNode getTestObject() {
         return new MySqlLoadNode("1", "mysql_output",
                 Collections.singletonList(new FieldInfo("name", new StringFormatInfo())),
-                Collections.singletonList(new FieldRelationShip(new FieldInfo("name",
+                Collections.singletonList(new FieldRelation(new FieldInfo("name",
                         new StringFormatInfo()), new FieldInfo("name", new StringFormatInfo()))),
                 null, null, 1, null,
                 "jdbc:mysql://localhost:3306/inlong",

@@ -42,7 +42,7 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.List;
 import java.util.Map;
@@ -97,7 +97,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fieldInfos = fieldList.stream()
                 .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
         Map<String, String> properties = kafkaSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         Integer sinkParallelism = null;
@@ -154,7 +154,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
         Map<String, String> properties = hiveSinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         List<FieldInfo> partitionFields = Lists.newArrayList();
@@ -193,7 +193,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
         Map<String, String> properties = sinkResponse.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new HbaseLoadNode(
@@ -225,7 +225,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
         return new PostgresLoadNode(postgresSinkResponse.getSinkName(),
                 postgresSinkResponse.getSinkName(),
                 fields, fieldRelationships, null, null, 1,
@@ -245,7 +245,7 @@ public class LoadNodeUtils {
                 .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
                         name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
         return new ClickHouseLoadNode(clickHouseSinkResponse.getSinkName(),
                 clickHouseSinkResponse.getSinkName(),
                 fields, fieldRelationShips, null, null, 1,
@@ -258,7 +258,7 @@ public class LoadNodeUtils {
     /**
      * Parse information field of data sink.
      */
-    public static List<FieldRelationShip> parseSinkFields(List<SinkField> fieldList, String sinkName) {
+    public static List<FieldRelation> parseSinkFields(List<SinkField> fieldList, String sinkName) {
         if (CollectionUtils.isEmpty(fieldList)) {
             return Lists.newArrayList();
         }
@@ -274,7 +274,7 @@ public class LoadNodeUtils {
                     String sourceFieldType = field.getSourceFieldType();
                     FieldInfo sourceField = new FieldInfo(sourceFieldName, sinkName,
                             FieldInfoUtils.convertFieldFormat(sourceFieldType));
-                    return new FieldRelationShip(sourceField, sinkField);
+                    return new FieldRelation(sourceField, sinkField);
                 }).collect(Collectors.toList());
     }
 }

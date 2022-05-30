@@ -34,8 +34,8 @@ import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,12 +70,12 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo())
         );
-        List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("ID", new LongFormatInfo()),
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("NAME", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("NAME", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("AGE", new IntFormatInfo()),
+                        new FieldRelation(new FieldInfo("AGE", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo()))
                 );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
@@ -91,10 +91,10 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
      * @param outputs load node
      * @return node relation
      */
-    private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
+    private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
-        return new NodeRelationShip(inputIds, outputIds);
+        return new NodeRelation(inputIds, outputIds);
     }
 
     /**

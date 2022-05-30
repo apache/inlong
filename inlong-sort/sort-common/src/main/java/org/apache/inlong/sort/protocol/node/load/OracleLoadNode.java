@@ -27,7 +27,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.io.Serializable;
@@ -61,7 +61,7 @@ public class OracleLoadNode extends LoadNode implements Serializable {
             @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
@@ -71,7 +71,7 @@ public class OracleLoadNode extends LoadNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("tableName") String tableName,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");

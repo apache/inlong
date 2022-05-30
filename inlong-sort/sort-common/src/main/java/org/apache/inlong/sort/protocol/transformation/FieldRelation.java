@@ -27,17 +27,16 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 
 
 /**
- * defines the relationship between fields
- * from input to output field
+ * Defines the relation between fields from input to output field
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
-@JsonTypeName("fieldRelationShip")
+@JsonTypeName("fieldRelation")
 @Data
 @NoArgsConstructor
-public class FieldRelationShip {
+public class FieldRelation {
 
     @JsonProperty("inputField")
     private FunctionParam inputField;
@@ -45,8 +44,8 @@ public class FieldRelationShip {
     private FieldInfo outputField;
 
     @JsonCreator
-    public FieldRelationShip(@JsonProperty("inputField") FunctionParam inputField,
-            @JsonProperty("outputField") FieldInfo outputField) {
+    public FieldRelation(@JsonProperty("inputField") FunctionParam inputField,
+                         @JsonProperty("outputField") FieldInfo outputField) {
         this.inputField = inputField;
         this.outputField = outputField;
     }

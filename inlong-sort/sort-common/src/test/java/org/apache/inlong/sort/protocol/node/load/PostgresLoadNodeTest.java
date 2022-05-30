@@ -21,7 +21,7 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
 
@@ -39,7 +39,7 @@ public class PostgresLoadNodeTest extends SerializeBaseTest<PostgresLoadNode> {
     public PostgresLoadNode getTestObject() {
         return new PostgresLoadNode("1", "postgres_output", Arrays.asList(new FieldInfo("name",
                 new StringFormatInfo())),
-                Arrays.asList(new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                Arrays.asList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo()))), null, null, 1, null,
                 "jdbc:postgresql://localhost:5432/postgres",
                 "postgres",

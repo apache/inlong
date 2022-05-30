@@ -19,44 +19,33 @@ package org.apache.inlong.sort.protocol.transformation.relation;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
-import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Full outer join relationship class which defines the full outer join relationship
+ * Union relation class which defines the union relation
  */
-@JsonTypeName("fullOuterJoin")
+@JsonTypeName("union")
 @EqualsAndHashCode(callSuper = true)
 @Data
-@NoArgsConstructor
-public class FullOuterJoinRelationShip extends JoinRelationShip {
+public class UnionNodeRelation extends NodeRelation {
 
-    private static final long serialVersionUID = -2551119250767202829L;
+    private static final long serialVersionUID = 6602357131254518291L;
 
     /**
-     * FullOuterJoinRelationShip Constructor
+     * UnionNodeRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
-     * @param joinConditionMap The joinConditionMap is a map of join conditions
-     *         the key of joinConditionMap is the node id of join node
-     *         the value of joinConditionMap is a list of join contidition
      */
-    @JsonCreator
-    public FullOuterJoinRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs,
-            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
-        super(inputs, outputs, joinConditionMap);
+    public UnionNodeRelation(@JsonProperty("inputs") List<String> inputs,
+                             @JsonProperty("outputs") List<String> outputs) {
+        super(inputs, outputs);
     }
 
-    @Override
     public String format() {
-        return "FULL OUTER JOIN";
+        return "UNION ALL";
     }
 }
