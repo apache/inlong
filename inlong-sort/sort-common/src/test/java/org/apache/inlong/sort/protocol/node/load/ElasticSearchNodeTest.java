@@ -22,7 +22,7 @@ import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 /**
  * test for elasticserach load node
@@ -34,7 +34,7 @@ public class ElasticSearchNodeTest extends SerializeBaseTest<Node>  {
             "1", "test",
             Collections.singletonList(new FieldInfo("id", new StringFormatInfo())),
             Collections.singletonList(
-                new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
+                new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
                     new FieldInfo("id", new StringFormatInfo()))),
             null, null, 1, null,
             "index", "hosts", "username",

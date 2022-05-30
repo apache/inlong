@@ -32,14 +32,14 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 /**
  * elasticSearch load node
  */
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("ElasticsearchLoadNode")
+@JsonTypeName("elasticsearchLoadNode")
 @Data
 @NoArgsConstructor
 public class ElasticsearchLoadNode extends LoadNode implements Serializable {
@@ -69,7 +69,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
         @JsonProperty("name") String name,
         @JsonProperty("fields") List<FieldInfo> fields,
-        @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+        @JsonProperty("fieldRelationShips") List<FieldRelation> fieldRelationShips,
         @JsonProperty("filters") List<FilterFunction> filters,
         @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
         @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
