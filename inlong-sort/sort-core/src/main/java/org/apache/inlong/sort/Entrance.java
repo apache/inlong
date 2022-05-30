@@ -18,21 +18,27 @@
 package org.apache.inlong.sort;
 
 import com.google.common.base.Preconditions;
+import com.google.common.io.Files;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.inlong.sort.configuration.Configuration;
 import org.apache.inlong.sort.configuration.Constants;
+import org.apache.inlong.sort.parser.Parser;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
+import org.apache.inlong.sort.parser.impl.NativeFlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.util.ParameterTool;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Entrance {
+
     public static void main(String[] args) throws Exception {
         final ParameterTool parameterTool = ParameterTool.fromArgs(args);
         final Configuration config = parameterTool.getConfiguration();
@@ -46,11 +52,22 @@ public class Entrance {
         EnvironmentSettings settings = EnvironmentSettings.newInstance().useBlinkPlanner()
                 .inStreamingMode().build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
-        final FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        String sqlFile = config.getString(Constants.SQL_SCRIPT_FILE);
+        Parser parser;
+        if (StringUtils.isEmpty(sqlFile)) {
+            final GroupInfo groupInfo = getGroupInfoFromFile(config.getString(Constants.GROUP_INFO_FILE));
+            parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        } else {
+            String statements = getStatementSetFromFile(sqlFile);
+            parser = NativeFlinkSqlParser.getInstance(tableEnv, statements);
+        }
         final ParseResult parseResult = Preconditions.checkNotNull(parser.parse(),
                 "parse result is null");
         parseResult.execute();
+    }
+
+    private static String getStatementSetFromFile(String fileName) throws IOException {
+        return Files.toString(new File(fileName), StandardCharsets.UTF_8);
     }
 
     private static GroupInfo getGroupInfoFromFile(String fileName) throws IOException {
