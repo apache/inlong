@@ -79,6 +79,7 @@
                                     <include>org.apache.flink:flink-connector-jdbc_${flink.scala.binary.version}</include>
                                     <include>org.postgresql:postgresql</include>
                                     <include>ru.yandex.clickhouse:clickhouse-jdbc</include>
+                                    <include>com.oracle.database.jdbc:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
