@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.sink.iceberg;
 
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.FileFormat;
 
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class IcebergTableInfo {
     private String dbName;
     private String tableName;
     private String tableDesc;
-    private String fileFormat;
+    private FileFormat fileFormat;
     private Map<String, Object> tblProperties;
     private List<IcebergColumnInfo> columns;
 }
