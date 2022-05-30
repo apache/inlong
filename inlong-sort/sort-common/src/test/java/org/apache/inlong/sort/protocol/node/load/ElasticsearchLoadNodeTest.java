@@ -21,21 +21,31 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
 
 /**
- * Test for {@link HbaseLoadNode}
+ * Test for {@link ElasticsearchLoadNode}
  */
-public class HbaseLoadNodeTest extends SerializeBaseTest<HbaseLoadNode> {
+public class ElasticsearchLoadNodeTest extends SerializeBaseTest<ElasticsearchLoadNode> {
 
     @Override
-    public HbaseLoadNode getTestObject() {
-        return new HbaseLoadNode("2", "test_hbase",
-                Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
-                        new FieldInfo("cf:id", new StringFormatInfo()))), null, null, 1, null, "mytable", "default",
-                "localhost:2181", "MD5(`id`)", null, null, null, null);
+    public ElasticsearchLoadNode getTestObject() {
+        return new ElasticsearchLoadNode("1", "test_elasticsearch",
+                Arrays.asList(new FieldInfo("id", new StringFormatInfo())),
+                Arrays.asList(new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
+                        new FieldInfo("id", new StringFormatInfo()))),
+                null,
+                null,
+                1,
+                null,
+                "localhost",
+                9200,
+                "root",
+                "root",
+                "index_demo",
+                10,
+                1000);
     }
 }
