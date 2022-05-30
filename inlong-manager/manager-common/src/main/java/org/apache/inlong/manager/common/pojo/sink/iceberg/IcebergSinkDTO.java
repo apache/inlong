@@ -25,7 +25,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
@@ -59,7 +58,7 @@ public class IcebergSinkDTO {
     private String dataPath;
 
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
-    private FileFormat fileFormat;
+    private String fileFormat;
 
     @ApiModelProperty("Properties for iceberg")
     private Map<String, Object> properties;
@@ -74,7 +73,7 @@ public class IcebergSinkDTO {
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
-                .fileFormat(FileFormat.forName(request.getFileFormat()))
+                .fileFormat(request.getFileFormat())
                 .properties(request.getProperties())
                 .build();
     }

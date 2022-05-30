@@ -21,18 +21,19 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 
 import java.util.Arrays;
 
 /**
- * Test for {@link ElasticsearchLoadNode}
+ * Test for {@link IcebergLoadNode}
  */
-public class ElasticsearchLoadNodeTest extends SerializeBaseTest<ElasticsearchLoadNode> {
+public class IcebergLoadNodeTest extends SerializeBaseTest<IcebergLoadNode> {
 
     @Override
-    public ElasticsearchLoadNode getTestObject() {
-        return new ElasticsearchLoadNode("1", "test_elasticsearch",
+    public IcebergLoadNode getTestObject() {
+        return new IcebergLoadNode("1", "test_iceberg",
                 Arrays.asList(new FieldInfo("id", new StringFormatInfo())),
                 Arrays.asList(new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
                         new FieldInfo("id", new StringFormatInfo()))),
@@ -40,12 +41,11 @@ public class ElasticsearchLoadNodeTest extends SerializeBaseTest<ElasticsearchLo
                 null,
                 1,
                 null,
-                "localhost",
-                9200,
-                "root",
-                "root",
-                "index_demo",
-                10,
-                1000);
+                "test_db",
+                "test_table",
+                "id",
+                CatalogType.HIVE,
+                "thrift://localhost:9083",
+                "hdfs://localhost:9000/user/iceberg/warehouse");
     }
 }
