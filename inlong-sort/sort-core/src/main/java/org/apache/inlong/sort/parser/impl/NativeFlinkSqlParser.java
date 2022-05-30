@@ -81,7 +81,8 @@ public class NativeFlinkSqlParser implements Parser {
         String[] statementSet = statements.split(";");
         for (String statement : statementSet) {
             statement = statement.trim();
-            if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE")) {
+            if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE") || statement.toUpperCase(Locale.ROOT)
+                    .startsWith("CREATE VIEW")) {
                 createTableSqls.add(statement);
             } else if (statement.toUpperCase(Locale.ROOT).startsWith("INSERT INTO")) {
                 insertSqls.add(statement);
