@@ -39,7 +39,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 public class OracleSource extends StreamSource {
 
     @ApiModelProperty(value = "DataSource type", required = true)
-    private SourceType sourceType = SourceType.BINLOG;
+    private SourceType sourceType = SourceType.ORACLE;
 
     @ApiModelProperty("SyncType for oracle")
     private SyncType syncType;
