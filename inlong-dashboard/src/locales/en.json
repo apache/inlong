@@ -59,6 +59,7 @@
   "components.AccessHelper.StorageMetaData.Hive.ConnectionFailed": "Connection failed",
   "components.AccessHelper.StorageMetaData.Hive.DataPath": "DataPath",
   "components.AccessHelper.StorageMetaData.Hive.ConfDir": "ConfDir",
+  "components.AccessHelper.StorageMetaData.Hive.ConfDirHelp": "Upload the hive-site.xml file of the Hive cluster to this path on HDFS",
   "components.AccessHelper.StorageMetaData.DataPathHelp": "Storage path of the DB, excluding the table name, such as: hdfs://127.0.0.1:9000/warehouse/inlong.db",
   "components.AccessHelper.StorageMetaData.Hive.FieldName": "FieldName",
   "components.AccessHelper.StorageMetaData.Hive.FieldType": "FieldType",
