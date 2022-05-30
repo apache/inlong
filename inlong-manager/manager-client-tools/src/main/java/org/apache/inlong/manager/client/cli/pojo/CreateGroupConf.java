@@ -20,9 +20,9 @@ package org.apache.inlong.manager.client.cli.pojo;
 import lombok.Data;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.util.List;
 
@@ -36,5 +36,5 @@ public class CreateGroupConf {
     private InlongStreamConf streamConf;
     private List<StreamField> streamFieldList;
     private StreamSource streamSource;
-    private StreamSink streamSink;
+    private SinkRequest sinkRequest;
 }

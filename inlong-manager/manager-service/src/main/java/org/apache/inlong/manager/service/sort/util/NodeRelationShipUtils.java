@@ -23,12 +23,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.shaded.com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.TransformType;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
@@ -56,11 +56,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Util for creat node relation ship.
+ * Util for creat node relationship.
  */
 @Slf4j
 public class NodeRelationShipUtils {
 
+    /**
+     * Create node relationship for the given stream
+     */
     public static List<NodeRelationShip> createNodeRelationShipsForStream(InlongStreamInfo streamInfo) {
         String tempView = streamInfo.getExtParams();
         if (StringUtils.isEmpty(tempView)) {
@@ -70,15 +73,14 @@ public class NodeRelationShipUtils {
         StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getExtParams(),
                 streamInfo.getInlongStreamId());
         return pipeline.getPipeline().stream()
-                .map(streamNodeRelationShip -> new NodeRelationShip(
-                        Lists.newArrayList(streamNodeRelationShip.getInputNodes()),
-                        Lists.newArrayList(streamNodeRelationShip.getOutputNodes())))
+                .map(nodeRelationship -> new NodeRelationShip(
+                        Lists.newArrayList(nodeRelationship.getInputNodes()),
+                        Lists.newArrayList(nodeRelationship.getOutputNodes())))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Optimize relationship of node.
-     * JoinerRelationship must be rebuild.
+     * Optimize relationship of node, JoinerRelationship must be rebuilt.
      */
     public static void optimizeNodeRelationShips(StreamInfo streamInfo, List<TransformResponse> transformResponses) {
         if (CollectionUtils.isEmpty(transformResponses)) {
@@ -97,29 +99,28 @@ public class NodeRelationShipUtils {
                     TransformDefinition transformDefinition = transformTypeMap.get(transformNode.getName());
                     return transformDefinition.getTransformType() == TransformType.JOINER;
                 }).collect(Collectors.toMap(TransformNode::getName, transformNode -> transformNode));
-        List<NodeRelationShip> relationShips = streamInfo.getRelations();
-        Iterator<NodeRelationShip> shipIterator = relationShips.listIterator();
-        List<NodeRelationShip> joinRelationShips = Lists.newArrayList();
+
+        List<NodeRelationShip> relationships = streamInfo.getRelations();
+        Iterator<NodeRelationShip> shipIterator = relationships.listIterator();
+        List<NodeRelationShip> joinRelationships = Lists.newArrayList();
         while (shipIterator.hasNext()) {
-            NodeRelationShip relationShip = shipIterator.next();
-            List<String> outputs = relationShip.getOutputs();
+            NodeRelationShip relationship = shipIterator.next();
+            List<String> outputs = relationship.getOutputs();
             if (outputs.size() == 1) {
                 String nodeName = outputs.get(0);
                 if (joinNodes.get(nodeName) != null) {
                     TransformDefinition transformDefinition = transformTypeMap.get(nodeName);
                     TransformNode transformNode = joinNodes.get(nodeName);
-                    joinRelationShips.add(createNodeRelationShip((JoinerDefinition) transformDefinition,
-                            relationShip,
-                            transformNode.getId()));
+                    joinRelationships.add(createNodeRelationShip((JoinerDefinition) transformDefinition, relationship));
                     shipIterator.remove();
                 }
             }
         }
-        relationShips.addAll(joinRelationShips);
+        relationships.addAll(joinRelationships);
     }
 
     private static NodeRelationShip createNodeRelationShip(JoinerDefinition joinerDefinition,
-            NodeRelationShip nodeRelationShip, String nodeId) {
+            NodeRelationShip nodeRelationship) {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
@@ -130,27 +131,23 @@ public class NodeRelationShipUtils {
         for (int index = 0; index < leftJoinFields.size(); index++) {
             StreamField leftField = leftJoinFields.get(index);
             StreamField rightField = rightJoinFields.get(index);
-            LogicOperator operator = null;
+            LogicOperator operator;
             if (index != leftJoinFields.size() - 1) {
                 operator = AndOperator.getInstance();
             } else {
                 operator = EmptyOperator.getInstance();
             }
-            filterFunctions.add(
-                    createFilterFunction(leftField, rightField, operator));
+            filterFunctions.add(createFilterFunction(leftField, rightField, operator));
         }
         Map<String, List<FilterFunction>> joinConditions = Maps.newHashMap();
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
-                return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
-                        joinConditions);
+                return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
             case INNER_JOIN:
-                return new InnerJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
-                        joinConditions);
+                return new InnerJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
             case RIGHT_JOIN:
-                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationShip.getOutputs(),
-                        joinConditions);
+                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
         }
@@ -159,9 +156,9 @@ public class NodeRelationShipUtils {
     private static SingleValueFilterFunction createFilterFunction(StreamField leftField, StreamField rightField,
             LogicOperator operator) {
         FieldInfo sourceField = new FieldInfo(leftField.getOriginFieldName(), leftField.getOriginNodeName(),
-                FieldInfoUtils.convertFieldFormat(leftField.getFieldType().name(), leftField.getFieldFormat()));
+                FieldInfoUtils.convertFieldFormat(leftField.getFieldType(), leftField.getFieldFormat()));
         FieldInfo targetField = new FieldInfo(rightField.getOriginFieldName(), rightField.getOriginNodeName(),
-                FieldInfoUtils.convertFieldFormat(rightField.getFieldType().name(), rightField.getFieldFormat()));
+                FieldInfoUtils.convertFieldFormat(rightField.getFieldType(), rightField.getFieldFormat()));
         return new SingleValueFilterFunction(operator, sourceField, EqualOperator.getInstance(), targetField);
     }
 

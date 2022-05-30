@@ -21,18 +21,35 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 /**
- * Sink field response
+ * Sink field info.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Sink field response")
-public class SinkFieldResponse extends SinkFieldBase {
+@ApiModel("Sink field configuration")
+public class SinkField extends StreamField {
 
-    private Integer id;
+    @ApiModelProperty("Source field name")
+    private String sourceFieldName;
 
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
-    private Integer isMetaField;
+    @ApiModelProperty("Source field type")
+    private String sourceFieldType;
 
+    public SinkField() {
+
+    }
+
+    public SinkField(int index, String fieldType, String fieldName, String sourceFieldType, String sourceFieldName) {
+        this(index, fieldType, fieldName, null, null, sourceFieldName, sourceFieldType, 0, null);
+    }
+
+    public SinkField(int index, String fieldType, String fieldName, String fieldComment,
+            String fieldValue, String sourceFieldName, String sourceFieldType,
+            Integer isMetaField, String fieldFormat) {
+        super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
+        this.sourceFieldName = sourceFieldName;
+        this.sourceFieldType = sourceFieldType;
+    }
 }

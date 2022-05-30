@@ -66,7 +66,7 @@ public class InnerGroupContext {
         if (MapUtils.isEmpty(streamMap)) {
             streamMap = Maps.newHashMap();
         }
-        streamMap.put(stream.getStreamId(), stream);
+        streamMap.put(stream.getInlongStreamId(), stream);
     }
 
     public InlongStream getStream(String streamId) {

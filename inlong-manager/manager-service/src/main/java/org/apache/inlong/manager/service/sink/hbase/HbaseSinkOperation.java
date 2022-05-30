@@ -27,8 +27,7 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
@@ -105,7 +104,7 @@ public class HbaseSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkFieldRequest> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getFieldList();
         LOGGER.info("begin to save hbase field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -116,7 +115,7 @@ public class HbaseSinkOperation implements StreamSinkOperation {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
-        for (SinkFieldRequest fieldInfo : fieldList) {
+        for (SinkField fieldInfo : fieldList) {
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -142,8 +141,8 @@ public class HbaseSinkOperation implements StreamSinkOperation {
 
         SinkResponse response = this.getFromEntity(entity, HbaseSinkResponse::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkFieldResponse::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkField::new);
         response.setFieldList(infos);
 
         return response;
@@ -207,7 +206,7 @@ public class HbaseSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkFieldRequest> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }

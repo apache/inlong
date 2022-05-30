@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 
 import java.util.List;
@@ -37,12 +37,12 @@ public abstract class InlongStreamBuilder {
     public abstract InlongStreamBuilder source(StreamSource source);
 
     /**
-     * create sink in stream.
+     * create sinkRequest in stream.
      * *
      *
      * @return inlong stream builder
      */
-    public abstract InlongStreamBuilder sink(StreamSink sink);
+    public abstract InlongStreamBuilder sink(SinkRequest sinkRequest);
 
     /**
      * Create or update stream fields.

@@ -36,13 +36,13 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -144,7 +144,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
 
         InlongStreamInfo streamInfo = CommonBeanUtils.copyProperties(streamEntity, InlongStreamInfo::new);
-        List<InlongStreamFieldInfo> streamFields = getStreamFields(groupId, streamId);
+        List<StreamField> streamFields = getStreamFields(groupId, streamId);
         streamInfo.setFieldList(streamFields);
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
         List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
@@ -159,9 +159,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamEntity> inlongStreamEntityList = streamMapper.selectByGroupId(groupId);
         List<InlongStreamInfo> streamList = CommonBeanUtils.copyListProperties(inlongStreamEntityList,
                 InlongStreamInfo::new);
-        List<InlongStreamFieldInfo> streamFields = getStreamFields(groupId, null);
-        Map<String, List<InlongStreamFieldInfo>> streamFieldMap = streamFields.stream().collect(
-                Collectors.groupingBy(InlongStreamFieldInfo::getInlongStreamId,
+        List<StreamField> streamFields = getStreamFields(groupId, null);
+        Map<String, List<StreamField>> streamFieldMap = streamFields.stream().collect(
+                Collectors.groupingBy(StreamField::getInlongStreamId,
                         HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, null);
@@ -172,7 +172,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                         Collectors.toCollection(ArrayList::new)));
         streamList.stream().forEach(streamInfo -> {
             String streamId = streamInfo.getInlongStreamId();
-            List<InlongStreamFieldInfo> fieldInfos = streamFieldMap.get(streamId);
+            List<StreamField> fieldInfos = streamFieldMap.get(streamId);
             streamInfo.setFieldList(fieldInfos);
             List<InlongStreamExtInfo> extInfos = extInfoMap.get(streamId);
             streamInfo.setExtList(extInfos);
@@ -191,12 +191,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     /**
      * Query and set the extended information and data source fields of the inlong stream
      */
-    private List<InlongStreamFieldInfo> getStreamFields(String groupId, String streamId) {
+    private List<StreamField> getStreamFields(String groupId, String streamId) {
         List<InlongStreamFieldEntity> fieldEntityList = streamFieldMapper.selectByIdentifier(groupId, streamId);
         if (CollectionUtils.isEmpty(fieldEntityList)) {
             return Collections.emptyList();
         }
-        return CommonBeanUtils.copyListProperties(fieldEntityList, InlongStreamFieldInfo::new);
+        return CommonBeanUtils.copyListProperties(fieldEntityList, StreamField::new);
     }
 
     @Override
@@ -464,7 +464,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamInfo streamInfo : streamInfoList) {
             // Set the field information of the inlong stream
             String streamId = streamInfo.getInlongStreamId();
-            List<InlongStreamFieldInfo> streamFields = getStreamFields(groupId, streamId);
+            List<StreamField> streamFields = getStreamFields(groupId, streamId);
             streamInfo.setFieldList(streamFields);
             List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
                     streamExtMapper.selectByRelatedId(groupId, streamId), InlongStreamExtInfo::new);
@@ -590,7 +590,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * <p/>First physically delete the existing field information, and then add the field information of this batch
      */
     @Transactional(rollbackFor = Throwable.class)
-    void updateField(String groupId, String streamId, List<InlongStreamFieldInfo> fieldList) {
+    void updateField(String groupId, String streamId, List<StreamField> fieldList) {
         LOGGER.debug("begin to update inlong stream field, groupId={}, streamId={}, field={}", groupId, streamId,
                 fieldList);
         try {
@@ -604,7 +604,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Transactional(rollbackFor = Throwable.class)
-    void saveField(String groupId, String streamId, List<InlongStreamFieldInfo> infoList) {
+    void saveField(String groupId, String streamId, List<StreamField> infoList) {
         if (CollectionUtils.isEmpty(infoList)) {
             return;
         }

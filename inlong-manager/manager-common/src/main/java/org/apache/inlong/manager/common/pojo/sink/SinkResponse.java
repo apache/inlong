@@ -75,7 +75,7 @@ public class SinkResponse {
     @ApiModelProperty("Status")
     private Integer status;
 
-    @ApiModelProperty("Previous State")
+    @ApiModelProperty("Previous Status")
     private Integer previousStatus;
 
     @ApiModelProperty("Creator")
@@ -91,7 +91,7 @@ public class SinkResponse {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkFieldResponse> fieldList;
+    private List<SinkField> fieldList;
 
     @ApiModelProperty("Properties for sink")
     private Map<String, Object> properties;

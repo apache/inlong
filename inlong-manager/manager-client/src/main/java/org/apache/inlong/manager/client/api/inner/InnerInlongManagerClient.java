@@ -810,8 +810,7 @@ public class InnerInlongManagerClient {
                     String.format("Inlong request failed: %s", responseBody.getErrMsg()));
             return responseBody.getData();
         } catch (Exception e) {
-            throw new RuntimeException(String.format("Inlong group init failed: %s", e.getMessage()),
-                    e);
+            throw new RuntimeException(String.format("Inlong group init failed: %s", e.getMessage()), e);
         }
     }
 

@@ -34,29 +34,29 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @ApiModel(value = "Response of the Hbase sink")
 public class HbaseSinkResponse extends SinkResponse {
 
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
     @ApiModelProperty("Namespace")
     private String namespace;
+
+    @ApiModelProperty("Target table name")
+    private String tableName;
 
     @ApiModelProperty("Row key")
     private String rowKey;
 
-    @ApiModelProperty("Zookeeper quorm")
-    private String zookeeperQuorum;
+    @ApiModelProperty("ZooKeeper quorum")
+    private String zkQuorum;
+
+    @ApiModelProperty("ZooKeeper node parent")
+    private String zkNodeParent;
 
     @ApiModelProperty("Sink buffer flush maxsize")
-    private String sinkBufferFlushMaxSize;
-
-    @ApiModelProperty("Zookeeper znode parent")
-    private String zookeeperZnodeParent;
+    private String bufferFlushMaxSize;
 
     @ApiModelProperty("Sink buffer flush max rows")
-    private String sinkBufferFlushMaxRows;
+    private String bufferFlushMaxRows;
 
     @ApiModelProperty("Sink buffer flush interval")
-    private String sinkBufferFlushInterval;
+    private String bufferFlushInterval;
 
     public HbaseSinkResponse() {
         this.sinkType = SinkType.SINK_HBASE;

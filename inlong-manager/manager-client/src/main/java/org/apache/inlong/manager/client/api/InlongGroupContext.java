@@ -28,8 +28,8 @@ import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.StreamSource.Status;
 import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.io.Serializable;
@@ -107,7 +107,7 @@ public class InlongGroupContext implements Serializable {
                     StreamSource source = entry.getValue();
                     if (source != null) {
                         sourcesInGroup.add(source);
-                        if (source.getState() == State.FAILED) {
+                        if (source.getStatus() == Status.FAILED) {
                             failedSources.add(source);
                         }
                     }
@@ -127,7 +127,7 @@ public class InlongGroupContext implements Serializable {
         switch (this.status) {
             case STARTED:
                 for (StreamSource source : sourcesInGroup) {
-                    if (source.getState() != State.NORMAL) {
+                    if (source.getStatus() != Status.NORMAL) {
                         log.warn("StreamSource:{} is not started", source);
                         this.status = InlongGroupStatus.INITIALIZING;
                         break;
@@ -136,7 +136,7 @@ public class InlongGroupContext implements Serializable {
                 return;
             case STOPPED:
                 for (StreamSource source : sourcesInGroup) {
-                    if (source.getState() != State.FROZEN) {
+                    if (source.getStatus() != Status.FROZEN) {
                         log.warn("StreamSource:{} is not stopped", source);
                         this.status = InlongGroupStatus.OPERATING;
                         break;

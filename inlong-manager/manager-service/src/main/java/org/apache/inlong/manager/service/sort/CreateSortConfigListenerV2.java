@@ -107,7 +107,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         String groupId = groupInfo.getInlongGroupId();
         List<SinkResponse> sinkResponses = sinkService.listSink(groupId, null);
         Map<String, List<SinkResponse>> sinkResponseMap = sinkResponses.stream()
-                .collect(Collectors.groupingBy(sinkResponse -> sinkResponse.getInlongStreamId(), HashMap::new,
+                .collect(Collectors.groupingBy(SinkResponse::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
         Map<String, List<SourceResponse>> sourceResponseMap = createPulsarSources(groupInfo, streamInfoList);
         List<StreamInfo> streamInfos = streamInfoList.stream()
@@ -115,7 +115,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
                         createNodesForStream(
                                 sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
                                 sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())),
-                        createNodeRelationShipsForStream(
+                        createNodeRelationshipsForStream(
                                 sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
                                 sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())))
                 ).collect(Collectors.toList());
@@ -126,13 +126,13 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             List<InlongStreamInfo> streamInfoList) {
         MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported MqType={} for Inlong", mqType);
+            String errMsg = String.format("Unsupported MqType={%s} for Inlong", mqType);
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
-        Map<String, List<SourceResponse>> sourceReponses = Maps.newHashMap();
+        Map<String, List<SourceResponse>> sourceResponseMap = Maps.newHashMap();
         PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        streamInfoList.stream().forEach(streamInfo -> {
+        streamInfoList.forEach(streamInfo -> {
             PulsarSourceResponse pulsarSourceResponse = new PulsarSourceResponse();
             pulsarSourceResponse.setSourceName(streamInfo.getInlongStreamId());
             pulsarSourceResponse.setNamespace(groupInfo.getMqResource());
@@ -153,10 +153,10 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             }
             pulsarSourceResponse.setScanStartupMode("earliest");
             pulsarSourceResponse.setFieldList(streamInfo.getFieldList());
-            sourceReponses.computeIfAbsent(streamInfo.getInlongStreamId(), key -> Lists.newArrayList())
+            sourceResponseMap.computeIfAbsent(streamInfo.getInlongStreamId(), key -> Lists.newArrayList())
                     .add(pulsarSourceResponse);
         });
-        return sourceReponses;
+        return sourceResponseMap;
     }
 
     private List<Node> createNodesForStream(
@@ -168,17 +168,17 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationShipsForStream(
+    private List<NodeRelationShip> createNodeRelationshipsForStream(
             List<SourceResponse> sourceResponses,
             List<SinkResponse> sinkResponses) {
-        NodeRelationShip relationShip = new NodeRelationShip();
-        List<String> inputs = sourceResponses.stream().map(sourceResponse -> sourceResponse.getSourceName())
+        NodeRelationShip relationship = new NodeRelationShip();
+        List<String> inputs = sourceResponses.stream().map(SourceResponse::getSourceName)
                 .collect(Collectors.toList());
-        List<String> outputs = sinkResponses.stream().map(sinkResponse -> sinkResponse.getSinkName())
+        List<String> outputs = sinkResponses.stream().map(SinkResponse::getSinkName)
                 .collect(Collectors.toList());
-        relationShip.setInputs(inputs);
-        relationShip.setOutputs(outputs);
-        return Lists.newArrayList(relationShip);
+        relationship.setInputs(inputs);
+        relationship.setOutputs(outputs);
+        return Lists.newArrayList(relationship);
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {

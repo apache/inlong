@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Util for creat field relation ship.
+ * Util for creat field relationship.
  */
 public class FieldRelationShipUtils {
 
@@ -86,7 +86,7 @@ public class FieldRelationShipUtils {
      */
     private static List<FieldRelationShip> createFieldRelationShips(List<StreamField> fieldList, String transformName) {
         return fieldList.stream()
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamField(streamFieldInfo))
+                .map(FieldInfoUtils::parseStreamField)
                 .map(fieldInfo -> {
                     FieldInfo inputField = new FieldInfo(fieldInfo.getName(), fieldInfo.getNodeId(),
                             fieldInfo.getFormatInfo());
@@ -102,13 +102,12 @@ public class FieldRelationShipUtils {
     private static List<FieldRelationShip> createJoinerFieldRelationShips(List<StreamField> fieldList,
             String transformName) {
         return fieldList.stream()
-                .map(streamFieldInfo -> {
+                .map(streamField -> {
                     FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
-                            streamFieldInfo.getFieldType().name(),
-                            streamFieldInfo.getFieldFormat());
-                    FieldInfo inputField = new FieldInfo(streamFieldInfo.getOriginFieldName(),
-                            streamFieldInfo.getOriginNodeName(), formatInfo);
-                    FieldInfo outputField = new FieldInfo(streamFieldInfo.getFieldName(),
+                            streamField.getFieldType(), streamField.getFieldFormat());
+                    FieldInfo inputField = new FieldInfo(streamField.getOriginFieldName(),
+                            streamField.getOriginNodeName(), formatInfo);
+                    FieldInfo outputField = new FieldInfo(streamField.getFieldName(),
                             transformName, formatInfo);
                     return new FieldRelationShip(inputField, outputField);
                 }).collect(Collectors.toList());
@@ -123,7 +122,7 @@ public class FieldRelationShipUtils {
         String preNode = preNodes.split(",")[0];
         List<SplitRule> splitRules = splitterDefinition.getSplitRules();
         Set<String> splitFields = Sets.newHashSet();
-        List<FieldRelationShip> fieldRelationShips = splitRules.stream()
+        List<FieldRelationShip> fieldRelationships = splitRules.stream()
                 .map(splitRule -> parseSplitRule(splitRule, splitFields, transformName, preNode))
                 .reduce(Lists.newArrayList(), (list1, list2) -> {
                     list1.addAll(list2);
@@ -132,8 +131,8 @@ public class FieldRelationShipUtils {
         List<StreamField> filteredFieldList = fieldList.stream()
                 .filter(streamFieldInfo -> !splitFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
-        fieldRelationShips.addAll(createFieldRelationShips(filteredFieldList, transformName));
-        return fieldRelationShips;
+        fieldRelationships.addAll(createFieldRelationShips(filteredFieldList, transformName));
+        return fieldRelationships;
     }
 
     /**
@@ -145,37 +144,37 @@ public class FieldRelationShipUtils {
         String preNode = preNodes.split(",")[0];
         List<ReplaceRule> replaceRules = replacerDefinition.getReplaceRules();
         Set<String> replaceFields = Sets.newHashSet();
-        List<FieldRelationShip> fieldRelationShips = replaceRules.stream()
+        List<FieldRelationShip> fieldRelationships = replaceRules.stream()
                 .map(replaceRule -> parseReplaceRule(replaceRule, replaceFields, transformName, preNode))
                 .collect(Collectors.toList());
-        fieldRelationShips = cascadeFunctionRelationShips(fieldRelationShips);
+        fieldRelationships = cascadeFunctionRelationships(fieldRelationships);
         List<StreamField> filteredFieldList = fieldList.stream()
                 .filter(streamFieldInfo -> !replaceFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
-        fieldRelationShips.addAll(createFieldRelationShips(filteredFieldList, transformName));
-        return fieldRelationShips;
+        fieldRelationships.addAll(createFieldRelationShips(filteredFieldList, transformName));
+        return fieldRelationships;
     }
 
     /**
      * Create relationship of fields in cascade function.
      */
-    private static List<FieldRelationShip> cascadeFunctionRelationShips(List<FieldRelationShip> fieldRelationShips) {
+    private static List<FieldRelationShip> cascadeFunctionRelationships(List<FieldRelationShip> fieldRelationships) {
         Map<String, List<CascadeFunction>> cascadeFunctions = Maps.newHashMap();
         Map<String, FieldInfo> targetFields = Maps.newHashMap();
-        for (FieldRelationShip fieldRelationShip : fieldRelationShips) {
-            CascadeFunction cascadeFunction = (CascadeFunction) fieldRelationShip.getInputField();
-            String targetField = fieldRelationShip.getOutputField().getName();
+        for (FieldRelationShip fieldRelationship : fieldRelationships) {
+            CascadeFunction cascadeFunction = (CascadeFunction) fieldRelationship.getInputField();
+            String targetField = fieldRelationship.getOutputField().getName();
             cascadeFunctions.computeIfAbsent(targetField, k -> Lists.newArrayList()).add(cascadeFunction);
-            targetFields.put(targetField, fieldRelationShip.getOutputField());
+            targetFields.put(targetField, fieldRelationship.getOutputField());
         }
-        List<FieldRelationShip> cascadeRelationShips = Lists.newArrayList();
+        List<FieldRelationShip> cascadeRelationships = Lists.newArrayList();
         for (Map.Entry<String, List<CascadeFunction>> entry : cascadeFunctions.entrySet()) {
             String targetField = entry.getKey();
             CascadeFunctionWrapper functionWrapper = new CascadeFunctionWrapper(entry.getValue());
             FieldInfo targetFieldInfo = targetFields.get(targetField);
-            cascadeRelationShips.add(new FieldRelationShip(functionWrapper, targetFieldInfo));
+            cascadeRelationships.add(new FieldRelationShip(functionWrapper, targetFieldInfo));
         }
-        return cascadeRelationShips;
+        return cascadeRelationships;
     }
 
     /**
@@ -214,7 +213,7 @@ public class FieldRelationShipUtils {
         fieldInfo.setNodeId(preNode);
         String seperator = splitRule.getSeperator();
         List<String> targetSources = splitRule.getTargetFields();
-        List<FieldRelationShip> splitRelationShips = Lists.newArrayList();
+        List<FieldRelationShip> splitRelationships = Lists.newArrayList();
         for (int index = 0; index < targetSources.size(); index++) {
             SplitIndexFunction splitIndexFunction = new SplitIndexFunction(
                     fieldInfo, new StringConstantParam(seperator), new ConstantParam(index));
@@ -222,8 +221,8 @@ public class FieldRelationShipUtils {
                     targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
             );
             splitFields.add(targetSources.get(index));
-            splitRelationShips.add(new FieldRelationShip(splitIndexFunction, targetFieldInfo));
+            splitRelationships.add(new FieldRelationShip(splitIndexFunction, targetFieldInfo));
         }
-        return splitRelationShips;
+        return splitRelationships;
     }
 }

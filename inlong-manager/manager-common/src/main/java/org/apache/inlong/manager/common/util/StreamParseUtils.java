@@ -20,14 +20,13 @@ package org.apache.inlong.manager.common.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.enums.TransformType;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
@@ -108,13 +107,9 @@ public class StreamParseUtils {
         } else if (jsonObject.has(SINK_TYPE)) {
             String sinkName = jsonObject.get(SINK_NAME).getAsString();
             StreamSink sink = new StreamSink() {
-                @Override
-                public SinkType getSinkType() {
-                    return null;
-                }
 
                 @Override
-                public List<SinkField> getSinkFields() {
+                public List<SinkField> getFieldList() {
                     return null;
                 }
 

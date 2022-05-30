@@ -92,8 +92,8 @@ public class HbaseResourceOperator implements SinkResourceOperator {
         }
         HbaseTableInfo tableInfo = HbaseSinkDTO.getHbaseTableInfo(hbaseInfo, columnFamilies);
 
-        String zkAddress = hbaseInfo.getZookeeperQuorum();
-        String zkNode = hbaseInfo.getZookeeperZnodeParent();
+        String zkAddress = hbaseInfo.getZkQuorum();
+        String zkNode = hbaseInfo.getZkNodeParent();
         String namespace = hbaseInfo.getNamespace();
         String tableName = hbaseInfo.getTableName();
 

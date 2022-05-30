@@ -30,6 +30,9 @@ import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.StreamSource.Status;
+import org.apache.inlong.manager.common.pojo.source.StreamSource.SyncType;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
@@ -41,9 +44,6 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource.State;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource.SyncType;
 
 import java.util.Arrays;
 
@@ -97,7 +97,7 @@ public class InlongStreamSourceTransfer {
         kafkaSource.setConsumerGroup(response.getGroupId());
         DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
         kafkaSource.setDataFormat(dataFormat);
-        kafkaSource.setState(State.parseByStatus(response.getStatus()));
+        kafkaSource.setStatus(Status.parseByStatus(response.getStatus()));
         kafkaSource.setAgentIp(response.getAgentIp());
         kafkaSource.setTopic(response.getTopic());
         kafkaSource.setBootstrapServers(response.getBootstrapServers());
@@ -122,9 +122,8 @@ public class InlongStreamSourceTransfer {
         binlogSource.setDataFormat(dataFormat);
         binlogSource.setPort(response.getPort());
         binlogSource.setAgentIp(response.getAgentIp());
-        binlogSource.setState(State.parseByStatus(response.getStatus()));
+        binlogSource.setStatus(Status.parseByStatus(response.getStatus()));
         binlogSource.setServerId(response.getServerId());
-        binlogSource.setDataNodeName(response.getDataNodeName());
         DefaultAuthentication defaultAuthentication = new DefaultAuthentication(
                 response.getUser(),
                 response.getPassword());
@@ -148,7 +147,7 @@ public class InlongStreamSourceTransfer {
     private static AgentFileSource parseAgentFileSource(FileSourceResponse response) {
         AgentFileSource fileSource = new AgentFileSource();
         fileSource.setSourceName(response.getSourceName());
-        fileSource.setState(State.parseByStatus(response.getStatus()));
+        fileSource.setStatus(Status.parseByStatus(response.getStatus()));
         DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
         fileSource.setDataFormat(dataFormat);
         fileSource.setPattern(response.getPattern());
@@ -161,7 +160,7 @@ public class InlongStreamSourceTransfer {
     private static AutoPushSource parseAutoPushSource(AutoPushSourceResponse response) {
         AutoPushSource autoPushSource = new AutoPushSource();
         autoPushSource.setSourceName(response.getSourceName());
-        autoPushSource.setState(State.parseByStatus(response.getStatus()));
+        autoPushSource.setStatus(Status.parseByStatus(response.getStatus()));
         DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
         autoPushSource.setDataFormat(dataFormat);
         autoPushSource.setDataProxyGroup(response.getDataProxyGroup());
@@ -172,7 +171,7 @@ public class InlongStreamSourceTransfer {
     private static PostgresSource parsePostgresSource(PostgresSourceResponse response) {
         PostgresSource postgresSource = new PostgresSource();
         postgresSource.setSourceName(response.getSourceName());
-        postgresSource.setState(State.parseByStatus(response.getStatus()));
+        postgresSource.setStatus(Status.parseByStatus(response.getStatus()));
         DataFormat dataFormat = DataFormat.forName(response.getSerializationType());
         postgresSource.setDataFormat(dataFormat);
         postgresSource.setFields(InlongStreamTransfer.parseStreamFields(response.getFieldList()));
@@ -226,7 +225,6 @@ public class InlongStreamSourceTransfer {
         sourceRequest.setHostname(binlogSource.getHostname());
         sourceRequest.setPort(binlogSource.getPort());
         sourceRequest.setServerId(binlogSource.getServerId());
-        sourceRequest.setDataNodeName(binlogSource.getDataNodeName());
         sourceRequest.setIncludeSchema(binlogSource.getIncludeSchema());
         sourceRequest.setServerTimezone(binlogSource.getServerTimezone());
         sourceRequest.setMonitoredDdl(binlogSource.getMonitoredDdl());

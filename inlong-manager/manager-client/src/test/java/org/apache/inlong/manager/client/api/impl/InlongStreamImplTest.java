@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
-import org.apache.inlong.manager.client.api.sink.HiveSink;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
@@ -53,18 +53,22 @@ public class InlongStreamImplTest {
         inlongStream.addSource(kafkaSource);
         inlongStream.addSource(mySQLBinlogSource);
         // add stream sink
-        ClickHouseSink clickHouseSink = new ClickHouseSink();
+        ClickHouseSinkRequest clickHouseSink = new ClickHouseSinkRequest();
         clickHouseSink.setSinkName("E");
-        HiveSink hiveSink = new HiveSink();
-        hiveSink.setSinkName("F");
-        KafkaSink kafkaSink1 = new KafkaSink();
-        kafkaSink1.setSinkName("I");
-        KafkaSink kafkaSink2 = new KafkaSink();
-        kafkaSink2.setSinkName("M");
         inlongStream.addSink(clickHouseSink);
+
+        HiveSinkRequest hiveSink = new HiveSinkRequest();
+        hiveSink.setSinkName("F");
         inlongStream.addSink(hiveSink);
+
+        KafkaSinkRequest kafkaSink1 = new KafkaSinkRequest();
+        kafkaSink1.setSinkName("I");
         inlongStream.addSink(kafkaSink1);
+
+        KafkaSinkRequest kafkaSink2 = new KafkaSinkRequest();
+        kafkaSink2.setSinkName("M");
         inlongStream.addSink(kafkaSink2);
+
         // add stream transform
         StreamTransform multiDependencyTransform = new MultiDependencyTransform(
                 "C",

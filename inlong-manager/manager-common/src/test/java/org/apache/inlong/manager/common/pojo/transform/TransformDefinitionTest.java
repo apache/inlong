@@ -43,16 +43,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class TransformDefinitionTest {
 
-    public class BlankStreamNode extends StreamNode {
-
-    }
-
     public static Gson gson = new Gson();
 
     @Test
     public void testParseDeDuplicationDefinition() {
         List<StreamField> streamFields = createStreamFields();
-        StreamField timingField = new StreamField(2, FieldType.TIMESTAMP, "event_time", null, null);
+        StreamField timingField = new StreamField(2, FieldType.TIMESTAMP.toString(), "event_time", null, null);
         DeDuplicationDefinition deDuplicationDefinition = new DeDuplicationDefinition(streamFields, timingField, 100,
                 TimeUnit.MICROSECONDS, DeDuplicationStrategy.RESERVE_FIRST);
         String definitionJson = gson.toJson(deDuplicationDefinition);
@@ -85,18 +81,22 @@ public class TransformDefinitionTest {
 
     private List<StreamField> createStreamFields() {
         List<StreamField> streamFieldList = Lists.newArrayList();
-        streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
-        streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));
+        streamFieldList.add(new StreamField(0, FieldType.STRING.toString(), "name", null, null));
+        streamFieldList.add(new StreamField(1, FieldType.INT.toString(), "age", null, null));
         return streamFieldList;
     }
 
     private List<FilterRule> createFilterRule() {
         List<FilterRule> filterRules = Lists.newArrayList();
-        filterRules.add(new FilterRule(new StreamField(0, FieldType.STRING, "name", null, null),
+        filterRules.add(new FilterRule(new StreamField(0, FieldType.STRING.toString(), "name", null, null),
                 OperationType.not_null, null, RuleRelation.OR));
-        filterRules.add(new FilterRule(new StreamField(1, FieldType.INT, "age", null, null),
+        filterRules.add(new FilterRule(new StreamField(1, FieldType.INT.toString(), "age", null, null),
                 OperationType.gt, new TargetValue(true, null, "50"), null));
         return filterRules;
+    }
+
+    public static class BlankStreamNode extends StreamNode {
+
     }
 
 }

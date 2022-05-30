@@ -33,6 +33,6 @@ public class SeparatorAdapter implements JsonDeserializer<DataSeparator> {
     @Override
     public DataSeparator deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
             throws JsonParseException {
-        return DataSeparator.forAscii(jsonElement.getAsCharacter());
+        return DataSeparator.forAscii(jsonElement.getAsInt());
     }
 }

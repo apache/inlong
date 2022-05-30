@@ -19,40 +19,19 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Map;
+import lombok.EqualsAndHashCode;
 
 /**
  * Request of sink
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("Request of sink")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
-public class SinkRequest {
-
-    private Integer id;
-
-    @ApiModelProperty("Inlong group id")
-    @NotNull
-    private String inlongGroupId;
-
-    @ApiModelProperty("Inlong stream id")
-    @NotNull
-    private String inlongStreamId;
-
-    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
-    @NotNull
-    private String sinkType;
-
-    @ApiModelProperty("Sink name, unique in one stream.")
-    @NotNull
-    private String sinkName;
+public abstract class SinkRequest extends StreamSink {
 
     @ApiModelProperty("Sink description")
     private String description;
@@ -69,12 +48,7 @@ public class SinkRequest {
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
 
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1")
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
     private Integer enableCreateResource = 1;
 
-    @ApiModelProperty("Sink field list")
-    private List<SinkFieldRequest> fieldList;
-
-    @ApiModelProperty("Properties for sink")
-    private Map<String, Object> properties = Maps.newHashMap();
 }

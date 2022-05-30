@@ -19,17 +19,16 @@ package org.apache.inlong.manager.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
 import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
@@ -149,17 +148,17 @@ public class Binlog2KafkaExample extends BaseExample {
         return mySQLBinlogSource;
     }
 
-    private KafkaSink createKafkaSink() {
-        KafkaSink kafkaSink = new KafkaSink();
-        kafkaSink.setDataFormat(DataFormat.CANAL);
+    private KafkaSinkRequest createKafkaSink() {
+        KafkaSinkRequest kafkaSink = new KafkaSinkRequest();
         kafkaSink.setBootstrapServers("{kafka.bootstrap}");
         kafkaSink.setTopicName("{kafka.topic}");
-        kafkaSink.setNeedCreated(false);
+        kafkaSink.setEnableCreateResource(0);
         kafkaSink.setSinkName("{kafka.sink.name}");
         Map<String, Object> properties = new HashMap<>();
         // Not needed if kafka cluster is not set
         properties.put("transaction.timeout.ms", 9000000);
         kafkaSink.setProperties(properties);
+
         return kafkaSink;
     }
 }
