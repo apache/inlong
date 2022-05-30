@@ -319,7 +319,7 @@ public class ExtractNodeUtils {
                         scanstartupMode));
         }
 
-        final List<InlongStreamFieldInfo> streamFieldInfos = oracleSourceResponse.getFieldList();
+        List<StreamField> streamFieldInfos = oracleSourceResponse.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
