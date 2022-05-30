@@ -43,7 +43,7 @@ public class NativeFlinkSqlParserTest {
                 .inStreamingMode()
                 .build();
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
-        String data = "  CREATE TABLE `table_1`(\n"
+        String data = "  CREATe TABLE `table_1`(\n"
                 + "    `age` INT,\n"
                 + "    `name` STRING)\n"
                 + "    WITH (\n"

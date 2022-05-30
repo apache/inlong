@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * parse flink sql script file
@@ -80,9 +81,9 @@ public class NativeFlinkSqlParser implements Parser {
         String[] statementSet = statements.split(";");
         for (String statement : statementSet) {
             statement = statement.trim();
-            if (statement.startsWith("CREATE TABLE") || statement.startsWith("create table")) {
+            if (statement.toUpperCase(Locale.ROOT).startsWith("CREATE TABLE")) {
                 createTableSqls.add(statement);
-            } else if (statement.startsWith("INSERT INTO") || statement.startsWith("insert into")) {
+            } else if (statement.toUpperCase(Locale.ROOT).startsWith("INSERT INTO")) {
                 insertSqls.add(statement);
             } else {
                 throw new IllegalArgumentException("not support sql: " + statement);
