@@ -43,6 +43,16 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <!--for oracle-->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+        </dependency>
+        <!--for mysql-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
         <!--for jdbc-->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -74,6 +84,8 @@
                                     <include>org.apache.flink:flink-connector-jdbc_${flink.scala.binary.version}</include>
                                     <include>org.postgresql:postgresql</include>
                                     <include>ru.yandex.clickhouse:clickhouse-jdbc</include>
+                                    <include>mysql:mysql-connector-java</include>
+                                    <include>com.oracle.database.jdbc:*</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
