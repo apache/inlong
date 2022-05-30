@@ -33,8 +33,8 @@ import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,9 +70,9 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
         return new HbaseLoadNode("2", "hbase_output",
                 Arrays.asList(new FieldInfo("cf:age", new LongFormatInfo()), new FieldInfo("cf:name",
                         new StringFormatInfo())),
-                Arrays.asList(new FieldRelationShip(new FieldInfo("age", new LongFormatInfo()),
+                Arrays.asList(new FieldRelation(new FieldInfo("age", new LongFormatInfo()),
                                 new FieldInfo("cf:age", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
                                 new FieldInfo("cf:name", new StringFormatInfo()))), null, null, 1, null, "user",
                 "default",
                 "localhost:2181", "MD5(`name`)", null, "/hbase", null, null);
@@ -85,10 +85,10 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
      * @param outputs load node
      * @return node relation
      */
-    private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
+    private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
-        return new NodeRelationShip(inputIds, outputIds);
+        return new NodeRelation(inputIds, outputIds);
     }
 
     /**

@@ -15,17 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.group.result;
+package org.apache.inlong.sort.protocol.transformation;
 
-import java.util.List;
+import org.apache.inlong.sort.SerializeBaseTest;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
 
-import lombok.Data;
+/**
+ * Test for {@link FieldRelation}
+ */
+public class FieldRelationTest extends SerializeBaseTest<FieldRelation> {
 
-@Data
-public class OffsetQueryRes {
-    private boolean result;
-    private int errCode;
-    private String errMsg;
-    private List<GroupOffsetRes> dataSet;
-    private int totalCnt;
+    /**
+     * Get test object
+     *
+     * @return The test object
+     */
+    @Override
+    public FieldRelation getTestObject() {
+        return new FieldRelation(new FieldInfo("f", StringFormatInfo.INSTANCE),
+                new FieldInfo("f", StringFormatInfo.INSTANCE));
+    }
 }

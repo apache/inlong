@@ -21,7 +21,7 @@ import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class HiveLoadNodeTest extends SerializeBaseTest<HiveLoadNode> {
     public HiveLoadNode getTestObject() {
         return new HiveLoadNode("1", "test_hive_node",
                 Arrays.asList(new FieldInfo("field", new StringFormatInfo())),
-                Arrays.asList(new FieldRelationShip(new FieldInfo("field", new StringFormatInfo()),
+                Arrays.asList(new FieldRelation(new FieldInfo("field", new StringFormatInfo()),
                         new FieldInfo("field", new StringFormatInfo()))), null, null,
                 1, new HashMap<>(), "myHive", "default",
                 "test", "/opt/hive-conf", "3.1.2",

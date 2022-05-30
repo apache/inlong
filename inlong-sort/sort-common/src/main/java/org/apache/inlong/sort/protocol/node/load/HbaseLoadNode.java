@@ -30,7 +30,7 @@ import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.HBaseConstant;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.io.Serializable;
@@ -76,7 +76,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
     public HbaseLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
@@ -89,7 +89,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
             @JsonProperty("zookeeperZnodeParent") String zookeeperZnodeParent,
             @JsonProperty("sinkBufferFlushMaxRows") String sinkBufferFlushMaxRows,
             @JsonProperty("sinkBufferFlushInterval") String sinkBufferFlushInterval) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "tableName of hbase is null");
         this.nameSpace = Preconditions.checkNotNull(nameSpace, "nameSpace of hbase is null");
         this.zookeeperQuorum = Preconditions.checkNotNull(zookeeperQuorum, "zookeeperQuorum of hbase is null");

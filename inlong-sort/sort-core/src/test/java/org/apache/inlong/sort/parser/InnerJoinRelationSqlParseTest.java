@@ -39,7 +39,7 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import org.apache.inlong.sort.protocol.transformation.OrderDirection;
 import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilterFunction;
@@ -48,8 +48,8 @@ import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.MoreThanOrEqualOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.NotEqualOperator;
-import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,9 +61,9 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
- * Test for {@link InnerJoinNodeRelationShip}
+ * Test for {@link InnerJoinNodeRelation}
  */
-public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
+public class InnerJoinRelationSqlParseTest extends AbstractTestBase {
 
     /**
      * Build the first kafka extract node
@@ -118,16 +118,16 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", "1", new LongFormatInfo()),
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", "1", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", "2", new IntFormatInfo()),
+                        new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("salary", "3", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("salary", "3", new TimestampFormatInfo()),
                                 new FieldInfo("salary", new TimestampFormatInfo()))
                 );
         return new KafkaLoadNode("5", "kafka_output", fields, relations, null,
@@ -147,16 +147,16 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()));
-        List<FieldRelationShip> relations = Arrays
-                .asList(new FieldRelationShip(new FieldInfo("id", "1", new LongFormatInfo()),
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                                 new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("name", "1", new StringFormatInfo()),
+                        new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                                 new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("age", "2", new IntFormatInfo()),
+                        new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
                                 new FieldInfo("age", new IntFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                                 new FieldInfo("ts", new TimestampFormatInfo())),
-                        new FieldRelationShip(new FieldInfo("salary", "3", new TimestampFormatInfo()),
+                        new FieldRelation(new FieldInfo("salary", "3", new TimestampFormatInfo()),
                                 new FieldInfo("salary", new TimestampFormatInfo()))
                 );
         return new KafkaLoadNode("5", "kafka_output", fields, relations, null,
@@ -178,15 +178,15 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
                         new FieldInfo("salary", new FloatFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())
                 ), Arrays.asList(
-                new FieldRelationShip(new FieldInfo("id", "1", new LongFormatInfo()),
+                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelationShip(new FieldInfo("name", "1", new StringFormatInfo()),
+                new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo())),
-                new FieldRelationShip(new FieldInfo("age", "2", new IntFormatInfo()),
+                new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo())),
-                new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())),
-                new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo()))
         ), null, null);
     }
@@ -212,17 +212,17 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
                         new FieldInfo("salary", new FloatFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())
                 ), Arrays.asList(
-                new FieldRelationShip(new FieldInfo("id", "1", new LongFormatInfo()),
+                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
                         new FieldInfo("id", new LongFormatInfo())),
-                new FieldRelationShip(new FieldInfo("name", "1", new StringFormatInfo()),
+                new FieldRelation(new FieldInfo("name", "1", new StringFormatInfo()),
                         new FieldInfo("name", new StringFormatInfo())),
-                new FieldRelationShip(new FieldInfo("age", "2", new IntFormatInfo()),
+                new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
                         new FieldInfo("age", new IntFormatInfo())),
-                new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())),
-                new FieldRelationShip(new FieldInfo("ts", "3", new TimestampFormatInfo()),
+                new FieldRelation(new FieldInfo("ts", "3", new TimestampFormatInfo()),
                         new FieldInfo("ts", new TimestampFormatInfo())),
-                new FieldRelationShip(new FieldInfo("salary", "3", new TimestampFormatInfo()),
+                new FieldRelation(new FieldInfo("salary", "3", new TimestampFormatInfo()),
                         new FieldInfo("salary", new TimestampFormatInfo()))
         ), filters, null,
                 Collections.singletonList(new FieldInfo("name", "1", new StringFormatInfo())),
@@ -234,12 +234,12 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
      *
      * @param inputs  The inputs that is the id list of input nodes
      * @param outputs The outputs that is the id list of output nodes
-     * @return A NodeRelationShip
+     * @return A NodeRelation
      */
-    private NodeRelationShip buildNodeRelation(List<Node> inputs, List<Node> outputs) {
+    private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
-        return new NodeRelationShip(inputIds, outputIds);
+        return new NodeRelation(inputIds, outputIds);
     }
 
     /**
@@ -247,9 +247,9 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
      *
      * @param inputs  The inputs that is the id list of input nodes
      * @param outputs The outputs that is the id list of output nodes
-     * @return A InnerJoinNodeRelationShip
+     * @return A InnerJoinNodeRelation
      */
-    private NodeRelationShip buildInnerJoinNodeRelation(List<Node> inputs, List<Node> outputs) {
+    private NodeRelation buildInnerJoinNodeRelation(List<Node> inputs, List<Node> outputs) {
         List<String> inputIds = inputs.stream().map(Node::getId).collect(Collectors.toList());
         List<String> outputIds = outputs.stream().map(Node::getId).collect(Collectors.toList());
         Map<String, List<FilterFunction>> conditionMap = new TreeMap<>();
@@ -259,7 +259,7 @@ public class InnerJoinRelationShipSqlParseTest extends AbstractTestBase {
         conditionMap.put("3", Collections.singletonList(new SingleValueFilterFunction(EmptyOperator.getInstance(),
                 new FieldInfo("id", "1", new LongFormatInfo()), EqualOperator.getInstance(),
                 new FieldInfo("id", "3", new LongFormatInfo()))));
-        return new InnerJoinNodeRelationShip(inputIds, outputIds, conditionMap);
+        return new InnerJoinNodeRelation(inputIds, outputIds, conditionMap);
     }
 
     /**

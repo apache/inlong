@@ -24,6 +24,7 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 /**
  * built-in field info.
  */
+@Deprecated
 public class BuiltInFieldInfo extends FieldInfo {
 
     private static final long serialVersionUID = -3436204467879205139L;

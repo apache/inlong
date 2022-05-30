@@ -36,7 +36,7 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.CascadeFunction;
 import org.apache.inlong.sort.protocol.transformation.ConstantParam;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
 import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
 import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFirstFunction;
@@ -49,14 +49,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Util for creat field relationship.
+ * Util for creat field relation.
  */
-public class FieldRelationShipUtils {
+public class FieldRelationUtils {
 
     /**
-     * Create relationship of fields.
+     * Create relation of fields.
      */
-    public static List<FieldRelationShip> createFieldRelationShips(TransformResponse transformResponse) {
+    public static List<FieldRelation> createFieldRelations(TransformResponse transformResponse) {
         TransformType transformType = TransformType.forType(transformResponse.getTransformType());
         TransformDefinition transformDefinition = StreamParseUtils.parseTransformDefinition(
                 transformResponse.getTransformDefinition(), transformType);
@@ -66,15 +66,15 @@ public class FieldRelationShipUtils {
         switch (transformType) {
             case SPLITTER:
                 SplitterDefinition splitterDefinition = (SplitterDefinition) transformDefinition;
-                return createSplitterFieldRelationShips(fieldList, transformName, splitterDefinition, preNodes);
+                return createSplitterFieldRelations(fieldList, transformName, splitterDefinition, preNodes);
             case STRING_REPLACER:
                 StringReplacerDefinition replacerDefinition = (StringReplacerDefinition) transformDefinition;
-                return createReplacerFieldRelationShips(fieldList, transformName, replacerDefinition, preNodes);
+                return createReplacerFieldRelations(fieldList, transformName, replacerDefinition, preNodes);
             case DE_DUPLICATION:
             case FILTER:
-                return createFieldRelationShips(fieldList, transformName);
+                return createFieldRelations(fieldList, transformName);
             case JOINER:
-                return createJoinerFieldRelationShips(fieldList, transformName);
+                return createJoinerFieldRelations(fieldList, transformName);
             default:
                 throw new UnsupportedOperationException(
                         String.format("Unsupported transformType=%s for Inlong", transformType));
@@ -82,9 +82,9 @@ public class FieldRelationShipUtils {
     }
 
     /**
-     * Create relationship of fields.
+     * Create relation of fields.
      */
-    private static List<FieldRelationShip> createFieldRelationShips(List<StreamField> fieldList, String transformName) {
+    private static List<FieldRelation> createFieldRelations(List<StreamField> fieldList, String transformName) {
         return fieldList.stream()
                 .map(FieldInfoUtils::parseStreamField)
                 .map(fieldInfo -> {
@@ -92,15 +92,15 @@ public class FieldRelationShipUtils {
                             fieldInfo.getFormatInfo());
                     FieldInfo outputField = new FieldInfo(fieldInfo.getName(), transformName,
                             fieldInfo.getFormatInfo());
-                    return new FieldRelationShip(inputField, outputField);
+                    return new FieldRelation(inputField, outputField);
                 }).collect(Collectors.toList());
     }
 
     /**
-     * Create relationship of fields in join function.
+     * Create relation of fields in join function.
      */
-    private static List<FieldRelationShip> createJoinerFieldRelationShips(List<StreamField> fieldList,
-            String transformName) {
+    private static List<FieldRelation> createJoinerFieldRelations(List<StreamField> fieldList,
+                                                                  String transformName) {
         return fieldList.stream()
                 .map(streamField -> {
                     FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
@@ -109,20 +109,21 @@ public class FieldRelationShipUtils {
                             streamField.getOriginNodeName(), formatInfo);
                     FieldInfo outputField = new FieldInfo(streamField.getFieldName(),
                             transformName, formatInfo);
-                    return new FieldRelationShip(inputField, outputField);
+                    return new FieldRelation(inputField, outputField);
                 }).collect(Collectors.toList());
     }
 
     /**
-     * Create relationship of fields in split function.
+     * Create relation of fields in split function.
      */
-    private static List<FieldRelationShip> createSplitterFieldRelationShips(List<StreamField> fieldList,
-            String transformName, SplitterDefinition splitterDefinition, String preNodes) {
+    private static List<FieldRelation> createSplitterFieldRelations(
+            List<StreamField> fieldList, String transformName,
+            SplitterDefinition splitterDefinition, String preNodes) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<SplitRule> splitRules = splitterDefinition.getSplitRules();
         Set<String> splitFields = Sets.newHashSet();
-        List<FieldRelationShip> fieldRelationships = splitRules.stream()
+        List<FieldRelation> fieldRelations = splitRules.stream()
                 .map(splitRule -> parseSplitRule(splitRule, splitFields, transformName, preNode))
                 .reduce(Lists.newArrayList(), (list1, list2) -> {
                     list1.addAll(list2);
@@ -131,57 +132,58 @@ public class FieldRelationShipUtils {
         List<StreamField> filteredFieldList = fieldList.stream()
                 .filter(streamFieldInfo -> !splitFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
-        fieldRelationships.addAll(createFieldRelationShips(filteredFieldList, transformName));
-        return fieldRelationships;
+        fieldRelations.addAll(createFieldRelations(filteredFieldList, transformName));
+        return fieldRelations;
     }
 
     /**
-     * Create relationship of fields in replace function.
+     * Create relation of fields in replace function.
      */
-    private static List<FieldRelationShip> createReplacerFieldRelationShips(List<StreamField> fieldList,
-            String transformName, StringReplacerDefinition replacerDefinition, String preNodes) {
+    private static List<FieldRelation> createReplacerFieldRelations(
+            List<StreamField> fieldList, String transformName,
+            StringReplacerDefinition replacerDefinition, String preNodes) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
         List<ReplaceRule> replaceRules = replacerDefinition.getReplaceRules();
         Set<String> replaceFields = Sets.newHashSet();
-        List<FieldRelationShip> fieldRelationships = replaceRules.stream()
+        List<FieldRelation> fieldRelations = replaceRules.stream()
                 .map(replaceRule -> parseReplaceRule(replaceRule, replaceFields, transformName, preNode))
                 .collect(Collectors.toList());
-        fieldRelationships = cascadeFunctionRelationships(fieldRelationships);
+        fieldRelations = cascadeFunctionRelations(fieldRelations);
         List<StreamField> filteredFieldList = fieldList.stream()
                 .filter(streamFieldInfo -> !replaceFields.contains(streamFieldInfo.getFieldName()))
                 .collect(Collectors.toList());
-        fieldRelationships.addAll(createFieldRelationShips(filteredFieldList, transformName));
-        return fieldRelationships;
+        fieldRelations.addAll(createFieldRelations(filteredFieldList, transformName));
+        return fieldRelations;
     }
 
     /**
-     * Create relationship of fields in cascade function.
+     * Create relation of fields in cascade function.
      */
-    private static List<FieldRelationShip> cascadeFunctionRelationships(List<FieldRelationShip> fieldRelationships) {
+    private static List<FieldRelation> cascadeFunctionRelations(List<FieldRelation> fieldRelations) {
         Map<String, List<CascadeFunction>> cascadeFunctions = Maps.newHashMap();
         Map<String, FieldInfo> targetFields = Maps.newHashMap();
-        for (FieldRelationShip fieldRelationship : fieldRelationships) {
-            CascadeFunction cascadeFunction = (CascadeFunction) fieldRelationship.getInputField();
-            String targetField = fieldRelationship.getOutputField().getName();
+        for (FieldRelation fieldRelation : fieldRelations) {
+            CascadeFunction cascadeFunction = (CascadeFunction) fieldRelation.getInputField();
+            String targetField = fieldRelation.getOutputField().getName();
             cascadeFunctions.computeIfAbsent(targetField, k -> Lists.newArrayList()).add(cascadeFunction);
-            targetFields.put(targetField, fieldRelationship.getOutputField());
+            targetFields.put(targetField, fieldRelation.getOutputField());
         }
-        List<FieldRelationShip> cascadeRelationships = Lists.newArrayList();
+        List<FieldRelation> cascadeRelations = Lists.newArrayList();
         for (Map.Entry<String, List<CascadeFunction>> entry : cascadeFunctions.entrySet()) {
             String targetField = entry.getKey();
             CascadeFunctionWrapper functionWrapper = new CascadeFunctionWrapper(entry.getValue());
             FieldInfo targetFieldInfo = targetFields.get(targetField);
-            cascadeRelationships.add(new FieldRelationShip(functionWrapper, targetFieldInfo));
+            cascadeRelations.add(new FieldRelation(functionWrapper, targetFieldInfo));
         }
-        return cascadeRelationships;
+        return cascadeRelations;
     }
 
     /**
      * Parse rule of replacer.
      */
-    private static FieldRelationShip parseReplaceRule(ReplaceRule replaceRule, Set<String> replaceFields,
-            String transformName, String preNode) {
+    private static FieldRelation parseReplaceRule(ReplaceRule replaceRule, Set<String> replaceFields,
+                                                  String transformName, String preNode) {
         StreamField sourceField = replaceRule.getSourceField();
         final String fieldName = sourceField.getFieldName();
         String regex = replaceRule.getRegex();
@@ -195,25 +197,25 @@ public class FieldRelationShipUtils {
         if (replaceMode == ReplaceMode.RELACE_ALL) {
             RegexpReplaceFunction regexpReplaceFunction = new RegexpReplaceFunction(fieldInfo,
                     new StringConstantParam(regex), new StringConstantParam(targetValue));
-            return new FieldRelationShip(regexpReplaceFunction, targetFieldInfo);
+            return new FieldRelation(regexpReplaceFunction, targetFieldInfo);
         } else {
             RegexpReplaceFirstFunction regexpReplaceFirstFunction = new RegexpReplaceFirstFunction(fieldInfo,
                     new StringConstantParam(regex), new StringConstantParam(targetValue));
-            return new FieldRelationShip(regexpReplaceFirstFunction, targetFieldInfo);
+            return new FieldRelation(regexpReplaceFirstFunction, targetFieldInfo);
         }
     }
 
     /**
      * Parse rule of split.
      */
-    private static List<FieldRelationShip> parseSplitRule(SplitRule splitRule, Set<String> splitFields,
-            String transformName, String preNode) {
+    private static List<FieldRelation> parseSplitRule(SplitRule splitRule, Set<String> splitFields,
+                                                      String transformName, String preNode) {
         StreamField sourceField = splitRule.getSourceField();
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamField(sourceField);
         fieldInfo.setNodeId(preNode);
         String seperator = splitRule.getSeperator();
         List<String> targetSources = splitRule.getTargetFields();
-        List<FieldRelationShip> splitRelationships = Lists.newArrayList();
+        List<FieldRelation> splitRelations = Lists.newArrayList();
         for (int index = 0; index < targetSources.size(); index++) {
             SplitIndexFunction splitIndexFunction = new SplitIndexFunction(
                     fieldInfo, new StringConstantParam(seperator), new ConstantParam(index));
@@ -221,8 +223,8 @@ public class FieldRelationShipUtils {
                     targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
             );
             splitFields.add(targetSources.get(index));
-            splitRelationships.add(new FieldRelationShip(splitIndexFunction, targetFieldInfo));
+            splitRelations.add(new FieldRelation(splitIndexFunction, targetFieldInfo));
         }
-        return splitRelationships;
+        return splitRelations;
     }
 }

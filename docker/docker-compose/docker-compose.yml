@@ -105,6 +105,6 @@ services:
       - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
-      - PULSAR_BROKER_LIST="pulsar:6650"
+      - PULSAR_BROKER_LIST=pulsar:6650
     ports:
       - "10081:10081"

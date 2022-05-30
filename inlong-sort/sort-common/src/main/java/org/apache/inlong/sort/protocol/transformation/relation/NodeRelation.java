@@ -29,23 +29,23 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Node relationship base class which defines the simplest one-to-one relationship
+ * Node relation base class which defines the simplest one-to-one relation
  */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FullOuterJoinRelationShip.class, name = "fullOuterJoin"),
-        @JsonSubTypes.Type(value = InnerJoinNodeRelationShip.class, name = "innerJoin"),
-        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelationShip.class, name = "leftOuterJoin"),
-        @JsonSubTypes.Type(value = RightOuterJoinNodeRelationShip.class, name = "rightOutJoin"),
-        @JsonSubTypes.Type(value = UnionNodeRelationShip.class, name = "union"),
-        @JsonSubTypes.Type(value = NodeRelationShip.class, name = "baseRelation")
+        @JsonSubTypes.Type(value = FullOuterJoinRelation.class, name = "fullOuterJoin"),
+        @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
+        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelation.class, name = "leftOuterJoin"),
+        @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin"),
+        @JsonSubTypes.Type(value = UnionNodeRelation.class, name = "union"),
+        @JsonSubTypes.Type(value = NodeRelation.class, name = "baseRelation")
 })
 @Data
 @NoArgsConstructor
-public class NodeRelationShip implements Serializable {
+public class NodeRelation implements Serializable {
 
     private static final long serialVersionUID = 5491943876653981952L;
 
@@ -55,14 +55,14 @@ public class NodeRelationShip implements Serializable {
     private List<String> outputs;
 
     /**
-     * NodeRelationShip Constructor
+     * NodeRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
      */
     @JsonCreator
-    public NodeRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs) {
+    public NodeRelation(@JsonProperty("inputs") List<String> inputs,
+                        @JsonProperty("outputs") List<String> outputs) {
         this.inputs = Preconditions.checkNotNull(inputs, "inputs is null");
         Preconditions.checkState(!inputs.isEmpty(), "inputs is empty");
         this.outputs = Preconditions.checkNotNull(outputs, "outputs is null");

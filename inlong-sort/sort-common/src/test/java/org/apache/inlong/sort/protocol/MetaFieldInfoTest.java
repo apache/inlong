@@ -15,17 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.controller.group.result;
+package org.apache.inlong.sort.protocol;
 
-import java.util.List;
+import org.apache.inlong.sort.SerializeBaseTest;
 
-import lombok.Data;
+/**
+ * Test for {@link MetaFieldInfo}
+ */
+public class MetaFieldInfoTest extends SerializeBaseTest<MetaFieldInfo> {
 
-@Data
-public class OffsetQueryRes {
-    private boolean result;
-    private int errCode;
-    private String errMsg;
-    private List<GroupOffsetRes> dataSet;
-    private int totalCnt;
+    @Override
+    public MetaFieldInfo getTestObject() {
+        return new MetaFieldInfo("f1", MetaFieldInfo.MetaField.DATABASE_NAME);
+    }
 }

@@ -48,7 +48,7 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -115,7 +115,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
                         createNodesForStream(
                                 sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
                                 sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())),
-                        createNodeRelationshipsForStream(
+                        createNodeRelationsForStream(
                                 sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
                                 sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())))
                 ).collect(Collectors.toList());
@@ -168,17 +168,17 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationshipsForStream(
+    private List<NodeRelation> createNodeRelationsForStream(
             List<SourceResponse> sourceResponses,
             List<SinkResponse> sinkResponses) {
-        NodeRelationShip relationship = new NodeRelationShip();
+        NodeRelation relation = new NodeRelation();
         List<String> inputs = sourceResponses.stream().map(SourceResponse::getSourceName)
                 .collect(Collectors.toList());
         List<String> outputs = sinkResponses.stream().map(SinkResponse::getSinkName)
                 .collect(Collectors.toList());
-        relationship.setInputs(inputs);
-        relationship.setOutputs(outputs);
-        return Lists.newArrayList(relationship);
+        relation.setInputs(inputs);
+        relation.setOutputs(outputs);
+        return Lists.newArrayList(relation);
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {

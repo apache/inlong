@@ -22,12 +22,12 @@ import org.apache.inlong.sort.SerializeBaseTest;
 import java.util.Arrays;
 
 /**
- * Tests for {@link NodeRelationShip}
+ * Tests for {@link NodeRelation}
  */
-public class NodeRelationTest extends SerializeBaseTest<NodeRelationShip> {
+public class NodeRelationTest extends SerializeBaseTest<NodeRelation> {
 
     @Override
-    public NodeRelationShip getTestObject() {
-        return new NodeRelationShip(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
+    public NodeRelation getTestObject() {
+        return new NodeRelation(Arrays.asList("1", "2"), Arrays.asList("3", "4"));
     }
 }

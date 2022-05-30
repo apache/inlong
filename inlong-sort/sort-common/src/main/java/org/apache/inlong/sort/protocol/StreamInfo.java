@@ -22,7 +22,7 @@ import lombok.Data;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 
 import java.io.Serializable;
 import java.util.List;
@@ -41,7 +41,7 @@ public class StreamInfo implements Serializable {
     @JsonProperty("nodes")
     private List<Node> nodes;
     @JsonProperty("relations")
-    private List<NodeRelationShip> relations;
+    private List<NodeRelation> relations;
 
     /**
      * Information of stream.
@@ -49,11 +49,11 @@ public class StreamInfo implements Serializable {
      * @param streamId Uniquely identifies of GroupInfo
      * @param nodes The node list that StreamInfo contains
      * @param relations The relation list that StreamInfo contains,
-     *         it represents the relationship between nodes of StreamInfo
+     *         it represents the relation between nodes of StreamInfo
      */
     @JsonCreator
     public StreamInfo(@JsonProperty("streamId") String streamId, @JsonProperty("nodes") List<Node> nodes,
-            @JsonProperty("relations") List<NodeRelationShip> relations) {
+            @JsonProperty("relations") List<NodeRelation> relations) {
         this.streamId = Preconditions.checkNotNull(streamId, "streamId is null");
         this.nodes = Preconditions.checkNotNull(nodes, "nodes is null");
         Preconditions.checkState(!nodes.isEmpty(), "nodes is empty");
