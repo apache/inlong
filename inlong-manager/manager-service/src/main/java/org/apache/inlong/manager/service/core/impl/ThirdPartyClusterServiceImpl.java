@@ -279,13 +279,13 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     @Override
     public ThirdPartyClusterDTO getConfigV2(String clusterName) {
         // TODO Optimize query conditions use dataProxyClusterId
-        ThirdPartyClusterEntity clusterEntity = thirdPartyClusterMapper.selectByName(clusterName);
-        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        ThirdPartyClusterEntity clusterEntity = thirdPartyClusterMapper.selectByName(clusterName);
         if (clusterEntity == null) {
             LOGGER.warn("DataProxy cluster not found by name = " + clusterName + ", please register it firstly.");
             return object;
         }
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         if (CollectionUtils.isEmpty(groupEntityList)) {
             LOGGER.warn("not found any inlong group with success status for proxy cluster name = " + clusterName);
             return object;
