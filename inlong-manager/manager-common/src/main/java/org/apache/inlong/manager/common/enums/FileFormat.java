@@ -27,7 +27,7 @@ public enum FileFormat {
                 return value;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport FileFormat:%s", name));
+        throw new IllegalArgumentException(String.format("Unsupported file format for %s", name));
     }
 
 }

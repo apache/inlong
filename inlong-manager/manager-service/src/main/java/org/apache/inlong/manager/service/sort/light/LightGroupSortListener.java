@@ -22,8 +22,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMap
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
@@ -101,14 +101,14 @@ public class LightGroupSortListener implements SortOperateListener {
 
     private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         final String groupId = groupInfo.getInlongGroupId();
-        List<SourceResponse> sourceResponses = sourceService.listSource(groupId, null);
-        Map<String, List<SourceResponse>> sourceMap = sourceResponses.stream()
-                .collect(Collectors.groupingBy(SourceResponse::getInlongStreamId, HashMap::new,
+        List<StreamSource> sourceInfos = sourceService.listSource(groupId, null);
+        Map<String, List<StreamSource>> sourceMap = sourceInfos.stream()
+                .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
 
-        List<SinkResponse> sinkResponses = sinkService.listSink(groupId, null);
-        Map<String, List<SinkResponse>> sinkMap = sinkResponses.stream()
-                .collect(Collectors.groupingBy(SinkResponse::getInlongStreamId, HashMap::new,
+        List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
+        Map<String, List<StreamSink>> sinkMap = streamSinks.stream()
+                .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
 
         List<TransformResponse> transformResponses = transformService.listTransform(groupId, null);
@@ -134,13 +134,13 @@ public class LightGroupSortListener implements SortOperateListener {
     }
 
     private List<Node> createNodesForStream(
-            List<SourceResponse> sourceResponses,
+            List<StreamSource> sourceInfos,
             List<TransformResponse> transformResponses,
-            List<SinkResponse> sinkResponses) {
+            List<StreamSink> streamSinks) {
         List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceResponses));
+        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceInfos));
         nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(sinkResponses));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
         return nodes;
     }
 

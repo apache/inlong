@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -91,7 +91,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public SourceResponse get(Integer id) {
+    public StreamSource get(Integer id) {
         Preconditions.checkNotNull(id, "source id is empty");
         StreamSourceEntity entity = sourceMapper.selectById(id);
         if (entity == null) {
@@ -99,9 +99,9 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
         }
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
-        SourceResponse sourceResponse = operation.getByEntity(entity);
+        StreamSource streamSource = operation.getByEntity(entity);
         LOGGER.debug("success to get source by id={}", id);
-        return sourceResponse;
+        return streamSource;
     }
 
     @Override
@@ -112,13 +112,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public List<SourceResponse> listSource(String groupId, String streamId) {
+    public List<StreamSource> listSource(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
-        List<SourceResponse> responseList = new ArrayList<>();
+        List<StreamSource> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId())));
 
         LOGGER.debug("success to list source by groupId={}, streamId={}", groupId, streamId);

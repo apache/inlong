@@ -30,11 +30,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -137,13 +137,13 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(@NotNull StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_ELASTICSEARCH.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ELASTICSEARCH, existType));
 
-        SinkResponse response = this.getFromEntity(entity, ElasticsearchSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, ElasticsearchSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkField::new);

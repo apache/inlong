@@ -37,7 +37,7 @@ public enum GroupMode {
     LIGHT("light");
 
     @Getter
-    private String mode;
+    private final String mode;
 
     GroupMode(String mode) {
         this.mode = mode;

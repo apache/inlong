@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.source.KafkaSource;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
@@ -48,31 +48,31 @@ public class InlongStreamImplTest {
         // add stream source
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName("A");
-        MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setSourceName("B");
+        MySQLBinlogSource binlogSourceRequest = new MySQLBinlogSource();
+        binlogSourceRequest.setSourceName("B");
         inlongStream.addSource(kafkaSource);
-        inlongStream.addSource(mySQLBinlogSource);
+        inlongStream.addSource(binlogSourceRequest);
         // add stream sink
-        ClickHouseSinkRequest clickHouseSink = new ClickHouseSinkRequest();
+        ClickHouseSink clickHouseSink = new ClickHouseSink();
         clickHouseSink.setSinkName("E");
         inlongStream.addSink(clickHouseSink);
 
-        HiveSinkRequest hiveSink = new HiveSinkRequest();
+        HiveSink hiveSink = new HiveSink();
         hiveSink.setSinkName("F");
         inlongStream.addSink(hiveSink);
 
-        KafkaSinkRequest kafkaSink1 = new KafkaSinkRequest();
+        KafkaSink kafkaSink1 = new KafkaSink();
         kafkaSink1.setSinkName("I");
         inlongStream.addSink(kafkaSink1);
 
-        KafkaSinkRequest kafkaSink2 = new KafkaSinkRequest();
+        KafkaSink kafkaSink2 = new KafkaSink();
         kafkaSink2.setSinkName("M");
         inlongStream.addSink(kafkaSink2);
 
         // add stream transform
         StreamTransform multiDependencyTransform = new MultiDependencyTransform(
                 "C",
-                new JoinerDefinition(kafkaSource, mySQLBinlogSource, Lists.newArrayList(), Lists.newArrayList(),
+                new JoinerDefinition(kafkaSource, binlogSourceRequest, Lists.newArrayList(), Lists.newArrayList(),
                         JoinMode.INNER_JOIN),
                 "A", "B");
         StreamTransform singleDependencyTransform1 = new SingleDependencyTransform(

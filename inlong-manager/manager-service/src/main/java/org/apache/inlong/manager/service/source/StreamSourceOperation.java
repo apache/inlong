@@ -22,7 +22,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 
 import java.util.function.Supplier;
@@ -53,7 +53,7 @@ public interface StreamSourceOperation {
      * @param entity get field value from the entity
      * @return source info
      */
-    SourceResponse getByEntity(StreamSourceEntity entity);
+    StreamSource getByEntity(StreamSourceEntity entity);
 
     /**
      * Get the target from the given entity.

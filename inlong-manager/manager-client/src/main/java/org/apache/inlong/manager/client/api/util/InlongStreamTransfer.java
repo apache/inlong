@@ -71,7 +71,7 @@ public class InlongStreamTransfer {
             fieldInfo.setInlongStreamId(streamInfo.getInlongStreamId());
             fieldInfo.setInlongGroupId(streamInfo.getInlongGroupId());
             fieldInfo.setFieldName(field.getFieldName());
-            fieldInfo.setFieldType(field.getFieldType().toString());
+            fieldInfo.setFieldType(field.getFieldType());
             fieldInfo.setFieldComment(field.getFieldComment());
             fieldInfo.setFieldValue(field.getFieldValue());
             fieldInfo.setIsMetaField(field.getIsMetaField());

@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -73,11 +73,11 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
     protected abstract String getSourceType();
 
     /**
-     * Creating source response object.
+     * Creating source object.
      *
-     * @return response object.
+     * @return source object
      */
-    protected abstract SourceResponse getResponse();
+    protected abstract StreamSource getSource();
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -113,18 +113,18 @@ public abstract class AbstractSourceOperation implements StreamSourceOperation {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
-    public SourceResponse getByEntity(@NotNull StreamSourceEntity entity) {
+    public StreamSource getByEntity(@NotNull StreamSourceEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
 
-        SourceResponse sourceResponse = this.getFromEntity(entity, this::getResponse);
+        StreamSource source = this.getFromEntity(entity, this::getSource);
         List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(entity.getId());
         List<StreamField> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
                 StreamField::new);
-        sourceResponse.setFieldList(fieldInfos);
-        return sourceResponse;
+        source.setFieldList(fieldInfos);
+        return source;
     }
 
     @Override

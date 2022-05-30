@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.common.pojo.sink;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,15 +27,16 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Stream sink configuration, including sink name, properties, etc.
+ * Stream sink info.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Stream sink configuration")
+@ApiModel("Stream sink info")
 public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty("Sink id")
@@ -47,28 +48,68 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
+    @ApiModelProperty("Sink type, including: HIVE, ICEBERG, etc.")
     private String sinkType;
 
-    @ApiModelProperty("Sink name, unique in one stream")
+    @ApiModelProperty("Sink name, unique in one stream.")
     private String sinkName;
+
+    @ApiModelProperty("Sink description")
+    private String description;
+
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
+
+    @ApiModelProperty("Sort task name")
+    private String sortTaskName;
+
+    @ApiModelProperty("Sort consumer group")
+    private String sortConsumerGroup;
+
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
+            notes = "Such as create Hive table")
+    private Integer enableCreateResource = 1;
+
+    @ApiModelProperty("Backend operation log")
+    private String operateLog;
+
+    @ApiModelProperty("Status")
+    private Integer status;
+
+    @ApiModelProperty("Previous SimpleSourceStatus")
+    private Integer previousStatus;
+
+    @ApiModelProperty("Creator")
+    private String creator;
+
+    @ApiModelProperty("Modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    @ApiModelProperty("Sink field list")
+    private List<SinkField> fieldList;
+
+    @ApiModelProperty("Properties for sink")
+    private Map<String, Object> properties;
 
     @JsonIgnore
     @ApiModelProperty("Data format type for stream sink")
-    private DataFormat dataFormat;
+    private DataFormat dataFormat = DataFormat.NONE;
 
     @JsonIgnore
     @ApiModelProperty("Authentication info if needed")
     private DefaultAuthentication authentication;
 
-    @ApiModelProperty("Sink field list")
-    private List<SinkField> fieldList;
-
-    @ApiModelProperty("Other properties if needed")
-    private Map<String, Object> properties = Maps.newHashMap();
-
-    public DataFormat getDataFormat() {
-        return DataFormat.NONE;
+    public SinkRequest genSinkRequest() {
+        return null;
     }
 
 }

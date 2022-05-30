@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
@@ -83,7 +83,7 @@ public interface InlongClient {
      * @return map of inlong group status list
      * @throws Exception the exception
      */
-    Map<String, InlongGroupStatus> listGroupState(List<String> groupNames) throws Exception;
+    Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) throws Exception;
 
     /**
      * Gets group.
