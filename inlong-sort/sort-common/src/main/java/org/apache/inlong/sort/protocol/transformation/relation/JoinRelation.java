@@ -37,15 +37,15 @@ import java.util.Map;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FullOuterJoinRelationShip.class, name = "fullOuterJoin"),
-        @JsonSubTypes.Type(value = InnerJoinNodeRelationShip.class, name = "innerJoin"),
-        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelationShip.class, name = "leftOuterJoin"),
-        @JsonSubTypes.Type(value = RightOuterJoinNodeRelationShip.class, name = "rightOutJoin")
+        @JsonSubTypes.Type(value = FullOuterJoinRelation.class, name = "fullOuterJoin"),
+        @JsonSubTypes.Type(value = InnerJoinNodeRelation.class, name = "innerJoin"),
+        @JsonSubTypes.Type(value = LeftOuterJoinNodeRelation.class, name = "leftOuterJoin"),
+        @JsonSubTypes.Type(value = RightOuterJoinNodeRelation.class, name = "rightOutJoin")
 })
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public abstract class JoinRelationShip extends NodeRelationShip {
+public abstract class JoinRelation extends NodeRelation {
 
     private static final long serialVersionUID = -213673939512251116L;
 
@@ -53,7 +53,7 @@ public abstract class JoinRelationShip extends NodeRelationShip {
     private Map<String, List<FilterFunction>> joinConditionMap;
 
     /**
-     * JoinRelationShip Constructor
+     * JoinRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
@@ -61,17 +61,17 @@ public abstract class JoinRelationShip extends NodeRelationShip {
      *         the key of joinConditionMap is the node id of join node
      *         the value of joinConditionMap is a list of join contidition
      */
-    public JoinRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs,
-            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public JoinRelation(@JsonProperty("inputs") List<String> inputs,
+                        @JsonProperty("outputs") List<String> outputs,
+                        @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs);
         this.joinConditionMap = Preconditions.checkNotNull(joinConditionMap, "joinConditionMap is null");
         Preconditions.checkState(!joinConditionMap.isEmpty(), "joinConditionMap is empty");
     }
 
     /**
-     * Node relationship format
-     * that is, the relationship is converted into a string representation of SQL
+     * Node relation format
+     * that is, the relation is converted into a string representation of SQL
      *
      * @return a string representation of SQL
      */

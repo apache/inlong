@@ -45,10 +45,10 @@ import org.apache.inlong.sort.protocol.transformation.function.SingleValueFilter
 import org.apache.inlong.sort.protocol.transformation.operator.AndOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EmptyOperator;
 import org.apache.inlong.sort.protocol.transformation.operator.EqualOperator;
-import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterJoinNodeRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
-import org.apache.inlong.sort.protocol.transformation.relation.RightOuterJoinNodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterJoinNodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.RightOuterJoinNodeRelation;
 
 import java.util.Iterator;
 import java.util.List;
@@ -64,7 +64,7 @@ public class NodeRelationShipUtils {
     /**
      * Create node relationship for the given stream
      */
-    public static List<NodeRelationShip> createNodeRelationShipsForStream(InlongStreamInfo streamInfo) {
+    public static List<NodeRelation> createNodeRelationShipsForStream(InlongStreamInfo streamInfo) {
         String tempView = streamInfo.getExtParams();
         if (StringUtils.isEmpty(tempView)) {
             log.warn("StreamNodeRelationShip is empty for Stream={}", streamInfo);
@@ -73,7 +73,7 @@ public class NodeRelationShipUtils {
         StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getExtParams(),
                 streamInfo.getInlongStreamId());
         return pipeline.getPipeline().stream()
-                .map(nodeRelationship -> new NodeRelationShip(
+                .map(nodeRelationship -> new NodeRelation(
                         Lists.newArrayList(nodeRelationship.getInputNodes()),
                         Lists.newArrayList(nodeRelationship.getOutputNodes())))
                 .collect(Collectors.toList());
@@ -100,11 +100,11 @@ public class NodeRelationShipUtils {
                     return transformDefinition.getTransformType() == TransformType.JOINER;
                 }).collect(Collectors.toMap(TransformNode::getName, transformNode -> transformNode));
 
-        List<NodeRelationShip> relationships = streamInfo.getRelations();
-        Iterator<NodeRelationShip> shipIterator = relationships.listIterator();
-        List<NodeRelationShip> joinRelationships = Lists.newArrayList();
+        List<NodeRelation> relationships = streamInfo.getRelations();
+        Iterator<NodeRelation> shipIterator = relationships.listIterator();
+        List<NodeRelation> joinRelationships = Lists.newArrayList();
         while (shipIterator.hasNext()) {
-            NodeRelationShip relationship = shipIterator.next();
+            NodeRelation relationship = shipIterator.next();
             List<String> outputs = relationship.getOutputs();
             if (outputs.size() == 1) {
                 String nodeName = outputs.get(0);
@@ -119,8 +119,8 @@ public class NodeRelationShipUtils {
         relationships.addAll(joinRelationships);
     }
 
-    private static NodeRelationShip createNodeRelationShip(JoinerDefinition joinerDefinition,
-            NodeRelationShip nodeRelationship) {
+    private static NodeRelation createNodeRelationShip(JoinerDefinition joinerDefinition,
+                                                       NodeRelation nodeRelationship) {
         JoinMode joinMode = joinerDefinition.getJoinMode();
         String leftNode = getNodeName(joinerDefinition.getLeftNode());
         String rightNode = getNodeName(joinerDefinition.getRightNode());
@@ -143,11 +143,11 @@ public class NodeRelationShipUtils {
         joinConditions.put(rightNode, filterFunctions);
         switch (joinMode) {
             case LEFT_JOIN:
-                return new LeftOuterJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
+                return new LeftOuterJoinNodeRelation(preNodes, nodeRelationship.getOutputs(), joinConditions);
             case INNER_JOIN:
-                return new InnerJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
+                return new InnerJoinNodeRelation(preNodes, nodeRelationship.getOutputs(), joinConditions);
             case RIGHT_JOIN:
-                return new RightOuterJoinNodeRelationShip(preNodes, nodeRelationship.getOutputs(), joinConditions);
+                return new RightOuterJoinNodeRelation(preNodes, nodeRelationship.getOutputs(), joinConditions);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported join mode=%s for inlong", joinMode));
         }

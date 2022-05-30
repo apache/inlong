@@ -34,7 +34,7 @@ import org.apache.inlong.sort.protocol.node.format.CsvFormat;
 import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nonnull;
@@ -72,7 +72,7 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
     public KafkaLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @Nonnull @JsonProperty("topic") String topic,
@@ -81,7 +81,7 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("primaryKey") String primaryKey) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.topic = Preconditions.checkNotNull(topic, "topic is null");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "bootstrapServers is null");
         this.format = Preconditions.checkNotNull(format, "format is null");

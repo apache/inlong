@@ -22,9 +22,9 @@ import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 
 /**
- * Test for {@link FieldRelationShip}
+ * Test for {@link FieldRelation}
  */
-public class FieldRelationShipTest extends SerializeBaseTest<FieldRelationShip> {
+public class FieldRelationTest extends SerializeBaseTest<FieldRelation> {
 
     /**
      * Get test object
@@ -32,8 +32,8 @@ public class FieldRelationShipTest extends SerializeBaseTest<FieldRelationShip> 
      * @return The test object
      */
     @Override
-    public FieldRelationShip getTestObject() {
-        return new FieldRelationShip(new FieldInfo("f", StringFormatInfo.INSTANCE),
+    public FieldRelation getTestObject() {
+        return new FieldRelation(new FieldInfo("f", StringFormatInfo.INSTANCE),
                 new FieldInfo("f", StringFormatInfo.INSTANCE));
     }
 }

@@ -48,7 +48,7 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -95,8 +95,8 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         try {
             List<SourceResponse> sourceResponses = createPulsarSources(groupInfo, streamInfo);
             List<Node> nodes = createNodesForStream(sourceResponses, sinkResponses);
-            List<NodeRelationShip> nodeRelationships = createNodeRelationshipsForStream(sourceResponses, sinkResponses);
-            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelationships);
+            List<NodeRelation> nodeRelations = createNodeRelationsForStream(sourceResponses, sinkResponses);
+            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelations);
             GroupInfo sortGroupInfo = new GroupInfo(groupId, Lists.newArrayList(sortStreamInfo));
             String dataFlows = OBJECT_MAPPER.writeValueAsString(sortGroupInfo);
             InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
@@ -157,17 +157,17 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationshipsForStream(
+    private List<NodeRelation> createNodeRelationsForStream(
             List<SourceResponse> sourceResponses,
             List<SinkResponse> sinkResponses) {
-        NodeRelationShip relationship = new NodeRelationShip();
+        NodeRelation relation = new NodeRelation();
         List<String> inputs = sourceResponses.stream().map(SourceResponse::getSourceName)
                 .collect(Collectors.toList());
         List<String> outputs = sinkResponses.stream().map(SinkResponse::getSinkName)
                 .collect(Collectors.toList());
-        relationship.setInputs(inputs);
-        relationship.setOutputs(outputs);
-        return Lists.newArrayList(relationship);
+        relation.setInputs(inputs);
+        relation.setOutputs(outputs);
+        return Lists.newArrayList(relation);
     }
 
     private void upsertDataFlow(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {

@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Inner join relationship class which defines the inner join relationship
+ * Inner join relation class which defines the inner join relation
  */
 @JsonTypeName("innerJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class InnerJoinNodeRelationShip extends JoinRelationShip {
+public class InnerJoinNodeRelation extends JoinRelation {
 
     private static final long serialVersionUID = -5446480979888656724L;
 
     /**
-     * InnerJoinNodeRelationShip Constructor
+     * InnerJoinNodeRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
@@ -49,9 +49,9 @@ public class InnerJoinNodeRelationShip extends JoinRelationShip {
      *         the value of joinConditionMap is a list of join contidition
      */
     @JsonCreator
-    public InnerJoinNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs,
-            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public InnerJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
+                                 @JsonProperty("outputs") List<String> outputs,
+                                 @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 

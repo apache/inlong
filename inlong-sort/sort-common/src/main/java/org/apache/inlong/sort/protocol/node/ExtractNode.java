@@ -78,10 +78,10 @@ public abstract class ExtractNode implements Node {
 
     @JsonCreator
     public ExtractNode(@JsonProperty("id") String id,
-            @JsonProperty("name") String name,
-            @JsonProperty("fields") List<FieldInfo> fields,
-            @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
-            @JsonProperty("properties") Map<String, String> properties) {
+                       @JsonProperty("name") String name,
+                       @JsonProperty("fields") List<FieldInfo> fields,
+                       @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
+                       @Nullable @JsonProperty("properties") Map<String, String> properties) {
         this.id = Preconditions.checkNotNull(id, "id is null");
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");

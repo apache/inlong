@@ -34,11 +34,10 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
-import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nullable;
@@ -61,8 +60,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = ClickHouseLoadNode.class, name = "clickHouseLoad"),
         @JsonSubTypes.Type(value = SqlServerLoadNode.class, name = "sqlserverLoad"),
         @JsonSubTypes.Type(value = TDSQLPostgresLoadNode.class, name = "tdsqlPostgresLoad"),
-        @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad"),
-        @JsonSubTypes.Type(value = OracleLoadNode.class, name = "oracleLoad")
+        @JsonSubTypes.Type(value = MySqlLoadNode.class, name = "mysqlLoad")
 })
 @NoArgsConstructor
 @Data
@@ -75,8 +73,8 @@ public abstract class LoadNode implements Node {
     private String name;
     @JsonProperty("fields")
     private List<FieldInfo> fields;
-    @JsonProperty("fieldRelationShips")
-    private List<FieldRelationShip> fieldRelationShips;
+    @JsonProperty("fieldRelations")
+    private List<FieldRelation> fieldRelations;
     @Nullable
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("sinkParallelism")
@@ -94,20 +92,20 @@ public abstract class LoadNode implements Node {
 
     @JsonCreator
     public LoadNode(@JsonProperty("id") String id,
-            @JsonProperty("name") String name,
-            @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
-            @JsonProperty("filters") List<FilterFunction> filters,
-            @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
-            @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
-            @Nullable @JsonProperty("properties") Map<String, String> properties) {
+                    @JsonProperty("name") String name,
+                    @JsonProperty("fields") List<FieldInfo> fields,
+                    @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
+                    @JsonProperty("filters") List<FilterFunction> filters,
+                    @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
+                    @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
+                    @Nullable @JsonProperty("properties") Map<String, String> properties) {
         this.id = Preconditions.checkNotNull(id, "id is null");
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");
         Preconditions.checkState(!fields.isEmpty(), "fields is empty");
-        this.fieldRelationShips = Preconditions.checkNotNull(fieldRelationShips,
-                "fieldRelationShips is null");
-        Preconditions.checkState(!fieldRelationShips.isEmpty(), "fieldRelationShips is empty");
+        this.fieldRelations = Preconditions.checkNotNull(fieldRelations,
+                "fieldRelations is null");
+        Preconditions.checkState(!fieldRelations.isEmpty(), "fieldRelations is empty");
         this.filters = filters;
         this.filterStrategy = filterStrategy;
         this.sinkParallelism = sinkParallelism;

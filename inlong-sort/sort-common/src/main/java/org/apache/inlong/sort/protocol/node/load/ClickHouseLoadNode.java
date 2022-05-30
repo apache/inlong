@@ -28,7 +28,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nonnull;
@@ -65,7 +65,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     public ClickHouseLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
@@ -74,7 +74,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
             @Nonnull @JsonProperty("passWord") String password) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");

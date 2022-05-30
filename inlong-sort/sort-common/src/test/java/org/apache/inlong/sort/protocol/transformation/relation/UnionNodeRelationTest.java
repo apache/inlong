@@ -23,13 +23,13 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * Tests for {@link UnionNodeRelationShip}
+ * Tests for {@link UnionNodeRelation}
  */
-public class UnionNodeRelationTest extends SerializeBaseTest<UnionNodeRelationShip> {
+public class UnionNodeRelationTest extends SerializeBaseTest<UnionNodeRelation> {
 
     @Override
-    public UnionNodeRelationShip getTestObject() {
-        return new UnionNodeRelationShip(Arrays.asList("1", "2"),
+    public UnionNodeRelation getTestObject() {
+        return new UnionNodeRelation(Arrays.asList("1", "2"),
                 Collections.singletonList("3"));
     }
 }

@@ -29,18 +29,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Left outer join relationship class which defines the left outer join relationship
+ * Right outer join relation class which defines the right outer join relation
  */
-@JsonTypeName("leftOuterJoin")
+@JsonTypeName("rightOutJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class LeftOuterJoinNodeRelationShip extends JoinRelationShip {
+public class RightOuterJoinNodeRelation extends JoinRelation {
 
-    private static final long serialVersionUID = -2982848817690520421L;
+    private static final long serialVersionUID = 9202862229428483437L;
 
     /**
-     * LeftOuterJoinNodeRelationShip Constructor
+     * RightOuterJoinNodeRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
@@ -49,14 +49,14 @@ public class LeftOuterJoinNodeRelationShip extends JoinRelationShip {
      *         the value of joinConditionMap is a list of join contidition
      */
     @JsonCreator
-    public LeftOuterJoinNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs,
-            @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+    public RightOuterJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
+                                      @JsonProperty("outputs") List<String> outputs,
+                                      @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
         super(inputs, outputs, joinConditionMap);
     }
 
     @Override
     public String format() {
-        return "LEFT OUTER JOIN";
+        return "RIGHT OUTER JOIN";
     }
 }

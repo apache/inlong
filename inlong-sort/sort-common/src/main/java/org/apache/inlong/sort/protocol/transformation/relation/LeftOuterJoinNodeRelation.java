@@ -19,33 +19,44 @@ package org.apache.inlong.sort.protocol.transformation.relation;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Union relationship class which defines the union relationship
+ * Left outer join relation class which defines the left outer join relation
  */
-@JsonTypeName("union")
+@JsonTypeName("leftOuterJoin")
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class UnionNodeRelationShip extends NodeRelationShip {
+@NoArgsConstructor
+public class LeftOuterJoinNodeRelation extends JoinRelation {
 
-    private static final long serialVersionUID = 6602357131254518291L;
+    private static final long serialVersionUID = -2982848817690520421L;
 
     /**
-     * UnionNodeRelationShip Constructor
+     * LeftOuterJoinNodeRelation Constructor
      *
      * @param inputs The inputs is a list of input node id
      * @param outputs The outputs is a list of output node id
+     * @param joinConditionMap The joinConditionMap is a map of join conditions
+     *         the key of joinConditionMap is the node id of join node
+     *         the value of joinConditionMap is a list of join contidition
      */
-    public UnionNodeRelationShip(@JsonProperty("inputs") List<String> inputs,
-            @JsonProperty("outputs") List<String> outputs) {
-        super(inputs, outputs);
+    @JsonCreator
+    public LeftOuterJoinNodeRelation(@JsonProperty("inputs") List<String> inputs,
+                                     @JsonProperty("outputs") List<String> outputs,
+                                     @JsonProperty("joinConditionMap") Map<String, List<FilterFunction>> joinConditionMap) {
+        super(inputs, outputs, joinConditionMap);
     }
 
+    @Override
     public String format() {
-        return "UNION ALL";
+        return "LEFT OUTER JOIN";
     }
 }

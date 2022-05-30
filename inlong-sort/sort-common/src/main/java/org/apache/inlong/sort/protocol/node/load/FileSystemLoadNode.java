@@ -26,7 +26,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nonnull;
@@ -70,7 +70,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     public FileSystemLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @Nonnull @JsonProperty("path") String path,
             @Nonnull @JsonProperty("format") String format,
@@ -78,7 +78,7 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("parFields") List<FieldInfo> partitionFields,
             @JsonProperty("serverTimeZone") String serverTimeZone) {
-        super(id, name, fields, fieldRelationShips, filters, null, sinkParallelism, properties);
+        super(id, name, fields, fieldRelations, filters, null, sinkParallelism, properties);
         this.format = Preconditions.checkNotNull(format, "format type is null");
         this.path = Preconditions.checkNotNull(path, "path is null");
         this.partitionFields = partitionFields;
