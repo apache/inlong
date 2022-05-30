@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkResponse;
@@ -216,8 +216,7 @@ public class SinkInfoUtils {
     /**
      * Check the validation of Hive partition field.
      */
-    public static void checkPartitionField(List<? extends SinkFieldBase> fieldList,
-            List<HivePartitionField> partitionList) {
+    public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
@@ -226,7 +225,7 @@ public class SinkInfoUtils {
             throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
         }
 
-        Map<String, SinkFieldBase> sinkFieldMap = new HashMap<>(fieldList.size());
+        Map<String, SinkField> sinkFieldMap = new HashMap<>(fieldList.size());
         fieldList.forEach(field -> sinkFieldMap.put(field.getFieldName(), field));
 
         for (HivePartitionField partitionField : partitionList) {
@@ -235,7 +234,7 @@ public class SinkInfoUtils {
                 throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
             }
 
-            SinkFieldBase sinkField = sinkFieldMap.get(fieldName);
+            SinkField sinkField = sinkFieldMap.get(fieldName);
             if (sinkField == null) {
                 throw new BusinessException(
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
@@ -252,18 +251,18 @@ public class SinkInfoUtils {
      * Creat HBase sink info.
      */
     private static HbaseSinkInfo createHbaseSinkInfo(HbaseSinkResponse sinkResponse, List<FieldInfo> sinkFields) {
-        if (StringUtils.isEmpty(sinkResponse.getZookeeperQuorum())) {
+        if (StringUtils.isEmpty(sinkResponse.getZkQuorum())) {
             throw new BusinessException(String.format("HBase={%s} zookeeper quorum url cannot be empty", sinkResponse));
-        } else if (StringUtils.isEmpty(sinkResponse.getZookeeperZnodeParent())) {
+        } else if (StringUtils.isEmpty(sinkResponse.getZkNodeParent())) {
             throw new BusinessException(String.format("HBase={%s} zookeeper node cannot be empty", sinkResponse));
         } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
             throw new BusinessException(String.format("HBase={%s} table name cannot be empty", sinkResponse));
         }
 
-        return new HbaseSinkInfo(sinkFields.toArray(new FieldInfo[0]), sinkResponse.getZookeeperQuorum(),
-                sinkResponse.getZookeeperZnodeParent(), sinkResponse.getNamespace(), sinkResponse.getTableName(),
-                sinkResponse.getSinkBufferFlushMaxSize(), sinkResponse.getSinkBufferFlushMaxSize(),
-                sinkResponse.getSinkBufferFlushInterval());
+        return new HbaseSinkInfo(sinkFields.toArray(new FieldInfo[0]), sinkResponse.getZkQuorum(),
+                sinkResponse.getZkNodeParent(), sinkResponse.getNamespace(), sinkResponse.getTableName(),
+                sinkResponse.getBufferFlushMaxSize(), sinkResponse.getBufferFlushMaxSize(),
+                sinkResponse.getBufferFlushInterval());
 
     }
 

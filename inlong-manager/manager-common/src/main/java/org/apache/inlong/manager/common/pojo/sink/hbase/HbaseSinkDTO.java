@@ -42,29 +42,29 @@ public class HbaseSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Target table name")
-    private String tableName;
-
     @ApiModelProperty("Namespace")
     private String namespace;
+
+    @ApiModelProperty("Target table name")
+    private String tableName;
 
     @ApiModelProperty("Row key")
     private String rowKey;
 
-    @ApiModelProperty("Zookeeper quorm")
-    private String zookeeperQuorum;
+    @ApiModelProperty("ZooKeeper quorum")
+    private String zkQuorum;
+
+    @ApiModelProperty("ZooKeeper node parent")
+    private String zkNodeParent;
 
     @ApiModelProperty("Sink buffer flush maxsize")
-    private String sinkBufferFlushMaxSize;
-
-    @ApiModelProperty("Zookeeper znode parent")
-    private String zookeeperZnodeParent;
+    private String bufferFlushMaxSize;
 
     @ApiModelProperty("Sink buffer flush max rows")
-    private String sinkBufferFlushMaxRows;
+    private String bufferFlushMaxRows;
 
     @ApiModelProperty("Sink buffer flush interval")
-    private String sinkBufferFlushInterval;
+    private String bufferFlushInterval;
 
     @ApiModelProperty("Properties for hbase")
     private Map<String, Object> properties;
@@ -77,11 +77,11 @@ public class HbaseSinkDTO {
                 .tableName(request.getTableName())
                 .namespace(request.getNamespace())
                 .rowKey(request.getRowKey())
-                .zookeeperQuorum(request.getZookeeperQuorum())
-                .sinkBufferFlushMaxSize(request.getSinkBufferFlushMaxSize())
-                .zookeeperZnodeParent(request.getZookeeperZnodeParent())
-                .sinkBufferFlushMaxRows(request.getSinkBufferFlushMaxRows())
-                .sinkBufferFlushInterval(request.getSinkBufferFlushInterval())
+                .zkQuorum(request.getZkQuorum())
+                .bufferFlushMaxSize(request.getBufferFlushMaxSize())
+                .zkNodeParent(request.getZkNodeParent())
+                .bufferFlushMaxRows(request.getBufferFlushMaxRows())
+                .bufferFlushInterval(request.getBufferFlushInterval())
                 .properties(request.getProperties())
                 .build();
     }

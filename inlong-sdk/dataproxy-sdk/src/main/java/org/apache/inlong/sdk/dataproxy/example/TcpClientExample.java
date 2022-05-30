@@ -51,7 +51,7 @@ public class TcpClientExample {
          * for example:
          *  /data/inlong/config/test_test.local
          * and file context like this:
-         * {"isInterVisit":1,"cluster_id":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
+         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
          * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
          * 2. if isLocalVisit is false, will get dataproxy server info from manager
          * so we must ensure that the manager server url is configured correctly!

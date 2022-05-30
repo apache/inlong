@@ -82,7 +82,7 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Table engine, support MergeTree Mem and so on")
     private String engine;
 
-    @ApiModelProperty("Table Partiion information")
+    @ApiModelProperty("Table partition information")
     private String partitionBy;
 
     @ApiModelProperty("Table order information")

@@ -222,7 +222,7 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public List<InlongStream> listStreams() throws Exception {
         String inlongGroupId = this.groupContext.getGroupId();
-        return fetchDataStreams(inlongGroupId);
+        return fetchInlongStreams(inlongGroupId);
     }
 
     private InlongGroupContext generateSnapshot() {
@@ -231,7 +231,7 @@ public class InlongGroupImpl implements InlongGroup {
         groupContext.setGroupInfo(groupInfo);
         String inlongGroupId = groupInfo.getInlongGroupId();
         // fetch stream in group
-        List<InlongStream> dataStreams = fetchDataStreams(inlongGroupId);
+        List<InlongStream> dataStreams = fetchInlongStreams(inlongGroupId);
         if (CollectionUtils.isNotEmpty(dataStreams)) {
             dataStreams.forEach(groupContext::setStream);
         }
@@ -276,13 +276,13 @@ public class InlongGroupImpl implements InlongGroup {
         return inlongGroupContext;
     }
 
-    private List<InlongStream> fetchDataStreams(String groupId) {
+    private List<InlongStream> fetchInlongStreams(String groupId) {
         List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
         if (CollectionUtils.isEmpty(streamResponses)) {
             return null;
         }
         return streamResponses.stream()
-                .map(fullStreamResponse -> new InlongStreamImpl(fullStreamResponse, managerClient))
+                .map(response -> new InlongStreamImpl(response, managerClient))
                 .collect(Collectors.toList());
     }
 }

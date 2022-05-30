@@ -23,11 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
-import org.apache.inlong.manager.client.api.sink.HiveSink;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 
 import java.lang.reflect.Type;
 
@@ -36,6 +32,9 @@ import java.lang.reflect.Type;
  */
 public class StreamSinkAdapter implements JsonDeserializer<StreamSink> {
 
+    /**
+     * TODO refactor by {@link org.apache.inlong.manager.common.util.JsonTypeDefine}
+     */
     @Override
     public StreamSink deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
             throws JsonParseException {
@@ -43,7 +42,7 @@ public class StreamSinkAdapter implements JsonDeserializer<StreamSink> {
         String sinkType = jsonObject.get("sinkType").getAsString();
         Gson gson = GsonUtils.GSON;
         try {
-            switch (sinkType) {
+            /*switch (sinkType) {
                 case SinkType.SINK_HIVE:
                     return gson.fromJson(jsonElement, (Type) Class.forName((HiveSink.class).getName()));
                 case SinkType.SINK_KAFKA:
@@ -52,8 +51,9 @@ public class StreamSinkAdapter implements JsonDeserializer<StreamSink> {
                     return gson.fromJson(jsonElement, (Type) Class.forName((ClickHouseSink.class).getName()));
                 default:
                     throw new IllegalArgumentException(String.format("Unsupported sink type=%s for Inlong", sinkType));
-            }
-        } catch (Exception e) {
+        }*/
+        } catch (
+                Exception e) {
             e.printStackTrace();
         }
         return null;

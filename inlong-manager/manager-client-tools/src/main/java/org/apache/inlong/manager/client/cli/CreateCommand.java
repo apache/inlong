@@ -71,7 +71,7 @@ public class CreateCommand extends AbstractCommand {
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
-                streamBuilder.sink(groupConf.getStreamSink());
+                streamBuilder.sink(groupConf.getSinkRequest());
                 streamBuilder.initOrUpdate();
                 group.init();
                 System.out.println("Create group success!");

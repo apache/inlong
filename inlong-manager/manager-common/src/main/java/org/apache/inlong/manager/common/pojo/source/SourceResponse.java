@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 import java.util.Date;
 import java.util.List;
@@ -71,7 +71,7 @@ public class SourceResponse {
     @ApiModelProperty("Status")
     private Integer status;
 
-    @ApiModelProperty("Previous State")
+    @ApiModelProperty("Previous Status")
     private Integer previousStatus;
 
     @ApiModelProperty("Creator")
@@ -87,6 +87,6 @@ public class SourceResponse {
     private Date modifyTime;
 
     @ApiModelProperty(value = "Field list")
-    private List<InlongStreamFieldInfo> fieldList;
+    private List<StreamField> fieldList;
 
 }

@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
@@ -58,11 +58,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ExtractNodeUtils {
 
+    /**
+     * Create extract nodes from the source responses.
+     */
     public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
         if (CollectionUtils.isEmpty(sourceResponses)) {
             return Lists.newArrayList();
         }
-        return sourceResponses.stream().map(sourceResponse -> createExtractNode(sourceResponse))
+        return sourceResponses.stream().map(ExtractNodeUtils::createExtractNode)
                 .collect(Collectors.toList());
     }
 
@@ -86,34 +89,34 @@ public class ExtractNodeUtils {
     /**
      * Create MySqlExtractNode based on BinlogSourceResponse
      *
-     * @param binlogSourceResponse binlog source response info
+     * @param sourceResponse binlog source response info
      * @return MySql extract node info
      */
-    public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
-        final String id = binlogSourceResponse.getSourceName();
-        final String name = binlogSourceResponse.getSourceName();
-        final String database = binlogSourceResponse.getDatabaseWhiteList();
-        final String primaryKey = binlogSourceResponse.getPrimaryKey();
-        final String hostName = binlogSourceResponse.getHostname();
-        final String userName = binlogSourceResponse.getUser();
-        final String password = binlogSourceResponse.getPassword();
-        final Integer port = binlogSourceResponse.getPort();
+    public static MySqlExtractNode createExtractNode(BinlogSourceResponse sourceResponse) {
+        final String id = sourceResponse.getSourceName();
+        final String name = sourceResponse.getSourceName();
+        final String database = sourceResponse.getDatabaseWhiteList();
+        final String primaryKey = sourceResponse.getPrimaryKey();
+        final String hostName = sourceResponse.getHostname();
+        final String userName = sourceResponse.getUser();
+        final String password = sourceResponse.getPassword();
+        final Integer port = sourceResponse.getPort();
         Integer serverId = null;
-        if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
-            serverId = binlogSourceResponse.getServerId();
+        if (sourceResponse.getServerId() != null && sourceResponse.getServerId() > 0) {
+            serverId = sourceResponse.getServerId();
         }
-        String tables = binlogSourceResponse.getTableWhiteList();
+        String tables = sourceResponse.getTableWhiteList();
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
-        final List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();
-        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+        final List<StreamField> streamFields = sourceResponse.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFields.stream()
+                .map(streamField -> FieldInfoUtils.parseStreamFieldInfo(streamField, name))
                 .collect(Collectors.toList());
-        final String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        final String serverTimeZone = sourceResponse.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
 
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
-        if (binlogSourceResponse.isAllMigration()) {
+        if (sourceResponse.isAllMigration()) {
             // Unique properties when migrate all tables in database
             incrementalSnapshotEnabled = false;
             properties.put("migrate-all", "true");
@@ -149,13 +152,13 @@ public class ExtractNodeUtils {
     public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
         String id = kafkaSourceResponse.getSourceName();
         String name = kafkaSourceResponse.getSourceName();
-        List<InlongStreamFieldInfo> streamFieldInfos = kafkaSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+        List<StreamField> streamFields = kafkaSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         String topic = kafkaSourceResponse.getTopic();
         String bootstrapServers = kafkaSourceResponse.getBootstrapServers();
-        Format format = null;
+        Format format;
         DataTypeEnum dataType = DataTypeEnum.forName(kafkaSourceResponse.getSerializationType());
         switch (dataType) {
             case CSV:
@@ -211,8 +214,8 @@ public class ExtractNodeUtils {
     public static PulsarExtractNode createExtractNode(PulsarSourceResponse pulsarSourceResponse) {
         String id = pulsarSourceResponse.getSourceName();
         String name = pulsarSourceResponse.getSourceName();
-        List<InlongStreamFieldInfo> streamFieldInfos = pulsarSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+        List<StreamField> streamFields = pulsarSourceResponse.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         String topic = pulsarSourceResponse.getTopic();
@@ -267,10 +270,10 @@ public class ExtractNodeUtils {
      * @return postgres extract node info
      */
     public static PostgresExtractNode createExtractNode(PostgresSourceResponse postgresSourceResponse) {
-        List<InlongStreamFieldInfo> streamFieldInfos = postgresSourceResponse.getFieldList();
+        List<StreamField> streamFields = postgresSourceResponse.getFieldList();
         String id = postgresSourceResponse.getSourceName();
         String name = postgresSourceResponse.getSourceName();
-        List<FieldInfo> fields = streamFieldInfos.stream()
+        List<FieldInfo> fields = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         return new PostgresExtractNode(id, name, fields, null, null,

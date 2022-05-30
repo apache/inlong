@@ -22,15 +22,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * InnerStreamContext.
+ * Inner stream context.
  */
 @Data
 @NoArgsConstructor
@@ -48,8 +48,8 @@ public class InnerStreamContext {
         this.streamInfo = streamInfo;
     }
 
-    public void updateStreamFields(List<InlongStreamFieldInfo> fieldInfoList) {
-        streamInfo.setFieldList(fieldInfoList);
+    public void updateStreamFields(List<StreamField> fieldList) {
+        streamInfo.setFieldList(fieldList);
     }
 
     public void setSourceRequest(SourceRequest sourceRequest) {

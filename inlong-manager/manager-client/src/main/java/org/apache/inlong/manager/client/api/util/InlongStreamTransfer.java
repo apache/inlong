@@ -22,7 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -38,11 +37,11 @@ public class InlongStreamTransfer {
     public static InlongStreamInfo createStreamInfo(InlongStreamConf streamConf, InlongGroupInfo groupInfo) {
         InlongStreamInfo dataStreamInfo = new InlongStreamInfo();
         dataStreamInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        dataStreamInfo.setInlongStreamId(streamConf.getStreamId());
+        dataStreamInfo.setInlongStreamId(streamConf.getInlongStreamId());
         dataStreamInfo.setName(streamConf.getName());
         dataStreamInfo.setDataEncoding(streamConf.getCharset().name());
         if (StringUtils.isEmpty(streamConf.getMqResource())) {
-            dataStreamInfo.setMqResource(streamConf.getStreamId());
+            dataStreamInfo.setMqResource(streamConf.getInlongStreamId());
         } else {
             dataStreamInfo.setMqResource(streamConf.getMqResource());
         }
@@ -62,13 +61,13 @@ public class InlongStreamTransfer {
     /**
      * Create inlong stream fields.
      */
-    public static List<InlongStreamFieldInfo> createStreamFields(
+    public static List<StreamField> createStreamFields(
             List<StreamField> fieldList, InlongStreamInfo streamInfo) {
         if (CollectionUtils.isEmpty(fieldList)) {
             return Lists.newArrayList();
         }
         return fieldList.stream().map(field -> {
-            InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
+            StreamField fieldInfo = new StreamField();
             fieldInfo.setInlongStreamId(streamInfo.getInlongStreamId());
             fieldInfo.setInlongGroupId(streamInfo.getInlongGroupId());
             fieldInfo.setFieldName(field.getFieldName());
@@ -84,7 +83,7 @@ public class InlongStreamTransfer {
     /**
      * Parse information of stream fields.
      */
-    public static List<StreamField> parseStreamFields(List<InlongStreamFieldInfo> fields) {
+    public static List<StreamField> parseStreamFields(List<StreamField> fields) {
         if (CollectionUtils.isEmpty(fields)) {
             return null;
         }

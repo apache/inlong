@@ -29,20 +29,18 @@ import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
-import org.apache.inlong.manager.client.api.util.InlongStreamSinkTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamSourceTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.client.api.util.InlongStreamTransformTransfer;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
@@ -55,26 +53,25 @@ import java.util.Map;
  */
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
-    private InlongStreamImpl inlongStream;
+    private final InlongStreamImpl inlongStream;
 
-    private InnerStreamContext streamContext;
+    private final InnerStreamContext streamContext;
 
-    private InnerInlongManagerClient managerClient;
+    private final InnerInlongManagerClient managerClient;
 
-    public DefaultInlongStreamBuilder(
-            InlongStreamConf streamConf,
-            InnerGroupContext groupContext,
+    public DefaultInlongStreamBuilder(InlongStreamConf streamConf, InnerGroupContext groupContext,
             InnerInlongManagerClient managerClient) {
         this.managerClient = managerClient;
         if (MapUtils.isEmpty(groupContext.getStreamContextMap())) {
             groupContext.setStreamContextMap(Maps.newHashMap());
         }
-        InlongStreamInfo stream = InlongStreamTransfer.createStreamInfo(streamConf, groupContext.getGroupInfo());
+
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+        InlongStreamInfo stream = InlongStreamTransfer.createStreamInfo(streamConf, groupInfo);
         InnerStreamContext streamContext = new InnerStreamContext(stream);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
-        this.inlongStream = new InlongStreamImpl(groupContext.getGroupInfo().getName(), stream.getName(),
-                managerClient);
+        this.inlongStream = new InlongStreamImpl(groupInfo.getName(), stream.getName(), managerClient);
         if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
             this.inlongStream.setStreamFields(streamConf.getStreamFields());
         }
@@ -91,9 +88,11 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     }
 
     @Override
-    public InlongStreamBuilder sink(StreamSink sink) {
-        inlongStream.addSink(sink);
-        SinkRequest sinkRequest = InlongStreamSinkTransfer.createSinkRequest(sink, streamContext.getStreamInfo());
+    public InlongStreamBuilder sink(SinkRequest sinkRequest) {
+        InlongStreamInfo streamInfo = streamContext.getStreamInfo();
+        sinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        inlongStream.addSink(sinkRequest);
         streamContext.setSinkRequest(sinkRequest);
         return this;
     }
@@ -101,9 +100,9 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     @Override
     public InlongStreamBuilder fields(List<StreamField> fieldList) {
         inlongStream.setStreamFields(fieldList);
-        List<InlongStreamFieldInfo> streamFieldInfos = InlongStreamTransfer.createStreamFields(fieldList,
+        List<StreamField> streamFields = InlongStreamTransfer.createStreamFields(fieldList,
                 streamContext.getStreamInfo());
-        streamContext.updateStreamFields(streamFieldInfos);
+        streamContext.updateStreamFields(streamFields);
         return this;
     }
 

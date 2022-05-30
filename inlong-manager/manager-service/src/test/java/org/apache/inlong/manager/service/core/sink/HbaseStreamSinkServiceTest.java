@@ -60,7 +60,7 @@ public class HbaseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setTableName(tableName);
         sinkInfo.setNamespace(nameSpace);
         sinkInfo.setRowKey(rowkey);
-        sinkInfo.setZookeeperQuorum(zookeeperQuorum);
+        sinkInfo.setZkQuorum(zookeeperQuorum);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

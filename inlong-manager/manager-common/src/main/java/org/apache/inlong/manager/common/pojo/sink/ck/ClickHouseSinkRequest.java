@@ -52,13 +52,13 @@ public class ClickHouseSinkRequest extends SinkRequest {
     private String tableName;
 
     @ApiModelProperty("Flush interval, unit: second, default is 1s")
-    private Integer flushInterval;
+    private Integer flushInterval = 1;
 
     @ApiModelProperty("Flush when record number reaches flushRecord")
     private Integer flushRecord;
 
     @ApiModelProperty("Write max retry times, default is 3")
-    private Integer retryTimes;
+    private Integer retryTimes = 3;
 
     @ApiModelProperty("Whether distributed table? 0: no, 1: yes")
     private Integer isDistributed;
@@ -73,10 +73,10 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
-    @ApiModelProperty("table engine, support MergeTree Mem and so on")
+    @ApiModelProperty("Table engine, support MergeTree Mem and so on")
     private String engine;
 
-    @ApiModelProperty("Table Partiion information")
+    @ApiModelProperty("Table partition information")
     private String partitionBy;
 
     @ApiModelProperty("Table order information")

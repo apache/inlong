@@ -48,8 +48,7 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream description")
     private String description;
 
-    @ApiModelProperty(value = "MQ resource, in inlong group",
-            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
+    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}")
     private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
@@ -67,7 +66,7 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
             notes = "Each task under this stream sends data synchronously, "
                     + "which will affect the throughput of data collection, please choose carefully")
-    private Integer syncSend;
+    private Integer syncSend = 0;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -107,7 +106,7 @@ public class InlongStreamInfo {
     private Date modifyTime;
 
     @ApiModelProperty(value = "Field list")
-    private List<InlongStreamFieldInfo> fieldList;
+    private List<StreamField> fieldList;
 
     @ApiModelProperty(value = "Inlong stream Extension properties")
     private List<InlongStreamExtInfo> extList;

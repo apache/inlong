@@ -13,26 +13,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.manager.common.pojo.sink;
+package org.apache.inlong.sort.jdbc.converter.sqlserver;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.inlong.sort.jdbc.converter.AbstractJdbcRowConverter;
 
 /**
- * Sink field response
+ * Runtime converter that responsible to convert between JDBC object and Flink internal object for
+ * SqlServer.
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("Sink field response")
-public class SinkFieldResponse extends SinkFieldBase {
+public class SqlServerRowConvert extends AbstractJdbcRowConverter {
 
-    private Integer id;
+    public SqlServerRowConvert(RowType rowType) {
+        super(rowType);
+    }
 
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
-    private Integer isMetaField;
-
+    @Override
+    public String converterName() {
+        return "SqlServer";
+    }
 }

@@ -15,21 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 /**
  * Sink field info.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
 @ApiModel("Sink field configuration")
 public class SinkField extends StreamField {
 
@@ -37,15 +35,18 @@ public class SinkField extends StreamField {
     private String sourceFieldName;
 
     @ApiModelProperty("Source field type")
-    private FieldType sourceFieldType;
+    private String sourceFieldType;
 
-    public SinkField(int index, FieldType fieldType, String fieldName, FieldType sourceFieldType,
-            String sourceFieldName) {
+    public SinkField() {
+
+    }
+
+    public SinkField(int index, String fieldType, String fieldName, String sourceFieldType, String sourceFieldName) {
         this(index, fieldType, fieldName, null, null, sourceFieldName, sourceFieldType, 0, null);
     }
 
-    public SinkField(int index, FieldType fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, FieldType sourceFieldType,
+    public SinkField(int index, String fieldType, String fieldName, String fieldComment,
+            String fieldValue, String sourceFieldName, String sourceFieldType,
             Integer isMetaField, String fieldFormat) {
         super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
         this.sourceFieldName = sourceFieldName;
