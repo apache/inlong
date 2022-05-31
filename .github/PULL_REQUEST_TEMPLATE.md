@@ -1,8 +1,11 @@
-### Title Name: [INLONG-XYZ][component] Title of the pull request
+### Prepare a Pull Request
+*(Change the title refer to the following example)*
 
-where *XYZ* should be replaced by the actual issue number.
+- Title Example: [INLONG-XYZ][Component] Title of the pull request
 
-Fixes #<xyz>
+*(The following *XYZ* should be replaced by the actual [GitHub Issue](https://github.com/apache/incubator-inlong/issues) number)*
+
+- Fixes #XYZ
 
 ### Motivation
 
