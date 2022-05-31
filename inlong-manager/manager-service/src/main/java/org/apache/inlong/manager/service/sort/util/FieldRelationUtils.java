@@ -99,8 +99,7 @@ public class FieldRelationUtils {
     /**
      * Create relation of fields in join function.
      */
-    private static List<FieldRelation> createJoinerFieldRelations(List<StreamField> fieldList,
-                                                                  String transformName) {
+    private static List<FieldRelation> createJoinerFieldRelations(List<StreamField> fieldList, String transformName) {
         return fieldList.stream()
                 .map(streamField -> {
                     FormatInfo formatInfo = FieldInfoUtils.convertFieldFormat(
@@ -139,8 +138,7 @@ public class FieldRelationUtils {
     /**
      * Create relation of fields in replace function.
      */
-    private static List<FieldRelation> createReplacerFieldRelations(
-            List<StreamField> fieldList, String transformName,
+    private static List<FieldRelation> createReplacerFieldRelations(List<StreamField> fieldList, String transformName,
             StringReplacerDefinition replacerDefinition, String preNodes) {
         Preconditions.checkNotEmpty(preNodes, "PreNodes of splitter should not be null");
         String preNode = preNodes.split(",")[0];
@@ -183,7 +181,7 @@ public class FieldRelationUtils {
      * Parse rule of replacer.
      */
     private static FieldRelation parseReplaceRule(ReplaceRule replaceRule, Set<String> replaceFields,
-                                                  String transformName, String preNode) {
+            String transformName, String preNode) {
         StreamField sourceField = replaceRule.getSourceField();
         final String fieldName = sourceField.getFieldName();
         String regex = replaceRule.getRegex();
@@ -209,16 +207,16 @@ public class FieldRelationUtils {
      * Parse rule of split.
      */
     private static List<FieldRelation> parseSplitRule(SplitRule splitRule, Set<String> splitFields,
-                                                      String transformName, String preNode) {
+            String transformName, String preNode) {
         StreamField sourceField = splitRule.getSourceField();
         FieldInfo fieldInfo = FieldInfoUtils.parseStreamField(sourceField);
         fieldInfo.setNodeId(preNode);
-        String seperator = splitRule.getSeperator();
+        String separator = splitRule.getSeparator();
         List<String> targetSources = splitRule.getTargetFields();
         List<FieldRelation> splitRelations = Lists.newArrayList();
         for (int index = 0; index < targetSources.size(); index++) {
             SplitIndexFunction splitIndexFunction = new SplitIndexFunction(
-                    fieldInfo, new StringConstantParam(seperator), new ConstantParam(index));
+                    fieldInfo, new StringConstantParam(separator), new ConstantParam(index));
             FieldInfo targetFieldInfo = new FieldInfo(
                     targetSources.get(index), transformName, FieldInfoUtils.convertFieldFormat(FieldType.STRING.name())
             );

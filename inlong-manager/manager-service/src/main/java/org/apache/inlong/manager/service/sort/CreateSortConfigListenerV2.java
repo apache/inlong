@@ -167,13 +167,10 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return nodes;
     }
 
-    private List<NodeRelation> createNodeRelationsForStream(
-            List<StreamSource> sources, List<StreamSink> streamSinks) {
+    private List<NodeRelation> createNodeRelationsForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
         NodeRelation relation = new NodeRelation();
-        List<String> inputs = sources.stream().map(StreamSource::getSourceName)
-                .collect(Collectors.toList());
-        List<String> outputs = streamSinks.stream().map(StreamSink::getSinkName)
-                .collect(Collectors.toList());
+        List<String> inputs = sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
+        List<String> outputs = streamSinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
         relation.setInputs(inputs);
         relation.setOutputs(outputs);
         return Lists.newArrayList(relation);

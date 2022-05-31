@@ -24,20 +24,20 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import java.util.Set;
 
 /**
- * Stream node relationship info, including input node name list, output node name list.
+ * Stream node relation info, including input node name list, output node name list.
  */
 @Data
-public class StreamNodeRelationship {
+public class StreamNodeRelation {
 
     private Set<String> inputNodes;
 
     private Set<String> outputNodes;
 
-    public StreamNodeRelationship() {
+    public StreamNodeRelation() {
         this(Sets.newHashSet(), Sets.newHashSet());
     }
 
-    public StreamNodeRelationship(Set<String> inputNodes, Set<String> outputNodes) {
+    public StreamNodeRelation(Set<String> inputNodes, Set<String> outputNodes) {
         this.inputNodes = inputNodes;
         this.outputNodes = outputNodes;
     }
