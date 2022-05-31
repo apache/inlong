@@ -69,7 +69,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
         @JsonProperty("name") String name,
         @JsonProperty("fields") List<FieldInfo> fields,
-        @JsonProperty("fieldRelationShips") List<FieldRelation> fieldRelationShips,
+        @JsonProperty("fieldRelations") List<FieldRelation> fieldRelationShips,
         @JsonProperty("filters") List<FilterFunction> filters,
         @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
         @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,

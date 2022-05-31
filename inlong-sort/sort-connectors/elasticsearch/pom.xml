@@ -31,15 +31,11 @@
     <name>Apache InLong - Sort-connector-elasticsearch</name>
     <packaging>jar</packaging>
 
-    <properties>
-        <flink.connector.elasticsearch6.version>1.16-SNAPSHOT</flink.connector.elasticsearch6.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch6</artifactId>
-            <version>${flink.connector.elasticsearch6.version}</version>
+            <artifactId>flink-connector-elasticsearch6_2.12</artifactId>
+            <version>${flink.version}</version>
         </dependency>
     </dependencies>
 
@@ -132,10 +128,6 @@
                                 <relocation>
                                     <pattern>org.elasticsearch</pattern>
                                     <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.elasticsearch</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.apache.logging</pattern>
-                                    <shadedPattern>org.apache.flink.elasticsearch6.shaded.org.apache.logging</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml.jackson</pattern>
