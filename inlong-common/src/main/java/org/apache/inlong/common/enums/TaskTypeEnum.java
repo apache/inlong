@@ -27,6 +27,7 @@ public enum TaskTypeEnum {
     PULSAR(5),
     POSTGRES(6),
     ORACLE(7),
+
     ;
 
     private final int type;
