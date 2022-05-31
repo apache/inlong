@@ -35,21 +35,13 @@ public class KafkaFederationSink extends AbstractSink implements Configurable {
     private Context parentContext;
     private KafkaFederationSinkContext context;
     private List<KafkaFederationWorker> workers = new ArrayList<>();
-    private Map<String, String> dimensions;
 
     /** init and start workers */
     @Override
     public void start() {
         String sinkName = this.getName();
-        if (getChannel() == null) {
-            LOG.error("channel is null");
-        }
-        this.context = new KafkaFederationSinkContext(getName(), parentContext, getChannel());
+        this.context = new KafkaFederationSinkContext(sinkName, parentContext, getChannel());
         this.context.start();
-        this.dimensions = new HashMap<>();
-        this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
-        this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
-        this.dimensions.put(SortMetricItem.KEY_SINK_ID, this.context.getSinkName());
         // create worker
         for (int i = 0; i < context.getMaxThreads(); i++) {
             KafkaFederationWorker worker = new KafkaFederationWorker(sinkName, i, context);
