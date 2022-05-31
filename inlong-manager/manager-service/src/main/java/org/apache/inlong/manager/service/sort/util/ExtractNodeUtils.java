@@ -29,12 +29,14 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.oralce.OracleScanMode;
 import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant;
+import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -299,21 +301,21 @@ public class ExtractNodeUtils {
         final String id = oracleSource.getSourceName();
         final String name = oracleSource.getSourceName();
         final String database = oracleSource.getDatabase();
-        final String schemaname = oracleSource.getSchemaName();
-        final String tablename = oracleSource.getTableName();
+        final String schemaName = oracleSource.getSchemaName();
+        final String tableName = oracleSource.getTableName();
         final String primaryKey = oracleSource.getPrimaryKey();
         final String hostName = oracleSource.getHostname();
         final String userName = oracleSource.getUsername();
         final String password = oracleSource.getPassword();
         final Integer port = oracleSource.getPort();
-        final String scanstartupMode = oracleSource.getScanStartupMode();
+        OracleScanMode scanstartupMode = OracleScanMode.forName(oracleSource.getScanStartupMode());
         OracleConstant.ScanStartUpMode scanStartupMode;
         switch (scanstartupMode) {
-            case "initial":
-                scanStartupMode = OracleConstant.ScanStartUpMode.forName("initial");
+            case INITIAL:
+                scanStartupMode = ScanStartUpMode.INITIAL;
                 break;
-            case "latest-offset":
-                scanStartupMode = OracleConstant.ScanStartUpMode.forName("latest-offset");
+            case LATEST_OFFSET:
+                scanStartupMode = ScanStartUpMode.LATEST_OFFSET;
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for oracle source",
@@ -334,8 +336,8 @@ public class ExtractNodeUtils {
                 userName,
                 password,
                 database,
-                schemaname,
-                tablename,
+                schemaName,
+                tableName,
                 port,
                 scanStartupMode
                 );
