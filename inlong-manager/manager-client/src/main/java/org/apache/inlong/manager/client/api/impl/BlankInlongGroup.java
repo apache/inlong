@@ -21,9 +21,9 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import java.util.List;
 public class BlankInlongGroup implements InlongGroup {
 
     @Override
-    public InlongStreamBuilder createStream(InlongStreamConf streamConf) {
+    public InlongStreamBuilder createStream(InlongStreamInfo streamInfo) {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 

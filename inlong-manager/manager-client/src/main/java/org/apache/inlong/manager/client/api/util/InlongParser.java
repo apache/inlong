@@ -174,7 +174,7 @@ public class InlongParser {
                         sourceInfos.add(postgresSource);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupported sourceType=%s for Inlong", sourceType));
+                        throw new RuntimeException(String.format("Unsupported sourceType=%s", sourceType));
                 }
             }
 
@@ -208,7 +208,7 @@ public class InlongParser {
                         streamSinks.add(postgresSink);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupported sinkType=%s for Inlong", sinkType));
+                        throw new RuntimeException(String.format("Unsupported sinkType=%s", sinkType));
                 }
             }
         }
@@ -250,7 +250,7 @@ public class InlongParser {
                             }.getType());
                 default:
                     throw new IllegalArgumentException(
-                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
+                            String.format("Unsupported sourceType=%sg", sourceType));
             }
         } else {
             return new PageInfo<>();

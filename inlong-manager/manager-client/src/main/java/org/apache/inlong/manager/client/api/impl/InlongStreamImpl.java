@@ -27,7 +27,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
-import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -283,20 +282,18 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream update() {
-        InlongStreamInfo streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongStreamId(inlongStreamId);
-        streamInfo.setInlongGroupId(inlongGroupId);
-        streamInfo = managerClient.getStreamInfo(streamInfo);
+        InlongStreamInfo streamInfo = managerClient.getStreamInfo(inlongGroupId, inlongStreamId);
         if (streamInfo == null) {
             throw new IllegalArgumentException(
                     String.format("Stream is not exists for group=%s and stream=%s", inlongGroupId, inlongStreamId));
         }
-        streamInfo.setFieldList(InlongStreamTransfer.createStreamFields(this.streamFields, streamInfo));
+
+        streamInfo.setFieldList(this.streamFields);
         StreamPipeline streamPipeline = createPipeline();
         streamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
         Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
         if (!updateMsg.getKey()) {
-            throw new RuntimeException(String.format("Update data stream failed:%s", updateMsg.getValue()));
+            throw new RuntimeException(String.format("Update data stream failed: %s", updateMsg.getValue()));
         }
         initOrUpdateTransform(streamInfo);
         initOrUpdateSource(streamInfo);

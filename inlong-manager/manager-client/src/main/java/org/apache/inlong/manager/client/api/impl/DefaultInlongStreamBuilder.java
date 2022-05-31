@@ -24,12 +24,10 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
-import org.apache.inlong.manager.client.api.util.InlongStreamTransfer;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -59,7 +57,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private final InnerInlongManagerClient managerClient;
 
-    public DefaultInlongStreamBuilder(InlongStreamConf streamConf, InnerGroupContext groupContext,
+    public DefaultInlongStreamBuilder(InlongStreamInfo streamInfo, InnerGroupContext groupContext,
             InnerInlongManagerClient managerClient) {
         this.managerClient = managerClient;
         if (MapUtils.isEmpty(groupContext.getStreamContextMap())) {
@@ -67,13 +65,16 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         }
 
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        InlongStreamInfo stream = InlongStreamTransfer.createStreamInfo(streamConf, groupInfo);
-        InnerStreamContext streamContext = new InnerStreamContext(stream);
+        String groupId = groupInfo.getInlongGroupId();
+        streamInfo.setInlongGroupId(groupId);
+        streamInfo.setCreator(groupInfo.getCreator());
+        InnerStreamContext streamContext = new InnerStreamContext(streamInfo);
         groupContext.setStreamContext(streamContext);
         this.streamContext = streamContext;
-        this.inlongStream = new InlongStreamImpl(groupInfo.getName(), stream.getName(), managerClient);
-        if (CollectionUtils.isNotEmpty(streamConf.getStreamFields())) {
-            this.inlongStream.setStreamFields(streamConf.getStreamFields());
+
+        this.inlongStream = new InlongStreamImpl(groupId, streamInfo.getInlongStreamId(), managerClient);
+        if (CollectionUtils.isNotEmpty(streamInfo.getFieldList())) {
+            this.inlongStream.setStreamFields(streamInfo.getFieldList());
         }
         groupContext.setStream(this.inlongStream);
     }
@@ -101,9 +102,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     @Override
     public InlongStreamBuilder fields(List<StreamField> fieldList) {
         inlongStream.setStreamFields(fieldList);
-        List<StreamField> streamFields = InlongStreamTransfer.createStreamFields(fieldList,
-                streamContext.getStreamInfo());
-        streamContext.updateStreamFields(streamFields);
+        streamContext.updateStreamFields(fieldList);
         return this;
     }
 

@@ -36,8 +36,8 @@ import java.util.Map;
  * InlongClient client = InlongClient.create(${serviceUrl}, configuration);
  * InlongGroupInfo groupInfo = ..
  * InlongGroup group = client.createGroup(groupInfo);
- * InlongStreamConf streamConf = ..
- * InlongStreamBuilder builder = group.createStream(streamConf);
+ * InlongStreamInfo streamInfo = ..
+ * InlongStreamBuilder builder = group.createStream(streamInfo);
  * StreamSource source = ..
  * StreamSink sink = ..
  * List StreamField fields = ..

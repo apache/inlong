@@ -378,12 +378,12 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information through information of  Inlong's stream.
+     * Get inlong stream by the given groupId and streamId.
      */
-    public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
+    public InlongStreamInfo getStreamInfo(String inlongGroupId, String inlongStreamId) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
-        url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
+        url += String.format("&groupId=%s&streamId=%s", inlongGroupId, inlongStreamId);
         Request request = new Request.Builder().get()
                 .url(url)
                 .build();

@@ -26,7 +26,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
@@ -42,6 +41,7 @@ import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
@@ -79,8 +79,8 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     @Override
-    public InlongStreamBuilder createStream(InlongStreamConf dataStreamConf) {
-        return new DefaultInlongStreamBuilder(dataStreamConf, this.groupContext, this.managerClient);
+    public InlongStreamBuilder createStream(InlongStreamInfo streamInfo) {
+        return new DefaultInlongStreamBuilder(streamInfo, this.groupContext, this.managerClient);
     }
 
     @Override
