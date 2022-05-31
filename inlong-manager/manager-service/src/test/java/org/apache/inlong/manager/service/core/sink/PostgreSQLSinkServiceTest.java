@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLColumnInf
 import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLTableInfo;
+import org.apache.inlong.manager.common.util.EncryptUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.postgresql.PostgreSQLJdbcUtils;
@@ -69,6 +70,7 @@ public class PostgreSQLSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setDbName("public");
         sinkInfo.setTableName("user");
         sinkInfo.setPrimaryKey("name,age");
+        EncryptUtils.DES_KEY = "inlong";
 
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
