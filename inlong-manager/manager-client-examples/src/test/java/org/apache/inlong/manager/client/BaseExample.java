@@ -22,11 +22,13 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -61,6 +63,9 @@ public class BaseExample {
     // Pulsar topic
     private String topic = "{pulsar.topic}";
 
+    /**
+     * Create inlong group info
+     */
     public InlongGroupInfo createGroupInfo() {
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId(groupId);
@@ -92,6 +97,23 @@ public class BaseExample {
         return pulsarInfo;
     }
 
+    /**
+     * Create inlong stream info
+     */
+    public InlongStreamInfo createStreamInfo() {
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setName(this.getStreamId());
+        streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
+        streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
+        // if you need strictly order for data, set to 1
+        streamInfo.setSyncSend(GlobalConstants.SYNC_SEND);
+        streamInfo.setMqResource(this.getTopic());
+        return streamInfo;
+    }
+
+    /**
+     * Create hive sink
+     */
     public HiveSink createHiveSink() {
         HiveSink hiveSink = new HiveSink();
         hiveSink.setDbName("{db.name}");

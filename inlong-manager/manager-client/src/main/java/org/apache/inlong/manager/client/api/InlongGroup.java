@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.api;
 
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
@@ -27,9 +28,10 @@ public interface InlongGroup {
     /**
      * Create inlong stream
      *
+     * @param streamInfo inlong stream info
      * @return inlong stream builder
      */
-    InlongStreamBuilder createStream(InlongStreamConf streamConf) throws Exception;
+    InlongStreamBuilder createStream(InlongStreamInfo streamInfo) throws Exception;
 
     /**
      * Create snapshot for Inlong group
