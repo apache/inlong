@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -153,7 +154,11 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
                 }
             }
+            if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
+                pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
+            }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
+            pulsarSource.setScanStartupMode("earliest");
             pulsarSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamInfo.getInlongStreamId(), key -> Lists.newArrayList())
                     .add(pulsarSource);

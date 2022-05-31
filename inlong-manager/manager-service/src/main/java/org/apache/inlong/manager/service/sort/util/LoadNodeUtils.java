@@ -61,6 +61,8 @@ import java.util.stream.Collectors;
  */
 public class LoadNodeUtils {
 
+    private static final String DEFAULT_HIVE_VERSION = "2.3.9";
+
     /**
      * Create nodes of data load.
      */
@@ -175,6 +177,9 @@ public class LoadNodeUtils {
                     .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
                             FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
                                     hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
+        }
+        if (StringUtils.isEmpty(hiveVersion)) {
+            hiveVersion = DEFAULT_HIVE_VERSION;
         }
         return new HiveLoadNode(
                 id,

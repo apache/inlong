@@ -85,6 +85,7 @@ public class InlongStreamProcessOperation {
         if (streamInfo == null) {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
+        /*
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
         if (status == StreamStatus.CONFIG_ING || status == StreamStatus.CONFIG_SUCCESSFUL) {
             log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
@@ -95,6 +96,7 @@ public class InlongStreamProcessOperation {
                     String.format("GroupId=%s, StreamId=%s, status=%s not correct for stream start", groupId, streamId,
                             status));
         }
+        */
         StreamResourceProcessForm processForm = genStreamProcessForm(groupInfo, streamInfo, GroupOperateType.INIT);
         ProcessName processName = ProcessName.CREATE_STREAM_RESOURCE;
         if (sync) {
