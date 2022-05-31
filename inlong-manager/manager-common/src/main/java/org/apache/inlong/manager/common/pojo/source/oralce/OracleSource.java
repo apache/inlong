@@ -23,16 +23,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 /**
- * Response info of the oracle source
+ * Oracle source info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the oracle source")
-public class OracleSourceResponse extends SourceResponse {
+@ApiModel(value = "Oracle source info")
+public class OracleSource extends StreamSource {
 
     @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
     private String hostname;
@@ -64,8 +66,13 @@ public class OracleSourceResponse extends SourceResponse {
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration = false;
 
-    public OracleSourceResponse() {
+    public OracleSource() {
         this.setSourceType(SourceType.ORACLE.name());
+    }
+
+    @Override
+    public SourceRequest genSourceRequest() {
+        return CommonBeanUtils.copyProperties(this, OracleSourceRequest::new);
     }
 
 }

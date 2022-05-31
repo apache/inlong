@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -60,8 +60,8 @@ public class OracleSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new OracleSourceResponse();
+    protected StreamSource getSource() {
+        return new OracleSource();
     }
 
     @Override

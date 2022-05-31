@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request info of the binlog source info
+ * Request of oracle source
  */
 @Data
 @ToString(callSuper = true)

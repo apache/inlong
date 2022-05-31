@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -78,7 +78,7 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id);
+        StreamSource source = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
         sourceService.delete(id, GLOBAL_OPERATOR);
@@ -87,12 +87,12 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id);
+        StreamSource response = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        OracleSourceResponse oracleSourceResponse = (OracleSourceResponse) response;
+        OracleSource oracleSource = (OracleSource) response;
 
-        OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSourceResponse, OracleSourceRequest::new);
+        OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSource, OracleSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
 

@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -83,7 +84,7 @@ public class ExtractNodeUtils {
             case POSTGRES:
                 return createExtractNode((PostgresSource) sourceInfo);
             case ORACLE:
-                return createExtractNode((OracleSourceResponse) sourceResponse);
+                return createExtractNode((OracleSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -291,21 +292,21 @@ public class ExtractNodeUtils {
     /**
      * Create oracleExtractNode based on OracleSourceResponse
      *
-     * @param oracleSourceResponse oracle source response info
+     * @param oracleSource oracle source response info
      * @return oracle extract node info
      */
-    public static OracleExtractNode createExtractNode(OracleSourceResponse oracleSourceResponse) {
-        final String id = oracleSourceResponse.getSourceName();
-        final String name = oracleSourceResponse.getSourceName();
-        final String database = oracleSourceResponse.getDatabase();
-        final String schemaname = oracleSourceResponse.getSchemaName();
-        final String tablename = oracleSourceResponse.getTableName();
-        final String primaryKey = oracleSourceResponse.getPrimaryKey();
-        final String hostName = oracleSourceResponse.getHostname();
-        final String userName = oracleSourceResponse.getUsername();
-        final String password = oracleSourceResponse.getPassword();
-        final Integer port = oracleSourceResponse.getPort();
-        final String scanstartupMode = oracleSourceResponse.getScanStartupMode();
+    public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
+        final String id = oracleSource.getSourceName();
+        final String name = oracleSource.getSourceName();
+        final String database = oracleSource.getDatabase();
+        final String schemaname = oracleSource.getSchemaName();
+        final String tablename = oracleSource.getTableName();
+        final String primaryKey = oracleSource.getPrimaryKey();
+        final String hostName = oracleSource.getHostname();
+        final String userName = oracleSource.getUsername();
+        final String password = oracleSource.getPassword();
+        final Integer port = oracleSource.getPort();
+        final String scanstartupMode = oracleSource.getScanStartupMode();
         OracleConstant.ScanStartUpMode scanStartupMode;
         switch (scanstartupMode) {
             case "initial":
@@ -315,11 +316,10 @@ public class ExtractNodeUtils {
                 scanStartupMode = OracleConstant.ScanStartUpMode.forName("latest-offset");
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source",
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for oracle source",
                         scanstartupMode));
         }
-
-        List<StreamField> streamFieldInfos = oracleSourceResponse.getFieldList();
+        List<StreamField> streamFieldInfos = oracleSource.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
