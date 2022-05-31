@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.sort.util;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.MetaFieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
@@ -44,9 +43,7 @@ import org.apache.inlong.sort.protocol.MetaFieldInfo.MetaField;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Util for sort field info.
@@ -54,48 +51,27 @@ import java.util.Map;
 @Slf4j
 public class FieldInfoUtils {
 
-    /**
-     * Meta field map, key is meta field name, value is MetaField defined in  sort protocol
-     */
-    public static final Map<String, MetaField> META_FIELD_MAP = new LinkedHashMap<>();
-
-    static {
-        META_FIELD_MAP.put(MetaFieldType.DATABASE.getName(), MetaField.DATABASE_NAME);
-        META_FIELD_MAP.put(MetaFieldType.TABLE.getName(), MetaField.TABLE_NAME);
-        META_FIELD_MAP.put(MetaFieldType.EVENT_TIME.getName(), MetaField.OP_TS);
-        META_FIELD_MAP.put(MetaFieldType.IS_DDL.getName(), MetaField.IS_DDL);
-        META_FIELD_MAP.put(MetaFieldType.EVENT_TYPE.getName(), MetaField.OP_TYPE);
-        META_FIELD_MAP.put(MetaFieldType.PROCESSING_TIME.getName(), MetaField.PROCESS_TIME);
-        META_FIELD_MAP.put(MetaFieldType.UPDATE_BEFORE.getName(), MetaField.UPDATE_BEFORE);
-        META_FIELD_MAP.put(MetaFieldType.BATCH_ID.getName(), MetaField.BATCH_ID);
-        META_FIELD_MAP.put(MetaFieldType.SQL_TYPE.getName(), MetaField.SQL_TYPE);
-        META_FIELD_MAP.put(MetaFieldType.TS.getName(), MetaField.TS);
-        META_FIELD_MAP.put(MetaFieldType.MYSQL_TYPE.getName(), MetaField.MYSQL_TYPE);
-        META_FIELD_MAP.put(MetaFieldType.PK_NAMES.getName(), MetaField.PK_NAMES);
-        META_FIELD_MAP.put(MetaFieldType.DATA.getName(), MetaField.DATA);
-    }
-
     public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId) {
         boolean isMetaField = sinkField.getIsMetaField() == 1;
         FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
-                sinkField.getFieldType(),
-                isMetaField, sinkField.getFieldFormat());
+                sinkField.getFieldType(), isMetaField, sinkField.getMetaFieldName(),
+                sinkField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isMetaField,
-                streamField.getFieldFormat());
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(),
+                isMetaField, streamField.getMetaFieldName(), streamField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isMetaField = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isMetaField,
-                streamField.getFieldFormat());
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(),
+                isMetaField, streamField.getMetaFieldName(), streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
     }
@@ -111,7 +87,7 @@ public class FieldInfoUtils {
         // Set source field info list.
         for (StreamField field : streamFieldList) {
             FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1, field.getFieldFormat());
+                    field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
             sourceFields.add(sourceField);
         }
 
@@ -119,11 +95,12 @@ public class FieldInfoUtils {
         // Get sink field info list, if the field name equals to build-in field, new a build-in field info
         for (SinkField field : fieldList) {
             FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
-                    field.getIsMetaField() == 1, field.getFieldFormat());
+                    field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
             sinkFields.add(sinkField);
             if (StringUtils.isNotBlank(field.getSourceFieldName())) {
                 FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
-                        field.getSourceFieldType(), field.getIsMetaField() == 1, field.getFieldFormat());
+                        field.getSourceFieldType(), field.getIsMetaField() == 1,
+                        field.getMetaFieldName(), field.getFieldFormat());
                 mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
             }
         }
@@ -136,27 +113,13 @@ public class FieldInfoUtils {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isMetaField, String format) {
-        MetaField metaField = META_FIELD_MAP.get(fieldName);
-        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
-        if (isMetaField && metaField != null) {
-            return new MetaFieldInfo(fieldName, metaField);
+    private static FieldInfo getFieldInfo(String fieldName, String fieldType,
+                                          boolean isMetaField, String metaFieldName, String format) {
+        if (isMetaField) {
+            // TODO The meta field needs to be selectable and cannot be filled in by the user
+            return new MetaFieldInfo(fieldName, MetaField.forName(metaFieldName));
         } else {
-            if (isMetaField) {
-                // Check if fieldName contains metaFieldName, such as left_database
-                // TODO The meta field needs to be selectable and cannot be filled in by the user
-                for (String metaFieldName : META_FIELD_MAP.keySet()) {
-                    if (fieldName.contains(metaFieldName)) {
-                        metaField = META_FIELD_MAP.get(metaFieldName);
-                        break;
-                    }
-                }
-                if (metaField != null) {
-                    return new MetaFieldInfo(fieldName, metaField);
-                }
-                log.warn("Unsupported metadata fieldName={} as the MetaField is null", fieldName);
-            }
-            return new FieldInfo(fieldName, formatInfo);
+            return new FieldInfo(fieldName, convertFieldFormat(fieldType.toLowerCase(), format));
         }
     }
 
@@ -172,8 +135,8 @@ public class FieldInfoUtils {
         sinkFields.add(dataField);
         mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
 
-        for (Map.Entry<String, MetaField> entry : META_FIELD_MAP.entrySet()) {
-            MetaFieldInfo fieldInfo = new MetaFieldInfo(entry.getKey(), entry.getValue());
+        for (MetaField metaField : MetaField.values()) {
+            MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
             sourceFields.add(fieldInfo);
             sinkFields.add(fieldInfo);
             mappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));

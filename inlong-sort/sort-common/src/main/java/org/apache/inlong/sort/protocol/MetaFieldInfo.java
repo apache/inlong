@@ -21,6 +21,8 @@ import lombok.Getter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Locale;
+
 /**
  * Meta field info.
  */
@@ -122,6 +124,15 @@ public class MetaFieldInfo extends FieldInfo {
         /**
          * Primary key field name. Currently, it is used for MySQL database.
          */
-        PK_NAMES
+        PK_NAMES;
+
+        public static MetaField forName(String name) {
+            for (MetaField metaField : values()) {
+                if (metaField.name().equals(name.toUpperCase(Locale.ROOT))) {
+                    return metaField;
+                }
+            }
+            throw new UnsupportedOperationException(String.format("Unsupported MetaField=%s for Inlong", name));
+        }
     }
 }
