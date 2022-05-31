@@ -22,7 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
@@ -72,6 +71,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ConsumptionServiceImpl implements ConsumptionService {
+
+    private static final String PREFIX_DLQ = "dlq"; // prefix of the Topic of the dead letter queue
+
+    private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
     @Autowired
     private ClusterBean clusterBean;
@@ -183,7 +186,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         // when closing, delete the related configuration
         String groupId = entity.getInlongGroupId();
         if (dlqEnable) {
-            String dlqTopic = Constant.PREFIX_DLQ + "_" + pulsarInfo.getDeadLetterTopic();
+            String dlqTopic = PREFIX_DLQ + "_" + pulsarInfo.getDeadLetterTopic();
             Boolean exist = streamService.exist(groupId, dlqTopic);
             if (exist) {
                 throw new BusinessException(ErrorCodeEnum.PULSAR_DLQ_DUPLICATED);
@@ -193,7 +196,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             pulsarInfo.setDeadLetterTopic(null);
         }
         if (rlqEnable) {
-            String rlqTopic = Constant.PREFIX_RLQ + "_" + pulsarInfo.getRetryLetterTopic();
+            String rlqTopic = PREFIX_RLQ + "_" + pulsarInfo.getRetryLetterTopic();
             Boolean exist = streamService.exist(groupId, rlqTopic);
             if (exist) {
                 throw new BusinessException(ErrorCodeEnum.PULSAR_RLQ_DUPLICATED);
@@ -267,7 +270,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.logicDeleteDlqOrRlq(groupId, dlqNameOld, operator);
                 } else if (!Objects.equals(dlqNameNew, dlqNameOld)) {
                     pulsarEntity.setIsDlq(1);
-                    String topic = Constant.PREFIX_DLQ + "_" + dlqNameNew;
+                    String topic = PREFIX_DLQ + "_" + dlqNameNew;
                     topic = topic.toLowerCase(Locale.ROOT);
                     pulsarEntity.setDeadLetterTopic(topic);
                     streamService.insertDlqOrRlq(groupId, topic, operator);
@@ -281,7 +284,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.logicDeleteDlqOrRlq(groupId, rlqNameOld, operator);
                 } else if (!Objects.equals(rlqNameNew, pulsarEntity.getRetryLetterTopic())) {
                     pulsarEntity.setIsRlq(1);
-                    String topic = Constant.PREFIX_RLQ + "_" + rlqNameNew;
+                    String topic = PREFIX_RLQ + "_" + rlqNameNew;
                     topic = topic.toLowerCase(Locale.ROOT);
                     pulsarEntity.setRetryLetterTopic(topic);
                     streamService.insertDlqOrRlq(groupId, topic, operator);

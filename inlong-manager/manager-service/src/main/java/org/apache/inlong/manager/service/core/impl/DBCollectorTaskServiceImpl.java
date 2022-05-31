@@ -18,9 +18,6 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.DBCollectorDetailTaskEntityStatus;
-import org.apache.inlong.manager.common.enums.DBCollectorTaskConstant;
-import org.apache.inlong.manager.common.enums.DBCollectorTaskReturnCode;
 import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorReportTaskRequest;
 import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskInfo;
 import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskRequest;
@@ -40,6 +37,17 @@ import java.util.Objects;
 public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DBCollectorTaskServiceImpl.class);
+    private static final String INTERFACE_VERSION = "1.0";
+
+    private static final int INIT = 0;
+    private static final int DISPATCHED = 1;
+    private static final int DONE = 2;
+    private static final int FAILED = 3;
+
+    private static final int RETURN_SUCC = 0;
+    private static final int RETURN_EMPTY = 1;
+    private static final int RETURN_INVALID_VERSION = 2;
+    private static final int RETURN_INVALID_STATE = 3;
 
     @Autowired
     private DBCollectorDetailTaskMapper detailTaskMapper;
@@ -47,24 +55,16 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
     @Override
     public DBCollectorTaskInfo getTask(DBCollectorTaskRequest req) {
         LOGGER.debug("db collector task request: {}", req);
-        if (!DBCollectorTaskConstant.INTERFACE_VERSION.equals(req.getVersion())) {
-            return DBCollectorTaskInfo.builder()
-                    .version(DBCollectorTaskConstant.INTERFACE_VERSION)
-                    .returnCode(DBCollectorTaskReturnCode.INVALID_VERSION.getCode()).build();
+        if (!INTERFACE_VERSION.equals(req.getVersion())) {
+            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_INVALID_VERSION).build();
         }
-        DBCollectorDetailTaskEntity entity = detailTaskMapper
-                .selectOneByState(DBCollectorDetailTaskEntityStatus.INIT.getCode());
+        DBCollectorDetailTaskEntity entity = detailTaskMapper.selectOneByState(INIT);
         if (entity == null) {
-            return DBCollectorTaskInfo.builder()
-                    .version(DBCollectorTaskConstant.INTERFACE_VERSION)
-                    .returnCode(DBCollectorTaskReturnCode.EMPTY.getCode()).build();
+            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_EMPTY).build();
         }
-        int ret = detailTaskMapper.changeState(entity.getId(), 0, DBCollectorDetailTaskEntityStatus.INIT.getCode(),
-                DBCollectorDetailTaskEntityStatus.DISPATCHED.getCode());
+        int ret = detailTaskMapper.changeState(entity.getId(), 0, INIT, DISPATCHED);
         if (ret == 0) {
-            return DBCollectorTaskInfo.builder()
-                    .version(DBCollectorTaskConstant.INTERFACE_VERSION)
-                    .returnCode(DBCollectorTaskReturnCode.EMPTY.getCode()).build();
+            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_EMPTY).build();
         } else {
             DBCollectorTaskInfo.TaskInfo task = new DBCollectorTaskInfo.TaskInfo();
             task.setId(entity.getId());
@@ -82,34 +82,28 @@ public class DBCollectorTaskServiceImpl implements DBCollectorTaskService {
             task.setRetryTimes(entity.getRetryTimes());
             task.setInlongGroupId(entity.getGroupId());
             task.setInlongStreamId(entity.getStreamId());
-            return DBCollectorTaskInfo.builder()
-                    .version(DBCollectorTaskConstant.INTERFACE_VERSION)
-                    .returnCode(DBCollectorTaskReturnCode.SUCC.getCode())
-                    .data(task).build();
+            return DBCollectorTaskInfo.builder().version(INTERFACE_VERSION).returnCode(RETURN_SUCC).data(task).build();
         }
     }
 
     @Override
     public Integer reportTask(DBCollectorReportTaskRequest req) {
-        if (!Objects.equals(req.getVersion(), DBCollectorTaskConstant.INTERFACE_VERSION)) {
-            return DBCollectorTaskReturnCode.INVALID_VERSION.getCode();
+        if (!Objects.equals(req.getVersion(), INTERFACE_VERSION)) {
+            return RETURN_INVALID_VERSION;
         }
-        DBCollectorDetailTaskEntity entity = detailTaskMapper
-                .selectByTaskId(req.getId());
+        DBCollectorDetailTaskEntity entity = detailTaskMapper.selectByTaskId(req.getId());
         if (entity == null) {
-            return DBCollectorTaskReturnCode.EMPTY.getCode();
+            return RETURN_EMPTY;
         }
-        if (req.getState() != DBCollectorDetailTaskEntityStatus.DISPATCHED.getCode()
-                && req.getState() != DBCollectorDetailTaskEntityStatus.DONE.getCode()
-                && req.getState() != DBCollectorDetailTaskEntityStatus.FAILED.getCode()) {
-            return DBCollectorTaskReturnCode.INVALID_STATE.getCode();
+        if (req.getState() != DISPATCHED
+                && req.getState() != DONE
+                && req.getState() != FAILED) {
+            return RETURN_INVALID_STATE;
         }
-        int ret = detailTaskMapper
-                .changeState(entity.getId(), req.getOffset(), DBCollectorDetailTaskEntityStatus.DISPATCHED.getCode(),
-                        req.getState());
+        int ret = detailTaskMapper.changeState(entity.getId(), req.getOffset(), DISPATCHED, req.getState());
         if (ret == 0) {
-            return DBCollectorTaskReturnCode.EMPTY.getCode();
+            return RETURN_EMPTY;
         }
-        return DBCollectorTaskReturnCode.SUCC.getCode();
+        return RETURN_SUCC;
     }
 }
