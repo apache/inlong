@@ -43,7 +43,7 @@ public class FieldInfoTest extends SerializeBaseTest<FieldInfo> {
         FieldInfo fieldInfo = new FieldInfo("field_name", StringFormatInfo.INSTANCE);
         fieldInfo.setNodeId("1");
         ObjectMapper objectMapper = new ObjectMapper();
-        String fieldInfoStr = "{\"type\":\"base\",\"name\":\"field_name\","
+        String fieldInfoStr = "{\"type\":\"field\",\"name\":\"field_name\","
                 + "\"formatInfo\":{\"type\":\"string\"},\"nodeId\":\"1\"}";
         FieldInfo expected = objectMapper.readValue(fieldInfoStr, FieldInfo.class);
         assertEquals(expected, fieldInfo);

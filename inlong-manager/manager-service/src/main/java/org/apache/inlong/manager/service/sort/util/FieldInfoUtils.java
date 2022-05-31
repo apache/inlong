@@ -38,9 +38,9 @@ import org.apache.inlong.sort.formats.common.ShortFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo.MetaField;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 
 import java.util.ArrayList;
@@ -55,47 +55,46 @@ import java.util.Map;
 public class FieldInfoUtils {
 
     /**
-     * Built in field map, key is field name, value is built in field name
+     * Meta field map, key is meta field name, value is MetaField defined in  sort protocol
      */
-    public static final Map<String, BuiltInField> BUILT_IN_FIELD_MAP = new LinkedHashMap<>();
+    public static final Map<String, MetaField> META_FIELD_MAP = new LinkedHashMap<>();
 
     static {
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.DATA_TIME.getName(), BuiltInField.DATA_TIME);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.DATABASE.getName(), BuiltInField.MYSQL_METADATA_DATABASE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.TABLE.getName(), BuiltInField.MYSQL_METADATA_TABLE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.EVENT_TIME.getName(), BuiltInField.MYSQL_METADATA_EVENT_TIME);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.IS_DDL.getName(), BuiltInField.MYSQL_METADATA_IS_DDL);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.EVENT_TYPE.getName(), BuiltInField.MYSQL_METADATA_EVENT_TYPE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.PROCESSING_TIME.getName(), BuiltInField.PROCESS_TIME);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.UPDATE_BEFORE.getName(), BuiltInField.METADATA_UPDATE_BEFORE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.BATCH_ID.getName(), BuiltInField.METADATA_BATCH_ID);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.SQL_TYPE.getName(), BuiltInField.METADATA_SQL_TYPE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.TS.getName(), BuiltInField.METADATA_TS);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_TYPE.getName(), BuiltInField.METADATA_MYSQL_TYPE);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.PK_NAMES.getName(), BuiltInField.METADATA_PK_NAMES);
-        BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_DATA.getName(), BuiltInField.MYSQL_METADATA_DATA);
+        META_FIELD_MAP.put(MetaFieldType.DATABASE.getName(), MetaField.DATABASE_NAME);
+        META_FIELD_MAP.put(MetaFieldType.TABLE.getName(), MetaField.TABLE_NAME);
+        META_FIELD_MAP.put(MetaFieldType.EVENT_TIME.getName(), MetaField.OP_TS);
+        META_FIELD_MAP.put(MetaFieldType.IS_DDL.getName(), MetaField.IS_DDL);
+        META_FIELD_MAP.put(MetaFieldType.EVENT_TYPE.getName(), MetaField.OP_TYPE);
+        META_FIELD_MAP.put(MetaFieldType.PROCESSING_TIME.getName(), MetaField.PROCESS_TIME);
+        META_FIELD_MAP.put(MetaFieldType.UPDATE_BEFORE.getName(), MetaField.UPDATE_BEFORE);
+        META_FIELD_MAP.put(MetaFieldType.BATCH_ID.getName(), MetaField.BATCH_ID);
+        META_FIELD_MAP.put(MetaFieldType.SQL_TYPE.getName(), MetaField.SQL_TYPE);
+        META_FIELD_MAP.put(MetaFieldType.TS.getName(), MetaField.TS);
+        META_FIELD_MAP.put(MetaFieldType.MYSQL_TYPE.getName(), MetaField.MYSQL_TYPE);
+        META_FIELD_MAP.put(MetaFieldType.PK_NAMES.getName(), MetaField.PK_NAMES);
+        META_FIELD_MAP.put(MetaFieldType.DATA.getName(), MetaField.DATA);
     }
 
     public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId) {
-        boolean isBuiltIn = sinkField.getIsMetaField() == 1;
+        boolean isMetaField = sinkField.getIsMetaField() == 1;
         FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
                 sinkField.getFieldType(),
-                isBuiltIn, sinkField.getFieldFormat());
+                isMetaField, sinkField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId) {
-        boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
+        boolean isMetaField = streamField.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isMetaField,
                 streamField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
     public static FieldInfo parseStreamField(StreamField streamField) {
-        boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
+        boolean isMetaField = streamField.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isMetaField,
                 streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
@@ -137,25 +136,25 @@ public class FieldInfoUtils {
      *
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
-    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
-        BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
+    private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isMetaField, String format) {
+        MetaField metaField = META_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
-        if (isBuiltin && builtInField != null) {
-            return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+        if (isMetaField && metaField != null) {
+            return new MetaFieldInfo(fieldName, metaField);
         } else {
-            if (isBuiltin) {
-                // Check if fieldName contains buildInFieldName, such as left_database
-                // TODO The buildin field needs to be selectable and cannot be filled in by the user
-                for (String buildInFieldName : BUILT_IN_FIELD_MAP.keySet()) {
-                    if (fieldName.contains(buildInFieldName)) {
-                        builtInField = BUILT_IN_FIELD_MAP.get(buildInFieldName);
+            if (isMetaField) {
+                // Check if fieldName contains metaFieldName, such as left_database
+                // TODO The meta field needs to be selectable and cannot be filled in by the user
+                for (String metaFieldName : META_FIELD_MAP.keySet()) {
+                    if (fieldName.contains(metaFieldName)) {
+                        metaField = META_FIELD_MAP.get(metaFieldName);
                         break;
                     }
                 }
-                if (builtInField != null) {
-                    return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
+                if (metaField != null) {
+                    return new MetaFieldInfo(fieldName, metaField);
                 }
-                log.warn("Unsupported metadata fieldName={} as the builtInField is null", fieldName);
+                log.warn("Unsupported metadata fieldName={} as the MetaField is null", fieldName);
             }
             return new FieldInfo(fieldName, formatInfo);
         }
@@ -165,20 +164,16 @@ public class FieldInfoUtils {
      * Get all migration field mapping unit list for binlog source.
      */
     public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
-            List<FieldInfo> sinkFields) {
+                                                                     List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
-        BuiltInFieldInfo dataField = new BuiltInFieldInfo("data", StringFormatInfo.INSTANCE,
-                BuiltInField.MYSQL_METADATA_DATA);
+        MetaFieldInfo dataField = new MetaFieldInfo("data",
+                MetaField.DATA);
         sourceFields.add(dataField);
         sinkFields.add(dataField);
         mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
 
-        for (Map.Entry<String, BuiltInField> entry : BUILT_IN_FIELD_MAP.entrySet()) {
-            if (entry.getKey().equals("data_time")) {
-                continue;
-            }
-            BuiltInFieldInfo fieldInfo = new BuiltInFieldInfo(entry.getKey(),
-                    StringFormatInfo.INSTANCE, entry.getValue());
+        for (Map.Entry<String, MetaField> entry : META_FIELD_MAP.entrySet()) {
+            MetaFieldInfo fieldInfo = new MetaFieldInfo(entry.getKey(), entry.getValue());
             sourceFields.add(fieldInfo);
             sinkFields.add(fieldInfo);
             mappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));

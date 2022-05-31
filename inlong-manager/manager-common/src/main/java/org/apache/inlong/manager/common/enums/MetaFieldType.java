@@ -25,42 +25,37 @@ public enum MetaFieldType {
     /**
      * database
      */
-    DATABASE("database", "meta field database used in canal json or mysql binlog and so on"),
+    DATABASE("database", "Describe the database name of data Row"),
 
     /**
      * processing_time
      */
-    PROCESSING_TIME("processing_time", "meta field processing_time describe such moment the record be processed"),
-
-    /**
-     * data_time
-     */
-    DATA_TIME("data_time", "meta field data_time used in canal json or mysql binlog and so on"),
+    PROCESSING_TIME("processing_time", "Describe such moment the event be processed"),
 
     /**
      * table
      */
-    TABLE("table", "meta field table used in canal json or mysql binlog and so on"),
+    TABLE("table", "Describe the table name of data Row"),
 
     /**
      * event_time
      */
-    EVENT_TIME("event_time", "meta field event_time used in canal json or mysql binlog and so on"),
+    EVENT_TIME("event_time", "Describe event change time"),
 
     /**
      * is_ddl
      */
-    IS_DDL("is_ddl", "meta field is_ddl used in canal json or mysql binlog and so on"),
+    IS_DDL("is_ddl", "Describe whether it is a ddl"),
 
     /**
      * event_type
      */
-    EVENT_TYPE("event_type", "meta field event_type used in canal json or mysql binlog and so on"),
+    EVENT_TYPE("event_type", "Describe event operation type"),
 
     /**
      * data
      */
-    MYSQL_DATA("data", "MySQL binlog data Row"),
+    DATA("data", "The event change data Row"),
 
     /**
      * update_before
@@ -80,7 +75,7 @@ public enum MetaFieldType {
     /**
      * ts
      */
-    TS("ts", "The current time when the ROW was received and processed"),
+    TS("ts", "The current time when the data ROW was received and processed"),
 
     /**
      * mysql_type
