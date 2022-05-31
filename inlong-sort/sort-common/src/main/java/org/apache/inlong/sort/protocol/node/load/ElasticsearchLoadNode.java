@@ -65,6 +65,9 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     @JsonProperty("documentType")
     private String documentType;
 
+    @JsonProperty("primaryKey")
+    private String primaryKey;
+
     @JsonCreator
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
         @JsonProperty("name") String name,
@@ -78,13 +81,15 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         @Nonnull @JsonProperty("hosts") String hosts,
         @Nonnull @JsonProperty("username") String username,
         @Nonnull @JsonProperty("password") String password,
-        @Nonnull @JsonProperty("documentType") String documentType) {
+        @Nonnull @JsonProperty("documentType") String documentType,
+        @Nonnull @JsonProperty("primaryKey") String primaryKey) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.hosts = Preconditions.checkNotNull(hosts, "hosts is null");
         this.index = Preconditions.checkNotNull(index, "index is null");
         this.documentType = documentType;
+        this.primaryKey = primaryKey;
     }
 
     @Override
@@ -109,7 +114,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
 
     @Override
     public String getPrimaryKey() {
-        return super.getPrimaryKey();
+        return primaryKey;
     }
 
 }
