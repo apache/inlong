@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -244,7 +244,8 @@ public class ExtractNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for pulsar source", dataType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported dataType=%s for pulsar source", dataType));
         }
         if (pulsarSource.isInlongComponent()) {
             Format innerFormat = format;
@@ -306,8 +307,8 @@ public class ExtractNodeUtils {
         final String userName = oracleSource.getUsername();
         final String password = oracleSource.getPassword();
         final Integer port = oracleSource.getPort();
-        ScanStartUpMode scanStartupMode = StringUtils.isBlank(oracleSource.getScanStartupMode()) ?
-                null : ScanStartUpMode.forName(oracleSource.getScanStartupMode());
+        ScanStartUpMode scanStartupMode = StringUtils.isBlank(oracleSource.getScanStartupMode())
+                ? null : ScanStartUpMode.forName(oracleSource.getScanStartupMode());
         List<StreamField> streamFieldInfos = oracleSource.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))

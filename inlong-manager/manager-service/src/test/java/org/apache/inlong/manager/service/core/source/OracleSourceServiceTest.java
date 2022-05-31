@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.core.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.oralce.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.oralce.OracleSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -36,7 +36,7 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
 
     private final String sourceName = "stream_source_service_test";
     private static final String hostname = "127.0.0.1";
-    private static final Integer port = 1251;
+    private static final Integer port = 1521;
     private static final String database = "oracle_database";
     private static final String schema = "oracle_schema";
     private static final String tablename = "oracle_tablename";

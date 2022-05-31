@@ -15,26 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.oralce;
+package org.apache.inlong.manager.common.pojo.source.oracle;
 
-import io.swagger.annotations.ApiModel;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Oracle source info
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Oracle source info")
-public class OracleSource extends StreamSource {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OracleSourceDTO {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
     private String hostname;
@@ -63,16 +67,30 @@ public class OracleSource extends StreamSource {
     @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
 
-    @ApiModelProperty("Need transfer total database")
-    private boolean allMigration = false;
-
-    public OracleSource() {
-        this.setSourceType(SourceType.ORACLE.name());
+    /**
+     * Get the dto instance from the request
+     */
+    public static OracleSourceDTO getFromRequest(OracleSourceRequest request) {
+        return OracleSourceDTO.builder()
+                .database(request.getDatabase())
+                .hostname(request.getHostname())
+                .port(request.getPort())
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .schemaName(request.getSchemaName())
+                .tableName(request.getTableName())
+                .primaryKey(request.getPrimaryKey())
+                .scanStartupMode(request.getScanStartupMode())
+                .build();
     }
 
-    @Override
-    public SourceRequest genSourceRequest() {
-        return CommonBeanUtils.copyProperties(this, OracleSourceRequest::new);
+    public static OracleSourceDTO getFromJson(@NotNull String extParams) {
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, OracleSourceDTO.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+        }
     }
 
 }
