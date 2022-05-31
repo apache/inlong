@@ -63,7 +63,7 @@ public class TransformNodeUtils {
      * Create distinct node based on deDuplicationDefinition
      */
     public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
-                                                  TransformResponse transformResponse) {
+            TransformResponse transformResponse) {
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
         List<FieldInfo> distinctFields = streamFields.stream()
                 .map(FieldInfoUtils::parseStreamField)
@@ -71,7 +71,7 @@ public class TransformNodeUtils {
         StreamField timingField = deDuplicationDefinition.getTimingField();
         FieldInfo orderField = FieldInfoUtils.parseStreamField(timingField);
         DeDuplicationStrategy deDuplicationStrategy = deDuplicationDefinition.getDeDuplicationStrategy();
-        OrderDirection orderDirection = null;
+        OrderDirection orderDirection;
         switch (deDuplicationStrategy) {
             case RESERVE_LAST:
                 orderDirection = OrderDirection.DESC;

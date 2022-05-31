@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -60,8 +60,8 @@ public class BinlogSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new BinlogSourceResponse();
+    protected StreamSource getSource() {
+        return new MySQLBinlogSource();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class BinlogSourceOperation extends AbstractSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, BinlogSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MySQLBinlogSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        BinlogSourceRequest sourceRequest = (BinlogSourceRequest) request;
+        MySQLBinlogSourceRequest sourceRequest = (MySQLBinlogSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            BinlogSourceDTO dto = BinlogSourceDTO.getFromRequest(sourceRequest);
+            MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class BinlogSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        BinlogSourceDTO dto = BinlogSourceDTO.getFromJson(entity.getExtParams());
+        MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

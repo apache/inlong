@@ -56,9 +56,4 @@ public class KafkaSinkRequest extends SinkRequest {
     @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
 
-    @Override
-    public DataFormat getDataFormat() {
-        return DataFormat.CANAL;
-    }
-
 }

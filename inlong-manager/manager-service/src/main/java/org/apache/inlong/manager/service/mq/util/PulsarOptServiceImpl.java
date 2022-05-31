@@ -21,7 +21,6 @@ import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -43,6 +42,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class PulsarOptServiceImpl implements PulsarOptService {
+
+    private static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
 
     @Autowired
     private ConversionHandle conversionHandle;
@@ -143,7 +144,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
         try {
             String queueModule = topicBean.getQueueModule();
             // create partition topic
-            if (Constant.PULSAR_TOPIC_TYPE_SERIAL.equalsIgnoreCase(queueModule)) {
+            if (PULSAR_QUEUE_TYPE_SERIAL.equalsIgnoreCase(queueModule)) {
                 pulsarAdmin.topics().createPartitionedTopic(topicFullName, 1);
             } else {
                 List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);

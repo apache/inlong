@@ -17,79 +17,88 @@
 
 package org.apache.inlong.manager.common.pojo.source;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
+import java.util.Date;
+import java.util.List;
+
 /**
- * Stream source configuration, including source name, agent ip, etc.
+ * Stream source info, including source name, agent ip, etc.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Stream source configuration")
+@ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
 
-    @ApiModelProperty(value = "DataSource name", required = true)
+    @ApiModelProperty("Source id")
+    private Integer id;
+
+    @ApiModelProperty("Inlong group id")
+    private String inlongGroupId;
+
+    @ApiModelProperty("Inlong stream id")
+    private String inlongStreamId;
+
+    @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
+    private String sourceType;
+
+    @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 
     @ApiModelProperty("Ip of the agent running the task")
     private String agentIp;
 
     @ApiModelProperty("Mac uuid of the agent running the task")
-    private String uuid = "";
+    private String uuid;
 
-    @ApiModelProperty("Status of stream source")
-    private Status status;
+    @Deprecated
+    @ApiModelProperty("Id of the cluster that collected this source")
+    private Integer clusterId;
 
-    public abstract SourceType getSourceType();
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
 
-    public abstract SyncType getSyncType();
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
 
-    public abstract DataFormat getDataFormat();
+    @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    private String serializationType;
 
-    public enum Status {
+    @ApiModelProperty("Snapshot of this source task")
+    private String snapshot;
 
-        INIT, NORMAL, FREEZING, FROZEN, FAILED, DELETING, DELETE;
+    @ApiModelProperty("Version")
+    private Integer version;
 
-        /**
-         * Parse status of stream source.
-         */
-        public static Status parseByStatus(int status) {
-            SourceStatus sourceStatus = SourceStatus.forCode(status);
-            switch (sourceStatus) {
-                case SOURCE_NEW:
-                case TO_BE_ISSUED_ADD:
-                case BEEN_ISSUED_ADD:
-                case TO_BE_ISSUED_ACTIVE:
-                case BEEN_ISSUED_ACTIVE:
-                    return INIT;
-                case SOURCE_NORMAL:
-                    return NORMAL;
-                case TO_BE_ISSUED_FROZEN:
-                case BEEN_ISSUED_FROZEN:
-                    return FREEZING;
-                case SOURCE_FROZEN:
-                    return FROZEN;
-                case SOURCE_FAILED:
-                    return FAILED;
-                case TO_BE_ISSUED_DELETE:
-                case BEEN_ISSUED_DELETE:
-                    return DELETING;
-                case SOURCE_DISABLE:
-                    return DELETE;
-                default:
-                    throw new IllegalStateException(
-                            String.format("Unsupported source status=%s for Inlong", sourceStatus));
-            }
-        }
+    @ApiModelProperty("Status")
+    private Integer status;
+
+    @ApiModelProperty("Previous SimpleSourceStatus")
+    private Integer previousStatus;
+
+    @ApiModelProperty("Creator")
+    private String creator;
+
+    @ApiModelProperty("Modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    @ApiModelProperty("Field list")
+    private List<StreamField> fieldList;
+
+    public SourceRequest genSourceRequest() {
+        return null;
     }
 
-    public enum SyncType {
-        FULL, INCREMENT
-    }
 }

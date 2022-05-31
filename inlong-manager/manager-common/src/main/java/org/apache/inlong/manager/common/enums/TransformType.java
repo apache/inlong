@@ -49,7 +49,7 @@ public enum TransformType {
     JOINER("joiner");
 
     @Getter
-    private String type;
+    private final String type;
 
     TransformType(String type) {
         this.type = type;
@@ -61,7 +61,7 @@ public enum TransformType {
                 return transformType;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported transform=%s for Inlong", type));
+        throw new IllegalArgumentException(String.format("Unsupported transformType=%s", type));
     }
 
 }

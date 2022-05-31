@@ -47,7 +47,7 @@ public class SortBaseConfAdapter implements JsonDeserializer<BaseSortConf> {
                 case "USER_DEFINED":
                     return gson.fromJson(jsonElement, (Type) Class.forName((UserDefinedSortConf.class).getName()));
                 default:
-                    throw new IllegalArgumentException(String.format("Unsupported sort type=%s for Inlong", sortType));
+                    throw new IllegalArgumentException(String.format("Unsupported sortType=%s", sortType));
             }
         } catch (Exception e) {
             throw new JsonParseException(e);

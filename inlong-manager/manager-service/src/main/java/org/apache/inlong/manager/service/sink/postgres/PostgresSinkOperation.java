@@ -35,11 +35,11 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -134,12 +134,12 @@ public class PostgresSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(@NotNull StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_POSTGRES.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_POSTGRES, existType));
-        SinkResponse response = this.getFromEntity(entity, PostgresSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, PostgresSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setFieldList(infos);

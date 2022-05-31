@@ -32,4 +32,8 @@ public class GlobalConstants {
 
     public static final Integer ENABLE_CREATE_RESOURCE = 1;
 
+    public static final Integer SYNC_SEND = 1;
+
+    public static final Integer UN_SYNC_SEND = 0;
+
 }

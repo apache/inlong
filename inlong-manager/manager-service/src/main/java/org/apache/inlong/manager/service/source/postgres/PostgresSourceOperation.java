@@ -20,24 +20,25 @@ package org.apache.inlong.manager.service.source.postgres;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
-import java.util.function.Supplier;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.function.Supplier;
 
 /**
  * postgres stream source operation.
@@ -59,8 +60,8 @@ public class PostgresSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new PostgresSourceResponse();
+    protected StreamSource getSource() {
+        return new PostgresSource();
     }
 
     @Override

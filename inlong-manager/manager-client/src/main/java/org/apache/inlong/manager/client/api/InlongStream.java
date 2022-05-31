@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
@@ -49,7 +49,7 @@ public interface InlongStream {
     /**
      * Return sinks defined in stream, key is sink name which must be unique within one stream scope.
      */
-    Map<String, SinkRequest> getSinks();
+    Map<String, StreamSink> getSinks();
 
     /**
      * Return data transform node defined in stream(split,string replace etc)
@@ -65,7 +65,7 @@ public interface InlongStream {
     /**
      * Add sink to stream, this method will throw exception when sink name already exists in stream.
      */
-    InlongStream addSink(SinkRequest sinkRequest);
+    InlongStream addSink(StreamSink streamSink);
 
     /**
      * Add data transform node to stream, this method will throw exception when transform name already exists in stream.
@@ -95,7 +95,7 @@ public interface InlongStream {
     /**
      * Update sink by sink name, add new one if sink name not exists.
      */
-    InlongStream updateSink(SinkRequest sink);
+    InlongStream updateSink(StreamSink streamSink);
 
     /**
      * Update data transform node by transform name, add new one if transform name not exists.

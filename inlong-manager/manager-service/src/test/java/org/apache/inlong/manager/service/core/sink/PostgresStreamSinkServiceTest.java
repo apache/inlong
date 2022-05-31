@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -78,7 +78,7 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer postgresSinkId = this.saveSink("postgres_default1");
-        SinkResponse sink = sinkService.get(postgresSinkId);
+        StreamSink sink = sinkService.get(postgresSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deletePostgresSink(postgresSinkId);
     }
@@ -86,14 +86,12 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer postgresSinkId = this.saveSink("postgres_default2");
-        SinkResponse response = sinkService.get(postgresSinkId);
+        StreamSink response = sinkService.get(postgresSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        PostgresSinkResponse postgresSinkResponse = (PostgresSinkResponse) response;
-        postgresSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
-
-        PostgresSinkRequest request = CommonBeanUtils.copyProperties(postgresSinkResponse,
-                PostgresSinkRequest::new);
+        PostgresSink postgresSink = (PostgresSink) response;
+        postgresSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        SinkRequest request = postgresSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
         deletePostgresSink(postgresSinkId);

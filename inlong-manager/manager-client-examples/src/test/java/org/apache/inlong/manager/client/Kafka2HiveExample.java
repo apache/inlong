@@ -24,17 +24,14 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.source.KafkaSource;
 import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -57,8 +54,7 @@ public class Kafka2HiveExample extends BaseExample {
         InlongGroupInfo groupInfo = super.createGroupInfo();
         try {
             InlongGroup group = inlongClient.forGroup(groupInfo);
-            InlongStreamConf streamConf = createStreamConf();
-            InlongStreamBuilder streamBuilder = group.createStream(streamConf);
+            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
             streamBuilder.fields(createStreamFields());
             streamBuilder.source(createKafkaSource());
             streamBuilder.sink(createHiveSink());
@@ -90,23 +86,12 @@ public class Kafka2HiveExample extends BaseExample {
         }
     }
 
-    private InlongStreamConf createStreamConf() {
-        InlongStreamConf streamConf = new InlongStreamConf();
-        streamConf.setName(super.getStreamId());
-        streamConf.setCharset(StandardCharsets.UTF_8);
-        streamConf.setDataSeparator(DataSeparator.VERTICAL_BAR);
-        // true if you need strictly order for data
-        streamConf.setStrictlyOrdered(true);
-        streamConf.setMqResource(super.getTopic());
-        return streamConf;
-    }
-
     private KafkaSource createKafkaSource() {
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setBootstrapServers("{kafka.bootstrap}");
         kafkaSource.setTopic("{kafka.topic}");
         kafkaSource.setSourceName("{kafka.source.name}");
-        kafkaSource.setDataFormat(DataFormat.JSON);
+        kafkaSource.setSerializationType(DataFormat.JSON.getName());
         return kafkaSource;
     }
 

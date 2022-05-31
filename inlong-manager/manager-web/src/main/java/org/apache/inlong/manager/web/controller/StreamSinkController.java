@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -59,7 +59,7 @@ public class StreamSinkController {
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Query sink information")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    public Response<SinkResponse> get(@PathVariable Integer id) {
+    public Response<StreamSink> get(@PathVariable Integer id) {
         return Response.success(sinkService.get(id));
     }
 

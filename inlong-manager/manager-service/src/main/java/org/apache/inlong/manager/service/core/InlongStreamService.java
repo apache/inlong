@@ -33,8 +33,7 @@ import java.util.List;
 /**
  * Inlong stream service layer interface
  *
- * @apiNote It is associated with various DataSources, the upstream is StreamSource, and the downstream is
- *         StreamSink
+ * @apiNote It is associated with various sources, the upstream is StreamSource, and the downstream is StreamSink
  */
 public interface InlongStreamService {
 

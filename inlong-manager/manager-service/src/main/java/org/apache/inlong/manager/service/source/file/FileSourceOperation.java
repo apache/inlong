@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -76,8 +76,8 @@ public class FileSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new FileSourceResponse();
+    protected StreamSource getSource() {
+        return new FileSource();
     }
 
     @Override

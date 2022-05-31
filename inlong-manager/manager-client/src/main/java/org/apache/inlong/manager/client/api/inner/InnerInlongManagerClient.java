@@ -31,7 +31,7 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.auth.Authentication;
@@ -378,12 +378,12 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information through information of  Inlong's stream.
+     * Get inlong stream by the given groupId and streamId.
      */
-    public InlongStreamInfo getStreamInfo(InlongStreamInfo streamInfo) {
+    public InlongStreamInfo getStreamInfo(String inlongGroupId, String inlongStreamId) {
         String path = HTTP_PATH + "/stream/get";
         String url = formatUrl(path);
-        url += String.format("&groupId=%s&streamId=%s", streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId());
+        url += String.format("&groupId=%s&streamId=%s", inlongGroupId, inlongStreamId);
         Request request = new Request.Builder().get()
                 .url(url)
                 .build();
@@ -852,19 +852,19 @@ public class InnerInlongManagerClient {
         }
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupStatus status) {
+    public boolean operateInlongGroup(String groupId, SimpleGroupStatus status) {
         return operateInlongGroup(groupId, status, false);
     }
 
-    public boolean operateInlongGroup(String groupId, InlongGroupStatus status, boolean async) {
+    public boolean operateInlongGroup(String groupId, SimpleGroupStatus status, boolean async) {
         String path = HTTP_PATH;
-        if (status == InlongGroupStatus.STOPPED) {
+        if (status == SimpleGroupStatus.STOPPED) {
             if (async) {
                 path += "/group/suspendProcessAsync/";
             } else {
                 path += "/group/suspendProcess/";
             }
-        } else if (status == InlongGroupStatus.STARTED) {
+        } else if (status == SimpleGroupStatus.STARTED) {
             if (async) {
                 path += "/group/restartProcessAsync/";
             } else {

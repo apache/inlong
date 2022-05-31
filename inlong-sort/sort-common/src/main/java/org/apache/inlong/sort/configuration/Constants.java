@@ -299,6 +299,9 @@ public class Constants {
     public static final ConfigOption<String> GROUP_INFO_FILE = key("group.info.file").noDefaultValue()
             .withDescription("The file which contains group info for a single tenant job");
 
+    public static final ConfigOption<String> SQL_SCRIPT_FILE = key("sql.script.file").noDefaultValue()
+            .withDescription("The file which is sql script and contains multi statement");
+
     // ------------------------------------------------------------------------
     //  File format and compression related
     // ------------------------------------------------------------------------

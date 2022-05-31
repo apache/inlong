@@ -50,11 +50,11 @@ public class StreamUpdateCompleteListener implements ProcessEventListener {
         StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
         final InlongStreamInfo streamInfo = form.getStreamInfo();
         final String operator = context.getOperator();
-        final GroupOperateType groupOperateType = form.getGroupOperateType();
+        final GroupOperateType operateType = form.getGroupOperateType();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         StreamStatus status;
-        switch (groupOperateType) {
+        switch (operateType) {
             case RESTART:
                 status = StreamStatus.RESTARTED;
                 break;
@@ -65,8 +65,7 @@ public class StreamUpdateCompleteListener implements ProcessEventListener {
                 status = StreamStatus.DELETED;
                 break;
             default:
-                throw new RuntimeException(
-                        String.format("Unsupported operation=%s for Inlong group", groupOperateType));
+                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
         }
         streamService.updateStatus(groupId, streamId, status.getCode(), operator);
         streamService.update(streamInfo.genRequest(), operator);

@@ -18,11 +18,15 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+
+import java.util.List;
 
 /**
  * Inlong cluster service layer interface
@@ -53,6 +57,14 @@ public interface InlongClusterService {
      * @return cluster list
      */
     PageInfo<InlongClusterResponse> list(InlongClusterPageRequest request);
+
+    /**
+     * Query ip list by cluster type
+     *
+     * @param type cluster type
+     * @return clustre node ip list
+     */
+    public List<String> listNodeIpByType(String type);
 
     /**
      * Update cluster information
@@ -114,5 +126,20 @@ public interface InlongClusterService {
      * @return whether succeed
      */
     Boolean deleteNode(Integer id, String operator);
+
+    /**
+     * Query data proxy ip list by the given cluster name.
+     *
+     * @param clusterName Cluster name.
+     * @return Data proxy info list.
+     */
+    List<DataProxyResponse> getIpList(String clusterName);
+
+    /**
+     * query data proxy config by cluster id
+     *
+     * @return data proxy config
+     */
+    List<DataProxyConfig> getConfig();
 
 }

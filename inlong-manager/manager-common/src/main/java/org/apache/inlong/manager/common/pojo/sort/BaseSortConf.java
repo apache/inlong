@@ -46,7 +46,7 @@ public abstract class BaseSortConf {
                     return sortType;
                 }
             }
-            throw new IllegalArgumentException(String.format("Unsupported type=%s for Inlong", type));
+            throw new IllegalArgumentException(String.format("Unsupported sortType=%s", type));
         }
 
         public String getType() {

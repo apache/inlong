@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -72,7 +72,7 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSink("default2");
-        SinkResponse sink = sinkService.get(id);
+        StreamSink sink = sinkService.get(id);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         sinkService.delete(id, globalOperator);
     }
@@ -80,14 +80,12 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink("default3");
-        SinkResponse response = sinkService.get(id);
+        StreamSink response = sinkService.get(id);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        IcebergSinkResponse icebergSinkResponse = (IcebergSinkResponse) response;
-        icebergSinkResponse.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-
-        IcebergSinkRequest request = CommonBeanUtils.copyProperties(icebergSinkResponse,
-                IcebergSinkRequest::new);
+        IcebergSink icebergSink = (IcebergSink) response;
+        icebergSink.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        SinkRequest request = icebergSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
     }
