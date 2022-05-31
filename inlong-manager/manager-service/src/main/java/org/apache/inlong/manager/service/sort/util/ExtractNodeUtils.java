@@ -29,15 +29,18 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -80,6 +83,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((PulsarSource) sourceInfo);
             case POSTGRES:
                 return createExtractNode((PostgresSource) sourceInfo);
+            case ORACLE:
+                return createExtractNode((OracleSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -239,7 +244,8 @@ public class ExtractNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported dataType=%s for pulsar source", dataType));
         }
         if (pulsarSource.isInlongComponent()) {
             Format innerFormat = format;
@@ -282,5 +288,46 @@ public class ExtractNodeUtils {
                 postgresSource.getPassword(), postgresSource.getDatabase(),
                 postgresSource.getSchema(), postgresSource.getPort(),
                 postgresSource.getDecodingPluginName());
+    }
+
+    /**
+     * Create oracleExtractNode based on OracleSourceResponse
+     *
+     * @param oracleSource oracle source response info
+     * @return oracle extract node info
+     */
+    public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
+        final String id = oracleSource.getSourceName();
+        final String name = oracleSource.getSourceName();
+        final String database = oracleSource.getDatabase();
+        final String schemaName = oracleSource.getSchemaName();
+        final String tableName = oracleSource.getTableName();
+        final String primaryKey = oracleSource.getPrimaryKey();
+        final String hostName = oracleSource.getHostname();
+        final String userName = oracleSource.getUsername();
+        final String password = oracleSource.getPassword();
+        final Integer port = oracleSource.getPort();
+        ScanStartUpMode scanStartupMode = StringUtils.isBlank(oracleSource.getScanStartupMode())
+                ? null : ScanStartUpMode.forName(oracleSource.getScanStartupMode());
+        List<StreamField> streamFieldInfos = oracleSource.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        Map<String, String> properties = Maps.newHashMap();
+        return new OracleExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                primaryKey,
+                hostName,
+                userName,
+                password,
+                database,
+                schemaName,
+                tableName,
+                port,
+                scanStartupMode
+                );
     }
 }

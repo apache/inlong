@@ -111,6 +111,15 @@ public class OracleConstant {
         ScanStartUpMode(String value) {
             this.value = value;
         }
+
+        public static ScanStartUpMode forName(String name) {
+            for (ScanStartUpMode dataType : ScanStartUpMode.values()) {
+                if (dataType.getValue().equals(name)) {
+                    return dataType;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport ScanStartUpMode for oracle source:%s", name));
+        }
     }
 
 }
