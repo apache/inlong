@@ -122,7 +122,7 @@ public class LightGroupSortListener implements SortOperateListener {
             List<Node> nodes = this.createNodesForStream(sourceMap.get(streamId),
                     transformMap.get(streamId), sinkMap.get(streamId));
             StreamInfo streamInfo = new StreamInfo(streamId, nodes,
-                    NodeRelationUtils.createNodeRelationForStream(stream));
+                    NodeRelationUtils.createNodeRelationsForStream(stream));
             streamInfos.add(streamInfo);
 
             // Rebuild joinerNode relation

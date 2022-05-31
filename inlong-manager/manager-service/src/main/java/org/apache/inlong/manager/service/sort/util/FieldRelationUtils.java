@@ -77,7 +77,7 @@ public class FieldRelationUtils {
                 return createJoinerFieldRelations(fieldList, transformName);
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s for Inlong", transformType));
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 

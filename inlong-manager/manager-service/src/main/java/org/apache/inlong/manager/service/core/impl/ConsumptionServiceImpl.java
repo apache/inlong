@@ -402,8 +402,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         // Tube’s topic is the inlong group level, one inlong group, one Tube topic
         MQType mqType = MQType.forType(topicVO.getMqType());
         if (mqType == MQType.TUBE) {
-            String bizTopic = topicVO.getMqResource();
-            Preconditions.checkTrue(bizTopic == null || bizTopic.equals(info.getTopic()),
+            String mqResource = topicVO.getMqResource();
+            Preconditions.checkTrue(mqResource == null || mqResource.equals(info.getTopic()),
                     "topic [" + info.getTopic() + "] not belong to inlong group " + groupId);
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             // Pulsar's topic is the inlong stream level.

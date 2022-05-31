@@ -104,7 +104,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be added
-        checkBizIsTempStatus(groupId);
+        checkGroupStatusIsTemp(groupId);
 
         // The streamId under the same groupId cannot be repeated
         Integer count = streamMapper.selectExistByIdentifier(groupId, streamId);
@@ -170,7 +170,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                 .collect(Collectors.groupingBy(InlongStreamExtInfo::getInlongStreamId,
                         HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
-        streamList.stream().forEach(streamInfo -> {
+        streamList.forEach(streamInfo -> {
             String streamId = streamInfo.getInlongStreamId();
             List<StreamField> fieldInfos = streamFieldMap.get(streamId);
             streamInfo.setFieldList(fieldInfos);
@@ -246,7 +246,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be modified
-        InlongGroupEntity inlongGroupEntity = this.checkBizIsTempStatus(groupId);
+        InlongGroupEntity inlongGroupEntity = this.checkGroupStatusIsTemp(groupId);
 
         // Make sure the stream was exists
         InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, streamId);
@@ -280,7 +280,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupStatusIsTemp(groupId);
 
         InlongStreamEntity entity = streamMapper.selectByIdentifier(groupId, streamId);
         if (entity == null) {
@@ -322,7 +322,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupStatusIsTemp(groupId);
 
         List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
         if (CollectionUtils.isEmpty(entityList)) {
@@ -377,9 +377,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongStreamRequest streamRequest = fullStreamRequest.getStreamInfo();
         Preconditions.checkNotNull(streamRequest, "inlong stream info is empty");
 
-        // Check whether it can be added: check by lower-level specific services
-        // this.checkBizIsTempStatus(streamInfo.getInlongGroupId());
-
         // Save inlong stream
         save(streamRequest, operator);
 
@@ -413,7 +410,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongStreamRequest firstStream = fullStreamRequestList.get(0).getStreamInfo();
         Preconditions.checkNotNull(firstStream, "inlong stream info is empty");
         String groupId = firstStream.getInlongGroupId();
-        this.checkBizIsTempStatus(groupId);
+        this.checkGroupStatusIsTemp(groupId);
 
         // This bulk save is only used when creating or editing inlong group after approval is rejected.
         // To ensure data consistency, you need to physically delete all associated data and then add
@@ -627,7 +624,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         }
 
         List<InlongStreamExtEntity> entityList = CommonBeanUtils.copyListProperties(exts, InlongStreamExtEntity::new);
-        entityList.stream().forEach(streamEntity -> {
+        entityList.forEach(streamEntity -> {
             streamEntity.setInlongGroupId(groupId);
             streamEntity.setInlongStreamId(streamId);
         });
@@ -641,7 +638,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
      * @param groupId inlong group id
      * @return inlong group entity
      */
-    private InlongGroupEntity checkBizIsTempStatus(String groupId) {
+    private InlongGroupEntity checkGroupStatusIsTemp(String groupId) {
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
         Preconditions.checkNotNull(entity, "groupId is invalid");
         // Add/modify/delete is not allowed under certain inlong group status

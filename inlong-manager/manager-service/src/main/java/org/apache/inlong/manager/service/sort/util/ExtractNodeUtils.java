@@ -180,7 +180,7 @@ public class ExtractNodeUtils {
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
         KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
-        KafkaScanStartupMode startupMode = null;
+        KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
             case EARLIEST:
                 startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;

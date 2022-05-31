@@ -43,7 +43,7 @@ public enum KafkaOffset {
                 return dataFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported KafkaOffset=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported KafkaOffset=%s", name));
     }
 
 }

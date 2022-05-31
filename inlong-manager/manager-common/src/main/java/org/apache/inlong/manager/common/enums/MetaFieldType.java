@@ -25,7 +25,7 @@ public enum MetaFieldType {
     /**
      * database
      */
-    DATABASE("database", "meta field database used in canal json or mysql binlong and so on"),
+    DATABASE("database", "meta field database used in canal json or mysql binlog and so on"),
 
     /**
      * processing_time
@@ -35,27 +35,27 @@ public enum MetaFieldType {
     /**
      * data_time
      */
-    DATA_TIME("data_time", "meta field data_time used in canal json or mysql binlong and so on"),
+    DATA_TIME("data_time", "meta field data_time used in canal json or mysql binlog and so on"),
 
     /**
      * table
      */
-    TABLE("table", "meta field table used in canal json or mysql binlong and so on"),
+    TABLE("table", "meta field table used in canal json or mysql binlog and so on"),
 
     /**
      * event_time
      */
-    EVENT_TIME("event_time", "meta field event_time used in canal json or mysql binlong and so on"),
+    EVENT_TIME("event_time", "meta field event_time used in canal json or mysql binlog and so on"),
 
     /**
      * is_ddl
      */
-    IS_DDL("is_ddl", "meta field is_ddl used in canal json or mysql binlong and so on"),
+    IS_DDL("is_ddl", "meta field is_ddl used in canal json or mysql binlog and so on"),
 
     /**
      * event_type
      */
-    EVENT_TYPE("event_type", "meta field event_type used in canal json or mysql binlong and so on"),
+    EVENT_TYPE("event_type", "meta field event_type used in canal json or mysql binlog and so on"),
 
     /**
      * data

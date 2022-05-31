@@ -64,7 +64,7 @@ public class NodeRelationUtils {
     /**
      * Create node relation for the given stream
      */
-    public static List<NodeRelation> createNodeRelationForStream(InlongStreamInfo streamInfo) {
+    public static List<NodeRelation> createNodeRelationsForStream(InlongStreamInfo streamInfo) {
         String tempView = streamInfo.getExtParams();
         if (StringUtils.isEmpty(tempView)) {
             log.warn("stream node relation is empty for {}", streamInfo);

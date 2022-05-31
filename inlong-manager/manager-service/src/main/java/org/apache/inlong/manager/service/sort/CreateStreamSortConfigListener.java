@@ -47,6 +47,7 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +121,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
         MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported MqType={%s} for Inlong", mqType);
+            String errMsg = String.format("Unsupported mqType={%s}", mqType);
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
@@ -143,7 +144,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
                 pulsarSource.setPrimaryKey(((KafkaSource) source).getPrimaryKey());
             }
         }
-        pulsarSource.setScanStartupMode("earliest");
+        pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
         pulsarSource.setFieldList(streamInfo.getFieldList());
         return Lists.newArrayList(pulsarSource);
     }

@@ -49,7 +49,7 @@ public enum GroupMode {
                 return groupMode;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported group mode=%s for Inlong", mode));
+        throw new IllegalArgumentException(String.format("Unsupported group mode=%s", mode));
     }
 
     public static GroupMode parseGroupMode(InlongGroupInfo groupInfo) {
