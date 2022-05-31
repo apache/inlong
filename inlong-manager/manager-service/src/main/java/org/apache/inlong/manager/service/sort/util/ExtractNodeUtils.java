@@ -308,9 +308,9 @@ public class ExtractNodeUtils {
         final String userName = oracleSource.getUsername();
         final String password = oracleSource.getPassword();
         final Integer port = oracleSource.getPort();
-        OracleScanMode scanstartupMode = OracleScanMode.forName(oracleSource.getScanStartupMode());
+        OracleScanMode oracleScanMode = OracleScanMode.forName(oracleSource.getScanStartupMode());
         OracleConstant.ScanStartUpMode scanStartupMode;
-        switch (scanstartupMode) {
+        switch (oracleScanMode) {
             case INITIAL:
                 scanStartupMode = ScanStartUpMode.INITIAL;
                 break;
@@ -319,7 +319,7 @@ public class ExtractNodeUtils {
                 break;
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for oracle source",
-                        scanstartupMode));
+                        oracleScanMode));
         }
         List<StreamField> streamFieldInfos = oracleSource.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
