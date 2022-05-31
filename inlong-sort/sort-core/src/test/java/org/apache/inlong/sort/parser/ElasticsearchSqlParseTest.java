@@ -54,7 +54,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
             null, map, "age",
-            Collections.singletonList("user"), "localhost", "root", "Eminem@123456",
+            Collections.singletonList("user"), "localhost", "root", "123456",
             "test", null, null,
             true, null);
     }
