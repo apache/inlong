@@ -28,7 +28,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
+import org.apache.inlong.manager.common.util.EncryptUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -96,7 +96,7 @@ public class HiveSinkDTO {
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
         }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -160,7 +160,7 @@ public class HiveSinkDTO {
 
     private HiveSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+            this.password = EncryptUtils.decryptByConfigAsString(this.password);
         }
         return this;
     }

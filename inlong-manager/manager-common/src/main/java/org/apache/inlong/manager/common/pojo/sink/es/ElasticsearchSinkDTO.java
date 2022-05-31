@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
+import org.apache.inlong.manager.common.util.EncryptUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -85,10 +85,10 @@ public class ElasticsearchSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception{
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception {
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
         }
         return ElasticsearchSinkDTO.builder()
                 .host(request.getHost())
@@ -124,7 +124,7 @@ public class ElasticsearchSinkDTO {
 
     private ElasticsearchSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+            this.password = EncryptUtils.decryptByConfigAsString(this.password);
         }
         return this;
     }

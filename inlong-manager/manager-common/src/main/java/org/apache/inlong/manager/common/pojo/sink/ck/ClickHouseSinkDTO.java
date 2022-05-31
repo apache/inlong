@@ -27,8 +27,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.common.EncryptUtil;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
+import org.apache.inlong.manager.common.util.EncryptUtils;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -100,10 +99,10 @@ public class ClickHouseSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception{
+    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception {
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtil.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
         }
         return ClickHouseSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -151,7 +150,7 @@ public class ClickHouseSinkDTO {
 
     private ClickHouseSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtil.decryptByConfigAsString(this.password);
+            this.password = EncryptUtils.decryptByConfigAsString(this.password);
         }
         return this;
     }

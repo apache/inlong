@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.common;
+package org.apache.inlong.manager.common.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,9 +33,9 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Properties;
 
-public class EncryptUtil {
+public class EncryptUtils {
     private static final Logger logger =
-            LoggerFactory.getLogger(EncryptUtil.class);
+            LoggerFactory.getLogger(EncryptUtils.class);
 
     private static final int KEY_SIZE = 128;
 
@@ -59,7 +59,7 @@ public class EncryptUtil {
         String confDesKey = properties.getProperty(CONFIG_KEY);
         if (StringUtils.isEmpty(confDesKey)) {
             logger.error("cannot find deskey in property");
-            throw new Exception("cannot find deskey in property");
+            throw new RuntimeException("cannot find deskey in property");
         }
         return confDesKey.getBytes(StandardCharsets.UTF_8);
     }
