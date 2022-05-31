@@ -77,7 +77,7 @@ public class FilterFunctionUtils {
                 return Lists.newArrayList();
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s for Inlong", transformType));
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 
@@ -129,7 +129,7 @@ public class FilterFunctionUtils {
                 return null;
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s for Inlong", transformType));
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 

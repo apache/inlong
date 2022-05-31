@@ -97,7 +97,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fieldInfos = fieldList.stream()
                 .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, name))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         Map<String, String> properties = kafkaSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         Integer sinkParallelism = null;
@@ -129,7 +129,7 @@ public class LoadNodeUtils {
         return new KafkaLoadNode(id,
                 name,
                 fieldInfos,
-                fieldRelationships,
+                fieldRelations,
                 Lists.newArrayList(),
                 null,
                 topicName,
@@ -154,7 +154,7 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         Map<String, String> properties = hiveSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         List<FieldInfo> partitionFields = Lists.newArrayList();
@@ -168,7 +168,7 @@ public class LoadNodeUtils {
                 id,
                 name,
                 fields,
-                fieldRelationships,
+                fieldRelations,
                 Lists.newArrayList(),
                 null,
                 null,
@@ -193,14 +193,14 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         Map<String, String> properties = hbaseSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new HbaseLoadNode(
                 id,
                 name,
                 fields,
-                fieldRelationships,
+                fieldRelations,
                 Lists.newArrayList(),
                 null,
                 null,
@@ -225,10 +225,10 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelationships = parseSinkFields(fieldList, name);
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         return new PostgresLoadNode(postgresSink.getSinkName(),
                 postgresSink.getSinkName(),
-                fields, fieldRelationships, null, null, 1,
+                fields, fieldRelations, null, null, 1,
                 null, postgresSink.getJdbcUrl(), postgresSink.getUsername(),
                 postgresSink.getPassword(),
                 postgresSink.getDbName() + "." + postgresSink.getTableName(),
@@ -244,9 +244,9 @@ public class LoadNodeUtils {
         List<FieldInfo> fields = sinkFields.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
+        List<FieldRelation> fieldRelations = parseSinkFields(sinkFields, name);
         return new ClickHouseLoadNode(name, name,
-                fields, fieldRelationShips, null, null, 1,
+                fields, fieldRelations, null, null, 1,
                 null, ckSink.getTableName(),
                 ckSink.getJdbcUrl(),
                 ckSink.getUsername(),

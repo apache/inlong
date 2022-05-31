@@ -49,10 +49,10 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String operator = context.getOperator();
-        GroupOperateType groupOperateType = form.getGroupOperateType();
+        GroupOperateType operateType = form.getGroupOperateType();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         Integer nextStatus;
-        switch (groupOperateType) {
+        switch (operateType) {
             case RESTART:
                 nextStatus = GroupStatus.RESTARTED.getCode();
                 break;
@@ -63,8 +63,7 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
                 nextStatus = GroupStatus.DELETED.getCode();
                 break;
             default:
-                throw new RuntimeException(
-                        String.format("Unsupported operation=%s for Inlong group", groupOperateType));
+                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
         }
         // Update inlong group status and other info
         groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, operator);

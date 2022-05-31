@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
 import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
-import org.apache.inlong.manager.service.sort.util.NodeRelationShipUtils;
+import org.apache.inlong.manager.service.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.service.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
@@ -122,12 +122,12 @@ public class LightGroupSortListener implements SortOperateListener {
             List<Node> nodes = this.createNodesForStream(sourceMap.get(streamId),
                     transformMap.get(streamId), sinkMap.get(streamId));
             StreamInfo streamInfo = new StreamInfo(streamId, nodes,
-                    NodeRelationShipUtils.createNodeRelationShipsForStream(stream));
+                    NodeRelationUtils.createNodeRelationsForStream(stream));
             streamInfos.add(streamInfo);
 
-            // Rebuild joinerNode relationship
+            // Rebuild joinerNode relation
             List<TransformResponse> transformResponseList = transformMap.get(streamId);
-            NodeRelationShipUtils.optimizeNodeRelationShips(streamInfo, transformResponseList);
+            NodeRelationUtils.optimizeNodeRelation(streamInfo, transformResponseList);
         }
 
         return new GroupInfo(groupInfo.getInlongGroupId(), streamInfos);

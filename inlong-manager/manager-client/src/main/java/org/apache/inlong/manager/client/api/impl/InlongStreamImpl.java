@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.stream.StreamNodeRelationship;
+import org.apache.inlong.manager.common.pojo.stream.StreamNodeRelation;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
@@ -213,28 +213,28 @@ public class InlongStreamImpl implements InlongStream {
     public StreamPipeline createPipeline() {
         StreamPipeline streamPipeline = new StreamPipeline();
         if (MapUtils.isEmpty(streamTransforms)) {
-            StreamNodeRelationship relationship = new StreamNodeRelationship();
-            relationship.setInputNodes(streamSources.keySet());
-            relationship.setOutputNodes(streamSinks.keySet());
-            streamPipeline.setPipeline(Lists.newArrayList(relationship));
+            StreamNodeRelation relation = new StreamNodeRelation();
+            relation.setInputNodes(streamSources.keySet());
+            relation.setOutputNodes(streamSinks.keySet());
+            streamPipeline.setPipeline(Lists.newArrayList(relation));
             return streamPipeline;
         }
 
-        Map<Set<String>, List<StreamNodeRelationship>> relationshipMap = Maps.newHashMap();
+        Map<Set<String>, List<StreamNodeRelation>> relationMap = Maps.newHashMap();
         // Check preNodes
         for (StreamTransform streamTransform : streamTransforms.values()) {
             String transformName = streamTransform.getTransformName();
             Set<String> preNodes = streamTransform.getPreNodes();
-            StreamNodeRelationship relationship = new StreamNodeRelationship();
-            relationship.setInputNodes(preNodes);
-            relationship.setOutputNodes(Sets.newHashSet(transformName));
+            StreamNodeRelation relation = new StreamNodeRelation();
+            relation.setInputNodes(preNodes);
+            relation.setOutputNodes(Sets.newHashSet(transformName));
             for (String preNode : preNodes) {
                 StreamTransform transform = streamTransforms.get(preNode);
                 if (transform != null) {
                     transform.addPost(transformName);
                 }
             }
-            relationshipMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relationship);
+            relationMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relation);
         }
         // Check postNodes
         for (StreamTransform streamTransform : streamTransforms.values()) {
@@ -248,29 +248,29 @@ public class InlongStreamImpl implements InlongStream {
                 }
             }
             if (CollectionUtils.isNotEmpty(sinkSet)) {
-                StreamNodeRelationship relationship = new StreamNodeRelationship();
+                StreamNodeRelation relation = new StreamNodeRelation();
                 Set<String> preNodes = Sets.newHashSet(transformName);
-                relationship.setInputNodes(preNodes);
-                relationship.setOutputNodes(sinkSet);
-                relationshipMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relationship);
+                relation.setInputNodes(preNodes);
+                relation.setOutputNodes(sinkSet);
+                relationMap.computeIfAbsent(preNodes, key -> Lists.newArrayList()).add(relation);
             }
         }
-        List<StreamNodeRelationship> relationships = Lists.newArrayList();
-        // Merge StreamNodeRelationship with same preNodes
-        for (Map.Entry<Set<String>, List<StreamNodeRelationship>> entry : relationshipMap.entrySet()) {
-            List<StreamNodeRelationship> unmergedRelationships = entry.getValue();
-            if (unmergedRelationships.size() == 1) {
-                relationships.add(unmergedRelationships.get(0));
+        List<StreamNodeRelation> relations = Lists.newArrayList();
+        // Merge StreamNodeRelation with same preNodes
+        for (Map.Entry<Set<String>, List<StreamNodeRelation>> entry : relationMap.entrySet()) {
+            List<StreamNodeRelation> unmergedRelations = entry.getValue();
+            if (unmergedRelations.size() == 1) {
+                relations.add(unmergedRelations.get(0));
             } else {
-                StreamNodeRelationship mergedRelationship = unmergedRelationships.get(0);
-                for (int index = 1; index < unmergedRelationships.size(); index++) {
-                    StreamNodeRelationship unmergedRelationship = unmergedRelationships.get(index);
-                    unmergedRelationship.getOutputNodes().forEach(mergedRelationship::addOutputNode);
+                StreamNodeRelation mergedRelation = unmergedRelations.get(0);
+                for (int index = 1; index < unmergedRelations.size(); index++) {
+                    StreamNodeRelation unmergedRelation = unmergedRelations.get(index);
+                    unmergedRelation.getOutputNodes().forEach(mergedRelation::addOutputNode);
                 }
-                relationships.add(mergedRelationship);
+                relations.add(mergedRelation);
             }
         }
-        streamPipeline.setPipeline(relationships);
+        streamPipeline.setPipeline(relations);
         Pair<Boolean, Pair<String, String>> circleState = streamPipeline.hasCircle();
         if (circleState.getLeft()) {
             Pair<String, String> circleNodes = circleState.getRight();

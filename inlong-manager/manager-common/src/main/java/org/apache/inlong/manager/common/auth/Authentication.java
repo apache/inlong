@@ -42,7 +42,7 @@ public interface Authentication {
                     return authType;
                 }
             }
-            throw new IllegalArgumentException(String.format("Unsupported authType=%s for Inlong", type));
+            throw new IllegalArgumentException(String.format("Unsupported authType=%s", type));
         }
 
         @Override

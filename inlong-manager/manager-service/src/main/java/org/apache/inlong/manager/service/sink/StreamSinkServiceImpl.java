@@ -226,8 +226,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete sink by id={}", id);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
-        // Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
-
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);

@@ -87,7 +87,7 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.addListener(groupAfterApprovedListener);
         process.addTask(adminUserTask);
 
-        // Configuration order relationship
+        // Configuration order relation
         startEvent.addNext(adminUserTask);
         // If you need another approval process, you can add it here
         adminUserTask.addNext(endEvent);

@@ -29,11 +29,22 @@ import java.util.List;
 
 /**
  * A class to define operation to filter stream records by different modes.
- * Rule mode is more recommended then script mode
+ * Rule mode is more recommended than script mode.
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class FilterDefinition extends TransformDefinition {
+
+    /**
+     * Strategy for Filter transform
+     */
+    private FilterStrategy filterStrategy;
+    /**
+     * Mode for Filter transform
+     */
+    private FilterMode filterMode;
+    private List<FilterRule> filterRules;
+    private ScriptBase scriptBase;
 
     public FilterDefinition(FilterStrategy filterStrategy, List<FilterRule> filterRules) {
         this.transformType = TransformType.FILTER;
@@ -59,16 +70,6 @@ public class FilterDefinition extends TransformDefinition {
         RULE, SCRIPT
     }
 
-    /**
-     * Strategy for Filter transform
-     */
-    private FilterStrategy filterStrategy;
-
-    /**
-     * Mode for Filter transform
-     */
-    private FilterMode filterMode;
-
     @Data
     @AllArgsConstructor
     public static class TargetValue {
@@ -84,8 +85,8 @@ public class FilterDefinition extends TransformDefinition {
     }
 
     /**
-     * Filter rule is about relationship between sourceField and targetValue;
-     * such as 'a >= b' or 'a is not null'
+     * Filter rule is about relation between sourceField and targetValue.
+     * Such as 'a >= b' or 'a were not null'
      */
     @Data
     @AllArgsConstructor
@@ -100,8 +101,6 @@ public class FilterDefinition extends TransformDefinition {
         private RuleRelation relationWithPost;
     }
 
-    private List<FilterRule> filterRules;
-
     @Data
     @AllArgsConstructor
     public static class ScriptBase {
@@ -110,6 +109,4 @@ public class FilterDefinition extends TransformDefinition {
 
         private String script;
     }
-
-    private ScriptBase scriptBase;
 }
