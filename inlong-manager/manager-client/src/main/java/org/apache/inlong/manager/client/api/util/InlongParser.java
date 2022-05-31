@@ -253,7 +253,7 @@ public class InlongParser {
                             String.format("Unsupported sourceType=%sg", sourceType));
             }
         } else {
-            return new PageInfo<>();
+            return new PageInfo<>(Lists.newArrayList());
         }
     }
 
