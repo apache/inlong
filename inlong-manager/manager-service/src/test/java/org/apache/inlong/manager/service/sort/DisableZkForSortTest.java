@@ -140,7 +140,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         Assert.assertEquals(1, task.getNameToListenerMap().size());
 
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-//        Assert.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
+        Assert.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
         ProcessForm form = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
         Assert.assertEquals(1, curGroupRequest.getExtList().size());
@@ -170,7 +170,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         Assert.assertTrue(task instanceof ServiceTask);
         Assert.assertEquals(2, task.getNameToListenerMap().size());
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-//        Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
+        Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
         ProcessForm currentProcessForm = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) currentProcessForm).getGroupInfo();
         Assert.assertEquals(1, curGroupRequest.getExtList().size());
