@@ -70,7 +70,7 @@ public class SourceInfoUtils {
     /*
      * Create source info for Pulsar
      */
-   /* private static org.apache.inlong.sort.protocol.source.SourceInfo createPulsarSourceInfo(
+    /* private static org.apache.inlong.sort.protocol.source.SourceInfo createPulsarSourceInfo(
             PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
