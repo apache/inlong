@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.sort;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -35,15 +34,12 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
-import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Create sort config when disable the ZooKeeper
@@ -88,17 +84,17 @@ public class CreateSortConfigListener implements SortOperateListener {
 
         try {
             // TODO Support more than one sinks under a stream
-            Map<String, DataFlowInfo> dataFlowInfoMap = streamSinks.stream().map(sink -> {
-                        DataFlowInfo flowInfo = dataFlowUtils.createDataFlow(groupInfo, sink);
-                        return Pair.of(sink.getInlongStreamId(), flowInfo);
-                    }
-            ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+            // Map<String, DataFlowInfo> dataFlowInfoMap = streamSinks.stream().map(sink -> {
+            //             DataFlowInfo flowInfo = dataFlowUtils.createDataFlow(groupInfo, sink);
+            //             return Pair.of(sink.getInlongStreamId(), flowInfo);
+            //         }
+            // ).collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
-            String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
+            // String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
             InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
             extInfo.setInlongGroupId(groupId);
             extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
-            extInfo.setKeyValue(dataFlows);
+            // extInfo.setKeyValue(dataFlows);
             if (groupInfo.getExtList() == null) {
                 groupInfo.setExtList(Lists.newArrayList());
             }

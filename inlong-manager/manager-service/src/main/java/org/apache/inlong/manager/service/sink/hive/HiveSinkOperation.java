@@ -31,10 +31,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -42,7 +42,7 @@ import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.sink.StreamSinkOperation;
-import org.apache.inlong.manager.service.sort.util.SinkInfoUtils;
+import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
         Preconditions.checkTrue(SinkType.SINK_HIVE.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
-        SinkInfoUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
+        LoadNodeUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(hiveRequest, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
@@ -187,7 +187,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
-        SinkInfoUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
+        LoadNodeUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
         CommonBeanUtils.copyProperties(hiveRequest, entity, true);
         try {
             HiveSinkDTO dto = HiveSinkDTO.getFromRequest(hiveRequest);

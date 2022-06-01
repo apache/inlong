@@ -19,13 +19,16 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
@@ -46,6 +49,7 @@ import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -302,4 +306,37 @@ public class LoadNodeUtils {
                     return new FieldRelation(sourceField, sinkField);
                 }).collect(Collectors.toList());
     }
+
+    /**
+     * Check the validation of Hive partition field.
+     */
+    public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
+        if (CollectionUtils.isEmpty(partitionList)) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(fieldList)) {
+            throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
+        }
+
+        Map<String, SinkField> sinkFieldMap = new HashMap<>(fieldList.size());
+        fieldList.forEach(field -> sinkFieldMap.put(field.getFieldName(), field));
+
+        for (HivePartitionField partitionField : partitionList) {
+            String fieldName = partitionField.getFieldName();
+            if (StringUtils.isBlank(fieldName)) {
+                throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
+            }
+
+            SinkField sinkField = sinkFieldMap.get(fieldName);
+            if (sinkField == null) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
+            }
+            if (StringUtils.isBlank(sinkField.getSourceFieldName())) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
+            }
+        }
+    }
+
 }

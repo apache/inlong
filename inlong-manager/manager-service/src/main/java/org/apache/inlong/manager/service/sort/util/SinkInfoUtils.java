@@ -17,44 +17,6 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
-import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
-import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
-import org.apache.inlong.sort.protocol.sink.ElasticsearchSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HbaseSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
-import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
-import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
-import org.apache.inlong.sort.protocol.sink.SinkInfo;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * Utils for create sink info, such as kafka sink, clickhouse sink, etc.
  */
@@ -64,10 +26,10 @@ public class SinkInfoUtils {
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
 
-    /**
+    /*
      * Create sink info for DataFlowInfo.
      */
-    public static SinkInfo createSinkInfo(StreamSource streamSource, StreamSink streamSink,
+    /*public static SinkInfo createSinkInfo(StreamSource streamSource, StreamSink streamSink,
             List<FieldInfo> sinkFields) {
         String sinkType = streamSink.getSinkType();
         SinkInfo sinkInfo;
@@ -94,9 +56,9 @@ public class SinkInfoUtils {
                 throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
         }
         return sinkInfo;
-    }
+    }*/
 
-    private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSink ckSink, List<FieldInfo> sinkFields) {
+    /*private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSink ckSink, List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(ckSink.getJdbcUrl())) {
             throw new BusinessException(String.format("ClickHouse={%s} jdbc url cannot be empty", ckSink));
         } else if (CollectionUtils.isEmpty(ckSink.getFieldList())) {
@@ -130,29 +92,29 @@ public class SinkInfoUtils {
                 sinkFields.toArray(new FieldInfo[0]), new String[0],
                 ckSink.getFlushInterval(), ckSink.getFlushRecord(),
                 ckSink.getRetryTimes());
-    }
+    }*/
 
-    // TODO Need set more configs for IcebergSinkInfo
+    /*// TODO Need set more configs for IcebergSinkInfo
     private static IcebergSinkInfo createIcebergSinkInfo(IcebergSink icebergSink, List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(icebergSink.getDataPath())) {
             throw new BusinessException(String.format("Iceberg={%s} data path cannot be empty", icebergSink));
         }
 
         return new IcebergSinkInfo(sinkFields.toArray(new FieldInfo[0]), icebergSink.getDataPath());
-    }
+    }*/
 
-    private static KafkaSinkInfo createKafkaSinkInfo(StreamSource streamSource, KafkaSink kafkaSink,
+    /*private static KafkaSinkInfo createKafkaSinkInfo(StreamSource streamSource, KafkaSink kafkaSink,
             List<FieldInfo> sinkFields) {
         String addressUrl = kafkaSink.getBootstrapServers();
         String topicName = kafkaSink.getTopicName();
         SerializationInfo serializationInfo = SerializationUtils.createSerialInfo(streamSource, kafkaSink);
         return new KafkaSinkInfo(sinkFields.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
-    }
+    }*/
 
-    /**
+    /*
      * Create Hive sink info.
      */
-    private static HiveSinkInfo createHiveSinkInfo(HiveSink hiveInfo, List<FieldInfo> sinkFields) {
+    /*private static HiveSinkInfo createHiveSinkInfo(HiveSink hiveInfo, List<FieldInfo> sinkFields) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new BusinessException(String.format("HiveSink={%s} server url cannot be empty", hiveInfo));
         }
@@ -209,12 +171,12 @@ public class SinkInfoUtils {
         return new HiveSinkInfo(sinkFields.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
                 dataPath, partitionList.toArray(new HiveSinkInfo.HivePartitionInfo[0]), fileFormat);
-    }
+    }*/
 
-    /**
+    /*
      * Check the validation of Hive partition field.
      */
-    public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
+    /*public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
@@ -243,12 +205,12 @@ public class SinkInfoUtils {
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
-    }
+    }*/
 
-    /**
+    /*
      * Creat HBase sink info.
      */
-    private static HbaseSinkInfo createHbaseSinkInfo(HBaseSink hbaseSink, List<FieldInfo> sinkFields) {
+    /*private static HbaseSinkInfo createHbaseSinkInfo(HBaseSink hbaseSink, List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(hbaseSink.getZkQuorum())) {
             throw new BusinessException(String.format("HBase={%s} zookeeper quorum url cannot be empty", hbaseSink));
         } else if (StringUtils.isEmpty(hbaseSink.getZkNodeParent())) {
@@ -262,12 +224,12 @@ public class SinkInfoUtils {
                 hbaseSink.getBufferFlushMaxSize(), hbaseSink.getBufferFlushMaxSize(),
                 hbaseSink.getBufferFlushInterval());
 
-    }
+    }*/
 
-    /**
+    /*
      * Creat Elasticsearch sink info.
      */
-    private static ElasticsearchSinkInfo createEsSinkInfo(ElasticsearchSink esSink, List<FieldInfo> sinkFields) {
+    /*private static ElasticsearchSinkInfo createEsSinkInfo(ElasticsearchSink esSink, List<FieldInfo> sinkFields) {
         if (StringUtils.isEmpty(esSink.getHost())) {
             throw new BusinessException(String.format("es={%s} host cannot be empty", esSink));
         } else if (StringUtils.isEmpty(esSink.getIndexName())) {
@@ -279,6 +241,6 @@ public class SinkInfoUtils {
                 sinkFields.toArray(new FieldInfo[0]), new String[0],
                 esSink.getFlushInterval(), esSink.getFlushRecord(),
                 esSink.getRetryTimes());
-    }
+    }*/
 
 }
