@@ -49,8 +49,11 @@ public class IcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty("username")
     private String username;
 
-    @ApiModelProperty("JDBC URL")
-    private String jdbcUrl;
+    @ApiModelProperty("Catalog URI")
+    private String catalogUri;
+
+    @ApiModelProperty("Data warehouse dir")
+    private String warehouse;
 
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;

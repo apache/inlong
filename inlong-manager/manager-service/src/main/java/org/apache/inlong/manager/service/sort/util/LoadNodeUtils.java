@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -40,6 +41,7 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -79,6 +81,8 @@ public class LoadNodeUtils {
                 return createLoadNode((PostgresSink) streamSink);
             case CLICKHOUSE:
                 return createLoadNode((ClickHouseSink) streamSink);
+            case ICEBERG:
+                return createLoadNode((IcebergSink) streamSink);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -251,6 +255,29 @@ public class LoadNodeUtils {
                 ckSink.getJdbcUrl(),
                 ckSink.getUsername(),
                 ckSink.getPassword());
+    }
+
+    /**
+     * create iceberg load node
+     */
+    public static IcebergLoadNode createLoadNode(IcebergSink icebergSink) {
+        String id = icebergSink.getSinkName();
+        String name = icebergSink.getSinkName();
+        String dbName = icebergSink.getDbName();
+        String tableName = icebergSink.getTableName();
+        String uri = icebergSink.getCatalogUri();
+        String warehouse = icebergSink.getWarehouse();
+
+        List<SinkField> sinkFields = icebergSink.getFieldList();
+        List<FieldInfo> fields = sinkFields.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
+        Map<String, String> properties = icebergSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
+                dbName, tableName, null, null, uri, warehouse);
     }
 
     /**
