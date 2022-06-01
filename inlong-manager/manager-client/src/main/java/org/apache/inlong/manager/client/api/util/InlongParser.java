@@ -38,6 +38,8 @@ import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
@@ -213,6 +215,15 @@ public class InlongParser {
                     case POSTGRES:
                         PostgresSink postgresSink = GsonUtils.fromJson(sinkJson.toString(), PostgresSink.class);
                         streamSinks.add(postgresSink);
+                        break;
+                    case HBASE:
+                        HBaseSink hbaseSink = GsonUtils.fromJson(sinkJson.toString(), HBaseSink.class);
+                        streamSinks.add(hbaseSink);
+                        break;
+                    case ELASTICSEARCH:
+                        ElasticsearchSink elasticsearchSink = GsonUtils.fromJson(sinkJson.toString(),
+                                ElasticsearchSink.class);
+                        streamSinks.add(elasticsearchSink);
                         break;
                     default:
                         throw new RuntimeException(String.format("Unsupported sinkType=%s", sinkType));
