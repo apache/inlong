@@ -19,7 +19,10 @@ package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
@@ -27,6 +30,9 @@ import java.util.Date;
  * Response info of the source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SourceListResponse {
 
     @ApiModelProperty(value = "Primary key")

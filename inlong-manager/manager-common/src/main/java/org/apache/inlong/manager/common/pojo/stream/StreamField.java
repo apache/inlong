@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,6 +28,7 @@ import lombok.NoArgsConstructor;
  * Stream filed, including field name, field type, etc.
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
@@ -47,14 +49,14 @@ public class StreamField {
     @ApiModelProperty(value = "Field type", required = true)
     private String fieldType;
 
-    @ApiModelProperty(value = "Field comment")
+    @ApiModelProperty("Field comment")
     private String fieldComment;
-
-    @ApiModelProperty(value = "Field value for constants")
-    private String fieldValue;
 
     @ApiModelProperty(value = "Is predefined field, 1: yes, 0: no")
     private Integer isPredefinedField;
+
+    @ApiModelProperty(value = "Field value for constants")
+    private String fieldValue;
 
     @ApiModelProperty(value = "Value expression of predefined field")
     private String preExpression;

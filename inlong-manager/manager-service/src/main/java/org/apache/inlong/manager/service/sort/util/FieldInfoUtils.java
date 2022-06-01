@@ -115,7 +115,7 @@ public class FieldInfoUtils {
             // TODO The meta field needs to be selectable and cannot be filled in by the user
             return new MetaFieldInfo(fieldName, MetaField.forName(metaFieldName));
         } else {
-            return new FieldInfo(fieldName, convertFieldFormat(fieldType.toLowerCase(), format));
+            return new FieldInfo(fieldName, convertFieldFormat(fieldType, format));
         }
     }
 

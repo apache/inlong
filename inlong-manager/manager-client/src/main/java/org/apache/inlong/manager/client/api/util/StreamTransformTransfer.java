@@ -30,6 +30,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.StreamParseUtils;
 
@@ -51,7 +52,7 @@ public class StreamTransformTransfer {
         TransformDefinition transformDefinition = streamTransform.getTransformDefinition();
         transformRequest.setTransformType(transformDefinition.getTransformType().getType());
         transformRequest.setVersion(1);
-        transformRequest.setTransformDefinition(GsonUtils.toJson(transformDefinition));
+        transformRequest.setTransformDefinition(JsonUtils.toJsonString(transformDefinition));
         if (CollectionUtils.isNotEmpty(streamTransform.getPreNodes())) {
             transformRequest.setPreNodeNames(Joiner.on(",").join(streamTransform.getPreNodes()));
         }

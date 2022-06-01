@@ -132,6 +132,7 @@ public class KafkaProducerCluster implements LifecycleAware {
             tx.commit();
             profileEvent.ack();
             tx.close();
+            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
             return true;
         }
         try {
@@ -145,7 +146,7 @@ public class KafkaProducerCluster implements LifecycleAware {
                             LOG.error(String.format("send failed, topic is %s, partition is %s",
                                     metadata.topic(), metadata.partition()), ex);
                             tx.rollback();
-                            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
+                            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
                         }
                         tx.close();
                     });
@@ -154,7 +155,7 @@ public class KafkaProducerCluster implements LifecycleAware {
             tx.rollback();
             tx.close();
             LOG.error(e.getMessage(), e);
-            sinkContext.addSendResultMetric(profileEvent, topic, true, sendTime);
+            sinkContext.addSendResultMetric(profileEvent, topic, false, sendTime);
             return false;
         }
     }

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.client.api.impl;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
-import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
@@ -33,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.F
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition.JoinMode;
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class InlongStreamImplTest {
         inlongStream.addTransform(singleDependencyTransform1);
         inlongStream.addTransform(singleDependencyTransform2);
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        String pipelineView = GsonUtils.toJson(streamPipeline);
+        String pipelineView = JsonUtils.toJsonString(streamPipeline);
         Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
         Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
     }

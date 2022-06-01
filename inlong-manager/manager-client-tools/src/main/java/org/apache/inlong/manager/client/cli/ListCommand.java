@@ -29,7 +29,6 @@ import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
 import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -38,8 +37,8 @@ import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Get main information of resources.
@@ -87,12 +86,11 @@ public class ListCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
-                List<InlongStreamInfo> inlongStreamInfoList = new ArrayList<>();
-                fullStreamResponseList.forEach(fullStreamResponse -> {
-                    inlongStreamInfoList.add(fullStreamResponse.getStreamInfo());
-                });
-                PrintUtils.print(inlongStreamInfoList, StreamInfo.class);
+                List<FullStreamResponse> streamResponseList = managerClient.listStreamInfo(groupId);
+                List<InlongStreamInfo> streamInfoList = streamResponseList.stream()
+                        .map(FullStreamResponse::getStreamInfo)
+                        .collect(Collectors.toList());
+                PrintUtils.print(streamInfoList, StreamInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -136,10 +134,8 @@ public class ListCommand extends AbstractCommand {
                 List<Integer> statusList = SimpleGroupStatus.parseStatusCodeByStr(status);
                 pageRequest.setStatusList(statusList);
 
-                Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = managerClient.listGroups(pageRequest);
-                List<InlongGroupListResponse> groupList = pageInfoResponse.getData().getList();
-
-                PrintUtils.print(groupList, GroupInfo.class);
+                PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(pageRequest);
+                PrintUtils.print(groupPageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

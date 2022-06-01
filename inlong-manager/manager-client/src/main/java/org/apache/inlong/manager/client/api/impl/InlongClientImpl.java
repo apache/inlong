@@ -31,7 +31,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -102,26 +101,26 @@ public class InlongClientImpl implements InlongClient {
      * List group state
      */
     @Override
-    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) throws Exception {
+    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setNameList(groupNames);
         request.setPageNum(1);
         request.setPageSize(groupNames.size());
         request.setListSources(true);
-        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = managerClient.listGroups(request);
-        if (!pageInfoResponse.isSuccess() || pageInfoResponse.getErrMsg() != null) {
-            throw new RuntimeException("listGroupStateFailed:" + pageInfoResponse.getErrMsg());
-        }
-        List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getData().getList();
+
+        PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(request);
+        List<InlongGroupListResponse> groupListResponses = pageInfo.getList();
         Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
-        groupListResponses.forEach(groupListResponse -> {
-            String groupId = groupListResponse.getInlongGroupId();
-            SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(groupListResponse.getStatus());
-            List<SourceListResponse> sourceListResponses = groupListResponse.getSourceResponses();
-            groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
-            groupStatusMap.put(groupId, groupStatus);
-        });
+        if (CollectionUtils.isNotEmpty(groupListResponses)) {
+            groupListResponses.forEach(response -> {
+                String groupId = response.getInlongGroupId();
+                SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(response.getStatus());
+                List<SourceListResponse> sourceListResponses = response.getSourceResponses();
+                groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
+                groupStatusMap.put(groupId, groupStatus);
+            });
+        }
         return groupStatusMap;
     }
 
