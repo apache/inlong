@@ -37,7 +37,7 @@ import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
-import org.apache.inlong.sort.protocol.node.load.ElasticSearchLoadNode;
+import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
 import org.junit.Assert;
@@ -46,7 +46,7 @@ import org.junit.Test;
 /**
  * test elastic search sql parse
  */
-public class ElasticSearchSqlParseTest extends AbstractTestBase {
+public class ElasticsearchSqlParseTest extends AbstractTestBase {
 
     private MySqlExtractNode buildMysqlExtractNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
@@ -59,7 +59,7 @@ public class ElasticSearchSqlParseTest extends AbstractTestBase {
             true, null);
     }
 
-    private ElasticSearchLoadNode buildElasticSearchLoadNode() {
+    private ElasticsearchLoadNode buildElasticsearchLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("age", new StringFormatInfo()),
             new FieldInfo("name", new StringFormatInfo()));
         List<FieldRelationShip> relations = Arrays
@@ -69,7 +69,7 @@ public class ElasticSearchSqlParseTest extends AbstractTestBase {
                     new FieldInfo("name", new StringFormatInfo())));
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
-        return new ElasticSearchLoadNode("2", "kafka_output", fields, relations, null, null,
+        return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
             2, null,
             "test", "http://localhost:9200",
             "elastic", "password", null);
@@ -87,7 +87,7 @@ public class ElasticSearchSqlParseTest extends AbstractTestBase {
      * @throws Exception The exception may throws when execute the case
      */
     @Test
-    public void testMysqlToElasticSearch() throws Exception {
+    public void testMysqlToElasticsearch() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
             .newInstance()
             .useBlinkPlanner()
@@ -98,7 +98,7 @@ public class ElasticSearchSqlParseTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMysqlExtractNode();
-        Node outputNode = buildElasticSearchLoadNode();
+        Node outputNode = buildElasticsearchLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
             Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                 Collections.singletonList(outputNode))));

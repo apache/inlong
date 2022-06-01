@@ -39,10 +39,10 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
  * elasticSearch load node
  */
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeName("ElasticSearchLoadNode")
+@JsonTypeName("ElasticsearchLoadNode")
 @Data
 @NoArgsConstructor
-public class ElasticSearchLoadNode extends LoadNode implements Serializable {
+public class ElasticsearchLoadNode extends LoadNode implements Serializable {
 
     private static final long serialVersionUID = -1L;
 
@@ -54,9 +54,9 @@ public class ElasticSearchLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String hosts;
 
-    @JsonProperty("userName")
+    @JsonProperty("username")
     @Nonnull
-    private String userName;
+    private String username;
 
     @JsonProperty("password")
     @Nonnull
@@ -66,7 +66,7 @@ public class ElasticSearchLoadNode extends LoadNode implements Serializable {
     private String documentType;
 
     @JsonCreator
-    public ElasticSearchLoadNode(@JsonProperty("id") String id,
+    public ElasticsearchLoadNode(@JsonProperty("id") String id,
         @JsonProperty("name") String name,
         @JsonProperty("fields") List<FieldInfo> fields,
         @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
@@ -76,12 +76,12 @@ public class ElasticSearchLoadNode extends LoadNode implements Serializable {
         @JsonProperty("properties") Map<String, String> properties,
         @Nonnull @JsonProperty("index") String index,
         @Nonnull @JsonProperty("hosts") String hosts,
-        @Nonnull @JsonProperty("userName") String userName,
+        @Nonnull @JsonProperty("username") String username,
         @Nonnull @JsonProperty("password") String password,
         @Nonnull @JsonProperty("documentType") String documentType) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
-        this.userName = Preconditions.checkNotNull(userName, "userName is null");
+        this.username = Preconditions.checkNotNull(username, "username is null");
         this.hosts = Preconditions.checkNotNull(hosts, "hosts is null");
         this.index = Preconditions.checkNotNull(index, "index is null");
         this.documentType = documentType;
@@ -94,7 +94,7 @@ public class ElasticSearchLoadNode extends LoadNode implements Serializable {
         options.put("hosts", hosts);
         options.put("index", index);
         options.put("password", password);
-        options.put("username", userName);
+        options.put("username", username);
         if (documentType == null) {
             documentType = "_doc";
         }

@@ -29,8 +29,8 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
  */
 public class ElasticSearchNodeTest extends SerializeBaseTest<Node>  {
 
-    public ElasticSearchLoadNode getTestObject() {
-        return new ElasticSearchLoadNode(
+    public ElasticsearchLoadNode getTestObject() {
+        return new ElasticsearchLoadNode(
             "1", "test",
             Collections.singletonList(new FieldInfo("id", new StringFormatInfo())),
             Collections.singletonList(
