@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.cli.pojo;
 
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Data;
-import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.client.cli.util.StatusAdapter;
 
 import java.util.Date;
 
@@ -31,11 +32,9 @@ public class GroupInfo {
     private Integer id;
     private String inlongGroupId;
     private String name;
+
+    @JsonAdapter(StatusAdapter.class)
     private String status;
     private Date modifyTime;
 
-    public void setStatus(String status) {
-        SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(Integer.parseInt(status));
-        this.status = groupStatus.name() + " (" + status + ")";
-    }
 }
