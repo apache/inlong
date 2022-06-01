@@ -15,28 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.cli.pojo;
+package org.apache.inlong.manager.client.cli.util;
 
-import com.google.gson.annotations.JsonAdapter;
-import lombok.Data;
-import org.apache.inlong.manager.client.cli.util.StatusAdapter;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 
-import java.util.Date;
+import java.lang.reflect.Type;
 
 /**
- * Source info, including source type, source name, etc.
+ * Status adapter.
  */
-@Data
-public class SourceInfo {
+public class StatusAdapter implements JsonDeserializer {
 
-    private Integer id;
-    private String inlongGroupId;
-    private String inlongStreamId;
-    private String sourceType;
-    private String sourceName;
-    private String serializationType;
-
-    @JsonAdapter(StatusAdapter.class)
-    private String status;
-    private Date modifyTime;
+    @Override
+    public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
+        SimpleGroupStatus simpleGroupStatus = SimpleGroupStatus.parseStatusByCode(json.getAsInt());
+        return simpleGroupStatus + " (" + json.getAsInt() + ")";
+    }
 }
