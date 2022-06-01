@@ -588,7 +588,7 @@ public class InnerInlongManagerClient {
      * @param url request url
      * @param typeReference specified the result type reference
      * @param <T> result type
-     * @return the result of type Response<T>
+     * @return the result of type Response&lt;T>
      */
     private <T> Response<T> sendGetForResponse(String url, TypeReference<Response<T>> typeReference) {
         return executeRequestForResponse("GET", url, null, typeReference);
@@ -624,7 +624,7 @@ public class InnerInlongManagerClient {
      * @param url request url
      * @param content request content
      * @param clazz result type
-     * @return the result of type Response<T>
+     * @return the result of type Response&lt;T>
      */
     private <T> Response<T> sendPostForResponse(String url, String content, Class<T> clazz) {
         return executeRequestForResponse("POST", url, content, clazz);
@@ -636,7 +636,7 @@ public class InnerInlongManagerClient {
      * @param url request url
      * @param content request content
      * @param typeReference specified the result type reference
-     * @return the result of type Response<T>
+     * @return the result of type Response&lt;T>
      */
     private <T> Response<T> sendPostForResponse(String url, String content, TypeReference<Response<T>> typeReference) {
         return executeRequestForResponse("POST", url, content, typeReference);

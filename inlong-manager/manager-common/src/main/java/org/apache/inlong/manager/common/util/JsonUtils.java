@@ -113,11 +113,12 @@ public class JsonUtils {
 
     /**
      * Parse JSON string to Java object.
-     *
+     * <p/>
      * This method enhancements to {@link #parseObject(String, Class)},
-     * as the above method does not solve this situation:
+     * as the above method can not solve this situation:
+     *
      * <pre>
-     *      cannot parse like this: OBJECT_MAPPER.readValue(jsonStr, Response<PageInfo<EventLogView>>.class)
+     *     OBJECT_MAPPER.readValue(jsonStr, Response&lt;PageInfo&lt;String>>.class)
      * </pre>
      *
      * @param text json string
