@@ -46,7 +46,6 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
@@ -74,6 +73,7 @@ import java.util.List;
 public class InlongParser {
 
     public static final String GROUP_INFO = "groupInfo";
+    public static final String STREAM_INFO = "streamInfo";
     public static final String MQ_EXT_INFO = "mqExtInfo";
     public static final String MQ_TYPE = "mqType";
     public static final String SINK_INFO = "sinkInfo";
@@ -141,9 +141,11 @@ public class InlongParser {
         List<FullStreamResponse> list = Lists.newArrayList();
         for (int streamIndex = 0; streamIndex < fullStreamArray.size(); streamIndex++) {
             JsonObject fullStreamJson = (JsonObject) fullStreamArray.get(streamIndex);
-            FullStreamResponse fullStreamResponse = GsonUtils.fromJson(fullStreamJson.toString(),
-                    FullStreamResponse.class);
+            FullStreamResponse fullStreamResponse = new FullStreamResponse();
             list.add(fullStreamResponse);
+            JsonObject streamJson = fullStreamJson.getAsJsonObject(STREAM_INFO);
+            InlongStreamInfo streamInfo = GsonUtils.fromJson(streamJson.toString(), InlongStreamInfo.class);
+            fullStreamResponse.setStreamInfo(streamInfo);
             // Parse sourceResponse in each stream
             JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
             List<StreamSource> sourceInfos = Lists.newArrayList();
@@ -168,7 +170,7 @@ public class InlongParser {
                         break;
                     case AUTO_PUSH:
                         AutoPushSource autoPushSource = GsonUtils.fromJson(sourceJson.toString(),
-                                AutoPushSourceRequest.class);
+                                AutoPushSource.class);
                         sourceInfos.add(autoPushSource);
                         break;
                     case POSTGRES:
