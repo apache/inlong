@@ -112,7 +112,7 @@ public class KafkaFederationWorker extends Thread {
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
                 if (tx != null) {
-                    tx.commit();
+                    tx.rollback();
                     tx.close();
                 }
                 // metric
