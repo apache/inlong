@@ -139,7 +139,7 @@ public class FieldInfoUtils {
      */
     private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
-        FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
+        FormatInfo formatInfo = convertFieldFormat(fieldType, format);
         if (isBuiltin && builtInField != null) {
             return new BuiltInFieldInfo(fieldName, formatInfo, builtInField);
         } else {
