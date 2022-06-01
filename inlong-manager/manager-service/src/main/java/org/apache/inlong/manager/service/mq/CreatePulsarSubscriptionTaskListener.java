@@ -36,6 +36,7 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
+import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -87,28 +88,29 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
             topicBean.setTenant(tenant);
             topicBean.setNamespace(namespace);
             topicBean.setTopicName(topic);
-            List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
 
             // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
-            for (String cluster : pulsarClusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
-                    boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
-                    if (!exist) {
-                        String fullTopic = tenant + "/" + namespace + "/" + topic;
-                        log.error("topic={} not exists in {}", fullTopic, pulsarAdmin.getServiceUrl());
-                        throw new BusinessException("topic=" + fullTopic + " not exists in " + serviceUrl);
-                    }
 
-                    // Consumer naming rules: sortAppName_topicName_consumer_group
-                    String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-                    pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
-
-                    // Insert the consumption data into the consumption table
-                    consumptionService.saveSortConsumption(groupInfo, topic, subscription);
+            try {
+                boolean exist = pulsarOptService.topicIsExists(globalPulsarAdmin, tenant, namespace, topic);
+                if (!exist) {
+                    String fullTopic = tenant + "/" + namespace + "/" + topic;
+                    log.error("topic={} not exists in {}", fullTopic, globalCluster.getAdminUrl());
+                    throw new BusinessException("topic=" + fullTopic + " not exists in " + globalCluster.getAdminUrl());
                 }
+
+                // Consumer naming rules: sortAppName_topicName_consumer_group
+                String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
+                pulsarOptService.createSubscription(globalPulsarAdmin, topicBean, subscription);
+
+                // Insert the consumption data into the consumption table
+                consumptionService.saveSortConsumption(groupInfo, topic, subscription);
+            } catch (PulsarAdminException e) {
+                log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
+                throw new WorkflowListenerException("create pulsar subscription error, reason: " + e.getMessage());
+            } catch (BusinessException e) {
+                log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
+                throw new WorkflowListenerException("create pulsar subscription error, reason: " + e.getMessage());
             }
         } catch (Exception e) {
             log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
