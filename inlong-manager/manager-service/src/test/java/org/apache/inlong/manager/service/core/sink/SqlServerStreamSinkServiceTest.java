@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -78,7 +78,7 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer sqlserverSinkId = this.saveSink("sqlserver_default1");
-        SinkResponse sink = sinkService.get(sqlserverSinkId);
+        StreamSink sink = sinkService.get(sqlserverSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSqlServerSink(sqlserverSinkId);
     }
@@ -86,13 +86,13 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer sqlserverSinkId = this.saveSink("sqlserver_default2");
-        SinkResponse response = sinkService.get(sqlserverSinkId);
+        StreamSink response = sinkService.get(sqlserverSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        SqlServerSinkResponse sqlServerSinkResponse = (SqlServerSinkResponse) response;
-        sqlServerSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        SqlServerSink sqlServerSink = (SqlServerSink) response;
+        sqlServerSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
-        SqlServerSinkRequest request = CommonBeanUtils.copyProperties(sqlServerSinkResponse,
+        SqlServerSinkRequest request = CommonBeanUtils.copyProperties(sqlServerSink,
                 SqlServerSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);

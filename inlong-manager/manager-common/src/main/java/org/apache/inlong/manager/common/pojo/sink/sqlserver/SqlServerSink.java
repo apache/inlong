@@ -15,40 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.sink;
+package org.apache.inlong.manager.common.pojo.sink.sqlserver;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.common.enums.DataFormat;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-
-import java.util.List;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 /**
- * SqlServer sink.
+ * Postgres sink info
  */
 @Data
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@NoArgsConstructor
-@AllArgsConstructor
-@ApiModel("SqlServer sink configuration")
+@ApiModel(value = "Postgres sink info")
 public class SqlServerSink extends StreamSink {
 
-    @ApiModelProperty(value = "Sink type", required = true)
-    private SinkType sinkType = SinkType.SQLSERVER;
+    @ApiModelProperty("Username of the Sqlserver")
+    private String username;
+
+    @ApiModelProperty("Password of the Sqlserver")
+    private String password;
 
     @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
-
-    @ApiModelProperty("Auth for Sqlserver")
-    private DefaultAuthentication authentication;
 
     @ApiModelProperty("schemaName of the Sqlserver")
     private String schemaName;
@@ -60,19 +55,17 @@ public class SqlServerSink extends StreamSink {
     private String serverTimezone;
 
     @ApiModelProperty("Whether to migrate all databases")
-    private boolean allMigration = false;
+    private boolean allMigration;
 
     @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
 
-    @ApiModelProperty("Field definitions for SqlServer")
-    private List<SinkField> sinkFields;
+    public SqlServerSink() {
+        this.setSinkType(SinkType.SINK_SQLSERVER);
+    }
 
-    /**
-     * get data format
-     * @return just NONE
-     */
-    public DataFormat getDataFormat() {
-        return DataFormat.NONE;
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, SqlServerSinkRequest::new);
     }
 }
