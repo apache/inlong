@@ -129,12 +129,11 @@ public class FieldInfoUtils {
     public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
             List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
-        MetaFieldInfo dataField = new MetaFieldInfo("data",
-                MetaField.DATA);
+        MetaFieldInfo dataField = new MetaFieldInfo("data", MetaField.DATA);
         sourceFields.add(dataField);
         sinkFields.add(dataField);
         mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
-
+        // TODO discarded later
         for (MetaField metaField : MetaField.values()) {
             MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
             sourceFields.add(fieldInfo);
