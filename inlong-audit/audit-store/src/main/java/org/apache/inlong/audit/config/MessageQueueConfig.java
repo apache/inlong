@@ -42,7 +42,7 @@ public class MessageQueueConfig {
     @Value("${audit.pulsar.token:}")
     private String pulsarToken;
 
-    @Value("${audit.pulsar.enable.auth:true}")
+    @Value("${audit.pulsar.enable.auth:false}")
     private boolean pulsarEnableAuth;
 
     @Value("${audit.pulsar.consumer.receive.queue.size:1000}")
