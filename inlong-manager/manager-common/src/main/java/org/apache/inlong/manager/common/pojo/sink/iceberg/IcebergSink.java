@@ -60,6 +60,24 @@ public class IcebergSink extends StreamSink {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
+    @ApiModelProperty("Hive JDBC URL")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Data encoding type")
+    private String dataEncoding;
+
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
+
+    @ApiModelProperty("Data consistency strategy, support: EXACTLY_ONCE(default), AT_LEAST_ONCE")
+    private String dataConsistency;
+
     public IcebergSink() {
         this.setSinkType(SinkType.SINK_ICEBERG);
     }

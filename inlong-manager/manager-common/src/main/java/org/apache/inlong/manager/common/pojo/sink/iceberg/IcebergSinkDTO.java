@@ -60,6 +60,24 @@ public class IcebergSinkDTO {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
+    @ApiModelProperty("Hive JDBC URL")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
+
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Data encoding type")
+    private String dataEncoding;
+
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
+
+    @ApiModelProperty("Data consistency strategy, support: EXACTLY_ONCE(default), AT_LEAST_ONCE")
+    private String dataConsistency;
+
     @ApiModelProperty("Properties for iceberg")
     private Map<String, Object> properties;
 
@@ -74,6 +92,12 @@ public class IcebergSinkDTO {
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
                 .fileFormat(request.getFileFormat())
+                .jdbcUrl(request.getJdbcUrl())
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .dataEncoding(request.getDataEncoding())
+                .dataSeparator(request.getDataSeparator())
+                .dataConsistency(request.getDataConsistency())
                 .properties(request.getProperties())
                 .build();
     }
