@@ -31,6 +31,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
@@ -95,6 +96,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // According to the sink type, save sink information
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
+        List<SinkField> fields = request.getFieldList();
+        // Remove id in sinkField when save
+        if (CollectionUtils.isNotEmpty(fields)) {
+            fields.stream().forEach(sinkField -> sinkField.setId(null));
+        }
         int id = operation.saveOpt(request, operator);
 
         LOGGER.info("success to save sink info: {}", request);
