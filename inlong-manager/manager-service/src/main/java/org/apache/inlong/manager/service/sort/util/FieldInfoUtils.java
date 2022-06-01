@@ -72,6 +72,38 @@ public class FieldInfoUtils {
         return fieldInfo;
     }
 
+    // /**
+    //  * Get field info list.
+    //  * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
+    //  */
+    // public static List<FieldMappingUnit> createFieldInfo(
+    //         List<StreamField> streamFieldList, List<SinkField> fieldList,
+    //         List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
+    //
+    //     // Set source field info list.
+    //     for (StreamField field : streamFieldList) {
+    //         FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
+    //                 field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
+    //         sourceFields.add(sourceField);
+    //     }
+    //
+    //     List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
+    //     // Get sink field info list, if the field name equals to build-in field, new a build-in field info
+    //     for (SinkField field : fieldList) {
+    //         FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
+    //                 field.getIsMetaField() == 1, field.getMetaFieldName(), field.getFieldFormat());
+    //         sinkFields.add(sinkField);
+    //         if (StringUtils.isNotBlank(field.getSourceFieldName())) {
+    //             FieldInfo sourceField = getFieldInfo(field.getSourceFieldName(),
+    //                     field.getSourceFieldType(), field.getIsMetaField() == 1,
+    //                     field.getMetaFieldName(), field.getFieldFormat());
+    //             mappingUnitList.add(new FieldMappingUnit(sourceField, sinkField));
+    //         }
+    //     }
+    //
+    //     return mappingUnitList;
+    // }
+
     /**
      * Get field info by the given field name ant type.
      *
@@ -86,6 +118,27 @@ public class FieldInfoUtils {
             return new FieldInfo(fieldName, convertFieldFormat(fieldType.toLowerCase(), format));
         }
     }
+
+    // /**
+    //  * Get all migration field mapping unit list for binlog source.
+    //  */
+    // public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
+    //         List<FieldInfo> sinkFields) {
+    //     List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
+    //     MetaFieldInfo dataField = new MetaFieldInfo("data", MetaField.DATA);
+    //     sourceFields.add(dataField);
+    //     sinkFields.add(dataField);
+    //     mappingUnitList.add(new FieldMappingUnit(dataField, dataField));
+    //     // TODO discarded later
+    //     for (MetaField metaField : MetaField.values()) {
+    //         MetaFieldInfo fieldInfo = new MetaFieldInfo(metaField.name(), metaField);
+    //         sourceFields.add(fieldInfo);
+    //         sinkFields.add(fieldInfo);
+    //         mappingUnitList.add(new FieldMappingUnit(fieldInfo, fieldInfo));
+    //     }
+    //
+    //     return mappingUnitList;
+    // }
 
     /**
      * Get the FieldFormat of Sort according to type string and format of field
