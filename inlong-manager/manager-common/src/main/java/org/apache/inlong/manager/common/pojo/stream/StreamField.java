@@ -59,10 +59,11 @@ public class StreamField {
     @ApiModelProperty(value = "Value expression of predefined field")
     private String preExpression;
 
-    @ApiModelProperty(value = "Meta field name")
-    private String metaFieldName;
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
+
+    @ApiModelProperty(value = "Meta field name")
+    private String metaFieldName;
 
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
