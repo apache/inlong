@@ -205,11 +205,18 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
 
     private JdbcOptions getJdbcOptions(ReadableConfig readableConfig) {
         final String url = readableConfig.get(URL);
+        Optional<String> dialectImplOptional = readableConfig.getOptional(DIALECT_IMPL);
+        Optional<JdbcDialect> jdbcDialect;
+        if (dialectImplOptional.isPresent()) {
+            jdbcDialect = JdbcDialects.getCustomDialect(dialectImplOptional.get());
+        } else {
+            jdbcDialect = JdbcDialects.get(url);
+        }
         final JdbcOptions.Builder builder =
                 JdbcOptions.builder()
                         .setDBUrl(url)
                         .setTableName(readableConfig.get(TABLE_NAME))
-                        .setDialect(JdbcDialects.get(url).get())
+                        .setDialect(jdbcDialect.get())
                         .setParallelism(
                                 readableConfig
                                         .getOptional(FactoryUtil.SINK_PARALLELISM)
@@ -305,14 +312,13 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
     }
 
     private void validateConfigOptions(ReadableConfig config) {
-        // register custom dialect first
-        config.getOptional(DIALECT_IMPL).ifPresent(JdbcDialects::register);
+        // Register custom dialect first
+        Optional<String> dialectImplOptional = config.getOptional(DIALECT_IMPL);
         String jdbcUrl = config.get(URL);
-        final Optional<JdbcDialect> dialect = JdbcDialects.get(jdbcUrl);
+        final Optional<JdbcDialect> dialect = dialectImplOptional.map(JdbcDialects::register)
+                .orElseGet(() -> JdbcDialects.get(jdbcUrl));
         checkState(dialect.isPresent(), "Cannot handle such jdbc url: " + jdbcUrl);
-
         checkAllOrNone(config, new ConfigOption[]{USERNAME, PASSWORD});
-
         checkAllOrNone(
                 config,
                 new ConfigOption[]{
@@ -321,7 +327,6 @@ public class JdbcDynamicTableFactory implements DynamicTableSourceFactory, Dynam
                         SCAN_PARTITION_LOWER_BOUND,
                         SCAN_PARTITION_UPPER_BOUND
                 });
-
         if (config.getOptional(SCAN_PARTITION_LOWER_BOUND).isPresent()
                 && config.getOptional(SCAN_PARTITION_UPPER_BOUND).isPresent()) {
             long lowerBound = config.get(SCAN_PARTITION_LOWER_BOUND);
