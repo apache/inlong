@@ -28,6 +28,13 @@
     <name>Apache InLong - Manager Client</name>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.github.tomakehurst/wiremock-jre8 -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>manager-common</artifactId>

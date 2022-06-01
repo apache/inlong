@@ -19,17 +19,23 @@ package org.apache.inlong.manager.common.pojo.source.oracle;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response info of oracle source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of oracle source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_ORACLE)
 public class OracleSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")

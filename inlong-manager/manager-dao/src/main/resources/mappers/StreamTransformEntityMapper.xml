@@ -37,10 +37,8 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, transform_name, transform_type, pre_node_names,
-    post_node_names, transform_definition, version, is_deleted, creator, modifier, create_time, 
-    modify_time
+        id, inlong_group_id, inlong_stream_id, transform_name, transform_type, pre_node_names, post_node_names,
+        transform_definition, version, is_deleted, creator, modifier, create_time, modify_time
     </sql>
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select

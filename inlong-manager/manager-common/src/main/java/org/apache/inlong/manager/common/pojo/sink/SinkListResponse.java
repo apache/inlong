@@ -19,7 +19,10 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 import java.util.Map;
@@ -28,6 +31,9 @@ import java.util.Map;
  * Response of the sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SinkListResponse {
 
     @ApiModelProperty(value = "Primary key")

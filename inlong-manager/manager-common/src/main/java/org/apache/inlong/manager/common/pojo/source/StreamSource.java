@@ -20,8 +20,11 @@ package org.apache.inlong.manager.common.pojo.source;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
@@ -32,6 +35,9 @@ import java.util.List;
  * Stream source info, including source name, agent ip, etc.
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {

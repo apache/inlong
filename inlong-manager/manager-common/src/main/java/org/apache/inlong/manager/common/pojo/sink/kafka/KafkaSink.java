@@ -19,21 +19,27 @@ package org.apache.inlong.manager.common.pojo.sink.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Kafka sink info
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka sink info")
+@JsonTypeDefine(value = SinkType.SINK_KAFKA)
 public class KafkaSink extends StreamSink {
 
     @ApiModelProperty("Kafka bootstrap servers")

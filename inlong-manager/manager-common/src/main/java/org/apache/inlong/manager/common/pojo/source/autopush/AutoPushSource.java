@@ -19,21 +19,27 @@ package org.apache.inlong.manager.common.pojo.source.autopush;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Auto push info by DataProxy SDK
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Auto push source info")
+@JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
 public class AutoPushSource extends StreamSource {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")

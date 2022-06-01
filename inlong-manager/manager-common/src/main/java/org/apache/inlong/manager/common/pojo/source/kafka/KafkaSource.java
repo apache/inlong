@@ -19,21 +19,27 @@ package org.apache.inlong.manager.common.pojo.source.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Kafka source info
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka source info")
+@JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
 public class KafkaSource extends StreamSource {
 
     @ApiModelProperty("Kafka topic")

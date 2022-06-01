@@ -26,11 +26,11 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
-import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -118,7 +118,7 @@ public class InlongGroupContext implements Serializable {
             this.status = SimpleGroupStatus.FAILED;
             for (StreamSource failedSource : failedSources) {
                 this.groupErrLogs.computeIfAbsent("failedSources", Lists::newArrayList)
-                        .add(GsonUtils.toJson(failedSource));
+                        .add(JsonUtils.toJsonString(failedSource));
             }
             return;
         }
