@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
@@ -47,8 +47,9 @@ import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
+import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.transformation.relation.NodeRelationShip;
+import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -87,16 +88,16 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<SinkResponse> sinkResponses = streamSinkService.listSink(groupId, streamId);
-        if (CollectionUtils.isEmpty(sinkResponses)) {
+        List<StreamSink> streamSinks = streamSinkService.listSink(groupId, streamId);
+        if (CollectionUtils.isEmpty(streamSinks)) {
             log.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
         }
         try {
-            List<SourceResponse> sourceResponses = createPulsarSources(groupInfo, streamInfo);
-            List<Node> nodes = createNodesForStream(sourceResponses, sinkResponses);
-            List<NodeRelationShip> nodeRelationShips = createNodeRelationShipsForStream(sourceResponses, sinkResponses);
-            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelationShips);
+            List<StreamSource> sources = createPulsarSources(groupInfo, streamInfo);
+            List<Node> nodes = createNodesForStream(sources, streamSinks);
+            List<NodeRelation> nodeRelations = createNodeRelationsForStream(sources, streamSinks);
+            StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelations);
             GroupInfo sortGroupInfo = new GroupInfo(groupId, Lists.newArrayList(sortStreamInfo));
             String dataFlows = OBJECT_MAPPER.writeValueAsString(sortGroupInfo);
             InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
@@ -110,64 +111,58 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
             }
             upsertDataFlow(streamInfo, extInfo, keyName);
         } catch (Exception e) {
-            log.error("create sort config failed for sink list={} of groupId={}, streamId={}", sinkResponses, groupId,
+            log.error("create sort config failed for sink list={} of groupId={}, streamId={}", streamSinks, groupId,
                     streamId, e);
             throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
         return ListenerResult.success();
     }
 
-    private List<SourceResponse> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
+    private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
         MQType mqType = MQType.forType(groupInfo.getMqType());
         if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported MqType={} for Inlong", mqType);
+            String errMsg = String.format("Unsupported mqType={%s}", mqType);
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
         PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        PulsarSourceResponse pulsarSourceResponse = new PulsarSourceResponse();
-        pulsarSourceResponse.setSourceName(streamInfo.getInlongStreamId());
-        pulsarSourceResponse.setNamespace(groupInfo.getMqResource());
-        pulsarSourceResponse.setTopic(streamInfo.getMqResource());
-        pulsarSourceResponse.setAdminUrl(pulsarCluster.getAdminUrl());
-        pulsarSourceResponse.setServiceUrl(pulsarCluster.getBrokerServiceUrl());
-        pulsarSourceResponse.setInlongComponent(true);
-        List<SourceResponse> sourceResponses = streamSourceService.listSource(groupInfo.getInlongGroupId(),
+        PulsarSource pulsarSource = new PulsarSource();
+        pulsarSource.setSourceName(streamInfo.getInlongStreamId());
+        pulsarSource.setNamespace(groupInfo.getMqResource());
+        pulsarSource.setTopic(streamInfo.getMqResource());
+        pulsarSource.setAdminUrl(pulsarCluster.getAdminUrl());
+        pulsarSource.setServiceUrl(pulsarCluster.getBrokerServiceUrl());
+        pulsarSource.setInlongComponent(true);
+        List<StreamSource> sources = streamSourceService.listSource(groupInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId());
-        for (SourceResponse sourceResponse : sourceResponses) {
-            if (StringUtils.isEmpty(pulsarSourceResponse.getSerializationType())
-                    && StringUtils.isNotEmpty(sourceResponse.getSerializationType())) {
-                pulsarSourceResponse.setSerializationType(sourceResponse.getSerializationType());
+        for (StreamSource source : sources) {
+            if (StringUtils.isEmpty(pulsarSource.getSerializationType())
+                    && StringUtils.isNotEmpty(source.getSerializationType())) {
+                pulsarSource.setSerializationType(source.getSerializationType());
             }
-            if (SourceType.forType(sourceResponse.getSourceType()) == SourceType.KAFKA) {
-                pulsarSourceResponse.setPrimaryKey(((KafkaSourceResponse) sourceResponse).getPrimaryKey());
+            if (SourceType.forType(source.getSourceType()) == SourceType.KAFKA) {
+                pulsarSource.setPrimaryKey(((KafkaSource) source).getPrimaryKey());
             }
         }
-        pulsarSourceResponse.setScanStartupMode("earliest");
-        pulsarSourceResponse.setFieldList(streamInfo.getFieldList());
-        return Lists.newArrayList(pulsarSourceResponse);
+        pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
+        pulsarSource.setFieldList(streamInfo.getFieldList());
+        return Lists.newArrayList(pulsarSource);
     }
 
-    private List<Node> createNodesForStream(
-            List<SourceResponse> sourceResponses,
-            List<SinkResponse> sinkResponses) {
+    private List<Node> createNodesForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
         List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceResponses));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(sinkResponses));
+        nodes.addAll(ExtractNodeUtils.createExtractNodes(sources));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
         return nodes;
     }
 
-    private List<NodeRelationShip> createNodeRelationShipsForStream(
-            List<SourceResponse> sourceResponses,
-            List<SinkResponse> sinkResponses) {
-        NodeRelationShip relationShip = new NodeRelationShip();
-        List<String> inputs = sourceResponses.stream().map(sourceResponse -> sourceResponse.getSourceName())
-                .collect(Collectors.toList());
-        List<String> outputs = sinkResponses.stream().map(sinkResponse -> sinkResponse.getSinkName())
-                .collect(Collectors.toList());
-        relationShip.setInputs(inputs);
-        relationShip.setOutputs(outputs);
-        return Lists.newArrayList(relationShip);
+    private List<NodeRelation> createNodeRelationsForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
+        NodeRelation relation = new NodeRelation();
+        List<String> inputs = sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
+        List<String> outputs = streamSinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+        relation.setInputs(inputs);
+        relation.setOutputs(outputs);
+        return Lists.newArrayList(relation);
     }
 
     private void upsertDataFlow(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {

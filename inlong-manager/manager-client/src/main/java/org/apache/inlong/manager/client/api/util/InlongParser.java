@@ -36,25 +36,25 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
@@ -102,9 +102,8 @@ public class InlongParser {
      */
     public static InlongGroupInfo parseGroupInfo(Response response) {
         String dataJson = GsonUtils.toJson(response.getData());
-        InlongGroupInfo groupInfo = GsonUtils.fromJson(dataJson, InlongGroupInfo.class);
-
-        MQType mqType = MQType.forType(groupInfo.getMqType());
+        JsonObject pageInfoJson = GsonUtils.fromJson(dataJson, JsonObject.class);
+        MQType mqType = MQType.forType(pageInfoJson.get("mqType").getAsString());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             return GsonUtils.<InlongPulsarInfo>fromJson(dataJson, InlongPulsarInfo.class);
         } else if (mqType == MQType.TUBE) {
@@ -143,81 +142,73 @@ public class InlongParser {
             FullStreamResponse fullStreamResponse = GsonUtils.fromJson(fullStreamJson.toString(),
                     FullStreamResponse.class);
             list.add(fullStreamResponse);
-            //Parse sourceResponse in each stream
+            // Parse sourceResponse in each stream
             JsonArray sourceJsonArr = fullStreamJson.getAsJsonArray(SOURCE_INFO);
-            List<SourceResponse> sourceResponses = Lists.newArrayList();
-            fullStreamResponse.setSourceInfo(sourceResponses);
+            List<StreamSource> sourceInfos = Lists.newArrayList();
+            fullStreamResponse.setSourceInfo(sourceInfos);
             for (int sourceIndex = 0; sourceIndex < sourceJsonArr.size(); sourceIndex++) {
                 JsonObject sourceJson = (JsonObject) sourceJsonArr.get(sourceIndex);
                 String type = sourceJson.get(SOURCE_TYPE).getAsString();
                 SourceType sourceType = SourceType.forType(type);
                 switch (sourceType) {
                     case BINLOG:
-                        BinlogSourceResponse binlogSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
-                                BinlogSourceResponse.class);
-                        sourceResponses.add(binlogSourceResponse);
+                        MySQLBinlogSource binlogSource = GsonUtils.fromJson(sourceJson.toString(),
+                                MySQLBinlogSource.class);
+                        sourceInfos.add(binlogSource);
                         break;
                     case KAFKA:
-                        KafkaSourceResponse kafkaSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
-                                KafkaSourceResponse.class);
-                        sourceResponses.add(kafkaSourceResponse);
+                        KafkaSource kafkaSource = GsonUtils.fromJson(sourceJson.toString(), KafkaSource.class);
+                        sourceInfos.add(kafkaSource);
                         break;
                     case FILE:
-                        FileSourceResponse fileSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
-                                FileSourceResponse.class);
-                        sourceResponses.add(fileSourceResponse);
+                        FileSource fileSource = GsonUtils.fromJson(sourceJson.toString(), FileSource.class);
+                        sourceInfos.add(fileSource);
                         break;
                     case AUTO_PUSH:
-                        AutoPushSourceResponse autoPushSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
+                        AutoPushSource autoPushSource = GsonUtils.fromJson(sourceJson.toString(),
                                 AutoPushSourceRequest.class);
-                        sourceResponses.add(autoPushSourceResponse);
+                        sourceInfos.add(autoPushSource);
                         break;
                     case POSTGRES:
-                        PostgresSourceResponse postgresSourceResponse = GsonUtils.fromJson(sourceJson.toString(),
-                                PostgresSourceResponse.class);
-                        sourceResponses.add(postgresSourceResponse);
+                        PostgresSource postgresSource = GsonUtils.fromJson(sourceJson.toString(), PostgresSource.class);
+                        sourceInfos.add(postgresSource);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupported sourceType=%s for Inlong", sourceType));
+                        throw new RuntimeException(String.format("Unsupported sourceType=%s", sourceType));
                 }
             }
 
-            //Parse sinkResponse in each stream
+            // Parse sink in each stream
             JsonArray sinkJsonArr = fullStreamJson.getAsJsonArray(SINK_INFO);
-            List<SinkResponse> sinkResponses = Lists.newArrayList();
-            fullStreamResponse.setSinkInfo(sinkResponses);
+            List<StreamSink> streamSinks = Lists.newArrayList();
+            fullStreamResponse.setSinkInfo(streamSinks);
             for (int sinkIndex = 0; sinkIndex < sinkJsonArr.size(); sinkIndex++) {
                 JsonObject sinkJson = (JsonObject) sinkJsonArr.get(sinkIndex);
                 String type = sinkJson.get(SINK_TYPE).getAsString();
                 SinkType sinkType = SinkType.forType(type);
                 switch (sinkType) {
                     case HIVE:
-                        HiveSinkResponse hiveSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
-                                HiveSinkResponse.class);
-                        sinkResponses.add(hiveSinkResponse);
+                        HiveSink hiveSink = GsonUtils.fromJson(sinkJson.toString(), HiveSink.class);
+                        streamSinks.add(hiveSink);
                         break;
                     case KAFKA:
-                        KafkaSinkResponse kafkaSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
-                                KafkaSinkResponse.class);
-                        sinkResponses.add(kafkaSinkResponse);
+                        KafkaSink kafkaSink = GsonUtils.fromJson(sinkJson.toString(), KafkaSink.class);
+                        streamSinks.add(kafkaSink);
                         break;
                     case ICEBERG:
-                        IcebergSinkResponse icebergSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
-                                IcebergSinkResponse.class);
-                        sinkResponses.add(icebergSinkResponse);
+                        IcebergSink icebergSink = GsonUtils.fromJson(sinkJson.toString(), IcebergSink.class);
+                        streamSinks.add(icebergSink);
                         break;
                     case CLICKHOUSE:
-                        ClickHouseSinkResponse clickHouseSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
-                                ClickHouseSinkResponse.class);
-                        sinkResponses.add(clickHouseSinkResponse);
+                        ClickHouseSink ckSink = GsonUtils.fromJson(sinkJson.toString(), ClickHouseSink.class);
+                        streamSinks.add(ckSink);
                         break;
                     case POSTGRES:
-                        PostgresSinkResponse postgresSinkResponse = GsonUtils.fromJson(sinkJson.toString(),
-                                PostgresSinkResponse.class);
-                        sinkResponses.add(postgresSinkResponse);
+                        PostgresSink postgresSink = GsonUtils.fromJson(sinkJson.toString(), PostgresSink.class);
+                        streamSinks.add(postgresSink);
                         break;
                     default:
-                        throw new RuntimeException(String.format("Unsupported sinkType=%s for Inlong", sinkType));
+                        throw new RuntimeException(String.format("Unsupported sinkType=%s", sinkType));
                 }
             }
         }
@@ -239,7 +230,7 @@ public class InlongParser {
             switch (sourceType) {
                 case BINLOG:
                     return GsonUtils.fromJson(pageInfoJson,
-                            new TypeToken<PageInfo<BinlogSourceListResponse>>() {
+                            new TypeToken<PageInfo<MySQLBinlogSourceListResponse>>() {
                             }.getType());
                 case KAFKA:
                     return GsonUtils.fromJson(pageInfoJson,
@@ -259,10 +250,10 @@ public class InlongParser {
                             }.getType());
                 default:
                     throw new IllegalArgumentException(
-                            String.format("Unsupported sourceType=%s for Inlong", sourceType));
+                            String.format("Unsupported sourceType=%sg", sourceType));
             }
         } else {
-            return new PageInfo<>();
+            return new PageInfo<>(Lists.newArrayList());
         }
     }
 

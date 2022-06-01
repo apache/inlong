@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -77,20 +77,20 @@ public class PushSortConfigListener implements SortOperateListener {
 
         // if streamId not null, just push the config belongs to the groupId and the streamId
         String streamId = form.getInlongStreamId();
-        List<SinkResponse> sinkResponseList = streamSinkService.listSink(groupId, streamId);
-        if (CollectionUtils.isEmpty(sinkResponseList)) {
+        List<StreamSink> streamSinks = streamSinkService.listSink(groupId, streamId);
+        if (CollectionUtils.isEmpty(streamSinks)) {
             LOGGER.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
         }
 
-        for (SinkResponse sinkResponse : sinkResponseList) {
+        for (StreamSink streamSink : streamSinks) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("sink info: {}", sinkResponse);
+                LOGGER.debug("sink info: {}", streamSink);
             }
 
-            Integer sinkId = sinkResponse.getId();
+            Integer sinkId = streamSink.getId();
             try {
-                DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, sinkResponse);
+                DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, streamSink);
                 String zkUrl = clusterBean.getZkUrl();
                 String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk

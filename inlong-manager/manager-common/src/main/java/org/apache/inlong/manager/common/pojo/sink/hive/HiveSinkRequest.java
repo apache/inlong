@@ -22,10 +22,14 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.enums.DataSeparator;
+import org.apache.inlong.manager.common.enums.FileFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -38,10 +42,8 @@ import java.util.List;
 @JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Whether to enable create table, 1: enable, 0: disable, default is 1")
-    private Integer enableCreateTable = 1;
-
-    @ApiModelProperty("Hive JDBC URL")
+    @NotNull(message = "jdbcUrl cannot be null")
+    @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -50,12 +52,15 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("User password")
     private String password;
 
+    @NotNull(message = "dbName cannot be null")
     @ApiModelProperty("Target database name")
     private String dbName;
 
+    @NotNull(message = "tableName cannot be null")
     @ApiModelProperty("Target table name")
     private String tableName;
 
+    @NotNull(message = "dataPath cannot be null")
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;
 
@@ -68,19 +73,20 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
-    private String fileFormat;
+    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
+    private String fileFormat = FileFormat.TextFile.name();
 
-    @ApiModelProperty("Data encoding type")
-    private String dataEncoding;
+    @ApiModelProperty("Data encoding format: UTF-8, GBK")
+    private String dataEncoding = StandardCharsets.UTF_8.toString();
 
-    @ApiModelProperty("Data field separator")
-    private String dataSeparator;
+    @ApiModelProperty("Data separator, stored as ASCII code")
+    private String dataSeparator = DataSeparator.SOH.getSeparator();
 
-    @ApiModelProperty("Version for hive")
+    @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    @NotNull(message = "hiveConfDir cannot be null")
+    @ApiModelProperty("Config directory of Hive on HDFS, must include hive-site.xml")
     private String hiveConfDir;
 
 }

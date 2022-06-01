@@ -30,11 +30,11 @@ public class StreamPipelineTest {
     @Test
     public void testCheckHasCircle() {
         StreamPipeline streamPipeline = new StreamPipeline();
-        streamPipeline.addRelationShip(new StreamNodeRelationship(Sets.newHashSet("A", "B"), Sets.newHashSet("C")));
-        streamPipeline.addRelationShip(new StreamNodeRelationship(Sets.newHashSet("C"), Sets.newHashSet("D")));
-        streamPipeline.addRelationShip(new StreamNodeRelationship(Sets.newHashSet("D"), Sets.newHashSet("E", "F")));
-        streamPipeline.addRelationShip(new StreamNodeRelationship(Sets.newHashSet("F"), Sets.newHashSet("G")));
-        streamPipeline.addRelationShip(new StreamNodeRelationship(Sets.newHashSet("E"), Sets.newHashSet("H", "C")));
+        streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("A", "B"), Sets.newHashSet("C")));
+        streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("C"), Sets.newHashSet("D")));
+        streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("D"), Sets.newHashSet("E", "F")));
+        streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("F"), Sets.newHashSet("G")));
+        streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("E"), Sets.newHashSet("H", "C")));
         Pair<Boolean, Pair<String, String>> circleState = streamPipeline.hasCircle();
         Assert.assertTrue(circleState.getLeft());
         Assert.assertTrue(Sets.newHashSet("E","C").contains(circleState.getRight().getLeft()));

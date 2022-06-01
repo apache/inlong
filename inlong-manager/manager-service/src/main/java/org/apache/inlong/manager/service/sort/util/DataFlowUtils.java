@@ -23,8 +23,8 @@ import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.CommonOperateService;
@@ -33,7 +33,6 @@ import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.sort.protocol.DataFlowInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.sink.SinkInfo;
-import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
 import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
 import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
@@ -64,10 +63,10 @@ public class DataFlowUtils {
     /**
      * Create dataflow info for sort.
      */
-    public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, SinkResponse sinkResponse) {
-        String groupId = sinkResponse.getInlongGroupId();
-        String streamId = sinkResponse.getInlongStreamId();
-        List<SourceResponse> sourceList = streamSourceService.listSource(groupId, streamId);
+    public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, StreamSink streamSink) {
+        String groupId = streamSink.getInlongGroupId();
+        String streamId = streamSink.getInlongStreamId();
+        List<StreamSource> sourceList = streamSourceService.listSource(groupId, streamId);
         if (CollectionUtils.isEmpty(sourceList)) {
             throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",
                     groupId, streamId));
@@ -78,8 +77,8 @@ public class DataFlowUtils {
         List<FieldInfo> sinkFields = new ArrayList<>();
 
         // TODO Support more than one source and one sink
-        final SourceResponse sourceResponse = sourceList.get(0);
-        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(sourceResponse);
+        final StreamSource streamSource = sourceList.get(0);
+        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(streamSource);
 
         List<FieldMappingUnit> mappingUnitList;
         InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
@@ -87,7 +86,7 @@ public class DataFlowUtils {
             mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
         } else {
             mappingUnitList = FieldInfoUtils.createFieldInfo(streamInfo.getFieldList(),
-                    sinkResponse.getFieldList(), sourceFields, sinkFields);
+                    streamSink.getFieldList(), sourceFields, sinkFields);
         }
 
         FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
@@ -95,23 +94,24 @@ public class DataFlowUtils {
         // Get source info
         String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
         PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster, masterAddress, clusterBean,
-                groupInfo, streamInfo, sourceResponse, sourceFields);
+        org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster,
+                masterAddress, clusterBean,
+                groupInfo, streamInfo, streamSource, sourceFields);
 
         // Get sink info
-        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(sourceResponse, sinkResponse, sinkFields);
+        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamSource, streamSink, sinkFields);
 
         // Get transformation info
         TransformationInfo transInfo = new TransformationInfo(fieldMappingRule);
 
         // Get properties
         Map<String, Object> properties = new HashMap<>();
-        if (MapUtils.isNotEmpty(sinkResponse.getProperties())) {
-            properties.putAll(sinkResponse.getProperties());
+        if (MapUtils.isNotEmpty(streamSink.getProperties())) {
+            properties.putAll(streamSink.getProperties());
         }
         properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
 
-        return new DataFlowInfo(sinkResponse.getId(), sourceInfo, transInfo, sinkInfo, properties);
+        return new DataFlowInfo(streamSink.getId(), sourceInfo, transInfo, sinkInfo, properties);
     }
 
 }

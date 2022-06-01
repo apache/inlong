@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -73,7 +73,7 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer kafkaSinkId = this.saveSink("default1");
-        SinkResponse sink = sinkService.get(kafkaSinkId);
+        StreamSink sink = sinkService.get(kafkaSinkId);
         Assert.assertEquals(GLOBAL_GROUP_ID, sink.getInlongGroupId());
         deleteKafkaSink(kafkaSinkId);
     }
@@ -81,13 +81,12 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer kafkaSinkId = this.saveSink("default2");
-        SinkResponse response = sinkService.get(kafkaSinkId);
+        StreamSink response = sinkService.get(kafkaSinkId);
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        KafkaSinkResponse kafkaSinkResponse = (KafkaSinkResponse) response;
-        kafkaSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
-
-        KafkaSinkRequest request = CommonBeanUtils.copyProperties(kafkaSinkResponse, KafkaSinkRequest::new);
+        KafkaSink kafkaSink = (KafkaSink) response;
+        kafkaSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        SinkRequest request = kafkaSink.genSinkRequest();
         boolean result = sinkService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
         deleteKafkaSink(kafkaSinkId);

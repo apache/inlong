@@ -30,8 +30,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -39,6 +39,7 @@ import java.util.Objects;
         property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
+        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),
         @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin")
 })
 @Data
@@ -52,24 +53,31 @@ public class FieldInfo implements FunctionParam, Serializable {
     private String nodeId;
     @JsonIgnore
     private String tableNameAlias;
+    /**
+     * It will be null if the field is a meta field
+     */
+    @Nullable
     @JsonProperty("formatInfo")
     private FormatInfo formatInfo;
 
     public FieldInfo(
             @JsonProperty("name") String name,
             @JsonProperty("formatInfo") FormatInfo formatInfo) {
-        this.name = Preconditions.checkNotNull(name);
-        this.formatInfo = Preconditions.checkNotNull(formatInfo);
+        this(name, null, formatInfo);
+    }
+
+    public FieldInfo(@JsonProperty("name") String name) {
+        this(name, null, null);
     }
 
     @JsonCreator
     public FieldInfo(
             @JsonProperty("name") String name,
             @JsonProperty("nodeId") String nodeId,
-            @JsonProperty("formatInfo") FormatInfo formatInfo) {
+            @Nullable @JsonProperty("formatInfo") FormatInfo formatInfo) {
         this.name = Preconditions.checkNotNull(name);
         this.nodeId = nodeId;
-        this.formatInfo = Preconditions.checkNotNull(formatInfo);
+        this.formatInfo = formatInfo;
     }
 
     @Override
@@ -86,22 +94,4 @@ public class FieldInfo implements FunctionParam, Serializable {
         }
         return formatName;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FieldInfo fieldInfo = (FieldInfo) o;
-        return name.equals(fieldInfo.name) && formatInfo.equals(fieldInfo.formatInfo);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, formatInfo);
-    }
-
 }

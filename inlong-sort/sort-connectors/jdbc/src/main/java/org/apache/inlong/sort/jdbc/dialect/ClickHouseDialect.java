@@ -21,7 +21,7 @@ package org.apache.inlong.sort.jdbc.dialect;
 import org.apache.flink.connector.jdbc.internal.converter.JdbcRowConverter;
 import org.apache.flink.table.types.logical.LogicalTypeRoot;
 import org.apache.flink.table.types.logical.RowType;
-import org.apache.inlong.sort.jdbc.clickhouse.ClickHouseRowConverter;
+import org.apache.inlong.sort.jdbc.converter.clickhouse.ClickHouseRowConverter;
 import org.apache.inlong.sort.jdbc.table.AbstractJdbcDialect;
 
 import java.util.Arrays;

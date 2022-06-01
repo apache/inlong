@@ -27,7 +27,6 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.Constant;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
@@ -70,6 +69,11 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     public static final String SCHEMA_M0_DAY = "m0_day";
     private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyClusterServiceImpl.class);
     private static final Gson GSON = new Gson();
+    private static final String URL_SPLITTER = ",";
+    private static final String HOST_SPLITTER = ":";
+    private static final String CLUSTER_TUBE = "TUBE";
+    private static final String CLUSTER_PULSAR = "PULSAR";
+    private static final String CLUSTER_TDMQ_PULSAR = "TDMQ_PULSAR";
 
     @Autowired
     private ClusterBean clusterBean;
@@ -202,23 +206,23 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
         }
 
         String ipStr = entity.getIp();
-        while (ipStr.startsWith(Constant.URL_SPLITTER) || ipStr.endsWith(Constant.URL_SPLITTER)
-                || ipStr.startsWith(Constant.HOST_SPLITTER) || ipStr.endsWith(Constant.HOST_SPLITTER)) {
-            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.URL_SPLITTER);
-            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, Constant.HOST_SPLITTER);
+        while (ipStr.startsWith(URL_SPLITTER) || ipStr.endsWith(URL_SPLITTER)
+                || ipStr.startsWith(HOST_SPLITTER) || ipStr.endsWith(HOST_SPLITTER)) {
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, URL_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, HOST_SPLITTER);
         }
 
         List<DataProxyResponse> responseList = new ArrayList<>();
         Integer id = entity.getId();
         Integer defaultPort = entity.getPort();
-        int index = ipStr.indexOf(Constant.URL_SPLITTER);
+        int index = ipStr.indexOf(URL_SPLITTER);
         if (index <= 0) {
             DataProxyResponse response = new DataProxyResponse();
             response.setId(id);
             setIpAndPort(ipStr, defaultPort, response);
             responseList.add(response);
         } else {
-            String[] urlArr = ipStr.split(Constant.URL_SPLITTER);
+            String[] urlArr = ipStr.split(URL_SPLITTER);
             for (String url : urlArr) {
                 DataProxyResponse response = new DataProxyResponse();
                 response.setId(id);
@@ -232,7 +236,7 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
     }
 
     private void setIpAndPort(String url, Integer defaultPort, DataProxyResponse response) {
-        int idx = url.indexOf(Constant.HOST_SPLITTER);
+        int idx = url.indexOf(HOST_SPLITTER);
         if (idx <= 0) {
             response.setIp(url);
             response.setPort(defaultPort);
@@ -278,17 +282,16 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
      */
     @Override
     public ThirdPartyClusterDTO getConfigV2(String clusterName) {
-        ThirdPartyClusterEntity clusterEntity = thirdPartyClusterMapper.selectByName(clusterName);
-        if (clusterEntity == null) {
-            throw new BusinessException("data proxy cluster not found by name=" + clusterName);
-        }
-
         // TODO Optimize query conditions use dataProxyClusterId
         ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+        ThirdPartyClusterEntity clusterEntity = thirdPartyClusterMapper.selectByName(clusterName);
+        if (clusterEntity == null) {
+            LOGGER.warn("DataProxy cluster not found by name = " + clusterName + ", please register it firstly.");
+            return object;
+        }
         List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
         if (CollectionUtils.isEmpty(groupEntityList)) {
-            String msg = "not found any inlong group with success status for proxy cluster name = " + clusterName;
-            LOGGER.warn(msg);
+            LOGGER.warn("not found any inlong group with success status for proxy cluster name = " + clusterName);
             return object;
         }
 
@@ -329,8 +332,8 @@ public class ThirdPartyClusterServiceImpl implements ThirdPartyClusterService {
 
         // construct pulsarSet info
         List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
-        List<String> clusterType = Arrays.asList(Constant.CLUSTER_TUBE, Constant.CLUSTER_PULSAR,
-                Constant.CLUSTER_TDMQ_PULSAR);
+        List<String> clusterType = Arrays.asList(CLUSTER_TUBE, CLUSTER_PULSAR,
+                CLUSTER_TDMQ_PULSAR);
         List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectMQCluster(
                 clusterEntity.getMqSetName(), clusterType);
         for (ThirdPartyClusterEntity cluster : clusterList) {

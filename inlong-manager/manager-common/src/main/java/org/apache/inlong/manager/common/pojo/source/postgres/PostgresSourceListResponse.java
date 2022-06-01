@@ -51,14 +51,14 @@ public class PostgresSourceListResponse extends SourceListResponse {
     @ApiModelProperty("Exposed database of the DB")
     private String database;
 
-    @ApiModelProperty("schema info")
+    @ApiModelProperty("Schema info")
     private String schema;
 
-    @ApiModelProperty("decoding pulgin name")
+    @ApiModelProperty("Decoding plugin name")
     private String decodingPluginName;
 
-    @ApiModelProperty("List of tables")
-    private List<String> tableNames;
+    @ApiModelProperty("List of tables name")
+    private List<String> tableNameList;
 
     public PostgresSourceListResponse() {
         this.setSourceType(SourceType.POSTGRES.getType());

@@ -588,8 +588,8 @@ public class ProxyConfigManager extends Thread {
         Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
         proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
-        if (localProxyAddrJson.has("cluster_id")) {
-            proxyEntry.setClusterId(localProxyAddrJson.get("cluster_id").getAsString());
+        if (localProxyAddrJson.has("clusterId")) {
+            proxyEntry.setClusterId(localProxyAddrJson.get("clusterId").getAsString());
         }
         return proxyEntry;
     }

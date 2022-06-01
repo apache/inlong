@@ -19,10 +19,11 @@ package org.apache.inlong.manager.service.sort.light;
 
 import com.google.common.collect.Lists;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
@@ -30,7 +31,7 @@ import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
 import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
-import org.apache.inlong.manager.service.sort.util.NodeRelationShipUtils;
+import org.apache.inlong.manager.service.sort.util.NodeRelationUtils;
 import org.apache.inlong.manager.service.sort.util.TransformNodeUtils;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.transform.StreamTransformService;
@@ -74,64 +75,72 @@ public class LightGroupSortListener implements SortOperateListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
-        LOGGER.info("Create light group sort config for context={}", context);
-        LightGroupResourceProcessForm processForm = (LightGroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = processForm.getGroupInfo();
-        List<InlongStreamInfo> streamInfos = processForm.getStreamInfos();
-
-        final String groupId = groupInfo.getInlongGroupId();
-        GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
-        String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(groupId);
-        extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
-        extInfo.setKeyValue(dataFlows);
-        if (groupInfo.getExtList() == null) {
-            groupInfo.setExtList(Lists.newArrayList());
+    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
+        LOGGER.info("create sort config for light group, context={}", context);
+        try {
+            LightGroupResourceProcessForm processForm = (LightGroupResourceProcessForm) context.getProcessForm();
+            InlongGroupInfo groupInfo = processForm.getGroupInfo();
+            List<InlongStreamInfo> streamInfos = processForm.getStreamInfos();
+            final String groupId = groupInfo.getInlongGroupId();
+            GroupInfo configInfo = this.createGroupInfo(groupInfo, streamInfos);
+            String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
+            InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+            extInfo.setInlongGroupId(groupId);
+            extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
+            extInfo.setKeyValue(dataFlows);
+            if (groupInfo.getExtList() == null) {
+                groupInfo.setExtList(Lists.newArrayList());
+            }
+            upsertDataFlow(groupInfo, extInfo);
+            return ListenerResult.success();
+        } catch (Throwable t) {
+            LOGGER.error("create sort config error: ", t);
+            throw new WorkflowListenerException("create sort config error: " + t.getMessage());
         }
-        upsertDataFlow(groupInfo, extInfo);
-        return ListenerResult.success();
     }
 
     private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         final String groupId = groupInfo.getInlongGroupId();
-        List<SourceResponse> sourceResponses = sourceService.listSource(groupId, null);
-        Map<String, List<SourceResponse>> sourceResponseMap = sourceResponses.stream()
-                .collect(Collectors.groupingBy(sourceResponse -> sourceResponse.getInlongStreamId(), HashMap::new,
+        List<StreamSource> sourceInfos = sourceService.listSource(groupId, null);
+        Map<String, List<StreamSource>> sourceMap = sourceInfos.stream()
+                .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
-        List<SinkResponse> sinkResponses = sinkService.listSink(groupId, null);
-        Map<String, List<SinkResponse>> sinkResponseMap = sinkResponses.stream()
-                .collect(Collectors.groupingBy(sinkResponse -> sinkResponse.getInlongStreamId(), HashMap::new,
+
+        List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
+        Map<String, List<StreamSink>> sinkMap = streamSinks.stream()
+                .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
+
         List<TransformResponse> transformResponses = transformService.listTransform(groupId, null);
-        Map<String, List<TransformResponse>> transformResponseMap = transformResponses.stream()
-                .collect(Collectors.groupingBy(transformResponse -> transformResponse.getInlongStreamId(), HashMap::new,
+        Map<String, List<TransformResponse>> transformMap = transformResponses.stream()
+                .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
-        List<StreamInfo> streamInfos = streamInfoList.stream()
-                .map(inlongStreamInfo -> new StreamInfo(inlongStreamInfo.getInlongStreamId(),
-                        createNodesForStream(
-                                sourceResponseMap.get(inlongStreamInfo.getInlongStreamId()),
-                                transformResponseMap.get(inlongStreamInfo.getInlongStreamId()),
-                                sinkResponseMap.get(inlongStreamInfo.getInlongStreamId())),
-                        NodeRelationShipUtils.createNodeRelationShipsForStream(inlongStreamInfo)))
-                .collect(Collectors.toList());
-        // Rebuild joinerNode relationship
-        streamInfos.stream().forEach(streamInfo -> {
-            List<TransformResponse> transformResponseList = transformResponseMap.get(streamInfo.getStreamId());
-            NodeRelationShipUtils.optimizeNodeRelationShips(streamInfo, transformResponseList);
-        });
+
+        List<StreamInfo> streamInfos = new ArrayList<>();
+        for (InlongStreamInfo stream : streamInfoList) {
+            String streamId = stream.getInlongStreamId();
+            List<Node> nodes = this.createNodesForStream(sourceMap.get(streamId),
+                    transformMap.get(streamId), sinkMap.get(streamId));
+            StreamInfo streamInfo = new StreamInfo(streamId, nodes,
+                    NodeRelationUtils.createNodeRelationsForStream(stream));
+            streamInfos.add(streamInfo);
+
+            // Rebuild joinerNode relation
+            List<TransformResponse> transformResponseList = transformMap.get(streamId);
+            NodeRelationUtils.optimizeNodeRelation(streamInfo, transformResponseList);
+        }
+
         return new GroupInfo(groupInfo.getInlongGroupId(), streamInfos);
     }
 
     private List<Node> createNodesForStream(
-            List<SourceResponse> sourceResponses,
+            List<StreamSource> sourceInfos,
             List<TransformResponse> transformResponses,
-            List<SinkResponse> sinkResponses) {
+            List<StreamSink> streamSinks) {
         List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceResponses));
+        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceInfos));
         nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(sinkResponses));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
         return nodes;
     }
 

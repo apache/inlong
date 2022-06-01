@@ -21,8 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.MetaFieldType;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
@@ -77,15 +76,16 @@ public class FieldInfoUtils {
         BUILT_IN_FIELD_MAP.put(MetaFieldType.MYSQL_DATA.getName(), BuiltInField.MYSQL_METADATA_DATA);
     }
 
-    public static FieldInfo parseSinkFieldInfo(SinkFieldResponse sinkFieldResponse, String nodeId) {
-        boolean isBuiltIn = sinkFieldResponse.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(sinkFieldResponse.getFieldName(), sinkFieldResponse.getFieldType(),
-                isBuiltIn, sinkFieldResponse.getFieldFormat());
+    public static FieldInfo parseSinkFieldInfo(SinkField sinkField, String nodeId) {
+        boolean isBuiltIn = sinkField.getIsMetaField() == 1;
+        FieldInfo fieldInfo = getFieldInfo(sinkField.getFieldName(),
+                sinkField.getFieldType(),
+                isBuiltIn, sinkField.getFieldFormat());
         fieldInfo.setNodeId(nodeId);
         return fieldInfo;
     }
 
-    public static FieldInfo parseStreamFieldInfo(InlongStreamFieldInfo streamField, String nodeId) {
+    public static FieldInfo parseStreamFieldInfo(StreamField streamField, String nodeId) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
         FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
                 streamField.getFieldFormat());
@@ -95,7 +95,7 @@ public class FieldInfoUtils {
 
     public static FieldInfo parseStreamField(StreamField streamField) {
         boolean isBuiltIn = streamField.getIsMetaField() == 1;
-        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType().name(), isBuiltIn,
+        FieldInfo fieldInfo = getFieldInfo(streamField.getFieldName(), streamField.getFieldType(), isBuiltIn,
                 streamField.getFieldFormat());
         fieldInfo.setNodeId(streamField.getOriginNodeName());
         return fieldInfo;
@@ -106,11 +106,11 @@ public class FieldInfoUtils {
      * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
      */
     public static List<FieldMappingUnit> createFieldInfo(
-            List<InlongStreamFieldInfo> streamFieldList, List<SinkFieldResponse> fieldList,
+            List<StreamField> streamFieldList, List<SinkField> fieldList,
             List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
 
         // Set source field info list.
-        for (InlongStreamFieldInfo field : streamFieldList) {
+        for (StreamField field : streamFieldList) {
             FieldInfo sourceField = getFieldInfo(field.getFieldName(), field.getFieldType(),
                     field.getIsMetaField() == 1, field.getFieldFormat());
             sourceFields.add(sourceField);
@@ -118,7 +118,7 @@ public class FieldInfoUtils {
 
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
         // Get sink field info list, if the field name equals to build-in field, new a build-in field info
-        for (SinkFieldResponse field : fieldList) {
+        for (SinkField field : fieldList) {
             FieldInfo sinkField = getFieldInfo(field.getFieldName(), field.getFieldType(),
                     field.getIsMetaField() == 1, field.getFieldFormat());
             sinkFields.add(sinkField);
@@ -138,7 +138,6 @@ public class FieldInfoUtils {
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
     private static FieldInfo getFieldInfo(String fieldName, String fieldType, boolean isBuiltin, String format) {
-        FieldInfo fieldInfo;
         BuiltInField builtInField = BUILT_IN_FIELD_MAP.get(fieldName);
         FormatInfo formatInfo = convertFieldFormat(fieldType.toLowerCase(), format);
         if (isBuiltin && builtInField != null) {

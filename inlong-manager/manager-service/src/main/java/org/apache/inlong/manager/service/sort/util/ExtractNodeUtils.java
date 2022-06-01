@@ -25,19 +25,22 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceResponse;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -53,30 +56,35 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Parse SourceResponse to ExtractNode which sort needed
+ * Parse SourceInfo to ExtractNode which sort needed
  */
 @Slf4j
 public class ExtractNodeUtils {
 
-    public static List<ExtractNode> createExtractNodes(List<SourceResponse> sourceResponses) {
-        if (CollectionUtils.isEmpty(sourceResponses)) {
+    /**
+     * Create extract nodes from the source responses.
+     */
+    public static List<ExtractNode> createExtractNodes(List<StreamSource> sourceInfos) {
+        if (CollectionUtils.isEmpty(sourceInfos)) {
             return Lists.newArrayList();
         }
-        return sourceResponses.stream().map(sourceResponse -> createExtractNode(sourceResponse))
+        return sourceInfos.stream().map(ExtractNodeUtils::createExtractNode)
                 .collect(Collectors.toList());
     }
 
-    public static ExtractNode createExtractNode(SourceResponse sourceResponse) {
-        SourceType sourceType = SourceType.forType(sourceResponse.getSourceType());
+    public static ExtractNode createExtractNode(StreamSource sourceInfo) {
+        SourceType sourceType = SourceType.forType(sourceInfo.getSourceType());
         switch (sourceType) {
             case BINLOG:
-                return createExtractNode((BinlogSourceResponse) sourceResponse);
+                return createExtractNode((MySQLBinlogSource) sourceInfo);
             case KAFKA:
-                return createExtractNode((KafkaSourceResponse) sourceResponse);
+                return createExtractNode((KafkaSource) sourceInfo);
             case PULSAR:
-                return createExtractNode((PulsarSourceResponse) sourceResponse);
+                return createExtractNode((PulsarSource) sourceInfo);
             case POSTGRES:
-                return createExtractNode((PostgresSourceResponse) sourceResponse);
+                return createExtractNode((PostgresSource) sourceInfo);
+            case ORACLE:
+                return createExtractNode((OracleSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -84,36 +92,36 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create MySqlExtractNode based on BinlogSourceResponse
+     * Create MySqlExtractNode based on MySQLBinlogSource
      *
-     * @param binlogSourceResponse binlog source response info
+     * @param binlogSource binlog source info
      * @return MySql extract node info
      */
-    public static MySqlExtractNode createExtractNode(BinlogSourceResponse binlogSourceResponse) {
-        final String id = binlogSourceResponse.getSourceName();
-        final String name = binlogSourceResponse.getSourceName();
-        final String database = binlogSourceResponse.getDatabaseWhiteList();
-        final String primaryKey = binlogSourceResponse.getPrimaryKey();
-        final String hostName = binlogSourceResponse.getHostname();
-        final String userName = binlogSourceResponse.getUser();
-        final String password = binlogSourceResponse.getPassword();
-        final Integer port = binlogSourceResponse.getPort();
+    public static MySqlExtractNode createExtractNode(MySQLBinlogSource binlogSource) {
+        final String id = binlogSource.getSourceName();
+        final String name = binlogSource.getSourceName();
+        final String database = binlogSource.getDatabaseWhiteList();
+        final String primaryKey = binlogSource.getPrimaryKey();
+        final String hostName = binlogSource.getHostname();
+        final String userName = binlogSource.getUser();
+        final String password = binlogSource.getPassword();
+        final Integer port = binlogSource.getPort();
         Integer serverId = null;
-        if (binlogSourceResponse.getServerId() != null && binlogSourceResponse.getServerId() > 0) {
-            serverId = binlogSourceResponse.getServerId();
+        if (binlogSource.getServerId() != null && binlogSource.getServerId() > 0) {
+            serverId = binlogSource.getServerId();
         }
-        String tables = binlogSourceResponse.getTableWhiteList();
+        String tables = binlogSource.getTableWhiteList();
         final List<String> tableNames = Splitter.on(",").splitToList(tables);
-        final List<InlongStreamFieldInfo> streamFieldInfos = binlogSourceResponse.getFieldList();
-        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+        final List<StreamField> streamFields = binlogSource.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFields.stream()
+                .map(streamField -> FieldInfoUtils.parseStreamFieldInfo(streamField, name))
                 .collect(Collectors.toList());
-        final String serverTimeZone = binlogSourceResponse.getServerTimezone();
+        final String serverTimeZone = binlogSource.getServerTimezone();
         boolean incrementalSnapshotEnabled = true;
 
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
-        if (binlogSourceResponse.isAllMigration()) {
+        if (binlogSource.isAllMigration()) {
             // Unique properties when migrate all tables in database
             incrementalSnapshotEnabled = false;
             properties.put("migrate-all", "true");
@@ -141,22 +149,22 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create KafkaExtractNode based KafkaSourceResponse
+     * Create KafkaExtractNode based KafkaSource
      *
-     * @param kafkaSourceResponse kafka source response
+     * @param kafkaSource kafka source response
      * @return kafka extract node info
      */
-    public static KafkaExtractNode createExtractNode(KafkaSourceResponse kafkaSourceResponse) {
-        String id = kafkaSourceResponse.getSourceName();
-        String name = kafkaSourceResponse.getSourceName();
-        List<InlongStreamFieldInfo> streamFieldInfos = kafkaSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+    public static KafkaExtractNode createExtractNode(KafkaSource kafkaSource) {
+        String id = kafkaSource.getSourceName();
+        String name = kafkaSource.getSourceName();
+        List<StreamField> streamFields = kafkaSource.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        String topic = kafkaSourceResponse.getTopic();
-        String bootstrapServers = kafkaSourceResponse.getBootstrapServers();
-        Format format = null;
-        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSourceResponse.getSerializationType());
+        String topic = kafkaSource.getTopic();
+        String bootstrapServers = kafkaSource.getBootstrapServers();
+        Format format;
+        DataTypeEnum dataType = DataTypeEnum.forName(kafkaSource.getSerializationType());
         switch (dataType) {
             case CSV:
                 format = new CsvFormat();
@@ -176,8 +184,8 @@ public class ExtractNodeUtils {
             default:
                 throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
         }
-        KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSourceResponse.getAutoOffsetReset());
-        KafkaScanStartupMode startupMode = null;
+        KafkaOffset kafkaOffset = KafkaOffset.forName(kafkaSource.getAutoOffsetReset());
+        KafkaScanStartupMode startupMode;
         switch (kafkaOffset) {
             case EARLIEST:
                 startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
@@ -186,8 +194,8 @@ public class ExtractNodeUtils {
             default:
                 startupMode = KafkaScanStartupMode.LATEST_OFFSET;
         }
-        final String primaryKey = kafkaSourceResponse.getPrimaryKey();
-        String groupId = kafkaSourceResponse.getGroupId();
+        final String primaryKey = kafkaSource.getPrimaryKey();
+        String groupId = kafkaSource.getGroupId();
 
         return new KafkaExtractNode(id,
                 name,
@@ -203,22 +211,22 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PulsarExtractNode based PulsarSourceResponse
+     * Create PulsarExtractNode based PulsarSource
      *
-     * @param pulsarSourceResponse pulsar source response
+     * @param pulsarSource pulsar source response
      * @return pulsar extract node info
      */
-    public static PulsarExtractNode createExtractNode(PulsarSourceResponse pulsarSourceResponse) {
-        String id = pulsarSourceResponse.getSourceName();
-        String name = pulsarSourceResponse.getSourceName();
-        List<InlongStreamFieldInfo> streamFieldInfos = pulsarSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+    public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
+        String id = pulsarSource.getSourceName();
+        String name = pulsarSource.getSourceName();
+        List<StreamField> streamFields = pulsarSource.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        String topic = pulsarSourceResponse.getTopic();
+        String topic = pulsarSource.getTopic();
 
         Format format = null;
-        DataTypeEnum dataType = DataTypeEnum.forName(pulsarSourceResponse.getSerializationType());
+        DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
                 format = new CsvFormat();
@@ -236,16 +244,17 @@ public class ExtractNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+                throw new IllegalArgumentException(
+                        String.format("Unsupported dataType=%s for pulsar source", dataType));
         }
-        if (pulsarSourceResponse.isInlongComponent()) {
+        if (pulsarSource.isInlongComponent()) {
             Format innerFormat = format;
             format = new InLongMsgFormat(innerFormat, false);
         }
-        PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSourceResponse.getScanStartupMode());
-        final String primaryKey = pulsarSourceResponse.getPrimaryKey();
-        final String serviceUrl = pulsarSourceResponse.getServiceUrl();
-        final String adminUrl = pulsarSourceResponse.getAdminUrl();
+        PulsarScanStartupMode startupMode = PulsarScanStartupMode.forName(pulsarSource.getScanStartupMode());
+        final String primaryKey = pulsarSource.getPrimaryKey();
+        final String serviceUrl = pulsarSource.getServiceUrl();
+        final String adminUrl = pulsarSource.getAdminUrl();
 
         return new PulsarExtractNode(id,
                 name,
@@ -261,23 +270,64 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PostgresExtractNode based PostgresSourceResponse
+     * Create PostgresExtractNode based PostgresSource
      *
-     * @param postgresSourceResponse postgres source response
+     * @param postgresSource postgres source response
      * @return postgres extract node info
      */
-    public static PostgresExtractNode createExtractNode(PostgresSourceResponse postgresSourceResponse) {
-        List<InlongStreamFieldInfo> streamFieldInfos = postgresSourceResponse.getFieldList();
-        String id = postgresSourceResponse.getSourceName();
-        String name = postgresSourceResponse.getSourceName();
-        List<FieldInfo> fields = streamFieldInfos.stream()
+    public static PostgresExtractNode createExtractNode(PostgresSource postgresSource) {
+        List<StreamField> streamFields = postgresSource.getFieldList();
+        String id = postgresSource.getSourceName();
+        String name = postgresSource.getSourceName();
+        List<FieldInfo> fields = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         return new PostgresExtractNode(id, name, fields, null, null,
-                postgresSourceResponse.getPrimaryKey(), postgresSourceResponse.getTableNames(),
-                postgresSourceResponse.getHostname(), postgresSourceResponse.getUsername(),
-                postgresSourceResponse.getPassword(), postgresSourceResponse.getDatabase(),
-                postgresSourceResponse.getSchema(), postgresSourceResponse.getPort(),
-                postgresSourceResponse.getDecodingPluginName());
+                postgresSource.getPrimaryKey(), postgresSource.getTableNameList(),
+                postgresSource.getHostname(), postgresSource.getUsername(),
+                postgresSource.getPassword(), postgresSource.getDatabase(),
+                postgresSource.getSchema(), postgresSource.getPort(),
+                postgresSource.getDecodingPluginName());
+    }
+
+    /**
+     * Create oracleExtractNode based on OracleSourceResponse
+     *
+     * @param oracleSource oracle source response info
+     * @return oracle extract node info
+     */
+    public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
+        final String id = oracleSource.getSourceName();
+        final String name = oracleSource.getSourceName();
+        final String database = oracleSource.getDatabase();
+        final String schemaName = oracleSource.getSchemaName();
+        final String tableName = oracleSource.getTableName();
+        final String primaryKey = oracleSource.getPrimaryKey();
+        final String hostName = oracleSource.getHostname();
+        final String userName = oracleSource.getUsername();
+        final String password = oracleSource.getPassword();
+        final Integer port = oracleSource.getPort();
+        ScanStartUpMode scanStartupMode = StringUtils.isBlank(oracleSource.getScanStartupMode())
+                ? null : ScanStartUpMode.forName(oracleSource.getScanStartupMode());
+        List<StreamField> streamFieldInfos = oracleSource.getFieldList();
+        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        Map<String, String> properties = Maps.newHashMap();
+        return new OracleExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                primaryKey,
+                hostName,
+                userName,
+                password,
+                database,
+                schemaName,
+                tableName,
+                port,
+                scanStartupMode
+                );
     }
 }

@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -64,6 +64,6 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     private Integer retryTimes;
 
     @ApiModelProperty("Sink filed info")
-    private List<SinkFieldRequest> fieldList;
+    private List<SinkField> fieldList;
 
 }

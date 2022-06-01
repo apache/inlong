@@ -54,7 +54,7 @@ public class ElasticsearchFieldInfo {
     private String searchAnalyzer;
 
     @ApiModelProperty("Elasticsearch Scaling Factor")
-    private Integer scalingFactor;
+    private String scalingFactor;
 
     /**
      * Get the extra param from the Json

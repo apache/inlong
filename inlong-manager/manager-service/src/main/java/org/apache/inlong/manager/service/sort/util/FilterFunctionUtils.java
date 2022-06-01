@@ -77,7 +77,7 @@ public class FilterFunctionUtils {
                 return Lists.newArrayList();
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s for Inlong", transformType));
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 
@@ -129,13 +129,13 @@ public class FilterFunctionUtils {
                 return null;
             default:
                 throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s for Inlong", transformType));
+                        String.format("Unsupported transformType=%s", transformType));
         }
     }
 
     private static FilterFunction createFilterFunction(FilterRule filterRule, String transformName) {
         StreamField streamField = filterRule.getSourceField();
-        String fieldType = streamField.getFieldType().name();
+        String fieldType = streamField.getFieldType();
         String fieldFormat = streamField.getFieldFormat();
         String fieldName = streamField.getFieldName();
         FieldInfo sourceFieldInfo = new FieldInfo(fieldName, transformName,
@@ -173,7 +173,7 @@ public class FilterFunctionUtils {
             return new ConstantParam(constant);
         } else {
             StreamField targetField = value.getTargetField();
-            String fieldType = targetField.getFieldType().name();
+            String fieldType = targetField.getFieldType();
             String fieldFormat = targetField.getFieldFormat();
             String fieldName = targetField.getFieldName();
             return new FieldInfo(fieldName, transformName,

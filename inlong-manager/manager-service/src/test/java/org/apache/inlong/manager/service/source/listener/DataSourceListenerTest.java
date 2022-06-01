@@ -22,8 +22,8 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -58,7 +58,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     public Integer createBinlogSource(InlongGroupInfo groupInfo) {
         final InlongStreamInfo stream = createStreamInfo(groupInfo);
-        BinlogSourceRequest sourceRequest = new BinlogSourceRequest();
+        MySQLBinlogSourceRequest sourceRequest = new MySQLBinlogSourceRequest();
         sourceRequest.setInlongGroupId(stream.getInlongGroupId());
         sourceRequest.setInlongStreamId(stream.getInlongStreamId());
         sourceRequest.setSourceName("binlog-collect");
@@ -89,8 +89,8 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSource");
         Assert.assertTrue(task instanceof ServiceTask);
-        SourceResponse sourceResponse = streamSourceService.get(sourceId);
-        Assert.assertSame(SourceStatus.forCode(sourceResponse.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
+        StreamSource streamSource = streamSourceService.get(sourceId);
+        Assert.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
     // @Test

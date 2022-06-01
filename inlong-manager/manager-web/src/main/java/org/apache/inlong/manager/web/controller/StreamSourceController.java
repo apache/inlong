@@ -26,7 +26,7 @@ import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -59,7 +59,7 @@ public class StreamSourceController {
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Query stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
-    public Response<SourceResponse> get(@PathVariable Integer id) {
+    public Response<StreamSource> get(@PathVariable Integer id) {
         return Response.success(sourceService.get(id));
     }
 

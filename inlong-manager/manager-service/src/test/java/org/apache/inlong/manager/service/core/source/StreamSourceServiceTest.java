@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -34,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class StreamSourceServiceTest extends ServiceBaseTest {
 
-    private final String sourceName = "stream_source_service_test";
-
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -47,9 +45,10 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
+        MySQLBinlogSourceRequest sourceInfo = new MySQLBinlogSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        String sourceName = "stream_source_service_test";
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
@@ -68,7 +67,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id);
+        StreamSource source = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
         sourceService.delete(id, GLOBAL_OPERATOR);
@@ -77,12 +76,12 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id);
+        StreamSource response = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
-
-        BinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse, BinlogSourceRequest::new);
+        MySQLBinlogSource binlogResponse = (MySQLBinlogSource) response;
+        MySQLBinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse,
+                MySQLBinlogSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
 

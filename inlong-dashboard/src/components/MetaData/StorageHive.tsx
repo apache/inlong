@@ -166,6 +166,17 @@ const getForm: GetStorageFormFieldsType = (
       },
     },
     {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDir'),
+      name: 'hiveConfDir',
+      rules: [{ required: true }],
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.ConfDirHelp'),
+      props: {
+        placeholder: '/usr/hive/conf',
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+    },
+    {
       name: 'fileFormat',
       type: 'radio',
       label: i18n.t('components.AccessHelper.StorageMetaData.Hive.FileFormat'),

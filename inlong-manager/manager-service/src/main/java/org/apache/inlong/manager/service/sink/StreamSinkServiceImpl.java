@@ -34,7 +34,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -102,7 +102,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public SinkResponse get(Integer id) {
+    public StreamSink get(Integer id) {
         Preconditions.checkNotNull(id, "sink id is empty");
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         if (entity == null) {
@@ -111,9 +111,9 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         String sinkType = entity.getSinkType();
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
-        SinkResponse sinkResponse = operation.getByEntity(entity);
+        StreamSink streamSink = operation.getByEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
-        return sinkResponse;
+        return streamSink;
     }
 
     @Override
@@ -124,13 +124,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<SinkResponse> listSink(String groupId, String streamId) {
+    public List<StreamSink> listSink(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isEmpty(entityList)) {
             return Collections.emptyList();
         }
-        List<SinkResponse> responseList = new ArrayList<>();
+        List<StreamSink> responseList = new ArrayList<>();
         entityList.forEach(entity -> responseList.add(this.get(entity.getId())));
 
         LOGGER.debug("success to list sink by groupId={}, streamId={}", groupId, streamId);
@@ -226,8 +226,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete sink by id={}", id);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
-        // Preconditions.checkNotNull(sinkType, Constant.SINK_TYPE_IS_EMPTY);
-
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);

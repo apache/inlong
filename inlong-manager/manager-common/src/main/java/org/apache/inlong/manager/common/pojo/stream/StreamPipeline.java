@@ -33,24 +33,24 @@ import java.util.Queue;
 import java.util.Set;
 
 /**
- * Stream pipeline, save stream node relationship list.
+ * Stream pipeline, save stream node relation list.
  */
 @Data
 public class StreamPipeline {
 
-    private List<StreamNodeRelationship> pipeline;
+    private List<StreamNodeRelation> pipeline;
 
     public StreamPipeline() {
         this(Lists.newArrayList());
     }
 
-    public StreamPipeline(List<StreamNodeRelationship> pipeline) {
+    public StreamPipeline(List<StreamNodeRelation> pipeline) {
         Preconditions.checkNotNull(pipeline, "Pipeline should not be null");
         this.pipeline = pipeline;
     }
 
-    public void addRelationShip(StreamNodeRelationship relationship) {
-        pipeline.add(relationship);
+    public void addRelation(StreamNodeRelation relation) {
+        pipeline.add(relation);
     }
 
     /**
@@ -58,9 +58,9 @@ public class StreamPipeline {
      */
     public Pair<Boolean, Pair<String, String>> hasCircle() {
         Map<String, Set<String>> priorityMap = Maps.newHashMap();
-        for (StreamNodeRelationship relationship : pipeline) {
-            Set<String> inputNodes = relationship.getInputNodes();
-            Set<String> outputNodes = relationship.getOutputNodes();
+        for (StreamNodeRelation relation : pipeline) {
+            Set<String> inputNodes = relation.getInputNodes();
+            Set<String> outputNodes = relation.getOutputNodes();
             for (String inputNode : inputNodes) {
                 for (String outputNode : outputNodes) {
                     priorityMap.computeIfAbsent(inputNode, key -> Sets.newHashSet()).add(outputNode);

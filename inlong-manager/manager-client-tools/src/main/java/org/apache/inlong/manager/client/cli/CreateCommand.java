@@ -68,7 +68,7 @@ public class CreateCommand extends AbstractCommand {
                 CreateGroupConf groupConf = GsonUtils.GSON.fromJson(fileContent, CreateGroupConf.class);
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
-                InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamConf());
+                InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
                 streamBuilder.fields(groupConf.getStreamFieldList());
                 streamBuilder.source(groupConf.getStreamSource());
                 streamBuilder.sink(groupConf.getStreamSink());

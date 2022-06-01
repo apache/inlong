@@ -19,22 +19,16 @@ package org.apache.inlong.manager.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.common.auth.DefaultAuthentication;
-import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -58,8 +52,7 @@ public class Binlog2KafkaExample extends BaseExample {
         InlongGroupInfo groupInfo = super.createGroupInfo();
         try {
             InlongGroup group = inlongClient.forGroup(groupInfo);
-            InlongStreamConf streamConf = createStreamConf();
-            InlongStreamBuilder streamBuilder = group.createStream(streamConf);
+            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
             streamBuilder.source(createMysqlSource());
             streamBuilder.sink(createKafkaSink());
             streamBuilder.initOrUpdate();
@@ -128,38 +121,28 @@ public class Binlog2KafkaExample extends BaseExample {
         }
     }
 
-    private InlongStreamConf createStreamConf() {
-        InlongStreamConf streamConf = new InlongStreamConf();
-        streamConf.setName(super.getStreamId());
-        streamConf.setCharset(StandardCharsets.UTF_8);
-        streamConf.setDataSeparator(DataSeparator.VERTICAL_BAR);
-        // true if you need strictly order for data
-        streamConf.setStrictlyOrdered(true);
-        streamConf.setMqResource(super.getTopic());
-        return streamConf;
-    }
-
     private MySQLBinlogSource createMysqlSource() {
-        MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setDbNames(Collections.singletonList("{db.name}"));
-        mySQLBinlogSource.setHostname("{db.url}");
-        mySQLBinlogSource.setAuthentication(new DefaultAuthentication("root", "inlong"));
-        mySQLBinlogSource.setSourceName("{mysql.source.name}");
-        mySQLBinlogSource.setAllMigration(true);
-        return mySQLBinlogSource;
+        MySQLBinlogSource binlogSource = new MySQLBinlogSource();
+        binlogSource.setDatabaseWhiteList("{db.name}");
+        binlogSource.setHostname("{db.url}");
+        binlogSource.setUser("{user}");
+        binlogSource.setPassword("{password}");
+        binlogSource.setSourceName("{mysql.source.name}");
+        binlogSource.setAllMigration(true);
+        return binlogSource;
     }
 
     private KafkaSink createKafkaSink() {
         KafkaSink kafkaSink = new KafkaSink();
-        kafkaSink.setDataFormat(DataFormat.CANAL);
         kafkaSink.setBootstrapServers("{kafka.bootstrap}");
         kafkaSink.setTopicName("{kafka.topic}");
-        kafkaSink.setNeedCreated(false);
+        kafkaSink.setEnableCreateResource(0);
         kafkaSink.setSinkName("{kafka.sink.name}");
         Map<String, Object> properties = new HashMap<>();
         // Not needed if kafka cluster is not set
         properties.put("transaction.timeout.ms", 9000000);
         kafkaSink.setProperties(properties);
+
         return kafkaSink;
     }
 }

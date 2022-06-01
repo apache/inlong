@@ -23,11 +23,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.client.api.source.AgentFileSource;
-import org.apache.inlong.manager.client.api.source.KafkaSource;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
-import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.lang.reflect.Type;
 
@@ -36,13 +32,16 @@ import java.lang.reflect.Type;
  */
 public class StreamSourceAdapter implements JsonDeserializer<StreamSource> {
 
+    /**
+     * TODO refactor by {@link org.apache.inlong.manager.common.util.JsonTypeDefine}
+     */
     @Override
     public StreamSource deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
             throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         String sourceType = jsonObject.get("sourceType").getAsString();
         Gson gson = GsonUtils.GSON;
-        try {
+        /*try {
             switch (sourceType) {
                 case SourceType.SOURCE_KAFKA:
                     return gson.fromJson(jsonElement, (Type) Class.forName((KafkaSource.class).getName()));
@@ -56,7 +55,7 @@ public class StreamSourceAdapter implements JsonDeserializer<StreamSource> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
         return null;
     }
 }

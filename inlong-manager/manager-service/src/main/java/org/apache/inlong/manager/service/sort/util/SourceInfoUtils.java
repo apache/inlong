@@ -25,14 +25,13 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
 import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
-import org.apache.inlong.sort.protocol.source.SourceInfo;
 import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
 import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
 
@@ -46,12 +45,12 @@ public class SourceInfoUtils {
     /**
      * Whether the source is all binlog migration.
      */
-    public static boolean isBinlogAllMigration(SourceResponse sourceResponse) {
-        if (sourceResponse == null) {
+    public static boolean isBinlogAllMigration(StreamSource sourceInfo) {
+        if (sourceInfo == null) {
             return false;
         }
-        if (SourceType.BINLOG.getType().equalsIgnoreCase(sourceResponse.getSourceType())) {
-            BinlogSourceResponse binlogSource = (BinlogSourceResponse) sourceResponse;
+        if (SourceType.BINLOG.getType().equalsIgnoreCase(sourceInfo.getSourceType())) {
+            MySQLBinlogSource binlogSource = (MySQLBinlogSource) sourceInfo;
             return binlogSource.isAllMigration();
         }
         return false;
@@ -60,13 +59,14 @@ public class SourceInfoUtils {
     /**
      * Create source info for DataFlowInfo.
      */
-    public static SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster, String masterAddress,
+    public static org.apache.inlong.sort.protocol.source.SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster,
+            String masterAddress,
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
-            SourceResponse sourceResponse, List<FieldInfo> sourceFields) {
+            StreamSource streamSource, List<FieldInfo> sourceFields) {
 
         MQType mqType = MQType.forType(groupInfo.getMqType());
-        DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(sourceResponse, streamInfo);
-        SourceInfo sourceInfo;
+        DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(streamSource, streamInfo);
+        org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo;
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
                     sourceFields);
@@ -83,7 +83,8 @@ public class SourceInfoUtils {
     /**
      * Create source info for Pulsar
      */
-    private static SourceInfo createPulsarSourceInfo(PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
+    private static org.apache.inlong.sort.protocol.source.SourceInfo createPulsarSourceInfo(
+            PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         String topicName = streamInfo.getMqResource();

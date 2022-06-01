@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.auth.Authentication;
@@ -49,7 +50,7 @@ public class InlongGroupTransfer {
     public static InlongGroupInfo createGroupInfo(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) {
         AssertUtils.notNull(originGroupInfo, "Inlong group info cannot be null");
         AssertUtils.hasLength(originGroupInfo.getInlongGroupId(), "groupId cannot be empty");
-
+        originGroupInfo.setExtList(Lists.newArrayList());
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (originGroupInfo.getAuthentication() != null) {
@@ -147,7 +148,6 @@ public class InlongGroupTransfer {
         extInfos.add(sortName);
         if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
-            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
             flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
             try {
                 flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));

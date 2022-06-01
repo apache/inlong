@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
-import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.List;
 
@@ -33,8 +33,8 @@ public class MultiDependencyTransform extends StreamTransform {
     /**
      * Constructor of MultiDependencyTransform
      *
-     * @param transformName
-     * @param transformDefinition
+     * @param transformName transform name
+     * @param transformDefinition definition info
      * @param preNodes name of pre streamNodes, if pre streamNode is streamSource, then preNode is sourceName
      *         if pre streamNode is streamTransform, preNode is transformName
      */
@@ -52,8 +52,8 @@ public class MultiDependencyTransform extends StreamTransform {
     /**
      * Constructor of MultiDependencyTransform
      *
-     * @param transformName
-     * @param transformDefinition
+     * @param transformName transform name
+     * @param transformDefinition definition info
      * @param preNodes name of pre streamNodes, if pre streamNode is streamSource, then preNode is sourceName
      *         if pre streamNode is streamTransform, preNode is transformName
      * @param postNodes postNodes name of post streamNode, if post streamNode is streamSource, then postNode is
@@ -61,7 +61,7 @@ public class MultiDependencyTransform extends StreamTransform {
      */
     public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition,
             List<String> preNodes, List<String> postNodes) {
-        this(transformName, transformDefinition, preNodes.toArray(new String[preNodes.size()]));
+        this(transformName, transformDefinition, preNodes.toArray(new String[0]));
         if (postNodes != null) {
             for (String postNode : postNodes) {
                 this.addPost(postNode);

@@ -28,10 +28,10 @@ import org.apache.iceberg.expressions.Expressions;
 import org.apache.iceberg.hive.HiveCatalog;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.types.Types.NestedField;
-import org.apache.inlong.manager.common.enums.IcebergPartition;
-import org.apache.inlong.manager.common.enums.IcebergType;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergPartition;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergTableInfo;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -218,6 +218,8 @@ public class IcebergCatalogUtils {
             case HOUR:
                 builder.hour(column.getName());
                 break;
+            case NONE:
+                break;
             default:
                 throw new IllegalArgumentException(
                         "unknown iceberg partition strategy: " + column.getPartitionStrategy());
@@ -254,6 +256,8 @@ public class IcebergCatalogUtils {
                 break;
             case HOUR:
                 builder.addField(Expressions.hour(column.getName()));
+                break;
+            case NONE:
                 break;
             default:
                 throw new IllegalArgumentException(

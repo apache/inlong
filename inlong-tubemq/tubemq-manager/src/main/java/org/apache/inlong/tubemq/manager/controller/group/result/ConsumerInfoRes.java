@@ -19,9 +19,11 @@ package org.apache.inlong.tubemq.manager.controller.group.result;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ConsumerInfoRes {
     private String consumeGroup;
-    private String topicSet;
+    private List<String> topicSet;
     private Double consumerNum;
 }

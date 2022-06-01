@@ -53,7 +53,7 @@ public class InlongGroupInfoAdapter implements JsonDeserializer<InlongGroupInfo>
                 case "NONE":
                     return new Gson().fromJson(jsonElement, (Type) Class.forName((InlongNoneMqInfo.class).getName()));
                 default:
-                    throw new IllegalArgumentException(String.format("Unsupported mq type=%s for Inlong", mqType));
+                    throw new IllegalArgumentException(String.format("Unsupported mqType=%s", mqType));
             }
         } catch (Exception e) {
             throw new JsonParseException(e);

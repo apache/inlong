@@ -45,9 +45,7 @@ public class TransformNodeUtils {
         if (CollectionUtils.isEmpty(transformResponses)) {
             return Lists.newArrayList();
         }
-        List<TransformNode> transformNodes = transformResponses.stream()
-                .map(transformResponse -> createTransformNode(transformResponse)).collect(Collectors.toList());
-        return transformNodes;
+        return transformResponses.stream().map(TransformNodeUtils::createTransformNode).collect(Collectors.toList());
     }
 
     public static TransformNode createTransformNode(TransformResponse transformResponse) {
@@ -63,21 +61,17 @@ public class TransformNodeUtils {
 
     /**
      * Create distinct node based on deDuplicationDefinition
-     *
-     * @param deDuplicationDefinition
-     * @param transformResponse
-     * @return
      */
     public static DistinctNode createDistinctNode(DeDuplicationDefinition deDuplicationDefinition,
             TransformResponse transformResponse) {
         List<StreamField> streamFields = deDuplicationDefinition.getDupFields();
         List<FieldInfo> distinctFields = streamFields.stream()
-                .map(streamField -> FieldInfoUtils.parseStreamField(streamField))
+                .map(FieldInfoUtils::parseStreamField)
                 .collect(Collectors.toList());
         StreamField timingField = deDuplicationDefinition.getTimingField();
         FieldInfo orderField = FieldInfoUtils.parseStreamField(timingField);
         DeDuplicationStrategy deDuplicationStrategy = deDuplicationDefinition.getDeDuplicationStrategy();
-        OrderDirection orderDirection = null;
+        OrderDirection orderDirection;
         switch (deDuplicationStrategy) {
             case RESERVE_LAST:
                 orderDirection = OrderDirection.DESC;
@@ -93,7 +87,7 @@ public class TransformNodeUtils {
         return new DistinctNode(transformNode.getId(),
                 transformNode.getName(),
                 transformNode.getFields(),
-                transformNode.getFieldRelationShips(),
+                transformNode.getFieldRelations(),
                 transformNode.getFilters(),
                 transformNode.getFilterStrategy(),
                 distinctFields,
@@ -104,18 +98,15 @@ public class TransformNodeUtils {
 
     /**
      * Create transform node based on transformResponse
-     *
-     * @param transformResponse
-     * @return
      */
     public static TransformNode createNormalTransformNode(TransformResponse transformResponse) {
         TransformNode transformNode = new TransformNode();
         transformNode.setId(transformResponse.getTransformName());
         transformNode.setName(transformResponse.getTransformName());
         List<FieldInfo> fieldInfos = transformResponse.getFieldList().stream()
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamField(streamFieldInfo)).collect(Collectors.toList());
+                .map(FieldInfoUtils::parseStreamField).collect(Collectors.toList());
         transformNode.setFields(fieldInfos);
-        transformNode.setFieldRelationShips(FieldRelationShipUtils.createFieldRelationShips(transformResponse));
+        transformNode.setFieldRelations(FieldRelationUtils.createFieldRelations(transformResponse));
         transformNode.setFilters(
                 FilterFunctionUtils.createFilterFunctions(transformResponse));
         transformNode.setFilterStrategy(FilterFunctionUtils.parseFilterStrategy(transformResponse));

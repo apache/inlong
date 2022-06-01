@@ -93,3 +93,10 @@ jobs:
         with:
           name: apache-inlong-${{ env.VERSION }}-bin.tar.gz
           path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-bin.tar.gz
+
+      - name: Upload sort connectors package
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: apache-inlong-${{ env.VERSION }}-sort-connectors.tar.gz
+          path: ./inlong-distribution/target/apache-inlong-${{ env.VERSION }}-sort-connectors.tar.gz

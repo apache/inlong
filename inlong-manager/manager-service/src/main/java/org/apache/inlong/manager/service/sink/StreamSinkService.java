@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public interface StreamSinkService {
      * @param id Sink id.
      * @return Sink info.
      */
-    SinkResponse get(Integer id);
+    StreamSink get(Integer id);
 
     /**
      * Query sink information based on inlong group id and inlong stream id.
@@ -56,7 +56,7 @@ public interface StreamSinkService {
      * @param streamId Inlong stream id, can be null.
      * @return Sink info list.
      */
-    List<SinkResponse> listSink(String groupId, String streamId);
+    List<StreamSink> listSink(String groupId, String streamId);
 
     /**
      * Query sink summary based on inlong group id and inlong stream id, including sink cluster.

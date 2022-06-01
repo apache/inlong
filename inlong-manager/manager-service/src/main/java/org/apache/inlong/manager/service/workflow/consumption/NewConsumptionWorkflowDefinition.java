@@ -105,7 +105,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
-        // Set order relationship
+        // Set order relation
         startEvent.addNext(groupOwnerUserTask);
         groupOwnerUserTask.addNext(adminUserTask);
         adminUserTask.addNext(endEvent);

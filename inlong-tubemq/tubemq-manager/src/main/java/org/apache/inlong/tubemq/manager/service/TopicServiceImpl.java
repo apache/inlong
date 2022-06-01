@@ -36,7 +36,10 @@ import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes.OffsetInfo;
+import org.apache.inlong.tubemq.manager.controller.group.result.GroupOffsetRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.OffsetPartitionRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.OffsetQueryRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.TopicOffsetRes;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
@@ -273,7 +276,16 @@ public class TopicServiceImpl implements TopicService {
                                     OffsetQueryRes res) {
         OffsetInfo offsetInfo = new OffsetInfo();
         offsetInfo.setBrokerId(topicInfo.getBrokerId());
-        offsetInfo.setOffsetQueryRes(res);
-        offsetPerBroker.add(offsetInfo);
+        offsetInfo.setBrokerIp(topicInfo.getBrokerIp());
+        if (TubeConst.SUCCESS_CODE == res.getErrCode()) {
+            List<GroupOffsetRes> dataSet = res.getDataSet();
+            for (GroupOffsetRes groupOffsetRes : dataSet) {
+                for (TopicOffsetRes topicOffsetRes : groupOffsetRes.getSubInfo()) {
+                    List<OffsetPartitionRes> offsets = topicOffsetRes.getOffsets();
+                    offsetInfo.setOffsets(offsets);
+                }
+            }
+            offsetPerBroker.add(offsetInfo);
+        }
     }
 }

@@ -27,15 +27,14 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -105,7 +104,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkFieldRequest> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getFieldList();
         LOGGER.info("begin to save iceberg field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -117,7 +116,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
-        for (SinkFieldRequest fieldInfo : fieldList) {
+        for (SinkField fieldInfo : fieldList) {
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -135,16 +134,16 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(StreamSinkEntity entity) {
+    public StreamSink getByEntity(StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, existType));
 
-        SinkResponse response = this.getFromEntity(entity, IcebergSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, IcebergSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkFieldResponse::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkField::new);
         response.setFieldList(infos);
 
         return response;
@@ -208,7 +207,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkFieldRequest> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }

@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Tests for {@link InnerJoinNodeRelationShip}
+ * Tests for {@link InnerJoinNodeRelation}
  */
-public class InnerJoinNodeRelationTest extends SerializeBaseTest<InnerJoinNodeRelationShip> {
+public class InnerJoinNodeRelationTest extends SerializeBaseTest<InnerJoinNodeRelation> {
 
     @Override
-    public InnerJoinNodeRelationShip getTestObject() {
+    public InnerJoinNodeRelation getTestObject() {
         Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
         joinConditionMap.put("2", Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
@@ -58,7 +58,7 @@ public class InnerJoinNodeRelationTest extends SerializeBaseTest<InnerJoinNodeRe
                 new SingleValueFilterFunction(AndOperator.getInstance(),
                         new FieldInfo("name", "3", new StringFormatInfo()),
                         NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        return new InnerJoinNodeRelationShip(Arrays.asList("1", "2", "3"),
+        return new InnerJoinNodeRelation(Arrays.asList("1", "2", "3"),
                 Collections.singletonList("4"), joinConditionMap);
     }
 }

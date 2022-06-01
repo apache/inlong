@@ -19,13 +19,14 @@ package org.apache.inlong.manager.common.pojo.source.postgres;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+
+import java.util.List;
 
 /**
  * Request of postgres source
@@ -55,13 +56,13 @@ public class PostgresSourceRequest extends SourceRequest {
     @ApiModelProperty("Exposed database of the DB")
     private String database;
 
-    @ApiModelProperty("schema info")
+    @ApiModelProperty("Schema info")
     private String schema;
 
-    @ApiModelProperty("decoding pulgin name")
+    @ApiModelProperty("Decoding plugin name")
     private String decodingPluginName;
 
-    @ApiModelProperty("List of tables")
+    @ApiModelProperty("List of tables name")
     private List<String> tableNameList;
 
     public PostgresSourceRequest() {

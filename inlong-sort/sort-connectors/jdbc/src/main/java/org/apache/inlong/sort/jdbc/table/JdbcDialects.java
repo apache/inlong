@@ -20,11 +20,14 @@ package org.apache.inlong.sort.jdbc.table;
 
 import org.apache.flink.connector.jdbc.dialect.JdbcDialect;
 import org.apache.flink.connector.jdbc.dialect.MySQLDialect;
+import org.apache.inlong.sort.jdbc.dialect.OracleDialect;
 import org.apache.inlong.sort.jdbc.dialect.SqlServerDialect;
 import org.apache.inlong.sort.jdbc.dialect.TDSQLPostgresDialect;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -34,10 +37,13 @@ public final class JdbcDialects {
 
     private static final List<JdbcDialect> DIALECTS = new ArrayList<>();
 
+    private static final Map<String, JdbcDialect> CUSTOM_DIALECTS = new LinkedHashMap<>();
+
     static {
         DIALECTS.add(new MySQLDialect());
         DIALECTS.add(new TDSQLPostgresDialect());
         DIALECTS.add(new SqlServerDialect());
+        DIALECTS.add(new OracleDialect());
     }
 
     /**
@@ -52,13 +58,22 @@ public final class JdbcDialects {
         return Optional.empty();
     }
 
+    public static Optional<JdbcDialect> getCustomDialect(String dialectImpl) {
+        JdbcDialect jdbcDialect = CUSTOM_DIALECTS.get(dialectImpl);
+        if (jdbcDialect != null) {
+            return Optional.of(jdbcDialect);
+        }
+        return Optional.empty();
+    }
+
     /**
      * Fetch the JdbcDialect class corresponding to a given database url.
      */
-    public static void register(String dialectImpl) {
+    public static Optional<JdbcDialect> register(String dialectImpl) {
         try {
             JdbcDialect dialect = (JdbcDialect) Class.forName(dialectImpl).newInstance();
-            DIALECTS.add(dialect);
+            CUSTOM_DIALECTS.put(dialectImpl, dialect);
+            return Optional.of(dialect);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException("Cannot register such dialect impl: " + dialectImpl, e);
         }

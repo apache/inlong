@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -26,9 +27,9 @@ import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -47,7 +48,6 @@ import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
-import org.apache.inlong.manager.service.sort.PushSortConfigListener;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessService;
@@ -190,16 +190,16 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         return streamService.get(request.getInlongGroupId(), request.getInlongStreamId());
     }
 
-    public List<InlongStreamFieldInfo> createStreamFields(String groupId, String streamId) {
-        final List<InlongStreamFieldInfo> streamFieldInfos = new ArrayList<>();
-        InlongStreamFieldInfo fieldInfo = new InlongStreamFieldInfo();
+    public List<StreamField> createStreamFields(String groupId, String streamId) {
+        final List<StreamField> streamFields = new ArrayList<>();
+        StreamField fieldInfo = new StreamField();
         fieldInfo.setInlongGroupId(groupId);
         fieldInfo.setInlongStreamId(streamId);
         fieldInfo.setFieldName("id");
-        fieldInfo.setFieldType("int");
+        fieldInfo.setFieldType(FieldType.INT.toString());
         fieldInfo.setFieldComment("idx");
-        streamFieldInfos.add(fieldInfo);
-        return streamFieldInfos;
+        streamFields.add(fieldInfo);
+        return streamFields;
     }
 
     /**
@@ -238,11 +238,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         when(sinkResourceListener.event()).thenReturn(TaskEvent.COMPLETE);
         taskListenerFactory.setSinkResourceListener(sinkResourceListener);
 
-        PushSortConfigListener pushSortConfigListener = mock(PushSortConfigListener.class);
-        when(pushSortConfigListener.listen(any(WorkflowContext.class))).thenReturn(ListenerResult.success());
-        when(pushSortConfigListener.name()).thenReturn(PushSortConfigListener.class.getSimpleName());
-        when(pushSortConfigListener.event()).thenReturn(TaskEvent.COMPLETE);
-        taskListenerFactory.setPushSortConfigListener(pushSortConfigListener);
         taskListenerFactory.clearListeners();
         taskListenerFactory.init();
     }
