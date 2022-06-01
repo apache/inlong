@@ -39,6 +39,7 @@ import java.util.List;
 public class InlongParser {
 
     public static final String GROUP_INFO = "groupInfo";
+    public static final String STREAM_INFO = "streamInfo";
     public static final String MQ_EXT_INFO = "mqExtInfo";
     public static final String MQ_TYPE = "mqType";
 
