@@ -98,7 +98,7 @@ public class PushSortConfigListener implements SortOperateListener {
                 // ZkTools.addDataFlowToCluster(sortClusterName, sinkId, zkUrl, zkRoot);
 
                 if (LOGGER.isDebugEnabled()) {
-                    // LOGGER.debug("success to push config to sort: {}", objectMapper.writeValueAsString(dataFlowInfo));
+                    // LOGGER.debug("success to push config to sort:{}", objectMapper.writeValueAsString(dataFlowInfo));
                 }
             } catch (Exception e) {
                 LOGGER.error("push sort config to zookeeper failed, sinkId={} ", sinkId, e);
