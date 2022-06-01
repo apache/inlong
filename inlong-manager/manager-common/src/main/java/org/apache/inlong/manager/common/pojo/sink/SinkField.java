@@ -55,6 +55,9 @@ public class SinkField {
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
+    @ApiModelProperty(value = "Meta field name")
+    private String metaFieldName;
+
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
@@ -75,21 +78,22 @@ public class SinkField {
     private String extParams;
 
     public SinkField(int index, String fieldType, String fieldName, String sourceFieldType, String sourceFieldName) {
-        this(index, fieldType, fieldName, null, sourceFieldName, sourceFieldType, 0, null);
+        this(index, fieldType, fieldName, null, sourceFieldName, sourceFieldType, 0, null, null);
     }
 
     public SinkField(int index, String fieldType, String fieldName, String fieldComment,
             String sourceFieldName, String sourceFieldType,
-            Integer isMetaField, String fieldFormat) {
-        this(index, fieldType, fieldName, fieldComment, isMetaField, fieldFormat);
+            Integer isMetaField, String metaFieldName, String fieldFormat) {
+        this(index, fieldType, fieldName, fieldComment, isMetaField, metaFieldName, fieldFormat);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
     }
 
     public SinkField(int index, String fieldType, String fieldName, String fieldComment,
-            Integer isMetaField, String originNodeName) {
+            Integer isMetaField, String metaFieldName, String originNodeName) {
         this(fieldType, index, fieldName, fieldComment);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
     }
 
