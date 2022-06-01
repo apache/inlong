@@ -19,20 +19,28 @@ package org.apache.inlong.manager.common.pojo.source.sqlserver;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response info of the sqlserver source
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the sqlserver source")
-public class SqlServerSourceResponse extends SourceResponse {
+@ApiModel(value = "Sqlserver source info")
+@JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
+public class SqlServerSource extends StreamSource {
 
     @ApiModelProperty("Username of the Sqlserver")
     private String username;
@@ -64,8 +72,13 @@ public class SqlServerSourceResponse extends SourceResponse {
     @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
 
-    public SqlServerSourceResponse() {
+    public SqlServerSource() {
         this.setSourceType(SourceType.SQLSERVER.name());
+    }
+
+    @Override
+    public SourceRequest genSourceRequest() {
+        return CommonBeanUtils.copyProperties(this, SqlServerSourceRequest::new);
     }
 
 }

@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
 import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -60,8 +60,8 @@ public class SqlServerSourceOperation extends AbstractSourceOperation {
     }
 
     @Override
-    protected SourceResponse getResponse() {
-        return new SqlServerSourceResponse();
+    protected StreamSource getSource() {
+        return new SqlServerSource();
     }
 
     @Override

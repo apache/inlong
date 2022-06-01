@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
@@ -44,8 +45,6 @@ import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -89,7 +88,7 @@ public class ExtractNodeUtils {
             case ORACLE:
                 return createExtractNode((OracleSource) sourceInfo);
             case SQLSERVER:
-                return createExtractNode((SqlServerSourceResponse) sourceResponse);
+                return createExtractNode((SqlServerSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -337,28 +336,28 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create SqlServerExtractNode based on sqlserverSourceResponse
+     * Create SqlServerExtractNode based on sqlServerSource
      *
-     * @param sqlserverSourceResponse SqlServer source response info
+     * @param sqlServerSource SqlServer source response info
      * @return SqlServer extract node info
      */
-    public static SqlServerExtractNode createExtractNode(SqlServerSourceResponse sqlserverSourceResponse) {
-        final String id = sqlserverSourceResponse.getSourceName();
-        final String name = sqlserverSourceResponse.getSourceName();
-        final String database = sqlserverSourceResponse.getDatabase();
-        final String primaryKey = sqlserverSourceResponse.getPrimaryKey();
-        final String hostName = sqlserverSourceResponse.getHostname();
-        final String userName = sqlserverSourceResponse.getUsername();
-        final String password = sqlserverSourceResponse.getPassword();
-        final Integer port = sqlserverSourceResponse.getPort();
-        final String schemaName = sqlserverSourceResponse.getSchemaName();
+    public static SqlServerExtractNode createExtractNode(SqlServerSource sqlServerSource) {
+        final String id = sqlServerSource.getSourceName();
+        final String name = sqlServerSource.getSourceName();
+        final String database = sqlServerSource.getDatabase();
+        final String primaryKey = sqlServerSource.getPrimaryKey();
+        final String hostName = sqlServerSource.getHostname();
+        final String userName = sqlServerSource.getUsername();
+        final String password = sqlServerSource.getPassword();
+        final Integer port = sqlServerSource.getPort();
+        final String schemaName = sqlServerSource.getSchemaName();
 
-        String tablename = sqlserverSourceResponse.getTableName();
-        final List<InlongStreamFieldInfo> streamFieldInfos = sqlserverSourceResponse.getFieldList();
-        final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+        String tablename = sqlServerSource.getTableName();
+        List<StreamField> streamFields = sqlServerSource.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        final String serverTimeZone = sqlserverSourceResponse.getServerTimezone();
+        final String serverTimeZone = sqlServerSource.getServerTimezone();
 
         // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();

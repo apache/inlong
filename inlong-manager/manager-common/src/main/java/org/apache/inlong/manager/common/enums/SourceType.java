@@ -34,7 +34,7 @@ public enum SourceType {
     KAFKA("KAFKA", TaskTypeEnum.KAFKA),
     PULSAR("PULSAR", TaskTypeEnum.PULSAR),
     POSTGRES("POSTGRES", TaskTypeEnum.POSTGRES),
-    ORACLE("ORACLE", TaskTypeEnum.ORACLE);
+    ORACLE("ORACLE", TaskTypeEnum.ORACLE),
     SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER);
 
     public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
