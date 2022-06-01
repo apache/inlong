@@ -114,9 +114,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-connector-elasticsearch</artifactId>
+            <artifactId>sort-connector-elasticsearch7</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

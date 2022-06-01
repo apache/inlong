@@ -72,7 +72,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
             2, null,
             "test", "http://localhost:9200",
-            "elastic", "password", null, "age");
+            "my_admin", "my_password", null, "age", 7);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {

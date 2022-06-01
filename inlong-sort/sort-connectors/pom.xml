@@ -46,7 +46,8 @@
         <module>mongodb-cdc</module>
         <module>sqlserver-cdc</module>
         <module>oracle-cdc</module>
-        <module>elasticsearch</module>
+        <module>elasticsearch-6</module>
+        <module>elasticsearch-7</module>
     </modules>
 
     <dependencies>

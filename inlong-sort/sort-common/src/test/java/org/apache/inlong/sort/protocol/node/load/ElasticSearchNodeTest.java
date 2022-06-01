@@ -38,6 +38,6 @@ public class ElasticSearchNodeTest extends SerializeBaseTest<Node>  {
                     new FieldInfo("id", new StringFormatInfo()))),
             null, null, 1, null,
             "index", "hosts", "username",
-            "password", "documentType", "age");
+            "password", "documentType", "age", 7);
     }
 }

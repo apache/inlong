@@ -68,6 +68,9 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonProperty("version")
+    private int version;
+
     @JsonCreator
     public ElasticsearchLoadNode(@JsonProperty("id") String id,
         @JsonProperty("name") String name,
@@ -82,7 +85,8 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         @Nonnull @JsonProperty("username") String username,
         @Nonnull @JsonProperty("password") String password,
         @Nonnull @JsonProperty("documentType") String documentType,
-        @Nonnull @JsonProperty("primaryKey") String primaryKey) {
+        @Nonnull @JsonProperty("primaryKey") String primaryKey,
+        @JsonProperty("version") int version) {
         super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
@@ -90,20 +94,21 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         this.index = Preconditions.checkNotNull(index, "index is null");
         this.documentType = documentType;
         this.primaryKey = primaryKey;
+        this.version = version;
     }
 
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "elasticsearch-6");
+        options.put("connector", "elasticsearch-7");
+        if (version == 6) {
+            options.put("connector", "elasticsearch-6");
+            options.put("document-type", documentType);
+        }
         options.put("hosts", hosts);
         options.put("index", index);
         options.put("password", password);
         options.put("username", username);
-        if (documentType == null) {
-            documentType = "_doc";
-        }
-        options.put("document-type", documentType);
         return options;
     }
 
