@@ -88,17 +88,17 @@ public class PushSortConfigListener implements SortOperateListener {
 
             Integer sinkId = streamSink.getId();
             try {
-//                DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, streamSink);
+                // DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, streamSink);
                 String zkUrl = clusterBean.getZkUrl();
                 String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk
                 String sortClusterName = clusterBean.getAppName();
-//                ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, sinkId, zkUrl, zkRoot);
+                // ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, sinkId, zkUrl, zkRoot);
                 // add sink id to zk
-//                ZkTools.addDataFlowToCluster(sortClusterName, sinkId, zkUrl, zkRoot);
+                // ZkTools.addDataFlowToCluster(sortClusterName, sinkId, zkUrl, zkRoot);
 
                 if (LOGGER.isDebugEnabled()) {
-//                    LOGGER.debug("success to push config to sort: {}", objectMapper.writeValueAsString(dataFlowInfo));
+                    // LOGGER.debug("success to push config to sort: {}", objectMapper.writeValueAsString(dataFlowInfo));
                 }
             } catch (Exception e) {
                 LOGGER.error("push sort config to zookeeper failed, sinkId={} ", sinkId, e);
