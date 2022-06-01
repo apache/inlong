@@ -52,9 +52,7 @@ import java.util.Map;
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private final InlongStreamImpl inlongStream;
-
     private final InnerStreamContext streamContext;
-
     private final InnerInlongManagerClient managerClient;
 
     public DefaultInlongStreamBuilder(InlongStreamInfo streamInfo, InnerGroupContext groupContext,
@@ -121,17 +119,17 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         streamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
         streamInfo.setId(managerClient.createStreamInfo(streamInfo));
-        //Create source and update index
+        // Create source and update index
         List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
         for (SourceRequest sourceRequest : sourceRequests) {
             sourceRequest.setId(managerClient.createSource(sourceRequest));
         }
-        //Create sink and update index
+        // Create sink and update index
         List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
         for (SinkRequest sinkRequest : sinkRequests) {
             sinkRequest.setId(managerClient.createSink(sinkRequest));
         }
-        //Create transform and update index
+        // Create transform and update index
         List<TransformRequest> transformRequests = Lists.newArrayList(streamContext.getTransformRequests().values());
         for (TransformRequest transformRequest : transformRequests) {
             transformRequest.setId(managerClient.createTransform(transformRequest));
