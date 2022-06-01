@@ -40,59 +40,58 @@ public class DataFlowUtils {
     @Autowired
     private InlongStreamService streamService;
 
-    // /**
-    //  * Create dataflow info for sort.
-    //  */
-    // public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, StreamSink streamSink) {
-    //     String groupId = streamSink.getInlongGroupId();
-    //     String streamId = streamSink.getInlongStreamId();
-    //     List<StreamSource> sourceList = streamSourceService.listSource(groupId, streamId);
-    //     if (CollectionUtils.isEmpty(sourceList)) {
-    //         throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",
-    //                 groupId, streamId));
-    //     }
-    //
-    //     // Get all field info
-    //     List<FieldInfo> sourceFields = new ArrayList<>();
-    //     List<FieldInfo> sinkFields = new ArrayList<>();
-    //
-    //     // TODO Support more than one source and one sink
-    //     final StreamSource streamSource = sourceList.get(0);
-    //     boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(streamSource);
-    //
-    //     List<FieldMappingUnit> mappingUnitList;
-    //     InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
-    //     if (isAllMigration) {
-    //         mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
-    //     } else {
-    //         mappingUnitList = FieldInfoUtils.createFieldInfo(streamInfo.getFieldList(),
-    //                 streamSink.getFieldList(), sourceFields, sinkFields);
-    //     }
-    //
-    //     FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
-    //
-    //     // Get source info
-    //     String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
-    //     PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-    //     org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo =
-    //     SourceInfoUtils.createSourceInfo(pulsarCluster,
-    //             masterAddress, clusterBean,
-    //             groupInfo, streamInfo, streamSource, sourceFields);
-    //
-    //     // Get sink info
-    //     SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamSource, streamSink, sinkFields);
-    //
-    //     // Get transformation info
-    //     TransformationInfo transInfo = new TransformationInfo(fieldMappingRule);
-    //
-    //     // Get properties
-    //     Map<String, Object> properties = new HashMap<>();
-    //     if (MapUtils.isNotEmpty(streamSink.getProperties())) {
-    //         properties.putAll(streamSink.getProperties());
-    //     }
-    //     properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
-    //
-    //     return new DataFlowInfo(streamSink.getId(), sourceInfo, transInfo, sinkInfo, properties);
-    // }
+    /*
+     * Create dataflow info for sort.
+     */
+    /*public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, StreamSink streamSink) {
+        String groupId = streamSink.getInlongGroupId();
+        String streamId = streamSink.getInlongStreamId();
+        List<StreamSource> sourceList = streamSourceService.listSource(groupId, streamId);
+        if (CollectionUtils.isEmpty(sourceList)) {
+            throw new WorkflowListenerException(String.format("Source not found by groupId=%s and streamId=%s",
+                    groupId, streamId));
+        }
+
+        // Get all field info
+        List<FieldInfo> sourceFields = new ArrayList<>();
+        List<FieldInfo> sinkFields = new ArrayList<>();
+
+        // TODO Support more than one source and one sink
+        final StreamSource streamSource = sourceList.get(0);
+        boolean isAllMigration = SourceInfoUtils.isBinlogAllMigration(streamSource);
+
+        List<FieldMappingUnit> mappingUnitList;
+        InlongStreamInfo streamInfo = streamService.get(groupId, streamId);
+        if (isAllMigration) {
+            mappingUnitList = FieldInfoUtils.setAllMigrationFieldMapping(sourceFields, sinkFields);
+        } else {
+            mappingUnitList = FieldInfoUtils.createFieldInfo(streamInfo.getFieldList(),
+                    streamSink.getFieldList(), sourceFields, sinkFields);
+        }
+
+        FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
+
+        // Get source info
+        String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
+        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+        org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster,
+                masterAddress, clusterBean,
+                groupInfo, streamInfo, streamSource, sourceFields);
+
+        // Get sink info
+        SinkInfo sinkInfo = SinkInfoUtils.createSinkInfo(streamSource, streamSink, sinkFields);
+
+        // Get transformation info
+        TransformationInfo transInfo = new TransformationInfo(fieldMappingRule);
+
+        // Get properties
+        Map<String, Object> properties = new HashMap<>();
+        if (MapUtils.isNotEmpty(streamSink.getProperties())) {
+            properties.putAll(streamSink.getProperties());
+        }
+        properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
+
+        return new DataFlowInfo(streamSink.getId(), sourceInfo, transInfo, sinkInfo, properties);
+    }*/
 
 }
