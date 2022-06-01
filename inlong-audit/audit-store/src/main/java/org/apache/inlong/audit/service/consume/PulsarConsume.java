@@ -23,6 +23,8 @@ import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.db.dao.AuditDataDao;
 import org.apache.inlong.audit.service.ElasticsearchService;
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;
@@ -63,10 +65,13 @@ public class PulsarConsume extends BaseConsume {
     private PulsarClient getOrCreatePulsarClient(String pulsarServerUrl) {
         LOG.info("start consumer pulsarServerUrl = {}", pulsarServerUrl);
         PulsarClient pulsarClient = null;
+        ClientBuilder builder = PulsarClient.builder();
         try {
-            pulsarClient = PulsarClient.builder().serviceUrl(pulsarServerUrl)
-                    .connectionTimeout(mqConfig.getClientOperationTimeoutSecond(),
-                            TimeUnit.SECONDS).build();
+            if (mqConfig.isPulsarEnableAuth() && StringUtils.isNotEmpty(mqConfig.getPulsarToken())) {
+                builder.authentication(AuthenticationFactory.token(mqConfig.getPulsarToken()));
+            }
+            pulsarClient = builder.serviceUrl(pulsarServerUrl)
+                    .connectionTimeout(mqConfig.getClientOperationTimeoutSecond(), TimeUnit.SECONDS).build();
         } catch (PulsarClientException e) {
             LOG.error("getOrCreatePulsarClient has pulsar {} err {}", pulsarServerUrl, e);
         }
