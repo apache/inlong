@@ -21,20 +21,16 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
-import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
-import org.apache.inlong.sort.parser.result.ParseResult;
-import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
-import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
-import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo.BuiltInField;
+import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
+import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
@@ -63,27 +59,17 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("database", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_DATABASE),
-                new BuiltInFieldInfo("table", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_TABLE),
-                new BuiltInFieldInfo("pk_names", new ArrayFormatInfo(new StringFormatInfo()),
-                        BuiltInField.METADATA_PK_NAMES),
-                new BuiltInFieldInfo("event_time", new TimestampFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TIME),
-                new BuiltInFieldInfo("event_type", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TYPE),
-                new BuiltInFieldInfo("isddl", new BooleanFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_IS_DDL),
-                new BuiltInFieldInfo("batch_id", new LongFormatInfo(),
-                        BuiltInField.METADATA_BATCH_ID),
-                new BuiltInFieldInfo("mysql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_MYSQL_TYPE),
-                new BuiltInFieldInfo("sql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new IntFormatInfo()), BuiltInField.METADATA_SQL_TYPE),
-                new BuiltInFieldInfo("meta_ts", new TimestampFormatInfo(), BuiltInField.METADATA_TS),
-                new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
+                new MetaFieldInfo("database", MetaFieldInfo.MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table", MetaFieldInfo.MetaField.TABLE_NAME),
+                new MetaFieldInfo("pk_names", MetaFieldInfo.MetaField.PK_NAMES),
+                new MetaFieldInfo("event_time", MetaFieldInfo.MetaField.OP_TS),
+                new MetaFieldInfo("event_type", MetaFieldInfo.MetaField.OP_TYPE),
+                new MetaFieldInfo("isddl", MetaFieldInfo.MetaField.IS_DDL),
+                new MetaFieldInfo("batch_id", MetaFieldInfo.MetaField.BATCH_ID),
+                new MetaFieldInfo("mysql_type", MetaFieldInfo.MetaField.MYSQL_TYPE),
+                new MetaFieldInfo("sql_type", MetaFieldInfo.MetaField.SQL_TYPE),
+                new MetaFieldInfo("meta_ts", MetaFieldInfo.MetaField.TS),
+                new MetaFieldInfo("up_before", MetaFieldInfo.MetaField.UPDATE_BEFORE)
         );
         return new MySqlExtractNode("1", "mysql_input", fields, null, null,
                 "id", Collections.singletonList("mysql_table"),
@@ -97,27 +83,17 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("database", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_DATABASE),
-                new BuiltInFieldInfo("table", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_TABLE),
-                new BuiltInFieldInfo("pk_names", new ArrayFormatInfo(new StringFormatInfo()),
-                        BuiltInField.METADATA_PK_NAMES),
-                new BuiltInFieldInfo("event_time", new TimestampFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TIME),
-                new BuiltInFieldInfo("event_type", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TYPE),
-                new BuiltInFieldInfo("isddl", new BooleanFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_IS_DDL),
-                new BuiltInFieldInfo("batch_id", new LongFormatInfo(),
-                        BuiltInField.METADATA_BATCH_ID),
-                new BuiltInFieldInfo("mysql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_MYSQL_TYPE),
-                new BuiltInFieldInfo("sql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new IntFormatInfo()), BuiltInField.METADATA_SQL_TYPE),
-                new BuiltInFieldInfo("meta_ts", new TimestampFormatInfo(), BuiltInField.METADATA_TS),
-                new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
+                new MetaFieldInfo("database", MetaFieldInfo.MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table", MetaFieldInfo.MetaField.TABLE_NAME),
+                new MetaFieldInfo("pk_names", MetaFieldInfo.MetaField.PK_NAMES),
+                new MetaFieldInfo("event_time", MetaFieldInfo.MetaField.OP_TS),
+                new MetaFieldInfo("event_type", MetaFieldInfo.MetaField.OP_TYPE),
+                new MetaFieldInfo("isddl", MetaFieldInfo.MetaField.IS_DDL),
+                new MetaFieldInfo("batch_id", MetaFieldInfo.MetaField.BATCH_ID),
+                new MetaFieldInfo("mysql_type", MetaFieldInfo.MetaField.MYSQL_TYPE),
+                new MetaFieldInfo("sql_type", MetaFieldInfo.MetaField.SQL_TYPE),
+                new MetaFieldInfo("meta_ts", MetaFieldInfo.MetaField.TS),
+                new MetaFieldInfo("up_before", MetaFieldInfo.MetaField.UPDATE_BEFORE)
         );
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
@@ -163,27 +139,17 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("database", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_DATABASE),
-                new BuiltInFieldInfo("table", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_TABLE),
-                new BuiltInFieldInfo("pk_names", new ArrayFormatInfo(new StringFormatInfo()),
-                        BuiltInField.METADATA_PK_NAMES),
-                new BuiltInFieldInfo("event_time", new TimestampFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TIME),
-                new BuiltInFieldInfo("event_type", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TYPE),
-                new BuiltInFieldInfo("isddl", new BooleanFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_IS_DDL),
-                new BuiltInFieldInfo("batch_id", new LongFormatInfo(),
-                        BuiltInField.METADATA_BATCH_ID),
-                new BuiltInFieldInfo("mysql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_MYSQL_TYPE),
-                new BuiltInFieldInfo("sql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new IntFormatInfo()), BuiltInField.METADATA_SQL_TYPE),
-                new BuiltInFieldInfo("meta_ts", new TimestampFormatInfo(), BuiltInField.METADATA_TS),
-                new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
+                new MetaFieldInfo("database", MetaFieldInfo.MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table", MetaFieldInfo.MetaField.TABLE_NAME),
+                new MetaFieldInfo("pk_names", MetaFieldInfo.MetaField.PK_NAMES),
+                new MetaFieldInfo("event_time", MetaFieldInfo.MetaField.OP_TS),
+                new MetaFieldInfo("event_type", MetaFieldInfo.MetaField.OP_TYPE),
+                new MetaFieldInfo("isddl", MetaFieldInfo.MetaField.IS_DDL),
+                new MetaFieldInfo("batch_id", MetaFieldInfo.MetaField.BATCH_ID),
+                new MetaFieldInfo("mysql_type", MetaFieldInfo.MetaField.MYSQL_TYPE),
+                new MetaFieldInfo("sql_type", MetaFieldInfo.MetaField.SQL_TYPE),
+                new MetaFieldInfo("meta_ts", MetaFieldInfo.MetaField.TS),
+                new MetaFieldInfo("up_before", MetaFieldInfo.MetaField.UPDATE_BEFORE)
         );
         return new KafkaExtractNode("3", "kafka_input", fields,
                 null, null, "topic1", "localhost:9092",
@@ -197,27 +163,17 @@ public class MetaFieldSyncTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new BuiltInFieldInfo("database", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_DATABASE),
-                new BuiltInFieldInfo("table", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_TABLE),
-                new BuiltInFieldInfo("pk_names", new ArrayFormatInfo(new StringFormatInfo()),
-                        BuiltInField.METADATA_PK_NAMES),
-                new BuiltInFieldInfo("event_time", new TimestampFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TIME),
-                new BuiltInFieldInfo("event_type", new StringFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_EVENT_TYPE),
-                new BuiltInFieldInfo("isddl", new BooleanFormatInfo(),
-                        BuiltInField.MYSQL_METADATA_IS_DDL),
-                new BuiltInFieldInfo("batch_id", new LongFormatInfo(),
-                        BuiltInField.METADATA_BATCH_ID),
-                new BuiltInFieldInfo("mysql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_MYSQL_TYPE),
-                new BuiltInFieldInfo("sql_type", new MapFormatInfo(new StringFormatInfo(),
-                        new IntFormatInfo()), BuiltInField.METADATA_SQL_TYPE),
-                new BuiltInFieldInfo("meta_ts", new TimestampFormatInfo(), BuiltInField.METADATA_TS),
-                new BuiltInFieldInfo("up_before", new MapFormatInfo(new StringFormatInfo(),
-                        new StringFormatInfo()), BuiltInField.METADATA_UPDATE_BEFORE)
+                new MetaFieldInfo("database", MetaFieldInfo.MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table", MetaFieldInfo.MetaField.TABLE_NAME),
+                new MetaFieldInfo("pk_names", MetaFieldInfo.MetaField.PK_NAMES),
+                new MetaFieldInfo("event_time", MetaFieldInfo.MetaField.OP_TS),
+                new MetaFieldInfo("event_type", MetaFieldInfo.MetaField.OP_TYPE),
+                new MetaFieldInfo("isddl", MetaFieldInfo.MetaField.IS_DDL),
+                new MetaFieldInfo("batch_id", MetaFieldInfo.MetaField.BATCH_ID),
+                new MetaFieldInfo("mysql_type", MetaFieldInfo.MetaField.MYSQL_TYPE),
+                new MetaFieldInfo("sql_type", MetaFieldInfo.MetaField.SQL_TYPE),
+                new MetaFieldInfo("meta_ts", MetaFieldInfo.MetaField.TS),
+                new MetaFieldInfo("up_before", MetaFieldInfo.MetaField.UPDATE_BEFORE)
         );
         List<FieldRelation> relations = Arrays
                 .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),

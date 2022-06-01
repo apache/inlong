@@ -122,6 +122,15 @@ public class MetaFieldInfo extends FieldInfo {
         /**
          * Primary key field name. Currently, it is used for MySQL database.
          */
-        PK_NAMES
+        PK_NAMES;
+
+        public static MetaField forName(String name) {
+            for (MetaField metaField : values()) {
+                if (metaField.name().equals(name)) {
+                    return metaField;
+                }
+            }
+            throw new UnsupportedOperationException(String.format("Unsupported MetaField=%s for Inlong", name));
+        }
     }
 }

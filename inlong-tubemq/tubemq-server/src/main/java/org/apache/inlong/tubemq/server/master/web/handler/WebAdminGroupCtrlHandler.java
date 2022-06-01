@@ -137,13 +137,15 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 if (totalCnt++ > 0) {
                     sBuffer.append(",");
                 }
-                sBuffer.append("{\"groupName\":\"").append(entry.getGroupName()).append("\"")
-                        .append(",\"reason\":\"").append(entry.getDisableReason()).append("\"")
-                        .append(",\"dataVersionId\":").append(entry.getDataVerId())
-                        .append(",\"createUser\":\"").append(entry.getCreateUser()).append("\"")
-                        .append(",\"createDate\":\"").append(entry.getCreateDateStr()).append("\"")
-                        .append(",\"modifyUser\":\"").append(entry.getModifyUser()).append("\"")
-                        .append(",\"modifyDate\":\"").append(entry.getModifyDateStr()).append("\"}");
+                sBuffer.append("{\"groupName\":\"").append(entry.getGroupName())
+                        .append("\",\"topicName\":\"").append(entry.getTopicName())
+                        .append("\",\"reason\":\"").append(entry.getDisableReason())
+                        .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                        .append(",\"createUser\":\"").append(entry.getCreateUser())
+                        .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
+                        .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
+                        .append("\",\"modifyDate\":\"").append(entry.getModifyDateStr())
+                        .append("\"}");
             }
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);

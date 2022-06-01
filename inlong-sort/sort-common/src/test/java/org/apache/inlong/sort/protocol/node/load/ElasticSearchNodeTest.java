@@ -15,18 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol;
+package org.apache.inlong.sort.protocol.node.load;
 
+import java.util.Collections;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.Node;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 /**
- * Test for {@link BuiltInFieldInfo}
+ * test for elasticserach load node
  */
-public class BuiltInFieldInfoTest extends SerializeBaseTest<BuiltInFieldInfo> {
+public class ElasticSearchNodeTest extends SerializeBaseTest<Node>  {
 
-    @Override
-    public BuiltInFieldInfo getTestObject() {
-        return new BuiltInFieldInfo("f1", StringFormatInfo.INSTANCE, BuiltInFieldInfo.BuiltInField.DATA_TIME);
+    public ElasticsearchLoadNode getTestObject() {
+        return new ElasticsearchLoadNode(
+            "1", "test",
+            Collections.singletonList(new FieldInfo("id", new StringFormatInfo())),
+            Collections.singletonList(
+                new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
+                    new FieldInfo("id", new StringFormatInfo()))),
+            null, null, 1, null,
+            "index", "hosts", "username",
+            "password", "documentType", "age", 7);
     }
 }
