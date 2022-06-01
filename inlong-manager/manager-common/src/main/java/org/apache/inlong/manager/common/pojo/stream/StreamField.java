@@ -22,8 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.MetaFieldType;
 
 /**
  * Stream filed, including field name, field type, etc.
@@ -33,12 +31,6 @@ import org.apache.inlong.manager.common.enums.MetaFieldType;
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
 public class StreamField {
-
-    public static final StreamField PROCESSING_TIME = new StreamField(
-            100,
-            FieldType.BIGINT.toString(),
-            MetaFieldType.PROCESSING_TIME.getName(),
-            null, null, 1);
 
     @ApiModelProperty("Field index")
     private Integer id;
@@ -70,6 +62,9 @@ public class StreamField {
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
+    @ApiModelProperty(value = "Meta field name")
+    private String metaFieldName;
+
     @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
             + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
     private String fieldFormat;
@@ -92,22 +87,25 @@ public class StreamField {
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField) {
+            Integer isMetaField, String metaFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String originNodeName) {
+            Integer isMetaField, String metaFieldName, String originNodeName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String originNodeName, String originFieldName) {
+            Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
         this.originFieldName = originFieldName;
     }

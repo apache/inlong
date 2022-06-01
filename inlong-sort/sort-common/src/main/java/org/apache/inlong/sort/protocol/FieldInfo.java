@@ -38,9 +38,8 @@ import java.io.Serializable;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
-        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),
-        @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin")
+        @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
+        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField")
 })
 @Data
 public class FieldInfo implements FunctionParam, Serializable {
