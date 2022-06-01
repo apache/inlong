@@ -53,7 +53,7 @@ public class FetchCallback implements ReadCallback {
     private static final Logger LOG = LoggerFactory.getLogger(FetchCallback.class);
 
     // SortId of fetch message.
-    private final String sortId;
+    private final String sortTaskName;
 
     // ChannelProcessor that put message in specific channel.
     private final ChannelProcessor channelProcessor;
@@ -68,15 +68,15 @@ public class FetchCallback implements ReadCallback {
      * Private constructor of {@link FetchCallback}.
      * <p> The construction of FetchCallback should be initiated by {@link FetchCallback.Factory}.</p>
      *
-     * @param sortId SortId of fetch message.
+     * @param sortTaskName SortId of fetch message.
      * @param channelProcessor ChannelProcessor that message put in.
      * @param context The context to report fetch results.
      */
     private FetchCallback(
-            final String sortId,
+            final String sortTaskName,
             final ChannelProcessor channelProcessor,
             final SortSdkSourceContext context) {
-        this.sortId = sortId;
+        this.sortTaskName = sortTaskName;
         this.channelProcessor = channelProcessor;
         this.context = context;
     }
@@ -105,23 +105,21 @@ public class FetchCallback implements ReadCallback {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
             CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client);
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
-                //TODO fix here
                 final SubscribeFetchResult result = SubscribeFetchResult.Factory
-                        .create(sortId, messageRecord.getMsgKey(), messageRecord.getOffset(),
+                        .create(sortTaskName, messageRecord.getMsgKey(), messageRecord.getOffset(),
                                 inLongMessage.getParams(), messageRecord.getRecTime(),
                                 inLongMessage.getBody());
                 final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), 
                         cacheRecord);
                 channelProcessor.processEvent(profileEvent);
-                context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
+                context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }
-
-//            client.ack(messageRecord.getMsgKey(), messageRecord.getOffset());
         } catch (NullPointerException npe) {
-            LOG.error("Got a null pointer exception for sortId " + sortId, npe);
-            context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
+            LOG.error("Got a null pointer exception for sort task " + sortTaskName, npe);
+            context.reportToMetric(null, sortTaskName, "-", SortSdkSourceContext.FetchResult.FAILURE);
         } catch (Exception e) {
-            LOG.error("Ack failed for sortId " + sortId, e);
+            LOG.error("Got exception of sort task " + sortTaskName, e);
+            context.reportToMetric(null, sortTaskName, "-", SortSdkSourceContext.FetchResult.FAILURE);
         }
     }
 

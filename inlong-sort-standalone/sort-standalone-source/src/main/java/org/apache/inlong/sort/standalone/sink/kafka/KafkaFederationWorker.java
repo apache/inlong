@@ -28,7 +28,6 @@ import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -89,10 +88,6 @@ public class KafkaFederationWorker extends Thread {
             Transaction tx = null;
             try {
                 Channel channel = context.getChannel();
-                if (channel == null) {
-                    LOG.error("in kafka worker, channel is null ");
-                    break;
-                }
                 tx = channel.getTransaction();
                 tx.begin();
                 Event rowEvent = channel.take();
@@ -140,11 +135,8 @@ public class KafkaFederationWorker extends Thread {
         String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         String topic = this.context.getTopic(uid);
-        if (!StringUtils.isBlank(topic)) {
-            headers.put(Constants.TOPIC, topic);
-            return topic;
-        }
-        return "-";
+        headers.put(Constants.TOPIC, topic);
+        return topic;
     }
 
     /** sleepOneInterval */
