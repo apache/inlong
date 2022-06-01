@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -287,7 +287,6 @@ public class LoadNodeUtils {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
-
         if (CollectionUtils.isEmpty(fieldList)) {
             throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
         }
@@ -297,7 +296,7 @@ public class LoadNodeUtils {
 
         for (HivePartitionField partitionField : partitionList) {
             String fieldName = partitionField.getFieldName();
-            if (org.apache.commons.lang3.StringUtils.isBlank(fieldName)) {
+            if (StringUtils.isBlank(fieldName)) {
                 throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
             }
 
@@ -306,11 +305,11 @@ public class LoadNodeUtils {
                 throw new BusinessException(
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
             }
-
-            if (org.apache.commons.lang3.StringUtils.isBlank(sinkField.getSourceFieldName())) {
+            if (StringUtils.isBlank(sinkField.getSourceFieldName())) {
                 throw new BusinessException(
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
     }
+
 }
