@@ -19,18 +19,25 @@ package org.apache.inlong.manager.common.pojo.source.postgres;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
+
+import java.util.List;
 
 /**
  * Response info of postgres source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of postgres source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
 public class PostgresSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Primary key")

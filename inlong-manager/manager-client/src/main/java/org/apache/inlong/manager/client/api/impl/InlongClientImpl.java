@@ -101,7 +101,7 @@ public class InlongClientImpl implements InlongClient {
      * List group state
      */
     @Override
-    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) throws Exception {
+    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setNameList(groupNames);
@@ -109,16 +109,18 @@ public class InlongClientImpl implements InlongClient {
         request.setPageSize(groupNames.size());
         request.setListSources(true);
 
-        PageInfo<InlongGroupListResponse> pageInfoResponse = managerClient.listGroups(request);
-        List<InlongGroupListResponse> groupListResponses = pageInfoResponse.getList();
+        PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(request);
+        List<InlongGroupListResponse> groupListResponses = pageInfo.getList();
         Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
-        groupListResponses.forEach(groupListResponse -> {
-            String groupId = groupListResponse.getInlongGroupId();
-            SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(groupListResponse.getStatus());
-            List<SourceListResponse> sourceListResponses = groupListResponse.getSourceResponses();
-            groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
-            groupStatusMap.put(groupId, groupStatus);
-        });
+        if (CollectionUtils.isNotEmpty(groupListResponses)) {
+            groupListResponses.forEach(response -> {
+                String groupId = response.getInlongGroupId();
+                SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(response.getStatus());
+                List<SourceListResponse> sourceListResponses = response.getSourceResponses();
+                groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
+                groupStatusMap.put(groupId, groupStatus);
+            });
+        }
         return groupStatusMap;
     }
 

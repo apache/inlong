@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Kafka source info
@@ -38,6 +39,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Kafka source info")
+@JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
 public class KafkaSource extends StreamSource {
 
     @ApiModelProperty("Kafka topic")

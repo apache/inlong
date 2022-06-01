@@ -22,9 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.SourceType;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response info of binlog source list
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of binlog source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
 public class MySQLBinlogSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Username of the DB server")

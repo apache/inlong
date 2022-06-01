@@ -24,7 +24,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of Elasticsearch sink list
@@ -35,6 +37,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Elasticsearch sink paging list")
+@JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
 public class ElasticsearchSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("Elasticsearch Host")

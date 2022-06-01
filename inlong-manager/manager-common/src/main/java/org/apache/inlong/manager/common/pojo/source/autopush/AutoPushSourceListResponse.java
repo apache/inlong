@@ -22,9 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.SourceType;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response info of auto push source list.
@@ -33,7 +34,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of DataProxy SDK source paging list")
+@ApiModel("Response of auto push source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
 public class AutoPushSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")

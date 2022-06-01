@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Sink field configuration")
+@ApiModel("Sink field info")
 public class SinkField {
 
     @ApiModelProperty("Field index")
@@ -52,15 +52,6 @@ public class SinkField {
     @ApiModelProperty(value = "Field comment")
     private String fieldComment;
 
-    @ApiModelProperty(value = "Field value for constants")
-    private String fieldValue;
-
-    @ApiModelProperty(value = "Is predefined field, 1: yes, 0: no")
-    private Integer isPredefinedField;
-
-    @ApiModelProperty(value = "Value expression of predefined field")
-    private String preExpression;
-
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
     private Integer isMetaField = 0;
 
@@ -74,39 +65,38 @@ public class SinkField {
     @ApiModelProperty("Origin field name before transform operation")
     private String originFieldName;
 
-    @ApiModelProperty("Extra Param in JSON style")
-    private String extParams;
-
     @ApiModelProperty("Source field name")
     private String sourceFieldName;
 
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
+    @ApiModelProperty("Extra Param in JSON style")
+    private String extParams;
+
     public SinkField(int index, String fieldType, String fieldName, String sourceFieldType, String sourceFieldName) {
-        this(index, fieldType, fieldName, null, null, sourceFieldName, sourceFieldType, 0, null);
+        this(index, fieldType, fieldName, null, sourceFieldName, sourceFieldType, 0, null);
     }
 
     public SinkField(int index, String fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType,
+            String sourceFieldName, String sourceFieldType,
             Integer isMetaField, String fieldFormat) {
-        this(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
+        this(index, fieldType, fieldName, fieldComment, isMetaField, fieldFormat);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
     }
 
-    public SinkField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
+    public SinkField(int index, String fieldType, String fieldName, String fieldComment,
             Integer isMetaField, String originNodeName) {
-        this(fieldType, index, fieldName, fieldComment, fieldValue);
+        this(fieldType, index, fieldName, fieldComment);
         this.isMetaField = isMetaField;
         this.originNodeName = originNodeName;
     }
 
-    public SinkField(String fieldType, int index, String fieldName, String fieldComment, String fieldValue) {
+    public SinkField(String fieldType, int index, String fieldName, String fieldComment) {
         this.id = index;
         this.fieldType = fieldType;
         this.fieldName = fieldName;
         this.fieldComment = fieldComment;
-        this.fieldValue = fieldValue;
     }
 }

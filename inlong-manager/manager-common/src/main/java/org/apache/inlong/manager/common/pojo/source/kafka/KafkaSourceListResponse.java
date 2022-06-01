@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of kafka source list
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of kafka source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
 public class KafkaSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Kafka topic")

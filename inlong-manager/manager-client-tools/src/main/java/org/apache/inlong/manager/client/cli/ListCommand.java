@@ -86,12 +86,11 @@ public class ListCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
-
-                List<InlongStreamInfo> inlongStreamInfoList = fullStreamResponseList.stream()
+                List<FullStreamResponse> streamResponseList = managerClient.listStreamInfo(groupId);
+                List<InlongStreamInfo> streamInfoList = streamResponseList.stream()
                         .map(FullStreamResponse::getStreamInfo)
                         .collect(Collectors.toList());
-                PrintUtils.print(inlongStreamInfoList, StreamInfo.class);
+                PrintUtils.print(streamInfoList, StreamInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -136,9 +135,7 @@ public class ListCommand extends AbstractCommand {
                 pageRequest.setStatusList(statusList);
 
                 PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(pageRequest);
-                List<InlongGroupListResponse> groupList = groupPageInfo.getList();
-
-                PrintUtils.print(groupList, GroupInfo.class);
+                PrintUtils.print(groupPageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

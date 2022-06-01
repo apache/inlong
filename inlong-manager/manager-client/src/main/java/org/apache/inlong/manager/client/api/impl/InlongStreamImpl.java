@@ -26,7 +26,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -41,6 +40,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -290,7 +290,7 @@ public class InlongStreamImpl implements InlongStream {
 
         streamInfo.setFieldList(this.streamFields);
         StreamPipeline streamPipeline = createPipeline();
-        streamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
+        streamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
         Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
         if (!updateMsg.getKey()) {
             throw new RuntimeException(String.format("Update data stream failed: %s", updateMsg.getValue()));

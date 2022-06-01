@@ -37,15 +37,16 @@ import org.reflections.Reflections;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@UtilityClass
 @Slf4j
+@UtilityClass
 public class JsonUtils {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     public static final String PROJECT_PACKAGE = "org.apache.inlong.manager.common.pojo";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
@@ -53,7 +54,7 @@ public class JsonUtils {
     }
 
     /**
-     * object to json string
+     * Transform Java object to JSON string
      */
     @SneakyThrows
     public static String toJsonString(Object object) {
@@ -61,7 +62,7 @@ public class JsonUtils {
     }
 
     /**
-     * object to json byte
+     * Transform Java object to JSON byte
      */
     @SneakyThrows
     public static byte[] toJsonByte(Object object) {
@@ -69,7 +70,7 @@ public class JsonUtils {
     }
 
     /**
-     * Parse json string to java object
+     * Parse JSON string to java object
      */
     public static <T> T parseObject(String text, Class<T> clazz) {
         if (StringUtils.isEmpty(text)) {
@@ -78,13 +79,13 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(text, clazz);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + text, e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * Parse json string to java object
+     * Parse JSON string to java object
      */
     public static <T> T parseObject(byte[] bytes, Class<T> clazz) {
         if (ArrayUtils.isEmpty(bytes)) {
@@ -93,35 +94,30 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(bytes, clazz);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", bytes, e);
+            log.error("json parse err for: " + Arrays.toString(bytes), e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * parse json string to java object
-     *
-     * @param text
-     * @param javaType
-     * @param <T>
-     * @return
+     * Parse JSON string to java object
      */
     public static <T> T parseObject(String text, JavaType javaType) {
         try {
             return OBJECT_MAPPER.readValue(text, javaType);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + text, e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * Parse json string to java object.
+     * Parse JSON string to Java object.
      *
-     * This method {@link #parseObject(String, Class)} works in most cases
-     * but the above method does not solve this situation:
+     * This method enhancements to {@link #parseObject(String, Class)},
+     * as the above method does not solve this situation:
      * <pre>
-     *      I can't parse like this: OBJECT_MAPPER.readValue(jsonStr, Response<PageInfo<EventLogView>>.class)
+     *      cannot parse like this: OBJECT_MAPPER.readValue(jsonStr, Response<PageInfo<EventLogView>>.class)
      * </pre>
      *
      * @param text json string
@@ -133,13 +129,13 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(text, typeReference);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + text, e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * parse json array to List
+     * Parse JSON array to List
      */
     public static <T> List<T> parseArray(String text, Class<T> clazz) {
         if (StringUtils.isEmpty(text)) {
@@ -149,31 +145,31 @@ public class JsonUtils {
             return OBJECT_MAPPER.readValue(text,
                     OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, clazz));
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + text, e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * parse json string to JsonNode
+     * Parse JSON string to JsonNode
      */
     public static JsonNode parseTree(String text) {
         try {
             return OBJECT_MAPPER.readTree(text);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + text, e);
             throw new JsonException(e);
         }
     }
 
     /**
-     * parse json byte to JsonNode
+     * Parse JSON byte to JsonNode
      */
     public static JsonNode parseTree(byte[] text) {
         try {
             return OBJECT_MAPPER.readTree(text);
         } catch (IOException e) {
-            log.error("json parse err,json:{}", text, e);
+            log.error("json parse err for: " + Arrays.toString(text), e);
             throw new JsonException(e);
         }
     }
@@ -192,17 +188,17 @@ public class JsonUtils {
                 continue;
             }
             // Register all subclasses
-            // Skip the interface and abstract class
-            // Get the JsonTypeDefine annotation
-            // Register the subtype and use the NamedType to build the relation
             clazzSet.stream()
                     .map(obj -> (Class<?>) obj)
+                    // Skip the interface and abstract class
                     .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
                     .forEach(clazz -> {
+                        // Get the JsonTypeDefine annotation
                         JsonTypeDefine extendClassDefine = clazz.getAnnotation(JsonTypeDefine.class);
                         if (extendClassDefine == null) {
                             return;
                         }
+                        // Register the subtype and use the NamedType to build the relation
                         objectMapper.registerSubtypes(new NamedType(clazz, extendClassDefine.value()));
                     });
         }

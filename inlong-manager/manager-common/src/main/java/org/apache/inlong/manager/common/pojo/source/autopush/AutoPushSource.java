@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Auto push info by DataProxy SDK
@@ -38,6 +39,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Auto push source info")
+@JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
 public class AutoPushSource extends StreamSource {
 
     @ApiModelProperty(value = "DataProxy group name, used when the user enables local configuration")

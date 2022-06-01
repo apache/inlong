@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Hive sink info")
+@JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSink extends StreamSink {
 
     @ApiModelProperty("Hive JDBC URL")

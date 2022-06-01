@@ -35,6 +35,7 @@ import java.util.List;
  */
 @Slf4j
 @UtilityClass
+@Deprecated
 public class InlongParser {
 
     public static final String GROUP_INFO = "groupInfo";
@@ -53,8 +54,7 @@ public class InlongParser {
         if (mqExtInfo != null && mqExtInfo.get(MQ_TYPE) != null) {
             MQType mqType = MQType.forType(mqExtInfo.get(MQ_TYPE).getAsString());
             if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-                InlongPulsarDTO pulsarInfo = GsonUtils.fromJson(mqExtInfo.toString(),
-                        InlongPulsarDTO.class);
+                InlongPulsarDTO pulsarInfo = GsonUtils.fromJson(mqExtInfo.toString(), InlongPulsarDTO.class);
                 groupApproveInfo.setAckQuorum(pulsarInfo.getAckQuorum());
                 groupApproveInfo.setEnsemble(pulsarInfo.getEnsemble());
                 groupApproveInfo.setWriteQuorum(pulsarInfo.getWriteQuorum());

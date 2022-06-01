@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * ClickHouse sink info
@@ -38,6 +39,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "ClickHouse sink info")
+@JsonTypeDefine(value = SinkType.SINK_CLICKHOUSE)
 public class ClickHouseSink extends StreamSink {
 
     @ApiModelProperty("ClickHouse JDBC URL")

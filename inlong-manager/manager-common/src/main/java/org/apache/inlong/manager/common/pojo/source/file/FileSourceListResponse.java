@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response info of File source list
@@ -33,7 +34,8 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 @SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of File source paging list")
+@ApiModel("Response of file source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_FILE)
 public class FileSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Agent IP address")
