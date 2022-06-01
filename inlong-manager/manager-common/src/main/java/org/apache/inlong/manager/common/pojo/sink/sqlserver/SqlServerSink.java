@@ -26,6 +26,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Postgres sink info
@@ -34,6 +35,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Postgres sink info")
+@JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
 public class SqlServerSink extends StreamSink {
 
     @ApiModelProperty("Username of the Sqlserver")
