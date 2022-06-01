@@ -53,6 +53,8 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -173,6 +175,11 @@ public class InlongParser {
                         PostgresSource postgresSource = GsonUtils.fromJson(sourceJson.toString(), PostgresSource.class);
                         sourceInfos.add(postgresSource);
                         break;
+                    case ORACLE:
+                        OracleSource oracleSource = GsonUtils.fromJson(sourceJson.toString(),
+                                OracleSource.class);
+                        sourceInfos.add(oracleSource);
+                        break;
                     default:
                         throw new RuntimeException(String.format("Unsupported sourceType=%s", sourceType));
                 }
@@ -247,6 +254,10 @@ public class InlongParser {
                 case POSTGRES:
                     return GsonUtils.fromJson(pageInfoJson,
                             new TypeToken<PageInfo<PostgresSourceListResponse>>() {
+                            }.getType());
+                case ORACLE:
+                    return GsonUtils.fromJson(pageInfoJson,
+                            new TypeToken<PageInfo<OracleSourceListResponse>>() {
                             }.getType());
                 default:
                     throw new IllegalArgumentException(
