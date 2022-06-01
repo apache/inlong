@@ -77,14 +77,8 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         }
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
         PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
-            List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
-            for (String cluster : pulsarClusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                this.createPulsarProcess(pulsarInfo, pulsarClusterInfo);
-            }
+        try {
+            this.createPulsarProcess(pulsarInfo, globalCluster);
         } catch (Exception e) {
             log.error("create pulsar resource error for groupId={}", groupId, e);
             throw new WorkflowListenerException("create pulsar resource error for groupId=" + groupId);
