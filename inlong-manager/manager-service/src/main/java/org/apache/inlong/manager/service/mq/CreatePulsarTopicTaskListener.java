@@ -37,8 +37,6 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * Create task listener for Pulsar Topic
  */
