@@ -203,6 +203,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
+        List<SinkField> fields = request.getFieldList();
+        // Remove id in sinkField when save
+        if (CollectionUtils.isNotEmpty(fields)) {
+            fields.stream().forEach(sinkField -> sinkField.setId(null));
+        }
 
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
         operation.updateOpt(request, operator);
