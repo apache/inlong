@@ -141,14 +141,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     private void createPulsarSubscription(PulsarAdmin globalPulsarAdmin, String subscription, PulsarTopicBean topicBean,
             List<String> clusters, List<String> topics, PulsarClusterInfo globalCluster) {
         try {
-            for (String cluster : clusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
-                    pulsarMqOptService.createSubscriptions(pulsarAdmin, subscription, topicBean, topics);
-                }
-            }
+            pulsarMqOptService.createSubscriptions(globalPulsarAdmin, subscription, topicBean, topics);
         } catch (Exception e) {
             log.error("create pulsar consumer group failed", e);
             throw new WorkflowListenerException("failed to create pulsar consumer group");
