@@ -91,7 +91,7 @@ public class ListCommand extends AbstractCommand {
                 List<InlongStreamInfo> inlongStreamInfoList = fullStreamResponseList.stream()
                         .map(FullStreamResponse::getStreamInfo)
                         .collect(Collectors.toList());
-               PrintUtils.print(inlongStreamInfoList, StreamInfo.class);
+                PrintUtils.print(inlongStreamInfoList, StreamInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

@@ -31,7 +31,6 @@ import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
 
 import java.util.Date;
 import java.util.Map;
@@ -42,7 +41,6 @@ import static org.apache.inlong.manager.common.enums.SinkType.SINK_HBASE;
 import static org.apache.inlong.manager.common.enums.SinkType.SINK_HIVE;
 import static org.apache.inlong.manager.common.enums.SinkType.SINK_ICEBERG;
 import static org.apache.inlong.manager.common.enums.SinkType.SINK_KAFKA;
-import static org.apache.inlong.manager.common.enums.SinkType.SINK_POSTGRES;
 
 /**
  * Response of the sink list
@@ -62,7 +60,6 @@ import static org.apache.inlong.manager.common.enums.SinkType.SINK_POSTGRES;
         @JsonSubTypes.Type(value = HiveSinkListResponse.class, name = SINK_HIVE),
         @JsonSubTypes.Type(value = IcebergSinkListResponse.class, name = SINK_ICEBERG),
         @JsonSubTypes.Type(value = KafkaSinkListResponse.class, name = SINK_KAFKA),
-        @JsonSubTypes.Type(value = PostgresSinkListResponse.class, name = SINK_POSTGRES)
 })
 public class SinkListResponse {
 

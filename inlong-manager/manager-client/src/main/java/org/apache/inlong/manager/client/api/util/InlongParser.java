@@ -17,21 +17,16 @@
 
 package org.apache.inlong.manager.client.api.util;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarDTO;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
-import org.apache.inlong.manager.common.util.AssertUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 
@@ -45,19 +40,6 @@ public class InlongParser {
     public static final String GROUP_INFO = "groupInfo";
     public static final String MQ_EXT_INFO = "mqExtInfo";
     public static final String MQ_TYPE = "mqType";
-    public static final String SINK_INFO = "sinkInfo";
-    public static final String SOURCE_INFO = "sourceInfo";
-    public static final String SINK_TYPE = "sinkType";
-    public static final String SOURCE_TYPE = "sourceType";
-
-    public static <T> Response<T> parseResponse(String responseBody, Class<T> resDataType) {
-        AssertUtils.notNull(resDataType, "resDataType must not be null");
-
-        JavaType javaType = new ObjectMapper()
-                .getTypeFactory()
-                .constructParametricType(Response.class, resDataType);
-        return JsonUtils.parseObject(responseBody, javaType);
-    }
 
     /**
      * Parse forms of group.

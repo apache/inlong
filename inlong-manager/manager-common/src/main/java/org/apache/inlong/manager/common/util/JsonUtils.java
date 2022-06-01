@@ -52,16 +52,25 @@ public class JsonUtils {
         initJsonTypeDefine(OBJECT_MAPPER);
     }
 
+    /**
+     * object to json string
+     */
     @SneakyThrows
     public static String toJsonString(Object object) {
         return OBJECT_MAPPER.writeValueAsString(object);
     }
 
+    /**
+     * object to json byte
+     */
     @SneakyThrows
     public static byte[] toJsonByte(Object object) {
         return OBJECT_MAPPER.writeValueAsBytes(object);
     }
 
+    /**
+     * Parse json string to java object
+     */
     public static <T> T parseObject(String text, Class<T> clazz) {
         if (StringUtils.isEmpty(text)) {
             return null;
@@ -74,6 +83,9 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Parse json string to java object
+     */
     public static <T> T parseObject(byte[] bytes, Class<T> clazz) {
         if (ArrayUtils.isEmpty(bytes)) {
             return null;
@@ -86,6 +98,14 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * parse json string to java object
+     *
+     * @param text
+     * @param javaType
+     * @param <T>
+     * @return
+     */
     public static <T> T parseObject(String text, JavaType javaType) {
         try {
             return OBJECT_MAPPER.readValue(text, javaType);
@@ -95,6 +115,20 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Parse json string to java object.
+     *
+     * This method {@link #parseObject(String, Class)} works in most cases
+     * but the above method does not solve this situation:
+     * <pre>
+     *      I can't parse like this: OBJECT_MAPPER.readValue(jsonStr, Response<PageInfo<EventLogView>>.class)
+     * </pre>
+     *
+     * @param text json string
+     * @param typeReference The generic type is actually the parsed java type
+     * @return java object;
+     * @throws JsonException when parse error
+     */
     public static <T> T parseObject(String text, TypeReference<T> typeReference) {
         try {
             return OBJECT_MAPPER.readValue(text, typeReference);
@@ -104,6 +138,9 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * parse json array to List
+     */
     public static <T> List<T> parseArray(String text, Class<T> clazz) {
         if (StringUtils.isEmpty(text)) {
             return new ArrayList<>();
@@ -117,6 +154,9 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * parse json string to JsonNode
+     */
     public static JsonNode parseTree(String text) {
         try {
             return OBJECT_MAPPER.readTree(text);
@@ -126,6 +166,9 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * parse json byte to JsonNode
+     */
     public static JsonNode parseTree(byte[] text) {
         try {
             return OBJECT_MAPPER.readTree(text);

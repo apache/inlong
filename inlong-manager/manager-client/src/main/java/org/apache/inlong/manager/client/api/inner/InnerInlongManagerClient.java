@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
@@ -33,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
-import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
@@ -594,34 +594,34 @@ public class InnerInlongManagerClient {
         return String.format("http://%s:%s/%s?username=%s&password=%s", host, port, path, uname, passwd);
     }
 
-    public <T> Response<T> deleteJsonForResEntity(String url, String content, Class<T> clazz) {
+    private <T> Response<T> deleteJsonForResEntity(String url, String content, Class<T> clazz) {
         return this.requestJsonForResEntity("DELETE", url, content, clazz);
     }
 
-    public <T> Response<T> postJsonForResEntity(String url, String content, Class<T> clazz) {
+    private <T> Response<T> postJsonForResEntity(String url, String content, Class<T> clazz) {
         return this.requestJsonForResEntity("POST", url, content, clazz);
     }
 
-    public <T> Response<T> postJsonForResEntity(String url, String content, TypeReference<Response<T>> typeReference) {
+    private <T> Response<T> postJsonForResEntity(String url, String content, TypeReference<Response<T>> typeReference) {
         return this.requestJsonForResEntity("POST", url, content, typeReference);
     }
 
-    public <T> T postJsonForDataEntity(String url, String content, Class<T> clazz) {
+    private <T> T postJsonForDataEntity(String url, String content, Class<T> clazz) {
         return this.requestJsonForDataEntity("POST", url, content, clazz);
     }
 
-    public <T> T postJsonForDataEntity(String url, String content, TypeReference<Response<T>> typeReference) {
+    private <T> T postJsonForDataEntity(String url, String content, TypeReference<Response<T>> typeReference) {
         return this.requestJsonForDataEntity("POST", url, content, typeReference);
     }
 
-    public <T> T requestJsonForDataEntity(String method, String url, String content, Class<T> clazz) {
+    private <T> T requestJsonForDataEntity(String method, String url, String content, Class<T> clazz) {
         Response<T> responseBody = this.requestJsonForResEntity(method, url, content, clazz);
         Preconditions.checkState(responseBody.isSuccess(), "Inlong request failed: %s", responseBody.getErrMsg());
 
         return responseBody.getData();
     }
 
-    public <T> T requestJsonForDataEntity(String method, String url, String content,
+    private <T> T requestJsonForDataEntity(String method, String url, String content,
             TypeReference<Response<T>> typeReference) {
         Response<T> responseBody = this.requestJsonForResEntity(method, url, content, typeReference);
         Preconditions.checkState(responseBody.isSuccess(), "Inlong request failed: %s", responseBody.getErrMsg());
@@ -629,19 +629,19 @@ public class InnerInlongManagerClient {
         return responseBody.getData();
     }
 
-    public <T> T deleteJsonForDataEntity(String url, String content, Class<T> clazz) {
+    private <T> T deleteJsonForDataEntity(String url, String content, Class<T> clazz) {
         return this.requestJsonForDataEntity("DELETE", url, content, clazz);
     }
 
-    public <T> Response<T> getForResEntity(String url, TypeReference<Response<T>> typeReference) {
+    private <T> Response<T> getForResEntity(String url, TypeReference<Response<T>> typeReference) {
         return this.requestJsonForResEntity("GET", url, null, typeReference);
     }
 
-    public <T> T getForDataEntity(String url, TypeReference<Response<T>> typeReference) {
+    private <T> T getForDataEntity(String url, TypeReference<Response<T>> typeReference) {
         return this.requestJsonForDataEntity("GET", url, null, typeReference);
     }
 
-    public <T> Response<T> requestJsonForResEntity(String method, String url, String content,
+    private <T> Response<T> requestJsonForResEntity(String method, String url, String content,
             TypeReference<Response<T>> typeReference) {
         Builder reqBuilder = new Builder()
                 .url(url);
@@ -654,7 +654,7 @@ public class InnerInlongManagerClient {
         return this.execHttpRequest(reqBuilder.build(), typeReference);
     }
 
-    public <T> Response<T> requestJsonForResEntity(String method, String url, String content, Class<T> clazz) {
+    private <T> Response<T> requestJsonForResEntity(String method, String url, String content, Class<T> clazz) {
         Builder reqBuilder = new Builder()
                 .url(url);
         if (StringUtils.isBlank(content)) {
@@ -666,16 +666,27 @@ public class InnerInlongManagerClient {
         return this.execHttpRequest(reqBuilder.build(), clazz);
     }
 
-    public <T> Response<T> execHttpRequest(Request request, Class<T> clazz) {
+    private <T> Response<T> execHttpRequest(Request request, Class<T> clazz) {
         String body = execHttpRequestGetBodyStr(request);
-        return InlongParser.parseResponse(body, clazz);
+
+        JavaType javaType = new ObjectMapper()
+                .getTypeFactory()
+                .constructParametricType(Response.class, clazz);
+        return JsonUtils.parseObject(body, javaType);
     }
 
-    public <T> Response<T> execHttpRequest(Request request, TypeReference<Response<T>> typeReference) {
+    private <T> Response<T> execHttpRequest(Request request, TypeReference<Response<T>> typeReference) {
         String body = execHttpRequestGetBodyStr(request);
         return JsonUtils.parseObject(body, typeReference);
     }
 
+    /**
+     * execute http request then return
+     *
+     * @param request okhttp request
+     * @return response body string
+     * @throws RuntimeException when response isn't successful, ex: timeout, code is not 200
+     */
     private String execHttpRequestGetBodyStr(Request request) {
         String urlPath = request.url().encodedPath();
 
