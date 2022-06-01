@@ -22,7 +22,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.FieldType;
 
 /**
  * Stream filed, including field name, field type, etc.
@@ -32,12 +31,6 @@ import org.apache.inlong.manager.common.enums.FieldType;
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
 public class StreamField {
-
-    public static final StreamField PROCESSING_TIME = new StreamField(
-            100,
-            FieldType.BIGINT.toString(),
-            "PROCESS_TIME",
-            null, null, 1, "PROCESS_TIME");
 
     @ApiModelProperty("Field index")
     private Integer id;
@@ -93,14 +86,14 @@ public class StreamField {
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-                       Integer isMetaField, String metaFieldName) {
+            Integer isMetaField, String metaFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-                       Integer isMetaField, String metaFieldName, String originNodeName) {
+            Integer isMetaField, String metaFieldName, String originNodeName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;
@@ -108,7 +101,7 @@ public class StreamField {
     }
 
     public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
-                       Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
+            Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
         this.metaFieldName = metaFieldName;

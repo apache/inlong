@@ -21,8 +21,6 @@ import lombok.Getter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Locale;
-
 /**
  * Meta field info.
  */
@@ -128,7 +126,7 @@ public class MetaFieldInfo extends FieldInfo {
 
         public static MetaField forName(String name) {
             for (MetaField metaField : values()) {
-                if (metaField.name().equals(name.toUpperCase(Locale.ROOT))) {
+                if (metaField.name().equals(name)) {
                     return metaField;
                 }
             }

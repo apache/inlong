@@ -114,7 +114,7 @@ public class FieldInfoUtils {
      * @apiNote If the field name equals to build-in field, new a build-in field info
      */
     private static FieldInfo getFieldInfo(String fieldName, String fieldType,
-                                          boolean isMetaField, String metaFieldName, String format) {
+            boolean isMetaField, String metaFieldName, String format) {
         if (isMetaField) {
             // TODO The meta field needs to be selectable and cannot be filled in by the user
             return new MetaFieldInfo(fieldName, MetaField.forName(metaFieldName));
@@ -127,7 +127,7 @@ public class FieldInfoUtils {
      * Get all migration field mapping unit list for binlog source.
      */
     public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
-                                                                     List<FieldInfo> sinkFields) {
+            List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
         MetaFieldInfo dataField = new MetaFieldInfo("data",
                 MetaField.DATA);
