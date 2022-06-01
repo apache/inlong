@@ -19,17 +19,23 @@ package org.apache.inlong.manager.common.pojo.source.mongo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of mongo source list
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of mongo source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_MONGO)
 public class MongoSourceListResponse extends SourceListResponse {
 
     @ApiModelProperty("Mongo primaryKey")

@@ -19,20 +19,28 @@ package org.apache.inlong.manager.common.pojo.source.mongo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of the kafka source
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the mongo source")
-public class MongoSourceResponse extends SourceResponse {
+@ApiModel(value = "Oracle source info")
+@JsonTypeDefine(value = SourceType.SOURCE_MONGO)
+public class MongoSource extends StreamSource {
 
     @ApiModelProperty("Mongo primaryKey")
     private String primaryKey;
@@ -52,8 +60,13 @@ public class MongoSourceResponse extends SourceResponse {
     @ApiModelProperty("Mongo collection")
     private String collection;
 
-    public MongoSourceResponse() {
+    public MongoSource() {
         this.setSourceType(SourceType.MONGO.name());
+    }
+
+    @Override
+    public SourceRequest genSourceRequest() {
+        return CommonBeanUtils.copyProperties(this, MongoSourceRequest::new);
     }
 
 }

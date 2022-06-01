@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mongo.MongoSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
@@ -91,7 +92,7 @@ public class ExtractNodeUtils {
             case SQLSERVER:
                 return createExtractNode((SqlServerSource) sourceInfo);
             case MONGO:
-                return createExtractNode((MongoSourceResponse) sourceResponse);
+                return createExtractNode((MongoSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -279,22 +280,22 @@ public class ExtractNodeUtils {
     /**
      * Create mongoDB extract node
      *
-     * @param mongoSourceResponse  mongo source response info
+     * @param mongoSource  mongo source response info
      * @return Mongo extract node info
      */
-    public static MongoExtractNode createExtractNode(MongoSourceResponse mongoSourceResponse) {
-        String id = mongoSourceResponse.getSourceName();
-        String name = mongoSourceResponse.getSourceName();
-        List<InlongStreamFieldInfo> streamFieldInfos = mongoSourceResponse.getFieldList();
-        List<FieldInfo> fieldInfos = streamFieldInfos.stream()
+    public static MongoExtractNode createExtractNode(MongoSource mongoSource) {
+        String id = mongoSource.getSourceName();
+        String name = mongoSource.getSourceName();
+        List<StreamField> streamFields = mongoSource.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        String primaryKey =  mongoSourceResponse.getPrimaryKey();
-        String hostname =  mongoSourceResponse.getHosts();
-        String userName = mongoSourceResponse.getUsername();
-        String password = mongoSourceResponse.getPassword();
-        String database = mongoSourceResponse.getDatabase();
-        String collection = mongoSourceResponse.getCollection();
+        String primaryKey =  mongoSource.getPrimaryKey();
+        String hostname =  mongoSource.getHosts();
+        String userName = mongoSource.getUsername();
+        String password = mongoSource.getPassword();
+        String database = mongoSource.getDatabase();
+        String collection = mongoSource.getCollection();
         return new MongoExtractNode(
                 id,
                 name,
