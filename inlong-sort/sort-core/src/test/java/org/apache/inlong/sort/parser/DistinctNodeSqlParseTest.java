@@ -21,6 +21,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.FloatFormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
@@ -64,7 +65,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new MetaFieldInfo("proctime", MetaFieldInfo.MetaField.PROCESS_TIME));
+                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new JsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
@@ -77,7 +78,7 @@ public class DistinctNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()),
                 new FieldInfo("ts", new TimestampFormatInfo()),
-                new MetaFieldInfo("proctime", MetaFieldInfo.MetaField.PROCESS_TIME));
+                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME));
         WatermarkField wk = new WatermarkField(new FieldInfo("ts", new TimestampFormatInfo()),
                 new StringConstantParam("1"),
                 new TimeUnitConstantParam(TimeUnit.SECOND));

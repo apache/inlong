@@ -17,6 +17,7 @@
 
 package org.apache.inlong.sort.protocol;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 
 /**
@@ -26,6 +27,6 @@ public class MetaFieldInfoTest extends SerializeBaseTest<MetaFieldInfo> {
 
     @Override
     public MetaFieldInfo getTestObject() {
-        return new MetaFieldInfo("f1", MetaFieldInfo.MetaField.DATABASE_NAME);
+        return new MetaFieldInfo("f1", MetaField.DATABASE_NAME);
     }
 }
