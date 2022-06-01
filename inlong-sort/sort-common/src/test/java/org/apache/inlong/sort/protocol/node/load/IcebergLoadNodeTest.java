@@ -22,7 +22,7 @@ import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
 
@@ -35,7 +35,7 @@ public class IcebergLoadNodeTest extends SerializeBaseTest<IcebergLoadNode> {
     public IcebergLoadNode getTestObject() {
         return new IcebergLoadNode("1", "test_iceberg",
                 Arrays.asList(new FieldInfo("id", new StringFormatInfo())),
-                Arrays.asList(new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
+                Arrays.asList(new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
                         new FieldInfo("id", new StringFormatInfo()))),
                 null,
                 null,
