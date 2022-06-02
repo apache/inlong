@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of the kafka source
+ *  Mongo source info
  */
 @Data
 @SuperBuilder
