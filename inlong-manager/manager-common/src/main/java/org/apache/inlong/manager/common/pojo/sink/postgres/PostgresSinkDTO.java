@@ -20,15 +20,16 @@ package org.apache.inlong.manager.common.pojo.sink.postgres;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Postgres sink info
@@ -78,8 +79,9 @@ public class PostgresSinkDTO {
     }
 
     /**
-     *  get DTO from json
-     * @param extParams extParams
+     * Get Postgres sink info from JSON string
+     *
+     * @param extParams JSON string
      * @return postgres sink DTO
      */
     public static PostgresSinkDTO getFromJson(@NotNull String extParams) {
@@ -92,18 +94,13 @@ public class PostgresSinkDTO {
     }
 
     /**
-     * get postgres table info
-     *
-     * @param pgInfo
-     * @param columnList
-     * @return
+     * Get Postgres table info
      */
-    public static PostgresTableInfo getPostgresTableInfo(PostgresSinkDTO pgInfo,
-            List<PostgresColumnInfo> columnList) {
+    public static PostgresTableInfo getPostgresTableInfo(PostgresSinkDTO pgSink, List<PostgresColumnInfo> columnList) {
         PostgresTableInfo tableInfo = new PostgresTableInfo();
-        tableInfo.setDbName(pgInfo.getDbName());
-        tableInfo.setTableName(pgInfo.getTableName());
-        tableInfo.setPrimaryKey(pgInfo.getPrimaryKey());
+        tableInfo.setDbName(pgSink.getDbName());
+        tableInfo.setTableName(pgSink.getTableName());
+        tableInfo.setPrimaryKey(pgSink.getPrimaryKey());
         tableInfo.setColumns(columnList);
         return tableInfo;
     }

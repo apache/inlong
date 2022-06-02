@@ -17,24 +17,28 @@
 
 package org.apache.inlong.manager.service.resource.postgres;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Builder for Postgres SQL string
  */
 public class PostgresSqlBuilder {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PostgresSqlBuilder.class);
 
-    private static final int FIRST_COLUMN_INDEX = 0;
-
+    /**
+     * Build check database exists SQL
+     */
     public static String getCheckDatabase(String dbName) {
-        String sql = "select count(*) from pg_catalog.pg_database where datname = '" + dbName + "'";
+        String sql = "SELECT datname FROM from pg_catalog.pg_database WHERE datname = '" + dbName + "'";
+        LOGGER.info("check database sql: {}", sql);
         return sql;
     }
 
@@ -66,16 +70,15 @@ public class PostgresSqlBuilder {
     /**
      * Build add column SQL
      */
-    public static List<String> buildAddColumnsSql(String tableName,
-            List<PostgresColumnInfo> columnList) {
-        String dbTableName = tableName;
+    public static List<String> buildAddColumnsSql(String tableName, List<PostgresColumnInfo> columnList) {
         List<String> columnInfoList = getColumnsInfo(columnList);
         List<String> resultList = new ArrayList<>();
         for (String columnInfo : columnInfoList) {
-            StringBuilder sql = new StringBuilder().append("ALTER TABLE ")
-                    .append(dbTableName).append(" ADD COLUMN ").append(columnInfo);
-            resultList.add(sql.toString());
+            String sql = "ALTER TABLE " + tableName + " ADD COLUMN " + columnInfo;
+            resultList.add(sql);
         }
+
+        LOGGER.info("add columns sql={}", resultList);
         return resultList;
     }
 
@@ -84,9 +87,9 @@ public class PostgresSqlBuilder {
      */
     private static String buildCreateColumnsSql(List<PostgresColumnInfo> columns) {
         List<String> columnList = getColumnsInfo(columns);
-        StringBuilder result = new StringBuilder().append(" (")
-                .append(StringUtils.join(columnList, ",")).append(") ");
-        return result.toString();
+        String sql = " (" + StringUtils.join(columnList, ",") + ") ";
+        LOGGER.info("create columns sql={}", sql);
+        return sql;
     }
 
     /**
@@ -96,9 +99,8 @@ public class PostgresSqlBuilder {
         List<String> columnList = new ArrayList<>();
         for (PostgresColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
-            StringBuilder columnStr = new StringBuilder().append(columnInfo.getName())
-                    .append(" ").append(columnInfo.getType());
-            columnList.add(columnStr.toString());
+            String columnStr = columnInfo.getName() + " " + columnInfo.getType();
+            columnList.add(columnStr);
         }
         return columnList;
     }
@@ -108,10 +110,14 @@ public class PostgresSqlBuilder {
      */
     public static String buildDescTableSql(String tableName) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT a.attname as filedName, format_type(a.atttypid,a.atttypmod) as "
-                + "filedType FROM pg_class as c,pg_attribute as a WHERE a.attrelid "
-                + "= c.oid and a.attnum > 0 and c.relname = '").append(tableName).append("';");
+        sql.append("SELECT att.attname as filedName, format_type(att.atttypid, att.atttypmod) as filedType"
+                        + " FROM pg_attribute as att, pg_class as clz"
+                        + " WHERE att.attrelid = clz.oid and att.attnum > 0 and clz.relname = '")
+                .append(tableName)
+                .append("';");
+
         LOGGER.info("desc table sql={}", sql);
         return sql.toString();
     }
+
 }

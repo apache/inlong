@@ -17,10 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.postgres;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -39,8 +35,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Postgres resource operator for creating postgres res
+ * Postgres resource operator
  */
 @Service
 public class PostgresResourceOperator implements SinkResourceOperator {
@@ -59,16 +59,15 @@ public class PostgresResourceOperator implements SinkResourceOperator {
     }
 
     /**
-     * creat postgres sink resource
+     * Create Postgres sink resource
      *
-     * @param sinkInfo The sink response info.
+     * @param sinkInfo Postgres sink info
      */
     @Override
     public void createSinkResource(SinkInfo sinkInfo) {
         LOGGER.info("begin to create postgres res sinkId={}", sinkInfo.getId());
-
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
-            LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
+            LOGGER.warn("postgres resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
         } else if (GlobalConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
             LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
@@ -78,17 +77,13 @@ public class PostgresResourceOperator implements SinkResourceOperator {
     }
 
     /**
-     * create table
-     *
-     * @param sinkInfo sinkInfo
+     * Create Postgres table
      */
     private void createTable(SinkInfo sinkInfo) {
         LOGGER.info("begin to create postgres table for sinkId={}", sinkInfo.getId());
-
         List<StreamSinkFieldEntity> fieldList = postgresFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOGGER.warn("no postgres fields found, skip to create table for sinkId={}",
-                    sinkInfo.getId());
+            LOGGER.warn("no postgres fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
 
         // set columns
@@ -122,14 +117,11 @@ public class PostgresResourceOperator implements SinkResourceOperator {
                 PostgresJdbcUtils.createTable(url, user, password, tableInfo);
             } else {
                 // 4. table exists, add columns - skip the exists columns
-                List<PostgresColumnInfo> existColumns = PostgresJdbcUtils.getColumns(url,
-                        user, password, tableName);
+                List<PostgresColumnInfo> existColumns = PostgresJdbcUtils.getColumns(url, user, password, tableName);
                 List<String> columnNameList = new ArrayList<>();
-                if (existColumns != null) {
-                    existColumns.stream().forEach(e -> columnNameList.add(e.getName()));
-                }
+                existColumns.forEach(e -> columnNameList.add(e.getName()));
                 List<PostgresColumnInfo> needAddColumns = tableInfo.getColumns().stream()
-                        .filter((pgcInfo) -> !columnNameList.contains(pgcInfo.getName())).collect(toList());
+                        .filter((pgcInfo) -> !columnNameList.contains(pgcInfo.getName())).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     PostgresJdbcUtils.addColumns(url, user, password, tableName, needAddColumns);
                 }
@@ -148,4 +140,5 @@ public class PostgresResourceOperator implements SinkResourceOperator {
 
         LOGGER.info("success create postgres table for data sink [" + sinkInfo.getId() + "]");
     }
+
 }
