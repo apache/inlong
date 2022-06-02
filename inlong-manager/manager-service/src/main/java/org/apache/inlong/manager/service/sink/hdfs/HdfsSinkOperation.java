@@ -27,15 +27,14 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -43,13 +42,12 @@ import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.sink.StreamSinkOperation;
-import org.apache.inlong.manager.service.sink.hbase.HbaseSinkOperation;
-import org.apache.inlong.manager.service.sort.util.SinkInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,7 +59,7 @@ import java.util.function.Supplier;
 @Service
 public class HdfsSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HbaseSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -107,7 +105,7 @@ public class HdfsSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkFieldRequest> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getFieldList();
         LOGGER.info("begin to save hdfs field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -119,7 +117,7 @@ public class HdfsSinkOperation implements StreamSinkOperation {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
-        for (SinkFieldRequest fieldInfo : fieldList) {
+        for (SinkField fieldInfo : fieldList) {
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -137,18 +135,15 @@ public class HdfsSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_HDFS.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_HDFS, existType));
-
-        SinkResponse response = this.getFromEntity(entity, HdfsSinkResponse::new);
+        StreamSink response = this.getFromEntity(entity, HdfsSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkFieldResponse::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setFieldList(infos);
-
         return response;
     }
 
@@ -188,7 +183,6 @@ public class HdfsSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         HdfsSinkRequest hdfsRequest = (HdfsSinkRequest) request;
-        SinkInfoUtils.checkPartitionField(hdfsRequest.getFieldList(), hdfsRequest.getPartitionFieldList());
         CommonBeanUtils.copyProperties(hdfsRequest, entity, true);
         try {
             HdfsSinkDTO dto = HdfsSinkDTO.getFromRequest(hdfsRequest);
@@ -213,7 +207,7 @@ public class HdfsSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkFieldRequest> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }

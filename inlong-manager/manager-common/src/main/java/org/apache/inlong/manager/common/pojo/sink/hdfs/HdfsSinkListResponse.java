@@ -19,19 +19,28 @@ package org.apache.inlong.manager.common.pojo.sink.hdfs;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.List;
 
 /**
- * Response of HDFS sink list
+ * Response of hdfs sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of Hbase sink paging list")
+@JsonTypeDefine(SinkType.SINK_HDFS)
+@ApiModel("Response of Hdfs sink paging list")
 public class HdfsSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")

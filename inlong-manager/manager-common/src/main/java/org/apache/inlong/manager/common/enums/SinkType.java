@@ -28,6 +28,7 @@ public enum SinkType {
     public static final String SINK_KAFKA = "KAFKA";
     public static final String SINK_HBASE = "HBASE";
     public static final String SINK_ICEBERG = "ICEBERG";
+    public static final String SINK_POSTGRES = "POSTGRES";
     public static final String SINK_CLICKHOUSE = "CLICKHOUSE";
     public static final String SINK_ELASTICSEARCH = "ELASTICSEARCH";
     public static final String SINK_SQLSERVER = "SQLSERVER";

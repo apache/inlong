@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -74,7 +74,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer hdfsSinkId = this.saveSink("default_hdfs");
-        SinkResponse sink = sinkService.get(hdfsSinkId);
+        StreamSink sink = sinkService.get(hdfsSinkId);
         // verify globalGroupId
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteHdfsSink(hdfsSinkId);
@@ -83,13 +83,13 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer hdfsSinkId = this.saveSink("default_hdfs");
-        SinkResponse response = sinkService.get(hdfsSinkId);
+        StreamSink response = sinkService.get(hdfsSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        HdfsSinkResponse hdfsSinkResponse = (HdfsSinkResponse) response;
-        hdfsSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        HdfsSink hdfsSink = (HdfsSink) response;
+        hdfsSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
-        HdfsSinkRequest request = CommonBeanUtils.copyProperties(hdfsSinkResponse, HdfsSinkRequest::new);
+        HdfsSinkRequest request = CommonBeanUtils.copyProperties(hdfsSink, HdfsSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
         deleteHdfsSink(hdfsSinkId);

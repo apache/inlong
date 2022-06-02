@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
@@ -99,7 +99,7 @@ public class LoadNodeUtils {
             case ELASTICSEARCH:
                 return createLoadNode((ElasticsearchSink) streamSink);
             case HDFS:
-                return createLoadNode((HdfsSinkResponse) sinkResponse);
+                return createLoadNode((HdfsSink) streamSink);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -207,27 +207,27 @@ public class LoadNodeUtils {
     /**
      * Create  load node from response.
      *
-     * @param hdfsSinkResponse hbaseSinkResponse
+     * @param hdfsSink hbaseSinkResponse
      * @return hbaseLoadNode
      */
-    public static FileSystemLoadNode createLoadNode(HdfsSinkResponse hdfsSinkResponse) {
-        String id = hdfsSinkResponse.getSinkName();
-        String name = hdfsSinkResponse.getSinkName();
+    public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
+        String id = hdfsSink.getSinkName();
+        String name = hdfsSink.getSinkName();
 
-        String format = hdfsSinkResponse.getFileFormat();
-        String path = hdfsSinkResponse.getDataPath();
-        String timeZone = hdfsSinkResponse.getServerTimeZone();
+        String format = hdfsSink.getFileFormat();
+        String path = hdfsSink.getDataPath();
+        String timeZone = hdfsSink.getServerTimeZone();
 
-        List<SinkFieldResponse> sinkFieldResponses = hdfsSinkResponse.getFieldList();
-        List<FieldInfo> fields = sinkFieldResponses.stream()
-                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+        List<SinkField> fieldList = hdfsSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
-        Map<String, String> properties = hdfsSinkResponse.getProperties().entrySet().stream()
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = hdfsSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         List<FieldInfo> partitionFields = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(hdfsSinkResponse.getPartitionFieldList())) {
-            partitionFields = hdfsSinkResponse.getPartitionFieldList().stream()
+        if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
+            partitionFields = hdfsSink.getPartitionFieldList().stream()
                     .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
                             FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
                                     hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
@@ -236,7 +236,7 @@ public class LoadNodeUtils {
                 id,
                 name,
                 fields,
-                fieldRelationShips,
+                fieldRelations,
                 Lists.newArrayList(),
                 path,
                 format,
