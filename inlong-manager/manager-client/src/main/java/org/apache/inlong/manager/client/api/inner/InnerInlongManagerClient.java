@@ -463,7 +463,7 @@ public class InnerInlongManagerClient {
     public WorkflowResult initInlongGroup(InlongGroupRequest groupInfo) {
         return this.sendPost(
                 formatUrl(HTTP_PATH + "/group/startProcess/" + groupInfo.getInlongGroupId()),
-                null,
+                "",
                 WorkflowResult.class
         );
     }
@@ -656,7 +656,7 @@ public class InnerInlongManagerClient {
 
     private <T> Response<T> executeRequestForResponse(String method, String url, String content, Class<T> clazz) {
         Builder requestBuilder = new Builder().url(url);
-        if (StringUtils.isBlank(content)) {
+        if (content == null) {
             requestBuilder.method(method, null);
         } else {
             requestBuilder.method(method, RequestBody.create(APPLICATION_JSON, content));
