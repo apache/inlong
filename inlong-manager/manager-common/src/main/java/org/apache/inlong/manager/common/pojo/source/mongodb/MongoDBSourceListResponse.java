@@ -28,32 +28,32 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of mongoDB source list
+ * Response of MongoDB paging list
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of mongoDB source paging list")
+@ApiModel("Response of MongoDB paging list")
 @JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
 public class MongoDBSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty("mongoDB primaryKey")
+    @ApiModelProperty("MongoDB primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("mongoDB hosts")
+    @ApiModelProperty("MongoDB hosts")
     private String hosts;
 
-    @ApiModelProperty("mongoDB username")
+    @ApiModelProperty("MongoDB username")
     private String username;
 
-    @ApiModelProperty("mongoDB password")
+    @ApiModelProperty("MongoDB password")
     private String password;
 
-    @ApiModelProperty("mongoDB database")
+    @ApiModelProperty("MongoDB database")
     private String database;
 
-    @ApiModelProperty("mongoDB collection")
+    @ApiModelProperty("MongoDB collection")
     private String collection;
 
     public MongoDBSourceListResponse() {

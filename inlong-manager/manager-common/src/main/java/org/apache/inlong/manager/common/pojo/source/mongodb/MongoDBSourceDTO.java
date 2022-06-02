@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import javax.validation.constraints.NotNull;
 
 /**
- * mongoDB source information data transfer object.
+ * MongoDB source info
  */
 @Data
 @Builder
@@ -73,7 +73,7 @@ public class MongoDBSourceDTO {
     }
 
     /**
-     * Get the dto instance from the json
+     * Get the dto instance from the JSON string
      */
     public static MongoDBSourceDTO getFromJson(@NotNull String extParams) {
         try {

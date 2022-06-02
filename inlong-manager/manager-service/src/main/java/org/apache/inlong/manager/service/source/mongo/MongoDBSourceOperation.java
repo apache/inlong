@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 import java.util.function.Supplier;
 
 /**
- * mongoDB stream source operation.
+ * MongoDB source operation.
  */
 @Service
 public class MongoDBSourceOperation extends AbstractSourceOperation {

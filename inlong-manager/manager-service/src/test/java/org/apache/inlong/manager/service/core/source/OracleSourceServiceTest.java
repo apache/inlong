@@ -34,13 +34,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class OracleSourceServiceTest extends ServiceBaseTest {
 
-    private final String sourceName = "stream_source_service_test";
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 1521;
     private static final String database = "oracle_database";
     private static final String schema = "oracle_schema";
-    private static final String tablename = "oracle_tablename";
-
+    private static final String tableName = "oracle_table";
+    private final String sourceName = "stream_source_service_test";
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -59,7 +58,7 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setSourceType(SourceType.ORACLE.getType());
         sourceInfo.setHostname(hostname);
         sourceInfo.setDatabase(database);
-        sourceInfo.setTableName(tablename);
+        sourceInfo.setTableName(tableName);
         sourceInfo.setPort(port);
         sourceInfo.setSchemaName(schema);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
@@ -77,7 +76,6 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSource();
-
         StreamSource source = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
@@ -91,7 +89,6 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         OracleSource oracleSource = (OracleSource) response;
-
         OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSource, OracleSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);

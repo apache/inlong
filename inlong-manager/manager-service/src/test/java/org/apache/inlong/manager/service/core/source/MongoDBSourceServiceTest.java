@@ -34,12 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class MongoDBSourceServiceTest extends ServiceBaseTest {
 
-    private final String sourceName = "stream_source_service_test";
     private static final String hostname = "127.0.0.1";
-    private static final Integer port = 1521;
     private static final String database = "mongo_database";
     private static final String collection = "mongo_collection";
-
+    private final String sourceName = "stream_source_service_test";
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -74,7 +72,6 @@ public class MongoDBSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSource();
-
         StreamSource source = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
@@ -88,7 +85,6 @@ public class MongoDBSourceServiceTest extends ServiceBaseTest {
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         MongoDBSource mongoDBSource = (MongoDBSource) response;
-
         MongoDBSourceRequest request = CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);

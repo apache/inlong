@@ -31,7 +31,7 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- *  MongoDB source info
+ * MongoDB source info
  */
 @Data
 @SuperBuilder
