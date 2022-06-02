@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 /**
  * Get main information of resources.
  */
-@Parameters(commandDescription = "Displays main information for one or more resources")
+@Parameters(commandDescription = "Displays summary information about one or more resources")
 public class ListCommand extends AbstractCommand {
 
     @Parameter()
@@ -68,7 +68,7 @@ public class ListCommand extends AbstractCommand {
         jcommander.addCommand("source", new ListSource(managerClient));
     }
 
-    @Parameters(commandDescription = "Get stream main information")
+    @Parameters(commandDescription = "Get stream summary information")
     private static class ListStream extends AbstractCommandRunner {
 
         private final InnerInlongManagerClient managerClient;
@@ -97,7 +97,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get group main information")
+    @Parameters(commandDescription = "Get group summary information")
     private static class ListGroup extends AbstractCommandRunner {
 
         private static final int DEFAULT_PAGE_SIZE = 10;
@@ -142,7 +142,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get sink main information")
+    @Parameters(commandDescription = "Get sink summary information")
     private static class ListSink extends AbstractCommandRunner {
 
         private final InnerInlongManagerClient managerClient;
@@ -171,7 +171,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get source main information")
+    @Parameters(commandDescription = "Get source summary information")
     private static class ListSource extends AbstractCommandRunner {
 
         private final InnerInlongManagerClient managerClient;

@@ -20,14 +20,12 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.FileConverter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
-import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.io.File;
 
@@ -65,8 +63,6 @@ public class CreateCommand extends AbstractCommand {
                     System.out.println("Create group failed: file was empty!");
                     return;
                 }
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonUtils.initJsonTypeDefine(objectMapper);
                 CreateGroupConf groupConf = objectMapper.readValue(fileContent, CreateGroupConf.class);
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());

@@ -90,8 +90,6 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get group details")
     private static class DescribeGroup extends AbstractCommandRunner {
 
-        private static final int DEFAULT_PAGE_SIZE = 10;
-
         private final InnerInlongManagerClient managerClient;
 
         @Parameter()

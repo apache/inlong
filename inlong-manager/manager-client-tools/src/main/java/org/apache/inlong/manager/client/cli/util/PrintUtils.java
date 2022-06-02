@@ -97,7 +97,7 @@ public class PrintUtils {
         printLine(columnWidth, fields.length);
     }
 
-    public static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
+    private static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
         OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         item.forEach(t -> {
