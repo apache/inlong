@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * sqlserver source service test
+ * SqlServer source service test.
  */
 public class SqlServerSourceServiceTest extends ServiceBaseTest {
 
@@ -77,7 +77,6 @@ public class SqlServerSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSource();
-
         StreamSource source = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
