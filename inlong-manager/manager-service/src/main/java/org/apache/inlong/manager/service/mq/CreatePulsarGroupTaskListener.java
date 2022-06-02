@@ -112,10 +112,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                     // Insert the consumption data into the consumption table
                     consumptionService.saveSortConsumption(groupInfo, topic, subscription);
-                } catch (PulsarAdminException e) {
-                    log.error("create pulsar subscription error for groupId={}", groupId);
-                    throw new WorkflowListenerException("create pulsar subscription error: " + e.getMessage());
-                } catch (WorkflowListenerException e) {
+                } catch (PulsarAdminException |WorkflowListenerException e) {
                     log.error("create pulsar subscription error for groupId={}", groupId);
                     throw new WorkflowListenerException("create pulsar subscription error: " + e.getMessage());
                 }
