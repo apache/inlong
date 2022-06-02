@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.cli.util;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -38,6 +38,8 @@ public class PrintUtils {
     private static final String horizontal = "—";
     private static final String vertical = "|";
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public static <T, K> void print(List<T> item, Class<K> clazz) {
         if (item.isEmpty()) {
             return;
@@ -48,9 +50,11 @@ public class PrintUtils {
     }
 
     public static <T> void printJson(T item) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonObject jsonObject = JsonParser.parseString(gson.toJson(item)).getAsJsonObject();
-        System.out.println(gson.toJson(jsonObject));
+        try {
+            System.out.println(OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(item));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static <K> void printTable(List<K> list, int[] columnWidth) {
@@ -93,12 +97,17 @@ public class PrintUtils {
         printLine(columnWidth, fields.length);
     }
 
-    private static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
+    public static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
-        Gson gson = new Gson();
+        OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         item.forEach(t -> {
-            K k = gson.fromJson(gson.toJson(t), clazz);
-            newList.add(k);
+            try {
+                K k = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(t), clazz);
+                parseStatus(k);
+                newList.add(k);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         });
         return newList;
     }
@@ -139,5 +148,21 @@ public class PrintUtils {
     private static int getSpecialCharNum(String str) {
         int i = str.getBytes().length - str.length();
         return i / 2;
+    }
+
+    private static <T> void parseStatus(T t) {
+        Field[] fields = t.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            f.setAccessible(true);
+            if (f.isAnnotationPresent(ParseStatus.class)) {
+                try {
+                    int status = Integer.parseInt(f.get(t).toString());
+                    SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(status);
+                    f.set(t, String.format("%s (%s)", groupStatus, status));
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 }

@@ -97,7 +97,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get group details")
+    @Parameters(commandDescription = "Get group main information")
     private static class ListGroup extends AbstractCommandRunner {
 
         private static final int DEFAULT_PAGE_SIZE = 10;
@@ -107,7 +107,7 @@ public class ListCommand extends AbstractCommand {
         @Parameter()
         private List<String> params;
 
-        @Parameter(names = {"-s", "--status"})
+        @Parameter(names = {"-s", "--status"}, description = "inlong group status")
         private String status;
 
         @Parameter(names = {"-g", "--group"}, description = "inlong group id")
@@ -142,7 +142,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get sink details")
+    @Parameters(commandDescription = "Get sink main information")
     private static class ListSink extends AbstractCommandRunner {
 
         private final InnerInlongManagerClient managerClient;
@@ -171,7 +171,7 @@ public class ListCommand extends AbstractCommand {
         }
     }
 
-    @Parameters(commandDescription = "Get source details")
+    @Parameters(commandDescription = "Get source main information")
     private static class ListSource extends AbstractCommandRunner {
 
         private final InnerInlongManagerClient managerClient;

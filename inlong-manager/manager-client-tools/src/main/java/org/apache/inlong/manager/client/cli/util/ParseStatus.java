@@ -17,22 +17,17 @@
 
 package org.apache.inlong.manager.client.cli.util;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import org.apache.inlong.manager.common.enums.DataSeparator;
-
-import java.lang.reflect.Type;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Separator adapter.
+ * Parse status as STATUS (status).
+ * e.g. FAILED (120)
  */
-public class SeparatorAdapter implements JsonDeserializer<DataSeparator> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+public @interface ParseStatus {
 
-    @Override
-    public DataSeparator deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context)
-            throws JsonParseException {
-        return DataSeparator.forAscii(jsonElement.getAsInt());
-    }
 }

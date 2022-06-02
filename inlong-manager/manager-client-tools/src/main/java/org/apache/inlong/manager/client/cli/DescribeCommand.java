@@ -22,9 +22,11 @@ import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
@@ -35,7 +37,7 @@ import java.util.List;
 /**
  * Describe the info of resources.
  */
-@Parameters(commandDescription = "Display details of one or more resources")
+@Parameters(commandDescription = "Display details of one resource")
 public class DescribeCommand extends AbstractCommand {
 
     @Parameter()
@@ -88,19 +90,21 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get group details")
     private static class DescribeGroup extends AbstractCommandRunner {
 
+        private static final int DEFAULT_PAGE_SIZE = 10;
+
         private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
 
-        @Parameter(names = {"-s", "--status"})
+        @Parameter(names = {"-s", "--status"}, description = "inlong group status")
         private int status;
 
-        @Parameter(names = {"-g", "--group"}, description = "inlong group id")
+        @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
         @Parameter(names = {"-n", "--num"}, description = "the number displayed")
-        private int pageSize = 10;
+        private int pageSize;
 
         DescribeGroup(InnerInlongManagerClient managerClient) {
             this.managerClient = managerClient;
@@ -109,8 +113,10 @@ public class DescribeCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                PageInfo<InlongGroupListResponse> groupPageInfo = managerClient.listGroups(group, status, 1, pageSize);
-                groupPageInfo.getList().forEach(PrintUtils::printJson);
+                InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
+                pageRequest.setKeyword(group);
+                PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(pageRequest);
+                PrintUtils.print(pageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
