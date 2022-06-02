@@ -31,39 +31,39 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response info of the sqlserver source
+ * SqlServer source info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Sqlserver source info")
+@ApiModel(value = "SqlServer source info")
 @JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
 public class SqlServerSource extends StreamSource {
 
-    @ApiModelProperty("Username of the Sqlserver")
+    @ApiModelProperty("Username of the SqlServer")
     private String username;
 
-    @ApiModelProperty("Password of the Sqlserver")
+    @ApiModelProperty("Password of the SqlServer")
     private String password;
 
-    @ApiModelProperty("Hostname of the Sqlserver")
+    @ApiModelProperty("Hostname of the SqlServer")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the Sqlserver")
+    @ApiModelProperty("Exposed port of the SqlServer")
     private int port;
 
-    @ApiModelProperty("database of the Sqlserver")
+    @ApiModelProperty("Database of the SqlServer")
     private String database;
 
-    @ApiModelProperty("schemaName of the Sqlserver")
+    @ApiModelProperty("Schema name of the SqlServer")
     private String schemaName;
 
-    @ApiModelProperty("tableName of the Sqlserver")
+    @ApiModelProperty("Table name of the SqlServer")
     private String tableName;
 
-    @ApiModelProperty("Database time zone, Default is UTC")
+    @ApiModelProperty("Database time zone, default is UTC")
     private String serverTimezone;
 
     @ApiModelProperty("Whether to migrate all databases")
