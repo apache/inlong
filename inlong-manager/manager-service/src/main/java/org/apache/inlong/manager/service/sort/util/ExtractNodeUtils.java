@@ -331,8 +331,7 @@ public class ExtractNodeUtils {
                 schemaName,
                 tableName,
                 port,
-                scanStartupMode
-                );
+                scanStartupMode);
     }
 
     /**
