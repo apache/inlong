@@ -34,13 +34,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class SqlServerSourceServiceTest extends ServiceBaseTest {
 
-    private final String sourceName = "stream_source_service_test";
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 1521;
     private static final String database = "sqlserver_database";
     private static final String schema = "sqlserver_schema";
-    private static final String tablename = "sqlserver_tablename";
-
+    private static final String tableName = "sqlserver_table";
+    private final String sourceName = "stream_source_service_test";
     @Autowired
     private StreamSourceService sourceService;
     @Autowired
@@ -59,7 +58,7 @@ public class SqlServerSourceServiceTest extends ServiceBaseTest {
         sourceInfo.setSourceType(SourceType.SQLSERVER.getType());
         sourceInfo.setHostname(hostname);
         sourceInfo.setDatabase(database);
-        sourceInfo.setTableName(tablename);
+        sourceInfo.setTableName(tableName);
         sourceInfo.setPort(port);
         sourceInfo.setSchemaName(schema);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
@@ -90,7 +89,6 @@ public class SqlServerSourceServiceTest extends ServiceBaseTest {
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         SqlServerSource sqlserverSource = (SqlServerSource) response;
-
         SqlServerSourceRequest request = CommonBeanUtils.copyProperties(sqlserverSource, SqlServerSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);

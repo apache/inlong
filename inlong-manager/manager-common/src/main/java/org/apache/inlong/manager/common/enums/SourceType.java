@@ -35,7 +35,10 @@ public enum SourceType {
     PULSAR("PULSAR", TaskTypeEnum.PULSAR),
     POSTGRES("POSTGRES", TaskTypeEnum.POSTGRES),
     ORACLE("ORACLE", TaskTypeEnum.ORACLE),
-    SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER);
+    SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER),
+    MONGODB("MONGO", TaskTypeEnum.MONGODB),
+
+    ;
 
     public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
     public static final String SOURCE_FILE = "FILE";
@@ -46,6 +49,7 @@ public enum SourceType {
     public static final String SOURCE_POSTGRES = "POSTGRES";
     public static final String SOURCE_ORACLE = "ORACLE";
     public static final String SOURCE_SQLSERVER = "SQLSERVER";
+    public static final String SOURCE_MONGODB = "MONGODB";
 
     @Getter
     private final String type;

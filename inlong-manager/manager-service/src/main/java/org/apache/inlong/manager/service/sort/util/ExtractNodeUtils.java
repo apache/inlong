@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaOffset;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
@@ -40,6 +41,7 @@ import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
@@ -89,6 +91,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((OracleSource) sourceInfo);
             case SQLSERVER:
                 return createExtractNode((SqlServerSource) sourceInfo);
+            case MONGODB:
+                return createExtractNode((MongoDBSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -229,7 +233,7 @@ public class ExtractNodeUtils {
                 .collect(Collectors.toList());
         String topic = pulsarSource.getTopic();
 
-        Format format = null;
+        Format format;
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
         switch (dataType) {
             case CSV:
@@ -295,84 +299,98 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create Oracle extract node 
+     * Create Oracle extract node
      *
-     * @param oracleSource Oracle source info
+     * @param source Oracle source info
      * @return oracle extract node info
      */
-    public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
-        final String id = oracleSource.getSourceName();
-        final String name = oracleSource.getSourceName();
-        final String database = oracleSource.getDatabase();
-        final String schemaName = oracleSource.getSchemaName();
-        final String tableName = oracleSource.getTableName();
-        final String primaryKey = oracleSource.getPrimaryKey();
-        final String hostName = oracleSource.getHostname();
-        final String userName = oracleSource.getUsername();
-        final String password = oracleSource.getPassword();
-        final Integer port = oracleSource.getPort();
-        ScanStartUpMode scanStartupMode = StringUtils.isBlank(oracleSource.getScanStartupMode())
-                ? null : ScanStartUpMode.forName(oracleSource.getScanStartupMode());
-        List<StreamField> streamFieldInfos = oracleSource.getFieldList();
+    public static OracleExtractNode createExtractNode(OracleSource source) {
+        String name = source.getSourceName();
+        List<StreamField> streamFieldInfos = source.getFieldList();
         final List<FieldInfo> fieldInfos = streamFieldInfos.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
+
         Map<String, String> properties = Maps.newHashMap();
-        return new OracleExtractNode(id,
+        ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
+                ? null : ScanStartUpMode.forName(source.getScanStartupMode());
+
+        return new OracleExtractNode(
+                name,
                 name,
                 fieldInfos,
                 null,
                 properties,
-                primaryKey,
-                hostName,
-                userName,
-                password,
-                database,
-                schemaName,
-                tableName,
-                port,
-                scanStartupMode);
+                source.getPrimaryKey(),
+                source.getHostname(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase(),
+                source.getSchemaName(),
+                source.getTableName(),
+                source.getPort(),
+                scanStartupMode
+        );
     }
 
     /**
      * Create SqlServer extract node
      *
-     * @param sqlServerSource SqlServer source info
+     * @param source SqlServer source info
      * @return SqlServer extract node info
      */
-    public static SqlServerExtractNode createExtractNode(SqlServerSource sqlServerSource) {
-        final String id = sqlServerSource.getSourceName();
-        final String name = sqlServerSource.getSourceName();
-        final String database = sqlServerSource.getDatabase();
-        final String primaryKey = sqlServerSource.getPrimaryKey();
-        final String hostName = sqlServerSource.getHostname();
-        final String userName = sqlServerSource.getUsername();
-        final String password = sqlServerSource.getPassword();
-        final Integer port = sqlServerSource.getPort();
-        final String schemaName = sqlServerSource.getSchemaName();
-
-        String tablename = sqlServerSource.getTableName();
-        List<StreamField> streamFields = sqlServerSource.getFieldList();
+    public static SqlServerExtractNode createExtractNode(SqlServerSource source) {
+        String name = source.getSourceName();
+        List<StreamField> streamFields = source.getFieldList();
         List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(fieldInfo -> FieldInfoUtils.parseStreamFieldInfo(fieldInfo, name))
                 .collect(Collectors.toList());
-        final String serverTimeZone = sqlServerSource.getServerTimezone();
 
         Map<String, String> properties = Maps.newHashMap();
-        return new SqlServerExtractNode(id,
+        return new SqlServerExtractNode(
+                name,
                 name,
                 fieldInfos,
                 null,
                 properties,
-                primaryKey,
-                hostName,
-                port,
-                userName,
-                password,
-                database,
-                schemaName,
-                tablename,
-                serverTimeZone);
+                source.getPrimaryKey(),
+                source.getHostname(),
+                source.getPort(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase(),
+                source.getSchemaName(),
+                source.getTableName(),
+                source.getServerTimezone()
+        );
+    }
+
+    /**
+     * Create MongoDB extract node
+     *
+     * @param source MongoDB source info
+     * @return MongoDB extract node info
+     */
+    public static MongoExtractNode createExtractNode(MongoDBSource source) {
+        String name = source.getSourceName();
+        List<StreamField> streamFields = source.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        Map<String, String> properties = Maps.newHashMap();
+        return new MongoExtractNode(
+                name,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                source.getPrimaryKey(),
+                source.getCollection(),
+                source.getHosts(),
+                source.getUsername(),
+                source.getPassword(),
+                source.getDatabase()
+        );
     }
 
 }
