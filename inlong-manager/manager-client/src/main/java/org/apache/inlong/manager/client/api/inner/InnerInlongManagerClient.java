@@ -533,15 +533,20 @@ public class InnerInlongManagerClient {
         String path = HTTP_PATH;
         if (async) {
             path += "/group/deleteAsync/" + groupId;
+            String finalGroupId = this.sendDeleteForClass(
+                    formatUrl(path),
+                    null,
+                    String.class
+            );
+            return groupId.equals(finalGroupId);
         } else {
             path += "/group/delete/" + groupId;
+            return this.sendDeleteForClass(
+                    formatUrl(path),
+                    null,
+                    Boolean.class
+            );
         }
-
-        return this.sendDeleteForClass(
-                formatUrl(path),
-                null,
-                Boolean.class
-        );
     }
 
     /**
