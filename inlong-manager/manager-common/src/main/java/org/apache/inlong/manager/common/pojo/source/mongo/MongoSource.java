@@ -38,7 +38,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Oracle source info")
+@ApiModel(value = "Mongo source info")
 @JsonTypeDefine(value = SourceType.SOURCE_MONGO)
 public class MongoSource extends StreamSource {
 
