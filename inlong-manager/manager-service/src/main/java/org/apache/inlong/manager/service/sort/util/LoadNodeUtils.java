@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
  */
 public class LoadNodeUtils {
 
-    private static final String DEFAULT_HIVE_VERSION = "2.3.9";
+    private static final String DEFAULT_HIVE_VERSION = "2.3.6";
 
     /**
      * Create nodes of data load.
@@ -292,7 +292,7 @@ public class LoadNodeUtils {
         return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
                 dbName, tableName, null, null, uri, warehouse);
     }
-  
+
     /**
      * Create SqlServer load node based on SqlServerSink
      *
@@ -330,7 +330,7 @@ public class LoadNodeUtils {
                 schemaName,
                 tablename,
                 primaryKey
-                );
+        );
     }
 
     /**
