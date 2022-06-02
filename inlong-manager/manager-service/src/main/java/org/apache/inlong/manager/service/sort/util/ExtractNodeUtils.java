@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
@@ -43,6 +44,7 @@ import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -62,7 +64,7 @@ import java.util.stream.Collectors;
 public class ExtractNodeUtils {
 
     /**
-     * Create extract nodes from the source responses.
+     * Create extract nodes from the given sources.
      */
     public static List<ExtractNode> createExtractNodes(List<StreamSource> sourceInfos) {
         if (CollectionUtils.isEmpty(sourceInfos)) {
@@ -85,6 +87,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((PostgresSource) sourceInfo);
             case ORACLE:
                 return createExtractNode((OracleSource) sourceInfo);
+            case SQLSERVER:
+                return createExtractNode((SqlServerSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -92,9 +96,9 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create MySqlExtractNode based on MySQLBinlogSource
+     * Create MySql extract node
      *
-     * @param binlogSource binlog source info
+     * @param binlogSource MySql binlog source info
      * @return MySql extract node info
      */
     public static MySqlExtractNode createExtractNode(MySQLBinlogSource binlogSource) {
@@ -149,10 +153,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create KafkaExtractNode based KafkaSource
+     * Create Kafka extract node
      *
-     * @param kafkaSource kafka source response
-     * @return kafka extract node info
+     * @param kafkaSource Kafka source info
+     * @return Kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSource kafkaSource) {
         String id = kafkaSource.getSourceName();
@@ -211,10 +215,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PulsarExtractNode based PulsarSource
+     * Create Pulsar extract node
      *
-     * @param pulsarSource pulsar source response
-     * @return pulsar extract node info
+     * @param pulsarSource Pulsar source info
+     * @return Pulsar extract node info
      */
     public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
         String id = pulsarSource.getSourceName();
@@ -270,10 +274,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PostgresExtractNode based PostgresSource
+     * Create PostgreSQL extract node
      *
-     * @param postgresSource postgres source response
-     * @return postgres extract node info
+     * @param postgresSource PostgreSQL source info
+     * @return PostgreSQL extract node info
      */
     public static PostgresExtractNode createExtractNode(PostgresSource postgresSource) {
         List<StreamField> streamFields = postgresSource.getFieldList();
@@ -291,9 +295,9 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create oracleExtractNode based on OracleSourceResponse
+     * Create Oracle extract node 
      *
-     * @param oracleSource oracle source response info
+     * @param oracleSource Oracle source info
      * @return oracle extract node info
      */
     public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
@@ -327,7 +331,48 @@ public class ExtractNodeUtils {
                 schemaName,
                 tableName,
                 port,
-                scanStartupMode
-                );
+                scanStartupMode);
     }
+
+    /**
+     * Create SqlServer extract node
+     *
+     * @param sqlServerSource SqlServer source info
+     * @return SqlServer extract node info
+     */
+    public static SqlServerExtractNode createExtractNode(SqlServerSource sqlServerSource) {
+        final String id = sqlServerSource.getSourceName();
+        final String name = sqlServerSource.getSourceName();
+        final String database = sqlServerSource.getDatabase();
+        final String primaryKey = sqlServerSource.getPrimaryKey();
+        final String hostName = sqlServerSource.getHostname();
+        final String userName = sqlServerSource.getUsername();
+        final String password = sqlServerSource.getPassword();
+        final Integer port = sqlServerSource.getPort();
+        final String schemaName = sqlServerSource.getSchemaName();
+
+        String tablename = sqlServerSource.getTableName();
+        List<StreamField> streamFields = sqlServerSource.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
+                .map(fieldInfo -> FieldInfoUtils.parseStreamFieldInfo(fieldInfo, name))
+                .collect(Collectors.toList());
+        final String serverTimeZone = sqlServerSource.getServerTimezone();
+
+        Map<String, String> properties = Maps.newHashMap();
+        return new SqlServerExtractNode(id,
+                name,
+                fieldInfos,
+                null,
+                properties,
+                primaryKey,
+                hostName,
+                port,
+                userName,
+                password,
+                database,
+                schemaName,
+                tablename,
+                serverTimeZone);
+    }
+
 }
