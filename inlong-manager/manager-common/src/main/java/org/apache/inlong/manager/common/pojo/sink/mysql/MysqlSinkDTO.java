@@ -37,7 +37,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BinlogSinkDTO {
+public class MysqlSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -62,8 +62,8 @@ public class BinlogSinkDTO {
     /**
      * Get the dto instance from the request
      */
-    public static BinlogSinkDTO getFromRequest(BinlogSinkRequest request) {
-        return BinlogSinkDTO.builder()
+    public static MysqlSinkDTO getFromRequest(MysqlSinkRequest request) {
+        return MysqlSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
@@ -78,10 +78,10 @@ public class BinlogSinkDTO {
      * @param extParams extParams
      * @return binlog sink DTO
      */
-    public static BinlogSinkDTO getFromJson(@NotNull String extParams) {
+    public static MysqlSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, BinlogSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, MysqlSinkDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }

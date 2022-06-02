@@ -33,8 +33,8 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the Binlog sink info")
-@JsonTypeDefine(value = SinkType.SINK_BINLLOG)
-public class BinlogSinkRequest extends SinkRequest {
+@JsonTypeDefine(value = SinkType.SINK_MYSQL)
+public class MysqlSinkRequest extends SinkRequest {
 
     @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
     private String jdbcUrl;

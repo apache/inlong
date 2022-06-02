@@ -23,7 +23,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of the binlog sink
@@ -31,8 +34,9 @@ import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the binlog sink")
-public class BinlogSinkResponse extends SinkResponse {
+@ApiModel(value = "Response of the mysql sink")
+@JsonTypeDefine(value = SinkType.SINK_MYSQL)
+public class MysqlSink extends StreamSink {
 
     @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
     private String jdbcUrl;
@@ -49,7 +53,12 @@ public class BinlogSinkResponse extends SinkResponse {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    public BinlogSinkResponse() {
-        this.sinkType = SinkType.SINK_BINLLOG;
+    public MysqlSink() {
+        this.setSinkType(SinkType.SINK_MYSQL);
+    }
+
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, MysqlSinkRequest::new);
     }
 }

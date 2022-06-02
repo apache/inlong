@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Stream sink service test
  */
-public class BinlogStreamSinkServiceTest extends ServiceBaseTest {
+public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1_binlog";
     private static final String globalStreamId = "stream1_binlog";
@@ -50,10 +50,10 @@ public class BinlogStreamSinkServiceTest extends ServiceBaseTest {
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId,
                 globalOperator);
-        BinlogSinkRequest sinkInfo = new BinlogSinkRequest();
+        MysqlSinkRequest sinkInfo = new MysqlSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_BINLLOG);
+        sinkInfo.setSinkType(SinkType.SINK_MYSQL);
 
         sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/database");
         sinkInfo.setUsername("binlog");
@@ -77,7 +77,7 @@ public class BinlogStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testListByIdentifier() {
         Integer binlogSinkId = this.saveSink("binlog_default1");
-        SinkResponse sink = sinkService.get(binlogSinkId);
+        StreamSink sink = sinkService.get(binlogSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteBinlogSink(binlogSinkId);
     }
@@ -85,14 +85,14 @@ public class BinlogStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer binlogSinkId = this.saveSink("binlog_default2");
-        SinkResponse response = sinkService.get(binlogSinkId);
+        StreamSink response = sinkService.get(binlogSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        BinlogSinkResponse binlogSinkResponse = (BinlogSinkResponse) response;
-        binlogSinkResponse.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        MysqlSink mysqlSink = (MysqlSink) response;
+        mysqlSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
-        BinlogSinkRequest request = CommonBeanUtils.copyProperties(binlogSinkResponse,
-                BinlogSinkRequest::new);
+        MysqlSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
+                MysqlSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
         deleteBinlogSink(binlogSinkId);

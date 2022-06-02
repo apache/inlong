@@ -27,15 +27,14 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.mysql.BinlogSinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -71,16 +70,16 @@ public class BinlogSinkOperation implements StreamSinkOperation {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.BINLOG.equals(sinkType);
+        return SinkType.MYSQL.equals(sinkType);
     }
 
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_BINLLOG.equals(sinkType),
+        Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
 
-        BinlogSinkRequest binlogSinkRequest = (BinlogSinkRequest) request;
+        MysqlSinkRequest binlogSinkRequest = (MysqlSinkRequest) request;
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(binlogSinkRequest, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
@@ -91,7 +90,7 @@ public class BinlogSinkOperation implements StreamSinkOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        BinlogSinkDTO dto = BinlogSinkDTO.getFromRequest(binlogSinkRequest);
+        MysqlSinkDTO dto = MysqlSinkDTO.getFromRequest(binlogSinkRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
@@ -106,7 +105,7 @@ public class BinlogSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkFieldRequest> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getFieldList();
         LOGGER.info("begin to save field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -118,7 +117,7 @@ public class BinlogSinkOperation implements StreamSinkOperation {
         String streamId = request.getInlongStreamId();
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
-        for (SinkFieldRequest fieldInfo : fieldList) {
+        for (SinkField fieldInfo : fieldList) {
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -136,14 +135,14 @@ public class BinlogSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public SinkResponse getByEntity(@NotNull StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_BINLLOG.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_BINLLOG, existType));
-        SinkResponse response = this.getFromEntity(entity, BinlogSinkResponse::new);
+        Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_MYSQL, existType));
+        StreamSink response = this.getFromEntity(entity, MysqlSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkFieldResponse> infos = CommonBeanUtils.copyListProperties(entities, SinkFieldResponse::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setFieldList(infos);
         return response;
     }
@@ -155,10 +154,10 @@ public class BinlogSinkOperation implements StreamSinkOperation {
             return result;
         }
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_BINLLOG.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_BINLLOG, existType));
+        Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_MYSQL, existType));
 
-        BinlogSinkDTO dto = BinlogSinkDTO.getFromJson(entity.getExtParams());
+        MysqlSinkDTO dto = MysqlSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -170,21 +169,21 @@ public class BinlogSinkOperation implements StreamSinkOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, BinlogSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MysqlSinkListResponse::new));
     }
 
     @Override
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_BINLLOG.equals(sinkType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_BINLLOG, sinkType));
+        Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(sinkType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_MYSQL, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        BinlogSinkRequest binlogSinkRequest = (BinlogSinkRequest) request;
+        MysqlSinkRequest binlogSinkRequest = (MysqlSinkRequest) request;
         CommonBeanUtils.copyProperties(binlogSinkRequest, entity, true);
         try {
-            BinlogSinkDTO dto = BinlogSinkDTO.getFromRequest(binlogSinkRequest);
+            MysqlSinkDTO dto = MysqlSinkDTO.getFromRequest(binlogSinkRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
@@ -205,7 +204,7 @@ public class BinlogSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkFieldRequest> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }
