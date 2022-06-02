@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.mongo;
+package org.apache.inlong.manager.common.pojo.source.mongodb;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,39 +30,39 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import javax.validation.constraints.NotNull;
 
 /**
- * mongo source information data transfer object.
+ * mongoDB source information data transfer object.
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MongoSourceDTO {
+public class MongoDBSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Mongo primaryKey")
+    @ApiModelProperty("MongoDB primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("Mongo hosts")
+    @ApiModelProperty("MongoDB hosts")
     private String hosts;
 
-    @ApiModelProperty("Mongo username")
+    @ApiModelProperty("MongoDB username")
     private String username;
 
-    @ApiModelProperty("Mongo password")
+    @ApiModelProperty("MongoDB password")
     private String password;
 
-    @ApiModelProperty("Mongo database")
+    @ApiModelProperty("MongoDB database")
     private String database;
 
-    @ApiModelProperty("Mongo collection")
+    @ApiModelProperty("MongoDB collection")
     private String collection;
 
     /**
      * Get the dto instance from the request
      */
-    public static MongoSourceDTO getFromRequest(MongoSourceRequest request) {
-        return MongoSourceDTO.builder()
+    public static MongoDBSourceDTO getFromRequest(MongoDBSourceRequest request) {
+        return MongoDBSourceDTO.builder()
                 .primaryKey(request.getPrimaryKey())
                 .hosts(request.getHosts())
                 .username(request.getUsername())
@@ -72,10 +72,13 @@ public class MongoSourceDTO {
                 .build();
     }
 
-    public static MongoSourceDTO getFromJson(@NotNull String extParams) {
+    /**
+     * Get the dto instance from the json
+     */
+    public static MongoDBSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, MongoSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, MongoDBSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }

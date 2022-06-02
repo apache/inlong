@@ -27,10 +27,10 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSource;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
@@ -41,27 +41,27 @@ import org.springframework.stereotype.Service;
 import java.util.function.Supplier;
 
 /**
- * mongo stream source operation.
+ * mongoDB stream source operation.
  */
 @Service
-public class MongoSourceOperation extends AbstractSourceOperation {
+public class MongoDBSourceOperation extends AbstractSourceOperation {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.MONGO == sourceType;
+        return SourceType.MONGODB == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.MONGO.getType();
+        return SourceType.MONGODB.getType();
     }
 
     @Override
     protected StreamSource getSource() {
-        return new MongoSource();
+        return new MongoDBSource();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class MongoSourceOperation extends AbstractSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MongoSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MongoDBSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        MongoSourceRequest sourceRequest = (MongoSourceRequest) request;
+        MongoDBSourceRequest sourceRequest = (MongoDBSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            MongoSourceDTO dto = MongoSourceDTO.getFromRequest(sourceRequest);
+            MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class MongoSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        MongoSourceDTO dto = MongoSourceDTO.getFromJson(entity.getExtParams());
+        MongoDBSourceDTO dto = MongoDBSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

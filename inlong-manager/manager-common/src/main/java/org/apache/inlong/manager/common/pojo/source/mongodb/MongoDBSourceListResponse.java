@@ -15,47 +15,49 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.mongo;
+package org.apache.inlong.manager.common.pojo.source.mongodb;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the mongo source info
+ * Response of mongoDB source list
  */
 @Data
-@ToString(callSuper = true)
+@SuperBuilder
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the kafka source info")
-@JsonTypeDefine(value = SourceType.SOURCE_MONGO)
-public class MongoSourceRequest extends SourceRequest {
+@ApiModel("Response of mongoDB source paging list")
+@JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
+public class MongoDBSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty("Mongo primaryKey")
+    @ApiModelProperty("mongoDB primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("Mongo hosts")
+    @ApiModelProperty("mongoDB hosts")
     private String hosts;
 
-    @ApiModelProperty("Mongo username")
+    @ApiModelProperty("mongoDB username")
     private String username;
 
-    @ApiModelProperty("Mongo password")
+    @ApiModelProperty("mongoDB password")
     private String password;
 
-    @ApiModelProperty("Mongo database")
+    @ApiModelProperty("mongoDB database")
     private String database;
 
-    @ApiModelProperty("Mongo collection")
+    @ApiModelProperty("mongoDB collection")
     private String collection;
 
-    public MongoSourceRequest() {
-        this.setSourceType(SourceType.MONGO.toString());
+    public MongoDBSourceListResponse() {
+        this.setSourceType(SourceType.MONGODB.getType());
     }
 
 }

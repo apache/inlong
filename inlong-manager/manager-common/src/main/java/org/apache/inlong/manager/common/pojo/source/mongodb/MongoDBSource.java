@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.mongo;
+package org.apache.inlong.manager.common.pojo.source.mongodb;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,42 +31,42 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- *  Mongo source info
+ *  MongoDB source info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Mongo source info")
-@JsonTypeDefine(value = SourceType.SOURCE_MONGO)
-public class MongoSource extends StreamSource {
+@ApiModel(value = "MongoDB source info")
+@JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
+public class MongoDBSource extends StreamSource {
 
-    @ApiModelProperty("Mongo primaryKey")
+    @ApiModelProperty("MongoDB primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("Mongo hosts")
+    @ApiModelProperty("MongoDB hosts")
     private String hosts;
 
-    @ApiModelProperty("Mongo username")
+    @ApiModelProperty("MongoDB username")
     private String username;
 
-    @ApiModelProperty("Mongo password")
+    @ApiModelProperty("MongoDB password")
     private String password;
 
-    @ApiModelProperty("Mongo database")
+    @ApiModelProperty("MongoDB database")
     private String database;
 
-    @ApiModelProperty("Mongo collection")
+    @ApiModelProperty("MongoDB collection")
     private String collection;
 
-    public MongoSource() {
-        this.setSourceType(SourceType.MONGO.name());
+    public MongoDBSource() {
+        this.setSourceType(SourceType.MONGODB.name());
     }
 
     @Override
     public SourceRequest genSourceRequest() {
-        return CommonBeanUtils.copyProperties(this, MongoSourceRequest::new);
+        return CommonBeanUtils.copyProperties(this, MongoDBSourceRequest::new);
     }
 
 }

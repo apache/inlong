@@ -28,7 +28,7 @@ public enum TaskTypeEnum {
     POSTGRES(6),
     ORACLE(7),
     SQLSERVER(8),
-    MONGO(9),
+    MONGODB(9),
 
 
     ;
@@ -60,7 +60,7 @@ public enum TaskTypeEnum {
             case 8:
                 return SQLSERVER;
             case 9:
-                return MONGO;
+                return MONGODB;
             default:
                 throw new RuntimeException(String.format("Unsupported taskType=%s", taskType));
         }

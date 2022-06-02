@@ -15,49 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.mongo;
+package org.apache.inlong.manager.common.pojo.source.mongodb;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of mongo source list
+ * Request of the mongoDB source info
  */
 @Data
-@SuperBuilder
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of mongo source paging list")
-@JsonTypeDefine(value = SourceType.SOURCE_MONGO)
-public class MongoSourceListResponse extends SourceListResponse {
+@ApiModel(value = "Request of the mongoDB source info")
+@JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
+public class MongoDBSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("Mongo primaryKey")
+    @ApiModelProperty("mongoDB primaryKey")
     private String primaryKey;
 
-    @ApiModelProperty("Mongo hosts")
+    @ApiModelProperty("mongoDB hosts")
     private String hosts;
 
-    @ApiModelProperty("Mongo username")
+    @ApiModelProperty("mongoDB username")
     private String username;
 
-    @ApiModelProperty("Mongo password")
+    @ApiModelProperty("mongoDB password")
     private String password;
 
-    @ApiModelProperty("Mongo database")
+    @ApiModelProperty("mongoDB database")
     private String database;
 
-    @ApiModelProperty("Mongo collection")
+    @ApiModelProperty("mongoDB collection")
     private String collection;
 
-    public MongoSourceListResponse() {
-        this.setSourceType(SourceType.MONGO.getType());
+    public MongoDBSourceRequest() {
+        this.setSourceType(SourceType.MONGODB.toString());
     }
 
 }

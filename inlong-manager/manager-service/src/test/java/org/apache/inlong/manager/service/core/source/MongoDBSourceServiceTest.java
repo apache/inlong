@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.core.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSource;
-import org.apache.inlong.manager.common.pojo.source.mongo.MongoSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -30,9 +30,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Mongo source service test
+ * MongoDB source service test
  */
-public class MongoSourceServiceTest extends ServiceBaseTest {
+public class MongoDBSourceServiceTest extends ServiceBaseTest {
 
     private final String sourceName = "stream_source_service_test";
     private static final String hostname = "127.0.0.1";
@@ -51,11 +51,11 @@ public class MongoSourceServiceTest extends ServiceBaseTest {
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        MongoSourceRequest sourceInfo = new MongoSourceRequest();
+        MongoDBSourceRequest sourceInfo = new MongoDBSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
-        sourceInfo.setSourceType(SourceType.MONGO.getType());
+        sourceInfo.setSourceType(SourceType.MONGODB.getType());
         sourceInfo.setHosts(hostname);
         sourceInfo.setDatabase(database);
         sourceInfo.setCollection(collection);
@@ -87,9 +87,9 @@ public class MongoSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        MongoSource mongoSource = (MongoSource) response;
+        MongoDBSource mongoDBSource = (MongoDBSource) response;
 
-        MongoSourceRequest request = CommonBeanUtils.copyProperties(mongoSource, MongoSourceRequest::new);
+        MongoDBSourceRequest request = CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assert.assertTrue(result);
 
