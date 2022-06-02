@@ -42,7 +42,6 @@ import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.core.operation.InlongStreamProcessOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +71,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
-    @Autowired
-    private InlongStreamProcessOperation streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -220,7 +217,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 //        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
 //            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
 //        }
-        streamProcessOperation.startProcess(groupId, streamId, operator, false);
         LOGGER.info("success to update sink info: {}", request);
         return true;
     }
