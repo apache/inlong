@@ -358,6 +358,7 @@ public class LoadNodeUtils {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
+
         if (CollectionUtils.isEmpty(fieldList)) {
             throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
         }
@@ -367,6 +368,7 @@ public class LoadNodeUtils {
 
         for (HivePartitionField partitionField : partitionList) {
             String fieldName = partitionField.getFieldName();
+
             if (StringUtils.isBlank(fieldName)) {
                 throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
             }
