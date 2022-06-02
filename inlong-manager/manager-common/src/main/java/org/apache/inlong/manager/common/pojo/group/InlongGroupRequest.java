@@ -73,7 +73,7 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
     @Builder.Default
-    private Integer lightweight = 1;
+    private Integer lightweight = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;

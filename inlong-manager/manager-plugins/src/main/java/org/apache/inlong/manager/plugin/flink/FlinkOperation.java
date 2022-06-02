@@ -27,11 +27,11 @@ import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.api.common.JobStatus.RUNNING;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 
 /**
  * Flink task operation, such restart or stop flink job.
@@ -44,6 +44,8 @@ public class FlinkOperation {
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
+    private static final String SORT_PLUGIN = "sort-plugin" + File.separator + "connectors";
+    private static final String CONNECTOR_JAR_PATTERN = "^sort-connector.*jar$";
 
     private final FlinkService flinkService;
 
@@ -105,9 +107,14 @@ public class FlinkOperation {
             throw new Exception(message);
         }
 
-        String jarPath = findFiles(basePath, SORT_JAR_PATTERN);
+        String jarPath = FlinkUtils.findFile(basePath, SORT_JAR_PATTERN);
         flinkInfo.setLocalJarPath(jarPath);
         log.info("get sort jar path success, path: {}", jarPath);
+
+        String pluginPath = startPath + SORT_PLUGIN;
+        List<String> connectorPaths = FlinkUtils.listFiles(pluginPath, CONNECTOR_JAR_PATTERN, -1);
+        flinkInfo.setConnectorJarPaths(connectorPaths);
+        log.info("get sort connector paths success, paths: {}", connectorPaths);
 
         if (FlinkUtils.writeConfigToFile(path, flinkInfo.getJobName(), dataflow)) {
             flinkInfo.setLocalConfPath(path + File.separator + flinkInfo.getJobName());

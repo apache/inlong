@@ -287,7 +287,7 @@ public class LoadNodeUtils {
         return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
                 dbName, tableName, null, null, uri, warehouse);
     }
-  
+
     /**
      * Create SqlServer load node based on SqlServerSink
      *
@@ -325,7 +325,7 @@ public class LoadNodeUtils {
                 schemaName,
                 tablename,
                 primaryKey
-                );
+        );
     }
 
     /**

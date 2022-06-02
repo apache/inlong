@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `followers`              varchar(512)      DEFAULT NULL COMMENT 'Name of followers, separated by commas',
     `enable_zookeeper`       tinyint(2)        DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
     `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
-    `lightweight`            tinyint(2)        DEFAULT '1' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
+    `lightweight`            tinyint(2)        DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
     `inlong_cluster_tag`     varchar(128)      DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     `ext_params`             text              DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num,',
     `status`                 int(4)            DEFAULT '100' COMMENT 'Inlong group status',
