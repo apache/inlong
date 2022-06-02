@@ -94,11 +94,11 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("hiveConfDir") String hiveConfDir,
             @JsonProperty("hiveVersion") String hiveVersion,
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
-            @JsonProperty("parFields") List<FieldInfo> partitionFields) {
+            @JsonProperty("partitionFields") List<FieldInfo> partitionFields) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
-        this.hiveConfDir = Preconditions.checkNotNull(hiveConfDir, "hive conf directory is null");
+        this.hiveConfDir = hiveConfDir;
         this.hiveVersion = hiveVersion;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
