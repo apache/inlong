@@ -28,38 +28,38 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response info of sqlserver source list
+ * Response of SqlServer source paging list
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of sqlserver source paging list")
+@ApiModel("Response of SqlServer source paging list")
 @JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
 public class SqlServerSourceListResponse extends SourceListResponse {
 
-    @ApiModelProperty("Username of the Sqlserver")
+    @ApiModelProperty("Username of the SqlServer")
     private String username;
 
-    @ApiModelProperty("Password of the Sqlserver")
+    @ApiModelProperty("Password of the SqlServer")
     private String password;
 
-    @ApiModelProperty("Hostname of the Sqlserver")
+    @ApiModelProperty("Hostname of the SqlServer")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the Sqlserver")
+    @ApiModelProperty("Exposed port of the SqlServer")
     private int port;
 
-    @ApiModelProperty("database of the Sqlserver")
+    @ApiModelProperty("Database of the SqlServer")
     private String database;
 
-    @ApiModelProperty("schemaName of the Sqlserver")
+    @ApiModelProperty("Schema name of the SqlServer")
     private String schemaName;
 
-    @ApiModelProperty("tableName of the Sqlserver")
+    @ApiModelProperty("Table name of the SqlServer")
     private String tableName;
 
-    @ApiModelProperty("Database time zone, Default is UTC")
+    @ApiModelProperty("Database time zone, default is UTC")
     private String serverTimezone;
 
     @ApiModelProperty("Whether to migrate all databases")
