@@ -23,19 +23,23 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.List;
 
 /**
- * Response of the HDFS sink
+ * Hdfs sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the Hbase sink")
-public class HdfsSinkResponse extends SinkResponse {
+@ApiModel(value = "Hdfs sink info")
+@JsonTypeDefine(value = SinkType.SINK_HDFS)
+public class HdfsSink extends StreamSink {
 
     @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
     private String fileFormat;
@@ -55,7 +59,12 @@ public class HdfsSinkResponse extends SinkResponse {
     @ApiModelProperty("Partition field list")
     private List<HivePartitionField> partitionFieldList;
 
-    public HdfsSinkResponse() {
-        this.sinkType = SinkType.SINK_HDFS;
+    public HdfsSink() {
+        this.setSinkType(SinkType.SINK_HDFS);
+    }
+
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, HdfsSinkRequest::new);
     }
 }
