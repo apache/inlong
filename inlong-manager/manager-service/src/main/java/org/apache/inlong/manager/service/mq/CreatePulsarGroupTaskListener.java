@@ -36,7 +36,6 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.pulsar.client.admin.PulsarAdmin;
-import org.apache.pulsar.client.admin.PulsarAdminException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -112,7 +111,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                     // Insert the consumption data into the consumption table
                     consumptionService.saveSortConsumption(groupInfo, topic, subscription);
-                } catch (PulsarAdminException |WorkflowListenerException e) {
+                } catch (Exception e) {
                     log.error("create pulsar subscription error for groupId={}", groupId);
                     throw new WorkflowListenerException("create pulsar subscription error: " + e.getMessage());
                 }
