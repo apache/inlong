@@ -37,6 +37,8 @@ import java.util.List;
 public class PostgresJdbcUtils {
 
     private static final String POSTGRES_DRIVER_CLASS = "org.postgresql.Driver";
+    private static final String SCHEMA_PATTERN = "public";
+    private static final String TABLE_TYPE = "TABLE";
     private static final String COLUMN_LABEL_TABLE = "TABLE_NAME";
     private static final String COLUMN_LABEL_COUNT = "count";
     private static final String POSTGRES_JDBC_PREFIX = "jdbc:postgresql";
@@ -140,7 +142,7 @@ public class PostgresJdbcUtils {
         boolean result = false;
         try (Connection conn = getConnection(url, user, password)) {
             DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getTables(conn.getCatalog(), "public", tableName, new String[]{"TABLE"});
+            ResultSet rs = metaData.getTables(conn.getCatalog(), SCHEMA_PATTERN, tableName, new String[]{TABLE_TYPE});
             if (rs != null) {
                 rs.next();
                 result = rs.getRow() > 0 && tableName.equals(rs.getString(COLUMN_LABEL_TABLE));
