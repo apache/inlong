@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -47,6 +48,7 @@ import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
+import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.HashMap;
@@ -87,6 +89,8 @@ public class LoadNodeUtils {
                 return createLoadNode((ClickHouseSink) streamSink);
             case ICEBERG:
                 return createLoadNode((IcebergSink) streamSink);
+            case SQLSERVER:
+                return createLoadNode((SqlServerSink) streamSink);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -262,7 +266,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * create iceberg load node
+     * Create iceberg load node
      */
     public static IcebergLoadNode createLoadNode(IcebergSink icebergSink) {
         String id = icebergSink.getSinkName();
@@ -282,6 +286,46 @@ public class LoadNodeUtils {
 
         return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
                 dbName, tableName, null, null, uri, warehouse);
+    }
+  
+    /**
+     * Create SqlServer load node based on SqlServerSink
+     *
+     * @param sqlServerSink SqlServer sink info
+     * @return SqlServer load node info
+     */
+    public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
+        final String id = sqlServerSink.getSinkName();
+        final String name = sqlServerSink.getSinkName();
+        final String primaryKey = sqlServerSink.getPrimaryKey();
+        final String jdbcUrl = sqlServerSink.getJdbcUrl();
+        final String userName = sqlServerSink.getUsername();
+        final String password = sqlServerSink.getPassword();
+        final String schemaName = sqlServerSink.getSchemaName();
+        final String tablename = sqlServerSink.getTableName();
+        final List<SinkField> fieldList = sqlServerSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = sqlServerSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new SqlServerLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                jdbcUrl,
+                userName,
+                password,
+                schemaName,
+                tablename,
+                primaryKey
+                );
     }
 
     /**
