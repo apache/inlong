@@ -66,10 +66,10 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
 
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
         try {
             String pulsarTopic = streamInfo.getMqResource();
-            this.createTopic(pulsarInfo, pulsarTopic, globalCluster);
+            this.createTopic(pulsarInfo, pulsarTopic, pulsarClusterInfo);
         } catch (Exception e) {
             log.error("create pulsar topic error for groupId={}, streamId={}", groupId, streamId, e);
             throw new WorkflowListenerException(

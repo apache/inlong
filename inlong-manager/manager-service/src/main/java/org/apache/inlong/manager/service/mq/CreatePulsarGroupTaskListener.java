@@ -84,8 +84,8 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
             log.warn("inlong stream is empty for groupId={}, skip to create pulsar subscription", groupId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
             String tenant = clusterBean.getDefaultTenant();
             String namespace = groupInfo.getMqResource();
 
@@ -98,17 +98,17 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                 // Create a subscription in the Pulsar cluster you need to ensure that the Topic exists
                 try {
-                    boolean exist = pulsarOptService.topicIsExists(globalPulsarAdmin, tenant, namespace, topic);
+                    boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String topicFull = tenant + "/" + namespace + "/" + topic;
-                        String serviceUrl = globalCluster.getAdminUrl();
+                        String serviceUrl = pulsarClusterInfo.getAdminUrl();
                         log.error("topic={} not exists in {}", topicFull, serviceUrl);
                         throw new WorkflowListenerException("topic=" + topicFull + " not exists in " + serviceUrl);
                     }
 
                     // Consumer naming rules: sortAppName_topicName_consumer_group
                     String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-                    pulsarOptService.createSubscription(globalPulsarAdmin, topicBean, subscription);
+                    pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
 
                     // Insert the consumption data into the consumption table
                     consumptionService.saveSortConsumption(groupInfo, topic, subscription);

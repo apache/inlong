@@ -111,7 +111,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     }
 
     /**
-     * Create Pulsar consumption information, including cross-regional cycle creation of consumption groups
+     * Create Pulsar consumption information
      */
     private void createPulsarTopicMessage(ConsumptionEntity entity) {
         String groupId = entity.getInlongGroupId();
@@ -119,18 +119,16 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
         String mqResource = groupInfo.getMqResource();
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(entity.getMqType());
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(entity.getMqType());
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = clusterBean.getDefaultTenant();
             topicMessage.setTenant(tenant);
             topicMessage.setNamespace(mqResource);
 
-            // If cross-regional replication is started, each cluster needs to create consumer groups in cycles
             String consumerGroup = entity.getConsumerGroup();
-            List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
             List<String> topics = Arrays.asList(entity.getTopic().split(","));
-            this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, clusters, topics, globalCluster);
+            this.createPulsarSubscription(pulsarAdmin, consumerGroup, topicMessage, topics);
         } catch (Exception e) {
             log.error("create pulsar topic failed", e);
             throw new WorkflowListenerException("failed to create pulsar topic for groupId=" + groupId + ", reason: "
@@ -138,10 +136,10 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         }
     }
 
-    private void createPulsarSubscription(PulsarAdmin globalPulsarAdmin, String subscription, PulsarTopicBean topicBean,
-            List<String> clusters, List<String> topics, PulsarClusterInfo globalCluster) {
+    private void createPulsarSubscription(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicBean topicBean,
+            List<String> topics) {
         try {
-            pulsarMqOptService.createSubscriptions(globalPulsarAdmin, subscription, topicBean, topics);
+            pulsarMqOptService.createSubscriptions(pulsarAdmin, subscription, topicBean, topics);
         } catch (Exception e) {
             log.error("create pulsar consumer group failed", e);
             throw new WorkflowListenerException("failed to create pulsar consumer group");
