@@ -17,29 +17,14 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
-import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.deserialization.DeserializationInfo;
-import org.apache.inlong.sort.protocol.source.PulsarSourceInfo;
-import org.apache.inlong.sort.protocol.source.TDMQPulsarSourceInfo;
-import org.apache.inlong.sort.protocol.source.TubeSourceInfo;
-
-import java.util.List;
 
 /**
  * Utils for creat source info, such as pulsar source, tube MQ source.
  */
+@Deprecated
 public class SourceInfoUtils {
 
     /**
@@ -56,10 +41,10 @@ public class SourceInfoUtils {
         return false;
     }
 
-    /**
+    /*
      * Create source info for DataFlowInfo.
      */
-    public static org.apache.inlong.sort.protocol.source.SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster,
+    /*public static org.apache.inlong.sort.protocol.source.SourceInfo createSourceInfo(PulsarClusterInfo pulsarCluster,
             String masterAddress,
             ClusterBean clusterBean, InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             StreamSource streamSource, List<FieldInfo> sourceFields) {
@@ -68,22 +53,24 @@ public class SourceInfoUtils {
         DeserializationInfo deserializationInfo = SerializationUtils.createDeserialInfo(streamSource, streamInfo);
         org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo;
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            sourceInfo = createPulsarSourceInfo(pulsarCluster, clusterBean, groupInfo, streamInfo, deserializationInfo,
+            sourceInfo = createPulsarSourceInfo(pulsarCluster,
+            clusterBean, groupInfo, streamInfo, deserializationInfo,
                     sourceFields);
         } else if (mqType == MQType.TUBE) {
             // InlongGroupInfo groupInfo, String masterAddress,
-            sourceInfo = createTubeSourceInfo(groupInfo, masterAddress, clusterBean, deserializationInfo, sourceFields);
+            sourceInfo = createTubeSourceInfo(groupInfo, masterAddress,
+            clusterBean, deserializationInfo, sourceFields);
         } else {
             throw new WorkflowListenerException(String.format("Unsupported middleware {%s}", mqType));
         }
 
         return sourceInfo;
-    }
+    }*/
 
-    /**
+    /*
      * Create source info for Pulsar
      */
-    private static org.apache.inlong.sort.protocol.source.SourceInfo createPulsarSourceInfo(
+    /* private static org.apache.inlong.sort.protocol.source.SourceInfo createPulsarSourceInfo(
             PulsarClusterInfo pulsarCluster, ClusterBean clusterBean,
             InlongGroupInfo groupInfo, InlongStreamInfo streamInfo,
             DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
@@ -108,18 +95,18 @@ public class SourceInfoUtils {
             return new PulsarSourceInfo(pulsarCluster.getAdminUrl(), pulsarCluster.getBrokerServiceUrl(),
                     fullTopicName, consumerGroup, deserializationInfo, fieldInfosArr, pulsarCluster.getToken());
         }
-    }
+    }*/
 
-    /**
+    /*
      * Create source info TubeMQ
      */
-    private static TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
+    /*private static TubeSourceInfo createTubeSourceInfo(InlongGroupInfo groupInfo, String masterAddress,
             ClusterBean clusterBean, DeserializationInfo deserializationInfo, List<FieldInfo> fieldInfos) {
         Preconditions.checkNotNull(masterAddress, "tube cluster address cannot be empty");
         String topic = groupInfo.getMqResource();
         String consumerGroup = clusterBean.getAppName() + "_" + topic + "_consumer_group";
         return new TubeSourceInfo(topic, masterAddress, consumerGroup, deserializationInfo,
                 fieldInfos.toArray(new FieldInfo[0]));
-    }
+    }*/
 
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.sort.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -39,11 +40,6 @@ import org.apache.inlong.sort.formats.common.TimeFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
-import org.apache.inlong.sort.protocol.MetaFieldInfo.MetaField;
-import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Util for sort field info.
@@ -76,11 +72,11 @@ public class FieldInfoUtils {
         return fieldInfo;
     }
 
-    /**
+    /*
      * Get field info list.
      * TODO 1. Support partition field(not need to add index at 0), 2. Add is_metadata field in StreamSinkFieldEntity
      */
-    public static List<FieldMappingUnit> createFieldInfo(
+    /*public static List<FieldMappingUnit> createFieldInfo(
             List<StreamField> streamFieldList, List<SinkField> fieldList,
             List<FieldInfo> sourceFields, List<FieldInfo> sinkFields) {
 
@@ -106,7 +102,7 @@ public class FieldInfoUtils {
         }
 
         return mappingUnitList;
-    }
+    }*/
 
     /**
      * Get field info by the given field name ant type.
@@ -123,10 +119,10 @@ public class FieldInfoUtils {
         }
     }
 
-    /**
+    /*
      * Get all migration field mapping unit list for binlog source.
      */
-    public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
+    /*public static List<FieldMappingUnit> setAllMigrationFieldMapping(List<FieldInfo> sourceFields,
             List<FieldInfo> sinkFields) {
         List<FieldMappingUnit> mappingUnitList = new ArrayList<>();
         MetaFieldInfo dataField = new MetaFieldInfo("data", MetaField.DATA);
@@ -142,7 +138,7 @@ public class FieldInfoUtils {
         }
 
         return mappingUnitList;
-    }
+    }*/
 
     /**
      * Get the FieldFormat of Sort according to type string and format of field

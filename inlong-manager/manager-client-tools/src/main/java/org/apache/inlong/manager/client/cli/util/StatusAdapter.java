@@ -15,25 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.sort.protocol.transformation;
+package org.apache.inlong.manager.client.cli.util;
 
-import org.apache.inlong.sort.SerializeBaseTest;
-import org.apache.inlong.sort.formats.common.DoubleFormatInfo;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
+
+import java.lang.reflect.Type;
 
 /**
- * Test for {@link FieldMappingRule}
+ * Status adapter.
  */
-public class FieldMappingRuleTest extends SerializeBaseTest<FieldMappingRule> {
+public class StatusAdapter implements JsonDeserializer {
 
     @Override
-    public FieldMappingRule getTestObject() {
-        return new FieldMappingRule(new FieldMappingRule.FieldMappingUnit[]{
-                new FieldMappingRule.FieldMappingUnit(
-                        new FieldInfo("f1", StringFormatInfo.INSTANCE),
-                        new FieldInfo("f2", DoubleFormatInfo.INSTANCE)
-                )
-        });
+    public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
+        SimpleGroupStatus simpleGroupStatus = SimpleGroupStatus.parseStatusByCode(json.getAsInt());
+        return simpleGroupStatus + " (" + json.getAsInt() + ")";
     }
 }

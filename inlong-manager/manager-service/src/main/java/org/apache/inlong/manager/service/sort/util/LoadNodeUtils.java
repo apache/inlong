@@ -19,14 +19,18 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.enums.DataTypeEnum;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
@@ -41,11 +45,13 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
+import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,6 +87,8 @@ public class LoadNodeUtils {
                 return createLoadNode((PostgresSink) streamSink);
             case CLICKHOUSE:
                 return createLoadNode((ClickHouseSink) streamSink);
+            case ICEBERG:
+                return createLoadNode((IcebergSink) streamSink);
             case SQLSERVER:
                 return createLoadNode((SqlServerSink) streamSink);
             default:
@@ -258,12 +266,33 @@ public class LoadNodeUtils {
     }
 
     /**
+     * Create iceberg load node
+     */
+    public static IcebergLoadNode createLoadNode(IcebergSink icebergSink) {
+        String id = icebergSink.getSinkName();
+        String name = icebergSink.getSinkName();
+        String dbName = icebergSink.getDbName();
+        String tableName = icebergSink.getTableName();
+        String uri = icebergSink.getCatalogUri();
+        String warehouse = icebergSink.getWarehouse();
 
+        List<SinkField> sinkFields = icebergSink.getFieldList();
+        List<FieldInfo> fields = sinkFields.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
+        Map<String, String> properties = icebergSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
+                dbName, tableName, null, null, uri, warehouse);
+    }
+  
     /**
-     * Create SqlServerExtractNode based on sqlServerSink
+     * Create SqlServer load node based on SqlServerSink
      *
-     * @param sqlServerSink SqlServer source response info
-     * @return SqlServer extract node info
+     * @param sqlServerSink SqlServer sink info
+     * @return SqlServer load node info
      */
     public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
         final String id = sqlServerSink.getSinkName();
@@ -321,4 +350,37 @@ public class LoadNodeUtils {
                     return new FieldRelation(sourceField, sinkField);
                 }).collect(Collectors.toList());
     }
+
+    /**
+     * Check the validation of Hive partition field.
+     */
+    public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
+        if (CollectionUtils.isEmpty(partitionList)) {
+            return;
+        }
+        if (CollectionUtils.isEmpty(fieldList)) {
+            throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
+        }
+
+        Map<String, SinkField> sinkFieldMap = new HashMap<>(fieldList.size());
+        fieldList.forEach(field -> sinkFieldMap.put(field.getFieldName(), field));
+
+        for (HivePartitionField partitionField : partitionList) {
+            String fieldName = partitionField.getFieldName();
+            if (StringUtils.isBlank(fieldName)) {
+                throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
+            }
+
+            SinkField sinkField = sinkFieldMap.get(fieldName);
+            if (sinkField == null) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
+            }
+            if (StringUtils.isBlank(sinkField.getSourceFieldName())) {
+                throw new BusinessException(
+                        String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
+            }
+        }
+    }
+
 }

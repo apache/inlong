@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -123,7 +122,6 @@ public class PrintUtils {
                 e.printStackTrace();
             }
         });
-        System.out.println(Arrays.toString(maxWidth));
         for (int i = 0; i < maxWidth.length; i++) {
             maxWidth[i] += 4;
         }

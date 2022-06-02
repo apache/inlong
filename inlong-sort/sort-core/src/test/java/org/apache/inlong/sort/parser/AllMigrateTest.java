@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
@@ -47,7 +48,7 @@ public class AllMigrateTest {
 
     private MySqlExtractNode buildAllMigrateExtractNode() {
         List<FieldInfo> fields = Arrays.asList(
-                new MetaFieldInfo("data", MetaFieldInfo.MetaField.DATA));
+                new MetaFieldInfo("data", MetaField.DATA));
         Map<String, String> option = new HashMap<>();
         option.put("append-mode", "true");
         option.put("migrate-all", "true");

@@ -84,6 +84,7 @@ public enum SimpleGroupStatus {
         switch (groupStatus) {
             case CREATE:
                 statusList.add(GroupStatus.DRAFT.getCode());
+                statusList.add(GroupStatus.TO_BE_SUBMIT.getCode());
                 return statusList;
             case OPERATING:
                 statusList.add(GroupStatus.DELETING.getCode());

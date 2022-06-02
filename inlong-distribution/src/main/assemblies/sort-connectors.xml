@@ -115,5 +115,21 @@
             </includes>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/elasticsearch-6/target</directory>
+            <outputDirectory>sort-plugin</outputDirectory>
+            <includes>
+                <include>sort-connector-elasticsearch6-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>../inlong-sort/sort-connectors/elasticsearch-7/target</directory>
+            <outputDirectory>sort-plugin</outputDirectory>
+            <includes>
+                <include>sort-connector-elasticsearch7-${project.version}.jar</include>
+            </includes>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 </assembly>

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.parser.Parser;
@@ -168,7 +169,7 @@ public class FlinkSqlParser implements Parser {
      * @param relationMap Store the mapping relation between node id and relation
      */
     private void parseNodeRelation(NodeRelation relation, Map<String, Node> nodeMap,
-                                   Map<String, NodeRelation> relationMap) {
+            Map<String, NodeRelation> relationMap) {
         log.info("start parse node relation, relation:{}", relation);
         Preconditions.checkNotNull(relation, "relation is null");
         Preconditions.checkState(relation.getInputs().size() > 0,
@@ -205,7 +206,7 @@ public class FlinkSqlParser implements Parser {
      * @param relationMap Store the mapping relation between node id and relation
      */
     private void parseNode(Node node, NodeRelation relation, Map<String, Node> nodeMap,
-                           Map<String, NodeRelation> relationMap) {
+            Map<String, NodeRelation> relationMap) {
         if (hasParsedSet.contains(node.getId())) {
             log.warn("the node has already been parsed, node id:{}", node.getId());
             return;
@@ -287,12 +288,12 @@ public class FlinkSqlParser implements Parser {
      * @return Transform sql for this transform logic
      */
     private String genUnionNodeSelectSql(TransformNode transformNode,
-                                         UnionNodeRelation unionRelation, Map<String, Node> nodeMap) {
+            UnionNodeRelation unionRelation, Map<String, Node> nodeMap) {
         throw new UnsupportedOperationException("Union is not currently supported");
     }
 
     private String genJoinSelectSql(TransformNode node,
-                                    JoinRelation relation, Map<String, Node> nodeMap) {
+            JoinRelation relation, Map<String, Node> nodeMap) {
         // Get tablename alias map by input nodes
         Map<String, String> tableNameAliasMap = new HashMap<>(relation.getInputs().size());
         relation.getInputs().forEach(s -> {
@@ -420,7 +421,7 @@ public class FlinkSqlParser implements Parser {
      * @return Transform sql for this transform logic
      */
     private String genSimpleTransformSelectSql(TransformNode node,
-                                               NodeRelation relation, Map<String, Node> nodeMap) {
+            NodeRelation relation, Map<String, Node> nodeMap) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
         Map<String, FieldRelation> fieldRelationMap = new HashMap<>(node.getFieldRelations().size());
@@ -467,7 +468,7 @@ public class FlinkSqlParser implements Parser {
      * @param sb               Container for storing sql
      */
     private void parseFieldRelations(List<FieldInfo> fields,
-                                     Map<String, FieldRelation> fieldRelationMap, StringBuilder sb) {
+            Map<String, FieldRelation> fieldRelationMap, StringBuilder sb) {
         for (FieldInfo field : fields) {
             FieldRelation fieldRelation = fieldRelationMap.get(field.getName());
             if (fieldRelation != null) {
@@ -680,7 +681,7 @@ public class FlinkSqlParser implements Parser {
     }
 
     private void parseMetaField(Node node, MetaFieldInfo metaFieldInfo, StringBuilder sb) {
-        if (metaFieldInfo.getMetaField() == MetaFieldInfo.MetaField.PROCESS_TIME) {
+        if (metaFieldInfo.getMetaField() == MetaField.PROCESS_TIME) {
             sb.append(" AS PROCTIME()");
             return;
         }
