@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 public class ExtractNodeUtils {
 
     /**
-     * Create extract nodes from the source responses.
+     * Create extract nodes from the given sources.
      */
     public static List<ExtractNode> createExtractNodes(List<StreamSource> sourceInfos) {
         if (CollectionUtils.isEmpty(sourceInfos)) {
@@ -96,9 +96,9 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create MySqlExtractNode based on MySQLBinlogSource
+     * Create MySql extract node
      *
-     * @param binlogSource binlog source info
+     * @param binlogSource MySql binlog source info
      * @return MySql extract node info
      */
     public static MySqlExtractNode createExtractNode(MySQLBinlogSource binlogSource) {
@@ -153,10 +153,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create KafkaExtractNode based KafkaSource
+     * Create Kafka extract node
      *
-     * @param kafkaSource kafka source response
-     * @return kafka extract node info
+     * @param kafkaSource Kafka source info
+     * @return Kafka extract node info
      */
     public static KafkaExtractNode createExtractNode(KafkaSource kafkaSource) {
         String id = kafkaSource.getSourceName();
@@ -215,10 +215,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PulsarExtractNode based PulsarSource
+     * Create Pulsar extract node
      *
-     * @param pulsarSource pulsar source response
-     * @return pulsar extract node info
+     * @param pulsarSource Pulsar source info
+     * @return Pulsar extract node info
      */
     public static PulsarExtractNode createExtractNode(PulsarSource pulsarSource) {
         String id = pulsarSource.getSourceName();
@@ -274,10 +274,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create PostgresExtractNode based PostgresSource
+     * Create PostgreSQL extract node
      *
-     * @param postgresSource postgres source response
-     * @return postgres extract node info
+     * @param postgresSource PostgreSQL source info
+     * @return PostgreSQL extract node info
      */
     public static PostgresExtractNode createExtractNode(PostgresSource postgresSource) {
         List<StreamField> streamFields = postgresSource.getFieldList();
@@ -295,9 +295,9 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create oracleExtractNode based on OracleSourceResponse
+     * Create Oracle extract node 
      *
-     * @param oracleSource oracle source response info
+     * @param oracleSource Oracle source info
      * @return oracle extract node info
      */
     public static OracleExtractNode createExtractNode(OracleSource oracleSource) {
@@ -336,9 +336,9 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create SqlServerExtractNode based on sqlServerSource
+     * Create SqlServer extract node
      *
-     * @param sqlServerSource SqlServer source response info
+     * @param sqlServerSource SqlServer source info
      * @return SqlServer extract node info
      */
     public static SqlServerExtractNode createExtractNode(SqlServerSource sqlServerSource) {
@@ -355,13 +355,11 @@ public class ExtractNodeUtils {
         String tablename = sqlServerSource.getTableName();
         List<StreamField> streamFields = sqlServerSource.getFieldList();
         List<FieldInfo> fieldInfos = streamFields.stream()
-                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .map(fieldInfo -> FieldInfoUtils.parseStreamFieldInfo(fieldInfo, name))
                 .collect(Collectors.toList());
         final String serverTimeZone = sqlServerSource.getServerTimezone();
 
-        // TODO Needs to be configurable for those parameters
         Map<String, String> properties = Maps.newHashMap();
-
         return new SqlServerExtractNode(id,
                 name,
                 fieldInfos,
@@ -377,4 +375,5 @@ public class ExtractNodeUtils {
                 tablename,
                 serverTimeZone);
     }
+
 }
