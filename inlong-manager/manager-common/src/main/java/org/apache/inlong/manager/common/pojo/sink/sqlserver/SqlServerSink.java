@@ -29,12 +29,12 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Postgres sink info
+ * SqlServer sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Postgres sink info")
+@ApiModel(value = "SqlServer sink info")
 @JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
 public class SqlServerSink extends StreamSink {
 
