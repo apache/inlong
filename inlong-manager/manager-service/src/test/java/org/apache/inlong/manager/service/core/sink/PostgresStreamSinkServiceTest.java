@@ -37,8 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
 
 /**
  * Stream sink service test
@@ -146,11 +145,11 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
             } else {
                 List<PostgresColumnInfo> existColumns = PostgresJdbcUtils.getColumns(url, user, password, tableName);
                 List<String> columnNameList = new ArrayList<>();
-                existColumns.forEach(e -> columnNameList.add(e.getName()));
+                existColumns.forEach(columnInfo -> columnNameList.add(columnInfo.getName()));
 
                 List<PostgresColumnInfo> needAddColumns = tableInfo.getColumns().stream()
                         .filter((columnInfo) -> !columnNameList.contains(columnInfo.getName()))
-                        .collect(toList());
+                        .collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(needAddColumns)) {
                     PostgresJdbcUtils.addColumns(url, user, password, tableName, needAddColumns);
                 }
