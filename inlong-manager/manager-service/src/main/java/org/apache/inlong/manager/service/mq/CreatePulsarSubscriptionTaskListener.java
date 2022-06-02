@@ -73,8 +73,8 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
         final String streamId = streamInfo.getInlongStreamId();
         final String namespace = groupInfo.getMqResource();
         final String topic = streamInfo.getMqResource();
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
             if (sinkTypeList == null || sinkTypeList.size() == 0) {
@@ -87,28 +87,26 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
             topicBean.setTenant(tenant);
             topicBean.setNamespace(namespace);
             topicBean.setTopicName(topic);
-            List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
 
-            // Create a subscription in the Pulsar cluster (cross-region), you need to ensure that the Topic exists
-            for (String cluster : pulsarClusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
-                    boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
-                    if (!exist) {
-                        String fullTopic = tenant + "/" + namespace + "/" + topic;
-                        log.error("topic={} not exists in {}", fullTopic, pulsarAdmin.getServiceUrl());
-                        throw new BusinessException("topic=" + fullTopic + " not exists in " + serviceUrl);
-                    }
-
-                    // Consumer naming rules: sortAppName_topicName_consumer_group
-                    String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-                    pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
-
-                    // Insert the consumption data into the consumption table
-                    consumptionService.saveSortConsumption(groupInfo, topic, subscription);
+            // Create a subscription in the Pulsar cluster, you need to ensure that the Topic exists
+            try {
+                boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
+                if (!exist) {
+                    String fullTopic = tenant + "/" + namespace + "/" + topic;
+                    String serviceUrl = pulsarClusterInfo.getAdminUrl();
+                    log.error("topic={} not exists in {}", fullTopic, serviceUrl);
+                    throw new BusinessException("topic=" + fullTopic + " not exists in " + serviceUrl);
                 }
+
+                // Consumer naming rules: sortAppName_topicName_consumer_group
+                String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
+                pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
+
+                // Insert the consumption data into the consumption table
+                consumptionService.saveSortConsumption(groupInfo, topic, subscription);
+            } catch (Exception e) {
+                log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
+                throw new WorkflowListenerException("create pulsar subscription error, reason: " + e.getMessage());
             }
         } catch (Exception e) {
             log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
