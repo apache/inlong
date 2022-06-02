@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.Server;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
@@ -687,6 +686,15 @@ public interface MetaDataService extends Server {
                                StringBuilder strBuff, ProcessResult result);
 
     /**
+     * Get consume control records by group name
+     *
+     * @param groupName  the queried group name
+     * @param topicName  the queried topic name
+     * @return  the consume control record list
+     */
+    GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName);
+
+    /**
      * Get all group consume control record for a specific topic
      *
      * @param topicName  the queried topic name
@@ -695,12 +703,36 @@ public interface MetaDataService extends Server {
     List<GroupConsumeCtrlEntity> getConsumeCtrlByTopic(String topicName);
 
     /**
+     * Get all group consume control records for the specific topic set
+     *
+     * @param topicSet  the queried topic name set
+     * @return group consume control list
+     */
+    Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByTopic(Set<String> topicSet);
+
+    /**
      * Get all disable consumed topic for a specific group
      *
      * @param groupName  the queried group name
      * @return  the disable consumed topic list
      */
     Set<String> getDisableTopicByGroupName(String groupName);
+
+    /**
+     * Get consume control records by group name
+     *
+     * @param groupName  the queried group name
+     * @return  the consume control record list
+     */
+    List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName);
+
+    /**
+     * Get consume control records by group name set
+     *
+     * @param groupSet  the queried group name set
+     * @return  the consume control record map
+     */
+    Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupName(Set<String> groupSet);
 
     /**
      * Get group consume control configure for topic & group set

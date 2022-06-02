@@ -189,6 +189,37 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
     }
 
     @Override
+    public Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByTopicName(
+            Set<String> topicSet) {
+        if (topicSet == null || topicSet.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        GroupConsumeCtrlEntity entity;
+        ConcurrentHashSet<String> keySet;
+        List<GroupConsumeCtrlEntity> itemRet;
+        Map<String, List<GroupConsumeCtrlEntity>> result = new HashMap<>();
+        for (String topicName : topicSet) {
+            keySet = topic2RecordCache.get(topicName);
+            if (keySet == null || keySet.isEmpty()) {
+                result.put(topicName, Collections.emptyList());
+                continue;
+            }
+            itemRet = new ArrayList<>();
+            for (String recordKey : keySet) {
+                if (recordKey == null) {
+                    continue;
+                }
+                entity = consumeCtrlCache.get(recordKey);
+                if (entity != null) {
+                    itemRet.add(entity);
+                }
+            }
+            result.put(topicName, itemRet);
+        }
+        return result;
+    }
+
+    @Override
     public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
         ConcurrentHashSet<String> keySet =
                 group2RecordCache.get(groupName);
@@ -202,6 +233,37 @@ public abstract class AbsConsumeCtrlMapperImpl implements ConsumeCtrlMapper {
             if (entity != null) {
                 result.add(entity);
             }
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupName(
+            Set<String> groupSet) {
+        if (groupSet == null || groupSet.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        GroupConsumeCtrlEntity entity;
+        ConcurrentHashSet<String> keySet;
+        List<GroupConsumeCtrlEntity> itemRet;
+        Map<String, List<GroupConsumeCtrlEntity>> result = new HashMap<>();
+        for (String groupName : groupSet) {
+            keySet = group2RecordCache.get(groupName);
+            if (keySet == null || keySet.isEmpty()) {
+                result.put(groupName, Collections.emptyList());
+                continue;
+            }
+            itemRet = new ArrayList<>();
+            for (String recordKey : keySet) {
+                if (recordKey == null) {
+                    continue;
+                }
+                entity = consumeCtrlCache.get(recordKey);
+                if (entity != null) {
+                    itemRet.add(entity);
+                }
+            }
+            result.put(groupName, itemRet);
         }
         return result;
     }
