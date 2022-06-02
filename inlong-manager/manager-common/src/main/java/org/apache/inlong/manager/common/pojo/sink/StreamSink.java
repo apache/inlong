@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
@@ -106,10 +108,10 @@ public abstract class StreamSink extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkField> fieldList;
+    private List<SinkField> fieldList = Lists.newArrayList();
 
     @ApiModelProperty("Properties for sink")
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = Maps.newHashMap();
 
     @JsonIgnore
     @ApiModelProperty("Data format type for stream sink")
