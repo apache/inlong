@@ -32,8 +32,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.api.common.JobStatus.RUNNING;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFile;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.listFiles;
 
 /**
  * Flink task operation, such restart or stop flink job.
@@ -109,12 +107,12 @@ public class FlinkOperation {
             throw new Exception(message);
         }
 
-        String jarPath = findFile(basePath, SORT_JAR_PATTERN);
+        String jarPath = FlinkUtils.findFile(basePath, SORT_JAR_PATTERN);
         flinkInfo.setLocalJarPath(jarPath);
         log.info("get sort jar path success, path: {}", jarPath);
 
         String pluginPath = startPath + SORT_PLUGIN;
-        List<String> connectorPaths = listFiles(pluginPath, CONNECTOR_JAR_PATTERN, -1);
+        List<String> connectorPaths = FlinkUtils.listFiles(pluginPath, CONNECTOR_JAR_PATTERN, -1);
         flinkInfo.setConnectorJarPaths(connectorPaths);
         log.info("get sort connector paths success, paths: {}", connectorPaths);
 

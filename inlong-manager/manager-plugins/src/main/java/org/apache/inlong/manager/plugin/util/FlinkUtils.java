@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -82,7 +83,7 @@ public class FlinkUtils {
      */
     public static String findFile(String baseDirName, String pattern) {
         List<String> files = listFiles(baseDirName, pattern, 1);
-        if (files == null || files.size() < 1) {
+        if (CollectionUtils.isEmpty(files)) {
             return null;
         }
         return files.get(0);
