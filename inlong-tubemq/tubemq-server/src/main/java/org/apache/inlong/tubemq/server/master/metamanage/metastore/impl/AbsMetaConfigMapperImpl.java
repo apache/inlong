@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
+import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.statusdef.TopicStatus;
 import org.apache.inlong.tubemq.server.common.utils.RowLock;
@@ -1231,6 +1231,11 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
+    public Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByTopic(Set<String> topicSet) {
+        return consumeCtrlMapper.getConsumeCtrlByTopicName(topicSet);
+    }
+
+    @Override
     public GroupConsumeCtrlEntity getConsumeCtrlByGroupAndTopic(String groupName, String topicName) {
         return consumeCtrlMapper.getConsumeCtrlByGroupAndTopic(groupName, topicName);
     }
@@ -1244,11 +1249,23 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
             return disTopicSet;
         }
         for (GroupConsumeCtrlEntity ctrlEntity : qryResult) {
-            if (ctrlEntity != null && !ctrlEntity.isEnableConsume()) {
+            if (ctrlEntity != null
+                    && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_DISABLE) {
                 disTopicSet.add(ctrlEntity.getTopicName());
             }
         }
         return disTopicSet;
+    }
+
+    @Override
+    public List<GroupConsumeCtrlEntity> getConsumeCtrlByGroupName(String groupName) {
+        return consumeCtrlMapper.getConsumeCtrlByGroupName(groupName);
+    }
+
+    @Override
+    public Map<String, List<GroupConsumeCtrlEntity>> getConsumeCtrlByGroupName(
+            Set<String> groupSet) {
+        return consumeCtrlMapper.getConsumeCtrlByGroupName(groupSet);
     }
 
     @Override
