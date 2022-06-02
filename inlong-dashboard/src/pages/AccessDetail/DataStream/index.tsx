@@ -25,7 +25,7 @@ import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
+import { dataToValues, valuesToData } from './helper';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent, genExtraContent, genFormContent } from './config';

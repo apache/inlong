@@ -25,7 +25,7 @@ import { useUpdateEffect } from '@/hooks';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
-import { valuesToData } from '@/pages/AccessCreate/DataStream/helper';
+import { valuesToData } from './helper';
 import { pickObject } from '@/utils';
 
 export interface Props extends ModalProps {
