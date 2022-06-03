@@ -53,6 +53,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 "adminBatchModGroupConsumeCtrlInfo");
         registerModifyWebMethod("admin_delete_group_csmctrl_info",
                 "adminDelGroupConsumeCtrlInfo");
+        registerModifyWebMethod("admin_batch_delete_group_csmctrl_info",
+                "adminBatchDelGroupConsumeCtrlInfo");
     }
 
     /**
@@ -252,6 +254,42 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                     retInfo.add(new GroupProcessResult(groupName, topicName, result));
                 }
             }
+        }
+        buildRetInfo(retInfo, sBuffer);
+        return sBuffer;
+    }
+
+    /**
+     * Batch delete group consume configure info
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminBatchDelGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get groupCsmJsonSet data
+        if (!getGroupConsumeJsonSetInfo(req, false, opEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap =
+                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        // delete group consume control records
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        for (GroupConsumeCtrlEntity ctrlEntity : batchAddInfoMap.values()) {
+            defMetaDataService.delConsumeCtrlConf(opEntity.getModifyUser(),
+                    ctrlEntity.getGroupName(), ctrlEntity.getTopicName(), sBuffer, result);
+            retInfo.add(new GroupProcessResult(ctrlEntity.getGroupName(),
+                    ctrlEntity.getTopicName(), result));
         }
         buildRetInfo(retInfo, sBuffer);
         return sBuffer;
