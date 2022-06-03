@@ -579,7 +579,7 @@ public class InnerInlongManagerClient {
      * @return the result of type T
      */
     private <T> T sendGet(String url, TypeReference<Response<T>> typeReference) {
-        return executeRequestForResponse("GET", url, null, typeReference).getData();
+        return executeRequestForDataType("GET", url, null, typeReference);
     }
 
     /**
@@ -603,7 +603,7 @@ public class InnerInlongManagerClient {
      * @return the result of type T
      */
     private <T> T sendPost(String url, String content, Class<T> clazz) {
-        return executeRequestForResponse("POST", url, content, clazz).getData();
+        return executeRequestForClass("POST", url, content, clazz);
     }
 
     /**
@@ -615,7 +615,7 @@ public class InnerInlongManagerClient {
      * @return the result of type T
      */
     private <T> T sendPost(String url, String content, TypeReference<Response<T>> typeReference) {
-        return executeRequestForResponse("POST", url, content, typeReference).getData();
+        return executeRequestForDataType("POST", url, content, typeReference);
     }
 
     /**
@@ -651,7 +651,22 @@ public class InnerInlongManagerClient {
      * @return the result of type T
      */
     private <T> T sendDeleteForClass(String url, String content, Class<T> clazz) {
-        return executeRequestForResponse("DELETE", url, content, clazz).getData();
+        return executeRequestForClass("DELETE", url, content, clazz);
+    }
+
+    private <T> T executeRequestForClass(String method, String url, String content, Class<T> clazz) {
+        Response<T> response = executeRequestForResponse(method, url, content, clazz);
+        Preconditions.checkState(response.isSuccess(), "Inlong request failed: %s", response.getErrMsg());
+
+        return response.getData();
+    }
+
+    private <T> T executeRequestForDataType(String method, String url, String content,
+            TypeReference<Response<T>> typeReference) {
+        Response<T> response = executeRequestForResponse(method, url, content, typeReference);
+        Preconditions.checkState(response.isSuccess(), "Inlong request failed: %s", response.getErrMsg());
+
+        return response.getData();
     }
 
     private <T> Response<T> executeRequestForResponse(String method, String url, String content, Class<T> clazz) {
