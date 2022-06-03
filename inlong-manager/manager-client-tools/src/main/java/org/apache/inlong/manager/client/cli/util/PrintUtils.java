@@ -40,6 +40,9 @@ public class PrintUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    /**
+     * Print a list info to console with format.
+     */
     public static <T, K> void print(List<T> item, Class<K> clazz) {
         if (item.isEmpty()) {
             return;
@@ -49,6 +52,9 @@ public class PrintUtils {
         printTable(list, maxColumnWidth);
     }
 
+    /**
+     * Print the given item to the console in JSON format.
+     */
     public static <T> void printJson(T item) {
         try {
             System.out.println(OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(item));
@@ -57,33 +63,37 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Prints the given list to the console with the specified width.
+     */
     private static <K> void printTable(List<K> list, int[] columnWidth) {
         Field[] fields = list.get(0).getClass().getDeclaredFields();
-
-        String format = "%s" + vertical;
         printLine(columnWidth, fields.length);
         System.out.print(vertical);
+
+        String format = "%s" + vertical;
         for (int i = 0; i < fields.length; i++) {
             System.out.printf(format, StringUtils.center(fields[i].getName(), columnWidth[i]));
         }
         System.out.println();
         printLine(columnWidth, fields.length);
-        list.forEach(k -> {
+
+        list.forEach(item -> {
             for (int i = 0; i < fields.length; i++) {
                 fields[i].setAccessible(true);
                 try {
                     System.out.print(vertical);
-                    if (fields[i].get(k) != null) {
-                        int charNum = getSpecialCharNum(fields[i].get(k).toString());
+                    Object obj = fields[i].get(item);
+                    if (obj != null) {
+                        int charNum = getSpecialCharNum(obj.toString());
                         if (fields[i].getType().equals(Date.class)) {
-                            SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String dataFormat = sf.format(fields[i].get(k));
-                            System.out.printf("%s", StringUtils.center(dataFormat, columnWidth[i]));
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String date = dateFormat.format(obj);
+                            System.out.printf("%s", StringUtils.center(date, columnWidth[i]));
                         } else if (charNum > 0) {
-                            System.out.printf("%s",
-                                    StringUtils.center(fields[i].get(k).toString(), columnWidth[i] - charNum));
+                            System.out.printf("%s", StringUtils.center(obj.toString(), columnWidth[i] - charNum));
                         } else {
-                            System.out.printf("%s", StringUtils.center(fields[i].get(k).toString(), columnWidth[i]));
+                            System.out.printf("%s", StringUtils.center(obj.toString(), columnWidth[i]));
                         }
                     } else {
                         System.out.printf("%s", StringUtils.center("NULL", columnWidth[i]));
@@ -97,34 +107,40 @@ public class PrintUtils {
         printLine(columnWidth, fields.length);
     }
 
-    private static <T, K> List<K> copyObject(List<T> item, Class<K> clazz) {
+    /**
+     * Copy the objects in the list, converting them to the specified type.
+     */
+    private static <T, K> List<K> copyObject(List<T> list, Class<K> clazz) {
         List<K> newList = new ArrayList<>();
         OBJECT_MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        item.forEach(t -> {
+        list.forEach(item -> {
             try {
-                K k = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(t), clazz);
-                parseStatus(k);
-                newList.add(k);
-            } catch (JsonProcessingException e) {
+                K value = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(item), clazz);
+                parseStatus(value);
+                newList.add(value);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
         return newList;
     }
 
+    /**
+     * Get the max-width for all columns in the given list info.
+     */
     private static <K> int[] getColumnWidth(List<K> list) {
         Field[] fields = list.get(0).getClass().getDeclaredFields();
         int[] maxWidth = new int[fields.length];
         for (int i = 0; i < fields.length; i++) {
             maxWidth[i] = Math.max(fields[i].getName().length(), maxWidth[i]);
         }
-        list.forEach(k -> {
+        list.forEach(item -> {
             try {
-                for (int j = 0; j < fields.length; j++) {
-                    fields[j].setAccessible(true);
-                    if (fields[j].get(k) != null) {
-                        int length = fields[j].get(k).toString().getBytes().length;
-                        maxWidth[j] = Math.max(length, maxWidth[j]);
+                for (int i = 0; i < fields.length; i++) {
+                    fields[i].setAccessible(true);
+                    if (fields[i].get(item) != null) {
+                        int length = fields[i].get(item).toString().getBytes().length;
+                        maxWidth[i] = Math.max(length, maxWidth[i]);
                     }
                 }
             } catch (IllegalAccessException e) {
@@ -137,6 +153,9 @@ public class PrintUtils {
         return maxWidth;
     }
 
+    /**
+     * Print the format line to the console.
+     */
     private static void printLine(int[] columnWidth, int fieldNum) {
         System.out.print(joint);
         for (int i = 0; i < fieldNum; i++) {
@@ -145,24 +164,32 @@ public class PrintUtils {
         System.out.println();
     }
 
+    /**
+     * Get the char number for special string, such as the Chinese string.
+     */
     private static int getSpecialCharNum(String str) {
         int i = str.getBytes().length - str.length();
         return i / 2;
     }
 
-    private static <T> void parseStatus(T t) {
-        Field[] fields = t.getClass().getDeclaredFields();
-        for (Field f : fields) {
-            f.setAccessible(true);
-            if (f.isAnnotationPresent(ParseStatus.class)) {
+    /**
+     * Parse the {@link ParseStatus} annotation, and transfer the status param to 'STATUS (status)',
+     * such as 'STARTED (130)'
+     */
+    private static <T> void parseStatus(T target) {
+        Field[] fields = target.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (field.isAnnotationPresent(ParseStatus.class)) {
                 try {
-                    int status = Integer.parseInt(f.get(t).toString());
+                    int status = Integer.parseInt(field.get(target).toString());
                     SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(status);
-                    f.set(t, String.format("%s (%s)", groupStatus, status));
+                    field.set(target, String.format("%s (%d)", groupStatus, status));
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
             }
         }
     }
+
 }
