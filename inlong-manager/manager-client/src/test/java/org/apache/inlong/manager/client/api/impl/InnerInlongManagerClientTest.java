@@ -634,4 +634,20 @@ class InnerInlongManagerClientTest {
         Assertions.assertEquals(JsonUtils.toJsonString(listResponses), JsonUtils.toJsonString(sinkListResponses));
     }
 
+    @Test
+    void testListSink4AllTypeShouldThrowException() {
+        stubFor(
+                get(urlMatching("/api/inlong/manager/sink/list.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.fail("groupId should not empty"))
+                                )
+                        )
+        );
+
+        RuntimeException exception = Assertions.assertThrows(IllegalStateException.class,
+                () -> innerInlongManagerClient.listSinks("", "11"));
+
+        Assertions.assertTrue(exception.getMessage().contains("groupId should not empty"));
+    }
 }
