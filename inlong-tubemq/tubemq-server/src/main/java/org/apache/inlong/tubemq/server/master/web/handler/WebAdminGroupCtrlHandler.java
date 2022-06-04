@@ -718,7 +718,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 if (!entry.getValue().isEmpty()) {
                     for (GroupConsumeCtrlEntity ctrlEntity : entry.getValue()) {
                         if (ctrlEntity != null
-                                && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
+                                && ctrlEntity.getConsumeEnable() != EnableStatus.STATUS_DISABLE) {
                             defMetaDataService.insertConsumeCtrlInfo(opEntity,
                                     ctrlEntity.getGroupName(), ctrlEntity.getTopicName(),
                                     Boolean.FALSE, "Old API delete, disable consume",
@@ -736,7 +736,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                     ctrlEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                             groupName, topicName);
                     if (ctrlEntity != null
-                            && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
+                            && ctrlEntity.getConsumeEnable() != EnableStatus.STATUS_DISABLE) {
                         retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity,
                                 groupName, topicName, Boolean.FALSE,
                                 "Old API delete, disable consume",
@@ -783,7 +783,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
             ctrlEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                     entry.getGroupName(), entry.getTopicName());
             if (ctrlEntity != null
-                    && ctrlEntity.getConsumeEnable() == EnableStatus.STATUS_ENABLE) {
+                    && ctrlEntity.getConsumeEnable() != EnableStatus.STATUS_DISABLE) {
                 retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(entry, sBuffer, result));
             } else {
                 result.setFullInfo(true, DataOpErrCode.DERR_SUCCESS.getCode(), "Ok");
@@ -894,7 +894,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                 }
                 for (GroupConsumeCtrlEntity ctrlEntity : entry.getValue()) {
                     if (ctrlEntity != null
-                            && ctrlEntity.getFilterEnable() == EnableStatus.STATUS_ENABLE) {
+                            && ctrlEntity.getFilterEnable() != EnableStatus.STATUS_DISABLE) {
                         defMetaDataService.insertConsumeCtrlInfo(opEntity,
                                 ctrlEntity.getGroupName(), ctrlEntity.getTopicName(), null,
                                 "Old API delete, disable filter", false,
@@ -911,7 +911,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                     ctrlEntity = defMetaDataService.getConsumeCtrlByGroupAndTopic(
                             groupName, topicName);
                     if (ctrlEntity != null
-                            && ctrlEntity.getFilterEnable() == EnableStatus.STATUS_ENABLE) {
+                            && ctrlEntity.getFilterEnable() != EnableStatus.STATUS_DISABLE) {
                         retInfoList.add(defMetaDataService.insertConsumeCtrlInfo(opEntity,
                                 groupName, topicName, null,
                                 "Old API delete, disable filter", false,
