@@ -15,30 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink;
+package org.apache.inlong.manager.client.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 
-/**
- * Sink approve info
- */
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ApiModel("Sink approve info")
-public class SinkApproveDTO {
+public class GroupStreamApproveRequest {
+    private InlongGroupApproveRequest groupInfo;
 
-    private Integer id;
-
-    @ApiModelProperty("Sink type, such as HIVE")
-    private String sinkType;
-
-    @ApiModelProperty("Sink cluster URL")
-    private String clusterUrl;
-
-    @ApiModelProperty("Sink status")
-    private Integer status;
-
+    private List<InlongStreamApproveRequest> streamInfoList;
 }

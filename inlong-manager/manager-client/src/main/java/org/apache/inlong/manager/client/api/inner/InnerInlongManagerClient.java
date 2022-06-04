@@ -33,11 +33,11 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
+import org.apache.inlong.manager.client.api.entity.GroupStreamApproveRequest;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -47,7 +47,6 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -468,15 +467,14 @@ public class InnerInlongManagerClient {
         );
     }
 
-    public WorkflowResult startInlongGroup(int taskId,
-            Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg) {
+    public WorkflowResult startInlongGroup(int taskId, GroupStreamApproveRequest groupStreamApproveRequest) {
         ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
         ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
-        inlongGroupApproveForm.putPOJO("groupApproveInfo", initMsg.getKey());
-        inlongGroupApproveForm.putPOJO("streamApproveInfoList", initMsg.getValue());
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", groupStreamApproveRequest.getGroupInfo());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", groupStreamApproveRequest.getStreamInfoList());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
         workflowTaskOperation.set("form", inlongGroupApproveForm);
 
