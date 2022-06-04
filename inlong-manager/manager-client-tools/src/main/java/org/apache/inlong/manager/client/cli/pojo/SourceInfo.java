@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.client.cli.pojo;
 
-import com.google.gson.annotations.JsonAdapter;
 import lombok.Data;
-import org.apache.inlong.manager.client.cli.util.StatusAdapter;
+import org.apache.inlong.manager.client.cli.util.ParseStatus;
 
 import java.util.Date;
 
@@ -36,7 +35,7 @@ public class SourceInfo {
     private String sourceName;
     private String serializationType;
 
-    @JsonAdapter(StatusAdapter.class)
+    @ParseStatus
     private String status;
     private Date modifyTime;
 }

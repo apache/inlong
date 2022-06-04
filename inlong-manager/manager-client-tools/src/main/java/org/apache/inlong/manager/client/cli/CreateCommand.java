@@ -26,7 +26,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.cli.pojo.CreateGroupConf;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
-import org.apache.inlong.manager.client.cli.util.GsonUtils;
 
 import java.io.File;
 
@@ -64,8 +63,7 @@ public class CreateCommand extends AbstractCommand {
                     System.out.println("Create group failed: file was empty!");
                     return;
                 }
-
-                CreateGroupConf groupConf = GsonUtils.GSON.fromJson(fileContent, CreateGroupConf.class);
+                CreateGroupConf groupConf = objectMapper.readValue(fileContent, CreateGroupConf.class);
                 InlongClient inlongClient = ClientUtils.getClient();
                 InlongGroup group = inlongClient.forGroup(groupConf.getGroupInfo());
                 InlongStreamBuilder streamBuilder = group.createStream(groupConf.getStreamInfo());
