@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Inlong cluster node request
@@ -33,17 +33,19 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank
+    @NotNull
     @ApiModelProperty(value = "ID of the parent cluster")
     private Integer parentId;
 
-    @NotBlank
+    @NotNull
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
+    @NotNull
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
+    @NotNull
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 

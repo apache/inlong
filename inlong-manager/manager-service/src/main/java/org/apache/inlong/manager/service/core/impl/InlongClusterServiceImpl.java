@@ -20,8 +20,14 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
@@ -46,14 +52,17 @@ import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.service.core.InlongClusterService;
+import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -62,8 +71,14 @@ import java.util.Objects;
 @Service
 public class InlongClusterServiceImpl implements InlongClusterService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
     public static final String SCHEMA_M0_DAY = "m0_day";
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
+    private static final Gson GSON = new Gson();
+    private static final String URL_SPLITTER = ",";
+    private static final String HOST_SPLITTER = ":";
+    private static final String CLUSTER_TUBE = "TUBE";
+    private static final String CLUSTER_PULSAR = "PULSAR";
+    private static final String CLUSTER_TDMQ_PULSAR = "TDMQ_PULSAR";
 
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
@@ -75,15 +90,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private InlongStreamEntityMapper streamMapper;
     @Autowired
     private ClusterBean clusterBean;
+    @Autowired
+    private DataProxyConfigRepository proxyRepository;
 
     @Override
     public Integer save(InlongClusterRequest request, String operator) {
         LOGGER.debug("begin to save inlong cluster={}", request);
-        // check request
-        Preconditions.checkNotNull(request, "inlong cluster info is empty");
-        Preconditions.checkNotEmpty(request.getName(), "inlong cluster name is empty");
-        Preconditions.checkNotEmpty(request.getClusterTag(), "inlong cluster tag is empty");
-        Preconditions.checkNotEmpty(request.getType(), "inlong cluster type is empty");
+        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
 
         // check if cluster already exist
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
@@ -99,13 +112,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         clusterMapper.insert(entity);
 
-        LOGGER.info("success to save inlong cluster={}", request);
+        LOGGER.info("success to save inlong cluster={} by user={}", request, operator);
         return entity.getId();
     }
 
     @Override
     public InlongClusterResponse get(Integer id) {
-        Preconditions.checkNotNull(id, "inlong cluster id is empty");
+        Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster not found by id={}", id);
@@ -119,19 +132,18 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public PageInfo<InlongClusterResponse> list(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>)
-                clusterMapper.selectByCondition(request);
-        List<InlongClusterResponse> clusterList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongClusterResponse::new);
-        PageInfo<InlongClusterResponse> page = new PageInfo<>(clusterList);
-        page.setTotal(clusterList.size());
+        Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
+        List<InlongClusterResponse> list = CommonBeanUtils.copyListProperties(entityPage, InlongClusterResponse::new);
+        PageInfo<InlongClusterResponse> page = new PageInfo<>(list);
+        page.setTotal(list.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
         return page;
     }
 
     @Override
     public List<String> listNodeIpByType(String type) {
-        Preconditions.checkNotNull(type, "inlong cluster type is null");
+        Preconditions.checkNotNull(type, "cluster type cannot be empty");
+        // TODO need to be combined into one query operation
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
@@ -148,14 +160,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean update(InlongClusterRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster={}", request);
-
-        Preconditions.checkNotNull(request, "inlong cluster info is empty");
-        Preconditions.checkNotEmpty(request.getName(), "inlong cluster name is empty");
-        Preconditions.checkNotEmpty(request.getClusterTag(), "inlong cluster tag is empty");
-        Preconditions.checkNotEmpty(request.getType(), "inlong cluster type is empty");
+        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
 
         Integer id = request.getId();
-        Preconditions.checkNotNull(id, "inlong cluster id is empty");
+        Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
         InlongClusterEntity exist = clusterMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
             String errMsg = String.format("inlong cluster already exist for name=%s cluster tag=%s type=%s",
@@ -179,7 +187,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean delete(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "cluster id is empty");
+        Preconditions.checkNotNull(id, "cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
             LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
@@ -189,18 +197,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         clusterMapper.updateById(entity);
-        LOGGER.info("success to delete inlong cluster by id={}", id);
+        LOGGER.info("success to delete inlong cluster for id={} by user={}", id, operator);
         return true;
     }
 
     @Override
     public Integer saveNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to insert inlong cluster node={}", request);
-        Preconditions.checkNotNull(request, "cluster node info is empty");
-        Preconditions.checkNotNull(request.getParentId(), "inlong cluster node parent_id is empty");
-        Preconditions.checkNotNull(request.getType(), "inlong cluster node type is empty");
-        Preconditions.checkNotNull(request.getIp(), "inlong cluster node ip is empty");
-        Preconditions.checkNotNull(request.getPort(), "inlong cluster node port is empty");
+        Preconditions.checkNotNull(request, "cluster node info cannot be empty");
 
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
@@ -223,7 +227,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public ClusterNodeResponse getNode(Integer id) {
-        Preconditions.checkNotNull(id, "cluster node id is empty");
+        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null) {
             LOGGER.error("inlong cluster node not found by id={}", id);
@@ -250,14 +254,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster node info is empty");
-        Preconditions.checkNotNull(request.getParentId(), "inlong cluster node parent_id is empty");
-        Preconditions.checkNotNull(request.getType(), "inlong cluster node type is empty");
-        Preconditions.checkNotNull(request.getIp(), "inlong cluster node ip is empty");
-        Preconditions.checkNotNull(request.getPort(), "inlong cluster node port is empty");
+        Preconditions.checkNotNull(request, "inlong cluster node cannot be empty");
 
         Integer id = request.getId();
-        Preconditions.checkNotNull(id, "inlong cluster node id is empty");
+        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
         // check cluster node if exist
         InlongClusterNodeEntity exist = clusterNodeMapper.selectByUniqueKey(request);
         if (exist != null && !Objects.equals(id, exist.getId())) {
@@ -283,7 +283,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public Boolean deleteNode(Integer id, String operator) {
-        Preconditions.checkNotNull(id, "inlong cluster node id is empty");
+        Preconditions.checkNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
         if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
             LOGGER.error("inlong cluster node not found by id={}", id);
@@ -298,7 +298,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public List<DataProxyResponse> getIpList(String clusterName) {
-        LOGGER.debug("begin to list data proxy by clusterName={}", clusterName);
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(InlongGroupSettings.CLUSTER_DATA_PROXY);
         if (StringUtils.isNotBlank(clusterName)) {
@@ -321,8 +320,61 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             }
         }
 
+        LOGGER.debug("success to list data proxy cluster for name={}, result={}", clusterName, responseList);
+        return responseList;
+    }
+
+    // TODO need merge into getIpList method
+    public List<DataProxyResponse> getIpListOld(String clusterName) {
+        LOGGER.debug("begin to list data proxy by clusterName={}", clusterName);
+
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByNameAndType(clusterName,
+                InlongGroupSettings.CLUSTER_DATA_PROXY);
+        if (CollectionUtils.isEmpty(clusterList)) {
+            LOGGER.warn("data proxy cluster not found by name={}", clusterName);
+            return null;
+        }
+
+        InlongClusterEntity entity = clusterList.get(0);
+        List<DataProxyResponse> responseList = new ArrayList<>();
+        /*String ipStr = entity.getIp();
+        while (ipStr.startsWith(URL_SPLITTER) || ipStr.endsWith(URL_SPLITTER)
+                || ipStr.startsWith(HOST_SPLITTER) || ipStr.endsWith(HOST_SPLITTER)) {
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, URL_SPLITTER);
+            ipStr = InlongStringUtils.trimFirstAndLastChar(ipStr, HOST_SPLITTER);
+        }
+
+        Integer id = entity.getId();
+        Integer defaultPort = entity.getPort();
+        int index = ipStr.indexOf(URL_SPLITTER);
+        if (index <= 0) {
+            DataProxyResponse response = new DataProxyResponse();
+            response.setId(id);
+            setIpAndPort(ipStr, defaultPort, response);
+            responseList.add(response);
+        } else {
+            String[] urlArr = ipStr.split(URL_SPLITTER);
+            for (String url : urlArr) {
+                DataProxyResponse response = new DataProxyResponse();
+                response.setId(id);
+                setIpAndPort(url, defaultPort, response);
+                responseList.add(response);
+            }
+        }*/
+
         LOGGER.debug("success to list data proxy cluster={}", responseList);
         return responseList;
+    }
+
+    private void setIpAndPort(String url, Integer defaultPort, DataProxyResponse response) {
+        int idx = url.indexOf(HOST_SPLITTER);
+        if (idx <= 0) {
+            response.setIp(url);
+            response.setPort(defaultPort);
+        } else {
+            response.setIp(url.substring(0, idx));
+            response.setPort(Integer.valueOf(url.substring(idx + 1)));
+        }
     }
 
     @Override
@@ -354,6 +406,109 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         return configList;
+    }
+
+    // TODO need optimized: query conditions use dataProxyClusterId
+    @Override
+    public ThirdPartyClusterDTO getConfigV2(String clusterName) {
+        ThirdPartyClusterDTO object = new ThirdPartyClusterDTO();
+
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setName(clusterName);
+        request.setType(InlongGroupSettings.CLUSTER_DATA_PROXY);
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
+        if (CollectionUtils.isEmpty(clusterList)) {
+            LOGGER.warn("data proxy cluster not found by name={}, please register it firstly", clusterName);
+            return object;
+        }
+
+        List<InlongGroupEntity> groupEntityList = groupMapper.selectAll(GroupStatus.CONFIG_SUCCESSFUL.getCode());
+        if (CollectionUtils.isEmpty(groupEntityList)) {
+            LOGGER.warn("not found any inlong group with success status for data proxy cluster={}", clusterName);
+            return object;
+        }
+
+        // Get topic list by group id
+        String mqType = groupEntityList.get(0).getMqType();
+        List<DataProxyConfig> topicList = new ArrayList<>();
+        for (InlongGroupEntity groupEntity : groupEntityList) {
+            final String groupId = groupEntity.getInlongGroupId();
+            final String mqResource = groupEntity.getMqResource();
+            MQType type = MQType.forType(mqType);
+            if (type == MQType.PULSAR || type == MQType.TDMQ_PULSAR) {
+                List<InlongStreamEntity> streamList = streamMapper.selectByGroupId(groupId);
+                for (InlongStreamEntity stream : streamList) {
+                    DataProxyConfig topicConfig = new DataProxyConfig();
+                    String streamId = stream.getInlongStreamId();
+                    String topic = stream.getMqResource();
+                    String tenant = clusterBean.getDefaultTenant();
+                    /*InlongGroupPulsarEntity pulsarEntity = pulsarEntityMapper.selectByGroupId(groupId);
+                    if (pulsarEntity != null && StringUtils.isNotEmpty(pulsarEntity.getTenant())) {
+                        tenant = pulsarEntity.getTenant();
+                    }*/
+                    topicConfig.setInlongGroupId(groupId + "/" + streamId);
+                    topicConfig.setTopic("persistent://" + tenant + "/" + mqResource + "/" + topic);
+                    topicList.add(topicConfig);
+                }
+            } else if (type == MQType.TUBE) {
+                DataProxyConfig topicConfig = new DataProxyConfig();
+                topicConfig.setInlongGroupId(groupId);
+                topicConfig.setTopic(mqResource);
+                topicList.add(topicConfig);
+            }
+        }
+
+        // construct mq set info
+        List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
+        String clusterTag = clusterList.get(0).getClusterTag();
+        List<String> typeList = Arrays.asList(CLUSTER_TUBE, CLUSTER_PULSAR, CLUSTER_TDMQ_PULSAR);
+        InlongClusterPageRequest pageRequest = new InlongClusterPageRequest();
+        pageRequest.setClusterTag(clusterTag);
+        pageRequest.setTypeList(typeList);
+        List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
+        for (InlongClusterEntity cluster : mqClusterList) {
+            ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
+            clusterInfo.setUrl(cluster.getUrl());
+            clusterInfo.setToken(cluster.getToken());
+            Map<String, String> configParams = GSON.fromJson(cluster.getExtParams(), Map.class);
+            clusterInfo.setParams(configParams);
+
+            mqSet.add(clusterInfo);
+        }
+        object.setMqSet(mqSet);
+        object.setTopicList(topicList);
+
+        return object;
+    }
+
+    // TODO need optimized
+    @Override
+    public String getAllConfig(String clusterName, String md5) {
+        DataProxyConfigResponse response = new DataProxyConfigResponse();
+        String configMd5 = proxyRepository.getProxyMd5(clusterName);
+        if (configMd5 == null) {
+            response.setResult(false);
+            response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
+            return GSON.toJson(response);
+        }
+
+        // same config
+        if (configMd5.equals(md5)) {
+            response.setResult(true);
+            response.setErrCode(DataProxyConfigResponse.NOUPDATE);
+            response.setMd5(configMd5);
+            response.setData(new DataProxyCluster());
+            return GSON.toJson(response);
+        }
+
+        String configJson = proxyRepository.getProxyConfigJson(clusterName);
+        if (configJson == null) {
+            response.setResult(false);
+            response.setErrCode(DataProxyConfigResponse.REQ_PARAMS_ERROR);
+            return GSON.toJson(response);
+        }
+
+        return configJson;
     }
 
 }

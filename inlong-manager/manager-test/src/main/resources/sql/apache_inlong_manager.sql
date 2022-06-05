@@ -137,32 +137,6 @@ CREATE TABLE IF NOT EXISTS `data_node`
 );
 
 -- ----------------------------
--- Table structure for third_party_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `third_party_cluster`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
-    `type`        varchar(32)  NOT NULL COMMENT 'Cluster type, including TUBE, PULSAR, etc.',
-    `ip`          text         NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
-    `port`        int(11)      NOT NULL COMMENT 'Cluster port',
-    `token`       varchar(512) COMMENT 'Cluster token',
-    `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
-    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params',
-    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cluster_name` (`name`, `is_deleted`)
-);
-
--- ----------------------------
 -- Table structure for consumption
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption`
@@ -200,30 +174,6 @@ CREATE TABLE IF NOT EXISTS `consumption_pulsar`
     `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 ) COMMENT ='Pulsar consumption table';
-
--- ----------------------------
--- Table structure for data_proxy_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `data_proxy_cluster`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
-    `description` varchar(500)      DEFAULT NULL COMMENT 'Cluster description',
-    `address`     varchar(128) NOT NULL COMMENT 'Cluster address',
-    `port`        varchar(256)      DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
-    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params',
-    `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_dp_cluster_name` (`name`, `is_deleted`)
-);
 
 -- ----------------------------
 -- Table structure for data_schema

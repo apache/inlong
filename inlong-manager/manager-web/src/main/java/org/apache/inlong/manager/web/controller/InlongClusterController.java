@@ -125,7 +125,7 @@ public class InlongClusterController {
     @RequestMapping(value = "/node/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "DataProxy cluster id", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Cluster node id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUserDetail().getUserName()));
     }
