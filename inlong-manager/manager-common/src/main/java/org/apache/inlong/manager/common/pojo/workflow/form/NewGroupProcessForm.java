@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewGroupProcessForm extends BaseProcessForm {
 
     public static final String FORM_NAME = "NewGroupProcessForm";

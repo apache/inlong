@@ -33,7 +33,6 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.entity.GroupStreamApproveRequest;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
@@ -54,6 +53,7 @@ import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
@@ -467,14 +467,14 @@ public class InnerInlongManagerClient {
         );
     }
 
-    public WorkflowResult startInlongGroup(int taskId, GroupStreamApproveRequest groupStreamApproveRequest) {
+    public WorkflowResult startInlongGroup(int taskId, NewGroupProcessForm newGroupProcessForm) {
         ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
         workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
         workflowTaskOperation.put("remark", "approved by system");
 
         ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
-        inlongGroupApproveForm.putPOJO("groupApproveInfo", groupStreamApproveRequest.getGroupInfo());
-        inlongGroupApproveForm.putPOJO("streamApproveInfoList", groupStreamApproveRequest.getStreamInfoList());
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", newGroupProcessForm.getGroupInfo());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", newGroupProcessForm.getStreamInfoList());
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
         workflowTaskOperation.set("form", inlongGroupApproveForm);
 

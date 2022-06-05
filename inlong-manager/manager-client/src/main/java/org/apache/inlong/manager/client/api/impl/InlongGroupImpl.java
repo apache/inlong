@@ -26,7 +26,6 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.entity.GroupStreamApproveRequest;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
@@ -43,14 +42,13 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static org.apache.inlong.manager.common.util.JsonUtils.toJsonString;
 
 /**
  * Inlong group service implementation.
@@ -101,12 +99,13 @@ public class InlongGroupImpl implements InlongGroup {
                 String.format("Process status : %s is not corrected, should be PROCESSING",
                         processView.getStatus()));
 
-        GroupStreamApproveRequest groupStreamApproveRequest = JsonUtils.parseObject(
-                toJsonString(processView.getFormData()), GroupStreamApproveRequest.class);
-        AssertUtils.notNull(groupStreamApproveRequest, "groupStreamDTO must not be null");
+        // init must be NewGroupProcessForm
+        NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
+                JsonUtils.toJsonString(processView.getFormData()), NewGroupProcessForm.class);
+        AssertUtils.notNull(newGroupProcessForm, "groupStreamDTO must not be null");
 
-        groupContext.setInitMsg(groupStreamApproveRequest);
-        WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, groupStreamApproveRequest);
+        groupContext.setInitMsg(newGroupProcessForm);
+        WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, newGroupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
         AssertUtils.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
                 String.format("Business info state : %s is not corrected , should be COMPLETED",
@@ -269,7 +268,7 @@ public class InlongGroupImpl implements InlongGroup {
                 logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
                         .forEach(streamLog -> {
                             String componentName = streamLog.getComponentName();
-                            String log = toJsonString(streamLog);
+                            String log = JsonUtils.toJsonString(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
                 inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);
