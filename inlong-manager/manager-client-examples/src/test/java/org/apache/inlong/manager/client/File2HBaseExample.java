@@ -127,7 +127,7 @@ public class File2HBaseExample extends BaseExample {
                 "score");
 
         // field ext param
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         HBaseColumnFamilyInfo info1 = new HBaseColumnFamilyInfo();
         info1.setCfName("cf_1");
         field1.setExtParams(mapper.writeValueAsString(info1));

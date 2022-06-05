@@ -131,7 +131,7 @@ public class File2IcebergExample extends BaseExample {
 
         // field ext param
         // field1: bucket partition example
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         IcebergColumnInfo info1 = new IcebergColumnInfo();
         info1.setRequired(true);
         info1.setPartitionStrategy(IcebergPartition.BUCKET.toString());
