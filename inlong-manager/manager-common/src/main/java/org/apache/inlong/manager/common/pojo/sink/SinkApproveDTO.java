@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.common.pojo.sink;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,7 +25,6 @@ import lombok.Data;
  * Sink approve info
  */
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel("Sink approve info")
 public class SinkApproveDTO {
 

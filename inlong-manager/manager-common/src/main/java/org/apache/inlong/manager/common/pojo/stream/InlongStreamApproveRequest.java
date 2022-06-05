@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.common.pojo.stream;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,7 +28,6 @@ import java.util.List;
  * Inlong stream approval info
  */
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel("Inlong stream approval info")
 public class InlongStreamApproveRequest {
 
