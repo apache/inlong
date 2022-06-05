@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
@@ -29,12 +26,14 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.util.Preconditions;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * New inlong group process form
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewGroupProcessForm extends BaseProcessForm {
 
     public static final String FORM_NAME = "NewGroupProcessForm";
