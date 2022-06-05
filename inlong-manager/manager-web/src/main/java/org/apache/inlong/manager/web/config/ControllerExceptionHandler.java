@@ -28,8 +28,7 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindException;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,12 +45,14 @@ import java.util.Set;
 @RestControllerAdvice
 public class ControllerExceptionHandler {
 
+    private static final String ERROR_MSG = "failed to handle request on path: %s by user: %s";
+
     @ExceptionHandler(ConstraintViolationException.class)
     public Response<String> handleConstraintViolationException(HttpServletRequest request,
             ConstraintViolationException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
         StringBuilder stringBuilder = new StringBuilder(64);
@@ -67,84 +67,81 @@ public class ControllerExceptionHandler {
     public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
             MethodArgumentNotValidException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
-        StringBuilder stringBuilder = new StringBuilder();
-        List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
-        fieldErrors.forEach(
-                fieldError -> stringBuilder.append(fieldError.getField())
-                        .append(":")
-                        .append(fieldError.getDefaultMessage()).append(System.lineSeparator())
+        StringBuilder builder = new StringBuilder();
+        BindingResult result = e.getBindingResult();
+        result.getFieldErrors().forEach(
+                error -> builder.append(error.getField()).append(":")
+                        .append(error.getDefaultMessage()).append(System.lineSeparator())
         );
 
-        List<ObjectError> globalErrors = e.getBindingResult().getGlobalErrors();
-        globalErrors.forEach(
-                objectError -> stringBuilder.append(objectError.getDefaultMessage()).append(System.lineSeparator())
+        result.getGlobalErrors().forEach(
+                error -> builder.append(error.getDefaultMessage()).append(System.lineSeparator())
         );
 
-        return Response.fail(stringBuilder.toString());
+        return Response.fail(builder.toString());
     }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
     public Response<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = BindException.class)
     public Response<String> handleBindExceptionHandler(HttpServletRequest request, BindException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
-        StringBuilder sb = new StringBuilder();
-        e.getBindingResult().getFieldErrors()
-                .forEach(
-                        fieldError -> sb.append(fieldError.getField())
-                                .append(":")
-                                .append(fieldError.getDefaultMessage()).append(System.lineSeparator())
-                );
-        return Response.fail(sb.toString());
+        StringBuilder builder = new StringBuilder();
+        e.getBindingResult().getFieldErrors().forEach(
+                error -> builder.append(error.getField()).append(":")
+                        .append(error.getDefaultMessage()).append(System.lineSeparator())
+        );
+        return Response.fail(builder.toString());
     }
 
     @ExceptionHandler(value = HttpMessageConversionException.class)
     public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
             HttpMessageConversionException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:" + request.getRequestURI()
-                + (userDetail != null ? ", user:" + userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("http message convert exception! pls check params");
     }
 
     @ExceptionHandler(value = WorkflowException.class)
     public Response<String> handleWorkflowException(HttpServletRequest request, WorkflowException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = BusinessException.class)
     public Response<String> handleBusinessExceptionHandler(HttpServletRequest request, BusinessException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = AuthenticationException.class)
     public Response<String> handleAuthenticationException(HttpServletRequest request, AuthenticationException e) {
-        log.error("Failed to handle request on path:{}", request.getRequestURI(), e);
-        return Response.fail("username or password is incorrect, or the account has expired");
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), ""), e);
+        return Response.fail("Username or password was incorrect, or the account has expired");
     }
 
     @ExceptionHandler(value = UnauthorizedException.class)
     public Response<String> handleUnauthorizedException(HttpServletRequest request, AuthorizationException e) {
-        log.error("Failed to handle request on path:{}", request.getRequestURI(), e);
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(String.format("Current user [%s] has no permission to access URL",
                 (userDetail != null ? userDetail.getUserName() : "")));
     }
@@ -152,8 +149,8 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Response<String> handle(HttpServletRequest request, Exception e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        log.error("Failed to handle request on path:{}, user:{}", request.getRequestURI(),
-                (userDetail != null ? userDetail.getUserName() : ""), e);
+        String username = userDetail != null ? userDetail.getUserName() : "";
+        log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("There was an error in the service..."
                 + "Please try again later! "
                 + "If there are still problems, please contact the administrator");
