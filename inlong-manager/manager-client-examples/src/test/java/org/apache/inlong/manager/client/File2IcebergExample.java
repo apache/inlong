@@ -37,7 +37,6 @@ import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -156,8 +155,6 @@ public class File2IcebergExample extends BaseExample {
         fields.add(field3);
         fields.add(field4);
         sink.setFieldList(fields);
-
-        sink.setProperties(new HashMap<>());
         return sink;
     }
 }

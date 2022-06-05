@@ -36,7 +36,6 @@ import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -146,8 +145,6 @@ public class File2HBaseExample extends BaseExample {
         fields.add(field2);
         fields.add(field3);
         sink.setFieldList(fields);
-
-        sink.setProperties(new HashMap<>());
         return sink;
     }
 }
