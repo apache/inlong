@@ -26,19 +26,19 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.ThirdPartyClusterEntity;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.dao.mapper.ThirdPartyClusterEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public class CommonOperateService {
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
-    private ThirdPartyClusterEntityMapper thirdPartyClusterMapper;
+    private InlongClusterEntityMapper clusterMapper;
 
     /**
      * query some third-party-cluster info according key, such as "pulsar_adminUrl", "cluster_tube_manager", etc.
@@ -65,7 +65,7 @@ public class CommonOperateService {
      */
     public String getSpecifiedParam(String key) {
         String result = "";
-        ThirdPartyClusterEntity clusterEntity;
+        InlongClusterEntity clusterEntity;
         Gson gson = new Gson();
         Map<String, String> params;
 
@@ -110,18 +110,21 @@ public class CommonOperateService {
      *
      * TODO Add data_proxy_cluster_name for query.
      */
-    private ThirdPartyClusterEntity getMQCluster(MQType type) {
-        List<ThirdPartyClusterEntity> clusterList = thirdPartyClusterMapper.selectByType(
+    private InlongClusterEntity getMQCluster(MQType type) {
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByNameAndType(null,
                 InlongGroupSettings.CLUSTER_DATA_PROXY);
         if (CollectionUtils.isEmpty(clusterList)) {
             LOGGER.warn("no data proxy cluster found");
             return null;
         }
-        String mqSetName = clusterList.get(0).getMqSetName();
-        List<ThirdPartyClusterEntity> mqClusterList = thirdPartyClusterMapper.selectMQCluster(mqSetName,
-                Collections.singletonList(type.getType()));
+
+        String clusterTag = clusterList.get(0).getClusterTag();
+        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        request.setClusterTag(clusterTag);
+        request.setType(type.getType());
+        List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(request);
         if (CollectionUtils.isEmpty(mqClusterList)) {
-            LOGGER.warn("no mq cluster found by type={} and mq set name={}", type, mqSetName);
+            LOGGER.warn("no mq cluster found by cluster tag={} and type={}", clusterTag, type);
             return null;
         }
 
@@ -135,7 +138,7 @@ public class CommonOperateService {
      */
     public PulsarClusterInfo getPulsarClusterInfo(String type) {
         MQType mqType = MQType.forType(type);
-        ThirdPartyClusterEntity clusterEntity = getMQCluster(mqType);
+        InlongClusterEntity clusterEntity = getMQCluster(mqType);
         if (clusterEntity == null || StringUtils.isBlank(clusterEntity.getExtParams())) {
             throw new BusinessException("pulsar cluster or pulsar ext params is empty");
         }

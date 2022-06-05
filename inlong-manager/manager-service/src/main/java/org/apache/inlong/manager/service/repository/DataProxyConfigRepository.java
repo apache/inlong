@@ -223,8 +223,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * generateClusterJson
-     *
-     * @param newClusterSets
      */
     @SuppressWarnings("unchecked")
     private void generateClusterJson(Map<String, ProxyClusterObject> proxyClusterMap,
@@ -291,10 +289,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * isSubTag
-     *
-     * @param wholeTagMap
-     * @param subTagMap
-     * @return
      */
     private boolean isSubTag(Map<String, String> wholeTagMap, Map<String, String> subTagMap) {
         for (Entry<String, String> entry : subTagMap.entrySet()) {
@@ -308,9 +302,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * getProxyMd5
-     *
-     * @param clusterName
-     * @return
      */
     public String getProxyMd5(String clusterName) {
         return this.proxyMd5Map.get(clusterName);
@@ -318,9 +309,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * getProxyConfigJson
-     *
-     * @param clusterName
-     * @return
      */
     public String getProxyConfigJson(String clusterName) {
         return this.proxyConfigJson.get(clusterName);

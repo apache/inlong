@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
@@ -62,9 +63,9 @@ public interface InlongClusterService {
      * Query ip list by cluster type
      *
      * @param type cluster type
-     * @return clustre node ip list
+     * @return cluster node ip list
      */
-    public List<String> listNodeIpByType(String type);
+    List<String> listNodeIpByType(String type);
 
     /**
      * Update cluster information
@@ -141,5 +142,17 @@ public interface InlongClusterService {
      * @return data proxy config
      */
     List<DataProxyConfig> getConfig();
+
+    /**
+     * query data proxy config by cluster name, result includes pulsar/tube cluster configs and topic etc
+     */
+    ThirdPartyClusterDTO getConfigV2(String clusterName);
+
+    /**
+     * Get data proxy cluster list by the given cluster name
+     *
+     * @return data proxy config
+     */
+    String getAllConfig(String clusterName, String md5);
 
 }
