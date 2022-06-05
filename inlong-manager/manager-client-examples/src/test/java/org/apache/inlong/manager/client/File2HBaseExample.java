@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -26,22 +27,27 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseColumnFamilyInfo;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test class for file to hive.
+ * Test class for file to hbase.
  */
 @Slf4j
-public class File2HiveExample extends BaseExample {
+public class File2HBaseExample extends BaseExample {
 
     @Test
-    public void testCreateGroupForHive() {
+    public void testCreateGroupForHBase() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -56,7 +62,7 @@ public class File2HiveExample extends BaseExample {
             InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
             streamBuilder.fields(createStreamFields());
             streamBuilder.source(createAgentFileSource());
-            streamBuilder.sink(createHiveSink());
+            streamBuilder.sink(createHBaseSink());
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
@@ -98,6 +104,50 @@ public class File2HiveExample extends BaseExample {
         List<StreamField> streamFieldList = Lists.newArrayList();
         streamFieldList.add(new StreamField(0, FieldType.STRING.toString(), "name", null, null));
         streamFieldList.add(new StreamField(1, FieldType.INT.toString(), "age", null, null));
+        streamFieldList.add(new StreamField(2, FieldType.DECIMAL.toString(), "score", null, null));
         return streamFieldList;
+    }
+
+    /**
+     * Create iceberg sink
+     */
+    public HBaseSink createHBaseSink() throws Exception {
+        HBaseSink sink = new HBaseSink();
+
+        sink.setSinkName("{sink.name}");
+        sink.setNamespace("{db.name}");
+        sink.setTableName("{table.name}");
+        sink.setZkQuorum("{ip:port}");
+        sink.setZkNodeParent("{zk.node.path}");
+        sink.setRowKey("{rowkey}");
+
+        final SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
+        final SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(),
+                "name");
+        final SinkField field3 = new SinkField(2, FieldType.DECIMAL.toString(), "score", FieldType.DECIMAL.toString(),
+                "score");
+
+        // field ext param
+        ObjectMapper mapper = new ObjectMapper();
+        HBaseColumnFamilyInfo info1 = new HBaseColumnFamilyInfo();
+        info1.setCfName("cf_1");
+        field1.setExtParams(mapper.writeValueAsString(info1));
+
+        HBaseColumnFamilyInfo info2 = new HBaseColumnFamilyInfo();
+        info2.setCfName("cf_2");
+        field2.setExtParams(mapper.writeValueAsString(info2));
+
+        HBaseColumnFamilyInfo info3 = new HBaseColumnFamilyInfo();
+        info3.setCfName("cf_3");
+        field3.setExtParams(mapper.writeValueAsString(info3));
+
+        List<SinkField> fields = new ArrayList<>();
+        fields.add(field1);
+        fields.add(field2);
+        fields.add(field3);
+        sink.setFieldList(fields);
+
+        sink.setProperties(new HashMap<>());
+        return sink;
     }
 }

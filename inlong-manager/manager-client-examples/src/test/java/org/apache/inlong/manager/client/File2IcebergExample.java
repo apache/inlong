@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -26,22 +27,28 @@ import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergPartition;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test class for file to hive.
+ * Test class for file to iceberg.
  */
 @Slf4j
-public class File2HiveExample extends BaseExample {
+public class File2IcebergExample extends BaseExample {
 
     @Test
-    public void testCreateGroupForHive() {
+    public void testCreateGroupForIceberg() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -56,7 +63,7 @@ public class File2HiveExample extends BaseExample {
             InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
             streamBuilder.fields(createStreamFields());
             streamBuilder.source(createAgentFileSource());
-            streamBuilder.sink(createHiveSink());
+            streamBuilder.sink(createIcebergSink());
             streamBuilder.initOrUpdate();
             // start group
             InlongGroupContext inlongGroupContext = group.init();
@@ -98,6 +105,59 @@ public class File2HiveExample extends BaseExample {
         List<StreamField> streamFieldList = Lists.newArrayList();
         streamFieldList.add(new StreamField(0, FieldType.STRING.toString(), "name", null, null));
         streamFieldList.add(new StreamField(1, FieldType.INT.toString(), "age", null, null));
+        streamFieldList.add(new StreamField(2, FieldType.DECIMAL.toString(), "score", null, null));
+        streamFieldList.add(new StreamField(3, FieldType.TIMESTAMP.toString(), "ts", null, null));
         return streamFieldList;
+    }
+
+    /**
+     * Create iceberg sink
+     */
+    public IcebergSink createIcebergSink() throws Exception {
+        IcebergSink sink = new IcebergSink();
+
+        sink.setSinkName("{sink.name}");
+        sink.setDbName("{db.name}");
+        sink.setTableName("{table.name}");
+        sink.setCatalogUri("thrift://{ip:port}");
+        sink.setWarehouse("hdfs://{ip:port}/user/iceberg/warehouse/");
+
+        final SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
+        final SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(),
+                "name");
+        final SinkField field3 = new SinkField(3, FieldType.DECIMAL.toString(), "score", FieldType.DECIMAL.toString(),
+                "score");
+        final SinkField field4 = new SinkField(3, FieldType.TIMESTAMP.toString(), "ts", FieldType.TIMESTAMP.toString(),
+                "ts");
+
+        // field ext param
+        // field1: bucket partition example
+        ObjectMapper mapper = new ObjectMapper();
+        IcebergColumnInfo info1 = new IcebergColumnInfo();
+        info1.setRequired(true);
+        info1.setPartitionStrategy(IcebergPartition.BUCKET.toString());
+        info1.setBucketNum(10);
+        field1.setExtParams(mapper.writeValueAsString(info1));
+
+        // field3: decimal column example
+        IcebergColumnInfo info3 = new IcebergColumnInfo();
+        info3.setScale(5);
+        info3.setPrecision(10);  //NOTE: scale must be less than or equal to precision
+        field3.setExtParams(mapper.writeValueAsString(info3));
+
+        // field4: hour parititon example
+        IcebergColumnInfo info4 = new IcebergColumnInfo();
+        info4.setPartitionStrategy(IcebergPartition.HOUR.toString());
+        field4.setExtParams(mapper.writeValueAsString(info4));
+
+        List<SinkField> fields = new ArrayList<>();
+        fields.add(field1);
+        fields.add(field2);
+        fields.add(field3);
+        fields.add(field4);
+        sink.setFieldList(fields);
+
+        sink.setProperties(new HashMap<>());
+        return sink;
     }
 }

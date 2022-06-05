@@ -69,6 +69,7 @@ public class BaseExample {
     public InlongGroupInfo createGroupInfo() {
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId(groupId);
+        pulsarInfo.setInCharges("admin");
 
         // pulsar conf
         pulsarInfo.setServiceUrl(pulsarServiceUrl);
@@ -79,7 +80,7 @@ public class BaseExample {
         // set enable zk, create resource, lightweight mode, and cluster tag
         pulsarInfo.setEnableZookeeper(0);
         pulsarInfo.setEnableCreateResource(1);
-        pulsarInfo.setLightweight(1);
+        pulsarInfo.setLightweight(0);
         pulsarInfo.setInlongClusterTag("default_cluster");
 
         pulsarInfo.setDailyRecords(10000000);
@@ -103,6 +104,7 @@ public class BaseExample {
     public InlongStreamInfo createStreamInfo() {
         InlongStreamInfo streamInfo = new InlongStreamInfo();
         streamInfo.setName(this.getStreamId());
+        streamInfo.setInlongStreamId(this.getStreamId());
         streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
         streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
         // if you need strictly order for data, set to 1
@@ -123,6 +125,7 @@ public class BaseExample {
         hiveSink.setFileFormat(FileFormat.TextFile.name());
         hiveSink.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
         hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
+        hiveSink.setHiveConfDir("{hive.conf.dir}");
 
         List<SinkField> fields = new ArrayList<>();
         SinkField field1 = new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age");
