@@ -17,39 +17,11 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
+import type { ColumnType } from 'antd/es/table';
+import type { FormItemProps } from '@/components/FormGenerator';
 
-export interface MenuItemType {
-  name: string;
-  children?: MenuItemType[];
-  path?: string;
+export interface ClsConfigItemType extends FormItemProps {
+  _inTable?: boolean | ColumnType<unknown>;
 }
 
-const menus: MenuItemType[] = [
-  {
-    path: '/access',
-    name: i18n.t('configs.menus.DataAccess'),
-  },
-  {
-    path: '/consume',
-    name: i18n.t('configs.menus.DataConsumption'),
-  },
-  {
-    path: '/clusters',
-    name: i18n.t('configs.menus.Clusters'),
-  },
-  {
-    path: '/approvals',
-    name: i18n.t('configs.menus.ApprovalManagement'),
-  },
-  // {
-  //   path: '/datasources',
-  //   name: i18n.t('configs.menus.Datasources'),
-  // },
-  {
-    path: '/user',
-    name: i18n.t('configs.menus.SystemManagement'),
-  },
-];
-
-export default menus;
+export type ClsTableItemType = ColumnType<unknown>;

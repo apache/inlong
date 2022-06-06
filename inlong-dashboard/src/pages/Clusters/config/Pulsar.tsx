@@ -17,39 +17,24 @@
  * under the License.
  */
 
-import i18n from '@/i18n';
+import type { ClsConfigItemType } from './types';
 
-export interface MenuItemType {
-  name: string;
-  children?: MenuItemType[];
-  path?: string;
-}
-
-const menus: MenuItemType[] = [
+export const Pulsar: ClsConfigItemType[] = [
   {
-    path: '/access',
-    name: i18n.t('configs.menus.DataAccess'),
+    type: 'input',
+    label: 'AdminUrl',
+    name: 'adminUrl',
+    rules: [{ required: true }],
   },
   {
-    path: '/consume',
-    name: i18n.t('configs.menus.DataConsumption'),
+    type: 'input',
+    label: 'ServiceUrl',
+    name: 'serviceUrl',
+    rules: [{ required: true }],
   },
   {
-    path: '/clusters',
-    name: i18n.t('configs.menus.Clusters'),
-  },
-  {
-    path: '/approvals',
-    name: i18n.t('configs.menus.ApprovalManagement'),
-  },
-  // {
-  //   path: '/datasources',
-  //   name: i18n.t('configs.menus.Datasources'),
-  // },
-  {
-    path: '/user',
-    name: i18n.t('configs.menus.SystemManagement'),
+    type: 'input',
+    label: 'Token',
+    name: 'token',
   },
 ];
-
-export default menus;
