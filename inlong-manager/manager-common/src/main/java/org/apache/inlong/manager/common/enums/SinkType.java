@@ -32,7 +32,7 @@ public enum SinkType {
     HDFS,
     GREENPLUM,
     MYSQL,
-
+    ORACLE,
 
     ;
 
@@ -47,6 +47,7 @@ public enum SinkType {
     public static final String SINK_HDFS = "HDFS";
     public static final String SINK_GREENPLUM = "GREENPLUM";
     public static final String SINK_MYSQL = "MYSQL";
+    public static final String SINK_ORACLE = "ORACLE";
 
     /**
      * Get the SinkType enum via the given sinkType string
