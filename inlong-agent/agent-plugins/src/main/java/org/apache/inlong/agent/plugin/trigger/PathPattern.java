@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin.trigger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.inlong.agent.plugin.filter.DateFormatRegex;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,7 +99,10 @@ public class PathPattern {
                     }
                 });
             } catch (Exception e) {
-                LOGGER.error("error caught", e);
+                LOGGER.error("exception caught", e);
+            } catch (Throwable t) {
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
+
             }
         }
     }

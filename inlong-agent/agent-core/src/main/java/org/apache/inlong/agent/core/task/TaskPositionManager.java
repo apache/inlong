@@ -22,6 +22,7 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.db.JobProfileDb;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,8 +101,9 @@ public class TaskPositionManager extends AbstractDaemon {
                     int flushTime = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
                             DEFAULT_AGENT_FETCHER_INTERVAL);
                     TimeUnit.SECONDS.sleep(flushTime);
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };
