@@ -102,14 +102,13 @@ public class InlongGroupImpl implements InlongGroup {
         // init must be NewGroupProcessForm
         NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
                 JsonUtils.toJsonString(processView.getFormData()), NewGroupProcessForm.class);
-        AssertUtils.notNull(newGroupProcessForm, "groupStreamDTO must not be null");
+        AssertUtils.notNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
 
         groupContext.setInitMsg(newGroupProcessForm);
         WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, newGroupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
         AssertUtils.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
-                String.format("Business info state : %s is not corrected , should be COMPLETED",
-                        processView.getStatus()));
+                String.format("inlong group status %s is incorrected, should be COMPLETED", processView.getStatus()));
         return generateSnapshot();
     }
 
