@@ -205,10 +205,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create  load node from response.
-     *
-     * @param hdfsSink hbaseSinkResponse
-     * @return hbaseLoadNode
+     * Create node of data load about hdfs.
      */
     public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
         String id = hdfsSink.getSinkName();
@@ -248,7 +245,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create hbase load node from response.
+     * Create node of data load about hbase.
      */
     public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink) {
         String id = hbaseSink.getSinkName();
@@ -281,7 +278,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create postgres load node
+     * Create node of data load about postgres.
      */
     public static PostgresLoadNode createLoadNode(PostgresSink postgresSink) {
         List<SinkField> fieldList = postgresSink.getFieldList();
@@ -343,10 +340,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create SqlServer load node based on SqlServerSink
-     *
-     * @param sqlServerSink SqlServer sink info
-     * @return SqlServer load node info
+     * Create SqlServer load node
      */
     public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
         final String id = sqlServerSink.getSinkName();
