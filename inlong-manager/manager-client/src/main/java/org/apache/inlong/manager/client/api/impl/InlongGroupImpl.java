@@ -71,6 +71,8 @@ public class InlongGroupImpl implements InlongGroup {
         if (newGroupInfo != null) {
             this.groupContext.setGroupInfo(groupInfo);
         } else {
+            BaseSortConf sortConf = groupInfo.getSortConf();
+            groupInfo = InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
             String groupId = managerClient.createGroup(groupInfo.genRequest());
             groupInfo.setInlongGroupId(groupId);
         }
