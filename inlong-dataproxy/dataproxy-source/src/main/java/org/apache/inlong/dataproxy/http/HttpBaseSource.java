@@ -18,30 +18,29 @@
 package org.apache.inlong.dataproxy.http;
 
 import com.google.common.base.Preconditions;
-import org.apache.inlong.common.monitor.CounterGroup;
-import org.apache.inlong.common.monitor.CounterGroupExt;
-import org.apache.inlong.common.monitor.StatConstants;
-import org.apache.inlong.common.monitor.StatRunner;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.conf.Configurables;
 import org.apache.flume.source.AbstractSource;
-import org.apache.inlong.dataproxy.utils.ConfStringUtils;
-import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.common.monitor.CounterGroup;
+import org.apache.inlong.common.monitor.CounterGroupExt;
+import org.apache.inlong.common.monitor.StatConstants;
+import org.apache.inlong.common.monitor.StatRunner;
 import org.apache.inlong.dataproxy.channel.FailoverChannelProcessor;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.ConfStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpBaseSource
-        extends AbstractSource
-        implements EventDrivenSource, Configurable {
+import java.util.HashSet;
+import java.util.Set;
+
+public class HttpBaseSource extends AbstractSource implements EventDrivenSource, Configurable {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpBaseSource.class);
-
+    private static final String CONNECTIONS = "connections";
     protected int port;
     protected String host = null;
     protected int maxMsgLength;
@@ -49,18 +48,14 @@ public class HttpBaseSource
     protected String attr;
     protected String messageHandlerName;
     protected boolean filterEmptyMsg;
-    private int statIntervalSec;
-
     protected CounterGroup counterGroup;
     protected CounterGroupExt counterGroupExt;
-
-    private StatRunner statRunner;
-    private Thread statThread;
     protected int maxConnections = Integer.MAX_VALUE;
-    private static final String CONNECTIONS = "connections";
-
     protected boolean customProcessor = false;
     protected Context context;
+    private int statIntervalSec;
+    private StatRunner statRunner;
+    private Thread statThread;
 
     public HttpBaseSource() {
         super();
@@ -71,14 +66,13 @@ public class HttpBaseSource
     @Override
     public synchronized void start() {
         if (statIntervalSec > 0) {
-            Set<String> moniterNames = new HashSet<String>();
-            moniterNames.add(StatConstants.EVENT_SUCCESS);
-            moniterNames.add(StatConstants.EVENT_DROPPED);
-            moniterNames.add(StatConstants.EVENT_EMPTY);
-            moniterNames.add(StatConstants.EVENT_OTHEREXP);
-            moniterNames.add(StatConstants.EVENT_INVALID);
-            statRunner = new StatRunner(getName(), counterGroup, counterGroupExt, statIntervalSec,
-                    moniterNames);
+            Set<String> monitorNames = new HashSet<>();
+            monitorNames.add(StatConstants.EVENT_SUCCESS);
+            monitorNames.add(StatConstants.EVENT_DROPPED);
+            monitorNames.add(StatConstants.EVENT_EMPTY);
+            monitorNames.add(StatConstants.EVENT_OTHEREXP);
+            monitorNames.add(StatConstants.EVENT_INVALID);
+            statRunner = new StatRunner(getName(), counterGroup, counterGroupExt, statIntervalSec, monitorNames);
             statThread = new Thread(statRunner);
             statThread.setName("Thread-Stat-" + this.getName());
             statThread.start();
@@ -107,7 +101,7 @@ public class HttpBaseSource
                 }
 
             } catch (InterruptedException e) {
-                logger.warn("statrunner interrupted");
+                logger.warn("start runner interrupted");
             }
         }
 
@@ -116,7 +110,6 @@ public class HttpBaseSource
 
     /**
      * configure
-     * @param context
      */
     public void configure(Context context) {
         this.context = context;
@@ -157,7 +150,7 @@ public class HttpBaseSource
         try {
             maxConnections = context.getInteger(CONNECTIONS, 5000);
         } catch (NumberFormatException e) {
-            logger.warn("BaseSource\'s \"connections\" property must specify an integer value. {}",
+            logger.warn("BaseSource connections property must specify an integer value {}",
                     context.getString(CONNECTIONS));
         }
     }

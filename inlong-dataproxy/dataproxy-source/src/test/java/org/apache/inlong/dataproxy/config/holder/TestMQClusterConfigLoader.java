@@ -15,41 +15,44 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.config.loader;
+package org.apache.inlong.dataproxy.config.holder;
 
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestThirdPartyClusterConfigLoader {
+/**
+ * Test for {@link MQClusterConfigHolder}
+ */
+public class TestMQClusterConfigLoader {
 
     @Test
     public void testUpdateUrl() {
-        Map<String, String> url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        Map<String, String> url2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         Assert.assertEquals(url2token.size(), 3);
         Map<String, String> newUrl = new HashMap<>();
         newUrl.put("127.0.0.1:8088", "test");
-        ConfigManager.getInstance().getThirdPartyClusterHolder().setUrl2token(newUrl);
-        url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        ConfigManager.getInstance().getMqClusterHolder().setUrl2token(newUrl);
+        url2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         Assert.assertEquals(newUrl, url2token);
     }
 
     @Test
     public void testCommonConfig() {
-        ThirdPartyClusterConfig config = ConfigManager.getInstance().getThirdPartyClusterConfig();
+        MQClusterConfig config = ConfigManager.getInstance().getMqClusterConfig();
         Assert.assertEquals(config.getAuthType(), "token");
         Assert.assertEquals(config.getThreadNum(), 5);
-        Assert.assertEquals(config.getEnableBatch(), true);
+        Assert.assertTrue(config.getEnableBatch());
 
         Map<String, String> newConfig = new HashMap<>();
         newConfig.put("thread_num", "10");
         newConfig.put("disk_io_rate_per_sec", "60000");
-        ConfigManager.getInstance().getThirdPartyClusterConfig().putAll(newConfig);
-        config = ConfigManager.getInstance().getThirdPartyClusterConfig();
+        ConfigManager.getInstance().getMqClusterConfig().putAll(newConfig);
+        config = ConfigManager.getInstance().getMqClusterConfig();
         Assert.assertEquals(config.getAuthType(), "token");
         Assert.assertEquals(config.getThreadNum(), 10);
         Assert.assertEquals(config.getDiskIoRatePerSec(), 60000);
@@ -57,16 +60,16 @@ public class TestThirdPartyClusterConfigLoader {
 
     @Test
     public void testTubeUrl() {
-        Map<String, String> url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        Map<String, String> url2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         Assert.assertEquals(url2token.size(), 3);
         Assert.assertEquals("", url2token.get("127.0.0.1:8080,127.0.0.1:8088"));
     }
 
     @Test
     public void testPulsarUrl() {
-        Map<String, String> url2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        Map<String, String> url2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         Assert.assertEquals("pulsartoken1", url2token.get("pulsar1://127.0.0.1:6650,pulsar2://127.0.0.1:6600"));
         Assert.assertEquals("pulsartoken2", url2token.get("pulsar2://127.0.0.1:6680"));
-
     }
+
 }

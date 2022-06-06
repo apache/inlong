@@ -17,13 +17,13 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 
 public class RemoteConfigJson {
 
     private boolean success;
     private String errMsg;
-    private ThirdPartyClusterDTO data;
+    private DataProxyConfig data;
 
     public boolean isSuccess() {
         return success;
@@ -33,7 +33,7 @@ public class RemoteConfigJson {
         return errMsg;
     }
 
-    public ThirdPartyClusterDTO getData() {
+    public DataProxyConfig getData() {
         return data;
     }
 

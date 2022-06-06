@@ -15,16 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.dataproxy.http;
+package org.apache.inlong.common.pojo.dataproxy;
 
-import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import java.util.HashMap;
+import java.util.Map;
 
-public interface HttpSourceConstants
-        extends AttributeConstants {
+/**
+ * MQ cluster info.
+ */
+public class MQClusterInfo {
 
-    String BODY = "body";
-    String CHARSET = "UTF-8";
+    private String url;
+    private String token;
+    private Map<String, String> params = new HashMap<>();
 
-    String HTTP_REQUEST = "http-request";
-    String HTTP_RESPONSE = "http-response";
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
 }
