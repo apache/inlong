@@ -18,10 +18,13 @@
 package org.apache.inlong.audit.sink.pulsar;
 
 import com.google.common.base.Preconditions;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
@@ -29,6 +32,8 @@ import org.apache.inlong.audit.consts.AttributeConstants;
 import org.apache.inlong.audit.sink.EventStat;
 import org.apache.inlong.audit.utils.LogCounter;
 import org.apache.inlong.audit.utils.NetworkUtils;
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
@@ -46,7 +51,8 @@ public class PulsarClientService {
      * properties key for pulsar client
      */
     private static String PULSAR_SERVER_URL = "pulsar_server_url";
-
+    private static String PULSAR_ENABLE_AUTH = "enable_auth";
+    private static String PULSAR_ENABLE_AUTH_TOKEN = "auth_token";
     /*
      * properties key pulsar producer
      */
@@ -76,11 +82,14 @@ public class PulsarClientService {
     public ConcurrentHashMap<String, Producer> producerInfoMap;
     public PulsarClient pulsarClient;
     public String pulsarServerUrl;
+    public boolean pulsarEnableAuth = true;
+    public String pulsarAuthToken;
 
     private String localIp = "127.0.0.1";
 
     /**
      * pulsar client service
+     *
      * @param context
      */
     public PulsarClientService(Context context) {
@@ -96,14 +105,17 @@ public class PulsarClientService {
         enableBatch = context.getBoolean(ENABLE_BATCH, DEFAULT_ENABLE_BATCH);
         blockIfQueueFull = context.getBoolean(BLOCK_IF_QUEUE_FULL, DEFAULT_BLOCK_IF_QUEUE_FULL);
         maxPendingMessages = context.getInteger(MAX_PENDING_MESSAGES, DEFAULT_MAX_PENDING_MESSAGES);
-        maxBatchingMessages =  context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
+        maxBatchingMessages = context.getInteger(MAX_BATCHING_MESSAGES, DEFAULT_MAX_BATCHING_MESSAGES);
         producerInfoMap = new ConcurrentHashMap<>();
         localIp = NetworkUtils.getLocalIp();
 
+        pulsarEnableAuth = context.getBoolean(PULSAR_ENABLE_AUTH);
+        pulsarAuthToken = context.getString(PULSAR_ENABLE_AUTH_TOKEN);
     }
 
     /**
      * init connection
+     *
      * @param callBack
      */
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
@@ -117,6 +129,7 @@ public class PulsarClientService {
 
     /**
      * send message
+     *
      * @param topic
      * @param event
      * @param sendMessageCallBack
@@ -124,7 +137,7 @@ public class PulsarClientService {
      * @return
      */
     public boolean sendMessage(String topic, Event event,
-            SendMessageCallBack sendMessageCallBack, EventStat es) {
+                               SendMessageCallBack sendMessageCallBack, EventStat es) {
         Producer producer = null;
         try {
             producer = getProducer(topic);
@@ -155,12 +168,12 @@ public class PulsarClientService {
         logger.debug("producer send msg!");
         producer.newMessage().properties(proMap).value(event.getBody())
                 .sendAsync().thenAccept((msgId) -> {
-            sendMessageCallBack.handleMessageSendSuccess((MessageIdImpl)msgId, es);
+                    sendMessageCallBack.handleMessageSendSuccess((MessageIdImpl) msgId, es);
 
-        }).exceptionally((e) -> {
-            sendMessageCallBack.handleMessageSendException(es, e);
-            return null;
-        });
+                }).exceptionally((e) -> {
+                    sendMessageCallBack.handleMessageSendException(es, e);
+                    return null;
+                });
         return true;
     }
 
@@ -194,10 +207,15 @@ public class PulsarClientService {
     }
 
     private PulsarClient initPulsarClient(String pulsarUrl) throws Exception {
-        return PulsarClient.builder()
-                .serviceUrl(pulsarUrl)
-                .connectionTimeout(clientOpTimeout, TimeUnit.SECONDS)
-                .build();
+        PulsarClient pulsarClient = null;
+        ClientBuilder builder = PulsarClient.builder();
+        if (pulsarEnableAuth && StringUtils.isNotEmpty(pulsarAuthToken)) {
+            builder.authentication(AuthenticationFactory.token(pulsarAuthToken));
+        }
+        pulsarClient = builder.serviceUrl(pulsarUrl)
+                .connectionTimeout(clientOpTimeout, TimeUnit.SECONDS).build();
+
+        return pulsarClient;
     }
 
     public Producer initTopicProducer(String topic) {
@@ -205,7 +223,7 @@ public class PulsarClientService {
         Producer producer = null;
         try {
             producer = pulsarClient.newProducer().sendTimeout(sendTimeout,
-                    TimeUnit.MILLISECONDS)
+                            TimeUnit.MILLISECONDS)
                     .topic(topic)
                     .enableBatching(enableBatch)
                     .blockIfQueueFull(blockIfQueueFull)
@@ -224,7 +242,7 @@ public class PulsarClientService {
 
     public void closeTopicProducer(String topic) {
         logger.info("closeTopicProducer topic = {}", topic);
-        Producer producer  = producerInfoMap.remove(topic);
+        Producer producer = producerInfoMap.remove(topic);
         if (producer != null) {
             producer.closeAsync();
         }
