@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.iceberg;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
@@ -57,7 +58,7 @@ public class IcebergCatalogUtils {
         HiveCatalog catalog = new HiveCatalog();
         Map<String, String> properties = new HashMap<>();
         properties.put(CATALOG_PROP_URI, metastoreUri);
-        if (!warehouse.isEmpty()) {
+        if (StringUtils.isNotEmpty(warehouse)) {
             properties.put(CATALOG_PROP_WAREHOUSE, warehouse);
         }
         catalog.initialize("hive", properties);
@@ -147,6 +148,7 @@ public class IcebergCatalogUtils {
             IcebergColumnInfo info = new IcebergColumnInfo();
             info.setName(column.name());
             info.setRequired(column.isRequired());
+            columnList.add(info);
         }
         return columnList;
     }
@@ -193,7 +195,7 @@ public class IcebergCatalogUtils {
      * Build iceberg table column schema
      */
     private static void buildColumnSpec(IcebergColumnInfo column, PartitionSpec.Builder builder) {
-        if (column.getPartitionStrategy().isEmpty()) {
+        if (StringUtils.isEmpty(column.getPartitionStrategy())) {
             return;
         }
         switch (IcebergPartition.forName(column.getPartitionStrategy())) {
@@ -232,7 +234,7 @@ public class IcebergCatalogUtils {
      * repeated here.
      */
     private static void updateColumnSpec(IcebergColumnInfo column, UpdatePartitionSpec builder) {
-        if (column.getPartitionStrategy().isEmpty()) {
+        if (StringUtils.isEmpty(column.getPartitionStrategy())) {
             return;
         }
         switch (IcebergPartition.forName(column.getPartitionStrategy())) {
