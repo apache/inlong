@@ -19,15 +19,24 @@ package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of TDSQLPostgres sink list
+ * Response info of TDSQLPostgres sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(SinkType.SINK_TDSQLPOSTGRES)
 @ApiModel("Response of TDSQLPostgres sink paging list")
 public class TDSQLPostgresSinkListResponse extends SinkListResponse {
 

@@ -51,6 +51,6 @@ public class TDSQLPostgresSinkRequest extends SinkRequest {
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    @ApiModelProperty("Primary key")
     private String primaryKey;
 }

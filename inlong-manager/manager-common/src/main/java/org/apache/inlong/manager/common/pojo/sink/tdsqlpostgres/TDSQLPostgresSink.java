@@ -23,16 +23,20 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of the TDSQLPostgres sink
+ * TDSQLPostgres sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the TDSQLPostgres sink")
-public class TDSQLPostgresSinkResponse extends SinkResponse {
+@ApiModel(value = "TDSQLPostgres sink info")
+@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRES)
+public class TDSQLPostgresSink extends StreamSink {
 
     @ApiModelProperty("TDSQLPostgres jdbc url")
     private String jdbcUrl;
@@ -52,7 +56,12 @@ public class TDSQLPostgresSinkResponse extends SinkResponse {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    public TDSQLPostgresSinkResponse() {
-        this.sinkType = SinkType.SINK_TDSQLPOSTGRES;
+    public TDSQLPostgresSink() {
+        this.setSinkType(SinkType.SINK_TDSQLPOSTGRES);
+    }
+
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, TDSQLPostgresSinkRequest::new);
     }
 }
