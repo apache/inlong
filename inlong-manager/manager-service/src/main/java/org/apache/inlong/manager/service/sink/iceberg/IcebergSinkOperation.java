@@ -143,14 +143,14 @@ public class IcebergSinkOperation implements StreamSinkOperation {
                 String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
                         field.getFieldName());
                 LOGGER.error("field info check error: {}", errorMsg);
-                throw new IllegalArgumentException(errorMsg);
+                throw new BusinessException(errorMsg);
             }
             if (info.getPrecision() < info.getScale()) {
                 String errorMsg = String.format(
                         "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
                         info.getPrecision(), info.getScale(), field.getFieldName());
                 LOGGER.error("field info check error: {}", errorMsg);
-                throw new IllegalArgumentException(errorMsg);
+                throw new BusinessException(errorMsg);
             }
         }
         return;
