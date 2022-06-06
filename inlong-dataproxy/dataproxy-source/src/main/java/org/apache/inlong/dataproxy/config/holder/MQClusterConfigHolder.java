@@ -18,10 +18,8 @@
 package org.apache.inlong.dataproxy.config.holder;
 
 import com.google.common.base.Splitter;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,15 +28,13 @@ import java.util.Map;
 /**
  * value is map
  */
-public class ThirdPartyClusterConfigHolder extends PropertiesConfigHolder {
+public class MQClusterConfigHolder extends PropertiesConfigHolder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ThirdPartyClusterConfigHolder.class);
-    private final ThirdPartyClusterConfig clusterConfig = new ThirdPartyClusterConfig();
+    public static final String URL_STORE_PREFIX = "mq-cluster.index";
 
+    private final MQClusterConfig clusterConfig = new MQClusterConfig();
 
-    public static final String URL_STORE_PREFIX = "third-party-cluster.index";
-
-    public ThirdPartyClusterConfigHolder(String fileName) {
+    public MQClusterConfigHolder(String fileName) {
         super(fileName);
     }
 
@@ -49,7 +45,6 @@ public class ThirdPartyClusterConfigHolder extends PropertiesConfigHolder {
     public void loadFromFileToHolder() {
         super.loadFromFileToHolder();
         Map<String, String> tmpUrl2token = new HashMap<>();
-        Map<String, String> tmpConfig = new HashMap<>();
         for (Map.Entry<String, String> entry : getHolder().entrySet()) {
             if (entry.getKey().startsWith(URL_STORE_PREFIX)) {
                 List<String> kv = Splitter.on(AttributeConstants.KEY_VALUE_SEPARATOR)
@@ -64,15 +59,15 @@ public class ThirdPartyClusterConfigHolder extends PropertiesConfigHolder {
         clusterConfig.putAll(getHolder());
     }
 
-    public void setUrl2token(Map<String, String> newUrl2Token) {
-        clusterConfig.setUrl2token(newUrl2Token);
-    }
-
     public Map<String, String> getUrl2token() {
         return clusterConfig.getUrl2token();
     }
 
-    public ThirdPartyClusterConfig getClusterConfig() {
+    public void setUrl2token(Map<String, String> newUrl2Token) {
+        clusterConfig.setUrl2token(newUrl2Token);
+    }
+
+    public MQClusterConfig getClusterConfig() {
         return clusterConfig;
     }
 }

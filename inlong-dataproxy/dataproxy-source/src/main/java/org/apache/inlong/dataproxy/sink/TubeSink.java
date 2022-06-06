@@ -34,7 +34,7 @@ import org.apache.flume.source.shaded.guava.RateLimiter;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -70,14 +70,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TubeSink extends AbstractSink implements Configurable {
 
-    protected static final ConcurrentHashMap<String, Long> agentIdMap = new ConcurrentHashMap<String, Long>();
-
+    protected static final ConcurrentHashMap<String, Long> agentIdMap = new ConcurrentHashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(TubeSink.class);
-
-    //    private static int BATCH_SIZE = 10000; //unused
-    private static final int sendNewMetricRetryCount = 3;
-    private static final String topicsFilePath = "topics.properties"; //unused
-    private static final String slaTopicFilePath = "slaTopics.properties";
 
     private static final LoadingCache<String, Long> agentIdCache = CacheBuilder
             .newBuilder().concurrencyLevel(4 * 8).initialCapacity(5000000)
@@ -89,28 +83,27 @@ public class TubeSink extends AbstractSink implements Configurable {
                     return System.currentTimeMillis();
                 }
             });
+    private static final String TOPIC = "topic";
     protected static boolean idCleanerStarted = false;
-    private static String TOPIC = "topic";
-    private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<String, Long>();
+    private static ConcurrentHashMap<String, Long> illegalTopicMap = new ConcurrentHashMap<>();
     // key: masterUrl
     public Map<String, TubeMultiSessionFactory> sessionFactories;
     public Map<String, List<TopicProducerInfo>> masterUrl2producers;
     // key: topic
     public Map<String, List<TopicProducerInfo>> producerInfoMap;
-    public AtomicInteger currentPublishTopicNum = new AtomicInteger(0);
     private volatile boolean canTake = false;
     private volatile boolean canSend = false;
     private ConfigManager configManager;
     private Map<String, String> topicProperties;
-    private ThirdPartyClusterConfig tubeConfig;
+    private MQClusterConfig tubeConfig;
     private Set<String> masterHostAndPortLists;
+
     // used for RoundRobin different cluster while send message
     private AtomicInteger clusterIndex = new AtomicInteger(0);
     private LinkedBlockingQueue<EventStat> resendQueue;
     private LinkedBlockingQueue<Event> eventQueue;
     private RateLimiter diskRateLimiter;
     private Thread[] sinkThreadPool;
-    private String metaTopicFilePath = topicsFilePath;
     private Map<String, String> dimensions;
     private DataProxyMetricItemSet metricItemSet;
     private IdCacheCleaner idCacheCleaner;
@@ -123,9 +116,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * diff publish
-     *
-     * @param originalSet
-     * @param endSet
      */
     public void diffSetPublish(Set<String> originalSet, Set<String> endSet) {
         if (SetUtils.isEqualSet(originalSet, endSet)) {
@@ -155,6 +145,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * when masterUrlLists change, update tubeClient
+     *
      * @param originalCluster previous masterHostAndPortList set
      * @param endCluster new masterHostAndPortList set
      */
@@ -202,30 +193,22 @@ public class TubeSink extends AbstractSink implements Configurable {
         // start new client
         for (String masterUrl : endCluster) {
             if (!originalCluster.contains(masterUrl)) {
-
                 TubeMultiSessionFactory sessionFactory = createConnection(masterUrl);
-
                 if (sessionFactory != null) {
                     List<Set<String>> topicGroups = partitionTopicSet(new HashSet<>(topicProperties.values()));
                     for (Set<String> topicSet : topicGroups) {
                         createTopicProducers(masterUrl, sessionFactory, topicSet);
                     }
-
                     logger.info("successfully start new tubeClient for the new masterList: {}", masterUrl);
                 }
             }
         }
 
-        masterHostAndPortLists = configManager.getThirdPartyClusterUrl2Token().keySet();
+        masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
     }
 
     /**
      * when there are multi clusters, pick producer based on round-robin
-     *
-     * @param topic
-     * @return
-     *
-     * @throws TubeClientException
      */
     private MessageProducer getProducer(String topic) throws TubeClientException {
         if (producerInfoMap.containsKey(topic) && !producerInfoMap.get(topic).isEmpty()) {
@@ -299,17 +282,10 @@ public class TubeSink extends AbstractSink implements Configurable {
             TubeClientConfig conf = initTubeConfig(masterHostAndPortList);
             sessionFactory = new TubeMultiSessionFactory(conf);
             sessionFactories.put(masterHostAndPortList, sessionFactory);
-        } catch (TubeClientException e) {
-            logger.error("create connnection error in tubesink, "
-                    + "maybe tube master set error, please re-check. ex1 {}", e.getMessage());
-            throw new FlumeException("connect to Tube error1, "
-                    + "maybe zkstr/zkroot set error, please re-check");
         } catch (Throwable e) {
-            logger.error("create connnection error in tubesink, "
-                            + "maybe tube master set error/shutdown in progress, please re-check. ex2 {}",
-                    e.getMessage());
-            throw new FlumeException("connect to meta error2, "
-                    + "maybe tube master set error/shutdown in progress, please re-check");
+            logger.error("connect to tube meta error, maybe tube master set error/shutdown, please re-check", e);
+            throw new FlumeException("connect to tube meta error, maybe tube master set error/shutdown in progress, "
+                    + "please re-check");
         }
         return sessionFactory;
     }
@@ -326,11 +302,8 @@ public class TubeSink extends AbstractSink implements Configurable {
             for (TubeMultiSessionFactory sessionFactory : sessionFactories.values()) {
                 try {
                     sessionFactory.shutdown();
-                } catch (TubeClientException e) {
-                    logger.error("destroy sessionFactory error in tubesink, MetaClientException {}",
-                            e.getMessage());
                 } catch (Exception e) {
-                    logger.error("destroy sessionFactory error in tubesink, ex {}", e.getMessage());
+                    logger.error("destroy sessionFactory error in tubesink: ", e);
                 }
             }
         }
@@ -342,14 +315,11 @@ public class TubeSink extends AbstractSink implements Configurable {
     /**
      * partition topicSet to different group, each group is associated with a producer;
      * if there are multi clusters, then each group is associated with a set of producer
-     *
-     * @param topicSet
-     * @return
      */
     private List<Set<String>> partitionTopicSet(Set<String> topicSet) {
         List<Set<String>> topicGroups = new ArrayList<>();
 
-        List<String> sortedList = new ArrayList(topicSet);
+        List<String> sortedList = new ArrayList<>(topicSet);
         Collections.sort(sortedList);
         int maxTopicsEachProducerHolder = tubeConfig.getMaxTopicsEachProducerHold();
         int cycle = sortedList.size() / maxTopicsEachProducerHolder;
@@ -357,7 +327,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         for (int i = 0; i <= cycle; i++) {
             // allocate topic
-            Set<String> subset = new HashSet<String>();
+            Set<String> subset = new HashSet<>();
             int startIndex = i * maxTopicsEachProducerHolder;
             int endIndex = startIndex + maxTopicsEachProducerHolder - 1;
             if (i == cycle) {
@@ -378,10 +348,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * create producer and publish topic
-     *
-     * @param masterUrl
-     * @param sessionFactory
-     * @param topicGroup
      */
     private void createTopicProducers(String masterUrl, TubeMultiSessionFactory sessionFactory,
             Set<String> topicGroup) {
@@ -420,20 +386,18 @@ public class TubeSink extends AbstractSink implements Configurable {
         this.dimensions = new HashMap<>();
         this.dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         this.dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
-        //register metrics
+        // register metrics
         this.metricItemSet = new DataProxyMetricItemSet(this.getName());
         MetricRegister.register(metricItemSet);
 
-        //create tube connection
+        // create tube connection
         try {
             initCreateConnection();
         } catch (FlumeException e) {
             logger.error("Unable to create tube client" + ". Exception follows.", e);
-
-            /* Try to prevent leaking resources. */
+            // Try to prevent leaking resources
             destroyConnection();
-
-            /* FIXME: Mark ourselves as failed. */
+            // FIXME: Mark ourselves as failed
             stop();
             return;
         }
@@ -463,9 +427,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     /**
      * resend event
-     *
-     * @param es
-     * @param isDecrement
      */
     private void resendEvent(EventStat es, boolean isDecrement) {
         try {
@@ -512,8 +473,7 @@ public class TubeSink extends AbstractSink implements Configurable {
                     dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
                             event.getHeaders().get(TOPIC));
                 } else {
-                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID,
-                            "");
+                    dimensions = getNewDimension(DataProxyMetricItem.KEY_SINK_DATA_ID, "");
                 }
                 if (!eventQueue.offer(event, 3 * 1000, TimeUnit.MILLISECONDS)) {
                     logger.info("[{}] Channel --> Queue(has no enough space,current code point) "
@@ -531,7 +491,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                     metricItem.readFailSize.addAndGet(event.getBody().length);
                 }
             } else {
-
                 // logger.info("[{}]No data to process in the channel.",getName());
                 status = Status.BACKOFF;
                 tx.commit();
@@ -541,8 +500,7 @@ public class TubeSink extends AbstractSink implements Configurable {
             try {
                 tx.rollback();
             } catch (Throwable e) {
-                logger.error("metasink transaction rollback exception", e);
-
+                logger.error("meta sink transaction rollback exception", e);
             }
         } finally {
             tx.close();
@@ -552,37 +510,28 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     @Override
     public void configure(Context context) {
-        logger.info(context.toString());
-//        logger.info("sinktest:"+getName()+getChannel());//sinktest:meta-sink-msg2null
+        logger.info("configure from context: {}", context);
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
-        masterHostAndPortLists = configManager.getThirdPartyClusterUrl2Token().keySet();
-        Preconditions.checkState(masterHostAndPortLists != null || masterHostAndPortLists.isEmpty(),
-                "No master and port list specified");
-        tubeConfig = configManager.getThirdPartyClusterConfig();
+        masterHostAndPortLists = configManager.getMqClusterUrl2Token().keySet();
+        tubeConfig = configManager.getMqClusterConfig();
         configManager.getTopicConfig().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
-
-                diffSetPublish(new HashSet<String>(topicProperties.values()),
-                        new HashSet<String>(configManager.getTopicProperties().values()));
+                diffSetPublish(new HashSet<>(topicProperties.values()),
+                        new HashSet<>(configManager.getTopicProperties().values()));
             }
         });
-        configManager.getThirdPartyClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
+        configManager.getMqClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
-                diffUpdateTubeClient(masterHostAndPortLists, configManager.getThirdPartyClusterUrl2Token().keySet());
+                diffUpdateTubeClient(masterHostAndPortLists, configManager.getMqClusterUrl2Token().keySet());
             }
         });
 
         producerInfoMap = new ConcurrentHashMap<>();
         masterUrl2producers = new ConcurrentHashMap<>();
-
-        if (tubeConfig.getEnableSlaMetricSink()) {
-            this.metaTopicFilePath = slaTopicFilePath;
-        }
-
         clientIdCache = tubeConfig.getClientIdCache();
         if (clientIdCache) {
             int survivedTime = tubeConfig.getMaxSurvivedTime();
@@ -609,7 +558,7 @@ public class TubeSink extends AbstractSink implements Configurable {
         sinkThreadPool = new Thread[threadNum];
         int eventQueueSize = tubeConfig.getEventQueueSize();
         Preconditions.checkArgument(eventQueueSize > 0, "eventQueueSize must be > 0");
-        eventQueue = new LinkedBlockingQueue<Event>(eventQueueSize);
+        eventQueue = new LinkedBlockingQueue<>(eventQueueSize);
 
         if (tubeConfig.getDiskIoRatePerSec() != 0) {
             diskRateLimiter = RateLimiter.create(tubeConfig.getDiskIoRatePerSec());
@@ -617,8 +566,8 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     }
 
-    private Map getNewDimension(String otherKey, String value) {
-        Map dimensions = new HashMap<>();
+    private Map<String, String> getNewDimension(String otherKey, String value) {
+        Map<String, String> dimensions = new HashMap<>();
         dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, "DataProxy");
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getName());
         dimensions.put(otherKey, value);
@@ -659,7 +608,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
                     producer.sendMessage(message, new MyCallback(es));
                     flag.set(true);
-
                 }
             } else {
                 boolean hasKey = false;
@@ -715,7 +663,7 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         @Override
         public void run() {
-            logger.info("Sink task {} started.", Thread.currentThread().getName());
+            logger.info("sink task {} started.", Thread.currentThread().getName());
             while (canSend) {
                 boolean decrementFlag = false;
                 boolean resendBadEvent = false;
@@ -761,12 +709,10 @@ public class TubeSink extends AbstractSink implements Configurable {
                     if (expireTime != null) {
                         long currentTime = System.currentTimeMillis();
                         if (expireTime > currentTime) {
-
                             // TODO: need to be improved.
 //                            reChannelEvent(es, topic);
                             continue;
                         } else {
-
                             illegalTopicMap.remove(topic);
                         }
                     }
@@ -785,7 +731,6 @@ public class TubeSink extends AbstractSink implements Configurable {
                     AtomicBoolean flagAtomic = new AtomicBoolean(decrementFlag);
                     sendMessage(producer, event, topic, flagAtomic, es);
                     decrementFlag = flagAtomic.get();
-
                 } catch (InterruptedException e) {
                     logger.info("Thread {} has been interrupted!", Thread.currentThread().getName());
                     return;
@@ -832,10 +777,6 @@ public class TubeSink extends AbstractSink implements Configurable {
 
         /**
          * addMetric
-         *
-         * @param event
-         * @param result
-         * @param sendTime
          */
         private void addMetric(Event event, boolean result, long sendTime) {
             Map<String, String> dimensions = new HashMap<>();
@@ -893,10 +834,8 @@ public class TubeSink extends AbstractSink implements Configurable {
             if (producer != null) {
                 try {
                     producer.shutdown();
-                } catch (TubeClientException e) {
-                    logger.error("destroy producer error in tubesink, MetaClientException {}", e.getMessage());
                 } catch (Throwable e) {
-                    logger.error("destroy producer error in tubesink, ex {}", e.getMessage());
+                    logger.error("destroy producer error in tube sink", e);
                 }
             }
         }

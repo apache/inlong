@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
@@ -143,7 +143,7 @@ public interface InlongClusterService {
      * @param clusterName cluster name
      * @return data proxy config, includes mq clusters and topics
      */
-    ThirdPartyClusterDTO getDataProxyConfig(String clusterTag, String clusterName);
+    DataProxyConfig getDataProxyConfig(String clusterTag, String clusterName);
 
     /**
      * Get data proxy cluster list by the given cluster name

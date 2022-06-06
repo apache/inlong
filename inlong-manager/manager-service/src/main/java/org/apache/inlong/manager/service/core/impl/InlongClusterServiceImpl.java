@@ -27,8 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
+import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
@@ -339,7 +339,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public ThirdPartyClusterDTO getDataProxyConfig(String clusterTag, String clusterName) {
+    public DataProxyConfig getDataProxyConfig(String clusterTag, String clusterName) {
         LOGGER.debug("GetDPConfig: begin to get config by cluster tag={} name={}", clusterTag, clusterName);
 
         // get all data proxy clusters
@@ -349,7 +349,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 .type(ClusterType.DATA_PROXY.getType())
                 .build();
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
-        ThirdPartyClusterDTO result = new ThirdPartyClusterDTO();
+        DataProxyConfig result = new DataProxyConfig();
         if (CollectionUtils.isEmpty(clusterList)) {
             LOGGER.warn("GetDPConfig: data proxy cluster not found by tag={} name={}", clusterTag, clusterName);
             return result;
@@ -372,7 +372,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         LOGGER.debug("GetDPConfig: begin to get config for cluster tags={}, associated group num={}",
                 clusterTagList, groupList.size());
-        List<DataProxyConfig> topicList = new ArrayList<>();
+        List<DataProxyTopicInfo> topicList = new ArrayList<>();
         for (InlongGroupBriefInfo groupInfo : groupList) {
             String groupId = groupInfo.getInlongGroupId();
             String mqResource = groupInfo.getMqResource();
@@ -400,13 +400,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String streamId = streamInfo.getInlongStreamId();
                     String topic = String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT,
                             tenant, mqResource, streamInfo.getMqResource());
-                    DataProxyConfig topicConfig = new DataProxyConfig();
+                    DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);
                     topicConfig.setTopic(topic);
                     topicList.add(topicConfig);
                 }
             } else if (type == MQType.TUBE) {
-                DataProxyConfig topicConfig = new DataProxyConfig();
+                DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                 topicConfig.setInlongGroupId(groupId);
                 topicConfig.setTopic(mqResource);
                 topicList.add(topicConfig);
@@ -415,7 +415,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         // get mq cluster info
         LOGGER.debug("GetDPConfig: begin to get mq clusters by tags={}", clusterTagList);
-        List<ThirdPartyClusterInfo> mqSet = new ArrayList<>();
+        List<MQClusterInfo> mqSet = new ArrayList<>();
         List<String> typeList = Arrays.asList(ClusterType.TUBE.getType(), ClusterType.PULSAR.getType());
         InlongClusterPageRequest pageRequest = InlongClusterPageRequest.builder()
                 .typeList(typeList)
@@ -423,7 +423,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 .build();
         List<InlongClusterEntity> mqClusterList = clusterMapper.selectByCondition(pageRequest);
         for (InlongClusterEntity cluster : mqClusterList) {
-            ThirdPartyClusterInfo clusterInfo = new ThirdPartyClusterInfo();
+            MQClusterInfo clusterInfo = new MQClusterInfo();
             clusterInfo.setUrl(cluster.getUrl());
             clusterInfo.setToken(cluster.getToken());
             Map<String, String> configParams = GSON.fromJson(cluster.getExtParams(), Map.class);
@@ -431,7 +431,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             mqSet.add(clusterInfo);
         }
 
-        result.setMqSet(mqSet);
+        result.setMqClusterList(mqSet);
         result.setTopicList(topicList);
 
         return result;

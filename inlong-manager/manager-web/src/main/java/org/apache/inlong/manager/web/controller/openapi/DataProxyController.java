@@ -21,7 +21,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.service.core.InlongClusterService;
@@ -68,14 +69,14 @@ public class DataProxyController {
             @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
             @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
     })
-    public Response<ThirdPartyClusterDTO> getConfig(
+    public Response<DataProxyConfig> getConfig(
             @RequestParam(required = false) String clusterTag,
             @RequestParam(required = true) String clusterName) {
-        ThirdPartyClusterDTO dto = clusterService.getDataProxyConfig(clusterTag, clusterName);
-        if (dto.getMqSet().isEmpty() || dto.getTopicList().isEmpty()) {
+        DataProxyConfig config = clusterService.getDataProxyConfig(clusterTag, clusterName);
+        if (CollectionUtils.isEmpty(config.getMqClusterList()) || CollectionUtils.isEmpty(config.getTopicList())) {
             return Response.fail("failed to get mq clusters or topics");
         }
-        return Response.success(dto);
+        return Response.success(config);
     }
 
     @GetMapping("/dataproxy/getAllConfig")

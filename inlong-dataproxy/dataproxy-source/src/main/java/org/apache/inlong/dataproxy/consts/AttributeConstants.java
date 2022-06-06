@@ -17,73 +17,76 @@
 
 package org.apache.inlong.dataproxy.consts;
 
-public interface AttributeConstants {
+/**
+ * Attribute constants
+ */
+public class AttributeConstants {
 
-    String SEPARATOR = "&";
-    String KEY_VALUE_SEPARATOR = "=";
+    public static final String SEPARATOR = "&";
+    public static final String KEY_VALUE_SEPARATOR = "=";
 
-    String REQUEST_TYPE = "requestType";
-
-    String OPERATION_TYPE = "operationType";
-
-    String OPERATION_CONTENT = "content";
+    public static final String BODY = "body";
+    public static final String CHARSET = "UTF-8";
+    public static final String HTTP_REQUEST = "http-request";
+    public static final String HTTP_RESPONSE = "http-response";
 
     /**
      * group id unique string id for each business or product
      */
-    String GROUP_ID = "groupId";
+    public static final String GROUP_ID = "groupId";
 
     /**
      * interface id unique string id for each interface of business An interface stand for a kind of
      * data
      */
-    String STREAM_ID = "streamId";
+    public static final String STREAM_ID = "streamId";
 
     /**
      * iname is like a streamId but used in file protocol(m=xxx)
      */
-    String INAME = "iname";
+    public static final String INAME = "iname";
 
     /**
      * data time
      */
-    String DATA_TIME = "dt";
+    public static final String DATA_TIME = "dt";
 
-    String TIME_STAMP = "t";
+    public static final String TIME_STAMP = "t";
 
     /* compress type */
-    String COMPRESS_TYPE = "cp";
+    public static final String COMPRESS_TYPE = "cp";
 
     /* count value for how many records a message body contains */
-    String MESSAGE_COUNT = "cnt";
+    public static final String MESSAGE_COUNT = "cnt";
 
     /* message type */
-    String MESSAGE_TYPE = "mt";
+    public static final String MESSAGE_TYPE = "mt";
 
     /* sort type */
-    String METHOD = "m";
+    public static final String METHOD = "m";
 
     /* global unique id for a message*/
-    String SEQUENCE_ID = "sid";
+    public static final String SEQUENCE_ID = "sid";
 
-    String UNIQ_ID = "uniq";
+    public static final String UNIQ_ID = "uniq";
 
     /* from where */
-    String FROM = "f";
+    public static final String FROM = "f";
 
-    String RCV_TIME = "rt";
+    public static final String RCV_TIME = "rt";
 
-    String NODE_IP = "NodeIP";
+    public static final String NODE_IP = "NodeIP";
 
-    String NUM2NAME = "num2name";
+    public static final String NUM2NAME = "num2name";
 
-    String GROUPID_NUM = "groupIdnum";
+    public static final String GROUPID_NUM = "groupIdnum";
 
-    String STREAMID_NUM = "streamIdnum";
+    public static final String STREAMID_NUM = "streamIdnum";
 
-    String MESSAGE_PARTITION_KEY = "partitionKey";
+    public static final String MESSAGE_PARTITION_KEY = "partitionKey";
 
-    String MESSAGE_SYNC_SEND = "syncSend";
+    public static final String MESSAGE_SYNC_SEND = "syncSend";
 
-    String MESSAGE_IS_ACK = "isAck";
+    public static final String MESSAGE_IS_ACK = "isAck";
+
 }
