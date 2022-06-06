@@ -23,6 +23,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -118,10 +119,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
         for (SinkField fieldInfo : fieldList) {
-            if (StringUtils.isNotEmpty(fieldInfo.getExtParams())) {
-                IcebergColumnInfo columnInfo = IcebergColumnInfo.getFromJson(fieldInfo.getExtParams());
-                columnInfo.validate();
-            }
+            checkFieldInfo(fieldInfo);
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -136,6 +134,26 @@ public class IcebergSinkOperation implements StreamSinkOperation {
 
         sinkFieldMapper.insertAll(entityList);
         LOGGER.info("success to save iceberg field");
+    }
+
+    private void checkFieldInfo(SinkField field) {
+        if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
+            IcebergColumnInfo info = IcebergColumnInfo.getFromJson(field.getExtParams());
+            if (info.getPrecision() == null || info.getScale() == null) {
+                String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
+                        field.getFieldName());
+                LOGGER.error("field info check error: {}", errorMsg);
+                throw new IllegalArgumentException(errorMsg);
+            }
+            if (info.getPrecision() < info.getScale()) {
+                String errorMsg = String.format(
+                        "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
+                        info.getPrecision(), info.getScale(), field.getFieldName());
+                LOGGER.error("field info check error: {}", errorMsg);
+                throw new IllegalArgumentException(errorMsg);
+            }
+        }
+        return;
     }
 
     @Override
