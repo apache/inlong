@@ -60,6 +60,12 @@ public class IcebergSinkDTO {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
+    @ApiModelProperty("CatalogType like:hive,hadoop")
+    private String catalogType;
+
+    @ApiModelProperty("Primary key")
+    private String primaryKey;
+
     @ApiModelProperty("Properties for iceberg")
     private Map<String, Object> properties;
 
@@ -74,6 +80,8 @@ public class IcebergSinkDTO {
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
                 .fileFormat(request.getFileFormat())
+                .catalogType(request.getCatalogType())
+                .primaryKey(request.getPrimaryKey())
                 .properties(request.getProperties())
                 .build();
     }

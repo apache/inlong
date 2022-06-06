@@ -61,16 +61,10 @@ public class IcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
     private String partitionType;
 
-    @ApiModelProperty("Primary key is required when serializationType is json, avro")
+    @ApiModelProperty("Primary key")
     private String primaryKey;
 
     @ApiModelProperty("CatalogType like:hive,hadoop")
     private String catalogType;
-
-    @ApiModelProperty("Hive metastore  thrift URI")
-    private String uri;
-
-    @ApiModelProperty("Hive reposity location")
-    private String warehouse;
 
 }

@@ -60,6 +60,12 @@ public class IcebergSink extends StreamSink {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
+    @ApiModelProperty("CatalogType like:hive,hadoop")
+    private String catalogType;
+
+    @ApiModelProperty("Primary key")
+    private String primaryKey;
+
     public IcebergSink() {
         this.setSinkType(SinkType.SINK_ICEBERG);
     }

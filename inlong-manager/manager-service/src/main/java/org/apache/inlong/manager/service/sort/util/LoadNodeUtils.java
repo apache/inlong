@@ -35,6 +35,7 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
@@ -275,6 +276,8 @@ public class LoadNodeUtils {
         String tableName = icebergSink.getTableName();
         String uri = icebergSink.getCatalogUri();
         String warehouse = icebergSink.getWarehouse();
+        String primaryKey = icebergSink.getPrimaryKey();
+        CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
 
         List<SinkField> sinkFields = icebergSink.getFieldList();
         List<FieldInfo> fields = sinkFields.stream()
@@ -283,9 +286,9 @@ public class LoadNodeUtils {
         List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
         Map<String, String> properties = icebergSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-
-        return new IcebergLoadNode(id, name, fields, fieldRelationShips, null, null, 1, properties,
-                dbName, tableName, null, null, uri, warehouse);
+        return new IcebergLoadNode(
+                id, name, fields, fieldRelationShips, null, null, 1, properties,
+                dbName, tableName, primaryKey, catalogType, uri, warehouse);
     }
 
     /**

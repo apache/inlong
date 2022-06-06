@@ -39,6 +39,9 @@ public class IcebergConstant {
          */
         HYBRIS;
 
+        /**
+         * get catalogType from name
+         */
         public static CatalogType forName(String name) {
             for (CatalogType value : values()) {
                 if (value.name().equals(name)) {
