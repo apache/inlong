@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataSeparator;
@@ -41,6 +42,8 @@ import java.util.Map;
  */
 @Data
 public class BaseExample {
+
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     // Manager web url
     private String serviceUrl = "127.0.0.1:8083";

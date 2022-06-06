@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -131,23 +130,22 @@ public class File2IcebergExample extends BaseExample {
 
         // field ext param
         // field1: bucket partition example
-        final ObjectMapper mapper = new ObjectMapper();
         IcebergColumnInfo info1 = new IcebergColumnInfo();
         info1.setRequired(true);
         info1.setPartitionStrategy(IcebergPartition.BUCKET.toString());
         info1.setBucketNum(10);
-        field1.setExtParams(mapper.writeValueAsString(info1));
+        field1.setExtParams(OBJECT_MAPPER.writeValueAsString(info1));
 
         // field3: decimal column example
         IcebergColumnInfo info3 = new IcebergColumnInfo();
         info3.setScale(5);
         info3.setPrecision(10);  //NOTE: scale must be less than or equal to precision
-        field3.setExtParams(mapper.writeValueAsString(info3));
+        field3.setExtParams(OBJECT_MAPPER.writeValueAsString(info3));
 
         // field4: hour parititon example
         IcebergColumnInfo info4 = new IcebergColumnInfo();
         info4.setPartitionStrategy(IcebergPartition.HOUR.toString());
-        field4.setExtParams(mapper.writeValueAsString(info4));
+        field4.setExtParams(OBJECT_MAPPER.writeValueAsString(info4));
 
         List<SinkField> fields = new ArrayList<>();
         fields.add(field1);

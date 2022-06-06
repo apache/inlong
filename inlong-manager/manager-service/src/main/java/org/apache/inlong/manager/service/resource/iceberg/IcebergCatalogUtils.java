@@ -58,7 +58,7 @@ public class IcebergCatalogUtils {
         HiveCatalog catalog = new HiveCatalog();
         Map<String, String> properties = new HashMap<>();
         properties.put(CATALOG_PROP_URI, metastoreUri);
-        if (!StringUtils.isEmpty(warehouse)) {
+        if (StringUtils.isNotEmpty(warehouse)) {
             properties.put(CATALOG_PROP_WAREHOUSE, warehouse);
         }
         catalog.initialize("hive", properties);

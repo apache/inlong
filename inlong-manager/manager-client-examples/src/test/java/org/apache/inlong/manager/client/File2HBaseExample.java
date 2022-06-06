@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
@@ -127,18 +126,17 @@ public class File2HBaseExample extends BaseExample {
                 "score");
 
         // field ext param
-        final ObjectMapper mapper = new ObjectMapper();
         HBaseColumnFamilyInfo info1 = new HBaseColumnFamilyInfo();
         info1.setCfName("cf_1");
-        field1.setExtParams(mapper.writeValueAsString(info1));
+        field1.setExtParams(OBJECT_MAPPER.writeValueAsString(info1));
 
         HBaseColumnFamilyInfo info2 = new HBaseColumnFamilyInfo();
         info2.setCfName("cf_2");
-        field2.setExtParams(mapper.writeValueAsString(info2));
+        field2.setExtParams(OBJECT_MAPPER.writeValueAsString(info2));
 
         HBaseColumnFamilyInfo info3 = new HBaseColumnFamilyInfo();
         info3.setCfName("cf_3");
-        field3.setExtParams(mapper.writeValueAsString(info3));
+        field3.setExtParams(OBJECT_MAPPER.writeValueAsString(info3));
 
         List<SinkField> fields = new ArrayList<>();
         fields.add(field1);
