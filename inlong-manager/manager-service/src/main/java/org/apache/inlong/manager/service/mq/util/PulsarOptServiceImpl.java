@@ -50,7 +50,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
 
     @Override
     public void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
-        log.info("begin to create tenant={}", tenant);
+        log.info("begin to create pulsar tenant={}", tenant);
 
         Preconditions.checkNotEmpty(tenant, "Tenant cannot be empty");
         try {
@@ -66,7 +66,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             pulsarAdmin.tenants().createTenant(tenant, tenantInfo);
             log.info("success to create pulsar tenant={}", tenant);
         } catch (PulsarAdminException e) {
-            log.error("create pulsar tenant={} failed", tenant, e);
+            log.error("failed to create pulsar tenant=" + tenant, e);
             throw e;
         }
     }
@@ -119,9 +119,9 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarInfo.getEnsemble(),
                     pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), 0);
             namespaces.setPersistence(namespaceName, persistencePolicies);
-            log.info("success to create namespace={}", tenant);
+            log.info("success to create namespace={}", namespaceName);
         } catch (PulsarAdminException e) {
-            log.error("create namespace={} error", tenant, e);
+            log.error("failed to create namespace=" + namespaceName, e);
             throw e;
         }
     }
@@ -159,7 +159,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
 
             log.info("success to create topic={}", topicFullName);
         } catch (Exception e) {
-            log.error("create topic={} failed", topicFullName, e);
+            log.error("failed to create topic=" + topicFullName, e);
             throw e;
         }
     }
@@ -182,7 +182,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
                 log.warn("pulsar subscription={} already exists, skip to create", subscription);
             }
         } catch (Exception e) {
-            log.error("create pulsar subscription={} failed", subscription, e);
+            log.error("failed to create pulsar subscription=" + subscription, e);
             throw e;
         }
     }
@@ -243,7 +243,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             List<String> subscriptionList = pulsarAdmin.topics().getSubscriptions(topic);
             return subscriptionList.contains(subscription);
         } catch (PulsarAdminException e) {
-            log.error("check if the topic={} is exists error,", topic, e);
+            log.error("failed to check the subscription=" + subscription + " exists for topic=" + topic, e);
             return false;
         }
     }

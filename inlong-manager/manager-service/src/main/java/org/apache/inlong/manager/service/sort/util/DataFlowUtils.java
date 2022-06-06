@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,7 @@ import org.springframework.stereotype.Service;
 public class DataFlowUtils {
 
     @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
-    private CommonOperateService commonOperateService;
+    private GroupCheckService groupCheckService;
     @Autowired
     private StreamSourceService streamSourceService;
     @Autowired

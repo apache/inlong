@@ -65,9 +65,8 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
             AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
             tasksBean.setTopicName(topicName);
             request.setAddTopicTasks(Collections.singletonList(tasksBean));
-            tubeMqOptService.createNewTopic(request);
-
-            log.info("finish to create tube topic for groupId={}", groupId);
+            String result = tubeMqOptService.createNewTopic(request);
+            log.info("finish to create tube topic for groupId={}, result={}", groupId, result);
         } catch (Exception e) {
             log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
         }
