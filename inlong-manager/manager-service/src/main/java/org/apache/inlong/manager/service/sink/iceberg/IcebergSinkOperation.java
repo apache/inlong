@@ -31,10 +31,11 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -117,6 +118,10 @@ public class IcebergSinkOperation implements StreamSinkOperation {
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
         for (SinkField fieldInfo : fieldList) {
+            if (StringUtils.isNotEmpty(fieldInfo.getExtParams())) {
+                IcebergColumnInfo columnInfo = IcebergColumnInfo.getFromJson(fieldInfo.getExtParams());
+                columnInfo.validate();
+            }
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());

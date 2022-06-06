@@ -78,4 +78,11 @@ public class IcebergColumnInfo {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }
+
+    public void validate() {
+        // scale must be less than or equal to precision for decimal type
+        if (precision != null && scale != null && scale > precision) {
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+        }
+    }
 }
