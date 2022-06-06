@@ -17,9 +17,13 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
@@ -27,7 +31,11 @@ import javax.validation.constraints.NotBlank;
  * Inlong cluster request
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong cluster request")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public class InlongClusterRequest {
 
     @ApiModelProperty(value = "Primary key")

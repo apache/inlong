@@ -15,35 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.cluster.dataproxy;
 
-import org.apache.inlong.manager.common.exceptions.BusinessException;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Enum of cluster type.
+ * Inlong cluster request for DataProxy
  */
-public enum ClusterType {
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonTypeDefine(value = ClusterType.CLS_DATA_PROXY)
+@ApiModel("Inlong cluster request for DataProxy")
+public class DataProxyClusterRequest extends InlongClusterRequest {
 
-    TUBE,
-    PULSAR,
-    DATA_PROXY,
+    // no field
 
-    ;
-
-    public static final String CLS_TUBE = "TUBE";
-    public static final String CLS_PULSAR = "PULSAR";
-    public static final String CLS_DATA_PROXY = "DATA_PROXY";
-
-    /**
-     * Get the SinkType enum via the given sinkType string
-     */
-    public static ClusterType forType(String type) {
-        for (ClusterType clsType : values()) {
-            if (clsType.name().equals(type)) {
-                return clsType;
-            }
-        }
-        throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), type));
+    public DataProxyClusterRequest() {
+        this.setType(ClusterType.CLS_DATA_PROXY);
     }
 
 }

@@ -18,15 +18,18 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.core.InlongClusterService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,13 +104,26 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * save cluster info.
+     * Save Pulsar cluster
      */
-    public Integer saveCluster(String clusterTag, String clusterName, String type, String extTag) {
-        InlongClusterRequest request = new InlongClusterRequest();
+    public Integer savePulsarCluster(String clusterTag, String clusterName, String extTag) {
+        PulsarClusterRequest request = new PulsarClusterRequest();
         request.setClusterTag(clusterTag);
         request.setName(clusterName);
-        request.setType(type);
+        request.setType(ClusterType.CLS_PULSAR);
+        request.setExtTag(extTag);
+        request.setInCharges(GLOBAL_OPERATOR);
+        return clusterService.save(request, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * Save data proxy cluster
+     */
+    public Integer saveDataProxyCluster(String clusterTag, String clusterName, String extTag) {
+        DataProxyClusterRequest request = new DataProxyClusterRequest();
+        request.setClusterTag(clusterTag);
+        request.setName(clusterName);
+        request.setType(ClusterType.CLS_DATA_PROXY);
         request.setExtTag(extTag);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
@@ -116,7 +132,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * get cluster list info.
      */
-    public PageInfo<InlongClusterResponse> listCluster(String type, String clusterTag) {
+    public PageInfo<InlongClusterInfo> listCluster(String type, String clusterTag) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
         request.setClusterTag(clusterTag);
@@ -191,7 +207,6 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     @Test
     public void testClusterSaveAndDelete() {
-        String type = "PULSAR";
         String clusterTag = "default_cluster";
         String extTag = "ext_1";
         String ip = "127.0.0.1";
@@ -205,11 +220,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer portUpdate = 8083;
 
         // save cluster
-        Integer id = this.saveCluster(clusterTag, CLUSTER_NAME, type, extTag);
+        Integer id = this.savePulsarCluster(clusterTag, CLUSTER_NAME, extTag);
         Assert.assertNotNull(id);
 
         // list cluster
-        PageInfo<InlongClusterResponse> listCluster = this.listCluster(type, clusterTag);
+        PageInfo<InlongClusterInfo> listCluster = this.listCluster(ClusterType.CLS_PULSAR, clusterTag);
         Assert.assertEquals(listCluster.getTotal(), 1);
 
         // update cluster
@@ -218,11 +233,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // save cluster node
         Integer parentId = id;
-        Integer nodeId = this.saveClusterNode(parentId, type, ip, port);
+        Integer nodeId = this.saveClusterNode(parentId, ClusterType.CLS_PULSAR, ip, port);
         Assert.assertNotNull(nodeId);
 
         // list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listNode(type, ip);
+        PageInfo<ClusterNodeResponse> listNode = this.listNode(ClusterType.CLS_PULSAR, ip);
         Assert.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
@@ -245,7 +260,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer port1 = 46800;
         Integer port2 = 46801;
 
-        Integer id = this.saveCluster(CLUSTER_TAG, CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, extTag);
+        Integer id = this.saveDataProxyCluster(CLUSTER_TAG, CLUSTER_NAME, extTag);
         Assert.assertNotNull(id);
 
         // save cluster node

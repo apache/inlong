@@ -15,35 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.service.cluster;
 
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
- * Enum of cluster type.
+ * Factory for {@link InlongClusterOperator}.
  */
-public enum ClusterType {
+@Service
+public class InlongClusterOperatorFactory {
 
-    TUBE,
-    PULSAR,
-    DATA_PROXY,
-
-    ;
-
-    public static final String CLS_TUBE = "TUBE";
-    public static final String CLS_PULSAR = "PULSAR";
-    public static final String CLS_DATA_PROXY = "DATA_PROXY";
+    @Autowired
+    private List<InlongClusterOperator> clusterOperatorList;
 
     /**
-     * Get the SinkType enum via the given sinkType string
+     * Get a cluster operator instance via the given type
      */
-    public static ClusterType forType(String type) {
-        for (ClusterType clsType : values()) {
-            if (clsType.name().equals(type)) {
-                return clsType;
-            }
-        }
-        throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), type));
+    public InlongClusterOperator getInstance(String type) {
+        return clusterOperatorList.stream()
+                .filter(inst -> inst.accept(type))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(
+                        String.format(ErrorCodeEnum.CLUSTER_TYPE_NOT_SUPPORTED.getMessage(), type)));
     }
 
 }

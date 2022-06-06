@@ -27,10 +27,10 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.service.core.InlongClusterService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,13 +66,13 @@ public class InlongClusterController {
     @GetMapping(value = "/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<InlongClusterResponse> get(@PathVariable Integer id) {
+    public Response<InlongClusterInfo> get(@PathVariable Integer id) {
         return Response.success(clusterService.get(id));
     }
 
     @PostMapping(value = "/list")
     @ApiOperation(value = "List clusters")
-    public Response<PageInfo<InlongClusterResponse>> list(@RequestBody InlongClusterPageRequest request) {
+    public Response<PageInfo<InlongClusterInfo>> list(@RequestBody InlongClusterPageRequest request) {
         return Response.success(clusterService.list(request));
     }
 
