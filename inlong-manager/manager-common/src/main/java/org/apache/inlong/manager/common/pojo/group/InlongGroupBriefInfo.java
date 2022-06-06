@@ -15,39 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.cluster;
+package org.apache.inlong.manager.common.pojo.group;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.beans.PageRequest;
+
+import java.util.Date;
 
 /**
- * Cluster paging query conditions
+ * Inlong group brief info
  */
-@Deprecated
 @Data
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster paging query conditions")
-public class ClusterPageRequest extends PageRequest {
+@ApiModel("Inlong group brief info")
+public class InlongGroupBriefInfo {
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
-    private String type;
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @ApiModelProperty(value = "Cluster IP")
-    private String ip;
+    @ApiModelProperty(value = "Inlong group id")
+    private String inlongGroupId;
 
-    @ApiModelProperty(value = "Keyword, name, description, etc.")
-    private String keyword;
+    @ApiModelProperty(value = "Inlong group name")
+    private String name;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
-    @ApiModelProperty(value = "Current user", hidden = true)
-    private String currentUser;
+    @ApiModelProperty(value = "MQ resource")
+    private String mqResource;
 
-    @ApiModelProperty(value = "Set name of MQ cluster", hidden = true)
-    private String mqSetName;
+    @ApiModelProperty(value = "Inlong cluster tag")
+    private String inlongClusterTag;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
 
 }

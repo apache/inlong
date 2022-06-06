@@ -42,7 +42,14 @@ public class InlongGroupSettings {
 
     public static final String PULSAR_AUTHENTICATION_TYPE = "pulsar.authentication.type";
 
+    public static final String DEFAULT_PULSAR_TENANT = "public";
+
     public static final String DEFAULT_PULSAR_AUTHENTICATION_TYPE = "token";
+
+    /**
+     * Format of the Pulsar topic: "persistent://tenant/namespace/topic
+     */
+    public static final String PULSAR_TOPIC_FORMAT = "persistent://%s/%s/%s";
 
     /**
      * config of tube mq

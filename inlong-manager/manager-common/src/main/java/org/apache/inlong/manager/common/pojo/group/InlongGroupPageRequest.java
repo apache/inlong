@@ -19,8 +19,11 @@ package org.apache.inlong.manager.common.pojo.group;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 import java.util.List;
@@ -30,14 +33,14 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong group query request")
 public class InlongGroupPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Keyword, can be group id or name")
     private String keyword;
-
-    @ApiModelProperty(value = "Inlong group name list")
-    private List<String> nameList;
 
     @ApiModelProperty(value = "Inlong group id list")
     private List<String> groupIdList;
@@ -50,6 +53,9 @@ public class InlongGroupPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Group status list")
     private List<Integer> statusList;
+
+    @ApiModelProperty(value = "The inlong cluster tag list")
+    private List<String> clusterTagList;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;

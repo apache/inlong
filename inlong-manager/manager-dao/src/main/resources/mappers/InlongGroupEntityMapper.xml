@@ -115,14 +115,6 @@
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
         and is_deleted = 0 for update
     </select>
-    <select id="selectAll" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_group
-        where is_deleted = 0
-        and status = #{status, jdbcType=VARCHAR}
-        order by modify_time desc
-    </select>
     <select id="selectByCondition" resultMap="BaseResultMap"
             parameterType="org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest">
         select
@@ -144,12 +136,6 @@
                     #{inlongGroupId}
                 </foreach>
             </if>
-            <if test="nameList != null and nameList.size() > 0">
-                and name in
-                <foreach collection="nameList" item="name" index="index" open="(" close=")" separator=",">
-                    #{name}
-                </foreach>
-            </if>
             <if test="mqType != null and mqType != ''">
                 and mq_type = #{mqType, jdbcType=VARCHAR}
             </if>
@@ -162,13 +148,41 @@
                     #{status}
                 </foreach>
             </if>
+            <if test="clusterTagList != null and clusterTagList.size() > 0">
+                and inlong_cluster_tag in
+                <foreach collection="clusterTagList" item="tag" index="index" open="(" close=")" separator=",">
+                    #{tag}
+                </foreach>
+            </if>
         </where>
         order by modify_time desc
     </select>
-    <select id="selectGroupIdByProxyId" parameterType="java.lang.Integer" resultType="java.lang.String">
-        select inlong_group_id
+    <select id="selectBriefList" parameterType="org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest"
+            resultType="org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo">
+        select id, inlong_group_id, name, mq_type, mq_resource, inlong_cluster_tag, modify_time
         from inlong_group
-        where inlong_cluster_tag = #{inlongClusterTag,jdbcType=VARCHAR}
+        <where>
+            is_deleted = 0
+            <if test="mqType != null and mqType != ''">
+                and mq_type = #{mqType, jdbcType=VARCHAR}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status, jdbcType=INTEGER}
+            </if>
+            <if test="statusList != null and statusList.size() > 0">
+                and status in
+                <foreach collection="statusList" item="status" index="index" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="clusterTagList != null and clusterTagList.size() > 0">
+                and inlong_cluster_tag in
+                <foreach collection="clusterTagList" item="tag" index="index" open="(" close=")" separator=",">
+                    #{tag}
+                </foreach>
+            </if>
+        </where>
+        order by modify_time desc
     </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">

@@ -21,11 +21,11 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 
 import java.util.List;
@@ -33,7 +33,8 @@ import java.util.List;
 /**
  * Inlong stream service layer interface
  *
- * @apiNote It is associated with various sources, the upstream is StreamSource, and the downstream is StreamSink
+ * @apiNote It is associated with various sources, the upstream is StreamSource, and the downstream is
+ *         StreamSink
  */
 public interface InlongStreamService {
 
@@ -155,7 +156,7 @@ public interface InlongStreamService {
     /**
      * According to the inlong group id, query the Topic list
      */
-    List<InlongStreamTopicInfo> getTopicList(String groupId);
+    List<InlongStreamBriefInfo> getTopicList(String groupId);
 
     /**
      * Save the information modified when the approval is passed

@@ -111,7 +111,7 @@ public class CommonOperateService {
      * TODO Add data_proxy_cluster_name for query.
      */
     private InlongClusterEntity getMQCluster(MQType type) {
-        List<InlongClusterEntity> clusterList = clusterMapper.selectByNameAndType(null,
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(null, null,
                 InlongGroupSettings.CLUSTER_DATA_PROXY);
         if (CollectionUtils.isEmpty(clusterList)) {
             LOGGER.warn("no data proxy cluster found");
