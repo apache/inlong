@@ -61,4 +61,10 @@ public class IcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty("partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
     private String partitionType;
 
+    @ApiModelProperty("Primary key")
+    private String primaryKey;
+
+    @ApiModelProperty("Catalog type, like: hive, hadoop, default is hive")
+    private String catalogType;
+
 }
