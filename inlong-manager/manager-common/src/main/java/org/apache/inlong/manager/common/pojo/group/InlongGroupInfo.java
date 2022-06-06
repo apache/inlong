@@ -64,7 +64,7 @@ public abstract class InlongGroupInfo {
     private String mqResource;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    private Integer enableZookeeper;
+    private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
     private Integer enableCreateResource;
