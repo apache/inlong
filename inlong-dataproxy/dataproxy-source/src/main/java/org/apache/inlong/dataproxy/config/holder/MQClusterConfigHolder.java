@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * value is map
+ * Holder of the MQ cluster config.
  */
 public class MQClusterConfigHolder extends PropertiesConfigHolder {
 
-    public static final String URL_STORE_PREFIX = "mq-cluster.index";
+    public static final String URL_STORE_PREFIX = "mq_cluster.index";
 
     private final MQClusterConfig clusterConfig = new MQClusterConfig();
 

@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +45,8 @@ public class ClassResourceCommonPropertiesLoader implements CommonPropertiesLoad
 
     protected Map<String, String> loadProperties() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = getClass().getClassLoader().getResource(FILE_NAME).openStream()) {
+        URL resource = getClass().getClassLoader().getResource(FILE_NAME);
+        try (InputStream inStream = Objects.requireNonNull(resource).openStream()) {
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
