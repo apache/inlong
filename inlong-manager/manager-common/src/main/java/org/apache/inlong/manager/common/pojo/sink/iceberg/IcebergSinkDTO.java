@@ -60,7 +60,7 @@ public class IcebergSinkDTO {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
-    @ApiModelProperty("CatalogType like:hive,hadoop")
+    @ApiModelProperty("Catalog type, like: hive, hadoop, default is hive")
     private String catalogType;
 
     @ApiModelProperty("Primary key")

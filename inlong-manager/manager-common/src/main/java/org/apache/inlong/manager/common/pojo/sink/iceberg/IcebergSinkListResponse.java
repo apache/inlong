@@ -64,7 +64,7 @@ public class IcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("CatalogType like:hive,hadoop")
+    @ApiModelProperty("Catalog type, like: hive, hadoop, default is hive")
     private String catalogType;
 
 }
