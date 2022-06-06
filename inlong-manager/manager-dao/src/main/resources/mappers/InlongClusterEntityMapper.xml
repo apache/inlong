@@ -199,6 +199,16 @@
         and type = #{type, jdbcType=VARCHAR}
         and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
     </select>
+    <select id="selectByNameAndType" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster
+        where is_deleted = 0
+        <if test="name != null and name != ''">
+            and name = #{name, jdbcType=VARCHAR}
+        </if>
+        and `type` = #{type, jdbcType=VARCHAR}
+    </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
@@ -211,7 +221,13 @@
                 and name = #{name, jdbcType=VARCHAR}
             </if>
             <if test="type != null and type != ''">
-                and type = #{type, jdbcType=VARCHAR}
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
+            <if test="typeList != null and typeList.size()>0">
+                and `type` in
+                <foreach item="item" index="index" collection="typeList" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
@@ -228,6 +244,7 @@
         </where>
         order by modify_time desc
     </select>
+
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
         <set>

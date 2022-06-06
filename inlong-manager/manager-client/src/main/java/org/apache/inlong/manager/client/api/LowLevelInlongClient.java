@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.api;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.LowLevelInlongClientImpl;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 
@@ -48,6 +47,6 @@ public interface LowLevelInlongClient {
      *
      * @throws Exception The exception may throws
      */
-    Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception;
+    PageInfo<InlongGroupListResponse> listGroup(InlongGroupPageRequest request) throws Exception;
 
 }

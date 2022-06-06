@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.repository;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
@@ -41,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,8 +50,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.PostConstruct;
-
 /**
  * DataProxyConfigRepository
  */
@@ -60,9 +58,9 @@ public class DataProxyConfigRepository implements IRepository {
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
     public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
     public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
     private static final Gson gson = new Gson();
 
     // key: proxyClusterName, value: jsonString
@@ -136,6 +134,9 @@ public class DataProxyConfigRepository implements IRepository {
     private Map<String, Map<String, List<CacheCluster>>> reloadCacheCluster() {
         Map<String, Map<String, List<CacheCluster>>> cacheClusterMap = new HashMap<>();
         for (CacheCluster cacheCluster : clusterSetMapper.selectCacheCluster()) {
+            if (StringUtils.isEmpty(cacheCluster.getExtTag())) {
+                continue;
+            }
             Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
             String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
             if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString())) {
@@ -222,8 +223,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * generateClusterJson
-     *
-     * @param newClusterSets
      */
     @SuppressWarnings("unchecked")
     private void generateClusterJson(Map<String, ProxyClusterObject> proxyClusterMap,
@@ -290,9 +289,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * isSubTag
-     * @param wholeTagMap
-     * @param subTagMap
-     * @return
      */
     private boolean isSubTag(Map<String, String> wholeTagMap, Map<String, String> subTagMap) {
         for (Entry<String, String> entry : subTagMap.entrySet()) {
@@ -306,8 +302,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * getProxyMd5
-     * @param clusterName
-     * @return
      */
     public String getProxyMd5(String clusterName) {
         return this.proxyMd5Map.get(clusterName);
@@ -315,8 +309,6 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * getProxyConfigJson
-     * @param clusterName
-     * @return
      */
     public String getProxyConfigJson(String clusterName) {
         return this.proxyConfigJson.get(clusterName);

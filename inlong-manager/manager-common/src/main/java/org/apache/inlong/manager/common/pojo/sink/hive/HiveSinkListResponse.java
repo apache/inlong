@@ -19,16 +19,25 @@ package org.apache.inlong.manager.common.pojo.sink.hive;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of Hive sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Hive sink paging list")
+@JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("target database name")

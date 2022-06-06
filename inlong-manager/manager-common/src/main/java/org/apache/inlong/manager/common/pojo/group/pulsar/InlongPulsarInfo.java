@@ -19,9 +19,11 @@ package org.apache.inlong.manager.common.pojo.group.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -31,10 +33,12 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
  * Inlong group info for Pulsar
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Inlong group info for Pulsar")
 @JsonTypeDefine(value = MQType.MQ_PULSAR)
+@ApiModel("Inlong group info for Pulsar")
 public class InlongPulsarInfo extends InlongGroupInfo {
 
     @ApiModelProperty(value = "Pulsar tenant")

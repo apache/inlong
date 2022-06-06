@@ -445,45 +445,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Curator Client NOTICE
-========================================================================
-
-Curator Client
-Copyright 2011-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Curator Framework NOTICE
-========================================================================
-
-Curator Framework
-Copyright 2011-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Curator Recipes NOTICE
-========================================================================
-
-Curator Recipes
-Copyright 2011-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
 Hadoop Metrics2 Reporter for Dropwizard Metrics NOTICE
 ========================================================================
 
@@ -625,6 +586,35 @@ The Apache Software Foundation (http://www.apache.org/).
 Flink : Connectors : HBase 2.2
 Copyright 2014-2021 The Apache Software Foundation
 
+
+
+========================================================================
+
+flink-connector-elasticsearch NOTICE
+========================================================================
+
+Apache Flink
+Copyright 2006-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Flink : Connectors : Elasticsearch 6
+Copyright 2014-2022 The Apache Software Foundation
+
+========================================================================
+
+flink-connector-elasticsearch NOTICE
+========================================================================
+
+Apache Flink
+Copyright 2006-2022 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Flink : Connectors : Elasticsearch 7
+Copyright 2014-2022 The Apache Software Foundation
 
 
 ========================================================================

@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `followers`              varchar(512)      DEFAULT NULL COMMENT 'Name of followers, separated by commas',
     `enable_zookeeper`       tinyint(2)        DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
     `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
-    `lightweight`            tinyint(2)        DEFAULT '1' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
+    `lightweight`            tinyint(2)        DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
     `inlong_cluster_tag`     varchar(128)      DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
     `ext_params`             text              DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num,',
     `status`                 int(4)            DEFAULT '100' COMMENT 'Inlong group status',
@@ -137,90 +137,6 @@ CREATE TABLE IF NOT EXISTS `data_node`
 );
 
 -- ----------------------------
--- Table structure for third_party_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `third_party_cluster`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
-    `type`        varchar(32)  NOT NULL COMMENT 'Cluster type, including TUBE, PULSAR, etc.',
-    `ip`          text         NULL COMMENT 'Cluster IP, separated by commas, such as: 127.0.0.1:8080,host2:8081',
-    `port`        int(11)      NOT NULL COMMENT 'Cluster port',
-    `token`       varchar(512) COMMENT 'Cluster token',
-    `url`         varchar(512)      DEFAULT NULL COMMENT 'Cluster URL',
-    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params',
-    `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_cluster_name` (`name`, `is_deleted`)
-);
-
--- ----------------------------
--- Table structure for common_db_server
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `common_db_server`
-(
-    `id`                  int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `access_type`         varchar(20)  NOT NULL COMMENT 'Collection type, with Agent, DataProxy client, LoadProxy',
-    `connection_name`     varchar(128) NOT NULL COMMENT 'The name of the database connection',
-    `db_type`             varchar(128)      DEFAULT 'MySQL' COMMENT 'DB type, such as MySQL, Oracle',
-    `db_server_ip`        varchar(64)  NOT NULL COMMENT 'DB Server IP',
-    `port`                int(11)      NOT NULL COMMENT 'Port number',
-    `db_name`             varchar(128)      DEFAULT NULL COMMENT 'Target database name',
-    `username`            varchar(64)  NOT NULL COMMENT 'Username',
-    `password`            varchar(64)  NOT NULL COMMENT 'The password corresponding to the above user name',
-    `has_select`          tinyint(1)        DEFAULT '0' COMMENT 'Is there DB permission select, 0: No, 1: Yes',
-    `has_insert`          tinyint(1)        DEFAULT '0' COMMENT 'Is there DB permission to insert, 0: No, 1: Yes',
-    `has_update`          tinyint(1)        DEFAULT '0' COMMENT 'Is there a DB permission update, 0: No, 1: Yes',
-    `has_delete`          tinyint(1)        DEFAULT '0' COMMENT 'Is there a DB permission to delete, 0: No, 1: Yes',
-    `in_charges`          varchar(512) NOT NULL COMMENT 'DB person in charge, separated by a comma when there are multiple ones',
-    `is_region_id`        tinyint(1)        DEFAULT '0' COMMENT 'Whether it contains a region ID, 0: No, 1: Yes',
-    `db_description`      varchar(256)      DEFAULT NULL COMMENT 'DB description',
-    `backup_db_server_ip` varchar(64)       DEFAULT NULL COMMENT 'Backup DB HOST',
-    `backup_db_port`      int(11)           DEFAULT NULL COMMENT 'Backup DB port',
-    `status`              int(4)            DEFAULT '0' COMMENT 'status',
-    `is_deleted`          int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`             varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`            varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`         timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `visible_person`      varchar(1024)     DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
-    `visible_group`       varchar(1024)     DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
-    PRIMARY KEY (`id`)
-);
-
--- ----------------------------
--- Table structure for common_file_server
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `common_file_server`
-(
-    `id`             int(11)     NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `access_type`    varchar(20) NOT NULL COMMENT 'Collection type, with Agent, DataProxy, LoadProxy',
-    `ip`             varchar(64) NOT NULL COMMENT 'Data source IP',
-    `port`           int(11)     NOT NULL COMMENT 'Port number',
-    `is_inner_ip`    tinyint(1)       DEFAULT '0' COMMENT 'Whether it is intranet, 0: No, 1: Yes',
-    `issue_type`     varchar(128)     DEFAULT NULL COMMENT 'Issuance method, such as SSH, TCS, etc.',
-    `username`       varchar(64) NOT NULL COMMENT 'User name of the data source IP host',
-    `password`       varchar(64) NOT NULL COMMENT 'The password corresponding to the above user name',
-    `status`         int(4)           DEFAULT '0' COMMENT 'status',
-    `is_deleted`     int(11)          DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`        varchar(64) NOT NULL COMMENT 'Creator name',
-    `modifier`       varchar(64)      DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`    timestamp   NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`    timestamp   NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `visible_person` varchar(1024)    DEFAULT NULL COMMENT 'List of visible persons, separated by commas',
-    `visible_group`  varchar(1024)    DEFAULT NULL COMMENT 'List of visible groups, separated by commas',
-    PRIMARY KEY (`id`)
-);
-
--- ----------------------------
 -- Table structure for consumption
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `consumption`
@@ -258,30 +174,6 @@ CREATE TABLE IF NOT EXISTS `consumption_pulsar`
     `is_deleted`         int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     PRIMARY KEY (`id`)
 ) COMMENT ='Pulsar consumption table';
-
--- ----------------------------
--- Table structure for data_proxy_cluster
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `data_proxy_cluster`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`        varchar(128) NOT NULL COMMENT 'Cluster name',
-    `description` varchar(500)      DEFAULT NULL COMMENT 'Cluster description',
-    `address`     varchar(128) NOT NULL COMMENT 'Cluster address',
-    `port`        varchar(256)      DEFAULT '46801' COMMENT 'Access port number, multiple ports are separated by a comma',
-    `is_backup`   tinyint(1)        DEFAULT '0' COMMENT 'Whether it is a backup cluster, 0: no, 1: yes',
-    `mq_set_name` varchar(128) NULL COMMENT 'MQ set name of this cluster',
-    `ext_params`  text              DEFAULT NULL COMMENT 'Extended params',
-    `in_charges`  varchar(512)      DEFAULT NULL COMMENT 'Name of responsible person, separated by commas',
-    `status`      int(4)            DEFAULT '1' COMMENT 'Cluster status',
-    `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_dp_cluster_name` (`name`, `is_deleted`)
-);
 
 -- ----------------------------
 -- Table structure for data_schema
@@ -379,6 +271,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_field`
     `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
     `field_comment`       varchar(50)  DEFAULT NULL COMMENT 'Field description',
     `is_meta_field`       smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`     varchar(20)  DEFAULT NULL COMMENT 'Meta field name',
     `field_format`        varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`            smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`          int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -595,6 +488,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `field_type`       varchar(20)  NOT NULL COMMENT 'field type',
     `field_comment`    varchar(50)  DEFAULT NULL COMMENT 'Field description',
     `is_meta_field`    smallint(3)  DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`  varchar(20)  DEFAULT NULL COMMENT 'Meta field name',
     `field_format`     varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -619,6 +513,7 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`   varchar(20)   DEFAULT NULL COMMENT 'Meta field name',
     `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
@@ -646,6 +541,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `ext_params`        text COMMENT 'Field ext params',
     `is_meta_field`     smallint(3)   DEFAULT '0' COMMENT 'Is this field a meta field? 0: no, 1: yes',
+    `meta_field_name`   varchar(20)   DEFAULT NULL COMMENT 'Meta field name',
     `field_format`      varchar(50)   DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`          smallint(6)   DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`        int(11)       DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',

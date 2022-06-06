@@ -89,8 +89,8 @@ public class IcebergResourceOperator implements SinkResourceOperator {
         }
         IcebergTableInfo tableInfo = IcebergSinkDTO.getIcebergTableInfo(icebergInfo, columnInfoList);
 
-        String metastoreUri = icebergInfo.getJdbcUrl();
-        String warehouse = icebergInfo.getDataPath();
+        String metastoreUri = icebergInfo.getCatalogUri();
+        String warehouse = icebergInfo.getWarehouse();
         String dbName = icebergInfo.getDbName();
         String tableName = icebergInfo.getTableName();
 

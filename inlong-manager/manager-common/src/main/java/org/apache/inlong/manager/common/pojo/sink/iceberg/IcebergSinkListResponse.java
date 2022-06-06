@@ -19,16 +19,25 @@ package org.apache.inlong.manager.common.pojo.sink.iceberg;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of Iceberg sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Iceberg sink paging list")
+@JsonTypeDefine(value = SinkType.SINK_ICEBERG)
 public class IcebergSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("target database name")
@@ -40,8 +49,11 @@ public class IcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty("username")
     private String username;
 
-    @ApiModelProperty("JDBC URL")
-    private String jdbcUrl;
+    @ApiModelProperty("Catalog URI")
+    private String catalogUri;
+
+    @ApiModelProperty("Data warehouse dir")
+    private String warehouse;
 
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;

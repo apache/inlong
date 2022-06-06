@@ -24,7 +24,7 @@ import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.service.core.AgentService;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,28 +37,31 @@ import java.util.List;
  * Agent controller.
  */
 @RestController
-@RequestMapping("/openapi/agent")
-@Api(tags = "Agent Config")
+@RequestMapping("/openapi")
+@Api(tags = "Open-Agent-Config")
 public class AgentController {
 
     @Autowired
     private AgentService agentService;
     @Autowired
-    private ThirdPartyClusterService thirdPartyClusterService;
+    private InlongClusterService clusterService;
 
-    @PostMapping("/getManagerIpList")
+    /**
+     * Currently not used.
+     */
+    @PostMapping("/agent/getManagerIpList")
     @ApiOperation(value = "Get inlong manager ip list")
     public Response<List<String>> getInLongManagerIp() {
-        return Response.success(thirdPartyClusterService.listClusterIpByType("inlong-openapi"));
+        return Response.success(clusterService.listNodeIpByType("inlong-openapi"));
     }
 
-    @PostMapping("/reportSnapshot")
+    @PostMapping("/agent/reportSnapshot")
     @ApiOperation(value = "Report source task snapshot")
     public Response<Boolean> reportSnapshot(@RequestBody TaskSnapshotRequest request) {
         return Response.success(agentService.reportSnapshot(request));
     }
 
-    @PostMapping("/reportAndGetTask")
+    @PostMapping("/agent/reportAndGetTask")
     @ApiOperation(value = "Report task result and get next tasks")
     public Response<TaskResult> reportAndGetTask(@RequestBody TaskRequest request) {
         agentService.report(request);

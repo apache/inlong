@@ -19,17 +19,54 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import lombok.NoArgsConstructor;
 
 /**
  * Sink field info.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@ApiModel("Sink field configuration")
-public class SinkField extends StreamField {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Sink field info")
+public class SinkField {
+
+    @ApiModelProperty("Field index")
+    private Integer id;
+
+    @ApiModelProperty(value = "inlong group id", required = true)
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "inlong stream id", required = true)
+    private String inlongStreamId;
+
+    @ApiModelProperty(value = "Field name", required = true)
+    private String fieldName;
+
+    @ApiModelProperty(value = "Field type", required = true)
+    private String fieldType;
+
+    @ApiModelProperty(value = "Field comment")
+    private String fieldComment;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
+    @ApiModelProperty(value = "Meta field name")
+    private String metaFieldName;
+
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    private String fieldFormat;
+
+    @ApiModelProperty("Origin node name which stream fields belong")
+    private String originNodeName;
+
+    @ApiModelProperty("Origin field name before transform operation")
+    private String originFieldName;
 
     @ApiModelProperty("Source field name")
     private String sourceFieldName;
@@ -37,19 +74,33 @@ public class SinkField extends StreamField {
     @ApiModelProperty("Source field type")
     private String sourceFieldType;
 
-    public SinkField() {
-
-    }
+    @ApiModelProperty("Extra Param in JSON style")
+    private String extParams;
 
     public SinkField(int index, String fieldType, String fieldName, String sourceFieldType, String sourceFieldName) {
-        this(index, fieldType, fieldName, null, null, sourceFieldName, sourceFieldType, 0, null);
+        this(index, fieldType, fieldName, null, sourceFieldName, sourceFieldType, 0, null, null);
     }
 
     public SinkField(int index, String fieldType, String fieldName, String fieldComment,
-            String fieldValue, String sourceFieldName, String sourceFieldType,
-            Integer isMetaField, String fieldFormat) {
-        super(index, fieldType, fieldName, fieldComment, fieldValue, isMetaField, fieldFormat);
+            String sourceFieldName, String sourceFieldType,
+            Integer isMetaField, String metaFieldName, String fieldFormat) {
+        this(index, fieldType, fieldName, fieldComment, isMetaField, metaFieldName, fieldFormat);
         this.sourceFieldName = sourceFieldName;
         this.sourceFieldType = sourceFieldType;
+    }
+
+    public SinkField(int index, String fieldType, String fieldName, String fieldComment,
+            Integer isMetaField, String metaFieldName, String originNodeName) {
+        this(fieldType, index, fieldName, fieldComment);
+        this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
+        this.originNodeName = originNodeName;
+    }
+
+    public SinkField(String fieldType, int index, String fieldName, String fieldComment) {
+        this.id = index;
+        this.fieldType = fieldType;
+        this.fieldName = fieldName;
+        this.fieldComment = fieldComment;
     }
 }

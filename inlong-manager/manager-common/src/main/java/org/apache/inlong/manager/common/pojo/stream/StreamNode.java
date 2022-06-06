@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.common.pojo.stream;
 
 import com.google.common.collect.Sets;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -28,6 +31,9 @@ import java.util.Set;
  * Stream node, including data node name, pre node name, post node name, field list.
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class StreamNode {
 
     protected Set<String> preNodes;

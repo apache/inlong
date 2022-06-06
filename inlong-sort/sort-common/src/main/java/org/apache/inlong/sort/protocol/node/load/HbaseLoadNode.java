@@ -51,8 +51,8 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
     @JsonProperty("tableName")
     private String tableName;
 
-    @JsonProperty("nameSpace")
-    private String nameSpace;
+    @JsonProperty("namespace")
+    private String namespace;
 
     @JsonProperty("zookeeperQuorum")
     private String zookeeperQuorum;
@@ -82,7 +82,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("tableName") String tableName,
-            @JsonProperty("nameSpace") String nameSpace,
+            @JsonProperty("namespace") String namespace,
             @JsonProperty("zookeeperQuorum") String zookeeperQuorum,
             @JsonProperty("rowKey") String rowKey,
             @JsonProperty("sinkBufferFlushMaxSize") String sinkBufferFlushMaxSize,
@@ -91,7 +91,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
             @JsonProperty("sinkBufferFlushInterval") String sinkBufferFlushInterval) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "tableName of hbase is null");
-        this.nameSpace = Preconditions.checkNotNull(nameSpace, "nameSpace of hbase is null");
+        this.namespace = Preconditions.checkNotNull(namespace, "namespace of hbase is null");
         this.zookeeperQuorum = Preconditions.checkNotNull(zookeeperQuorum, "zookeeperQuorum of hbase is null");
         this.rowKey = Preconditions.checkNotNull(rowKey, "rowKey of hbase is null");
         this.sinkBufferFlushMaxSize = sinkBufferFlushMaxSize;
@@ -104,7 +104,7 @@ public class HbaseLoadNode extends LoadNode implements Serializable {
     public Map<String, String> tableOptions() {
         Map<String, String> map = super.tableOptions();
         map.put(HBaseConstant.CONNECTOR, HBaseConstant.HBASE_2);
-        map.put(HBaseConstant.TABLE_NAME, nameSpace + ":" + tableName);
+        map.put(HBaseConstant.TABLE_NAME, namespace + ":" + tableName);
         map.put(HBaseConstant.ZOOKEEPER_QUORUM, zookeeperQuorum);
         if (StringUtils.isNotEmpty(sinkBufferFlushInterval)) {
             map.put(HBaseConstant.SINK_BUFFER_FLUSH_INTERVAL, sinkBufferFlushInterval);

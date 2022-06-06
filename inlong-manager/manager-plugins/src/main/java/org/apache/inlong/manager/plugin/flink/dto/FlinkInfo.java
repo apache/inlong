@@ -36,6 +36,8 @@ public class FlinkInfo {
 
     private String localJarPath;
 
+    private List<String> connectorJarPaths;
+
     private String localConfPath;
 
     private String sourceType;

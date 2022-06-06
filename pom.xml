@@ -131,7 +131,7 @@
         <okhttp.version>3.14.9</okhttp.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
-        <spring.version>5.3.19</spring.version>
+        <spring.version>5.3.20</spring.version>
         <spring.autoconfigure.version>2.4.3</spring.autoconfigure.version>
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
@@ -171,7 +171,7 @@
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.collections4.version>4.3</commons.collections4.version>
 
-        <guava.version>19.0</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <lombok.version>1.18.22</lombok.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <opencsv.version>5.4</opencsv.version>
@@ -229,6 +229,7 @@
         <mockito.version>3.12.4</mockito.version>
         <powermock.version>2.0.9</powermock.version>
         <assertj.version>3.4.1</assertj.version>
+        <wiremock.version>2.33.2</wiremock.version>
 
         <jakarta.version>2.0.2</jakarta.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -1410,6 +1411,13 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8</artifactId>
+                <version>${wiremock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

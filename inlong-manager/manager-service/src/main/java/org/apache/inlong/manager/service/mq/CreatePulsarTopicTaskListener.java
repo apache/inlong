@@ -37,8 +37,6 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * Create task listener for Pulsar Topic
  */
@@ -68,16 +66,10 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
         log.info("begin to create pulsar topic for groupId={}, streamId={}", groupId, streamId);
 
         InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
-            List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
-            for (String cluster : pulsarClusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                String pulsarTopic = streamInfo.getMqResource();
-                this.createTopic(pulsarInfo, pulsarTopic, pulsarClusterInfo);
-            }
+        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(pulsarInfo.getMqType());
+        try {
+            String pulsarTopic = streamInfo.getMqResource();
+            this.createTopic(pulsarInfo, pulsarTopic, pulsarClusterInfo);
         } catch (Exception e) {
             log.error("create pulsar topic error for groupId={}, streamId={}", groupId, streamId, e);
             throw new WorkflowListenerException(

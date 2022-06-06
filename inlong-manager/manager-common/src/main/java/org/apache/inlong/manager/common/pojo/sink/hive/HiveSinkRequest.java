@@ -85,7 +85,6 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @NotNull(message = "hiveConfDir cannot be null")
     @ApiModelProperty("Config directory of Hive on HDFS, must include hive-site.xml")
     private String hiveConfDir;
 

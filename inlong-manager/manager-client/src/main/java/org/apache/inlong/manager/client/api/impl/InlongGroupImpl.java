@@ -29,24 +29,22 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
-import org.apache.inlong.manager.client.api.util.InlongParser;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -100,15 +98,17 @@ public class InlongGroupImpl implements InlongGroup {
         AssertUtils.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
                 String.format("Process status : %s is not corrected, should be PROCESSING",
                         processView.getStatus()));
-        String formData = GsonUtils.toJson(processView.getFormData());
-        Pair<InlongGroupApproveRequest, List<InlongStreamApproveRequest>> initMsg = InlongParser
-                .parseGroupForm(formData);
-        groupContext.setInitMsg(initMsg);
-        WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, initMsg);
+
+        // init must be NewGroupProcessForm
+        NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
+                JsonUtils.toJsonString(processView.getFormData()), NewGroupProcessForm.class);
+        AssertUtils.notNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
+
+        groupContext.setInitMsg(newGroupProcessForm);
+        WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, newGroupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
         AssertUtils.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
-                String.format("Business info state : %s is not corrected , should be COMPLETED",
-                        processView.getStatus()));
+                String.format("inlong group status %s is incorrected, should be COMPLETED", processView.getStatus()));
         return generateSnapshot();
     }
 
@@ -267,7 +267,7 @@ public class InlongGroupImpl implements InlongGroup {
                 logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
                         .forEach(streamLog -> {
                             String componentName = streamLog.getComponentName();
-                            String log = GsonUtils.toJson(streamLog);
+                            String log = JsonUtils.toJsonString(streamLog);
                             streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
                         });
                 inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);

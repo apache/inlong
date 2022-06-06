@@ -27,7 +27,6 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
-import org.apache.inlong.manager.client.api.util.GsonUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
@@ -42,6 +41,7 @@ import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -52,9 +52,7 @@ import java.util.Map;
 public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
 
     private final InlongStreamImpl inlongStream;
-
     private final InnerStreamContext streamContext;
-
     private final InnerInlongManagerClient managerClient;
 
     public DefaultInlongStreamBuilder(InlongStreamInfo streamInfo, InnerGroupContext groupContext,
@@ -119,23 +117,22 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream init() {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        streamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
-        Double streamIndex = managerClient.createStreamInfo(streamInfo);
-        streamInfo.setId(streamIndex.intValue());
-        //Create source and update index
+        streamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
+        streamInfo.setId(managerClient.createStreamInfo(streamInfo));
+        // Create source and update index
         List<SourceRequest> sourceRequests = Lists.newArrayList(streamContext.getSourceRequests().values());
         for (SourceRequest sourceRequest : sourceRequests) {
-            sourceRequest.setId(managerClient.createSource(sourceRequest).intValue());
+            sourceRequest.setId(managerClient.createSource(sourceRequest));
         }
-        //Create sink and update index
+        // Create sink and update index
         List<SinkRequest> sinkRequests = Lists.newArrayList(streamContext.getSinkRequests().values());
         for (SinkRequest sinkRequest : sinkRequests) {
-            sinkRequest.setId(managerClient.createSink(sinkRequest).intValue());
+            sinkRequest.setId(managerClient.createSink(sinkRequest));
         }
-        //Create transform and update index
+        // Create transform and update index
         List<TransformRequest> transformRequests = Lists.newArrayList(streamContext.getTransformRequests().values());
         for (TransformRequest transformRequest : transformRequests) {
-            transformRequest.setId(managerClient.createTransform(transformRequest).intValue());
+            transformRequest.setId(managerClient.createTransform(transformRequest));
         }
         return inlongStream;
     }
@@ -144,7 +141,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
     public InlongStream initOrUpdate() {
         InlongStreamInfo dataStreamInfo = streamContext.getStreamInfo();
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        dataStreamInfo.setExtParams(GsonUtils.toJson(streamPipeline));
+        dataStreamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
         Boolean isExist = managerClient.isStreamExists(dataStreamInfo);
         if (isExist) {
             Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(dataStreamInfo);
@@ -196,7 +193,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             TransformRequest transformRequest = requestEntry.getValue();
-            transformRequest.setId(managerClient.createTransform(transformRequest).intValue());
+            transformRequest.setId(managerClient.createTransform(transformRequest));
         }
     }
 
@@ -233,7 +230,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             SourceRequest sourceRequest = requestEntry.getValue();
-            sourceRequest.setId(managerClient.createSource(sourceRequest).intValue());
+            sourceRequest.setId(managerClient.createSource(sourceRequest));
         }
     }
 
@@ -270,7 +267,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                 continue;
             }
             SinkRequest sinkRequest = requestEntry.getValue();
-            sinkRequest.setId(managerClient.createSink(sinkRequest).intValue());
+            sinkRequest.setId(managerClient.createSink(sinkRequest));
         }
     }
 }

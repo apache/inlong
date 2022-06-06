@@ -20,14 +20,16 @@ package org.apache.inlong.manager.common.pojo.sink.postgres;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Postgres sink info
@@ -77,8 +79,9 @@ public class PostgresSinkDTO {
     }
 
     /**
-     *  get DTO from json
-     * @param extParams extParams
+     * Get Postgres sink info from JSON string
+     *
+     * @param extParams JSON string
      * @return postgres sink DTO
      */
     public static PostgresSinkDTO getFromJson(@NotNull String extParams) {
@@ -88,6 +91,18 @@ public class PostgresSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * Get Postgres table info
+     */
+    public static PostgresTableInfo getPostgresTableInfo(PostgresSinkDTO pgSink, List<PostgresColumnInfo> columnList) {
+        PostgresTableInfo tableInfo = new PostgresTableInfo();
+        tableInfo.setDbName(pgSink.getDbName());
+        tableInfo.setTableName(pgSink.getTableName());
+        tableInfo.setPrimaryKey(pgSink.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
     }
 
 }

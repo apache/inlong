@@ -25,6 +25,9 @@ import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
 
+/**
+ * Test for {@link HbaseLoadNode}
+ */
 public class HbaseLoadNodeTest extends SerializeBaseTest<HbaseLoadNode> {
 
     @Override

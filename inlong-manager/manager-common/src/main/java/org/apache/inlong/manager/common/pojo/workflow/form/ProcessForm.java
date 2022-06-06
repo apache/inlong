@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.pojo.workflow.form;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Map;
 
 /**
@@ -29,11 +31,13 @@ public interface ProcessForm extends Form {
      *
      * @return inlong group id.
      */
+    @JsonIgnore
     String getInlongGroupId();
 
     /**
      * Get form title.
      */
+    @JsonIgnore
     default String getTitle() {
         return null;
     }

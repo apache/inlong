@@ -23,10 +23,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterResponse;
-import org.apache.inlong.manager.service.core.ThirdPartyClusterService;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
+import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,33 +46,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class OpenClusterController {
 
     @Autowired
-    private ThirdPartyClusterService thirdPartyClusterService;
+    private InlongClusterService clusterService;
 
     @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
-    public Response<Integer> save(@RequestBody ClusterRequest request) {
-        return Response.success(thirdPartyClusterService.save(request, null));
+    public Response<Integer> save(@RequestBody InlongClusterRequest request) {
+        return Response.success(clusterService.save(request, null));
     }
 
     @GetMapping(value = "/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<ClusterResponse> get(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.get(id));
+    public Response<InlongClusterResponse> get(@PathVariable Integer id) {
+        return Response.success(clusterService.get(id));
     }
 
     @PostMapping(value = "/list")
     @ApiOperation(value = "Get clusters by paginating")
-    public Response<PageInfo<ClusterResponse>> list(@RequestBody ClusterPageRequest request) {
-        return Response.success(thirdPartyClusterService.list(request));
+    public Response<PageInfo<InlongClusterResponse>> list(@RequestBody InlongClusterPageRequest request) {
+        return Response.success(clusterService.list(request));
     }
 
     @PostMapping(value = "/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster info")
-    public Response<Boolean> update(@RequestBody ClusterRequest request) {
-        return Response.success(thirdPartyClusterService.update(request, null));
+    public Response<Boolean> update(@RequestBody InlongClusterRequest request) {
+        return Response.success(clusterService.update(request, null));
     }
 
     @DeleteMapping(value = "/delete/{id}")
@@ -80,7 +80,7 @@ public class OpenClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(thirdPartyClusterService.delete(id, null));
+        return Response.success(clusterService.delete(id, null));
     }
 
 }

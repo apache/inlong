@@ -33,6 +33,7 @@ import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -84,6 +85,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // According to the source type, save source information
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        // Remove id in sourceField when save
+        List<StreamField> streamFields = request.getFieldList();
+        if (CollectionUtils.isNotEmpty(streamFields)) {
+            streamFields.stream().forEach(streamField -> streamField.setId(null));
+        }
         int id = operation.saveOpt(request, groupEntity.getStatus(), operator);
 
         LOGGER.info("success to save source info: {}", request);
@@ -167,6 +173,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         String sourceType = request.getSourceType();
         StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        // Remove id in sourceField when save
+        List<StreamField> streamFields = request.getFieldList();
+        if (CollectionUtils.isNotEmpty(streamFields)) {
+            streamFields.stream().forEach(streamField -> streamField.setId(null));
+        }
         operation.updateOpt(request, groupEntity.getStatus(), operator);
 
         LOGGER.info("success to update source info: {}", request);

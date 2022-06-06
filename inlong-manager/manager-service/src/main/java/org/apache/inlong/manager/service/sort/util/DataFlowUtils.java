@@ -17,32 +17,12 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
 import org.apache.inlong.manager.common.beans.ClusterBean;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.CommonOperateService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.sort.protocol.DataFlowInfo;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.sink.SinkInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldMappingRule;
-import org.apache.inlong.sort.protocol.transformation.FieldMappingRule.FieldMappingUnit;
-import org.apache.inlong.sort.protocol.transformation.TransformationInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Util for build data flow info.
@@ -60,10 +40,10 @@ public class DataFlowUtils {
     @Autowired
     private InlongStreamService streamService;
 
-    /**
+    /*
      * Create dataflow info for sort.
      */
-    public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, StreamSink streamSink) {
+    /*public DataFlowInfo createDataFlow(InlongGroupInfo groupInfo, StreamSink streamSink) {
         String groupId = streamSink.getInlongGroupId();
         String streamId = streamSink.getInlongStreamId();
         List<StreamSource> sourceList = streamSourceService.listSource(groupId, streamId);
@@ -112,6 +92,6 @@ public class DataFlowUtils {
         properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
 
         return new DataFlowInfo(streamSink.getId(), sourceInfo, transInfo, sinkInfo, properties);
-    }
+    }*/
 
 }

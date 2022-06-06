@@ -112,8 +112,6 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
 
-    COMMON_FILE_DOWNLOAD_FAIL(6001, "File download failed"),
-    COMMON_FILE_UPLOAD_FAIL(6002, "File upload failed"),
     ;
 
     private final int code;

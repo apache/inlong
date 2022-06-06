@@ -28,8 +28,10 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.util.SmallTools;
+import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -44,6 +46,10 @@ import java.util.List;
 public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
+    @Length(min = 4, max = 200)
+    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
+            message = "inlongGroupId must starts with a lowercase letter "
+                    + "and contains only lowercase letters, digits, `-` or `_`")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -52,7 +58,7 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 
-    @NotNull
+    @NotBlank
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
@@ -73,7 +79,7 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
     @Builder.Default
-    private Integer lightweight = 1;
+    private Integer lightweight = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
     private String inlongClusterTag;
@@ -91,6 +97,7 @@ public class InlongGroupRequest {
     private Integer maxLength;
 
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @NotBlank
     private String inCharges;
 
     @ApiModelProperty(value = "Name of followers, separated by commas")
