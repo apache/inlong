@@ -333,10 +333,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create SqlServer load node based on SqlServerSink
-     *
-     * @param elasticsearchSink SqlServer sink info
-     * @return SqlServer load node info
+     * Create Elasticsearch load node
      */
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink) {
         final String id = elasticsearchSink.getSinkName();
