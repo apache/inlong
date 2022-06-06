@@ -74,7 +74,7 @@ public class MysqlSinkDTO {
     }
 
     /**
-     *  get DTO from json
+     *  get dto from json
      * @param extParams extParams
      * @return binlog sink DTO
      */

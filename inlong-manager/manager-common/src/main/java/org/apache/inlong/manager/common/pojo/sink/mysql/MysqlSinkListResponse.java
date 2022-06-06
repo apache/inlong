@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of Binlog sink list
+ * Response of Mysql sink list
  */
 @Data
 @SuperBuilder

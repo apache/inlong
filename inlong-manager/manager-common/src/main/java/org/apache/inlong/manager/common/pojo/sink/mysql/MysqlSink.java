@@ -29,12 +29,12 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of the binlog sink
+ * Mysql sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Response of the mysql sink")
+@ApiModel(value = "Mysql sink info")
 @JsonTypeDefine(value = SinkType.SINK_MYSQL)
 public class MysqlSink extends StreamSink {
 
