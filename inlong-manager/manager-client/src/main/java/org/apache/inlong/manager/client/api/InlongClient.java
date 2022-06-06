@@ -77,13 +77,13 @@ public interface InlongClient {
     List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
 
     /**
-     * List group state
+     * List group status
      *
-     * @param groupNames inlong group name list
+     * @param groupIds inlong group id list
      * @return map of inlong group status list
      * @throws Exception the exception
      */
-    Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) throws Exception;
+    Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) throws Exception;
 
     /**
      * Gets group.

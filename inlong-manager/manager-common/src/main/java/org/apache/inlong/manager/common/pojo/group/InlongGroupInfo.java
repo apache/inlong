@@ -59,8 +59,8 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
-    @ApiModelProperty(value = "MQ resource, in inlong group",
-            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
+    @ApiModelProperty(value = "MQ resource",
+            notes = "in inlong group, Tube corresponds to Topic, Pulsar corresponds to Namespace")
     private String mqResource;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")

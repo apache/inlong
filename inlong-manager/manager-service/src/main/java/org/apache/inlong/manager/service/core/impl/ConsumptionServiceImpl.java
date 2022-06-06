@@ -38,6 +38,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -300,13 +301,12 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     /**
      * According to groupId and topic, stitch the full path of Pulsar Topic
-     * "persistent://" + tenant + "/" + namespace + "/" + topic;
      */
     private String getFullPulsarTopic(String groupId, String topic) {
         InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
         String tenant = clusterBean.getDefaultTenant();
         String namespace = inlongGroupEntity.getMqResource();
-        return "persistent://" + tenant + "/" + namespace + "/" + topic;
+        return String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant, namespace, topic);
     }
 
     @Override

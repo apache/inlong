@@ -35,12 +35,12 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -501,11 +501,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<InlongStreamTopicInfo> getTopicList(String groupId) {
+    public List<InlongStreamBriefInfo> getTopicList(String groupId) {
         LOGGER.debug("begin bo get topic list by group id={}", groupId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
-        List<InlongStreamTopicInfo> topicList = streamMapper.selectTopicList(groupId);
+        List<InlongStreamBriefInfo> topicList = streamMapper.selectBriefList(groupId);
         LOGGER.debug("success to get topic list by groupId={}", groupId);
         return topicList;
     }

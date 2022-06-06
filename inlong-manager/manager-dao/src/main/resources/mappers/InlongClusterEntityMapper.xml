@@ -189,25 +189,22 @@
             modify_time = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
+    <select id="selectByKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster
-        where is_deleted = 0
-        and name = #{name, jdbcType=VARCHAR}
-        and type = #{type, jdbcType=VARCHAR}
-        and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
-    </select>
-    <select id="selectByNameAndType" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        select
-        <include refid="Base_Column_List"/>
-        from inlong_cluster
-        where is_deleted = 0
-        <if test="name != null and name != ''">
-            and name = #{name, jdbcType=VARCHAR}
-        </if>
-        and `type` = #{type, jdbcType=VARCHAR}
+        <where>
+            is_deleted = 0
+            and `type` = #{type, jdbcType=VARCHAR}
+            <if test="clusterTag != null and clusterTag != ''">
+                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by modify_time desc
     </select>
     <select id="selectByCondition"
             parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"

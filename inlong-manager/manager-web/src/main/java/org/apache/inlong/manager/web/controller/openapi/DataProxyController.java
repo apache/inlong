@@ -21,10 +21,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.service.core.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,22 +52,28 @@ public class DataProxyController {
      */
     @RequestMapping(value = "/dataproxy/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation(value = "Get data proxy ip list by cluster name")
-    public Response<List<DataProxyResponse>> getIpList(@RequestParam(required = false) String clusterName) {
-        return Response.success(clusterService.getIpList(clusterName));
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
+    })
+    public Response<List<DataProxyNodeInfo>> getIpList(
+            @RequestParam(required = false) String clusterTag,
+            @RequestParam(required = false) String clusterName) {
+        return Response.success(clusterService.getDataProxyNodeList(clusterTag, clusterName));
     }
 
     @GetMapping("/dataproxy/getConfig")
     @ApiOperation(value = "Get data proxy topic list")
-    public Response<List<DataProxyConfig>> getConfig() {
-        return Response.success(clusterService.getConfig());
-    }
-
-    @GetMapping("/dataproxy/getConfig_v2")
-    @ApiOperation(value = "Get data proxy list - including topic")
-    public Response<ThirdPartyClusterDTO> getConfigV2(@RequestParam("clusterName") String clusterName) {
-        ThirdPartyClusterDTO dto = clusterService.getConfigV2(clusterName);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
+    })
+    public Response<ThirdPartyClusterDTO> getConfig(
+            @RequestParam(required = false) String clusterTag,
+            @RequestParam(required = true) String clusterName) {
+        ThirdPartyClusterDTO dto = clusterService.getDataProxyConfig(clusterTag, clusterName);
         if (dto.getMqSet().isEmpty() || dto.getTopicList().isEmpty()) {
-            return Response.fail("failed to get mq config or topics");
+            return Response.fail("failed to get mq clusters or topics");
         }
         return Response.success(dto);
     }

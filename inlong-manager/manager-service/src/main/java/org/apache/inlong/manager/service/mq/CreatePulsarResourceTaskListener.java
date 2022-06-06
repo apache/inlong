@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
@@ -110,12 +110,12 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
 
             // create pulsar topic
             Integer partitionNum = groupInfo.getPartitionNum();
-            List<InlongStreamTopicInfo> streamTopicList = streamMapper.selectTopicList(groupId);
+            List<InlongStreamBriefInfo> streamTopicList = streamMapper.selectBriefList(groupId);
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(tenant).namespace(namespace).numPartitions(partitionNum).queueModule(queueModule).build();
 
-            for (InlongStreamTopicInfo topicVO : streamTopicList) {
-                topicBean.setTopicName(topicVO.getMqResource());
+            for (InlongStreamBriefInfo streamInfo : streamTopicList) {
+                topicBean.setTopicName(streamInfo.getMqResource());
                 pulsarOptService.createTopic(pulsarAdmin, topicBean);
             }
         }

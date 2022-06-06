@@ -18,14 +18,13 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.ThirdPartyClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyResponse;
+import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 
 import java.util.List;
 
@@ -129,24 +128,22 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, String operator);
 
     /**
-     * Query data proxy ip list by the given cluster name.
+     * Query data proxy nodes by the given cluster tag and name.
      *
-     * @param clusterName Cluster name.
-     * @return Data proxy info list.
+     * @param clusterTag cluster tag
+     * @param clusterName cluster name
+     * @return data proxy node list
      */
-    List<DataProxyResponse> getIpList(String clusterName);
+    List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName);
 
     /**
-     * query data proxy config by cluster id
+     * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
      *
-     * @return data proxy config
+     * @param clusterTag cluster tag
+     * @param clusterName cluster name
+     * @return data proxy config, includes mq clusters and topics
      */
-    List<DataProxyConfig> getConfig();
-
-    /**
-     * query data proxy config by cluster name, result includes pulsar/tube cluster configs and topic etc
-     */
-    ThirdPartyClusterDTO getConfigV2(String clusterName);
+    ThirdPartyClusterDTO getDataProxyConfig(String clusterTag, String clusterName);
 
     /**
      * Get data proxy cluster list by the given cluster name
