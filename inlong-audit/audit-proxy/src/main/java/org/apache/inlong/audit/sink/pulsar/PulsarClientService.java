@@ -82,8 +82,8 @@ public class PulsarClientService {
     public ConcurrentHashMap<String, Producer> producerInfoMap;
     public PulsarClient pulsarClient;
     public String pulsarServerUrl;
-    public boolean pulsarEnableAuth = true;
-    public String pulsarAuthToken;
+    public boolean pulsarEnableTokenAuth = false;
+    public String pulsarTokenAuth;
 
     private String localIp = "127.0.0.1";
 
@@ -109,8 +109,8 @@ public class PulsarClientService {
         producerInfoMap = new ConcurrentHashMap<>();
         localIp = NetworkUtils.getLocalIp();
 
-        pulsarEnableAuth = context.getBoolean(PULSAR_ENABLE_AUTH);
-        pulsarAuthToken = context.getString(PULSAR_ENABLE_AUTH_TOKEN);
+        pulsarEnableTokenAuth = context.getBoolean(PULSAR_ENABLE_AUTH);
+        pulsarTokenAuth = context.getString(PULSAR_ENABLE_AUTH_TOKEN);
     }
 
     /**
@@ -209,8 +209,8 @@ public class PulsarClientService {
     private PulsarClient initPulsarClient(String pulsarUrl) throws Exception {
         PulsarClient pulsarClient = null;
         ClientBuilder builder = PulsarClient.builder();
-        if (pulsarEnableAuth && StringUtils.isNotEmpty(pulsarAuthToken)) {
-            builder.authentication(AuthenticationFactory.token(pulsarAuthToken));
+        if (pulsarEnableTokenAuth && StringUtils.isNotEmpty(pulsarTokenAuth)) {
+            builder.authentication(AuthenticationFactory.token(pulsarTokenAuth));
         }
         pulsarClient = builder.serviceUrl(pulsarUrl)
                 .connectionTimeout(clientOpTimeout, TimeUnit.SECONDS).build();
