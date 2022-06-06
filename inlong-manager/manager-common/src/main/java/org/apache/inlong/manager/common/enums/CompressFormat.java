@@ -17,17 +17,37 @@
 
 package org.apache.inlong.manager.common.enums;
 
-public enum CompressionType {
+import lombok.Getter;
 
-    NONE, DEFLATE, GZIP, BZIP2, LZ4, SNAPPY;
+/**
+ * Enum of data compress.
+ */
+public enum CompressFormat {
 
-    public static CompressionType forName(String name) {
-        for (CompressionType value : values()) {
-            if (value.name().equals(name)) {
-                return value;
+    NONE("none"),
+    DEFLATE("deflate"),
+    GZIP("gzip"),
+    BZIP2("bzip2"),
+    LZ4("lz4"),
+    SNAPPY("snappy");
+
+    @Getter
+    private final String name;
+
+    CompressFormat(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Get data compress format by name.
+     */
+    public static CompressFormat forName(String name) {
+        for (CompressFormat compressFormat : values()) {
+            if (compressFormat.getName().equalsIgnoreCase(name)) {
+                return compressFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupport CompressionType:%s", name));
+        throw new IllegalArgumentException(String.format("Unsupport CompressionFormat:%s", name));
     }
 
 }

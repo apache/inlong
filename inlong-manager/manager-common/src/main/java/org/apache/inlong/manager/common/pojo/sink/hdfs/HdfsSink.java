@@ -50,8 +50,8 @@ public class HdfsSink extends StreamSink {
     @ApiModelProperty("Data field separator")
     private String dataSeparator;
 
-    @ApiModelProperty("Compress formt")
-    private String compressFormt;
+    @ApiModelProperty("Compress format")
+    private String compressFormat;
 
     @ApiModelProperty("Server timeZone")
     private String serverTimeZone;
