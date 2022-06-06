@@ -51,7 +51,7 @@ public class PulsarClientService {
      * properties key for pulsar client
      */
     private static String PULSAR_SERVER_URL = "pulsar_server_url";
-    private static String PULSAR_ENABLE_AUTH = "enable_auth";
+    private static String PULSAR_ENABLE_AUTH = "enable_token_auth";
     private static String PULSAR_ENABLE_AUTH_TOKEN = "auth_token";
     /*
      * properties key pulsar producer
