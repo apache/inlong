@@ -26,7 +26,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -59,7 +58,7 @@ public class HdfsSinkDTO {
     private String dataSeparator;
 
     @ApiModelProperty("Partition field list")
-    private List<HivePartitionField> partitionFieldList;
+    private List<HdfsPartitionField> partitionFieldList;
 
     @ApiModelProperty("Properties for hbase")
     private Map<String, Object> properties;

@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.List;
@@ -55,6 +54,6 @@ public class HdfsSinkRequest extends SinkRequest {
     private String dataSeparator;
 
     @ApiModelProperty("Partition field list")
-    private List<HivePartitionField> partitionFieldList;
+    private List<HdfsPartitionField> partitionFieldList;
 
 }

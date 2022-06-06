@@ -25,7 +25,6 @@ import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -57,7 +56,7 @@ public class HdfsSink extends StreamSink {
     private String serverTimeZone;
 
     @ApiModelProperty("Partition field list")
-    private List<HivePartitionField> partitionFieldList;
+    private List<HdfsPartitionField> partitionFieldList;
 
     public HdfsSink() {
         this.setSinkType(SinkType.SINK_HDFS);
