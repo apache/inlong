@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.impl;
+package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.ClusterType;
@@ -23,13 +23,12 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,80 +40,8 @@ import java.util.List;
  */
 public class InlongClusterServiceTest extends ServiceBaseTest {
 
-    private static final String CLUSTER_TAG = "default_cluster";
-    private static final String CLUSTER_NAME = "test_data_proxy";
-    private static final String CLUSTER_IP = "127.0.0.1";
-    private static final Integer CLUSTER_PORT = 8088;
-
     @Autowired
     private InlongClusterService clusterService;
-
-    public Integer saveOpt(String clusterName, String type, String url) {
-        InlongClusterRequest request = new InlongClusterRequest();
-        request.setName(clusterName);
-        request.setType(type);
-        request.setClusterTag(CLUSTER_TAG);
-        request.setUrl(url);
-        request.setInCharges(GLOBAL_OPERATOR);
-        return clusterService.save(request, GLOBAL_OPERATOR);
-    }
-
-    public Boolean deleteOpt(Integer id) {
-        return clusterService.delete(id, GLOBAL_OPERATOR);
-    }
-
-    @Test
-    public void testSaveAndDelete() {
-        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, CLUSTER_IP);
-        Assert.assertNotNull(id);
-
-        Boolean success = this.deleteOpt(id);
-        Assert.assertTrue(success);
-    }
-
-    @Test
-    public void testGetDataProxy() {
-        // Save the url with port p1, default port is p2
-        Integer p1 = 46800;
-        Integer p2 = 46801;
-        String url = "127.0.0.1:" + p1 + ",127.0.0.2";
-        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, url);
-        Assert.assertNotNull(id);
-
-        // Get the data proxy cluster ip list, the first port should is p1, second port is p2
-        /* List<DataProxyNodeInfo> ipList = clusterService.getIpList(CLUSTER_NAME);
-        Assert.assertEquals(ipList.size(), 2);
-        Assert.assertEquals(p1, ipList.get(0).getPort());
-        Assert.assertEquals(p2, ipList.get(1).getPort());*/
-
-        this.deleteOpt(id);
-    }
-
-    @Test
-    public void testSaveAndGetDirtyDataProxy() {
-        // Simulate saving and parsing dirty url without port, default port is p1
-        String url = ":,,, :127.0 .0.1:,: ,,,";
-        Integer port = 46801;
-        Integer id = this.saveOpt(CLUSTER_NAME, InlongGroupSettings.CLUSTER_DATA_PROXY, url);
-        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(CLUSTER_TAG, CLUSTER_NAME);
-        // The result port is p1
-        // Assert.assertEquals(port, ipList.get(0).getPort());
-
-        this.deleteOpt(id);
-    }
-
-    /**
-     * Save Pulsar cluster
-     */
-    public Integer savePulsarCluster(String clusterTag, String clusterName, String extTag) {
-        PulsarClusterRequest request = new PulsarClusterRequest();
-        request.setClusterTag(clusterTag);
-        request.setName(clusterName);
-        request.setType(ClusterType.CLS_PULSAR);
-        request.setExtTag(extTag);
-        request.setInCharges(GLOBAL_OPERATOR);
-        return clusterService.save(request, GLOBAL_OPERATOR);
-    }
 
     /**
      * Save data proxy cluster
@@ -130,7 +57,21 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * get cluster list info.
+     * Save Pulsar cluster
+     */
+    public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
+        PulsarClusterRequest request = new PulsarClusterRequest();
+        request.setClusterTag(clusterTag);
+        request.setName(clusterName);
+        request.setType(ClusterType.CLS_PULSAR);
+        request.setAdminUrl(adminUrl);
+        request.setTenant("public");
+        request.setInCharges(GLOBAL_OPERATOR);
+        return clusterService.save(request, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * List clusters by page.
      */
     public PageInfo<InlongClusterInfo> listCluster(String type, String clusterTag) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
@@ -140,28 +81,27 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * update cluster info.
+     * Update cluster info.
      */
-    public Boolean updateCluster(Integer id, String name, String type, String clusterTag, String extTag) {
-        InlongClusterRequest request = new InlongClusterRequest();
+    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl) {
+        PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
-        request.setType(type);
         request.setClusterTag(clusterTag);
-        request.setExtTag(extTag);
+        request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.update(request, GLOBAL_OPERATOR);
     }
 
     /**
-     * delete cluster info by id.
+     * Delete cluster info by id.
      */
     public Boolean deleteCluster(Integer id) {
         return clusterService.delete(id, GLOBAL_OPERATOR);
     }
 
     /**
-     * save cluster node info.
+     * Save cluster node info.
      */
     public Integer saveClusterNode(Integer parentId, String type, String ip, Integer port) {
         ClusterNodeRequest request = new ClusterNodeRequest();
@@ -173,22 +113,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * update cluster node info.
+     * List cluster nodes by page.
      */
-    public Boolean updateClusterNode(Integer id, Integer parentId, String type, String ip, Integer port) {
-        ClusterNodeRequest request = new ClusterNodeRequest();
-        request.setId(id);
-        request.setParentId(parentId);
-        request.setType(type);
-        request.setIp(ip);
-        request.setPort(port);
-        return clusterService.updateNode(request, GLOBAL_OPERATOR);
-    }
-
-    /**
-     * get cluster node list info.
-     */
-    public PageInfo<ClusterNodeResponse> listNode(String type, String keyword) {
+    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword) {
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
@@ -196,7 +123,19 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * delete cluster node info.
+     * Update cluster node info.
+     */
+    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port) {
+        ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setId(id);
+        request.setParentId(parentId);
+        request.setIp(ip);
+        request.setPort(port);
+        return clusterService.updateNode(request, GLOBAL_OPERATOR);
+    }
+
+    /**
+     * Delete cluster node info.
      */
     public Boolean deleteClusterNode(Integer id) {
         return clusterService.deleteNode(id, GLOBAL_OPERATOR);
@@ -206,75 +145,80 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      * test cluster interface.
      */
     @Test
-    public void testClusterSaveAndDelete() {
-        String clusterTag = "default_cluster";
-        String extTag = "ext_1";
-        String ip = "127.0.0.1";
-        Integer port = 8080;
-
-        String typeUpdate = "DATA_PROXY";
-        String clusterTagUpdate = "default_cluster_2";
-        String extTagUpdate = "ext_2";
-
-        String ipUpdate = "localhost";
-        Integer portUpdate = 8083;
-
+    public void testPulsarCluster() {
         // save cluster
-        Integer id = this.savePulsarCluster(clusterTag, CLUSTER_NAME, extTag);
+        String clusterName = "default_pulsar";
+        String clusterTag = "default_cluster";
+        String adminUrl = "http://127.0.0.1:8080";
+        Integer id = this.savePulsarCluster(clusterTag, clusterName, adminUrl);
         Assert.assertNotNull(id);
 
         // list cluster
         PageInfo<InlongClusterInfo> listCluster = this.listCluster(ClusterType.CLS_PULSAR, clusterTag);
-        Assert.assertEquals(listCluster.getTotal(), 1);
+        Assert.assertTrue(listCluster.getList().size() > 0);
+        InlongClusterInfo clusterInfo = listCluster.getList().get(0);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        Assert.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
 
         // update cluster
-        Boolean updateSuccess = this.updateCluster(id, CLUSTER_NAME, typeUpdate, clusterTagUpdate, extTagUpdate);
+        String clusterNameUpdate = "default_pulsar_2";
+        String clusterTagUpdate = "default_cluster_2";
+        String adminUrlUpdate = "http://127.0.0.1:8088";
+        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate);
         Assert.assertTrue(updateSuccess);
 
         // save cluster node
         Integer parentId = id;
+        String ip = "127.0.0.1";
+        Integer port = 8080;
         Integer nodeId = this.saveClusterNode(parentId, ClusterType.CLS_PULSAR, ip, port);
         Assert.assertNotNull(nodeId);
 
         // list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listNode(ClusterType.CLS_PULSAR, ip);
+        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.CLS_PULSAR, ip);
         Assert.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, typeUpdate, ipUpdate, portUpdate);
+        String ipUpdate = "localhost";
+        Integer portUpdate = 8083;
+        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate);
         Assert.assertTrue(updateNodeSuccess);
 
         // delete cluster node
-        Boolean deleteClusterSuccess = this.deleteClusterNode(nodeId);
-        Assert.assertTrue(deleteClusterSuccess);
+        Boolean deleteNodeSuccess = this.deleteClusterNode(nodeId);
+        Assert.assertTrue(deleteNodeSuccess);
 
-        // delete Cluster
+        // delete cluster
         Boolean success = this.deleteCluster(id);
         Assert.assertTrue(success);
     }
 
     @Test
     public void testGetDataProxyIp() {
+        String clusterTag = "default_cluster";
+        String clusterName = "test_data_proxy";
         String extTag = "ext_1";
-        String ip = "127.0.0.1";
-        Integer port1 = 46800;
-        Integer port2 = 46801;
 
-        Integer id = this.saveDataProxyCluster(CLUSTER_TAG, CLUSTER_NAME, extTag);
+        // save cluster
+        Integer id = this.saveDataProxyCluster(clusterTag, clusterName, extTag);
         Assert.assertNotNull(id);
 
         // save cluster node
-        Integer nodeId1 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port1);
+        String ip = "127.0.0.1";
+        Integer port1 = 46800;
+        Integer nodeId1 = this.saveClusterNode(id, ClusterType.CLS_DATA_PROXY, ip, port1);
         Assert.assertNotNull(nodeId1);
 
+        Integer port2 = 46801;
         Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
         Assert.assertNotNull(nodeId2);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
-        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(CLUSTER_TAG, CLUSTER_NAME);
+        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(clusterTag, clusterName);
         Assert.assertEquals(ipList.size(), 2);
         Assert.assertEquals(port1, ipList.get(0).getPort());
         Assert.assertEquals(port2, ipList.get(1).getPort());
+
         this.deleteClusterNode(nodeId1);
         this.deleteClusterNode(nodeId2);
         this.deleteCluster(id);

@@ -132,7 +132,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public PageInfo<InlongClusterInfo> list(InlongClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
-        List<InlongClusterInfo> list = CommonBeanUtils.copyListProperties(entityPage, InlongClusterInfo::new);
+
+        List<InlongClusterInfo> list = new ArrayList<>(entityPage.getResult().size());
+        for (InlongClusterEntity entity : entityPage) {
+            InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
+            InlongClusterInfo clusterInfo = instance.getFromEntity(entity);
+            list.add(clusterInfo);
+        }
+
         PageInfo<InlongClusterInfo> page = new PageInfo<>(list);
         page.setTotal(list.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
