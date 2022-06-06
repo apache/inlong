@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
  * Test for Iceberg SQL parser.
  */
 public class IcebergNodeSqlParserTest extends AbstractTestBase {
-
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
