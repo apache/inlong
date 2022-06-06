@@ -26,10 +26,11 @@ import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.manager.dao.entity.SortIdParamsDTO;
-import org.apache.inlong.manager.dao.entity.SortSinkParamsDTO;
-import org.apache.inlong.manager.dao.entity.SortTaskDTO;
-import org.apache.inlong.manager.dao.mapper.SortClusterMapper;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortIdParamsDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortSinkParamsDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortTaskDTO;
+import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,9 @@ public class SortConfigRepository implements IRepository {
     private long reloadInterval;
 
     @Autowired
-    private SortClusterMapper sortClusterMapper;
+    private StreamSinkEntityMapper streamSinkEntityMapper;
+    @Autowired
+    private DataNodeEntityMapper dataNodeEntityMapper;
 
     @PostConstruct
     public void initialize() {
@@ -163,21 +166,21 @@ public class SortConfigRepository implements IRepository {
      */
     private void reloadAllClusterConfig() {
         // get all task and group by cluster
-        List<SortTaskDTO> tasks = sortClusterMapper.selectAllTasks();
+        List<SortTaskDTO> tasks = streamSinkEntityMapper.selectAllTasks();
         Map<String, List<SortTaskDTO>> clusterTaskMap =
                 tasks.stream()
                         .filter(dto -> dto.getSortClusterName() != null)
                         .collect(Collectors.groupingBy(SortTaskDTO::getSortClusterName));
 
         // get all id params and group by task
-        List<SortIdParamsDTO> idParams = sortClusterMapper.selectAllIdParams();
+        List<SortIdParamsDTO> idParams = streamSinkEntityMapper.selectAllIdParams();
         Map<String, List<SortIdParamsDTO>> taskIdParamMap =
                 idParams.stream()
                         .filter(dto -> dto.getSortTaskName() != null)
                         .collect(Collectors.groupingBy(SortIdParamsDTO::getSortTaskName));
 
         // get all sink params and group by data node name
-        List<SortSinkParamsDTO> sinkParams = sortClusterMapper.selectAllSinkParams();
+        List<SortSinkParamsDTO> sinkParams = dataNodeEntityMapper.selectAllSinkParams();
         Map<String, SortSinkParamsDTO> taskSinkParamMap =
                 sinkParams.stream()
                         .filter(dto -> dto.getName() != null)
@@ -284,14 +287,14 @@ public class SortConfigRepository implements IRepository {
      */
     private List<Map<String, String>> parseIdParams(List<SortIdParamsDTO> rowIdParams) {
         return rowIdParams.stream()
-                        .map(row -> {
-                            Map<String, String> param = gson.fromJson(row.getExtParams(), HashMap.class);
-                            // put group and stream info
-                            param.put(KEY_GROUP_ID, row.getInlongGroupId());
-                            param.put(KEY_STREAM_ID, row.getInlongStreamId());
-                            return param;
-                        })
-                        .collect(Collectors.toList());
+                .map(row -> {
+                    Map<String, String> param = gson.fromJson(row.getExtParams(), HashMap.class);
+                    // put group and stream info
+                    param.put(KEY_GROUP_ID, row.getInlongGroupId());
+                    param.put(KEY_STREAM_ID, row.getInlongStreamId());
+                    return param;
+                })
+                .collect(Collectors.toList());
     }
 
     /**

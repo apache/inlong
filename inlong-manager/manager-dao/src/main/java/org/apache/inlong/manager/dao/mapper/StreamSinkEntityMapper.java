@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortIdParamsDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortTaskDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
@@ -112,5 +114,19 @@ public interface StreamSinkEntityMapper {
     int updateStatus(StreamSinkEntity entity);
 
     int deleteByPrimaryKey(Integer id);
+
+    /**
+     * Select all tasks for sort-standalone
+     *
+     * @return All tasks
+     */
+    List<SortTaskDTO> selectAllTasks();
+
+    /**
+     * Select all id params for sort-standalone
+     *
+     * @return All id params
+     */
+    List<SortIdParamsDTO> selectAllIdParams();
 
 }

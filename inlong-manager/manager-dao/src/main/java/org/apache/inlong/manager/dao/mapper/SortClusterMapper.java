@@ -19,9 +19,9 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
-import org.apache.inlong.manager.dao.entity.SortIdParamsDTO;
-import org.apache.inlong.manager.dao.entity.SortSinkParamsDTO;
-import org.apache.inlong.manager.dao.entity.SortTaskDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortIdParamsDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortSinkParamsDTO;
+import org.apache.inlong.common.pojo.sortstandalone.dto.SortTaskDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

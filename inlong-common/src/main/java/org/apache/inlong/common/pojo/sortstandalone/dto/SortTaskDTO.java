@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.common.pojo.sortstandalone.dto;
 
 import lombok.Data;
 
