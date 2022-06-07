@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.2.0-incubating-SNAPSHOT</version>
+        <version>1.2.1-incubating-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
 
