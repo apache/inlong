@@ -26,9 +26,8 @@ import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.TubeManagerResponse;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.HttpUtils;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -45,7 +44,7 @@ public class TubeMqOptService {
     private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
     @Autowired
-    private CommonOperateService commonOperateService;
+    private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private HttpUtils httpUtils;
 
@@ -59,14 +58,14 @@ public class TubeMqOptService {
             if (CollectionUtils.isEmpty(request.getAddTopicTasks())) {
                 throw new Exception("topic cannot be empty");
             }
+
+            // TODO use the original method of TubeMQ to create group
             AddTubeMqTopicRequest.AddTopicTasksBean addTopicTasksBean = request.getAddTopicTasks().get(0);
-            String clusterIdStr = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_CLUSTER_ID);
-            int clusterId = Integer.parseInt(clusterIdStr);
             QueryTubeTopicRequest topicRequest = QueryTubeTopicRequest.builder()
-                    .topicName(addTopicTasksBean.getTopicName()).clusterId(clusterId)
+                    .topicName(addTopicTasksBean.getTopicName()).clusterId(1)
                     .user(request.getUser()).build();
 
-            String tubeManager = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MANAGER_URL);
+            String tubeManager = "InlongGroupSettings.TUBE_MANAGER_URL";
             TubeManagerResponse response = httpUtils
                     .request(tubeManager + "/v1/topic?method=queryCanWrite", HttpMethod.POST,
                             GSON.toJson(topicRequest), httpHeaders, TubeManagerResponse.class);
@@ -74,15 +73,16 @@ public class TubeMqOptService {
                 log.info(" create tube topic  {}  on {} ", GSON.toJson(request),
                         tubeManager + "/v1/task?method=addTopicTask");
 
-                request.setClusterId(clusterId);
+                request.setClusterId(1);
                 TubeManagerResponse createRsp = httpUtils
                         .request(tubeManager + "/v1/task?method=addTopicTask", HttpMethod.POST,
                                 GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
+                log.info("create tube topic success, result: {}", createRsp);
             } else {
-                log.warn("topic {} exists in {} ", addTopicTasksBean.getTopicName(), tubeManager);
+                log.warn("tube topic {} exists in {} ", addTopicTasksBean.getTopicName(), tubeManager);
             }
         } catch (Exception e) {
-            log.error("fail to create tube topic " + request.getAddTopicTasks().get(0).getTopicName(), e);
+            log.error("failed to create tube topic: " + request.getAddTopicTasks().get(0).getTopicName(), e);
         }
         return "";
     }
@@ -94,16 +94,17 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         try {
-            String tubeManager = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MANAGER_URL);
+            String tubeManager = "InlongGroupSettings.TUBE_MANAGER_URL";
             log.info("create tube consumer group {}  on {} ", GSON.toJson(request),
                     tubeManager + "/v1/task?method=addTopicTask");
-            TubeManagerResponse rsp = httpUtils.request(tubeManager + "/v1/group?method=add",
+            TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/group?method=add",
                     HttpMethod.POST, GSON.toJson(request), httpHeaders, TubeManagerResponse.class);
-            if (rsp.getErrCode() == -1) { // Creation failed
-                throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_CREATE_FAILED, rsp.getErrMsg());
+            if (response.getErrCode() == -1) { // Creation failed
+                throw new BusinessException(ErrorCodeEnum.CONSUMER_GROUP_CREATE_FAILED, response.getErrMsg());
             }
+            log.info("create tube consumer group success, result: {}", response);
         } catch (BusinessException e) {
-            log.error(" fail to create tube consumer group  " + GSON.toJson(request), e);
+            log.error("failed to create tube consumer group: " + GSON.toJson(request), e);
             throw e;
         }
         return "";
@@ -116,7 +117,7 @@ public class TubeMqOptService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Type", "application/json");
         try {
-            String tubeManager = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MANAGER_URL);
+            String tubeManager = "InlongGroupSettings.TUBE_MANAGER_URL";
             TubeManagerResponse response = httpUtils.request(tubeManager + "/v1/topic?method=queryCanWrite",
                     HttpMethod.POST, GSON.toJson(queryTubeTopicRequest), httpHeaders, TubeManagerResponse.class);
             if (response.getErrCode() == 0) { // topic already exists

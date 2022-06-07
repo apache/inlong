@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.sort;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -47,8 +46,6 @@ public class PushSortConfigListener implements SortOperateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PushSortConfigListener.class);
 
-    @Autowired
-    private ClusterBean clusterBean;
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -89,10 +86,10 @@ public class PushSortConfigListener implements SortOperateListener {
             Integer sinkId = streamSink.getId();
             try {
                 // DataFlowInfo dataFlowInfo = dataFlowUtils.createDataFlow(groupInfo, streamSink);
-                String zkUrl = clusterBean.getZkUrl();
-                String zkRoot = clusterBean.getZkRoot();
+                // String zkUrl = clusterBean.getZkUrl();
+                // String zkRoot = clusterBean.getZkRoot();
                 // push data flow info to zk
-                String sortClusterName = clusterBean.getAppName();
+                // String sortClusterName = clusterBean.getAppName();
                 // ZkTools.updateDataFlowInfo(dataFlowInfo, sortClusterName, sinkId, zkUrl, zkRoot);
                 // add sink id to zk
                 // ZkTools.addDataFlowToCluster(sortClusterName, sinkId, zkUrl, zkRoot);

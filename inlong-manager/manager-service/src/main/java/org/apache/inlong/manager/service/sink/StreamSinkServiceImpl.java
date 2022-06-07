@@ -41,7 +41,7 @@ import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +66,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     @Autowired
     private SinkOperationFactory operationFactory;
     @Autowired
-    private CommonOperateService commonOperateService;
+    private GroupCheckService groupCheckService;
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
@@ -80,7 +80,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -192,7 +192,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
         String sinkType = request.getSinkType();
-        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         // Check whether the sink name exists with the same groupId and streamId
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
@@ -239,7 +239,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         entity.setPreviousStatus(entity.getStatus());
         entity.setStatus(GlobalConstants.DELETED_STATUS);
@@ -261,7 +261,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         Date now = new Date();
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
@@ -290,7 +290,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {

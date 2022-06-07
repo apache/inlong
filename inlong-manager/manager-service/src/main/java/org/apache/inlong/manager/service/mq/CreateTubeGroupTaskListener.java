@@ -19,15 +19,16 @@ package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.ReTryConfigBean;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
 import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.mq.util.TubeMqOptService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,14 +47,13 @@ import java.util.Collections;
 public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
     @Autowired
-    InlongGroupService groupService;
-
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
-    TubeMqOptService tubeMqOptService;
+    private InlongClusterService clusterService;
     @Autowired
-    ReTryConfigBean reTryConfigBean;
+    private TubeMqOptService tubeMqOptService;
     @Autowired
-    private CommonOperateService commonOperateService;
+    private ReTryConfigBean reTryConfigBean;
 
     @Override
     public TaskEvent event() {
@@ -66,12 +66,18 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
         String groupId = form.getInlongGroupId();
         log.info("try to create consumer group for groupId {}", groupId);
 
-        InlongGroupInfo groupInfo = groupService.get(groupId);
-        String topicName = groupInfo.getMqResource();
-        int clusterId = Integer.parseInt(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_CLUSTER_ID));
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        InlongClusterInfo tubeCluster = clusterService.getOne(groupEntity.getInlongClusterTag(),
+                null, ClusterType.CLS_TUBE);
+
+        // TODO use the original method of TubeMQ to create group
+        // TubeClusterDTO clusterDTO = TubeClusterDTO.getFromJson(clusters.get(0).getExtParams());
+        // int clusterId = clusterDTO.getClusterId();
+
+        String topicName = groupEntity.getMqResource();
         QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()
-                .topicName(topicName).clusterId(clusterId)
-                .user(groupInfo.getCreator()).build();
+                .topicName(topicName).clusterId(1)
+                .user(groupEntity.getCreator()).build();
         // Query whether the tube topic exists
         boolean topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
 
@@ -89,8 +95,8 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
         }
 
         AddTubeConsumeGroupRequest addTubeConsumeGroupRequest = new AddTubeConsumeGroupRequest();
-        addTubeConsumeGroupRequest.setClusterId(clusterId);
-        addTubeConsumeGroupRequest.setCreateUser(groupInfo.getCreator());
+        addTubeConsumeGroupRequest.setClusterId(1);
+        addTubeConsumeGroupRequest.setCreateUser(groupEntity.getCreator());
 
         GroupNameJsonSetBean groupNameJsonSetBean = new GroupNameJsonSetBean();
         groupNameJsonSetBean.setTopicName(topicName);

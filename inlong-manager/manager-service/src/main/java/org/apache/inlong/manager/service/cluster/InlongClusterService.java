@@ -51,6 +51,17 @@ public interface InlongClusterService {
     InlongClusterInfo get(Integer id);
 
     /**
+     * Get one cluster by the cluster tag, cluster name and cluster type.
+     *
+     * @param clusterTag cluster tag
+     * @param clusterName cluster name
+     * @param clusterType cluster type
+     * @return cluster info
+     * @apiNote No matter how many clusters there are, only one cluster is returned.
+     */
+    InlongClusterInfo getOne(String clusterTag, String clusterName, String clusterType);
+
+    /**
      * Paging query clusters according to conditions.
      *
      * @param request page request conditions

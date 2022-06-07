@@ -33,7 +33,7 @@ import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -58,7 +58,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
     @Autowired
     protected StreamTransformFieldEntityMapper transformFieldMapper;
     @Autowired
-    protected CommonOperateService commonOperateService;
+    protected GroupCheckService groupCheckService;
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
@@ -70,7 +70,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         final String groupId = transformRequest.getInlongGroupId();
         final String streamId = transformRequest.getInlongStreamId();
         final String transformName = transformRequest.getTransformName();
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamTransformEntity> transformEntities = transformMapper.selectByRelatedId(groupId,
                 streamId, transformName);
@@ -131,7 +131,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         this.checkParams(transformRequest);
         // Check whether the transform can be modified
         String groupId = transformRequest.getInlongGroupId();
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
         Preconditions.checkNotNull(transformRequest.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
@@ -151,7 +151,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                 transformName);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
         Date now = new Date();
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, transformName);
         if (CollectionUtils.isNotEmpty(entityList)) {

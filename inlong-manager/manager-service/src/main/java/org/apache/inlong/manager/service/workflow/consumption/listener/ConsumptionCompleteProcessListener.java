@@ -18,23 +18,26 @@
 package org.apache.inlong.manager.service.workflow.consumption.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mq.util.PulsarOptService;
-import org.apache.inlong.manager.service.mq.util.TubeMqOptService;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
+import org.apache.inlong.manager.service.mq.util.TubeMqOptService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -58,9 +61,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     @Autowired
     private PulsarOptService pulsarMqOptService;
     @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
-    private CommonOperateService commonOperateService;
+    private InlongClusterService clusterService;
     @Autowired
     private InlongGroupService groupService;
     @Autowired
@@ -89,7 +90,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             this.createTubeConsumerGroup(entity);
             return ListenerResult.success("Create Tube consumer group successful");
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            this.createPulsarTopicMessage(entity);
+            this.createPulsarSubscription(entity);
         } else {
             throw new WorkflowListenerException("Unsupported MQ type [" + mqType + "]");
         }
@@ -111,18 +112,24 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
     }
 
     /**
-     * Create Pulsar consumption information
+     * Create Pulsar subscription
      */
-    private void createPulsarTopicMessage(ConsumptionEntity entity) {
+    private void createPulsarSubscription(ConsumptionEntity entity) {
         String groupId = entity.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         Preconditions.checkNotNull(groupInfo, "inlong group not found for groupId=" + groupId);
         String mqResource = groupInfo.getMqResource();
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
-        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(entity.getMqType());
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
+
+        String clusterTag = groupInfo.getInlongClusterTag();
+        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_PULSAR);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
-            String tenant = clusterBean.getDefaultTenant();
+            String tenant = pulsarCluster.getTenant();
+            if (StringUtils.isEmpty(tenant)) {
+                tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+            }
             topicMessage.setTenant(tenant);
             topicMessage.setNamespace(mqResource);
 
