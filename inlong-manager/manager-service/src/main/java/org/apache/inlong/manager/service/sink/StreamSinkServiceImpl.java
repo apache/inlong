@@ -196,6 +196,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
         String sinkType = request.getSinkType();
+        final InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         // Check whether the sink name exists with the same groupId and streamId
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
@@ -217,7 +218,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // The inlong group status is [Configuration successful], then asynchronously initiate
         // the [Single inlong stream resource creation] workflow
-        InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
         if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             // To work around the circular reference check we manually instantiate and wire
             InlongStreamProcessOperation streamProcessOperation = new InlongStreamProcessOperation();
