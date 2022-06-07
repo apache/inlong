@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkRequest;
@@ -30,6 +31,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Stream sink service test
  */
@@ -38,6 +42,9 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
     private static final String globalGroupId = "b_group1_tdsqlpostgres";
     private static final String globalStreamId = "stream1_tdsqlpostgres";
     private static final String globalOperator = "admin";
+    private static final String fieldName = "TDSQLPostgres_field";
+    private static final String fieldType = "TDSQLPostgres_type";
+    private static final Integer fieldId = 1;
 
     @Autowired
     private StreamSinkService sinkService;
@@ -64,6 +71,13 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
 
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        SinkField sinkField = new SinkField();
+        sinkField.setFieldName(fieldName);
+        sinkField.setFieldType(fieldType);
+        sinkField.setId(fieldId);
+        List<SinkField> sinkFieldList = new ArrayList<>();
+        sinkFieldList.add(sinkField);
+        sinkInfo.setFieldList(sinkFieldList);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
