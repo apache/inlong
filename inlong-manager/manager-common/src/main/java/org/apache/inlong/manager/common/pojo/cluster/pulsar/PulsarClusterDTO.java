@@ -49,6 +49,16 @@ public class PulsarClusterDTO {
     private String tenant;
 
     /**
+     * Get the dto instance from the request
+     */
+    public static PulsarClusterDTO getFromRequest(PulsarClusterRequest request) {
+        return PulsarClusterDTO.builder()
+                .adminUrl(request.getAdminUrl())
+                .tenant(request.getTenant())
+                .build();
+    }
+
+    /**
      * Get the dto instance from the JSON string.
      */
     public static PulsarClusterDTO getFromJson(@NotNull String extParams) {

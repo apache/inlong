@@ -20,6 +20,7 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

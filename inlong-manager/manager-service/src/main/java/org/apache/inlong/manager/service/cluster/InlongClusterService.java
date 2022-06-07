@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 
 import java.util.List;
@@ -48,7 +48,7 @@ public interface InlongClusterService {
      * @param id cluster id
      * @return cluster info
      */
-    InlongClusterResponse get(Integer id);
+    InlongClusterInfo get(Integer id);
 
     /**
      * Paging query clusters according to conditions.
@@ -56,15 +56,7 @@ public interface InlongClusterService {
      * @param request page request conditions
      * @return cluster list
      */
-    PageInfo<InlongClusterResponse> list(InlongClusterPageRequest request);
-
-    /**
-     * Query ip list by cluster type
-     *
-     * @param type cluster type
-     * @return cluster node ip list
-     */
-    List<String> listNodeIpByType(String type);
+    PageInfo<InlongClusterInfo> list(InlongClusterPageRequest request);
 
     /**
      * Update cluster information
@@ -108,6 +100,14 @@ public interface InlongClusterService {
      * @return cluster node list
      */
     PageInfo<ClusterNodeResponse> listNode(InlongClusterPageRequest request);
+
+    /**
+     * Query node IP list by cluster type
+     *
+     * @param type cluster type
+     * @return cluster node ip list
+     */
+    List<String> listNodeIpByType(String type);
 
     /**
      * Update cluster node.

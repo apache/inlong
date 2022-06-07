@@ -18,18 +18,25 @@
 package org.apache.inlong.manager.common.pojo.cluster;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 
 /**
- * Inlong cluster response
+ * Inlong cluster info
  */
 @Data
-@ApiModel("Inlong cluster response")
-public class InlongClusterResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong cluster info")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+public class InlongClusterInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -75,5 +82,9 @@ public class InlongClusterResponse {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    public InlongClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongClusterRequest::new);
+    }
 
 }

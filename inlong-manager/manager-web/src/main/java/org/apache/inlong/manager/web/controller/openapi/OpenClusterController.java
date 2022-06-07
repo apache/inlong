@@ -25,8 +25,8 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterResponse;
-import org.apache.inlong.manager.service.core.InlongClusterService;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,13 +58,13 @@ public class OpenClusterController {
     @GetMapping(value = "/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
-    public Response<InlongClusterResponse> get(@PathVariable Integer id) {
+    public Response<InlongClusterInfo> get(@PathVariable Integer id) {
         return Response.success(clusterService.get(id));
     }
 
     @PostMapping(value = "/list")
     @ApiOperation(value = "Get clusters by paginating")
-    public Response<PageInfo<InlongClusterResponse>> list(@RequestBody InlongClusterPageRequest request) {
+    public Response<PageInfo<InlongClusterInfo>> list(@RequestBody InlongClusterPageRequest request) {
         return Response.success(clusterService.list(request));
     }
 
