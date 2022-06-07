@@ -461,35 +461,33 @@ public class LoadNodeUtils {
     }
 
     /**
-     * create postgres load node
-     *
-     * @param binlogSinkResponse binlogSinkResponse
-     * @return postgres load node
+     * Create load node of Mysql.
      */
-    public static MySqlLoadNode createLoadNode(BinlogSinkResponse binlogSinkResponse) {
-        List<SinkFieldResponse> sinkFieldResponses = binlogSinkResponse.getFieldList();
-
-        String name = binlogSinkResponse.getSinkName();
-        List<FieldInfo> fields = sinkFieldResponses.stream()
-                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
-                        name))
+    public static MySqlLoadNode createLoadNode(MysqlSink mysqlSink) {
+        String id = mysqlSink.getSinkName();
+        String name = mysqlSink.getSinkName();
+        List<SinkField> fieldList = mysqlSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
-        List<FieldRelationShip> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
-        Map<String, String> properties = binlogSinkResponse.getProperties().entrySet().stream()
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = mysqlSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        return new MySqlLoadNode(binlogSinkResponse.getSinkName(),
-                binlogSinkResponse.getSinkName(),
+
+        return new MySqlLoadNode(
+                id,
+                name,
                 fields,
-                fieldRelationShips,
+                fieldRelations,
                 Lists.newArrayList(),
                 null,
                 null,
                 properties,
-                binlogSinkResponse.getJdbcUrl(),
-                binlogSinkResponse.getUsername(),
-                binlogSinkResponse.getPassword(),
-                binlogSinkResponse.getTableName(),
-                binlogSinkResponse.getPrimaryKey());
+                mysqlSink.getJdbcUrl(),
+                mysqlSink.getUsername(),
+                mysqlSink.getPassword(),
+                mysqlSink.getTableName(),
+                mysqlSink.getPrimaryKey());
     }
 
     /**

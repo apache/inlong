@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.binlog;
+package org.apache.inlong.manager.service.sink.mysql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -57,9 +57,9 @@ import java.util.function.Supplier;
  * Binlog sink operation
  */
 @Service
-public class BinlogSinkOperation implements StreamSinkOperation {
+public class MysqlSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
