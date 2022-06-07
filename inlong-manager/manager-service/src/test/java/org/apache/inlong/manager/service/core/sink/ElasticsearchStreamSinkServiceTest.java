@@ -48,8 +48,7 @@ public class ElasticsearchStreamSinkServiceTest extends ServiceBaseTest {
      * Save sink info.
      */
     public Integer saveSink(String sinkName) {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId,
-                globalOperator);
+        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
         ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
