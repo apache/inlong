@@ -74,8 +74,8 @@ public class TextFileSource implements Source {
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         for (File file : allFiles) {
             int seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
-            LOGGER.info("read from history position {} with job profile {}", seekPosition, jobConf.getInstanceId());
-            LOGGER.info("file absolute path: {}", file.getAbsolutePath());
+            LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", seekPosition,
+                    jobConf.getInstanceId(), file.getAbsolutePath());
             String md5 = jobConf.get(file.getAbsolutePath() + MD5_SUFFIX, "");
             TextFileReader textFileReader = new TextFileReader(file, seekPosition);
             long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);
