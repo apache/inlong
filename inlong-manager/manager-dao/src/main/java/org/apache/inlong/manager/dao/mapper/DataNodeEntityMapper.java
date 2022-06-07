@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.common.pojo.sortstandalone.dto.SortSinkParamsDTO;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkParamsDTO;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.springframework.stereotype.Repository;

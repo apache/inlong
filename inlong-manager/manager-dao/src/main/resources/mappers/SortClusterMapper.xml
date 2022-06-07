@@ -19,20 +19,20 @@
 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.apache.inlong.manager.dao.mapper.SortClusterMapper">
-    <resultMap id="SortTaskDTO" type="org.apache.inlong.common.pojo.sortstandalone.dto.SortTaskDTO">
+    <resultMap id="SortTaskDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskDTO">
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="sortClusterName"/>
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="sort_consumer_group" jdbcType="VARCHAR" property="sortConsumerGroup"/>
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
     </resultMap>
-    <resultMap id="SortSinkParamsDTO" type="org.apache.inlong.common.pojo.sortstandalone.dto.SortSinkParamsDTO">
+    <resultMap id="SortSinkParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkParamsDTO">
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
     </resultMap>
-    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.common.pojo.sortstandalone.dto.SortIdParamsDTO">
+    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdParamsDTO">
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>

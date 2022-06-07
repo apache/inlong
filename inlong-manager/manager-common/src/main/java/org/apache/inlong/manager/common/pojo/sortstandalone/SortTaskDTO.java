@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.common.pojo.sortstandalone.dto;
+package org.apache.inlong.manager.common.pojo.sortstandalone;
 
 import lombok.Data;
 
