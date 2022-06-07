@@ -18,32 +18,31 @@
  */
 
 import React, { useMemo } from 'react';
+import i18n from '@/i18n';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
-import { Clusters } from './config';
-import i18n from '@/i18n';
 
-export interface Props extends ModalProps {
+export interface NodeEditModalProps extends ModalProps {
+  id?: number;
   type: string;
-  // Require when edit
-  id?: string;
+  clusterId: number;
 }
 
-const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
+const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getData } = useRequest(
+  const { data: savedData, run: getData } = useRequest(
     id => ({
-      url: `/cluster/get/${id}`,
+      url: `/cluster/node/get/${id}`,
     }),
     {
       manual: true,
       formatResult: result => ({
         ...result,
-        inCharges: result.inCharges.split(','),
+        // inCharges: result.inCharges.split(','),
       }),
       onSuccess: result => {
         form.setFieldsValue(result);
@@ -57,14 +56,14 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     const submitData = {
       ...values,
       type,
-      inCharges: values.inCharges?.join(','),
+      parentId: savedData.parentId || clusterId,
+      // inCharges: values.inCharges?.join(','),
     };
     if (isUpdate) {
       submitData.id = id;
-      // submitData.version = data?.version;
     }
     await request({
-      url: `/cluster/${isUpdate ? 'update' : 'save'}`,
+      url: `/cluster/node/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -83,19 +82,25 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   }, [modalProps.visible]);
 
   const content = useMemo(() => {
-    const current = Clusters.find(item => item.value === type);
-    return current?.config;
-  }, [type]);
+    return [
+      {
+        type: 'input',
+        label: 'IP',
+        name: 'ip',
+      },
+      {
+        type: 'input',
+        label: 'Port',
+        name: 'port',
+      },
+    ];
+  }, []);
 
   return (
-    <Modal
-      {...modalProps}
-      title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
-      onOk={onOk}
-    >
+    <Modal {...modalProps} title={i18n.t('pages.Clusters.Node.Name')} onOk={onOk}>
       <FormGenerator content={content} form={form} useMaxWidth />
     </Modal>
   );
 };
 
-export default Comp;
+export default NodeEditModal;
