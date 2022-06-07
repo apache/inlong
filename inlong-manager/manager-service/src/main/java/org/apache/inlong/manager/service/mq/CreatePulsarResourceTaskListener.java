@@ -33,7 +33,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mq.util.PulsarOptService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -59,7 +59,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
-    private PulsarOptService pulsarOptService;
+    private PulsarOperator pulsarOperator;
 
     @Override
     public TaskEvent event() {
@@ -109,10 +109,10 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
             if (StringUtils.isEmpty(tenant)) {
                 tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
             }
-            pulsarOptService.createTenant(pulsarAdmin, tenant);
+            pulsarOperator.createTenant(pulsarAdmin, tenant);
 
             // create pulsar namespace
-            pulsarOptService.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
+            pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
 
             // create pulsar topic
             Integer partitionNum = pulsarInfo.getPartitionNum();
@@ -122,7 +122,7 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
 
             for (InlongStreamBriefInfo streamInfo : streamTopicList) {
                 topicBean.setTopicName(streamInfo.getMqResource());
-                pulsarOptService.createTopic(pulsarAdmin, topicBean);
+                pulsarOperator.createTopic(pulsarAdmin, topicBean);
             }
         }
         log.info("finish to create pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);

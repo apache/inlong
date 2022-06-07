@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-import org.apache.inlong.manager.service.mq.util.PulsarOptService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -50,7 +50,7 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
-    private PulsarOptService pulsarOptService;
+    private PulsarOperator pulsarOperator;
 
     @Override
     public TaskEvent event() {
@@ -85,7 +85,7 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
                         .queueModule(pulsarInfo.getQueueModule())
                         .numPartitions(pulsarInfo.getPartitionNum())
                         .build();
-                pulsarOptService.createTopic(pulsarAdmin, topicBean);
+                pulsarOperator.createTopic(pulsarAdmin, topicBean);
             }
         } catch (Exception e) {
             String msg = String.format("failed to create pulsar topic for groupId=%s, streamId=%s", groupId, streamId);

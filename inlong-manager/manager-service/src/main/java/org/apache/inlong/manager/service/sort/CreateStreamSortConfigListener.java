@@ -122,7 +122,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
 
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
         if (!MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
-            String errMsg = String.format("Unsupported mqType={%s}", groupInfo.getMqType());
+            String errMsg = String.format("Unsupported MQ type %s", groupInfo.getMqType());
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }

@@ -105,6 +105,9 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return ListenerResult.success();
     }
 
+    /**
+     * TODO need support TubeMQ
+     */
     private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         String groupId = groupInfo.getInlongGroupId();
         List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
@@ -129,7 +132,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
 
         if (!MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
-            String errMsg = String.format("Unsupported mqType={%s}", groupInfo.getMqType());
+            String errMsg = String.format("Unsupported MQ type %s", groupInfo.getMqType());
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }

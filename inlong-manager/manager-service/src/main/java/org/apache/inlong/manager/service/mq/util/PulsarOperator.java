@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.service.mq.util;
 
 import com.google.common.collect.Sets;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.conversion.ConversionHandle;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.service.cluster.InlongClusterServiceImpl;
 import org.apache.pulsar.client.admin.Namespaces;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.PulsarAdminException;
@@ -31,60 +31,60 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.common.policies.data.PersistencePolicies;
 import org.apache.pulsar.common.policies.data.RetentionPolicies;
 import org.apache.pulsar.common.policies.data.TenantInfoImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * Operation interface of Pulsar
+ * Pulsar operator, supports creating topics and creating subscription.
  */
 @Service
-@Slf4j
-public class PulsarOptServiceImpl implements PulsarOptService {
+public class PulsarOperator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
     private static final String PULSAR_QUEUE_TYPE_SERIAL = "SERIAL";
 
     @Autowired
     private ConversionHandle conversionHandle;
 
-    @Override
     public void createTenant(PulsarAdmin pulsarAdmin, String tenant) throws PulsarAdminException {
-        log.info("begin to create pulsar tenant={}", tenant);
+        LOGGER.info("begin to create pulsar tenant={}", tenant);
 
         Preconditions.checkNotEmpty(tenant, "Tenant cannot be empty");
         try {
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
             boolean exists = this.tenantIsExists(pulsarAdmin, tenant);
             if (exists) {
-                log.warn("pulsar tenant={} already exists, skip to create", tenant);
+                LOGGER.warn("pulsar tenant={} already exists, skip to create", tenant);
                 return;
             }
             TenantInfoImpl tenantInfo = new TenantInfoImpl();
             tenantInfo.setAllowedClusters(Sets.newHashSet(clusters));
             tenantInfo.setAdminRoles(Sets.newHashSet());
             pulsarAdmin.tenants().createTenant(tenant, tenantInfo);
-            log.info("success to create pulsar tenant={}", tenant);
+            LOGGER.info("success to create pulsar tenant={}", tenant);
         } catch (PulsarAdminException e) {
-            log.error("failed to create pulsar tenant=" + tenant, e);
+            LOGGER.error("failed to create pulsar tenant=" + tenant, e);
             throw e;
         }
     }
 
-    @Override
     public void createNamespace(PulsarAdmin pulsarAdmin, InlongPulsarInfo pulsarInfo,
             String tenant, String namespace) throws PulsarAdminException {
         Preconditions.checkNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
 
         String namespaceName = tenant + "/" + namespace;
-        log.info("begin to create namespace={}", namespaceName);
+        LOGGER.info("begin to create namespace={}", namespaceName);
 
         try {
             // Check whether the namespace exists, and create it if it does not exist
             boolean isExists = this.namespacesIsExists(pulsarAdmin, tenant, namespace);
             if (isExists) {
-                log.warn("namespace={} already exists, skip to create", namespaceName);
+                LOGGER.warn("namespace={} already exists, skip to create", namespaceName);
                 return;
             }
 
@@ -119,14 +119,13 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             PersistencePolicies persistencePolicies = new PersistencePolicies(pulsarInfo.getEnsemble(),
                     pulsarInfo.getWriteQuorum(), pulsarInfo.getAckQuorum(), 0);
             namespaces.setPersistence(namespaceName, persistencePolicies);
-            log.info("success to create namespace={}", namespaceName);
+            LOGGER.info("success to create namespace={}", namespaceName);
         } catch (PulsarAdminException e) {
-            log.error("failed to create namespace=" + namespaceName, e);
+            LOGGER.error("failed to create namespace=" + namespaceName, e);
             throw e;
         }
     }
 
-    @Override
     public void createTopic(PulsarAdmin pulsarAdmin, PulsarTopicBean topicBean) throws PulsarAdminException {
         Preconditions.checkNotNull(topicBean, "pulsar topic info cannot be empty");
 
@@ -137,7 +136,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
 
         // Topic will be returned if it exists, and created if it does not exist
         if (topicIsExists(pulsarAdmin, tenant, namespace, topic)) {
-            log.warn("pulsar topic={} already exists in {}", topicFullName, pulsarAdmin.getServiceUrl());
+            LOGGER.warn("pulsar topic={} already exists in {}", topicFullName, pulsarAdmin.getServiceUrl());
             return;
         }
 
@@ -157,44 +156,42 @@ public class PulsarOptServiceImpl implements PulsarOptService {
                 pulsarAdmin.topics().createPartitionedTopic(topicFullName, numPartitions);
             }
 
-            log.info("success to create topic={}", topicFullName);
+            LOGGER.info("success to create topic={}", topicFullName);
         } catch (Exception e) {
-            log.error("failed to create topic=" + topicFullName, e);
+            LOGGER.error("failed to create topic=" + topicFullName, e);
             throw e;
         }
     }
 
-    @Override
     public void createSubscription(PulsarAdmin pulsarAdmin, PulsarTopicBean topicBean, String subscription)
             throws PulsarAdminException {
         Preconditions.checkNotNull(topicBean, "can not find tenant information to create subscription");
         Preconditions.checkNotNull(subscription, "subscription cannot be empty during creating subscription");
 
         String topicName = topicBean.getTenant() + "/" + topicBean.getNamespace() + "/" + topicBean.getTopicName();
-        log.info("begin to create pulsar subscription={} for topic={}", subscription, topicName);
+        LOGGER.info("begin to create pulsar subscription={} for topic={}", subscription, topicName);
 
         try {
             boolean isExists = this.subscriptionIsExists(pulsarAdmin, topicName, subscription);
             if (!isExists) {
                 pulsarAdmin.topics().createSubscription(topicName, subscription, MessageId.latest);
-                log.info("success to create subscription={}", subscription);
+                LOGGER.info("success to create subscription={}", subscription);
             } else {
-                log.warn("pulsar subscription={} already exists, skip to create", subscription);
+                LOGGER.warn("pulsar subscription={} already exists, skip to create", subscription);
             }
         } catch (Exception e) {
-            log.error("failed to create pulsar subscription=" + subscription, e);
+            LOGGER.error("failed to create pulsar subscription=" + subscription, e);
             throw e;
         }
     }
 
-    @Override
     public void createSubscriptions(PulsarAdmin pulsarAdmin, String subscription, PulsarTopicBean topicBean,
             List<String> topicList) throws PulsarAdminException {
         for (String topic : topicList) {
             topicBean.setTopicName(topic);
             this.createSubscription(pulsarAdmin, topicBean, subscription);
         }
-        log.info("success to create subscription={} for multiple topics={}", subscription, topicList);
+        LOGGER.info("success to create subscription={} for multiple topics={}", subscription, topicList);
     }
 
     /**
@@ -220,7 +217,6 @@ public class PulsarOptServiceImpl implements PulsarOptService {
      * @apiNote cannot compare whether the string contains, otherwise it may be misjudged, such as:
      *         Topic "ab" does not exist, but if "abc" exists, "ab" will be mistakenly judged to exist
      */
-    @Override
     public boolean topicIsExists(PulsarAdmin pulsarAdmin, String tenant, String namespace, String topic)
             throws PulsarAdminException {
         if (StringUtils.isBlank(topic)) {
@@ -243,7 +239,7 @@ public class PulsarOptServiceImpl implements PulsarOptService {
             List<String> subscriptionList = pulsarAdmin.topics().getSubscriptions(topic);
             return subscriptionList.contains(subscription);
         } catch (PulsarAdminException e) {
-            log.error("failed to check the subscription=" + subscription + " exists for topic=" + topic, e);
+            LOGGER.error("failed to check the subscription=" + subscription + " exists for topic=" + topic, e);
             return false;
         }
     }
