@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`)
+    UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
+    INDEX group_status_deleted_idx (`status`, `is_deleted`)
 );
 
 -- ----------------------------
@@ -634,7 +635,8 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `end_time`             datetime      DEFAULT NULL COMMENT 'Listener end time',
     `remark`               text COMMENT 'Execution result remark information',
     `exception`            text COMMENT 'Exception information',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    INDEX group_status_idx (`inlong_group_id`, `status`)
 );
 
 -- ----------------------------
@@ -679,7 +681,8 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `start_time`           datetime      NOT NULL COMMENT 'Start time',
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    INDEX process_status_idx (`process_id`, `status`)
 );
 
 -- ----------------------------

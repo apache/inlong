@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
-    INDEX condition_idx (`status`, `is_deleted`, `modify_time`)
+    INDEX group_status_deleted_idx (`status`, `is_deleted`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
