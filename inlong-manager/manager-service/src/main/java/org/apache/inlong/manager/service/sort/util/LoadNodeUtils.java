@@ -430,18 +430,27 @@ public class LoadNodeUtils {
      * Create greenplum load node
      */
     public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink) {
-        List<SinkField> fieldList = greenplumSink.getFieldList();
+        String id = greenplumSink.getSinkName();
         String name = greenplumSink.getSinkName();
+        List<SinkField> fieldList = greenplumSink.getFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         Map<String, String> properties = greenplumSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        return new GreenplumLoadNode(greenplumSink.getSinkName(),
-                greenplumSink.getSinkName(),
-                fields, fieldRelations, null, null, 1,
-                properties, greenplumSink.getJdbcUrl(), greenplumSink.getUsername(),
+
+        return new GreenplumLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                1,
+                properties,
+                greenplumSink.getJdbcUrl(),
+                greenplumSink.getUsername(),
                 greenplumSink.getPassword(),
                 greenplumSink.getTableName(),
                 greenplumSink.getPrimaryKey());
