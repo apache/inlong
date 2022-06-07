@@ -70,6 +70,8 @@ public class PulsarClientService {
     private static int DEFAULT_MAX_PENDING_MESSAGES = 10000;
     private static int DEFAULT_MAX_BATCHING_MESSAGES = 1000;
 
+    private static boolean DEFAULT_PULSAR_ENABLE_TOKEN_AUTH = false;
+    private static String DEFAULT_PULSAR_TOKEN_AUTH = "";
     /*
      * for producer
      */
@@ -82,7 +84,7 @@ public class PulsarClientService {
     public ConcurrentHashMap<String, Producer> producerInfoMap;
     public PulsarClient pulsarClient;
     public String pulsarServerUrl;
-    public boolean pulsarEnableTokenAuth = false;
+    public boolean pulsarEnableTokenAuth;
     public String pulsarTokenAuth;
 
     private String localIp = "127.0.0.1";
@@ -109,8 +111,8 @@ public class PulsarClientService {
         producerInfoMap = new ConcurrentHashMap<>();
         localIp = NetworkUtils.getLocalIp();
 
-        pulsarEnableTokenAuth = context.getBoolean(PULSAR_ENABLE_AUTH);
-        pulsarTokenAuth = context.getString(PULSAR_ENABLE_AUTH_TOKEN);
+        pulsarEnableTokenAuth = context.getBoolean(PULSAR_ENABLE_AUTH, DEFAULT_PULSAR_ENABLE_TOKEN_AUTH);
+        pulsarTokenAuth = context.getString(PULSAR_ENABLE_AUTH_TOKEN, DEFAULT_PULSAR_TOKEN_AUTH);
     }
 
     /**
