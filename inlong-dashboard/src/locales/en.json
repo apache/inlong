@@ -348,6 +348,7 @@
   "pages.Clusters.Tag": "Cluster Tag",
   "pages.Clusters.InCharges": "InCharges",
   "pages.Clusters.Description": "Description",
+  "pages.Clusters.Pulsar.Tenant": "Default Tenant",
   "pages.Datasources.status.Success": "Success",
   "pages.Datasources.status.Error": "Error",
   "pages.Datasources.status.Deleted": "Deleted",
