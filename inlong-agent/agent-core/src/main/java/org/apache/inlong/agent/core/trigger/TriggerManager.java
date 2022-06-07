@@ -115,8 +115,6 @@ public class TriggerManager extends AbstractDaemon {
 
     /**
      * Preprocessing before adding trigger
-     *
-     * @param profile
      */
     public void preprocessTrigger(TriggerProfile profile) {
         String syncType = profile.get(JobConstants.JOB_FILE_COLLECT_TYPE, "");

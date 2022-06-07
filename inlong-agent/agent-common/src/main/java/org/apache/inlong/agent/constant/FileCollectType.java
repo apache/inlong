@@ -18,7 +18,7 @@
 package org.apache.inlong.agent.constant;
 
 /**
- * Data source synchronization type
+ * Collection type of file data
  */
 public class FileCollectType {
 
