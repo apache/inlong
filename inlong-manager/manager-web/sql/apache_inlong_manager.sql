@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
-    index condition_idx (`status`, `is_deleted`, `modify_time`)
+    INDEX condition_idx (`status`, `is_deleted`, `modify_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Inlong group table';
 
@@ -677,7 +677,7 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `remark`               text COMMENT 'Execution result remark information',
     `exception`            text COMMENT 'Exception information',
     PRIMARY KEY (`id`),
-    index group_status_idx (`inlong_group_id`, `status`)
+    INDEX group_status_idx (`inlong_group_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
@@ -725,7 +725,7 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`),
-    index process_status_idx (`process_id`, `status`)
+    INDEX process_status_idx (`process_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow task table';
 
