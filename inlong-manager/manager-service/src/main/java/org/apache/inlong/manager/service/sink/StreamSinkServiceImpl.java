@@ -75,6 +75,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private InlongStreamProcessOperation streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -220,8 +221,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // the [Single inlong stream resource creation] workflow
         if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             // To work around the circular reference check we manually instantiate and wire
-            InlongStreamProcessOperation streamProcessOperation = new InlongStreamProcessOperation();
-            autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            if (streamProcessOperation == null) {
+                streamProcessOperation = new InlongStreamProcessOperation();
+                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            }
             streamProcessOperation.startProcess(groupId, streamId, operator, true);
         }
         LOGGER.info("success to update sink info: {}", request);
