@@ -73,6 +73,29 @@ public class BaseTest {
     public static InlongGroupInfo groupInfo;
     public static InlongClient inlongClient;
 
+    @BeforeAll
+    static void setup() {
+        // create mock server
+        wireMockServer = new WireMockServer(options().port(8084));
+        wireMockServer.start();
+        WireMock.configureFor(wireMockServer.port());
+
+        ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setWriteTimeout(1000);
+        configuration.setReadTimeout(1000);
+        configuration.setConnectTimeout(1000);
+        configuration.setTimeUnit(TimeUnit.SECONDS);
+        configuration.setAuthentication(inlongAuth);
+
+        inlongClient = InlongClient.create(SERVICE_URL, configuration);
+        groupInfo = createGroupInfo();
+    }
+
+    @AfterAll
+    static void teardown() {
+        wireMockServer.stop();
+    }
+
     /**
      * Create inlong group info
      */
@@ -106,29 +129,6 @@ public class BaseTest {
         pulsarInfo.setSortConf(sortConf);
 
         return pulsarInfo;
-    }
-
-    @AfterAll
-    static void teardown() {
-        wireMockServer.stop();
-    }
-
-    @BeforeAll
-    static void setup() {
-        // create mock server
-        wireMockServer = new WireMockServer(options().port(8084));
-        wireMockServer.start();
-        WireMock.configureFor(wireMockServer.port());
-
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setWriteTimeout(1000);
-        configuration.setReadTimeout(1000);
-        configuration.setConnectTimeout(1000);
-        configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(inlongAuth);
-
-        inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        groupInfo = createGroupInfo();
     }
 
     /**
