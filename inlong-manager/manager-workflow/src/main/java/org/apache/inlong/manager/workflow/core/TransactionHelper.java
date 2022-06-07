@@ -37,6 +37,7 @@ import java.lang.reflect.UndeclaredThrowableException;
  */
 @Slf4j
 @Service
+@Deprecated
 public class TransactionHelper {
 
     @Autowired

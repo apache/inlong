@@ -77,24 +77,28 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     public void create(ServiceTask serviceTask, WorkflowContext context) {
         WorkflowTaskEntity workflowTaskEntity = saveTaskEntity(serviceTask, context);
         context.getNewTaskList().add(workflowTaskEntity);
-        serviceTask.initListeners(context);
-        this.taskEventNotifier.notify(TaskEvent.CREATE, context);
+        try {
+            serviceTask.initListeners(context);
+            this.taskEventNotifier.notify(TaskEvent.CREATE, context);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ActionContext actionContext = new WorkflowContext.ActionContext()
+                    .setTask((WorkflowTask) context.getCurrentElement())
+                    .setRemark("failed when create");
+            completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.FAILED);
+            this.taskEventNotifier.notify(TaskEvent.FAIL, context);
+            this.processEventNotifier.notify(ProcessEvent.FAIL, context);
+        }
     }
 
     @Override
     public boolean pendingForAction(WorkflowContext context) {
-        context.setActionContext(
-                new WorkflowContext.ActionContext()
-                        .setTask((WorkflowTask) context.getCurrentElement())
-                        .setAction(WorkflowAction.COMPLETE)
-                        .setTaskEntity(context.getNewTaskList().get(0))
-        );
-        context.getNewTaskList().clear();
         return false;
     }
 
     @Override
     public boolean complete(WorkflowContext context) {
+        resetActionContext(context);
         WorkflowContext.ActionContext actionContext = context.getActionContext();
         Preconditions.checkTrue(SUPPORT_ACTIONS.contains(actionContext.getAction()),
                 "serviceTask not support action: " + actionContext.getAction());
@@ -112,6 +116,16 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             this.processEventNotifier.notify(ProcessEvent.FAIL, context);
             return false;
         }
+    }
+
+    private void resetActionContext(WorkflowContext context) {
+        context.setActionContext(
+                new WorkflowContext.ActionContext()
+                        .setTask((WorkflowTask) context.getCurrentElement())
+                        .setAction(WorkflowAction.COMPLETE)
+                        .setTaskEntity(context.getNewTaskList().get(0))
+        );
+        context.getNewTaskList().clear();
     }
 
     private WorkflowTaskEntity saveTaskEntity(ServiceTask serviceTask, WorkflowContext context) {
@@ -139,7 +153,9 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskEntity.setOperator(taskEntity.getApprovers());
         taskEntity.setRemark(actionContext.getRemark());
         try {
-            taskEntity.setFormData(objectMapper.writeValueAsString(actionContext.getForm()));
+            if (actionContext.getForm() != null) {
+                taskEntity.setFormData(objectMapper.writeValueAsString(actionContext.getForm()));
+            }
         } catch (Exception e) {
             throw new JsonException("write form to json error: ", e);
         }
