@@ -198,9 +198,7 @@ public class HdfsSinkOperation implements StreamSinkOperation {
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
         this.updateFieldOpt(onlyAdd, hdfsRequest);
-
         LOGGER.info("success to update sink of type={}", sinkType);
-
     }
 
     @Override
