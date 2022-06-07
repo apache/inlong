@@ -20,6 +20,7 @@ package org.apache.inlong.manager.workflow.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
@@ -49,6 +50,7 @@ import java.util.Set;
  */
 @Service
 @NoArgsConstructor
+@Slf4j
 public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
     private static final Set<WorkflowAction> SUPPORT_ACTIONS = ImmutableSet.of(
@@ -81,7 +83,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             serviceTask.initListeners(context);
             this.taskEventNotifier.notify(TaskEvent.CREATE, context);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Create service task failed", e);
             ActionContext actionContext = new WorkflowContext.ActionContext()
                     .setTask((WorkflowTask) context.getCurrentElement())
                     .setRemark("failed when create");
@@ -111,7 +113,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.COMPLETED);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Complete service task failed", e);
             completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.FAILED);
             this.taskEventNotifier.notify(TaskEvent.FAIL, context);
             this.processEventNotifier.notify(ProcessEvent.FAIL, context);
