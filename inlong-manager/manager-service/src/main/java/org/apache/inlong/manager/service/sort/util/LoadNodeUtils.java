@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
@@ -48,6 +49,7 @@ import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
+import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
@@ -100,6 +102,8 @@ public class LoadNodeUtils {
                 return createLoadNode((ElasticsearchSink) streamSink);
             case HDFS:
                 return createLoadNode((HdfsSink) streamSink);
+            case GREENPLUM:
+                return createLoadNode((GreenplumSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -420,6 +424,36 @@ public class LoadNodeUtils {
                 partitionFields,
                 hdfsSink.getServerTimeZone()
         );
+    }
+
+    /**
+     * Create greenplum load node
+     */
+    public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink) {
+        String id = greenplumSink.getSinkName();
+        String name = greenplumSink.getSinkName();
+        List<SinkField> fieldList = greenplumSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = greenplumSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new GreenplumLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                1,
+                properties,
+                greenplumSink.getJdbcUrl(),
+                greenplumSink.getUsername(),
+                greenplumSink.getPassword(),
+                greenplumSink.getTableName(),
+                greenplumSink.getPrimaryKey());
     }
 
     /**

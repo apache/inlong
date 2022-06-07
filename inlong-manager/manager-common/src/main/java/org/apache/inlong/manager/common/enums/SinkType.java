@@ -30,6 +30,7 @@ public enum SinkType {
     ELASTICSEARCH,
     SQLSERVER,
     HDFS,
+    GREENPLUM,
 
     ;
 
@@ -42,6 +43,7 @@ public enum SinkType {
     public static final String SINK_ELASTICSEARCH = "ELASTICSEARCH";
     public static final String SINK_SQLSERVER = "SQLSERVER";
     public static final String SINK_HDFS = "HDFS";
+    public static final String SINK_GREENPLUM = "GREENPLUM";
 
     /**
      * Get the SinkType enum via the given sinkType string
