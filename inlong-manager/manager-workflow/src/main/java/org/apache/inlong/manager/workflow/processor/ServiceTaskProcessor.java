@@ -102,8 +102,6 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     public boolean complete(WorkflowContext context) {
         resetActionContext(context);
         WorkflowContext.ActionContext actionContext = context.getActionContext();
-        Preconditions.checkTrue(SUPPORT_ACTIONS.contains(actionContext.getAction()),
-                "serviceTask not support action: " + actionContext.getAction());
         WorkflowTaskEntity workflowTaskEntity = actionContext.getTaskEntity();
         Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
                 "task status should allow complete");
