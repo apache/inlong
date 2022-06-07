@@ -20,6 +20,7 @@ package org.apache.inlong.manager.workflow.processor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
@@ -49,6 +50,7 @@ import java.util.Set;
  */
 @Service
 @NoArgsConstructor
+@Slf4j
 public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
     private static final Set<WorkflowAction> SUPPORT_ACTIONS = ImmutableSet.of(
@@ -77,27 +79,29 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     public void create(ServiceTask serviceTask, WorkflowContext context) {
         WorkflowTaskEntity workflowTaskEntity = saveTaskEntity(serviceTask, context);
         context.getNewTaskList().add(workflowTaskEntity);
-        serviceTask.initListeners(context);
-        this.taskEventNotifier.notify(TaskEvent.CREATE, context);
+        try {
+            serviceTask.initListeners(context);
+            this.taskEventNotifier.notify(TaskEvent.CREATE, context);
+        } catch (Exception e) {
+            log.error("Create service task failed", e);
+            ActionContext actionContext = new WorkflowContext.ActionContext()
+                    .setTask((WorkflowTask) context.getCurrentElement())
+                    .setRemark("failed when create");
+            completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.FAILED);
+            this.taskEventNotifier.notify(TaskEvent.FAIL, context);
+            this.processEventNotifier.notify(ProcessEvent.FAIL, context);
+        }
     }
 
     @Override
     public boolean pendingForAction(WorkflowContext context) {
-        context.setActionContext(
-                new WorkflowContext.ActionContext()
-                        .setTask((WorkflowTask) context.getCurrentElement())
-                        .setAction(WorkflowAction.COMPLETE)
-                        .setTaskEntity(context.getNewTaskList().get(0))
-        );
-        context.getNewTaskList().clear();
         return false;
     }
 
     @Override
     public boolean complete(WorkflowContext context) {
+        resetActionContext(context);
         WorkflowContext.ActionContext actionContext = context.getActionContext();
-        Preconditions.checkTrue(SUPPORT_ACTIONS.contains(actionContext.getAction()),
-                "serviceTask not support action: " + actionContext.getAction());
         WorkflowTaskEntity workflowTaskEntity = actionContext.getTaskEntity();
         Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
                 "task status should allow complete");
@@ -107,11 +111,22 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
             completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.COMPLETED);
             return true;
         } catch (Exception e) {
+            log.error("Complete service task failed", e);
             completeTaskEntity(actionContext, workflowTaskEntity, TaskStatus.FAILED);
             this.taskEventNotifier.notify(TaskEvent.FAIL, context);
             this.processEventNotifier.notify(ProcessEvent.FAIL, context);
             return false;
         }
+    }
+
+    private void resetActionContext(WorkflowContext context) {
+        context.setActionContext(
+                new WorkflowContext.ActionContext()
+                        .setTask((WorkflowTask) context.getCurrentElement())
+                        .setAction(WorkflowAction.COMPLETE)
+                        .setTaskEntity(context.getNewTaskList().get(0))
+        );
+        context.getNewTaskList().clear();
     }
 
     private WorkflowTaskEntity saveTaskEntity(ServiceTask serviceTask, WorkflowContext context) {
@@ -139,7 +154,9 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         taskEntity.setOperator(taskEntity.getApprovers());
         taskEntity.setRemark(actionContext.getRemark());
         try {
-            taskEntity.setFormData(objectMapper.writeValueAsString(actionContext.getForm()));
+            if (actionContext.getForm() != null) {
+                taskEntity.setFormData(objectMapper.writeValueAsString(actionContext.getForm()));
+            }
         } catch (Exception e) {
             throw new JsonException("write form to json error: ", e);
         }

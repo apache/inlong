@@ -21,15 +21,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.exceptions.WorkflowNoRollbackException;
-import org.apache.inlong.manager.common.exceptions.WorkflowRollbackOnceException;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
-import org.apache.inlong.manager.workflow.core.TransactionHelper;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.NextableElement;
 import org.apache.inlong.manager.workflow.definition.SkippableElement;
-import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.processor.ElementProcessor;
 import org.apache.inlong.manager.workflow.processor.EndEventProcessor;
 import org.apache.inlong.manager.workflow.processor.ServiceTaskProcessor;
@@ -38,8 +34,6 @@ import org.apache.inlong.manager.workflow.processor.StartEventProcessor;
 import org.apache.inlong.manager.workflow.processor.UserTaskProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionCallback;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -53,8 +47,6 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
 
     private ImmutableMap<Class<? extends Element>, ElementProcessor<? extends Element>> elementProcessor;
 
-    @Autowired
-    private TransactionHelper transactionHelper;
     @Autowired
     private StartEventProcessor startEventProcessor;
     @Autowired
@@ -98,15 +90,6 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
 
         processor.create(element, context);
         if (processor.pendingForAction(context)) {
-            return;
-        }
-
-        // If it is a continuous task execution transaction isolation
-        if (element instanceof WorkflowTask) {
-            TransactionCallback<Object> callback = executeCompleteInTransaction(element, context);
-            if (callback != null) {
-                transactionHelper.execute(callback, TransactionDefinition.PROPAGATION_NESTED);
-            }
             return;
         }
 
@@ -156,17 +139,6 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         List<Element> nextElements = processor.next(element, context);
         for (Element next : nextElements) {
             executeStart(next, context);
-        }
-    }
-
-    private TransactionCallback<Object> executeCompleteInTransaction(Element element, WorkflowContext context) {
-        try {
-            executeComplete(element, context);
-            return null;
-        } catch (WorkflowNoRollbackException e) { // Exception does not roll back
-            throw e;
-        } catch (Exception e) { // The exception is only rolled back once
-            throw new WorkflowRollbackOnceException(e.getMessage());
         }
     }
 
