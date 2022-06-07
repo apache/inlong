@@ -118,7 +118,7 @@ const Comp: React.FC = () => {
         dataIndex: 'ip',
       },
       {
-        title: 'Port',
+        title: i18n.t('pages.Clusters.Node.Port'),
         dataIndex: 'port',
       },
       {

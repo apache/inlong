@@ -350,6 +350,7 @@
   "pages.Clusters.InCharges": "InCharges",
   "pages.Clusters.Description": "Description",
   "pages.Clusters.Node.Name": "Node",
+  "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.LastModifier": "LastModifier",
   "pages.Clusters.Node.Create": "Create",
   "pages.Clusters.Pulsar.Tenant": "Default Tenant",

@@ -90,7 +90,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       },
       {
         type: 'input',
-        label: 'Port',
+        label: i18n.t('pages.Clusters.Node.Port'),
         name: 'port',
       },
     ];

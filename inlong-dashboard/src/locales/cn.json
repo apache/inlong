@@ -350,6 +350,7 @@
   "pages.Clusters.InCharges": "责任人",
   "pages.Clusters.Description": "集群描述",
   "pages.Clusters.Node.Name": "节点",
+  "pages.Clusters.Node.Port": "端口",
   "pages.Clusters.Node.LastModifier": "最后操作",
   "pages.Clusters.Node.Create": "新建节点",
   "pages.Clusters.Pulsar.Tenant": "默认租户",
