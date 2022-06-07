@@ -19,14 +19,32 @@ package org.apache.inlong.manager.common.pojo.tubemq;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * The response info of tube manager.
+ * Topic view of TubeMQ
  */
 @Data
-public class TubeManagerResponse {
+public class TopicResponse {
 
-    private boolean result;
     private int errCode;
     private String errMsg;
+
+    // total topic info list
+    private List<TopicInfo> data;
+
+    private int dataCount;
+
+    @Data
+    public static class TopicInfo {
+
+        private String topicName;
+        private int totalCfgBrokerCnt;
+        private int totalCfgNumPart;
+        private int totalRunNumPartCount;
+        private boolean isSrvAcceptPublish;
+        private boolean isSrvAcceptSubscribe;
+        private boolean enableAuthControl;
+    }
 
 }

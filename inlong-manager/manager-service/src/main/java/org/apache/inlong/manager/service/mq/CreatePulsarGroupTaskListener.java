@@ -32,7 +32,7 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mq.util.PulsarOptService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -60,7 +60,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private PulsarOptService pulsarOptService;
+    private PulsarOperator pulsarOperator;
 
     @Override
     public TaskEvent event() {
@@ -103,7 +103,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                 // Create a subscription in the Pulsar cluster you need to ensure that the Topic exists
                 try {
-                    boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
+                    boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String topicFull = tenant + "/" + namespace + "/" + topic;
                         String serviceUrl = pulsarCluster.getAdminUrl();
@@ -113,7 +113,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
                     // Consumer naming rules: clusterTag_topicName_consumer_group
                     String subscription = clusterTag + "_" + topic + "_consumer_group";
-                    pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
+                    pulsarOperator.createSubscription(pulsarAdmin, topicBean, subscription);
 
                     // Insert the consumption data into the consumption table
                     consumptionService.saveSortConsumption(groupInfo, topic, subscription);
