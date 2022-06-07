@@ -32,7 +32,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <elasticsearch.version>7.5.1</elasticsearch.version>
+        <elasticsearch.version>7.9.2</elasticsearch.version>
     </properties>
 
     <dependencies>

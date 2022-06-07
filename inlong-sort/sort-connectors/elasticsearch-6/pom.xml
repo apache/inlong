@@ -33,7 +33,7 @@
 
 
     <properties>
-        <elasticsearch.version>6.3.1</elasticsearch.version>
+        <elasticsearch.version>6.8.17</elasticsearch.version>
     </properties>
 
     <dependencies>
