@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -73,37 +72,24 @@ public class Config {
     }
 
     private void initDockerId() {
-        BufferedReader in = null;
         try {
             File file = new File("/proc/self/cgroup");
-            if (file.exists() == false) {
+            if (!file.exists()) {
                 return;
             }
-            in = new BufferedReader(new FileReader("/proc/self/cgroup"));
+            BufferedReader in = new BufferedReader(new FileReader("/proc/self/cgroup"));
             String dockerID = in.readLine();
-            if (dockerID.equals("") == false) {
+            if (dockerID != null) {
                 int n = dockerID.indexOf("/");
                 String dockerID2 = dockerID.substring(n + 1, (dockerID.length() - n - 1));
                 n = dockerID2.indexOf("/");
-                dockerId = dockerID2.substring(n + 1, 12);
-            }
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            return;
-        } catch (NullPointerException e2) {
-            logger.error(e2.getMessage());
-            return;
-        } catch (Exception e3) {
-            logger.error(e3.getMessage());
-            return;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e4) {
-                    logger.error(e4.getMessage());
+                if (dockerID2.length() > 12) {
+                    dockerId = dockerID2.substring(n + 1, 12);
                 }
+                in.close();
             }
+        } catch (Exception ex) {
+            logger.error(ex.toString());
         }
     }
 }

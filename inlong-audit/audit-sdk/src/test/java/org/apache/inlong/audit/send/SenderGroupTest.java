@@ -27,7 +27,7 @@ public class SenderGroupTest {
     AuditConfig testConfig = new AuditConfig();
     SenderManager testManager = new SenderManager(testConfig);
     SenderHandler clientHandler = new org.apache.inlong.audit.send.SenderHandler(testManager);
-    SenderGroup sender = new org.apache.inlong.audit.send.SenderGroup(10, clientHandler);
+    SenderGroup sender = new org.apache.inlong.audit.send.SenderGroup(testManager);
 
     @Test
     public void isHasSendError() {
