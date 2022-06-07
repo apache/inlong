@@ -348,6 +348,7 @@
   "pages.Clusters.Tag": "集群标签",
   "pages.Clusters.InCharges": "责任人",
   "pages.Clusters.Description": "集群描述",
+  "pages.Clusters.Pulsar.Tenant": "默认租户",
   "pages.Datasources.status.Success": "正常",
   "pages.Datasources.status.Error": "失败",
   "pages.Datasources.status.Deleted": "已删除",

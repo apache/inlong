@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import i18n from '@/i18n';
 import type { ClsConfigItemType } from './types';
 
 export const Pulsar: ClsConfigItemType[] = [
@@ -29,8 +30,15 @@ export const Pulsar: ClsConfigItemType[] = [
   {
     type: 'input',
     label: 'ServiceUrl',
-    name: 'serviceUrl',
+    name: 'url',
     rules: [{ required: true }],
+  },
+  {
+    type: 'input',
+    label: i18n.t('pages.Clusters.Pulsar.Tenant'),
+    name: 'tenant',
+    rules: [{ required: true }],
+    initialValue: 'public',
   },
   {
     type: 'input',
