@@ -66,6 +66,15 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
 
+    @ApiModelProperty("Document Type")
+    private String documentType;
+
+    @ApiModelProperty("Primary Key")
+    private String primaryKey;
+
+    @ApiModelProperty("version")
+    private Integer version;
+
     @ApiModelProperty("Properties for elasticsearch")
     private Map<String, Object> properties;
 
@@ -85,6 +94,9 @@ public class ElasticsearchSinkDTO {
                 .build();
     }
 
+    /**
+     * Get the dto instance from the json
+     */
     public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

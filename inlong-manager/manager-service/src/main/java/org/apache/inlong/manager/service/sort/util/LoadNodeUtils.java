@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
@@ -44,6 +45,7 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
+import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
@@ -92,6 +94,8 @@ public class LoadNodeUtils {
                 return createLoadNode((IcebergSink) streamSink);
             case SQLSERVER:
                 return createLoadNode((SqlServerSink) streamSink);
+            case ELASTICSEARCH:
+                return createLoadNode((ElasticsearchSink) streamSink);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sinkType=%s to create loadNode", sinkType));
@@ -328,6 +332,46 @@ public class LoadNodeUtils {
                 schemaName,
                 tablename,
                 primaryKey
+        );
+    }
+
+    /**
+     * Create Elasticsearch load node
+     */
+    public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink) {
+        final String id = elasticsearchSink.getSinkName();
+        final String name = elasticsearchSink.getSinkName();
+        final String userName = elasticsearchSink.getUsername();
+        final String password = elasticsearchSink.getPassword();
+        final String index = elasticsearchSink.getIndexName();
+        final String host = elasticsearchSink.getHost();
+        final String documentType = elasticsearchSink.getDocumentType();
+        final String promaryKey = elasticsearchSink.getPrimaryKey();
+        final int version =  elasticsearchSink.getVersion().intValue();
+
+        final List<SinkField> fieldList = elasticsearchSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = elasticsearchSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new ElasticsearchLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                index,
+                host,
+                userName,
+                password,
+                documentType,
+                promaryKey,
+                version
         );
     }
 
