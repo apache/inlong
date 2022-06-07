@@ -205,46 +205,6 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create node of data load about hdfs.
-     */
-    public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
-        String id = hdfsSink.getSinkName();
-        String name = hdfsSink.getSinkName();
-
-        String format = hdfsSink.getFileFormat();
-        String path = hdfsSink.getDataPath();
-        String timeZone = hdfsSink.getServerTimeZone();
-
-        List<SinkField> fieldList = hdfsSink.getFieldList();
-        List<FieldInfo> fields = fieldList.stream()
-                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
-                .collect(Collectors.toList());
-        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
-        Map<String, String> properties = hdfsSink.getProperties().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        List<FieldInfo> partitionFields = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
-            partitionFields = hdfsSink.getPartitionFieldList().stream()
-                    .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
-                            FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
-                                    hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
-        }
-        return new FileSystemLoadNode(
-                id,
-                name,
-                fields,
-                fieldRelations,
-                Lists.newArrayList(),
-                path,
-                format,
-                null,
-                properties,
-                partitionFields,
-                timeZone
-        );
-    }
-
-    /**
      * Create node of data load about hbase.
      */
     public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink) {
@@ -413,6 +373,44 @@ public class LoadNodeUtils {
                 documentType,
                 promaryKey,
                 version
+        );
+    }
+
+    /**
+     * Create node of data load about hdfs.
+     */
+    public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
+        String id = hdfsSink.getSinkName();
+        String name = hdfsSink.getSinkName();
+        String format = hdfsSink.getFileFormat();
+        String path = hdfsSink.getDataPath();
+        String timeZone = hdfsSink.getServerTimeZone();
+        List<SinkField> fieldList = hdfsSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = hdfsSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        List<FieldInfo> partitionFields = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
+            partitionFields = hdfsSink.getPartitionFieldList().stream()
+                    .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
+                            FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
+                                    hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
+        }
+        return new FileSystemLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                Lists.newArrayList(),
+                path,
+                format,
+                null,
+                properties,
+                partitionFields,
+                timeZone
         );
     }
 

@@ -149,7 +149,6 @@ public class HdfsSinkOperation implements StreamSinkOperation {
 
     @Override
     public <T> T getFromEntity(StreamSinkEntity entity, Supplier<T> target) {
-
         T result = target.get();
         if (entity == null) {
             return result;

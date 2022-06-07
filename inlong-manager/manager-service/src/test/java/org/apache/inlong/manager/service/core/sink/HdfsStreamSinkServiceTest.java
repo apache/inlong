@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
@@ -30,6 +31,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group_hdfs";
@@ -38,6 +42,9 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     private static final String fileFormat = "TextFile";
     private static final String dataPath = "hdfs://ip:port/usr/hive/warehouse/test.db";
     private static final String serverTimeZone = "GMT%2b8";
+    private static final String fieldName = "hdfs_field";
+    private static final String fieldType = "hdfs_type";
+    private static final Integer fieldId = 1;
 
     @Autowired
     private StreamSinkService sinkService;
@@ -59,6 +66,13 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
         hdfsSinkRequest.setFileFormat(fileFormat);
         hdfsSinkRequest.setDataPath(dataPath);
         hdfsSinkRequest.setServerTimeZone(serverTimeZone);
+        SinkField sinkField = new SinkField();
+        sinkField.setFieldName(fieldName);
+        sinkField.setFieldType(fieldType);
+        sinkField.setId(fieldId);
+        List<SinkField> sinkFieldList = new ArrayList<>();
+        sinkFieldList.add(sinkField);
+        hdfsSinkRequest.setFieldList(sinkFieldList);
         return sinkService.save(hdfsSinkRequest, globalOperator);
     }
 
