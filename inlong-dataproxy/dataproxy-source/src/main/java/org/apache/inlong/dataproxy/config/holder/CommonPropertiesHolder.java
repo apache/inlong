@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 
  * CommonPropertiesHolder
  */
 public class CommonPropertiesHolder {
@@ -38,7 +37,7 @@ public class CommonPropertiesHolder {
     public static final Logger LOG = LoggerFactory.getLogger(CommonPropertiesHolder.class);
     public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
-    public static final String KEY_CLUSTER_ID = "proxy.cluster.name";
+    public static final String KEY_PROXY_CLUSTER_NAME = "proxy.cluster.name";
     public static final String KEY_RESPONSE_AFTER_SAVE = "isResponseAfterSave";
     public static final boolean DEFAULT_RESPONSE_AFTER_SAVE = false;
     public static final String KEY_MAX_RESPONSE_TIMEOUT_MS = "maxResponseTimeoutMs";
@@ -85,7 +84,7 @@ public class CommonPropertiesHolder {
 
     /**
      * get props
-     * 
+     *
      * @return the props
      */
     public static Map<String, String> get() {
@@ -98,10 +97,10 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning defaultValue if unmapped.
-     * 
-     * @param  key          to be found
-     * @param  defaultValue returned if key is unmapped
-     * @return              value associated with key
+     *
+     * @param key to be found
+     * @param defaultValue returned if key is unmapped
+     * @return value associated with key
      */
     public static String getString(String key, String defaultValue) {
         return get().getOrDefault(key, defaultValue);
@@ -109,9 +108,9 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning null if unmapped.
-     * 
-     * @param  key to be found
-     * @return     value associated with key or null if unmapped
+     *
+     * @param key to be found
+     * @return value associated with key or null if unmapped
      */
     public static String getString(String key) {
         return get().get(key);
@@ -119,10 +118,10 @@ public class CommonPropertiesHolder {
 
     /**
      * getStringFromContext
-     * 
-     * @param  context
-     * @param  key
-     * @param  defaultValue
+     *
+     * @param context
+     * @param key
+     * @param defaultValue
      * @return
      */
     public static String getStringFromContext(Context context, String key, String defaultValue) {
@@ -133,10 +132,10 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning defaultValue if unmapped.
-     * 
-     * @param  key          to be found
-     * @param  defaultValue returned if key is unmapped
-     * @return              value associated with key
+     *
+     * @param key to be found
+     * @param defaultValue returned if key is unmapped
+     * @return value associated with key
      */
     public static Integer getInteger(String key, Integer defaultValue) {
         String value = get().get(key);
@@ -153,9 +152,9 @@ public class CommonPropertiesHolder {
      * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
      * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
      * </p>
-     * 
-     * @param  key to be found
-     * @return     value associated with key or null if unmapped
+     *
+     * @param key to be found
+     * @return value associated with key or null if unmapped
      */
     public static Integer getInteger(String key) {
         return getInteger(key, null);
@@ -163,10 +162,10 @@ public class CommonPropertiesHolder {
 
     /**
      * Gets value mapped to key, returning defaultValue if unmapped.
-     * 
-     * @param  key          to be found
-     * @param  defaultValue returned if key is unmapped
-     * @return              value associated with key
+     *
+     * @param key to be found
+     * @param defaultValue returned if key is unmapped
+     * @return value associated with key
      */
     public static Long getLong(String key, Long defaultValue) {
         String value = get().get(key);
@@ -183,9 +182,9 @@ public class CommonPropertiesHolder {
      * mapped to a value and by returning the primitive object wrapper we can return null. If the key does not exist the
      * return value of this method is assigned directly to a primitive, a {@link NullPointerException} will be thrown.
      * </p>
-     * 
-     * @param  key to be found
-     * @return     value associated with key or null if unmapped
+     *
+     * @param key to be found
+     * @return value associated with key or null if unmapped
      */
     public static Long getLong(String key) {
         return getLong(key, null);
@@ -193,7 +192,7 @@ public class CommonPropertiesHolder {
 
     /**
      * getAuditFormatInterval
-     * 
+     *
      * @return
      */
     public static long getAuditFormatInterval() {
@@ -202,6 +201,7 @@ public class CommonPropertiesHolder {
 
     /**
      * isResponseAfterSave
+     *
      * @return
      */
     public static boolean isResponseAfterSave() {
@@ -210,6 +210,7 @@ public class CommonPropertiesHolder {
 
     /**
      * get maxResponseTimeout
+     *
      * @return the maxResponseTimeout
      */
     public static long getMaxResponseTimeout() {

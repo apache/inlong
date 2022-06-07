@@ -35,6 +35,10 @@ const menus: MenuItemType[] = [
     name: i18n.t('configs.menus.DataConsumption'),
   },
   {
+    path: '/clusters',
+    name: i18n.t('configs.menus.Clusters'),
+  },
+  {
     path: '/approvals',
     name: i18n.t('configs.menus.ApprovalManagement'),
   },

@@ -72,6 +72,10 @@ public class InlongGroupTransfer {
             originGroupInfo.getExtList().addAll(extInfos);
         }
 
+        if (sortConf == null) {
+            throw new IllegalArgumentException(
+                    String.format("sort config cannot be empty for group=", originGroupInfo.getInlongGroupId()));
+        }
         // set the sort config into ext list
         SortType sortType = sortConf.getType();
         List<InlongGroupExtInfo> sortExtInfos;

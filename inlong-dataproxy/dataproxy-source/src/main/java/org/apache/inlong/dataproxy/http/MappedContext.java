@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class MappedContext
-        implements Context {
+public class MappedContext implements Context {
 
     private Map<String, Object> mapContext;
 
@@ -33,7 +32,7 @@ public class MappedContext
 
     @Override
     public void init() {
-        mapContext = new HashMap();
+        mapContext = new HashMap<>();
     }
 
     @Override
@@ -57,7 +56,7 @@ public class MappedContext
     }
 
     @Override
-    public void destory() {
+    public void destroy() {
         mapContext = Collections.emptyMap();
     }
 

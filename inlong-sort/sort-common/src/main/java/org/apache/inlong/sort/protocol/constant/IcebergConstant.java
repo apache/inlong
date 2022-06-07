@@ -37,6 +37,18 @@ public class IcebergConstant {
         /**
          * Data stored in hybris metastore.
          */
-        HYBRIS
+        HYBRIS;
+
+        /**
+         * get catalogType from name
+         */
+        public static CatalogType forName(String name) {
+            for (CatalogType value : values()) {
+                if (value.name().equals(name)) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException(String.format("Unsupport catalogType:%s", name));
+        }
     }
 }

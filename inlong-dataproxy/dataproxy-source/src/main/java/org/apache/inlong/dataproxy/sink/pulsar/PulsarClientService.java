@@ -26,7 +26,7 @@ import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
 import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -99,7 +99,7 @@ public class PulsarClientService {
      *
      * @param pulsarConfig
      */
-    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig, int sinkThreadPoolSize) {
+    public PulsarClientService(MQClusterConfig pulsarConfig, int sinkThreadPoolSize) {
 
         this.sinkThreadPoolSize = sinkThreadPoolSize;
 
@@ -288,7 +288,7 @@ public class PulsarClientService {
             return;
         }
         pulsarClients = new ConcurrentHashMap<>();
-        pulsarUrl2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
+        pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
         logger.debug("number of pulsar cluster is {}", pulsarUrl2token.size());
         for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
@@ -328,7 +328,7 @@ public class PulsarClientService {
 
     private PulsarClient initPulsarClient(String pulsarUrl, String token) throws Exception {
         ClientBuilder builder = PulsarClient.builder();
-        if (ThirdPartyClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
+        if (MQClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
             builder.authentication(AuthenticationFactory.token(token));
         }
         builder.serviceUrl(pulsarUrl)

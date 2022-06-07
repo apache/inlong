@@ -97,16 +97,11 @@ public class InlongClientImpl implements InlongClient {
         }
     }
 
-    /**
-     * List group state
-     */
     @Override
-    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupNames) {
+    public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
-        request.setNameList(groupNames);
-        request.setPageNum(1);
-        request.setPageSize(groupNames.size());
+        request.setGroupIdList(groupIds);
         request.setListSources(true);
 
         PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(request);

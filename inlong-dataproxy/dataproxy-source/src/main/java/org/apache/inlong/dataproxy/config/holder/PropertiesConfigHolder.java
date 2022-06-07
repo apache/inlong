@@ -141,7 +141,7 @@ public class PropertiesConfigHolder extends ConfigHolder {
                 try {
                     inStream.close();
                 } catch (IOException e) {
-                    LOG.error("fail to close input stream at loadTopics from {}, err {}", fileName, e);
+                    LOG.error("fail to loadTopics in inStream.close for file: {}", fileName, e);
                 }
             }
         }

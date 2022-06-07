@@ -22,20 +22,20 @@ public interface StatusCode {
     /*
      * success
      */
-    public static final int SUCCESS = 1;
+    int SUCCESS = 1;
 
     /*
      * illegal argument
      */
-    public static final int ILLEGAL_ARGUMENT = -100;
+    int ILLEGAL_ARGUMENT = -100;
 
     /*
      * exceed length
      */
-    public static final int EXCEED_LEN = -101;
+    int EXCEED_LEN = -101;
 
     /*
      * service error
      */
-    public static final int SERVICE_ERR = -105;
+    int SERVICE_ERR = -105;
 }

@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.instrumentation.SinkCounter;
 import org.apache.inlong.common.monitor.LogCounter;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.sink.EventStat;
@@ -66,7 +66,7 @@ public class SinkTask extends Thread {
 
     private LoadingCache<String, Long>  agentIdCache;
 
-    private ThirdPartyClusterConfig pulsarConfig;
+    private MQClusterConfig pulsarConfig;
 
     private int maxRetrySendCnt;
     /*

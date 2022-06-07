@@ -29,14 +29,14 @@ public enum IcebergType {
     LONG("long"),
     FLOAT("float"),
     DOUBLE("double"),
-    DECIMAL("decimal(P,S)"),
+    DECIMAL("decimal"),
     DATE("date"),
     TIME("time"),
     TIMESTAMP("timestamp"),
     TIMESTAMPTZ("timestamptz"),
     STRING("string"),
     UUID("uuid"),
-    FIXED("fixed(L)"),
+    FIXED("fixed"),
     BINARY("binary");
 
     @Getter

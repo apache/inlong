@@ -87,6 +87,7 @@ public class File2HiveExample extends BaseExample {
 
     private FileSource createAgentFileSource() {
         FileSource fileSource = new FileSource();
+        fileSource.setSourceName("{source.name}");
         fileSource.setAgentIp("{agent.ip}");
         fileSource.setPattern("/a/b/*.txt");
         fileSource.setTimeOffset("-1h");

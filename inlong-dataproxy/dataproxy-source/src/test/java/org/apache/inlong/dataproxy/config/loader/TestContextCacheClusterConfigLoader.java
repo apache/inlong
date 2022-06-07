@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,15 +17,6 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.pojo.CacheClusterConfig;
 import org.junit.BeforeClass;
@@ -33,14 +24,22 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.Assert.assertEquals;
+
 /**
- * 
- * TestContextCacheClusterConfigLoader
+ * Test for {@link ContextCacheClusterConfigLoader}
  */
 public class TestContextCacheClusterConfigLoader {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestContextCacheClusterConfigLoader.class);
-    private static Context context;
     private static Context sinkContext;
 
     /**
@@ -48,19 +47,17 @@ public class TestContextCacheClusterConfigLoader {
      */
     @BeforeClass
     public static void setup() {
-        Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestContextCacheClusterConfigLoader.class.getClassLoader().getResource(
-                "dataproxy-pulsar.conf")
-                .openStream()) {
+        URL resource = TestContextCacheClusterConfigLoader.class.getClassLoader().getResource("dataproxy-pulsar.conf");
+        try (InputStream inStream = Objects.requireNonNull(resource).openStream()) {
             Properties props = new Properties();
             props.load(inStream);
+
+            Map<String, String> result = new ConcurrentHashMap<>();
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 result.put((String) entry.getKey(), (String) entry.getValue());
             }
-            context = new Context(result);
+            Context context = new Context(result);
             sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         } catch (Exception e) {
             LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
@@ -68,11 +65,9 @@ public class TestContextCacheClusterConfigLoader {
 
     /**
      * testResult
-     * 
-     * @throws Exception
      */
     @Test
-    public void testResult() throws Exception {
+    public void testResult() {
         ContextCacheClusterConfigLoader loader = new ContextCacheClusterConfigLoader();
         loader.configure(sinkContext);
         List<CacheClusterConfig> configList = loader.load();

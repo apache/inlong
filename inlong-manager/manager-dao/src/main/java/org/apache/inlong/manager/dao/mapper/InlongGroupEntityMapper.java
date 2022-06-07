@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.springframework.stereotype.Repository;
@@ -40,9 +41,7 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupEntity> selectByCondition(InlongGroupPageRequest request);
 
-    List<InlongGroupEntity> selectAll(Integer status);
-
-    List<String> selectGroupIdByProxyId(Integer proxyClusterId);
+    List<InlongGroupBriefInfo> selectBriefList(InlongGroupPageRequest request);
 
     int updateByPrimaryKey(InlongGroupEntity record);
 

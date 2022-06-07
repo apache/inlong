@@ -46,8 +46,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleHttpSource
-        extends HttpBaseSource {
+public class SimpleHttpSource extends HttpBaseSource {
 
     private static final Logger LOG = LoggerFactory.getLogger(HTTPSource.class);
 
