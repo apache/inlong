@@ -495,26 +495,30 @@ public class LoadNodeUtils {
     }
 
     /**
-     * create oracle load node
-     *
-     * @param oracleSink oracleSink
-     * @return oracle load node
+     * Create load node of ORACLE.
      */
     public static OracleLoadNode createLoadNode(OracleSink oracleSink) {
-        List<SinkField> sinkFieldResponses = oracleSink.getFieldList();
-
+        String id = oracleSink.getSinkName();
         String name = oracleSink.getSinkName();
+        List<SinkField> sinkFieldResponses = oracleSink.getFieldList();
         List<FieldInfo> fields = sinkFieldResponses.stream()
-                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse,
-                        name))
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
         Map<String, String> properties = oracleSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
-        return new OracleLoadNode(oracleSink.getSinkName(),
-                oracleSink.getSinkName(),
-                fields, fieldRelationShips, null, null, 1,
-                properties, oracleSink.getJdbcUrl(), oracleSink.getUsername(),
+
+        return new OracleLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                1,
+                properties,
+                oracleSink.getJdbcUrl(),
+                oracleSink.getUsername(),
                 oracleSink.getPassword(),
                 oracleSink.getTableName(),
                 oracleSink.getPrimaryKey());
