@@ -19,14 +19,13 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Modal, message } from 'antd';
-import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
+import { parse } from 'qs';
 import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest } from '@/hooks';
-import { Clusters } from './config';
-import CreateModal from './CreateModal';
+import { useRequest, useLocation } from '@/hooks';
+import NodeEditModal from './NodeEditModal';
 import request from '@/utils/request';
 import { timestampFormat } from '@/utils';
 
@@ -35,36 +34,30 @@ const getFilterFormContent = defaultValues => [
     type: 'inputsearch',
     name: 'keyWord',
   },
-  {
-    type: 'radiobutton',
-    name: 'type',
-    label: i18n.t('pages.Clusters.Type'),
-    initialValue: defaultValues.type,
-    props: {
-      buttonStyle: 'solid',
-      options: Clusters.map(item => ({
-        label: item.label,
-        value: item.value,
-      })),
-    },
-  },
 ];
 
 const Comp: React.FC = () => {
+  const location = useLocation();
+  const { type, clusterId } = useMemo<Record<string, string>>(
+    () => parse(location.search.slice(1)) || {},
+    [location.search],
+  );
+
   const [options, setOptions] = useState({
     keyWord: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: Clusters[0].value,
+    type,
+    parentId: +clusterId,
   });
 
-  const [createModal, setCreateModal] = useState<Record<string, unknown>>({
+  const [nodeEditModal, setNodeEditModal] = useState<Record<string, unknown>>({
     visible: false,
   });
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/cluster/list',
+      url: '/cluster/node/list',
       method: 'POST',
       data: {
         ...options,
@@ -76,7 +69,7 @@ const Comp: React.FC = () => {
   );
 
   const onEdit = ({ id }) => {
-    setCreateModal({ visible: true, id });
+    setNodeEditModal({ visible: true, id });
   };
 
   const onDelete = useCallback(
@@ -85,7 +78,7 @@ const Comp: React.FC = () => {
         title: i18n.t('basic.DeleteConfirm'),
         onOk: async () => {
           await request({
-            url: `/cluster/delete/${id}`,
+            url: `/cluster/node/delete/${id}`,
             method: 'DELETE',
           });
           await getList();
@@ -119,59 +112,54 @@ const Comp: React.FC = () => {
   };
 
   const columns = useMemo(() => {
-    const current = Clusters.find(item => item.value === options.type);
-    if (!current?.tableColumns) return [];
-
-    return current.tableColumns
-      .map(item => ({
-        ...item,
-        ellipsisMulti: 2,
-      }))
-      .concat([
-        {
-          title: i18n.t('pages.Clusters.LastModifier'),
-          dataIndex: 'modifier',
-          width: 150,
-          render: (text, record: any) => (
-            <>
-              <div>{text}</div>
-              <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
-            </>
-          ),
-        },
-        {
-          title: i18n.t('basic.Operating'),
-          dataIndex: 'action',
-          width: 200,
-          render: (text, record) => (
-            <>
-              {record.type === 'DATA_PROXY' && (
-                <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
-                  {i18n.t('pages.Clusters.Node.Name')}
-                </Link>
-              )}
-              <Button type="link" onClick={() => onEdit(record)}>
-                {i18n.t('basic.Edit')}
-              </Button>
-              <Button type="link" onClick={() => onDelete(record)}>
-                {i18n.t('basic.Delete')}
-              </Button>
-            </>
-          ),
-        } as any,
-      ]);
-  }, [options.type, onDelete]);
+    return [
+      {
+        title: 'IP',
+        dataIndex: 'ip',
+      },
+      {
+        title: i18n.t('pages.Clusters.Node.Port'),
+        dataIndex: 'port',
+      },
+      {
+        title: i18n.t('pages.Clusters.Node.LastModifier'),
+        dataIndex: 'modifier',
+        width: 150,
+        render: (text, record: any) => (
+          <>
+            <div>{text}</div>
+            <div>{record.modifyTime && timestampFormat(record.modifyTime)}</div>
+          </>
+        ),
+      },
+      {
+        title: i18n.t('basic.Operating'),
+        dataIndex: 'action',
+        width: 120,
+        render: (text, record) => (
+          <>
+            <Button type="link" onClick={() => onEdit(record)}>
+              {i18n.t('basic.Edit')}
+            </Button>
+            <Button type="link" onClick={() => onDelete(record)}>
+              {i18n.t('basic.Delete')}
+            </Button>
+          </>
+        ),
+      },
+    ];
+  }, [onDelete]);
 
   return (
-    <PageContainer useDefaultBreadcrumb={false}>
+    <PageContainer breadcrumb={[{ name: `${type} ${i18n.t('pages.Clusters.Node.Name')}` }]}>
       <HighTable
         filterForm={{
           content: getFilterFormContent(options),
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            {i18n.t('pages.Clusters.Create')}
+          <Button type="primary" onClick={() => setNodeEditModal({ visible: true })}>
+            {i18n.t('pages.Clusters.Node.Create')}
           </Button>
         }
         table={{
@@ -184,15 +172,16 @@ const Comp: React.FC = () => {
         }}
       />
 
-      <CreateModal
-        {...createModal}
-        type={options.type as any}
-        visible={createModal.visible as boolean}
-        onOk={async values => {
+      <NodeEditModal
+        type={type}
+        clusterId={+clusterId}
+        {...nodeEditModal}
+        visible={nodeEditModal.visible as boolean}
+        onOk={async () => {
           await getList();
-          setCreateModal({ visible: false });
+          setNodeEditModal({ visible: false });
         }}
-        onCancel={() => setCreateModal({ visible: false })}
+        onCancel={() => setNodeEditModal({ visible: false })}
       />
     </PageContainer>
   );

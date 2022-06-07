@@ -22,6 +22,7 @@ import i18n from '@/i18n';
 import StaffSelect from '@/components/StaffSelect';
 import type { ClsConfigItemType, ClsTableItemType } from './types';
 import { Pulsar } from './Pulsar';
+import { DataProxy } from './DataProxy';
 
 export interface ClusterItemType {
   label: string;
@@ -31,6 +32,11 @@ export interface ClusterItemType {
 }
 
 export const Clusters: ClusterItemType[] = [
+  {
+    label: 'DataProxy',
+    value: 'DATA_PROXY',
+    config: DataProxy,
+  },
   {
     label: 'Pulsar',
     value: 'PULSAR',
