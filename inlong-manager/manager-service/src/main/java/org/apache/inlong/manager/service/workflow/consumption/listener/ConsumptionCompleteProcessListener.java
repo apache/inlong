@@ -163,11 +163,11 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
+        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
         try {
-            tubeMQOperator.createConsumerGroup((TubeClusterInfo) clusterInfo, entity.getTopic(),
-                    entity.getConsumerGroup(), operator);
+            tubeMQOperator.createConsumerGroup(clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
         } catch (Exception e) {
+            log.error("failed to create tube consumer group: ", e);
             throw new WorkflowListenerException("failed to create tube consumer group: " + e.getMessage());
         }
     }
