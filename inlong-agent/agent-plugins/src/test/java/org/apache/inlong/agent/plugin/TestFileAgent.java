@@ -20,6 +20,7 @@ package org.apache.inlong.agent.plugin;
 import org.apache.commons.io.IOUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
+import org.apache.inlong.agent.constant.FileCollectType;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
 import org.apache.inlong.agent.db.StateSearchKey;
@@ -42,12 +43,14 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_MESSAGE_FILTER_CLASSNAME;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
@@ -142,6 +145,36 @@ public class TestFileAgent {
         TestUtils.createHugeFiles("test1.dat", testRootDir.toString(), RECORD);
         await().atMost(30, TimeUnit.SECONDS).until(this::checkOnlyOneJob);
         Assert.assertTrue(checkOnlyOneJob());
+    }
+
+    private Long checkFullPathReadJob() {
+        Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
+        AtomicLong result = new AtomicLong(0L);
+        jobs.forEach((s, jobWrapper) -> {
+            if (FileCollectType.FULL.equals(jobWrapper.getJob().getJobConf().get(JOB_FILE_COLLECT_TYPE, null))) {
+                result.set(jobWrapper.getAllTasks().size());
+            }
+        });
+        return result.get();
+    }
+
+    @Test
+    public void testOneJobFullPath() throws Exception {
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
+        String path = Paths.get(getClass().getClassLoader().getResource("test").toURI()).toString();
+        String fileName = path + "/increment_test.txt";
+        TestUtils.deleteFile(fileName);
+        triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);
+        triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
+        triggerProfile.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        TriggerManager triggerManager = agent.getManager().getTriggerManager();
+        triggerManager.submitTrigger(triggerProfile);
+        Thread.currentThread().sleep(2000);
+        Assert.assertEquals(3L, checkFullPathReadJob().longValue());
+        TestUtils.createFile(fileName);
+        Thread.currentThread().sleep(10000);
+        TestUtils.deleteFile(fileName);
     }
 
     private boolean checkOnlyOneJob() {

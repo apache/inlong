@@ -48,6 +48,7 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_TIME_OFFSET = "job.fileJob.timeOffset";
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
+    public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
