@@ -594,7 +594,7 @@ The text of each license is the standard Apache 2.0 license.
   com.google.guava:guava:19.0 - Guava: Google Core Libraries for Java (https://github.com/google/guava), (The Apache Software License, Version 2.0)
   com.google.inject:guice:3.0 - Google Guice - Core Library (https://github.com/google/guice), (The Apache Software License, Version 2.0)
   com.google.inject.extensions:guice-servlet:3.0 - Google Guice - Extensions - Servlet (https://github.com/google/guice), (The Apache Software License, Version 2.0)
-  org.apache.hbase:hbase-client:2.4.12 - Apache HBase - Client (https://hbase.apache.org/), (Apache License, Version 2.0)
+  org.apache.hbase:hbase-client:2.2.3 - Apache HBase - Client (https://hbase.apache.org/), (Apache License, Version 2.0)
   org.apache.hbase:hbase-common:2.4.12 - Apache HBase - Common (https://hbase.apache.org/), (Apache License, Version 2.0)
   org.apache.hbase:hbase-hadoop-compat:2.4.12 - Apache HBase - Hadoop Compatibility (https://hbase.apache.org/hbase-build-configuration/hbase-hadoop-compat), (Apache License, Version 2.0)
   org.apache.hbase:hbase-hadoop2-compat:2.4.12 - Apache HBase - Hadoop Two Compatibility (https://hbase.apache.org/hbase-build-configuration/hbase-hadoop2-compat), (Apache License, Version 2.0)
@@ -702,9 +702,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.velocity:velocity-engine-core:2.3 - Apache Velocity - Engine (https://github.com/apache/velocity-engine/tree/2.3/velocity-engine-core), (Apache License, Version 2.0)
   com.fasterxml.woodstox:woodstox-core:5.0.3 - Woodstox (https://github.com/FasterXML/woodstox/tree/woodstox-core-5.0.3), (The Apache License, Version 2.0)
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
-  org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
-  org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
-
+  org.apache.zookeeper:zookeeper:3.4.14 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.4.14/zookeeper-server), (Apache License, Version 2.0)
 
 ========================================================================
 Apache 2.0 licenses
