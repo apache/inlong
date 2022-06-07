@@ -86,11 +86,12 @@ public class InlongStreamProcessOperation {
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
         StreamStatus status = StreamStatus.forCode(streamInfo.getStatus());
-        if (status == StreamStatus.CONFIG_ING || status == StreamStatus.CONFIG_SUCCESSFUL) {
+        if (status == StreamStatus.CONFIG_ING) {
             log.warn("GroupId={}, StreamId={} is already in {}", groupId, streamId, status);
             return true;
         }
-        if (status != StreamStatus.NEW || status != StreamStatus.CONFIG_FAILED) {
+        if (status != StreamStatus.NEW && status != StreamStatus.CONFIG_FAILED
+                && status != StreamStatus.CONFIG_SUCCESSFUL) {
             throw new BusinessException(
                     String.format("GroupId=%s, StreamId=%s, status=%s not correct for stream start", groupId, streamId,
                             status));
