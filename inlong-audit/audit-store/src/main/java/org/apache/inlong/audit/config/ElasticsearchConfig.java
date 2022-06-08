@@ -92,9 +92,9 @@ public class ElasticsearchConfig {
         // support es cluster with multi hosts
         List<HttpHost> hosts = new ArrayList<>();
         String[] hostArrays = host.split(",");
-        for (String h : hostArrays) {
-            if (StringUtils.isNotEmpty(h)) {
-                hosts.add(new HttpHost(h.trim(), port, "http"));
+        for (String host : hostArrays) {
+            if (StringUtils.isNotEmpty(host)) {
+                hosts.add(new HttpHost(host.trim(), port, "http"));
             }
         }
 
