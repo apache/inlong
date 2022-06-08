@@ -31,10 +31,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -54,12 +54,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Binlog sink operation
+ * MySQL sink operation
  */
 @Service
-public class MysqlSinkOperation implements StreamSinkOperation {
+public class MySQLSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -79,8 +79,8 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
 
-        MysqlSinkRequest binlogSinkRequest = (MysqlSinkRequest) request;
-        StreamSinkEntity entity = CommonBeanUtils.copyProperties(binlogSinkRequest, StreamSinkEntity::new);
+        MySQLSinkRequest mySQLSinkRequest = (MySQLSinkRequest) request;
+        StreamSinkEntity entity = CommonBeanUtils.copyProperties(mySQLSinkRequest, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         entity.setCreator(operator);
@@ -90,7 +90,7 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        MysqlSinkDTO dto = MysqlSinkDTO.getFromRequest(binlogSinkRequest);
+        MySQLSinkDTO dto = MySQLSinkDTO.getFromRequest(mySQLSinkRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
@@ -140,7 +140,7 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         String existType = entity.getSinkType();
         Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_MYSQL, existType));
-        StreamSink response = this.getFromEntity(entity, MysqlSink::new);
+        StreamSink response = this.getFromEntity(entity, MySQLSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setFieldList(infos);
@@ -157,7 +157,7 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         Preconditions.checkTrue(SinkType.SINK_MYSQL.equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_MYSQL, existType));
 
-        MysqlSinkDTO dto = MysqlSinkDTO.getFromJson(entity.getExtParams());
+        MySQLSinkDTO dto = MySQLSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -169,7 +169,7 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MysqlSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MySQLSinkListResponse::new));
     }
 
     @Override
@@ -180,10 +180,10 @@ public class MysqlSinkOperation implements StreamSinkOperation {
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        MysqlSinkRequest binlogSinkRequest = (MysqlSinkRequest) request;
-        CommonBeanUtils.copyProperties(binlogSinkRequest, entity, true);
+        MySQLSinkRequest mySQLSinkRequest = (MySQLSinkRequest) request;
+        CommonBeanUtils.copyProperties(mySQLSinkRequest, entity, true);
         try {
-            MysqlSinkDTO dto = MysqlSinkDTO.getFromRequest(binlogSinkRequest);
+            MySQLSinkDTO dto = MySQLSinkDTO.getFromRequest(mySQLSinkRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
@@ -196,7 +196,7 @@ public class MysqlSinkOperation implements StreamSinkOperation {
         sinkMapper.updateByPrimaryKeySelective(entity);
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
-        this.updateFieldOpt(onlyAdd, binlogSinkRequest);
+        this.updateFieldOpt(onlyAdd, mySQLSinkRequest);
 
         LOGGER.info("success to update sink of type={}", sinkType);
     }

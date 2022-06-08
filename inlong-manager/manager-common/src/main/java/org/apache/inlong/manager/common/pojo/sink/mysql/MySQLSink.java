@@ -29,16 +29,16 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Mysql sink info
+ * MySQL sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Mysql sink info")
+@ApiModel(value = "MySQL sink info")
 @JsonTypeDefine(value = SinkType.SINK_MYSQL)
-public class MysqlSink extends StreamSink {
+public class MySQLSink extends StreamSink {
 
-    @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -53,12 +53,12 @@ public class MysqlSink extends StreamSink {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    public MysqlSink() {
+    public MySQLSink() {
         this.setSinkType(SinkType.SINK_MYSQL);
     }
 
     @Override
     public SinkRequest genSinkRequest() {
-        return CommonBeanUtils.copyProperties(this, MysqlSinkRequest::new);
+        return CommonBeanUtils.copyProperties(this, MySQLSinkRequest::new);
     }
 }

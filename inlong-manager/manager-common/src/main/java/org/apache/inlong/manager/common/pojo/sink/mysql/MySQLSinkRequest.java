@@ -27,16 +27,16 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Binlog sink info
+ * Request of the MySQL sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Binlog sink info")
+@ApiModel(value = "Request of the MySQL sink info")
 @JsonTypeDefine(value = SinkType.SINK_MYSQL)
-public class MysqlSinkRequest extends SinkRequest {
+public class MySQLSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")

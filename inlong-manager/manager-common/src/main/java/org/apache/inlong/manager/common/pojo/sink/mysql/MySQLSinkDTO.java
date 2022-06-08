@@ -26,22 +26,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
- * Binlog sink info
+ * MySQL sink info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MysqlSinkDTO {
+public class MySQLSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
-    @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -56,14 +59,14 @@ public class MysqlSinkDTO {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("Properties for binlog")
+    @ApiModelProperty("Properties for MySQL")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static MysqlSinkDTO getFromRequest(MysqlSinkRequest request) {
-        return MysqlSinkDTO.builder()
+    public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
+        return MySQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
@@ -76,13 +79,14 @@ public class MysqlSinkDTO {
     /**
      *  get dto from json
      * @param extParams extParams
-     * @return binlog sink DTO
+     * @return MySQL sink DTO
      */
-    public static MysqlSinkDTO getFromJson(@NotNull String extParams) {
+    public static MySQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, MysqlSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, MySQLSinkDTO.class);
         } catch (Exception e) {
+            log.error("Fetch MySQLSinkDTO failed from extParams", e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }

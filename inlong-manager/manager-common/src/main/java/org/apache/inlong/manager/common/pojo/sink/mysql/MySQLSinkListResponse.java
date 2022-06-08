@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response of Mysql sink list
+ * Response of MySQL sink list
  */
 @Data
 @SuperBuilder
@@ -37,10 +37,10 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(SinkType.SINK_MYSQL)
-@ApiModel("Response of Mysql sink paging list")
-public class MysqlSinkListResponse extends SinkListResponse {
+@ApiModel("Response of MySQL sink paging list")
+public class MySQLSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("Binlog JDBC URL eg jdbc:mysql://host:port/database")
+    @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
