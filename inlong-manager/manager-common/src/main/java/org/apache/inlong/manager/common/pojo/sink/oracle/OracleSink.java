@@ -35,10 +35,10 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Oracle sink info")
-@JsonTypeDefine(value = SinkType.SINK_POSTGRES)
+@JsonTypeDefine(value = SinkType.SINK_ORACLE)
 public class OracleSink extends StreamSink {
 
-    @ApiModelProperty("Oracle meta db URL, etc jdbc:oracle://host:port/database")
+    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
