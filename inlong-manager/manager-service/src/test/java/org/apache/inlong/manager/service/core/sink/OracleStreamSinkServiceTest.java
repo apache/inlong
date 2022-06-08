@@ -56,7 +56,7 @@ public class OracleStreamSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-       OracleSinkRequest sinkInfo = new OracleSinkRequest();
+        OracleSinkRequest sinkInfo = new OracleSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.SINK_ORACLE);
