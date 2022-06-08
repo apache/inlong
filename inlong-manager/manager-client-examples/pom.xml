@@ -34,5 +34,12 @@
             <artifactId>manager-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.tomakehurst/wiremock-jre8 -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-jre8</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
