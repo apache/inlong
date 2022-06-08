@@ -24,7 +24,7 @@ import { useRequest, useSelector } from '@/hooks';
 import { defaultSize } from '@/configs/pagination';
 import { getFilterFormContent, getColumns } from './config';
 
-export const activedName = 'Applies';
+export const activedName = 'applies';
 
 const Comp: React.FC = () => {
   const userName = useSelector<State, State['userName']>(state => state.userName);
