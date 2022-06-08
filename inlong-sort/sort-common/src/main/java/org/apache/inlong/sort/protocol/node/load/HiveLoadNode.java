@@ -99,7 +99,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
         this.hiveConfDir = hiveConfDir;
-        this.hiveVersion = hiveVersion;
+        this.hiveVersion = null == hiveVersion ? "3.1.2" : hiveVersion;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
