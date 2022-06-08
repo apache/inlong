@@ -56,6 +56,9 @@ public class ElasticsearchConfig {
     @Value("${elasticsearch.connectionRequestTimeout:500}")
     private int connectionRequestTimeout;
 
+    @Value("${elasticsearch.authEnable:false}")
+    private boolean authEnable;
+
     @Value("${elasticsearch.username}")
     private String username;
 
@@ -83,14 +86,27 @@ public class ElasticsearchConfig {
     @Value("${elasticsearch.auditIdSet}")
     private String auditIdSet;
 
-    @Bean(destroyMethod = "close",name = "restClient")
+    @Bean(destroyMethod = "close", name = "restClient")
     public RestHighLevelClient initRestClient() {
 
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-        RestClientBuilder restClientBuilder = RestClient.builder(new HttpHost(host, port, "http"))
-                .setHttpClientConfigCallback(httpAsyncClientBuilder ->
-                        httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+        // support es cluster with multi hosts
+        List<HttpHost> hosts = new ArrayList<>();
+        String[] hostArrays = host.split(",");
+        for (String h : hostArrays) {
+            if (StringUtils.isNotEmpty(h)) {
+                hosts.add(new HttpHost(h.trim(), port, "http"));
+            }
+        }
+
+        RestClientBuilder restClientBuilder = RestClient.builder(hosts.toArray(new HttpHost[0]));
+
+        // configurable auth
+        if (authEnable) {
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+            restClientBuilder.setHttpClientConfigCallback(httpAsyncClientBuilder ->
+                    httpAsyncClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+        }
 
         restClientBuilder.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                 .setConnectTimeout(connTimeout).setSocketTimeout(socketTimeout)
