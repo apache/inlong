@@ -156,7 +156,6 @@
             </if>
         </where>
         order by modify_time desc
-        limit 100
     </select>
     <select id="selectBriefList" parameterType="org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest"
             resultType="org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo">
