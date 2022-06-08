@@ -52,6 +52,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     private static final String timestampPattern = "partition.time-extractor.timestamp-pattern";
     private static final String delay = "sink.partition-commit.delay";
     private static final String policyKind = "sink.partition-commit.policy.kind";
+    private static final String HIVE_VERSION = "3.1.2";
 
     @JsonProperty("tableName")
     @Nonnull
@@ -99,7 +100,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
         this.hiveConfDir = hiveConfDir;
-        this.hiveVersion = null == hiveVersion ? "3.1.2" : hiveVersion;
+        this.hiveVersion = null == hiveVersion ? HIVE_VERSION : hiveVersion;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
