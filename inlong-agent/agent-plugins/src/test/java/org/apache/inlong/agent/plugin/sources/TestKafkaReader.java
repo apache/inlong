@@ -17,10 +17,21 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Reader;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.MockConsumer;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+import org.apache.kafka.common.TopicPartition;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +41,27 @@ public class TestKafkaReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestKafkaReader.class);
 
     @Test
+    public void testKafkaConsumerInit() {
+        MockConsumer mockConsumer = new MockConsumer(OffsetResetStrategy.EARLIEST);
+        final String topic = "my_topic";
+
+        mockConsumer.assign(Arrays.asList(new TopicPartition(topic, 0)));
+        HashMap<TopicPartition, Long> beginningOffsets = new HashMap<>();
+        beginningOffsets.put(new TopicPartition(topic, 0), 0L);
+        mockConsumer.updateBeginningOffsets(beginningOffsets);
+
+        mockConsumer.addRecord(new ConsumerRecord<>(topic,
+                0, 0L, "mykey", "myvalue0"));
+        ConsumerRecords<String, String> records = mockConsumer.poll(Duration.ofMillis(1000));
+        Iterator<ConsumerRecord<String, String>> iterator = records.iterator();
+        while (iterator.hasNext()) {
+            ConsumerRecord<String, String> record = iterator.next();
+            byte[] recordValue = record.value().getBytes(StandardCharsets.UTF_8);
+            Assert.assertArrayEquals("myvalue0".getBytes(StandardCharsets.UTF_8), recordValue);
+        }
+    }
+
+//    @Test
     public void testKafkaReader() {
         KafkaSource kafkaSource = new KafkaSource();
         JobProfile conf = JobProfile.parseJsonStr("{}");
