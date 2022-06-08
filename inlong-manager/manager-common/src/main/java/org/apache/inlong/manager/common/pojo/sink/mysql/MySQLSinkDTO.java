@@ -42,7 +42,7 @@ import java.util.Map;
 public class MySQLSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger log = LoggerFactory.getLogger(MySQLSinkDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
     private String jdbcUrl;
@@ -77,16 +77,14 @@ public class MySQLSinkDTO {
     }
 
     /**
-     *  get dto from json
-     * @param extParams extParams
-     * @return MySQL sink DTO
+     * Get MySQL sink info from JSON string
      */
     public static MySQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, MySQLSinkDTO.class);
         } catch (Exception e) {
-            log.error("Fetch MySQLSinkDTO failed from extParams", e);
+            LOGGER.error("fetch mysql sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }
