@@ -144,10 +144,12 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
+        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant()) ? InlongGroupSettings.DEFAULT_PULSAR_TENANT
+                : pulsarCluster.getTenant();
         streamInfoList.forEach(streamInfo -> {
             PulsarSource pulsarSource = new PulsarSource();
             String streamId = streamInfo.getInlongStreamId();
-            pulsarSource.setTenant(pulsarCluster.getTenant());
+            pulsarSource.setTenant(tenant);
             pulsarSource.setSourceName(streamId);
             pulsarSource.setNamespace(groupInfo.getMqResource());
             pulsarSource.setTopic(streamInfo.getMqResource());
