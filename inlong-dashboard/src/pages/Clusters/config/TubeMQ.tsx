@@ -19,4 +19,16 @@
 
 import type { ClsConfigItemType } from './types';
 
-export const DataProxy: ClsConfigItemType[] = [];
+export const TubeMQ: ClsConfigItemType[] = [
+  {
+    type: 'input',
+    label: 'MasterUrl',
+    name: 'url',
+    rules: [{ required: true }],
+  },
+  {
+    type: 'input',
+    label: 'Token',
+    name: 'token',
+  },
+];

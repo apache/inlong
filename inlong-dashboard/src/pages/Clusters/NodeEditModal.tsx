@@ -56,7 +56,7 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     const submitData = {
       ...values,
       type,
-      parentId: savedData.parentId || clusterId,
+      parentId: savedData?.parentId || clusterId,
       // inCharges: values.inCharges?.join(','),
     };
     if (isUpdate) {

@@ -21,8 +21,9 @@ import React from 'react';
 import i18n from '@/i18n';
 import StaffSelect from '@/components/StaffSelect';
 import type { ClsConfigItemType, ClsTableItemType } from './types';
-import { Pulsar } from './Pulsar';
 import { DataProxy } from './DataProxy';
+import { Pulsar } from './Pulsar';
+import { TubeMQ } from './TubeMQ';
 
 export interface ClusterItemType {
   label: string;
@@ -41,6 +42,11 @@ export const Clusters: ClusterItemType[] = [
     label: 'Pulsar',
     value: 'PULSAR',
     config: Pulsar,
+  },
+  {
+    label: 'TubeMQ',
+    value: 'TUBE',
+    config: TubeMQ,
   },
 ].map(item => {
   const defaultConfig: ClsConfigItemType[] = [
