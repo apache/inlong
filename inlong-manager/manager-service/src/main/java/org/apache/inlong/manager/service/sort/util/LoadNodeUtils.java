@@ -119,7 +119,7 @@ public class LoadNodeUtils {
     public static KafkaLoadNode createLoadNode(KafkaSink kafkaSink) {
         String id = kafkaSink.getSinkName();
         String name = kafkaSink.getSinkName();
-        List<SinkField> fieldList = kafkaSink.getFieldList();
+        List<SinkField> fieldList = kafkaSink.getSinkFieldList();
         List<FieldInfo> fieldInfos = fieldList.stream()
                 .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, name))
                 .collect(Collectors.toList());
@@ -174,7 +174,7 @@ public class LoadNodeUtils {
     public static HiveLoadNode createLoadNode(HiveSink hiveSink) {
         String id = hiveSink.getSinkName();
         String name = hiveSink.getSinkName();
-        List<SinkField> fieldList = hiveSink.getFieldList();
+        List<SinkField> fieldList = hiveSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -213,7 +213,7 @@ public class LoadNodeUtils {
     public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink) {
         String id = hbaseSink.getSinkName();
         String name = hbaseSink.getSinkName();
-        List<SinkField> fieldList = hbaseSink.getFieldList();
+        List<SinkField> fieldList = hbaseSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -244,7 +244,7 @@ public class LoadNodeUtils {
      * Create load node of PostgreSQL.
      */
     public static PostgresLoadNode createLoadNode(PostgresSink postgresSink) {
-        List<SinkField> fieldList = postgresSink.getFieldList();
+        List<SinkField> fieldList = postgresSink.getSinkFieldList();
         String name = postgresSink.getSinkName();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
@@ -272,7 +272,7 @@ public class LoadNodeUtils {
      * Create load node of ClickHouse.
      */
     public static ClickHouseLoadNode createLoadNode(ClickHouseSink ckSink) {
-        List<SinkField> sinkFields = ckSink.getFieldList();
+        List<SinkField> sinkFields = ckSink.getSinkFieldList();
         String name = ckSink.getSinkName();
         List<FieldInfo> fields = sinkFields.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
@@ -302,7 +302,7 @@ public class LoadNodeUtils {
         String id = icebergSink.getSinkName();
         String name = icebergSink.getSinkName();
         CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
-        List<SinkField> sinkFields = icebergSink.getFieldList();
+        List<SinkField> sinkFields = icebergSink.getSinkFieldList();
         List<FieldInfo> fields = sinkFields.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -334,7 +334,7 @@ public class LoadNodeUtils {
     public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
         final String id = sqlServerSink.getSinkName();
         final String name = sqlServerSink.getSinkName();
-        final List<SinkField> fieldList = sqlServerSink.getFieldList();
+        final List<SinkField> fieldList = sqlServerSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -366,7 +366,7 @@ public class LoadNodeUtils {
     public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink) {
         final String id = elasticsearchSink.getSinkName();
         final String name = elasticsearchSink.getSinkName();
-        final List<SinkField> fieldList = elasticsearchSink.getFieldList();
+        final List<SinkField> fieldList = elasticsearchSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -399,7 +399,7 @@ public class LoadNodeUtils {
     public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
         String id = hdfsSink.getSinkName();
         String name = hdfsSink.getSinkName();
-        List<SinkField> fieldList = hdfsSink.getFieldList();
+        List<SinkField> fieldList = hdfsSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -436,7 +436,7 @@ public class LoadNodeUtils {
     public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink) {
         String id = greenplumSink.getSinkName();
         String name = greenplumSink.getSinkName();
-        List<SinkField> fieldList = greenplumSink.getFieldList();
+        List<SinkField> fieldList = greenplumSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -466,7 +466,7 @@ public class LoadNodeUtils {
     public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink) {
         String id = mysqlSink.getSinkName();
         String name = mysqlSink.getSinkName();
-        List<SinkField> fieldList = mysqlSink.getFieldList();
+        List<SinkField> fieldList = mysqlSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());

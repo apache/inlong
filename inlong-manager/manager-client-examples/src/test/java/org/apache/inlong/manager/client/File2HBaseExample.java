@@ -142,7 +142,7 @@ public class File2HBaseExample extends BaseExample {
         fields.add(field1);
         fields.add(field2);
         fields.add(field3);
-        sink.setFieldList(fields);
+        sink.setSinkFieldList(fields);
         return sink;
     }
 }

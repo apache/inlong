@@ -305,7 +305,7 @@ class Kafka2HiveTest extends BaseTest {
                                                 .creator("admin")
                                                 .modifier("admin")
                                                 .dataFormat(DataFormat.NONE)
-                                                .fieldList(Lists.newArrayList(
+                                                .sinkFieldList(Lists.newArrayList(
                                                         SinkField.builder()
                                                                 .id(17)
                                                                 .fieldName("age")

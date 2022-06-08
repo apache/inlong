@@ -158,7 +158,7 @@ public class BaseTest {
         hiveSink.setFileFormat(FileFormat.TextFile.name());
         hiveSink.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
         hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
-        hiveSink.setFieldList(Lists.newArrayList(
+        hiveSink.setSinkFieldList(Lists.newArrayList(
                 new SinkField(0, FieldType.INT.toString(), "age", FieldType.INT.toString(), "age"),
                 new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name")
         ));

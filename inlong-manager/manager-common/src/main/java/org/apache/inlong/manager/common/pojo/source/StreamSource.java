@@ -27,11 +27,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * Stream source info, including source name, agent ip, etc.
@@ -102,9 +100,6 @@ public abstract class StreamSource extends StreamNode {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
-
-    @ApiModelProperty("Field list")
-    private List<StreamField> fieldList;
 
     public SourceRequest genSourceRequest() {
         return null;

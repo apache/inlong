@@ -147,7 +147,7 @@ public class ClickHouseSinkOperation implements StreamSinkOperation {
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
                 SinkField::new);
-        response.setFieldList(infos);
+        response.setSinkFieldList(infos);
 
         return response;
     }

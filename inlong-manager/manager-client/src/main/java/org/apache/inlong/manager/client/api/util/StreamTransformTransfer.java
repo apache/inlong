@@ -59,8 +59,8 @@ public class StreamTransformTransfer {
         if (CollectionUtils.isNotEmpty(streamTransform.getPostNodes())) {
             transformRequest.setPostNodeNames(Joiner.on(",").join(streamTransform.getPostNodes()));
         }
-        if (CollectionUtils.isNotEmpty(streamTransform.getFields())) {
-            transformRequest.setFieldList(streamTransform.getFields());
+        if (CollectionUtils.isNotEmpty(streamTransform.getFieldList())) {
+            transformRequest.setFieldList(streamTransform.getFieldList());
         }
         return transformRequest;
     }
@@ -90,7 +90,7 @@ public class StreamTransformTransfer {
             streamTransform.setPostNodes(Sets.newHashSet(postNodes));
         }
         if (CollectionUtils.isNotEmpty(transformResponse.getFieldList())) {
-            streamTransform.setFields(transformResponse.getFieldList());
+            streamTransform.setFieldList(transformResponse.getFieldList());
         }
         return streamTransform;
     }

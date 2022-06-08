@@ -143,7 +143,7 @@ public class MySQLSinkOperation implements StreamSinkOperation {
         StreamSink response = this.getFromEntity(entity, MySQLSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
-        response.setFieldList(infos);
+        response.setSinkFieldList(infos);
         return response;
     }
 
