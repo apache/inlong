@@ -35,6 +35,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -54,6 +55,7 @@ import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -104,6 +106,8 @@ public class LoadNodeUtils {
                 return createLoadNode((HdfsSink) streamSink);
             case GREENPLUM:
                 return createLoadNode((GreenplumSink) streamSink);
+            case MYSQL:
+                return createLoadNode((MySQLSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -454,6 +458,36 @@ public class LoadNodeUtils {
                 greenplumSink.getPassword(),
                 greenplumSink.getTableName(),
                 greenplumSink.getPrimaryKey());
+    }
+
+    /**
+     * Create load node of MySQL.
+     */
+    public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink) {
+        String id = mysqlSink.getSinkName();
+        String name = mysqlSink.getSinkName();
+        List<SinkField> fieldList = mysqlSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = mysqlSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new MySqlLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                Lists.newArrayList(),
+                null,
+                null,
+                properties,
+                mysqlSink.getJdbcUrl(),
+                mysqlSink.getUsername(),
+                mysqlSink.getPassword(),
+                mysqlSink.getTableName(),
+                mysqlSink.getPrimaryKey());
     }
 
     /**
