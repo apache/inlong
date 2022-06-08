@@ -147,6 +147,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         streamInfoList.forEach(streamInfo -> {
             PulsarSource pulsarSource = new PulsarSource();
             String streamId = streamInfo.getInlongStreamId();
+            pulsarSource.setTenant(pulsarCluster.getTenant());
             pulsarSource.setSourceName(streamId);
             pulsarSource.setNamespace(groupInfo.getMqResource());
             pulsarSource.setTopic(streamInfo.getMqResource());
