@@ -466,7 +466,7 @@ public class LoadNodeUtils {
     public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink) {
         String id = mysqlSink.getSinkName();
         String name = mysqlSink.getSinkName();
-        List<SinkField> fieldList = mysqlSink.getFieldList();
+        List<SinkField> fieldList = mysqlSink.getSinkFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
