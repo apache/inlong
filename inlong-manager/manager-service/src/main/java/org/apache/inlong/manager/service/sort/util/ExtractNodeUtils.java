@@ -231,7 +231,8 @@ public class ExtractNodeUtils {
         List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        String topic = pulsarSource.getTopic();
+        String fullTopicName =
+                pulsarSource.getTenant() + "/" + pulsarSource.getNamespace() + "/" + pulsarSource.getTopic();
 
         Format format;
         DataTypeEnum dataType = DataTypeEnum.forName(pulsarSource.getSerializationType());
@@ -269,7 +270,7 @@ public class ExtractNodeUtils {
                 fieldInfos,
                 null,
                 Maps.newHashMap(),
-                topic,
+                fullTopicName,
                 adminUrl,
                 serviceUrl,
                 format,

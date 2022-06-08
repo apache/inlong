@@ -43,7 +43,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Pulsar tenant")
-    private String tenant = "default";
+    private String tenant = "public";
 
     @ApiModelProperty("Pulsar namespace")
     private String namespace;
