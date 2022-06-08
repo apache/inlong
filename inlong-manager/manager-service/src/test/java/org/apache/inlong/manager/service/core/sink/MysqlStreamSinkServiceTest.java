@@ -21,8 +21,8 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -39,11 +39,11 @@ import java.util.List;
  */
 public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_binlog";
-    private static final String globalStreamId = "stream1_binlog";
+    private static final String globalGroupId = "b_group1_mysql";
+    private static final String globalStreamId = "stream1_mysql";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "hdfs_field";
-    private static final String fieldType = "hdfs_type";
+    private static final String fieldName = "mysql_field";
+    private static final String fieldType = "mysql_type";
     private static final Integer fieldId = 1;
 
     @Autowired
@@ -55,15 +55,14 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
      * Save sink info.
      */
     public Integer saveSink(String sinkName) {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId,
-                globalOperator);
-        MysqlSinkRequest sinkInfo = new MysqlSinkRequest();
+        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.SINK_MYSQL);
 
         sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/database");
-        sinkInfo.setUsername("binlog");
+        sinkInfo.setUsername("mysql");
         sinkInfo.setPassword("inlong");
         sinkInfo.setTableName("user");
         sinkInfo.setPrimaryKey("name,age");
@@ -81,34 +80,34 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Delete binlog sink info by sink id.
+     * Delete MySQL sink info by sink id.
      */
-    public void deleteBinlogSink(Integer binlogSinkId) {
-        boolean result = sinkService.delete(binlogSinkId, globalOperator);
+    public void deleteMySQLSink(Integer mysqlSinkId) {
+        boolean result = sinkService.delete(mysqlSinkId, globalOperator);
         Assert.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer binlogSinkId = this.saveSink("binlog_default1");
-        StreamSink sink = sinkService.get(binlogSinkId);
+        Integer mysqlSinkId = this.saveSink("mysql_default1");
+        StreamSink sink = sinkService.get(mysqlSinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteBinlogSink(binlogSinkId);
+        deleteMySQLSink(mysqlSinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer binlogSinkId = this.saveSink("binlog_default2");
-        StreamSink response = sinkService.get(binlogSinkId);
+        Integer mysqlSinkId = this.saveSink("mysql_default2");
+        StreamSink response = sinkService.get(mysqlSinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        MysqlSink mysqlSink = (MysqlSink) response;
+        MySQLSink mysqlSink = (MySQLSink) response;
         mysqlSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
-        MysqlSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
-                MysqlSinkRequest::new);
+        MySQLSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
+                MySQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
-        deleteBinlogSink(binlogSinkId);
+        deleteMySQLSink(mysqlSinkId);
     }
 
 }

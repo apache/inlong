@@ -35,7 +35,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MysqlSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -107,7 +107,7 @@ public class LoadNodeUtils {
             case GREENPLUM:
                 return createLoadNode((GreenplumSink) streamSink);
             case MYSQL:
-                return createLoadNode((MysqlSink) streamSink);
+                return createLoadNode((MySQLSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -461,9 +461,9 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create load node of Mysql.
+     * Create load node of MySQL.
      */
-    public static MySqlLoadNode createLoadNode(MysqlSink mysqlSink) {
+    public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink) {
         String id = mysqlSink.getSinkName();
         String name = mysqlSink.getSinkName();
         List<SinkField> fieldList = mysqlSink.getFieldList();
