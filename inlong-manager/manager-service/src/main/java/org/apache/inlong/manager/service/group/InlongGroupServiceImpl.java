@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
+    private static final Integer MAX_PAGE_SIZE = 100;
 
     @Autowired
     private InlongGroupOperatorFactory groupOperatorFactory;
@@ -166,6 +167,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     public PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request) {
+        if (request.getPageSize() > MAX_PAGE_SIZE) {
+            LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
+            request.setPageSize(MAX_PAGE_SIZE);
+        }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
