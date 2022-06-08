@@ -253,7 +253,7 @@ public class TopicServiceImpl implements TopicService {
             generateOffsetInfo(offsetPerBroker, topicInfo, res);
         }
 
-        result.setData(gson.toJson(allBrokersOffsetRes));
+        result.setData(allBrokersOffsetRes);
         return result;
     }
 

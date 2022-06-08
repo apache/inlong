@@ -62,6 +62,7 @@ public class TubeConst {
     public static final String QUERY_CAN_WRITE = "queryCanWrite";
     public static final String FILTER_CONDITION = "filterCondition";
     public static final String FLOW_CONTROL = "flowControl";
+    public static final String BATCH_DELETE = "batchDelete";
 
 
     /**
