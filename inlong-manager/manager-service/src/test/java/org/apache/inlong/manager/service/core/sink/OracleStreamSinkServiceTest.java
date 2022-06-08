@@ -62,7 +62,7 @@ public class OracleStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setSinkType(SinkType.SINK_ORACLE);
 
         sinkInfo.setJdbcUrl("jdbc:oracle://host:port/database");
-        sinkInfo.setUsername("postgres");
+        sinkInfo.setUsername("oracle");
         sinkInfo.setPassword("inlong");
         sinkInfo.setTableName("user");
         sinkInfo.setPrimaryKey("name,age");
