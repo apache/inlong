@@ -40,7 +40,7 @@ public class StreamNode {
 
     protected Set<String> postNodes;
 
-    protected List<StreamField> fields;
+    protected List<StreamField> fieldList;
 
     public void addPre(String pre) {
         Preconditions.checkNotEmpty(pre, "Pre node should not be empty");

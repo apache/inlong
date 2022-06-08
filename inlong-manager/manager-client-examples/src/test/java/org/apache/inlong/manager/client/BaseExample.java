@@ -135,7 +135,7 @@ public class BaseExample {
         SinkField field2 = new SinkField(1, FieldType.STRING.toString(), "name", FieldType.STRING.toString(), "name");
         fields.add(field1);
         fields.add(field2);
-        hiveSink.setFieldList(fields);
+        hiveSink.setSinkFieldList(fields);
         hiveSink.setTableName("{table.name}");
         hiveSink.setSinkName("{hive.sink.name}");
         return hiveSink;

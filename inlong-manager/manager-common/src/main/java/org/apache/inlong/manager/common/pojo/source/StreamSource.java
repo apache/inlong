@@ -103,9 +103,6 @@ public abstract class StreamSource extends StreamNode {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty("Field list")
-    private List<StreamField> fieldList;
-
     public SourceRequest genSourceRequest() {
         return null;
     }

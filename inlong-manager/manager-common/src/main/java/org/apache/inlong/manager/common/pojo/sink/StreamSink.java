@@ -108,7 +108,7 @@ public abstract class StreamSink extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkField> fieldList = Lists.newArrayList();
+    private List<SinkField> sinkFieldList = Lists.newArrayList();
 
     @ApiModelProperty("Properties for sink")
     private Map<String, Object> properties = Maps.newHashMap();

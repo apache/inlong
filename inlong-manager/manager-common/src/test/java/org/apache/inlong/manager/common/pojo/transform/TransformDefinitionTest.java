@@ -69,9 +69,9 @@ public class TransformDefinitionTest {
     public void testJoinerDefinition() {
         List<StreamField> streamFields = createStreamFields();
         StreamNode leftNode = new BlankStreamNode();
-        leftNode.setFields(streamFields);
+        leftNode.setFieldList(streamFields);
         StreamNode rightNode = new BlankStreamNode();
-        rightNode.setFields(streamFields);
+        rightNode.setFieldList(streamFields);
         JoinerDefinition joinerDefinition = new JoinerDefinition(leftNode, rightNode, streamFields, streamFields,
                 JoinMode.INNER_JOIN);
         String definitionJson = gson.toJson(joinerDefinition);

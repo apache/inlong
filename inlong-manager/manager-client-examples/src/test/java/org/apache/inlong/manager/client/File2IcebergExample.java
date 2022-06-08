@@ -152,7 +152,7 @@ public class File2IcebergExample extends BaseExample {
         fields.add(field2);
         fields.add(field3);
         fields.add(field4);
-        sink.setFieldList(fields);
+        sink.setSinkFieldList(fields);
         return sink;
     }
 }
