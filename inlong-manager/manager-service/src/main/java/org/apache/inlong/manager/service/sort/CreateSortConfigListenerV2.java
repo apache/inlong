@@ -23,11 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.enums.DataTypeEnum;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -37,7 +39,7 @@ import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
 import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
@@ -68,12 +70,10 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
 
     @Autowired
     private StreamSourceService sourceService;
-
     @Autowired
     private StreamSinkService sinkService;
-
     @Autowired
-    private CommonOperateService commonOperateService;
+    private InlongClusterService clusterService;
 
     @Override
     public TaskEvent event() {
@@ -105,6 +105,9 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return ListenerResult.success();
     }
 
+    /**
+     * TODO need support TubeMQ
+     */
     private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         String groupId = groupInfo.getInlongGroupId();
         List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
@@ -125,26 +128,33 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return new GroupInfo(groupId, streamInfos);
     }
 
-    private Map<String, List<StreamSource>> createPulsarSources(InlongGroupInfo groupInfo,
-            List<InlongStreamInfo> streamInfoList) {
-        MQType mqType = MQType.forType(groupInfo.getMqType());
-        if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported mqType={%s}", mqType);
+    private Map<String, List<StreamSource>> createPulsarSources(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+
+        if (!MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
+            String errMsg = String.format("Unsupported MQ type %s", groupInfo.getMqType());
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
+
         Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
-        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+        InlongClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
+                ClusterType.CLS_PULSAR);
+
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        String adminUrl = pulsarCluster.getAdminUrl();
+        String serviceUrl = pulsarCluster.getUrl();
         streamInfoList.forEach(streamInfo -> {
             PulsarSource pulsarSource = new PulsarSource();
-            pulsarSource.setSourceName(streamInfo.getInlongStreamId());
+            String streamId = streamInfo.getInlongStreamId();
+            pulsarSource.setSourceName(streamId);
             pulsarSource.setNamespace(groupInfo.getMqResource());
             pulsarSource.setTopic(streamInfo.getMqResource());
-            pulsarSource.setAdminUrl(pulsarCluster.getAdminUrl());
-            pulsarSource.setServiceUrl(pulsarCluster.getBrokerServiceUrl());
+            pulsarSource.setAdminUrl(adminUrl);
+            pulsarSource.setServiceUrl(serviceUrl);
             pulsarSource.setInlongComponent(true);
-            List<StreamSource> sourceInfos = sourceService.listSource(groupInfo.getInlongGroupId(),
-                    streamInfo.getInlongStreamId());
+
+            List<StreamSource> sourceInfos = sourceService.listSource(groupInfo.getInlongGroupId(), streamId);
             for (StreamSource sourceInfo : sourceInfos) {
                 if (StringUtils.isEmpty(pulsarSource.getSerializationType())
                         && StringUtils.isNotEmpty(sourceInfo.getSerializationType())) {
@@ -159,8 +169,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             }
             pulsarSource.setScanStartupMode(PulsarScanStartupMode.EARLIEST.getValue());
             pulsarSource.setFieldList(streamInfo.getFieldList());
-            sourceMap.computeIfAbsent(streamInfo.getInlongStreamId(), key -> Lists.newArrayList())
-                    .add(pulsarSource);
+            sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);
         });
         return sourceMap;
     }

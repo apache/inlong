@@ -26,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -41,10 +42,12 @@ import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.core.operation.InlongStreamProcessOperation;
+import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,15 +65,17 @@ import java.util.Objects;
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
-
     @Autowired
     private SinkOperationFactory operationFactory;
     @Autowired
-    private CommonOperateService commonOperateService;
+    private GroupCheckService groupCheckService;
     @Autowired
     private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
+    @Autowired
+    private AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private InlongStreamProcessOperation streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -80,7 +85,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // Check if it can be added
         String groupId = request.getInlongGroupId();
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         // Make sure that there is no sink info with the current groupId and streamId
         String streamId = request.getInlongStreamId();
@@ -192,7 +197,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         String streamId = request.getInlongStreamId();
         String sinkName = request.getSinkName();
         String sinkType = request.getSinkType();
-        InlongGroupEntity groupEntity = commonOperateService.checkGroupStatus(groupId, operator);
+        final InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         // Check whether the sink name exists with the same groupId and streamId
         List<StreamSinkEntity> sinkList = sinkMapper.selectByRelatedId(groupId, streamId, sinkName);
@@ -214,9 +219,14 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // The inlong group status is [Configuration successful], then asynchronously initiate
         // the [Single inlong stream resource creation] workflow
-//        if (EntityStatus.GROUP_CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
-//            executorService.execute(new WorkflowStartRunnable(operator, groupEntity, streamId));
-//        }
+        if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
+            // To work around the circular reference check we manually instantiate and wire
+            if (streamProcessOperation == null) {
+                streamProcessOperation = new InlongStreamProcessOperation();
+                autowireCapableBeanFactory.autowireBean(streamProcessOperation);
+            }
+            streamProcessOperation.startProcess(groupId, streamId, operator, true);
+        }
         LOGGER.info("success to update sink info: {}", request);
         return true;
     }
@@ -239,7 +249,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        commonOperateService.checkGroupStatus(entity.getInlongGroupId(), operator);
+        groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         entity.setPreviousStatus(entity.getStatus());
         entity.setStatus(GlobalConstants.DELETED_STATUS);
@@ -261,7 +271,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         Date now = new Date();
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
@@ -290,7 +300,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
         // Check if it can be deleted
-        commonOperateService.checkGroupStatus(groupId, operator);
+        groupCheckService.checkGroupStatus(groupId, operator);
 
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {

@@ -101,6 +101,7 @@ public class JobProfileDto {
         FileJob.Dir dir = new FileJob.Dir();
         dir.setPattern(fileJobTaskConfig.getPattern());
         fileJob.setDir(dir);
+        fileJob.setCollectType(fileJobTaskConfig.getCollectType());
 
         if (fileJobTaskConfig.getTimeOffset() != null) {
             fileJob.setTimeOffset(fileJobTaskConfig.getTimeOffset());

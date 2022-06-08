@@ -19,6 +19,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Modal, message } from 'antd';
+import { Link } from 'react-router-dom';
 import i18n from '@/i18n';
 import HighTable from '@/components/HighTable';
 import { PageContainer } from '@/components/PageContainer';
@@ -141,9 +142,14 @@ const Comp: React.FC = () => {
         {
           title: i18n.t('basic.Operating'),
           dataIndex: 'action',
-          width: 120,
+          width: 200,
           render: (text, record) => (
             <>
+              {record.type === 'DATA_PROXY' && (
+                <Link to={`/clusters/node?type=${record.type}&clusterId=${record.id}`}>
+                  {i18n.t('pages.Clusters.Node.Name')}
+                </Link>
+              )}
               <Button type="link" onClick={() => onEdit(record)}>
                 {i18n.t('basic.Edit')}
               </Button>

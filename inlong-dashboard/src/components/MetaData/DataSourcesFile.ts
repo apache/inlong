@@ -35,6 +35,7 @@ export const getDataSourcesFileFields = (
         {
           pattern: rulesPattern.ip,
           message: i18n.t('components.AccessHelper.DataSourceMetaData.File.IpRule'),
+          required: true,
         },
       ],
       _inTable: true,

@@ -301,6 +301,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     /**
      * According to groupId and topic, stitch the full path of Pulsar Topic
+     * TODO: save full topic of Pulsar in consumption info
      */
     private String getFullPulsarTopic(String groupId, String topic) {
         InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);

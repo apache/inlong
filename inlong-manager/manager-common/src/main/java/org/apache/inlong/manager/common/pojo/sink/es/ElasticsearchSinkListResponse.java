@@ -58,4 +58,13 @@ public class ElasticsearchSinkListResponse extends SinkListResponse {
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
 
+    @ApiModelProperty("Document Type")
+    private String documentType;
+
+    @ApiModelProperty("Primary Key")
+    private String primaryKey;
+
+    @ApiModelProperty("version")
+    private Integer version;
+
 }

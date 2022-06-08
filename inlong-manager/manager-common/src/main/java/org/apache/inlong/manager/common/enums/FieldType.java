@@ -42,7 +42,7 @@ public enum FieldType {
     public static FieldType forName(String name) {
         Preconditions.checkNotNull(name, "FieldType should not be null");
         for (FieldType value : values()) {
-            if (value.toString().equals(name)) {
+            if (value.toString().equalsIgnoreCase(name)) {
                 return value;
             }
         }

@@ -15,18 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.tubemq;
+package org.apache.inlong.manager.common.enums;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
- * The response info of tube manager.
+ * Enum of data compress.
  */
-@Data
-public class TubeManagerResponse {
+public enum CompressFormat {
 
-    private boolean result;
-    private int errCode;
-    private String errMsg;
+    NONE("none"),
+    DEFLATE("deflate"),
+    GZIP("gzip"),
+    BZIP2("bzip2"),
+    LZ4("lz4"),
+    SNAPPY("snappy");
+
+    @Getter
+    private final String name;
+
+    CompressFormat(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Get data compress format by name.
+     */
+    public static CompressFormat forName(String name) {
+        for (CompressFormat compressFormat : values()) {
+            if (compressFormat.getName().equalsIgnoreCase(name)) {
+                return compressFormat;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupport CompressionFormat:%s", name));
+    }
 
 }

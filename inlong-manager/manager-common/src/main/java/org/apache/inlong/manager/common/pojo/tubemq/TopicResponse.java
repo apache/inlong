@@ -15,25 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.pojo.dataproxy;
+package org.apache.inlong.manager.common.pojo.tubemq;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
 
+/**
+ * Topic view of TubeMQ
+ */
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class PulsarClusterInfo {
+public class TopicResponse {
 
-    private String type;
-    private String adminUrl;
-    private String token;
-    private String brokerServiceUrl;
-    private Map<String, String> ext;
+    private int errCode;
+    private String errMsg;
+
+    // total topic info list
+    private List<TopicInfo> data;
+
+    private int dataCount;
+
+    @Data
+    public static class TopicInfo {
+
+        private String topicName;
+        private int totalCfgBrokerCnt;
+        private int totalCfgNumPart;
+        private int totalRunNumPartCount;
+        private boolean isSrvAcceptPublish;
+        private boolean isSrvAcceptSubscribe;
+        private boolean enableAuthControl;
+    }
 
 }

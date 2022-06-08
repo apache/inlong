@@ -33,10 +33,11 @@ import org.springframework.util.Assert;
 import java.lang.reflect.UndeclaredThrowableException;
 
 /**
- * Transaction Helper
+ * Transaction Helper, now deprecated because we use @Transactional instead
  */
 @Slf4j
 @Service
+@Deprecated
 public class TransactionHelper {
 
     @Autowired

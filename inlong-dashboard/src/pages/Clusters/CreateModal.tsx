@@ -20,23 +20,20 @@
 import React, { useMemo } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
-import { State } from '@/models';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useRequest, useUpdateEffect, useSelector } from '@/hooks';
+import { useRequest, useUpdateEffect } from '@/hooks';
 import request from '@/utils/request';
 import { Clusters } from './config';
+import i18n from '@/i18n';
 
 export interface Props extends ModalProps {
-  // 类型
   type: string;
-  // 编辑时需传
+  // Require when edit
   id?: string;
 }
 
 const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   const [form] = useForm();
-
-  const { userName } = useSelector<State, State>(state => state);
 
   const { run: getData } = useRequest(
     id => ({
@@ -54,7 +51,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     },
   );
 
-  const onOk = async e => {
+  const onOk = async () => {
     const values = await form.validateFields();
     const isUpdate = id;
     const submitData = {
@@ -72,17 +69,15 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       data: submitData,
     });
     await modalProps?.onOk(submitData);
-    message.success('保存成功');
+    message.success(i18n.t('basic.OperatingSuccess'));
   };
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
-      form.resetFields(); // 注意会导致表单重新mount发起select的请求
+      form.resetFields();
       if (id) {
         getData(id);
-      } else {
-        userName && type === 'dbsync' && form.setFieldsValue({ inCharges: [userName] });
       }
     }
   }, [modalProps.visible]);
@@ -93,7 +88,11 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   }, [type]);
 
   return (
-    <Modal {...modalProps} title={`${id ? '编辑' : '新建'}集群`} onOk={onOk}>
+    <Modal
+      {...modalProps}
+      title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
+      onOk={onOk}
+    >
       <FormGenerator content={content} form={form} useMaxWidth />
     </Modal>
   );

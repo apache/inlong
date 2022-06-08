@@ -27,11 +27,15 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -44,10 +48,14 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
+import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
+import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
+import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -73,7 +81,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create node of data load.
+     * Create load node from the stream sink info.
      */
     public static LoadNode createLoadNode(StreamSink streamSink) {
         SinkType sinkType = SinkType.forType(streamSink.getSinkType());
@@ -92,20 +100,25 @@ public class LoadNodeUtils {
                 return createLoadNode((IcebergSink) streamSink);
             case SQLSERVER:
                 return createLoadNode((SqlServerSink) streamSink);
+            case ELASTICSEARCH:
+                return createLoadNode((ElasticsearchSink) streamSink);
+            case HDFS:
+                return createLoadNode((HdfsSink) streamSink);
+            case GREENPLUM:
+                return createLoadNode((GreenplumSink) streamSink);
+            case MYSQL:
+                return createLoadNode((MySQLSink) streamSink);
             default:
-                throw new IllegalArgumentException(
-                        String.format("Unsupported sinkType=%s to create loadNode", sinkType));
+                throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
     }
 
     /**
-     * Create node of data load about kafka.
+     * Create load node of Kafka.
      */
     public static KafkaLoadNode createLoadNode(KafkaSink kafkaSink) {
         String id = kafkaSink.getSinkName();
         String name = kafkaSink.getSinkName();
-        String topicName = kafkaSink.getTopicName();
-        String bootstrapServers = kafkaSink.getBootstrapServers();
         List<SinkField> fieldList = kafkaSink.getFieldList();
         List<FieldInfo> fieldInfos = fieldList.stream()
                 .map(field -> FieldInfoUtils.parseSinkFieldInfo(field, name))
@@ -136,33 +149,31 @@ public class LoadNodeUtils {
                 format = new DebeziumJsonFormat();
                 break;
             default:
-                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for kafka source", dataType));
+                throw new IllegalArgumentException(String.format("Unsupported dataType=%s for Kafka", dataType));
         }
-        String primaryKey = kafkaSink.getPrimaryKey();
-        return new KafkaLoadNode(id,
+
+        return new KafkaLoadNode(
+                id,
                 name,
                 fieldInfos,
                 fieldRelations,
                 Lists.newArrayList(),
                 null,
-                topicName,
-                bootstrapServers,
+                kafkaSink.getTopicName(),
+                kafkaSink.getBootstrapServers(),
                 format,
                 sinkParallelism,
                 properties,
-                primaryKey);
+                kafkaSink.getPrimaryKey()
+        );
     }
 
     /**
-     * Create node of data load about hive.
+     * Create load node of Hive.
      */
     public static HiveLoadNode createLoadNode(HiveSink hiveSink) {
         String id = hiveSink.getSinkName();
         String name = hiveSink.getSinkName();
-        String database = hiveSink.getDbName();
-        String tableName = hiveSink.getTableName();
-        String hiveConfDir = hiveSink.getHiveConfDir();
-        String hiveVersion = hiveSink.getHiveVersion();
         List<SinkField> fieldList = hiveSink.getFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
@@ -173,9 +184,9 @@ public class LoadNodeUtils {
         List<FieldInfo> partitionFields = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(hiveSink.getPartitionFieldList())) {
             partitionFields = hiveSink.getPartitionFieldList().stream()
-                    .map(hivePartitionField -> new FieldInfo(hivePartitionField.getFieldName(), name,
-                            FieldInfoUtils.convertFieldFormat(hivePartitionField.getFieldType(),
-                                    hivePartitionField.getFieldFormat()))).collect(Collectors.toList());
+                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), name,
+                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
+                                    partitionField.getFieldFormat()))).collect(Collectors.toList());
         }
         return new HiveLoadNode(
                 id,
@@ -187,17 +198,17 @@ public class LoadNodeUtils {
                 null,
                 properties,
                 null,
-                database,
-                tableName,
-                hiveConfDir,
-                hiveVersion,
+                hiveSink.getDbName(),
+                hiveSink.getTableName(),
+                hiveSink.getHiveConfDir(),
+                hiveSink.getHiveVersion(),
                 null,
                 partitionFields
         );
     }
 
     /**
-     * Create hbase load node from response.
+     * Create load node of HBase.
      */
     public static HbaseLoadNode createLoadNode(HBaseSink hbaseSink) {
         String id = hbaseSink.getSinkName();
@@ -230,7 +241,7 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create postgres load node
+     * Create load node of PostgreSQL.
      */
     public static PostgresLoadNode createLoadNode(PostgresSink postgresSink) {
         List<SinkField> fieldList = postgresSink.getFieldList();
@@ -239,17 +250,26 @@ public class LoadNodeUtils {
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
-        return new PostgresLoadNode(postgresSink.getSinkName(),
-                postgresSink.getSinkName(),
-                fields, fieldRelations, null, null, 1,
-                null, postgresSink.getJdbcUrl(), postgresSink.getUsername(),
+
+        return new PostgresLoadNode(
+                name,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                1,
+                null,
+                postgresSink.getJdbcUrl(),
+                postgresSink.getUsername(),
                 postgresSink.getPassword(),
                 postgresSink.getDbName() + "." + postgresSink.getTableName(),
-                postgresSink.getPrimaryKey());
+                postgresSink.getPrimaryKey()
+        );
     }
 
     /**
-     * Create ClickHouse load node
+     * Create load node of ClickHouse.
      */
     public static ClickHouseLoadNode createLoadNode(ClickHouseSink ckSink) {
         List<SinkField> sinkFields = ckSink.getFieldList();
@@ -258,27 +278,30 @@ public class LoadNodeUtils {
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
         List<FieldRelation> fieldRelations = parseSinkFields(sinkFields, name);
-        return new ClickHouseLoadNode(name, name,
-                fields, fieldRelations, null, null, 1,
-                null, ckSink.getTableName(),
+
+        return new ClickHouseLoadNode(
+                name,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                1,
+                null,
+                ckSink.getTableName(),
                 ckSink.getJdbcUrl(),
                 ckSink.getUsername(),
-                ckSink.getPassword());
+                ckSink.getPassword()
+        );
     }
 
     /**
-     * Create iceberg load node
+     * Create load node of Iceberg.
      */
     public static IcebergLoadNode createLoadNode(IcebergSink icebergSink) {
         String id = icebergSink.getSinkName();
         String name = icebergSink.getSinkName();
-        String dbName = icebergSink.getDbName();
-        String tableName = icebergSink.getTableName();
-        String uri = icebergSink.getCatalogUri();
-        String warehouse = icebergSink.getWarehouse();
-        String primaryKey = icebergSink.getPrimaryKey();
         CatalogType catalogType = CatalogType.forName(icebergSink.getCatalogType());
-
         List<SinkField> sinkFields = icebergSink.getFieldList();
         List<FieldInfo> fields = sinkFields.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
@@ -286,26 +309,31 @@ public class LoadNodeUtils {
         List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
         Map<String, String> properties = icebergSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
         return new IcebergLoadNode(
-                id, name, fields, fieldRelationShips, null, null, 1, properties,
-                dbName, tableName, primaryKey, catalogType, uri, warehouse);
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                1,
+                properties,
+                icebergSink.getDbName(),
+                icebergSink.getTableName(),
+                icebergSink.getPrimaryKey(),
+                catalogType,
+                icebergSink.getCatalogUri(),
+                icebergSink.getWarehouse()
+        );
     }
 
     /**
-     * Create SqlServer load node based on SqlServerSink
-     *
-     * @param sqlServerSink SqlServer sink info
-     * @return SqlServer load node info
+     * Create load node of SqlServer.
      */
     public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
         final String id = sqlServerSink.getSinkName();
         final String name = sqlServerSink.getSinkName();
-        final String primaryKey = sqlServerSink.getPrimaryKey();
-        final String jdbcUrl = sqlServerSink.getJdbcUrl();
-        final String userName = sqlServerSink.getUsername();
-        final String password = sqlServerSink.getPassword();
-        final String schemaName = sqlServerSink.getSchemaName();
-        final String tablename = sqlServerSink.getTableName();
         final List<SinkField> fieldList = sqlServerSink.getFieldList();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
@@ -313,6 +341,7 @@ public class LoadNodeUtils {
         List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
         Map<String, String> properties = sqlServerSink.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
         return new SqlServerLoadNode(
                 id,
                 name,
@@ -322,13 +351,143 @@ public class LoadNodeUtils {
                 null,
                 null,
                 properties,
-                jdbcUrl,
-                userName,
-                password,
-                schemaName,
-                tablename,
-                primaryKey
+                sqlServerSink.getJdbcUrl(),
+                sqlServerSink.getUsername(),
+                sqlServerSink.getPassword(),
+                sqlServerSink.getSchemaName(),
+                sqlServerSink.getTableName(),
+                sqlServerSink.getPrimaryKey()
         );
+    }
+
+    /**
+     * Create Elasticsearch load node
+     */
+    public static ElasticsearchLoadNode createLoadNode(ElasticsearchSink elasticsearchSink) {
+        final String id = elasticsearchSink.getSinkName();
+        final String name = elasticsearchSink.getSinkName();
+        final List<SinkField> fieldList = elasticsearchSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = elasticsearchSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new ElasticsearchLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                null,
+                properties,
+                elasticsearchSink.getIndexName(),
+                elasticsearchSink.getHost(),
+                elasticsearchSink.getUsername(),
+                elasticsearchSink.getPassword(),
+                elasticsearchSink.getDocumentType(),
+                elasticsearchSink.getPrimaryKey(),
+                elasticsearchSink.getVersion()
+        );
+    }
+
+    /**
+     * Create load node of HDFS.
+     */
+    public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
+        String id = hdfsSink.getSinkName();
+        String name = hdfsSink.getSinkName();
+        List<SinkField> fieldList = hdfsSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = hdfsSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        List<FieldInfo> partitionFields = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(hdfsSink.getPartitionFieldList())) {
+            partitionFields = hdfsSink.getPartitionFieldList().stream()
+                    .map(partitionField -> new FieldInfo(partitionField.getFieldName(), name,
+                            FieldInfoUtils.convertFieldFormat(partitionField.getFieldType(),
+                                    partitionField.getFieldFormat())))
+                    .collect(Collectors.toList());
+        }
+
+        return new FileSystemLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                Lists.newArrayList(),
+                hdfsSink.getDataPath(),
+                hdfsSink.getFileFormat(),
+                null,
+                properties,
+                partitionFields,
+                hdfsSink.getServerTimeZone()
+        );
+    }
+
+    /**
+     * Create greenplum load node
+     */
+    public static GreenplumLoadNode createLoadNode(GreenplumSink greenplumSink) {
+        String id = greenplumSink.getSinkName();
+        String name = greenplumSink.getSinkName();
+        List<SinkField> fieldList = greenplumSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = greenplumSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new GreenplumLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                null,
+                null,
+                1,
+                properties,
+                greenplumSink.getJdbcUrl(),
+                greenplumSink.getUsername(),
+                greenplumSink.getPassword(),
+                greenplumSink.getTableName(),
+                greenplumSink.getPrimaryKey());
+    }
+
+    /**
+     * Create load node of MySQL.
+     */
+    public static MySqlLoadNode createLoadNode(MySQLSink mysqlSink) {
+        String id = mysqlSink.getSinkName();
+        String name = mysqlSink.getSinkName();
+        List<SinkField> fieldList = mysqlSink.getFieldList();
+        List<FieldInfo> fields = fieldList.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelations = parseSinkFields(fieldList, name);
+        Map<String, String> properties = mysqlSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new MySqlLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelations,
+                Lists.newArrayList(),
+                null,
+                null,
+                properties,
+                mysqlSink.getJdbcUrl(),
+                mysqlSink.getUsername(),
+                mysqlSink.getPassword(),
+                mysqlSink.getTableName(),
+                mysqlSink.getPrimaryKey());
     }
 
     /**

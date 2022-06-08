@@ -65,6 +65,15 @@ public class ElasticsearchSink extends StreamSink {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
+    @ApiModelProperty("Document Type")
+    private String documentType;
+
+    @ApiModelProperty("Primary Key")
+    private String primaryKey;
+
+    @ApiModelProperty("version")
+    private Integer version;
+
     public ElasticsearchSink() {
         this.setSinkType(SinkType.SINK_ELASTICSEARCH);
     }

@@ -63,6 +63,15 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
 
+    @ApiModelProperty("Document Type")
+    private String documentType;
+
+    @ApiModelProperty("Primary Key")
+    private String primaryKey;
+
+    @ApiModelProperty("version")
+    private Integer version;
+
     @ApiModelProperty("Sink filed info")
     private List<SinkField> fieldList;
 

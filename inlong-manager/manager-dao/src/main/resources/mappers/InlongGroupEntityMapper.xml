@@ -183,6 +183,7 @@
             </if>
         </where>
         order by modify_time desc
+        limit 100
     </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">

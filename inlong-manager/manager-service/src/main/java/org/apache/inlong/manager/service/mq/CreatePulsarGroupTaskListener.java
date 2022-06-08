@@ -18,18 +18,21 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mq.util.PulsarOptService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -49,17 +52,15 @@ import java.util.List;
 public class CreatePulsarGroupTaskListener implements QueueOperateListener {
 
     @Autowired
-    private CommonOperateService commonOperateService;
-    @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
+    @Autowired
+    private InlongClusterService clusterService;
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private PulsarOptService pulsarOptService;
+    private PulsarOperator pulsarOperator;
 
     @Override
     public TaskEvent event() {
@@ -69,8 +70,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-
-        String groupId = form.getInlongGroupId();
+        final String groupId = form.getInlongGroupId();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         if (groupInfo == null) {
             log.error("inlong group not found with groupId={}", groupId);
@@ -78,36 +78,42 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
         }
 
         // For Pulsar, each Stream corresponds to a Topic
-        List<InlongStreamEntity> streamEntities = streamMapper.selectByGroupId(groupId);
-        if (streamEntities == null || streamEntities.isEmpty()) {
+        List<InlongStreamBriefInfo> streamInfo = streamService.getTopicList(groupId);
+        if (streamInfo == null || streamInfo.isEmpty()) {
             log.warn("inlong stream is empty for groupId={}, skip to create pulsar subscription", groupId);
             return ListenerResult.success();
         }
-        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
-            String tenant = clusterBean.getDefaultTenant();
+
+        String clusterTag = groupInfo.getInlongClusterTag();
+        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_PULSAR);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
+            String tenant = pulsarCluster.getTenant();
+            if (StringUtils.isEmpty(tenant)) {
+                tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+            }
             String namespace = groupInfo.getMqResource();
 
-            for (InlongStreamEntity streamEntity : streamEntities) {
+            for (InlongStreamBriefInfo stream : streamInfo) {
                 PulsarTopicBean topicBean = new PulsarTopicBean();
                 topicBean.setTenant(tenant);
                 topicBean.setNamespace(namespace);
-                String topic = streamEntity.getMqResource();
+                String topic = stream.getMqResource();
                 topicBean.setTopicName(topic);
 
                 // Create a subscription in the Pulsar cluster you need to ensure that the Topic exists
                 try {
-                    boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
+                    boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topic);
                     if (!exist) {
                         String topicFull = tenant + "/" + namespace + "/" + topic;
-                        String serviceUrl = pulsarClusterInfo.getAdminUrl();
+                        String serviceUrl = pulsarCluster.getAdminUrl();
                         log.error("topic={} not exists in {}", topicFull, serviceUrl);
                         throw new WorkflowListenerException("topic=" + topicFull + " not exists in " + serviceUrl);
                     }
 
-                    // Consumer naming rules: sortAppName_topicName_consumer_group
-                    String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-                    pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
+                    // Consumer naming rules: clusterTag_topicName_consumer_group
+                    String subscription = clusterTag + "_" + topic + "_consumer_group";
+                    pulsarOperator.createSubscription(pulsarAdmin, topicBean, subscription);
 
                     // Insert the consumption data into the consumption table
                     consumptionService.saveSortConsumption(groupInfo, topic, subscription);

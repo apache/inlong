@@ -78,15 +78,15 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     private static final Gson GSON = new Gson();
 
     @Autowired
+    private InlongGroupEntityMapper groupMapper;
+    @Autowired
+    private InlongStreamEntityMapper streamMapper;
+    @Autowired
     private InlongClusterOperatorFactory clusterOperatorFactory;
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
     @Autowired
     private InlongClusterNodeEntityMapper clusterNodeMapper;
-    @Autowired
-    private InlongGroupEntityMapper groupMapper;
-    @Autowired
-    private InlongStreamEntityMapper streamMapper;
     @Autowired
     private DataProxyConfigRepository proxyRepository;
 
@@ -133,17 +133,30 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
 
-        List<InlongClusterInfo> list = new ArrayList<>(entityPage.getResult().size());
-        for (InlongClusterEntity entity : entityPage) {
-            InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
-            InlongClusterInfo clusterInfo = instance.getFromEntity(entity);
-            list.add(clusterInfo);
-        }
-
+        List<InlongClusterInfo> list = entityPage.stream()
+                .map(entity -> {
+                    InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
+                    return instance.getFromEntity(entity);
+                }).collect(Collectors.toList());
         PageInfo<InlongClusterInfo> page = new PageInfo<>(list);
         page.setTotal(list.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
         return page;
+    }
+
+    @Override
+    public InlongClusterInfo getOne(String clusterTag, String name, String type) {
+        List<InlongClusterEntity> entityList = clusterMapper.selectByKey(clusterTag, name, type);
+        if (CollectionUtils.isEmpty(entityList)) {
+            throw new BusinessException(String.format("cluster not found by tag=%s, name=%s, type=%s",
+                    clusterTag, name, type));
+        }
+
+        InlongClusterEntity entity = entityList.get(0);
+        InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
+        InlongClusterInfo result = instance.getFromEntity(entity);
+        LOGGER.debug("success to get inlong cluster by tag={}, name={}, type={}", clusterTag, name, type);
+        return result;
     }
 
     @Override

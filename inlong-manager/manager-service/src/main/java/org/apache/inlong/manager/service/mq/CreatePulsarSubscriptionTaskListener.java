@@ -18,19 +18,20 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.mq.util.PulsarOptService;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
@@ -49,11 +50,9 @@ import java.util.List;
 public class CreatePulsarSubscriptionTaskListener implements QueueOperateListener {
 
     @Autowired
-    private CommonOperateService commonOperateService;
+    private InlongClusterService clusterService;
     @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
-    private PulsarOptService pulsarOptService;
+    private PulsarOperator pulsarOperator;
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
@@ -71,10 +70,11 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        final String namespace = groupInfo.getMqResource();
-        final String topic = streamInfo.getMqResource();
-        PulsarClusterInfo pulsarClusterInfo = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
+
+        String clusterTag = groupInfo.getInlongClusterTag();
+        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_PULSAR);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             // Query data sink info based on groupId and streamId
             List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
             if (sinkTypeList == null || sinkTypeList.size() == 0) {
@@ -82,38 +82,36 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
                         groupId, streamId);
                 return ListenerResult.success();
             }
-            String tenant = clusterBean.getDefaultTenant();
+
+            String tenant = pulsarCluster.getTenant();
+            String namespace = groupInfo.getMqResource();
+            String topic = streamInfo.getMqResource();
             PulsarTopicBean topicBean = new PulsarTopicBean();
             topicBean.setTenant(tenant);
             topicBean.setNamespace(namespace);
             topicBean.setTopicName(topic);
 
             // Create a subscription in the Pulsar cluster, you need to ensure that the Topic exists
-            try {
-                boolean exist = pulsarOptService.topicIsExists(pulsarAdmin, tenant, namespace, topic);
-                if (!exist) {
-                    String fullTopic = tenant + "/" + namespace + "/" + topic;
-                    String serviceUrl = pulsarClusterInfo.getAdminUrl();
-                    log.error("topic={} not exists in {}", fullTopic, serviceUrl);
-                    throw new BusinessException("topic=" + fullTopic + " not exists in " + serviceUrl);
-                }
-
-                // Consumer naming rules: sortAppName_topicName_consumer_group
-                String subscription = clusterBean.getAppName() + "_" + topic + "_consumer_group";
-                pulsarOptService.createSubscription(pulsarAdmin, topicBean, subscription);
-
-                // Insert the consumption data into the consumption table
-                consumptionService.saveSortConsumption(groupInfo, topic, subscription);
-            } catch (Exception e) {
-                log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
-                throw new WorkflowListenerException("create pulsar subscription error, reason: " + e.getMessage());
+            boolean exist = pulsarOperator.topicIsExists(pulsarAdmin, tenant, namespace, topic);
+            if (!exist) {
+                String fullTopic = tenant + "/" + namespace + "/" + topic;
+                String msg = String.format("topic=%s not exists in %s", fullTopic, pulsarCluster.getAdminUrl());
+                log.error(msg);
+                throw new BusinessException(msg);
             }
+
+            // Consumer naming rules: clusterTag_topicName_consumer_group
+            String subscription = clusterTag + "_" + topic + "_consumer_group";
+            pulsarOperator.createSubscription(pulsarAdmin, topicBean, subscription);
+
+            // Insert the consumption data into the consumption table
+            consumptionService.saveSortConsumption(groupInfo, topic, subscription);
         } catch (Exception e) {
-            log.error("create pulsar subscription error for groupId={}, streamId={}", groupId, streamId, e);
-            throw new WorkflowListenerException("create pulsar subscription error, reason: " + e.getMessage());
+            log.error("failed to create pulsar subscription for groupId=" + groupId + " streamId=" + streamId, e);
+            throw new WorkflowListenerException("failed to create pulsar subscription: " + e.getMessage());
         }
 
-        log.info("finish to create single pulsar subscription for groupId={}, streamId={}", groupId, streamId);
+        log.info("success to create pulsar subscription for groupId={}, streamId={}", groupId, streamId);
         return ListenerResult.success();
     }
 

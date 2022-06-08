@@ -18,25 +18,20 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.ReTryConfigBean;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeConsumeGroupRequest.GroupNameJsonSetBean;
-import org.apache.inlong.manager.common.pojo.tubemq.QueryTubeTopicRequest;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.mq.util.TubeMqOptService;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.mq.util.TubeMQOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 
 /**
  * Event listener of create tube consumer group.
@@ -46,14 +41,11 @@ import java.util.Collections;
 public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
     @Autowired
-    InlongGroupService groupService;
-
+    private InlongGroupEntityMapper groupMapper;
     @Autowired
-    TubeMqOptService tubeMqOptService;
+    private InlongClusterService clusterService;
     @Autowired
-    ReTryConfigBean reTryConfigBean;
-    @Autowired
-    private CommonOperateService commonOperateService;
+    private TubeMQOperator tubeMQOperator;
 
     @Override
     public TaskEvent event() {
@@ -64,52 +56,27 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        log.info("try to create consumer group for groupId {}", groupId);
+        log.info("begin to create tube consumer group for groupId {}", groupId);
 
-        InlongGroupInfo groupInfo = groupService.get(groupId);
-        String topicName = groupInfo.getMqResource();
-        int clusterId = Integer.parseInt(commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_CLUSTER_ID));
-        QueryTubeTopicRequest queryTubeTopicRequest = QueryTubeTopicRequest.builder()
-                .topicName(topicName).clusterId(clusterId)
-                .user(groupInfo.getCreator()).build();
-        // Query whether the tube topic exists
-        boolean topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        String clusterTag = groupEntity.getInlongClusterTag();
+        TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
 
-        Integer tryNumber = reTryConfigBean.getMaxAttempts();
-        Long delay = reTryConfigBean.getDelay();
-        while (!topicExist && --tryNumber > 0) {
-            log.info("check whether the tube topic exists, try count={}", tryNumber);
-            try {
-                Thread.sleep(delay);
-                delay *= reTryConfigBean.getMultiplier();
-                topicExist = tubeMqOptService.queryTopicIsExist(queryTubeTopicRequest);
-            } catch (InterruptedException e) {
-                log.error("check the tube topic exists error", e);
-            }
-        }
-
-        AddTubeConsumeGroupRequest addTubeConsumeGroupRequest = new AddTubeConsumeGroupRequest();
-        addTubeConsumeGroupRequest.setClusterId(clusterId);
-        addTubeConsumeGroupRequest.setCreateUser(groupInfo.getCreator());
-
-        GroupNameJsonSetBean groupNameJsonSetBean = new GroupNameJsonSetBean();
-        groupNameJsonSetBean.setTopicName(topicName);
-        String consumeGroupName = "sort_" + topicName + "_group";
-        groupNameJsonSetBean.setGroupName(consumeGroupName);
-        addTubeConsumeGroupRequest.setGroupNameJsonSet(Collections.singletonList(groupNameJsonSetBean));
-
+        String topicName = groupEntity.getMqResource();
+        // Consumer naming rules: clusterTag_topicName_consumer_group
+        String consumeGroup = clusterTag + "_" + topicName + "_consumer_group";
         try {
-            tubeMqOptService.createNewConsumerGroup(addTubeConsumeGroupRequest);
+            tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, context.getOperator());
         } catch (Exception e) {
             throw new WorkflowListenerException("create tube consumer group for groupId=" + groupId + " error", e);
         }
-        log.info("finish to create consumer group for {}", groupId);
+        log.info("finish to create tube consumer group for groupId={}", groupId);
         return ListenerResult.success();
     }
 
     @Override
     public boolean async() {
-        return true;
+        return false;
     }
 
 }

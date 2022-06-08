@@ -96,6 +96,13 @@ const routes: RouteProps[] = [
     path: '/clusters',
     component: () => import('@/pages/Clusters'),
     exact: true,
+    childRoutes: [
+      {
+        path: '/node',
+        component: () => import('@/pages/Clusters/NodeManage'),
+        exact: true,
+      },
+    ],
   },
   {
     component: () => import('@/pages/Error/404'),

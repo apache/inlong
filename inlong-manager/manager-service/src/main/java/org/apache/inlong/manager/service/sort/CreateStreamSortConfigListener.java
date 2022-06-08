@@ -22,11 +22,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -36,7 +38,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
-import org.apache.inlong.manager.service.CommonOperateService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
 import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
@@ -70,7 +72,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
     @Autowired
     private StreamSinkService streamSinkService;
     @Autowired
-    private CommonOperateService commonOperateService;
+    private InlongClusterService clusterService;
 
     @Override
     public TaskEvent event() {
@@ -119,22 +121,28 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
     }
 
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
-        MQType mqType = MQType.forType(groupInfo.getMqType());
-        if (mqType != MQType.PULSAR) {
-            String errMsg = String.format("Unsupported mqType={%s}", mqType);
+        if (!MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
+            String errMsg = String.format("Unsupported MQ type %s", groupInfo.getMqType());
             log.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
-        PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
+
         PulsarSource pulsarSource = new PulsarSource();
-        pulsarSource.setSourceName(streamInfo.getInlongStreamId());
+        String streamId = streamInfo.getInlongStreamId();
+        pulsarSource.setSourceName(streamId);
         pulsarSource.setNamespace(groupInfo.getMqResource());
         pulsarSource.setTopic(streamInfo.getMqResource());
-        pulsarSource.setAdminUrl(pulsarCluster.getAdminUrl());
-        pulsarSource.setServiceUrl(pulsarCluster.getBrokerServiceUrl());
+
+        InlongClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
+                ClusterType.CLS_PULSAR);
+        PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+        String adminUrl = pulsarCluster.getAdminUrl();
+        String serviceUrl = pulsarCluster.getUrl();
+
+        pulsarSource.setAdminUrl(adminUrl);
+        pulsarSource.setServiceUrl(serviceUrl);
         pulsarSource.setInlongComponent(true);
-        List<StreamSource> sources = streamSourceService.listSource(groupInfo.getInlongGroupId(),
-                streamInfo.getInlongStreamId());
+        List<StreamSource> sources = streamSourceService.listSource(groupInfo.getInlongGroupId(), streamId);
         for (StreamSource source : sources) {
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())
                     && StringUtils.isNotEmpty(source.getSerializationType())) {
