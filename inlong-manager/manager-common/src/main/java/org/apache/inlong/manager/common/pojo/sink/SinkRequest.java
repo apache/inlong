@@ -74,7 +74,7 @@ public class SinkRequest {
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkField> fieldList;
+    private List<SinkField> sinkFieldList;
 
     @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = Maps.newHashMap();

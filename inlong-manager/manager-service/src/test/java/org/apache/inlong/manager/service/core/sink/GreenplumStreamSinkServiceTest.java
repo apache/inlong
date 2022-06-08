@@ -75,7 +75,7 @@ public class GreenplumStreamSinkServiceTest extends ServiceBaseTest {
         sinkField.setId(fieldId);
         List<SinkField> sinkFieldList = new ArrayList<>();
         sinkFieldList.add(sinkField);
-        sinkInfo.setFieldList(sinkFieldList);
+        sinkInfo.setSinkFieldList(sinkFieldList);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

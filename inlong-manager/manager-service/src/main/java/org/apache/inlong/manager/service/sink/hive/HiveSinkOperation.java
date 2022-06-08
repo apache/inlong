@@ -80,7 +80,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
         Preconditions.checkTrue(SinkType.SINK_HIVE.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
-        LoadNodeUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
+        LoadNodeUtils.checkPartitionField(hiveRequest.getSinkFieldList(), hiveRequest.getPartitionFieldList());
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(hiveRequest, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
@@ -107,7 +107,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkField> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save hive field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -187,7 +187,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         HiveSinkRequest hiveRequest = (HiveSinkRequest) request;
-        LoadNodeUtils.checkPartitionField(hiveRequest.getFieldList(), hiveRequest.getPartitionFieldList());
+        LoadNodeUtils.checkPartitionField(hiveRequest.getSinkFieldList(), hiveRequest.getPartitionFieldList());
         CommonBeanUtils.copyProperties(hiveRequest, entity, true);
         try {
             HiveSinkDTO dto = HiveSinkDTO.getFromRequest(hiveRequest);
@@ -211,7 +211,7 @@ public class HiveSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkField> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getSinkFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }

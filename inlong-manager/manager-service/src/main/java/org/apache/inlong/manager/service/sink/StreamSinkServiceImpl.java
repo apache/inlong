@@ -101,7 +101,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         // According to the sink type, save sink information
         StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
-        List<SinkField> fields = request.getFieldList();
+        List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
             fields.stream().forEach(sinkField -> sinkField.setId(null));
@@ -208,7 +208,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 throw new BusinessException(String.format(err, sinkName, groupId, streamId));
             }
         }
-        List<SinkField> fields = request.getFieldList();
+        List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
             fields.stream().forEach(sinkField -> sinkField.setId(null));
