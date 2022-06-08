@@ -39,7 +39,7 @@ const menus: MenuItemType[] = [
     name: i18n.t('configs.menus.Clusters'),
   },
   {
-    path: '/approvals',
+    path: '/audit',
     name: i18n.t('configs.menus.ApprovalManagement'),
   },
   // {

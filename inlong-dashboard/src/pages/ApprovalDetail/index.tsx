@@ -60,20 +60,16 @@ const workflowFormat = (applicant, startEvent, taskHistory = []) => {
   return data;
 };
 
+const titleNameMap = {
+  applies: i18n.t('pages.ApprovalDetail.Requisition'),
+  approvals: i18n.t('pages.ApprovalDetail.WaitingForApproval'),
+};
+
 const Comp: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
-  const { id } = useParams<{ id: string }>();
-
-  const titleNameMap = {
-    Applies: i18n.t('pages.ApprovalDetail.Requisition'),
-    Approvals: i18n.t('pages.ApprovalDetail.WaitingForApproval'),
-  };
-
-  const actived = useMemo<string>(() => parse(location.search.slice(1))?.actived, [
-    location.search,
-  ]);
+  const { id, type } = useParams<Record<string, string>>();
 
   const taskId = useMemo<string>(() => parse(location.search.slice(1))?.taskId, [location.search]);
 
@@ -105,7 +101,7 @@ const Comp: React.FC = () => {
       method: 'POST',
       data: submitData,
     });
-    history.push('/approvals?actived=Approvals');
+    history.push('/audit/approvals');
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
@@ -121,7 +117,7 @@ const Comp: React.FC = () => {
             remark,
           },
         });
-        history.push('/approvals?actived=Approvals');
+        history.push('/audit/approvals');
         message.success(i18n.t('pages.ApprovalDetail.RejectSuccess'));
       },
     });
@@ -139,7 +135,7 @@ const Comp: React.FC = () => {
             remark: '',
           },
         });
-        history.push('/approvals?actived=Applies');
+        history.push('/audit/applies');
         message.success(i18n.t('pages.ApprovalDetail.RevokeSuccess'));
       },
     });
@@ -154,21 +150,21 @@ const Comp: React.FC = () => {
 
   const Footer = () => (
     <>
-      {actived === 'Approvals' && currentTask?.status === 'PENDING' && (
+      {type === 'approvals' && currentTask?.status === 'PENDING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button type="primary" onClick={onApprove}>
             {i18n.t('pages.ApprovalDetail.Ok')}
           </Button>
           <Button onClick={onReject}>{i18n.t('pages.ApprovalDetail.Reject')}</Button>
-          <Button onClick={() => history.push('/approvals?actived=Approvals')}>
+          <Button onClick={() => history.push('/audit/approvals')}>
             {i18n.t('pages.ApprovalDetail.Back')}
           </Button>
         </Space>
       )}
-      {actived === 'Applies' && processInfo?.status === 'PROCESSING' && (
+      {type === 'applies' && processInfo?.status === 'PROCESSING' && (
         <Space style={{ display: 'flex', justifyContent: 'center' }}>
           <Button onClick={onCancel}>{i18n.t('pages.ApprovalDetail.Withdraw')}</Button>
-          <Button onClick={() => history.push('/approvals?actived=Applies')}>
+          <Button onClick={() => history.push('/audit/applies')}>
             {i18n.t('pages.ApprovalDetail.Back')}
           </Button>
         </Space>
@@ -204,7 +200,7 @@ const Comp: React.FC = () => {
 
   const formProps = {
     defaultData: data,
-    isViwer: actived !== 'Approvals',
+    isViwer: type !== 'approvals',
     isAdminStep: currentTask?.name === 'ut_admin',
     isFinished,
     noExtraForm,
@@ -214,7 +210,7 @@ const Comp: React.FC = () => {
   return (
     <PageContainer
       breadcrumb={[
-        { name: `${titleNameMap[actived] || i18n.t('pages.ApprovalDetail.Process')}${id}` },
+        { name: `${titleNameMap[type] || i18n.t('pages.ApprovalDetail.Process')}${id}` },
       ]}
       useDefaultContainer={false}
     >

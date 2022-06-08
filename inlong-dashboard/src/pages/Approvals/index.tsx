@@ -18,28 +18,35 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Tabs, Card } from 'antd';
-import { parse } from 'qs';
+import { Card } from 'antd';
 import { PageContainer, Container } from '@/components/PageContainer';
 import { DashTotalRevert, DashPending, DashRejected, DashCancelled } from '@/components/Icons';
 import { DashboardCardList } from '@/components/DashboardCard';
-import { useRequest, useHistory, useLocation } from '@/hooks';
+import { useRequest, useHistory, useParams } from '@/hooks';
 import i18n from '@/i18n';
 import Applies, { activedName as AppliesActivedName } from './Applies';
 import Approvals, { activedName as ApprovalsActivedName } from './Approvals';
 
-const list = [
+const tabList = [
   {
-    label: i18n.t('pages.Approvals.MyApplication'),
-    value: AppliesActivedName,
+    tab: i18n.t('pages.Approvals.MyApplication'),
+    key: AppliesActivedName,
     content: <Applies />,
   },
   {
-    label: i18n.t('pages.Approvals.MyApproval'),
-    value: ApprovalsActivedName,
+    tab: i18n.t('pages.Approvals.MyApproval'),
+    key: ApprovalsActivedName,
     content: <Approvals />,
   },
 ];
+
+const tabListMap = tabList.reduce(
+  (acc, item) => ({
+    ...acc,
+    [item.key]: item.content,
+  }),
+  {},
+);
 
 const dashCardList = [
   {
@@ -66,9 +73,9 @@ const dashCardList = [
 
 const Comp: React.FC = () => {
   const history = useHistory();
-  const location = useLocation();
+  const { type } = useParams<Record<string, string>>();
 
-  const [actived, setActived] = useState(parse(location.search.slice(1))?.actived || list[0].value);
+  const [actived, setActived] = useState(type || tabList[0].key);
 
   const { data: summary = {} } = useRequest({
     url: '/workflow/processSummary',
@@ -77,7 +84,7 @@ const Comp: React.FC = () => {
   const onTabsChange = value => {
     setActived(value);
     history.push({
-      search: `?actived=${value}`,
+      pathname: `/audit/${value}`,
     });
   };
 
@@ -97,14 +104,16 @@ const Comp: React.FC = () => {
       </Container>
 
       <Container>
-        <Card>
-          <Tabs activeKey={actived} onChange={val => onTabsChange(val)}>
-            {list.map(item => (
-              <Tabs.TabPane tab={item.label} key={item.value}>
-                {item.content}
-              </Tabs.TabPane>
-            ))}
-          </Tabs>
+        <Card
+          tabList={tabList}
+          activeTabKey={actived}
+          onTabChange={key => {
+            onTabsChange(key);
+          }}
+          headStyle={{ border: 'none' }}
+          tabProps={{ size: 'middle' }}
+        >
+          {tabListMap[actived]}
         </Card>
       </Container>
     </PageContainer>

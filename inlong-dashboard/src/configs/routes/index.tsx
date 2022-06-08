@@ -21,7 +21,7 @@ import { pathToRegexp } from 'path-to-regexp';
 import type { RouteProps as ReactRouteProps } from 'react-router-dom';
 
 export interface RouteProps extends Omit<ReactRouteProps, 'component'> {
-  component: () => Promise<{ default: any }>;
+  component?: () => Promise<{ default: any }>;
   childRoutes?: RouteProps[];
 }
 
@@ -71,10 +71,21 @@ const routes: RouteProps[] = [
     ],
   },
   {
-    path: '/approvals',
-    component: () => import('@/pages/Approvals'),
+    path: '/audit',
     exact: true,
     childRoutes: [
+      {
+        path: '/:type?',
+        component: () => import('@/pages/Approvals'),
+        exact: true,
+        childRoutes: [
+          {
+            path: '/:id',
+            component: () => import('@/pages/ApprovalDetail'),
+            exact: true,
+          },
+        ],
+      },
       {
         path: '/detail/:id',
         component: () => import('@/pages/ApprovalDetail'),
