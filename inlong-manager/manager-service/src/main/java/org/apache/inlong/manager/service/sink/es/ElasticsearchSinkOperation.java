@@ -107,7 +107,7 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkField> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -210,7 +210,7 @@ public class ElasticsearchSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkField> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getSinkFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }
