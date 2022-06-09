@@ -26,6 +26,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -40,6 +42,7 @@ import java.util.Map;
 public class TDSQLPostgresSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgresSinkDTO.class);
 
     @ApiModelProperty("TDSQLPostgres JDBC URL")
     private String jdbcUrl;
@@ -50,8 +53,8 @@ public class TDSQLPostgresSinkDTO {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
+    @ApiModelProperty("Target schema name")
+    private String schemaName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
@@ -70,7 +73,7 @@ public class TDSQLPostgresSinkDTO {
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .dbName(request.getDbName())
+                .schemaName(request.getSchemaName())
                 .primaryKey(request.getPrimaryKey())
                 .tableName(request.getTableName())
                 .properties(request.getProperties())
@@ -78,15 +81,14 @@ public class TDSQLPostgresSinkDTO {
     }
 
     /**
-     *  get DTO from json
-     * @param extParams extParams
-     * @return TDSQLPostgres sink DTO
+     * Get TDSQLPostgres sink info from JSON string
      */
     public static TDSQLPostgresSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, TDSQLPostgresSinkDTO.class);
         } catch (Exception e) {
+            LOGGER.error("fetch tdsqlpostgres sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }

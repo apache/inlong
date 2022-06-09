@@ -105,7 +105,7 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
-        List<SinkField> fieldList = request.getFieldList();
+        List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
@@ -143,7 +143,7 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
         StreamSink response = this.getFromEntity(entity, TDSQLPostgresSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
-        response.setFieldList(infos);
+        response.setSinkFieldList(infos);
         return response;
     }
 
@@ -204,7 +204,7 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
     @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
-        List<SinkField> fieldRequestList = request.getFieldList();
+        List<SinkField> fieldRequestList = request.getSinkFieldList();
         if (CollectionUtils.isEmpty(fieldRequestList)) {
             return;
         }

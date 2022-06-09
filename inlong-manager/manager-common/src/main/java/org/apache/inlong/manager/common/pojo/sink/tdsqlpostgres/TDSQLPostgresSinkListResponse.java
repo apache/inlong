@@ -49,8 +49,8 @@ public class TDSQLPostgresSinkListResponse extends SinkListResponse {
     @ApiModelProperty("TDSQLPostgres jdbc url")
     private String jdbcUrl;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
+    @ApiModelProperty("Target schema name")
+    private String schemaName;
 
     @ApiModelProperty("Target table name")
     private String tableName;

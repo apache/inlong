@@ -65,7 +65,7 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/postgres");
         sinkInfo.setUsername("tdsqlpostgres");
         sinkInfo.setPassword("inlong");
-        sinkInfo.setDbName("public");
+        sinkInfo.setSchemaName("public");
         sinkInfo.setTableName("user");
         sinkInfo.setPrimaryKey("name,age");
 
@@ -77,7 +77,7 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
         sinkField.setId(fieldId);
         List<SinkField> sinkFieldList = new ArrayList<>();
         sinkFieldList.add(sinkField);
-        sinkInfo.setFieldList(sinkFieldList);
+        sinkInfo.setSinkFieldList(sinkFieldList);
         return sinkService.save(sinkInfo, globalOperator);
     }
 

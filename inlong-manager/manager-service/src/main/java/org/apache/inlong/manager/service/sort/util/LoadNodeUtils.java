@@ -554,7 +554,7 @@ public class LoadNodeUtils {
                 tdsqlPostgresSink.getJdbcUrl(),
                 tdsqlPostgresSink.getUsername(),
                 tdsqlPostgresSink.getPassword(),
-                tdsqlPostgresSink.getDbName() + "." + tdsqlPostgresSink.getTableName(),
+                tdsqlPostgresSink.getSchemaName() + "." + tdsqlPostgresSink.getTableName(),
                 tdsqlPostgresSink.getPrimaryKey());
     }
 

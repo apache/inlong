@@ -47,8 +47,8 @@ public class TDSQLPostgresSink extends StreamSink {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
+    @ApiModelProperty("Target schema name")
+    private String schemaName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
