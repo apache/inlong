@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_ORACLE)
 public class OracleSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle://host:port/database")
+    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle:thin://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")

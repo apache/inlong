@@ -45,7 +45,7 @@ public class OracleSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
-    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle://host:port/database")
+    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle:thin://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
