@@ -37,6 +37,13 @@ public enum FieldType {
     BOOLEAN,
     DATE,
     TIME,
+    INT8,
+    INT16,
+    INT32,
+    INT64,
+    FLOAT32,
+    FLOAT64,
+    DATETIME,
     TIMESTAMP;
 
     public static FieldType forName(String name) {
