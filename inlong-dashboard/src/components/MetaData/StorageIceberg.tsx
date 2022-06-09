@@ -286,7 +286,7 @@ const getForm: GetStorageFormFieldsType = (
       hidden: !currentValues?._showHigher,
     },
     {
-      name: 'fieldList',
+      name: 'sinkFieldList',
       type: EditableTable,
       props: {
         size: 'small',
