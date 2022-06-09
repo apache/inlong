@@ -25,7 +25,7 @@ on:
       - '.github/kind.yml'
       - 'docker/kubernetes/**'
       - '!docker/kubernetes/NOTES.txt'
-      - '!*.md'
+      - '!**.md'
 
   pull_request:
     paths:
@@ -34,7 +34,7 @@ on:
       - '.github/kind.yml'
       - 'docker/kubernetes/**'
       - '!docker/kubernetes/NOTES.txt'
-      - '!*.md'
+      - '!**.md'
 
 env:
   CT_CONFIG_PATH: '.github/ct.yml'
