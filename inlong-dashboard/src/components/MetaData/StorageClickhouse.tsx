@@ -249,7 +249,7 @@ const getForm: GetStorageFormFieldsType = (
       },
     },
     {
-      name: 'fieldList',
+      name: 'sinkFieldList',
       type: EditableTable,
       props: {
         size: 'small',
