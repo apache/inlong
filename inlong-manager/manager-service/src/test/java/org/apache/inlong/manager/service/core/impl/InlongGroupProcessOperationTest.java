@@ -25,12 +25,12 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperation;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
@@ -75,9 +75,9 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         before();
         WorkflowResult result = groupProcessOperation.startProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.PROCESSING);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.PROCESSING);
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
-        Assert.assertEquals(groupInfo.getStatus(), GroupStatus.TO_BE_APPROVAL.getCode());
+        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.TO_BE_APPROVAL.getCode());
     }
 
     // There will be concurrency problems in the overall operation, and the testDeleteProcess() method will call
@@ -94,9 +94,9 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
         WorkflowResult result = groupProcessOperation.suspendProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         groupInfo = groupService.get(GROUP_ID);
-        Assert.assertEquals(groupInfo.getStatus(), GroupStatus.SUSPENDED.getCode());
+        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.SUSPENDED.getCode());
     }
 
     // There will be concurrency problems in the overall operation, and the testDeleteProcess() method will call
@@ -105,9 +105,9 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         testSuspendProcess();
         WorkflowResult result = groupProcessOperation.restartProcess(GROUP_ID, OPERATOR);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         InlongGroupInfo groupInfo = groupService.get(GROUP_ID);
-        Assert.assertEquals(groupInfo.getStatus(), GroupStatus.RESTARTED.getCode());
+        Assertions.assertEquals(groupInfo.getStatus(), GroupStatus.RESTARTED.getCode());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class InlongGroupProcessOperationTest extends ServiceBaseTest {
         testStartProcess();
         // testRestartProcess();
         // boolean result = groupProcessOperation.deleteProcess(GROUP_ID, OPERATOR);
-        // Assert.assertTrue(result);
+        // Assertions.assertTrue(result);
     }
 }
 

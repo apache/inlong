@@ -36,8 +36,8 @@ import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -51,7 +51,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
     @Autowired
     private StreamSourceService streamSourceService;
 
-    @Before
+    @BeforeEach
     public void init() {
         subType = "DataSource";
     }
@@ -84,13 +84,13 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSource");
-        Assert.assertTrue(task instanceof ServiceTask);
+        Assertions.assertTrue(task instanceof ServiceTask);
         StreamSource streamSource = streamSourceService.get(sourceId);
-        Assert.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
+        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
     // @Test
@@ -114,11 +114,11 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
         WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("restartSource");
-        Assert.assertTrue(task instanceof ServiceTask);
+        Assertions.assertTrue(task instanceof ServiceTask);
     }
 
 }

@@ -29,8 +29,8 @@ import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -190,7 +190,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // delete cluster
         Boolean success = this.deleteCluster(id);
-        Assert.assertTrue(success);
+        Assertions.assertTrue(success);
     }
 
     @Test
@@ -211,7 +211,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         Integer port2 = 46801;
         Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
-        Assert.assertNotNull(nodeId2);
+        Assertions.assertNotNull(nodeId2);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
         List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(clusterTag, clusterName);

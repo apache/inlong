@@ -24,8 +24,8 @@ import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceReque
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -34,7 +34,7 @@ import java.util.Date;
 /**
  * Agent service test
  */
-public class AgentServiceTest extends ServiceBaseTest {
+class AgentServiceTest extends ServiceBaseTest {
 
     @Autowired
     private StreamSourceService sourceService;
@@ -60,7 +60,7 @@ public class AgentServiceTest extends ServiceBaseTest {
      * Test report snapshot.
      */
     @Test
-    public void testReportSnapshot() {
+    void testReportSnapshot() {
         Integer id = this.saveSource();
 
         TaskSnapshotRequest request = new TaskSnapshotRequest();
@@ -73,7 +73,7 @@ public class AgentServiceTest extends ServiceBaseTest {
         request.setSnapshotList(Collections.singletonList(message));
 
         Boolean result = agentService.reportSnapshot(request);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }

@@ -19,8 +19,8 @@ package org.apache.inlong.manager.common.pojo.stream;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Stream pipeline service test for check has circle.
@@ -36,9 +36,9 @@ public class StreamPipelineTest {
         streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("F"), Sets.newHashSet("G")));
         streamPipeline.addRelation(new StreamNodeRelation(Sets.newHashSet("E"), Sets.newHashSet("H", "C")));
         Pair<Boolean, Pair<String, String>> circleState = streamPipeline.hasCircle();
-        Assert.assertTrue(circleState.getLeft());
-        Assert.assertTrue(Sets.newHashSet("E","C").contains(circleState.getRight().getLeft()));
-        Assert.assertTrue(Sets.newHashSet("E","C").contains(circleState.getRight().getRight()));
+        Assertions.assertTrue(circleState.getLeft());
+        Assertions.assertTrue(Sets.newHashSet("E", "C").contains(circleState.getRight().getLeft()));
+        Assertions.assertTrue(Sets.newHashSet("E", "C").contains(circleState.getRight().getRight()));
     }
 
 }

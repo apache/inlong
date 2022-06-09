@@ -86,11 +86,11 @@ class InnerInlongManagerClientTest {
 
     @BeforeAll
     static void setup() {
-        wireMockServer = new WireMockServer(options().port(8084));
+        wireMockServer = new WireMockServer(options().port(8484));
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 
-        String serviceUrl = "127.0.0.1:8084";
+        String serviceUrl = "127.0.0.1:8484";
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);

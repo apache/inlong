@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.client.cli;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Command service test for {@link CommandToolMain}
@@ -37,12 +37,12 @@ public class TestCommand {
     // @Test
     public void testListGroup() {
         String[] arg = {"list", "group"};
-        Assert.assertTrue(inlongAdminTool.run(arg));
+        Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 
     // @Test
     public void testDescribeGroup() {
         String[] arg = {"describe", "group", "-g", "test", "-s", "130"};
-        Assert.assertTrue(inlongAdminTool.run(arg));
+        Assertions.assertTrue(inlongAdminTool.run(arg));
     }
 }

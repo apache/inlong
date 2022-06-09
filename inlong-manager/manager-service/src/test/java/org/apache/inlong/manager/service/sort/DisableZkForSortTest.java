@@ -42,8 +42,8 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.StandardCharsets;
@@ -65,7 +65,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     @Autowired
     protected StreamSourceService streamSourceService;
 
-    @Before
+    @BeforeEach
     public void init() {
         subType = "DisableZkFor";
     }
@@ -133,17 +133,17 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         WorkflowContext context = processService.start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("initSort");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(1, task.getNameToListenerMap().size());
+        Assertions.assertTrue(task instanceof ServiceTask);
+        Assertions.assertEquals(1, task.getNameToListenerMap().size());
 
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
+        Assertions.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
         ProcessForm form = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
-        Assert.assertEquals(1, curGroupRequest.getExtList().size());
+        Assertions.assertEquals(1, curGroupRequest.getExtList().size());
     }
 
     //    @Test
@@ -164,16 +164,16 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSort");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(2, task.getNameToListenerMap().size());
+        Assertions.assertTrue(task instanceof ServiceTask);
+        Assertions.assertEquals(2, task.getNameToListenerMap().size());
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
+        Assertions.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
         ProcessForm currentProcessForm = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) currentProcessForm).getGroupInfo();
-        Assert.assertEquals(1, curGroupRequest.getExtList().size());
+        Assertions.assertEquals(1, curGroupRequest.getExtList().size());
     }
 
 }

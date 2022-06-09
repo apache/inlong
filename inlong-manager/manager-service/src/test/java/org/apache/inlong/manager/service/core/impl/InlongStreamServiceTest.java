@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.core.impl;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
-import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,10 +71,10 @@ public class InlongStreamServiceTest {
         String groupId = "stream_service_test_group";
         String streamId = "stream_service_test_stream";
         Integer id = this.saveInlongStream(groupId, streamId, globalOperator);
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         boolean result = streamService.delete(groupId, streamId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test

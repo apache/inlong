@@ -23,9 +23,12 @@ import org.apache.inlong.manager.dao.mapper.SortSourceConfigEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.SortService;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +38,7 @@ import java.util.Map;
 /**
  * Sort service test for {@link SortService}
  */
+@TestMethodOrder(OrderAnnotation.class)
 public class SortServiceImplTest extends ServiceBaseTest {
 
     private static final String TEST_CLUSTER = "testCluster";
@@ -45,65 +49,70 @@ public class SortServiceImplTest extends ServiceBaseTest {
     private SortService sortService;
 
     @Test
+    @Order(1)
     @Transactional
     public void testSourceEmptyParams() {
         SortSourceConfigResponse response = sortService.getSourceConfig("", "", "");
         System.out.println(response.toString());
-        Assert.assertEquals(response.getCode(), -101);
-        Assert.assertNull(response.getMd5());
-        Assert.assertNull(response.getData());
-        Assert.assertNotNull(response.getMsg());
+        Assertions.assertEquals(response.getCode(), -101);
+        Assertions.assertNull(response.getMd5());
+        Assertions.assertNull(response.getData());
+        Assertions.assertNotNull(response.getMsg());
     }
 
     @Test
+    @Order(2)
     @Transactional
     public void testSourceCorrectParams() {
         SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
         JSONObject jo = new JSONObject(response);
         System.out.println(jo);
-        Assert.assertEquals(0, response.getCode());
-        Assert.assertNotNull(response.getData());
-        Assert.assertNotNull(response.getMd5());
-        Assert.assertNotNull(response.getMsg());
+        Assertions.assertEquals(0, response.getCode());
+        Assertions.assertNotNull(response.getData());
+        Assertions.assertNotNull(response.getMd5());
+        Assertions.assertNotNull(response.getMsg());
     }
 
     @Test
+    @Order(3)
     @Transactional
     public void testSourceSameMd5() {
         SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
         String md5 = response.getMd5();
         response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, md5);
         System.out.println(response);
-        Assert.assertEquals(1, response.getCode());
-        Assert.assertEquals(md5, response.getMd5());
-        Assert.assertNull(response.getData());
-        Assert.assertNotNull(response.getMsg());
+        Assertions.assertEquals(1, response.getCode());
+        Assertions.assertEquals(md5, response.getMd5());
+        Assertions.assertNull(response.getData());
+        Assertions.assertNotNull(response.getMsg());
     }
 
     @Test
+    @Order(4)
     @Transactional
     public void testSourceErrorClusterName() {
         SortSourceConfigResponse response = sortService.getSourceConfig("errCluster", "errTask", "");
         System.out.println(response.toString());
-        Assert.assertEquals(response.getCode(), -101);
-        Assert.assertNull(response.getMd5());
-        Assert.assertNull(response.getData());
-        Assert.assertNotNull(response.getMsg());
+        Assertions.assertEquals(response.getCode(), -101);
+        Assertions.assertNull(response.getMd5());
+        Assertions.assertNull(response.getData());
+        Assertions.assertNotNull(response.getMsg());
     }
 
     @Test
+    @Order(5)
     @Transactional
     public void testSourceDuplicatedZoneParam() {
         sourceMapper.insertSelective(prepareSourceEntity(TEST_CLUSTER, TEST_TASK, "testZone1", null));
         SortSourceConfigResponse response = sortService.getSourceConfig(TEST_CLUSTER, TEST_TASK, "");
         System.out.println(response);
-        Assert.assertEquals(-1, response.getCode());
-        Assert.assertNull(response.getData());
-        Assert.assertNull(response.getMd5());
-        Assert.assertNotNull(response.getMsg());
+        Assertions.assertEquals(-1, response.getCode());
+        Assertions.assertNull(response.getData());
+        Assertions.assertNull(response.getMd5());
+        Assertions.assertNotNull(response.getMsg());
     }
 
-    @Before
+    @BeforeEach
     public void prepareSourceProperties() {
         String testZone = "testZone";
         String testTopic = "testTopic";

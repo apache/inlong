@@ -24,8 +24,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.dao.entity.InlongGroupExtEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,10 +81,10 @@ public class InlongGroupServiceTest {
     // @Test
     public void testSaveAndDelete() {
         String groupId = this.saveGroup(globalGroupId, globalOperator);
-        Assert.assertNotNull(groupId);
+        Assertions.assertNotNull(groupId);
 
         boolean result = groupService.delete(groupId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     // @TestComponent runs as a whole without injecting objects
@@ -107,22 +107,22 @@ public class InlongGroupServiceTest {
         groupService.saveOrUpdateExt(globalGroupId, groupExtInfoList);
 
         List<InlongGroupExtEntity> extEntityList = groupExtMapper.selectByGroupId(globalGroupId);
-        Assert.assertEquals(2, extEntityList.size());
-        Assert.assertEquals("pulsar_url", extEntityList.get(0).getKeyName());
-        Assert.assertEquals("http://127.0.0.1:8080", extEntityList.get(0).getKeyValue());
+        Assertions.assertEquals(2, extEntityList.size());
+        Assertions.assertEquals("pulsar_url", extEntityList.get(0).getKeyName());
+        Assertions.assertEquals("http://127.0.0.1:8080", extEntityList.get(0).getKeyValue());
 
         // check update
         groupExtInfo1.setKeyValue("http://127.0.0.1:8081");
         groupService.saveOrUpdateExt(globalGroupId, groupExtInfoList);
         extEntityList = groupExtMapper.selectByGroupId(globalGroupId);
-        Assert.assertEquals(2, extEntityList.size());
-        Assert.assertEquals("http://127.0.0.1:8081", extEntityList.get(0).getKeyValue());
+        Assertions.assertEquals(2, extEntityList.size());
+        Assertions.assertEquals("http://127.0.0.1:8081", extEntityList.get(0).getKeyValue());
 
         groupExtInfo2.setKeyValue("qweasdzxc");
         groupService.saveOrUpdateExt(globalGroupId, groupExtInfoList);
         extEntityList = groupExtMapper.selectByGroupId(globalGroupId);
-        Assert.assertEquals(2, extEntityList.size());
-        Assert.assertEquals("qweasdzxc", extEntityList.get(1).getKeyValue());
+        Assertions.assertEquals(2, extEntityList.size());
+        Assertions.assertEquals("qweasdzxc", extEntityList.get(1).getKeyValue());
     }
 
     @Test

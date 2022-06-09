@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.DataNodeService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -90,16 +90,16 @@ public class DataNodeServiceTest extends ServiceBaseTest {
 
         // test save data node
         Integer id = this.saveOpt(nodeName, type, url, usename, password);
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         // test get data node
         DataNodeResponse nodeResponse = dataNodeService.get(id);
-        Assert.assertNotNull(nodeResponse);
-        Assert.assertEquals(type, nodeResponse.getType());
+        Assertions.assertNotNull(nodeResponse);
+        Assertions.assertEquals(type, nodeResponse.getType());
 
         // test get data node list
         PageInfo<DataNodeResponse> listDataNode = this.listOpt(type, nodeName);
-        Assert.assertEquals(listDataNode.getTotal(), 1);
+        Assertions.assertEquals(listDataNode.getTotal(), 1);
 
         // test update data node
         String newNodeName = "kafkaNode1";
@@ -108,11 +108,11 @@ public class DataNodeServiceTest extends ServiceBaseTest {
         String newUsername = "admin2";
         String newPassword = "456";
         Boolean updateSuccess = this.updateOpt(id, newNodeName, newType, newUrl, newUsername, newPassword);
-        Assert.assertTrue(updateSuccess);
+        Assertions.assertTrue(updateSuccess);
 
         // test delete data node
         Boolean deleteSuccess = this.deleteOpt(id);
-        Assert.assertTrue(deleteSuccess);
+        Assertions.assertTrue(deleteSuccess);
     }
 
 }

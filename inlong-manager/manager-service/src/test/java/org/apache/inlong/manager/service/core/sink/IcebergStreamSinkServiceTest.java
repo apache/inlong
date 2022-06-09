@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -64,16 +64,16 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testSaveAndDelete() {
         Integer id = this.saveSink("default1");
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
         boolean result = sinkService.delete(id, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSink("default2");
         StreamSink sink = sinkService.get(id);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         sinkService.delete(id, globalOperator);
     }
 
@@ -81,12 +81,12 @@ public class IcebergStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer id = this.saveSink("default3");
         StreamSink response = sinkService.get(id);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         IcebergSink icebergSink = (IcebergSink) response;
         icebergSink.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
         SinkRequest request = icebergSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 }

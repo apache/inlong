@@ -19,8 +19,8 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -38,14 +38,14 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
         InlongGroupEntity entity = createHeartbeatEntity();
         groupEntityMapper.insert(entity);
         groupEntityMapper.deleteByPrimaryKey(entity.getId());
-        Assert.assertNull(groupEntityMapper.selectByGroupId(entity.getInlongGroupId()));
+        Assertions.assertNull(groupEntityMapper.selectByGroupId(entity.getInlongGroupId()));
     }
 
     @Test
     public void selectByPrimaryKey() {
         InlongGroupEntity entity = createHeartbeatEntity();
         groupEntityMapper.insert(entity);
-        Assert.assertEquals(entity, groupEntityMapper.selectByPrimaryKey(entity.getId()));
+        Assertions.assertEquals(entity, groupEntityMapper.selectByPrimaryKey(entity.getId()));
     }
 
     private InlongGroupEntity createHeartbeatEntity() {

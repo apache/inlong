@@ -29,8 +29,8 @@ import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -56,17 +56,17 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
         if (queueOperateListeners.size() == 0) {
             return;
         }
-        Assert.assertEquals(2, queueOperateListeners.size());
-        Assert.assertTrue(queueOperateListeners.get(0) instanceof CreatePulsarResourceTaskListener);
-        Assert.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
+        Assertions.assertEquals(2, queueOperateListeners.size());
+        Assertions.assertTrue(queueOperateListeners.get(0) instanceof CreatePulsarResourceTaskListener);
+        Assertions.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
 
         // check tube listener
         InlongTubeInfo tubeInfo = new InlongTubeInfo();
         tubeInfo.setMqType(MQType.TUBE.getType());
         queueOperateListeners = groupTaskListenerFactory.getQueueOperateListener(context);
-        Assert.assertEquals(2, queueOperateListeners.size());
-        Assert.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);
-        Assert.assertTrue(queueOperateListeners.get(1) instanceof CreateTubeGroupTaskListener);
+        Assertions.assertEquals(2, queueOperateListeners.size());
+        Assertions.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);
+        Assertions.assertTrue(queueOperateListeners.get(1) instanceof CreateTubeGroupTaskListener);
     }
 
 }

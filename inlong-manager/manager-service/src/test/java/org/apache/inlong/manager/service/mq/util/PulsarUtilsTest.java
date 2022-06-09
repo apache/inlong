@@ -26,7 +26,7 @@ import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.auth.AuthenticationDisabled;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -58,12 +58,12 @@ public class PulsarUtilsTest {
         final String defaultServiceUrl = "http://127.0.0.1:10080";
         try {
             PulsarAdmin admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
-            Assert.assertEquals("http://127.0.0.1:8080", admin.getServiceUrl());
+            Assertions.assertEquals("http://127.0.0.1:8080", admin.getServiceUrl());
             Field auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
             assert auth != null;
             auth.setAccessible(true);
             Authentication authentication = (Authentication) auth.get(admin);
-            Assert.assertNotNull(authentication);
+            Assertions.assertNotNull(authentication);
 
             InlongGroupExtInfo groupExtInfo3 = new InlongGroupExtInfo();
             groupExtInfo3.setId(3);
@@ -75,21 +75,21 @@ public class PulsarUtilsTest {
                 admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
             } catch (Exception e) {
                 if (e instanceof IllegalArgumentException) {
-                    Assert.assertTrue(e.getMessage().contains("illegal authentication type"));
+                    Assertions.assertTrue(e.getMessage().contains("illegal authentication type"));
                 }
             }
 
             groupExtInfoList = new ArrayList<>();
             groupInfo.setExtList(groupExtInfoList);
             admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
-            Assert.assertEquals("http://127.0.0.1:10080", admin.getServiceUrl());
+            Assertions.assertEquals("http://127.0.0.1:10080", admin.getServiceUrl());
             auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
             assert auth != null;
             auth.setAccessible(true);
             authentication = (Authentication) auth.get(admin);
-            Assert.assertTrue(authentication instanceof AuthenticationDisabled);
+            Assertions.assertTrue(authentication instanceof AuthenticationDisabled);
         } catch (PulsarClientException | IllegalAccessException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 

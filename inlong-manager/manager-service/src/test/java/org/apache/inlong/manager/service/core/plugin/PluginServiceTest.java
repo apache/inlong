@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.core.plugin;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -41,8 +41,8 @@ public class PluginServiceTest extends ServiceBaseTest {
         pluginService.setPluginLoc(path + "plugins");
         pluginService.pluginReload();
         List<Plugin> pluginList = pluginService.getPlugins();
-        Assert.assertTrue(pluginList.size() > 0);
-        Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
+        Assertions.assertTrue(pluginList.size() > 0);
+        Assertions.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
 
 }

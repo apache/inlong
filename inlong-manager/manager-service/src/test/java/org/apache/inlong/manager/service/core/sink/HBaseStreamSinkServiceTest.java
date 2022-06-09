@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class HBaseStreamSinkServiceTest extends ServiceBaseTest {
@@ -69,14 +69,14 @@ public class HBaseStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteHbaseSink(Integer hbaseSinkId) {
         boolean result = sinkService.delete(hbaseSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer hbaseSinkId = this.saveSink("default1");
         StreamSink sink = sinkService.get(hbaseSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteHbaseSink(hbaseSinkId);
     }
 
@@ -84,13 +84,13 @@ public class HBaseStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer hbaseSinkId = this.saveSink("default2");
         StreamSink response = sinkService.get(hbaseSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HBaseSink hbaseSink = (HBaseSink) response;
         hbaseSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = hbaseSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteHbaseSink(hbaseSinkId);
     }
 

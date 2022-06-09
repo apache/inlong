@@ -20,8 +20,8 @@ package org.apache.inlong.manager.web;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
@@ -49,9 +49,9 @@ public class UtilsTest {
         request.setInlongGroupId("info");
 
         BeanUtils.copyProperties(request, entity);
-        Assert.assertEquals(1, (int) entity.getStatus());
-        Assert.assertNotNull(entity.getCreateTime());
-        Assert.assertNull(entity.getModifyTime());
+        Assertions.assertEquals(1, (int) entity.getStatus());
+        Assertions.assertNotNull(entity.getCreateTime());
+        Assertions.assertNull(entity.getModifyTime());
     }
 
     @Test
@@ -68,9 +68,9 @@ public class UtilsTest {
         request.setInlongGroupId("info");
 
         CommonBeanUtils.copyProperties(request, entity, true);
-        Assert.assertEquals(1, (int) entity.getStatus());
-        Assert.assertNotNull(entity.getCreateTime());
-        Assert.assertNull(entity.getModifyTime());
+        Assertions.assertEquals(1, (int) entity.getStatus());
+        Assertions.assertNotNull(entity.getCreateTime());
+        Assertions.assertNull(entity.getModifyTime());
     }
 
     @Test
@@ -78,8 +78,8 @@ public class UtilsTest {
         List<String> list = new ArrayList<>(Arrays.asList("one", "two", "three"));
         Optional<String> optional = list.stream().filter(e -> e.contains("o")).findFirst();
 
-        Assert.assertTrue(optional.isPresent());
-        Assert.assertEquals("one", optional.get());
+        Assertions.assertTrue(optional.isPresent());
+        Assertions.assertEquals("one", optional.get());
     }
 
 }

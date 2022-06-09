@@ -30,9 +30,9 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.postgres.PostgresJdbcUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -81,14 +81,14 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deletePostgresSink(Integer postgresSinkId) {
         boolean result = sinkService.delete(postgresSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer postgresSinkId = this.saveSink("postgres_default1");
         StreamSink sink = sinkService.get(postgresSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deletePostgresSink(postgresSinkId);
     }
 
@@ -96,20 +96,20 @@ public class PostgresStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer postgresSinkId = this.saveSink("postgres_default2");
         StreamSink response = sinkService.get(postgresSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         PostgresSink postgresSink = (PostgresSink) response;
         postgresSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = postgresSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deletePostgresSink(postgresSinkId);
     }
 
     /**
      * Just using in local test
      */
-    @Ignore
+    @Disabled
     public void testDbResource() {
         String url = "jdbc:postgresql://localhost:5432/test";
         String user = "postgres";

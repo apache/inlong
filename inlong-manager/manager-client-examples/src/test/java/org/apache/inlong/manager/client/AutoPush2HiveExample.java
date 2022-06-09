@@ -29,7 +29,8 @@ import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,10 +38,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Test class for auto push to hive.
  */
-public class AutoPush2HiveExample extends BaseExample {
+@Disabled
+class AutoPush2HiveExample extends BaseExample {
 
     @Test
-    public void testCreateGroupForHive() {
+    void testCreateGroupForHive() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -67,7 +69,7 @@ public class AutoPush2HiveExample extends BaseExample {
     }
 
     @Test
-    public void testStopGroup() {
+    void testStopGroup() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
