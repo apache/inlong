@@ -291,7 +291,7 @@ const getForm: GetStorageFormFieldsType = (
           canDelete={(record, idx, isNew) => !isEdit || isNew}
         />
       ),
-      name: 'fieldList',
+      name: 'sinkFieldList',
     },
     {
       name: 'partitionFieldList',

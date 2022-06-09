@@ -76,7 +76,7 @@ const Comp: React.FC<DetailModalProps> = ({
     return {
       HIVE: {
         // Field name of the field array form
-        columnsKey: 'fieldList',
+        columnsKey: 'sinkFieldList',
         // In addition to the defaultRowTypeFields field that is populated by default, additional fields that need to be populated
         // The left is the defaultRowTypeFields field, and the right is the newly filled field
         restMapping: {
@@ -84,7 +84,7 @@ const Comp: React.FC<DetailModalProps> = ({
         },
       },
       CLICKHOUSE: {
-        columnsKey: 'fieldList',
+        columnsKey: 'sinkFieldList',
         restMapping: {
           fieldName: 'fieldName',
         },
