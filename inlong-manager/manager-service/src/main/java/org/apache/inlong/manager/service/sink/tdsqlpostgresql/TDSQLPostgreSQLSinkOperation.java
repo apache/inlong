@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.tdsqlpostgres;
+package org.apache.inlong.manager.service.sink.tdsqlpostgresql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -31,10 +31,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSink;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -54,12 +54,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * TDSQLPostgres sink operation
+ * TDSQLPostgreSQL sink operation
  */
 @Service
-public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
+public class TDSQLPostgreSQLSinkOperation implements StreamSinkOperation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgresSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -70,17 +70,17 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.TDSQLPOSTGRES.equals(sinkType);
+        return SinkType.TDSQLPOSTGRESQL.equals(sinkType);
     }
 
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRES.equals(sinkType),
+        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRESQL.equals(sinkType),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
 
-        TDSQLPostgresSinkRequest tdsqlPostgresSinkRequest = (TDSQLPostgresSinkRequest) request;
-        StreamSinkEntity entity = CommonBeanUtils.copyProperties(tdsqlPostgresSinkRequest, StreamSinkEntity::new);
+        TDSQLPostgreSQLSinkRequest tdsqlPostgreSQLSinkRequest = (TDSQLPostgreSQLSinkRequest) request;
+        StreamSinkEntity entity = CommonBeanUtils.copyProperties(tdsqlPostgreSQLSinkRequest, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
         entity.setIsDeleted(GlobalConstants.UN_DELETED);
         entity.setCreator(operator);
@@ -90,7 +90,7 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
         entity.setModifyTime(now);
 
         // get the ext params
-        TDSQLPostgresSinkDTO dto = TDSQLPostgresSinkDTO.getFromRequest(tdsqlPostgresSinkRequest);
+        TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromRequest(tdsqlPostgreSQLSinkRequest);
         try {
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
@@ -138,9 +138,9 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
     public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRES.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRES, existType));
-        StreamSink response = this.getFromEntity(entity, TDSQLPostgresSink::new);
+        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRESQL.equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRESQL, existType));
+        StreamSink response = this.getFromEntity(entity, TDSQLPostgreSQLSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setSinkFieldList(infos);
@@ -154,10 +154,10 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
             return result;
         }
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRES.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRES, existType));
+        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRESQL.equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRESQL, existType));
 
-        TDSQLPostgresSinkDTO dto = TDSQLPostgresSinkDTO.getFromJson(entity.getExtParams());
+        TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -169,21 +169,21 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, TDSQLPostgresSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, TDSQLPostgreSQLSinkListResponse::new));
     }
 
     @Override
     public void updateOpt(SinkRequest request, String operator) {
         String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRES.equals(sinkType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRES, sinkType));
+        Preconditions.checkTrue(SinkType.SINK_TDSQLPOSTGRESQL.equals(sinkType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_TDSQLPOSTGRESQL, sinkType));
 
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        TDSQLPostgresSinkRequest tdsqlPostgresSinkRequest = (TDSQLPostgresSinkRequest) request;
-        CommonBeanUtils.copyProperties(tdsqlPostgresSinkRequest, entity, true);
+        TDSQLPostgreSQLSinkRequest tdsqlPostgreSQLSinkRequest = (TDSQLPostgreSQLSinkRequest) request;
+        CommonBeanUtils.copyProperties(tdsqlPostgreSQLSinkRequest, entity, true);
         try {
-            TDSQLPostgresSinkDTO dto = TDSQLPostgresSinkDTO.getFromRequest(tdsqlPostgresSinkRequest);
+            TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromRequest(tdsqlPostgreSQLSinkRequest);
             entity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
@@ -196,7 +196,7 @@ public class TDSQLPostgresSinkOperation implements StreamSinkOperation {
         sinkMapper.updateByPrimaryKeySelective(entity);
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
-        this.updateFieldOpt(onlyAdd, tdsqlPostgresSinkRequest);
+        this.updateFieldOpt(onlyAdd, tdsqlPostgreSQLSinkRequest);
 
         LOGGER.info("success to update sink of type={}", sinkType);
     }

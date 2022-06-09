@@ -15,39 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres;
+package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response info of TDSQLPostgres sink list
+ * TDSQLPostgreSQL sink info
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(SinkType.SINK_TDSQLPOSTGRES)
-@ApiModel("Response of TDSQLPostgres sink paging list")
-public class TDSQLPostgresSinkListResponse extends SinkListResponse {
+@ApiModel(value = "TDSQLPostgreSQL sink info")
+@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
+public class TDSQLPostgreSQLSink extends StreamSink {
+
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url")
+    private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
     private String username;
 
     @ApiModelProperty("User password")
     private String password;
-
-    @ApiModelProperty("TDSQLPostgres jdbc url")
-    private String jdbcUrl;
 
     @ApiModelProperty("Target schema name")
     private String schemaName;
@@ -57,4 +55,13 @@ public class TDSQLPostgresSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("Primary key")
     private String primaryKey;
+
+    public TDSQLPostgreSQLSink() {
+        this.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
+    }
+
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, TDSQLPostgreSQLSinkRequest::new);
+    }
 }

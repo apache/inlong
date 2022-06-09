@@ -33,7 +33,7 @@ public enum SinkType {
     GREENPLUM,
     MYSQL,
     ORACLE,
-    TDSQLPOSTGRES,
+    TDSQLPOSTGRESQL,
 
     ;
 
@@ -49,7 +49,7 @@ public enum SinkType {
     public static final String SINK_GREENPLUM = "GREENPLUM";
     public static final String SINK_MYSQL = "MYSQL";
     public static final String SINK_ORACLE = "ORACLE";
-    public static final String SINK_TDSQLPOSTGRES = "TDSQLPOSTGRES";
+    public static final String SINK_TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
 
     /**
      * Get the SinkType enum via the given sinkType string

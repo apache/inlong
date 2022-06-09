@@ -21,8 +21,8 @@ import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSink;
-import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres.TDSQLPostgresSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -37,13 +37,13 @@ import java.util.List;
 /**
  * Stream sink service test
  */
-public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
+public class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_tdsqlpostgres";
-    private static final String globalStreamId = "stream1_tdsqlpostgres";
+    private static final String globalGroupId = "b_group1_TDSQLPostgreSQL";
+    private static final String globalStreamId = "stream1_TDSQLPostgreSQL";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "TDSQLPostgres_field";
-    private static final String fieldType = "TDSQLPostgres_type";
+    private static final String fieldName = "TDSQLPostgreSQL_field";
+    private static final String fieldType = "TDSQLPostgreSQL_type";
     private static final Integer fieldId = 1;
 
     @Autowired
@@ -55,15 +55,14 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
      * Save sink info.
      */
     public Integer saveSink(String sinkName) {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId,
-                globalOperator);
-        TDSQLPostgresSinkRequest sinkInfo = new TDSQLPostgresSinkRequest();
+        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        TDSQLPostgreSQLSinkRequest sinkInfo = new TDSQLPostgreSQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_TDSQLPOSTGRES);
+        sinkInfo.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
 
         sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/postgres");
-        sinkInfo.setUsername("tdsqlpostgres");
+        sinkInfo.setUsername("TDSQLPostgreSQL");
         sinkInfo.setPassword("inlong");
         sinkInfo.setSchemaName("public");
         sinkInfo.setTableName("user");
@@ -82,7 +81,7 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Delete tdsqlpostgres sink info by sink id.
+     * Delete TDSQLPostgreSQL sink info by sink id.
      */
     public void deleteTDSQLPostgresSink(Integer postgresSinkId) {
         boolean result = sinkService.delete(postgresSinkId, globalOperator);
@@ -91,26 +90,26 @@ public class TDSQLPostgresStreamSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testListByIdentifier() {
-        Integer tdsqlpostgresSinkId = this.saveSink("tdsqlpostgres_default1");
-        StreamSink sink = sinkService.get(tdsqlpostgresSinkId);
+        Integer sinkId = this.saveSink("tdsqlpostgresql_default1");
+        StreamSink sink = sinkService.get(sinkId);
         Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteTDSQLPostgresSink(tdsqlpostgresSinkId);
+        deleteTDSQLPostgresSink(sinkId);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer tdsqlpostgresSinkId = this.saveSink("tdsqlpostgres_default2");
-        StreamSink response = sinkService.get(tdsqlpostgresSinkId);
+        Integer sinkId = this.saveSink("tdsqlpostgresql_default2");
+        StreamSink response = sinkService.get(sinkId);
         Assert.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        TDSQLPostgresSink tdsqlPostgresSink = (TDSQLPostgresSink) response;
-        tdsqlPostgresSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        TDSQLPostgreSQLSink tdsqlPostgreSQLSink = (TDSQLPostgreSQLSink) response;
+        tdsqlPostgreSQLSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
-        TDSQLPostgresSinkRequest request = CommonBeanUtils.copyProperties(tdsqlPostgresSink,
-                TDSQLPostgresSinkRequest::new);
+        TDSQLPostgreSQLSinkRequest request = CommonBeanUtils.copyProperties(tdsqlPostgreSQLSink,
+                TDSQLPostgreSQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assert.assertTrue(result);
-        deleteTDSQLPostgresSink(tdsqlpostgresSinkId);
+        deleteTDSQLPostgresSink(sinkId);
     }
 
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres;
+package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,18 +33,18 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
- * TDSQLPostgres sink info
+ * TDSQLPostgreSQL sink info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TDSQLPostgresSinkDTO {
+public class TDSQLPostgreSQLSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgresSinkDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkDTO.class);
 
-    @ApiModelProperty("TDSQLPostgres JDBC URL")
+    @ApiModelProperty("TDSQLPostgreSQL JDBC URL")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -62,14 +62,14 @@ public class TDSQLPostgresSinkDTO {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("Properties for TDSQLPostgres")
+    @ApiModelProperty("Properties for TDSQLPostgreSQL")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static TDSQLPostgresSinkDTO getFromRequest(TDSQLPostgresSinkRequest request) {
-        return TDSQLPostgresSinkDTO.builder()
+    public static TDSQLPostgreSQLSinkDTO getFromRequest(TDSQLPostgreSQLSinkRequest request) {
+        return TDSQLPostgreSQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
@@ -83,10 +83,10 @@ public class TDSQLPostgresSinkDTO {
     /**
      * Get TDSQLPostgres sink info from JSON string
      */
-    public static TDSQLPostgresSinkDTO getFromJson(@NotNull String extParams) {
+    public static TDSQLPostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, TDSQLPostgresSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, TDSQLPostgreSQLSinkDTO.class);
         } catch (Exception e) {
             LOGGER.error("fetch tdsqlpostgres sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());

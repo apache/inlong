@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgres;
+package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,16 +27,16 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the TDSQLPostgres sink info
+ * Request of the TDSQLPostgreSQL sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Request of the TDSQLPostgres sink info")
-@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRES)
-public class TDSQLPostgresSinkRequest extends SinkRequest {
+@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
+public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgres JDBC URL")
+    @ApiModelProperty("TDSQLPostgreSQL JDBC URL")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
