@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkRequest
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -84,14 +84,14 @@ public class GreenplumStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteGreenplumSink(Integer greenplumSinkId) {
         boolean result = sinkService.delete(greenplumSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer greenplumSinkId = this.saveSink("greenplum_default1");
         StreamSink sink = sinkService.get(greenplumSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteGreenplumSink(greenplumSinkId);
     }
 
@@ -99,13 +99,13 @@ public class GreenplumStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer greenplumSinkId = this.saveSink("greenplum_default2");
         StreamSink response = sinkService.get(greenplumSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         GreenplumSink greenplumSink = (GreenplumSink) response;
         greenplumSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = greenplumSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteGreenplumSink(greenplumSinkId);
     }
 

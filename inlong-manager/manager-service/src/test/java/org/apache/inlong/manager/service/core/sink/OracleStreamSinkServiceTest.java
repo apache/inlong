@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -84,14 +84,14 @@ public class OracleStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteoracleSink(Integer oracleSinkId) {
         boolean result = sinkService.delete(oracleSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer oracleSinkId = this.saveSink("oracle_default1");
         StreamSink sink = sinkService.get(oracleSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteoracleSink(oracleSinkId);
     }
 
@@ -99,7 +99,7 @@ public class OracleStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer oracleSinkId = this.saveSink("oracle_default2");
         StreamSink response = sinkService.get(oracleSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         OracleSink oracleSink = (OracleSink) response;
         oracleSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
@@ -107,7 +107,7 @@ public class OracleStreamSinkServiceTest extends ServiceBaseTest {
         OracleSinkRequest request = CommonBeanUtils.copyProperties(oracleSink,
                 OracleSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteoracleSink(oracleSinkId);
     }
 

@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     public void deleteHdfsSink(Integer hdfsSinkId) {
         boolean result = sinkService.delete(hdfsSinkId, globalOperator);
         // Verify that the deletion was successful
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
         Integer hdfsSinkId = this.saveSink("default_hdfs");
         StreamSink sink = sinkService.get(hdfsSinkId);
         // verify globalGroupId
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteHdfsSink(hdfsSinkId);
     }
 
@@ -98,14 +98,14 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer hdfsSinkId = this.saveSink("default_hdfs");
         StreamSink response = sinkService.get(hdfsSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HdfsSink hdfsSink = (HdfsSink) response;
         hdfsSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
 
         HdfsSinkRequest request = CommonBeanUtils.copyProperties(hdfsSink, HdfsSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteHdfsSink(hdfsSinkId);
     }
 
