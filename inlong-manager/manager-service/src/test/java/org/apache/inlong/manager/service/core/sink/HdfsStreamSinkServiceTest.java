@@ -72,7 +72,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
         sinkField.setId(fieldId);
         List<SinkField> sinkFieldList = new ArrayList<>();
         sinkFieldList.add(sinkField);
-        hdfsSinkRequest.setFieldList(sinkFieldList);
+        hdfsSinkRequest.setSinkFieldList(sinkFieldList);
         return sinkService.save(hdfsSinkRequest, globalOperator);
     }
 

@@ -90,7 +90,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
                     return fieldInfo;
                 })
                 .collect(Collectors.toList());
-        sinkRequest.setFieldList(sinkFields);
+        sinkRequest.setSinkFieldList(sinkFields);
         sinkRequest.setEnableCreateResource(0);
         sinkRequest.setUsername(OPERATOR);
         sinkRequest.setPassword("password");
