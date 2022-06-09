@@ -500,7 +500,7 @@ public class LoadNodeUtils {
     public static OracleLoadNode createLoadNode(OracleSink oracleSink) {
         String id = oracleSink.getSinkName();
         String name = oracleSink.getSinkName();
-        List<SinkField> sinkFieldResponses = oracleSink.getFieldList();
+        List<SinkField> sinkFieldResponses = oracleSink.getSinkFieldList();
         List<FieldInfo> fields = sinkFieldResponses.stream()
                 .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
                 .collect(Collectors.toList());
