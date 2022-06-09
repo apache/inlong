@@ -163,24 +163,30 @@ public class FieldInfoUtils {
             case BOOLEAN:
                 formatInfo = new BooleanFormatInfo();
                 break;
+            case INT8:
             case TINYINT:
             case BYTE:
                 formatInfo = new ByteFormatInfo();
                 break;
+            case INT16:
             case SMALLINT:
             case SHORT:
                 formatInfo = new ShortFormatInfo();
                 break;
+            case INT32:
             case INT:
                 formatInfo = new IntFormatInfo();
                 break;
+            case INT64:
             case BIGINT:
             case LONG:
                 formatInfo = new LongFormatInfo();
                 break;
+            case FLOAT32:
             case FLOAT:
                 formatInfo = new FloatFormatInfo();
                 break;
+            case FLOAT64:
             case DOUBLE:
                 formatInfo = new DoubleFormatInfo();
                 break;
@@ -194,6 +200,7 @@ public class FieldInfoUtils {
                     formatInfo = new DateFormatInfo();
                 }
                 break;
+            case DATETIME:
             case TIME:
                 if (StringUtils.isNotBlank(format)) {
                     formatInfo = new TimeFormatInfo(convertToSortFormat(format));
