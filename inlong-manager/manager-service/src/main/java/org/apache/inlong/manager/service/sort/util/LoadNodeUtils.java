@@ -36,6 +36,7 @@ import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
@@ -56,6 +57,7 @@ import org.apache.inlong.sort.protocol.node.load.HiveLoadNode;
 import org.apache.inlong.sort.protocol.node.load.IcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
+import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -108,6 +110,8 @@ public class LoadNodeUtils {
                 return createLoadNode((GreenplumSink) streamSink);
             case MYSQL:
                 return createLoadNode((MySQLSink) streamSink);
+            case ORACLE:
+                return createLoadNode((OracleSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -488,6 +492,36 @@ public class LoadNodeUtils {
                 mysqlSink.getPassword(),
                 mysqlSink.getTableName(),
                 mysqlSink.getPrimaryKey());
+    }
+
+    /**
+     * Create load node of ORACLE.
+     */
+    public static OracleLoadNode createLoadNode(OracleSink oracleSink) {
+        String id = oracleSink.getSinkName();
+        String name = oracleSink.getSinkName();
+        List<SinkField> sinkFieldResponses = oracleSink.getSinkFieldList();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = oracleSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new OracleLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                1,
+                properties,
+                oracleSink.getJdbcUrl(),
+                oracleSink.getUsername(),
+                oracleSink.getPassword(),
+                oracleSink.getTableName(),
+                oracleSink.getPrimaryKey());
     }
 
     /**
