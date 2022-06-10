@@ -52,6 +52,9 @@ public class FlinkOperation {
         this.flinkService = flinkService;
     }
 
+    /**
+     * Get Sort connector jar patterns from the Flink info.
+     */
     private static String getConnectorJarPattern(FlinkInfo flinkInfo) {
         if (StringUtils.isNotEmpty(flinkInfo.getSourceType()) && StringUtils.isNotEmpty(flinkInfo.getSinkType())) {
             return String.format("^sort-connector-(?i)(%s|%s).*jar$", flinkInfo.getSourceType(),
@@ -73,8 +76,8 @@ public class FlinkOperation {
             throw new Exception(message);
         }
 
-        Future<?> future = TaskRunService.submit(new IntegrationTaskRunner(flinkService, flinkInfo,
-                TaskCommitType.RESTART.getCode()));
+        Future<?> future = TaskRunService.submit(
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.RESTART.getCode()));
         future.get();
     }
 
@@ -163,8 +166,7 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.STOP.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.STOP.getCode()));
         future.get();
     }
 
@@ -186,8 +188,7 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.DELETE.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.DELETE.getCode()));
         future.get();
     }
 
@@ -238,7 +239,7 @@ public class FlinkOperation {
         boolean terminated = jobDetailsInfo == null || jobDetailsInfo.getJobStatus() == null;
         if (terminated) {
             log.warn("job detail or job status was null for [{}]", jobId);
-            return terminated;
+            return true;
         }
 
         terminated = jobDetailsInfo.getJobStatus().isTerminalState();
