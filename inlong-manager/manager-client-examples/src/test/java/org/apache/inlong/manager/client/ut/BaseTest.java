@@ -45,7 +45,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class BaseTest {
 
-    private static final int SERVICE_PORT = 8084;
+    private static final int SERVICE_PORT = 8184;
     // Manager web url
     public static final String SERVICE_URL = "127.0.0.1:" + SERVICE_PORT;
     // Inlong user && passwd
