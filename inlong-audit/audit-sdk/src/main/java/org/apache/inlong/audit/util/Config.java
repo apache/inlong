@@ -72,12 +72,11 @@ public class Config {
     }
 
     private void initDockerId() {
-        try {
-            File file = new File("/proc/self/cgroup");
-            if (!file.exists()) {
-                return;
-            }
-            BufferedReader in = new BufferedReader(new FileReader("/proc/self/cgroup"));
+        File file = new File("/proc/self/cgroup");
+        if (!file.exists()) {
+            return;
+        }
+        try (BufferedReader in = new BufferedReader(new FileReader("/proc/self/cgroup"))) {
             String dockerID = in.readLine();
             if (dockerID != null) {
                 int n = dockerID.indexOf("/");

@@ -33,7 +33,7 @@ import java.util.concurrent.ThreadFactory;
 
 public class SenderChannel {
 
-    private static final Logger logger = LoggerFactory.getLogger(SenderChannel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SenderChannel.class);
 
     public static final int DEFAULT_SEND_THREADNUM = 1;
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
@@ -150,7 +150,7 @@ public class SenderChannel {
                 this.channel = future.channel();
             }
         } catch (Throwable e) {
-            logger.error("connect {} failed. {}", this.getIpPort(), e.getMessage());
+            LOG.error("connect {} failed. {}", this.getIpPort(), e.getMessage());
             return false;
         }
         return true;
@@ -171,7 +171,7 @@ public class SenderChannel {
                 return true;
             }
         } catch (Throwable ex) {
-            logger.error("check connect ex." + ex.getMessage());
+            LOG.error("check connect ex." + ex.getMessage());
         }
         return false;
     }
