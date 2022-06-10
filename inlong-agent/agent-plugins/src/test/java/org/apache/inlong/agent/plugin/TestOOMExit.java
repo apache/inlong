@@ -34,7 +34,7 @@ public class TestOOMExit {
     private final MockJobManager jobManager = new MockJobManager();
 
     @Test
-    public void TestOOM() {
+    public void testOOM() {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setBoolean(AGENT_ENABLE_OOM_EXIT, true);
         jobManager.start();
