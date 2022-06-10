@@ -17,16 +17,8 @@
 
 package org.apache.inlong.audit.send;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.concurrent.DefaultThreadFactory;
-import java.util.concurrent.ThreadFactory;
-import org.apache.inlong.audit.util.EventLoopUtil;
 import org.apache.inlong.audit.util.IpPort;
 import org.apache.inlong.audit.util.SenderResult;
 import org.slf4j.Logger;
@@ -47,45 +39,27 @@ public class SenderGroup {
     public static final int DEFAULT_WAIT_TIMES = 10000;
     public static final int WAIT_INTERVAL = 1;
     public static final int DEFAULT_SYNCH_REQUESTS = 1;
-    public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 16777216;
-    public static final int DEFAULT_SEND_BUFFER_SIZE = 16777216;
+    public static final int RANDOM_MIN = 0;
 
-    private Bootstrap client;
     private List<LinkedBlockingQueue<SenderChannel>> channelGroups = new ArrayList<>();
     private int mIndex = 0;
     private List<SenderChannel> deleteChannels = new ArrayList<>();
     private ConcurrentHashMap<String, SenderChannel> totalChannels = new ConcurrentHashMap<>();
 
-    private int senderThreadNum;
     private int waitChannelTimes = DEFAULT_WAIT_TIMES;
     private int waitChannelIntervalMs = WAIT_INTERVAL;
     private int maxSynchRequest = DEFAULT_SYNCH_REQUESTS;
     private boolean hasSendError = false;
 
+    private SenderManager senderManager;
+
     /**
      * constructor
      *
-     * @param senderThreadNum
-     * @param clientHandler
+     * @param senderManager
      */
-    public SenderGroup(int senderThreadNum, SimpleChannelInboundHandler clientHandler) {
-        this.senderThreadNum = senderThreadNum;
-
-        ThreadFactory selfDefineFactory  = new DefaultThreadFactory("audit-client-io",
-                Thread.currentThread().isDaemon());
-
-        EventLoopGroup eventLoopGroup = EventLoopUtil.newEventLoopGroup(this.senderThreadNum,
-                false, selfDefineFactory);
-        client = new Bootstrap();
-        client.group(eventLoopGroup);
-        client.channel(EventLoopUtil.getClientSocketChannelClass(eventLoopGroup));
-        client.option(ChannelOption.SO_KEEPALIVE, true);
-        client.option(ChannelOption.TCP_NODELAY, true);
-        client.option(ChannelOption.SO_REUSEADDR, true);
-        client.option(ChannelOption.SO_RCVBUF, DEFAULT_RECEIVE_BUFFER_SIZE);
-        client.option(ChannelOption.SO_SNDBUF, DEFAULT_SEND_BUFFER_SIZE);
-        client.handler(new ClientPipelineFactory(clientHandler));
-
+    public SenderGroup(SenderManager senderManager) {
+        this.senderManager = senderManager;
         /*
          * init add two list for update config
          */
@@ -108,20 +82,26 @@ public class SenderGroup {
                 return new SenderResult("channels is empty", 0, false);
             }
             boolean isOk = false;
-            for (int tryIndex = 0; tryIndex < waitChannelTimes; tryIndex++) {
+            for (int tryIndex = 0; tryIndex < MAX_SEND_TIMES; tryIndex++) {
+                int random = RANDOM_MIN + (int) (Math.random() * (channels.size() - RANDOM_MIN));
                 channels = channelGroups.get(mIndex);
                 for (int i = 0; i < channels.size(); i++) {
                     channel = channels.poll();
                     if (channel.tryAcquire()) {
-                        isOk = true;
-                        break;
+                        if (random == i && channel.connect()) {
+                            isOk = true;
+                            break;
+                        }
+                        channel.release();
                     }
                     channels.offer(channel);
                     channel = null;
                 }
+
                 if (isOk) {
                     break;
                 }
+
                 try {
                     Thread.sleep(waitChannelIntervalMs);
                 } catch (Throwable e) {
@@ -132,18 +112,16 @@ public class SenderGroup {
                 logger.error("can not get a channel");
                 return new SenderResult("can not get a channel", 0, false);
             }
+
             ChannelFuture t = null;
             if (channel.getChannel().isWritable()) {
                 t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 if (!t.isSuccess()) {
                     if (!channel.getChannel().isActive()) {
-                        reconnect(channel);
+                        channel.connect();
                     }
                     t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
                 }
-            } else {
-                reconnect(channel);
-                t = channel.getChannel().writeAndFlush(dataBuf).sync().await();
             }
             return new SenderResult(channel.getIpPort().ip, channel.getIpPort().port, t.isSuccess());
         } catch (Throwable ex) {
@@ -207,8 +185,7 @@ public class SenderGroup {
                     if (ipPortObj == null) {
                         continue;
                     }
-                    ChannelFuture future = client.connect(ipPortObj.addr).await();
-                    channel = new SenderChannel(future.channel(), ipPortObj, maxSynchRequest);
+                    channel = new SenderChannel(ipPortObj, maxSynchRequest, senderManager);
                     newChannels.add(channel);
                     totalChannels.put(ipPort, channel);
                 } catch (Exception e) {
@@ -227,30 +204,6 @@ public class SenderGroup {
             this.mIndex = newIndex;
         } catch (Throwable e) {
             logger.error("Update Sender Ip Failed." + e.getMessage());
-        }
-    }
-
-    /**
-     * reconnect
-     *
-     * @param channel
-     */
-    private void reconnect(SenderChannel channel) {
-        try {
-            synchronized (channel) {
-                if (channel.getChannel().isOpen()) {
-                    return;
-                }
-
-                Channel oldChannel = channel.getChannel();
-                ChannelFuture future = client.connect(channel.getIpPort().addr).await();
-                Channel newChannel = future.channel();
-                channel.setChannel(newChannel);
-                oldChannel.disconnect();
-                oldChannel.close();
-            }
-        } catch (Throwable e) {
-            logger.error("reconnect failed." + e.getMessage());
         }
     }
 
