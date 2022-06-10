@@ -45,12 +45,40 @@ public class FlinkOperation {
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
     private static final String SORT_PLUGIN = "sort-plugin" + File.separator + "connectors";
-    private static final String CONNECTOR_JAR_PATTERN = "^sort-connector.*jar$";
 
     private final FlinkService flinkService;
 
     public FlinkOperation(FlinkService flinkService) {
         this.flinkService = flinkService;
+    }
+
+    /**
+     * Get Sort connector jar patterns from the Flink info.
+     */
+    private static String getConnectorJarPattern(FlinkInfo flinkInfo) {
+        if (StringUtils.isNotEmpty(flinkInfo.getSourceType()) && StringUtils.isNotEmpty(flinkInfo.getSinkType())) {
+            return String.format("^sort-connector-(?i)(%s|%s).*jar$", flinkInfo.getSourceType(),
+                    flinkInfo.getSinkType());
+        } else {
+            return "^sort-connector-.*jar$";
+        }
+    }
+
+    /**
+     * Restart the Flink job.
+     */
+    public void restart(FlinkInfo flinkInfo) throws Exception {
+        String jobId = flinkInfo.getJobId();
+        boolean terminated = isNullOrTerminated(jobId);
+        if (terminated) {
+            String message = String.format("restart job failed, as " + JOB_TERMINATED_MSG, jobId);
+            log.error(message);
+            throw new Exception(message);
+        }
+
+        Future<?> future = TaskRunService.submit(
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.RESTART.getCode()));
+        future.get();
     }
 
     /**
@@ -112,7 +140,7 @@ public class FlinkOperation {
         log.info("get sort jar path success, path: {}", jarPath);
 
         String pluginPath = startPath + SORT_PLUGIN;
-        List<String> connectorPaths = FlinkUtils.listFiles(pluginPath, CONNECTOR_JAR_PATTERN, -1);
+        List<String> connectorPaths = FlinkUtils.listFiles(pluginPath, getConnectorJarPattern(flinkInfo), -1);
         flinkInfo.setConnectorJarPaths(connectorPaths);
         log.info("get sort connector paths success, paths: {}", connectorPaths);
 
@@ -123,23 +151,6 @@ public class FlinkOperation {
             log.error(message + ", dataflow: {}", dataflow);
             throw new Exception(message);
         }
-    }
-
-    /**
-     * Restart the Flink job.
-     */
-    public void restart(FlinkInfo flinkInfo) throws Exception {
-        String jobId = flinkInfo.getJobId();
-        boolean terminated = isNullOrTerminated(jobId);
-        if (terminated) {
-            String message = String.format("restart job failed, as " + JOB_TERMINATED_MSG, jobId);
-            log.error(message);
-            throw new Exception(message);
-        }
-
-        Future<?> future = TaskRunService.submit(new IntegrationTaskRunner(flinkService, flinkInfo,
-                TaskCommitType.RESTART.getCode()));
-        future.get();
     }
 
     /**
@@ -155,8 +166,7 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.STOP.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.STOP.getCode()));
         future.get();
     }
 
@@ -178,8 +188,7 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.DELETE.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.DELETE.getCode()));
         future.get();
     }
 
@@ -230,7 +239,7 @@ public class FlinkOperation {
         boolean terminated = jobDetailsInfo == null || jobDetailsInfo.getJobStatus() == null;
         if (terminated) {
             log.warn("job detail or job status was null for [{}]", jobId);
-            return terminated;
+            return true;
         }
 
         terminated = jobDetailsInfo.getJobStatus().isTerminalState();

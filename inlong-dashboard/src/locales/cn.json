@@ -95,6 +95,7 @@
   "components.AccessHelper.StorageMetaData.Kafka.AutoOffsetReset": "自动偏移量重置",
   "components.AccessHelper.StorageMetaData.Iceberg.DbName": "DB名称",
   "components.AccessHelper.StorageMetaData.Iceberg.TableName": "表名称",
+  "components.AccessHelper.StorageMetaData.Iceberg.Warehouse": "仓库路径",
   "components.AccessHelper.StorageMetaData.Iceberg.FileFormat": "⽂件格式",
   "components.AccessHelper.StorageMetaData.Iceberg.Description": "表描述",
   "components.AccessHelper.StorageMetaData.Iceberg.ExtList": "属性",

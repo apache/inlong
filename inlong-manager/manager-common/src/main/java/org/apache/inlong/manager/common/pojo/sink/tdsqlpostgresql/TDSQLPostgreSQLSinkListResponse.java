@@ -15,49 +15,46 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.iceberg;
+package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Iceberg sink info
+ * Response info of TDSQLPostgreSQL sink list
  */
 @Data
-@ToString(callSuper = true)
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Iceberg sink info")
-@JsonTypeDefine(value = SinkType.SINK_ICEBERG)
-public class IcebergSinkRequest extends SinkRequest {
+@JsonTypeDefine(SinkType.SINK_TDSQLPOSTGRESQL)
+@ApiModel("Response of TDSQLPostgreSQL sink paging list")
+public class TDSQLPostgreSQLSinkListResponse extends SinkListResponse {
 
-    @ApiModelProperty("Catalog URI")
-    private String catalogUri;
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    private String jdbcUrl;
 
-    @ApiModelProperty("Iceberg warehouse dir")
-    private String warehouse;
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Target schema name")
+    private String schemaName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
-    private String dataPath;
-
-    @ApiModelProperty("File format, support: Parquet, Orc, Avro")
-    private String fileFormat;
-
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    private String catalogType = "HIVE";
-
     @ApiModelProperty("Primary key")
     private String primaryKey;
-
 }

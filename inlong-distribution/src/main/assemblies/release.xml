@@ -73,7 +73,7 @@
         <!--basic connector-->
         <fileSet>
             <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
-            <outputDirectory>sort-plugin/connectors</outputDirectory>
+            <outputDirectory>sort-plugin</outputDirectory>
             <includes>
                 <include>sort-connector-pulsar-${project.version}.jar</include>
             </includes>
@@ -81,7 +81,7 @@
         </fileSet>
         <fileSet>
             <directory>../inlong-sort/sort-connectors/hive/target</directory>
-            <outputDirectory>sort-plugin/connectors</outputDirectory>
+            <outputDirectory>sort-plugin</outputDirectory>
             <includes>
                 <include>sort-connector-hive-${project.version}.jar</include>
             </includes>

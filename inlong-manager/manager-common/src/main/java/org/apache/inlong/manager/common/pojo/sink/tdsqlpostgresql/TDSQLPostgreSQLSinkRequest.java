@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.iceberg;
+package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,37 +27,30 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Iceberg sink info
+ * Request of the TDSQLPostgreSQL sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Iceberg sink info")
-@JsonTypeDefine(value = SinkType.SINK_ICEBERG)
-public class IcebergSinkRequest extends SinkRequest {
+@ApiModel(value = "Request of the TDSQLPostgres sink info")
+@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
+public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Catalog URI")
-    private String catalogUri;
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    private String jdbcUrl;
 
-    @ApiModelProperty("Iceberg warehouse dir")
-    private String warehouse;
+    @ApiModelProperty("Username for JDBC URL")
+    private String username;
 
-    @ApiModelProperty("Target database name")
-    private String dbName;
+    @ApiModelProperty("User password")
+    private String password;
+
+    @ApiModelProperty("Target schema name")
+    private String schemaName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
-    private String dataPath;
-
-    @ApiModelProperty("File format, support: Parquet, Orc, Avro")
-    private String fileFormat;
-
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    private String catalogType = "HIVE";
-
     @ApiModelProperty("Primary key")
     private String primaryKey;
-
 }

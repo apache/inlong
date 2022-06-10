@@ -39,6 +39,7 @@ import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
 import org.apache.inlong.sort.protocol.node.LoadNode;
@@ -60,6 +61,7 @@ import org.apache.inlong.sort.protocol.node.load.MySqlLoadNode;
 import org.apache.inlong.sort.protocol.node.load.OracleLoadNode;
 import org.apache.inlong.sort.protocol.node.load.PostgresLoadNode;
 import org.apache.inlong.sort.protocol.node.load.SqlServerLoadNode;
+import org.apache.inlong.sort.protocol.node.load.TDSQLPostgresLoadNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.HashMap;
@@ -112,6 +114,8 @@ public class LoadNodeUtils {
                 return createLoadNode((MySQLSink) streamSink);
             case ORACLE:
                 return createLoadNode((OracleSink) streamSink);
+            case TDSQLPOSTGRESQL:
+                return createLoadNode((TDSQLPostgreSQLSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -293,7 +297,7 @@ public class LoadNodeUtils {
                 1,
                 null,
                 ckSink.getTableName(),
-                ckSink.getJdbcUrl(),
+                ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
                 ckSink.getPassword()
         );
@@ -522,6 +526,36 @@ public class LoadNodeUtils {
                 oracleSink.getPassword(),
                 oracleSink.getTableName(),
                 oracleSink.getPrimaryKey());
+    }
+
+    /**
+     * Create load node of TDSQLPostgreSQL.
+     */
+    public static TDSQLPostgresLoadNode createLoadNode(TDSQLPostgreSQLSink tdsqlPostgreSQLSink) {
+        String id = tdsqlPostgreSQLSink.getSinkName();
+        String name = tdsqlPostgreSQLSink.getSinkName();
+        List<SinkField> sinkFieldResponses = tdsqlPostgreSQLSink.getSinkFieldList();
+        List<FieldInfo> fields = sinkFieldResponses.stream()
+                .map(sinkFieldResponse -> FieldInfoUtils.parseSinkFieldInfo(sinkFieldResponse, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFieldResponses, name);
+        Map<String, String> properties = tdsqlPostgreSQLSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new TDSQLPostgresLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                1,
+                properties,
+                tdsqlPostgreSQLSink.getJdbcUrl(),
+                tdsqlPostgreSQLSink.getUsername(),
+                tdsqlPostgreSQLSink.getPassword(),
+                tdsqlPostgreSQLSink.getSchemaName() + "." + tdsqlPostgreSQLSink.getTableName(),
+                tdsqlPostgreSQLSink.getPrimaryKey());
     }
 
     /**
