@@ -289,7 +289,7 @@ public class LoadNodeUtils {
                 1,
                 null,
                 ckSink.getTableName(),
-                ckSink.getJdbcUrl(),
+                ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
                 ckSink.getPassword()
         );
