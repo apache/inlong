@@ -44,7 +44,7 @@ public class TDSQLPostgreSQLSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkDTO.class);
 
-    @ApiModelProperty("TDSQLPostgreSQL JDBC URL")
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")

@@ -40,14 +40,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel("Response of TDSQLPostgreSQL sink paging list")
 public class TDSQLPostgreSQLSinkListResponse extends SinkListResponse {
 
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    private String jdbcUrl;
+
     @ApiModelProperty("Username for JDBC URL")
     private String username;
 
     @ApiModelProperty("User password")
     private String password;
-
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url")
-    private String jdbcUrl;
 
     @ApiModelProperty("Target schema name")
     private String schemaName;

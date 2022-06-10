@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
 public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgreSQL JDBC URL")
+    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
