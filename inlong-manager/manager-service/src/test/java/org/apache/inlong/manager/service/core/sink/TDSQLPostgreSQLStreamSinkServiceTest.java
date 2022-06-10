@@ -39,11 +39,11 @@ import java.util.List;
  */
 public class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_TDSQLPostgreSQL";
-    private static final String globalStreamId = "stream1_TDSQLPostgreSQL";
+    private static final String globalGroupId = "b_group1_tdsqlpostgresql";
+    private static final String globalStreamId = "stream1_tdsqlpostgresql";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "TDSQLPostgreSQL_field";
-    private static final String fieldType = "TDSQLPostgreSQL_type";
+    private static final String fieldName = "tdsqlpostgresql_field";
+    private static final String fieldType = "tdsqlpostgresql_type";
     private static final Integer fieldId = 1;
 
     @Autowired
