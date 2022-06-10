@@ -54,7 +54,7 @@ public class IcebergSinkRequest extends SinkRequest {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is hive")
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
     private String catalogType = "HIVE";
 
     @ApiModelProperty("Primary key")
