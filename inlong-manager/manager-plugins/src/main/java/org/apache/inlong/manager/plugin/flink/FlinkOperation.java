@@ -44,7 +44,7 @@ public class FlinkOperation {
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
-    private static final String SORT_PLUGIN = "sort-plugin" + File.separator + "connectors";
+    private static final String SORT_PLUGIN = "sort-plugin";
 
     private final FlinkService flinkService;
 
