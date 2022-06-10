@@ -35,18 +35,17 @@ import { sourceDataFields } from './SourceDataFields';
 const icebergFieldTypes = [
   'string',
   'boolean',
-  'short',
   'int',
   'long',
   'float',
   'double',
-  'decimal(P,S)',
+  'decimal',
   'date',
   'time',
   'timestamp',
   'timestamptz',
   'binary',
-  'fixed(L)',
+  'fixed',
   'uuid',
 ].map(item => ({
   label: item,
@@ -55,6 +54,11 @@ const icebergFieldTypes = [
 
 const matchPartitionStrategies = fieldType => {
   const data = [
+    {
+      label: 'None',
+      value: 'None',
+      disabled: false,
+    },
     {
       label: 'Identity',
       value: 'Identity',
@@ -91,13 +95,13 @@ const matchPartitionStrategies = fieldType => {
         'long',
         'float',
         'double',
-        'decimal(P,S)',
+        'decimal',
       ].includes(fieldType),
     },
     {
       label: 'Truncate',
       value: 'Truncate',
-      disabled: !['string', 'int', 'long', 'binary', 'decimal(P,S)'].includes(fieldType),
+      disabled: !['string', 'int', 'long', 'binary', 'decimal'].includes(fieldType),
     },
   ];
 
@@ -152,33 +156,11 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
-      name: 'username',
+      label: 'Catalog URI',
+      name: 'catalogUri',
       rules: [{ required: true }],
       props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      _inTable: true,
-    },
-    {
-      type: 'password',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Password'),
-      name: 'password',
-      rules: [{ required: true }],
-      props: {
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-        style: {
-          maxWidth: 500,
-        },
-      },
-    },
-    {
-      type: 'input',
-      label: 'JDBC URL',
-      name: 'jdbcUrl',
-      rules: [{ required: true }],
-      props: {
-        placeholder: 'jdbc:hive2://127.0.0.1:10000',
+        placeholder: 'thrift://127.0.0.1:9083',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
@@ -206,8 +188,8 @@ const getForm: GetStorageFormFieldsType = (
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.DataPath'),
-      name: 'dataPath',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.Warehouse'),
+      name: 'warehouse',
       rules: [{ required: true }],
       props: {
         placeholder: 'hdfs://127.0.0.1:9000/user/iceberg/warehouse',
@@ -348,7 +330,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       },
       initialValue: 1,
       rules: [{ type: 'number', required: true }],
-      visible: (text, record) => record.fieldType === 'fixed(L)',
+      visible: (text, record) => record.fieldType === 'fixed',
     },
     {
       title: 'Precision',
@@ -359,7 +341,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       },
       initialValue: 1,
       rules: [{ type: 'number', required: true }],
-      visible: (text, record) => record.fieldType === 'decimal(P,S)',
+      visible: (text, record) => record.fieldType === 'decimal',
     },
     {
       title: 'Scale',
@@ -370,13 +352,13 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       },
       initialValue: 1,
       rules: [{ type: 'number', required: true }],
-      visible: (text, record) => record.fieldType === 'decimal(P,S)',
+      visible: (text, record) => record.fieldType === 'decimal',
     },
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.Iceberg.PartitionStrategy'),
       dataIndex: 'partitionStrategy',
       type: 'select',
-      initialValue: 'Identity',
+      initialValue: 'None',
       rules: [{ required: true }],
       props: (text, record) => ({
         options: matchPartitionStrategies(record.fieldType),

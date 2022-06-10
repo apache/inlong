@@ -95,6 +95,7 @@
   "components.AccessHelper.StorageMetaData.Kafka.AutoOffsetReset": "AutoOffsetReset",
   "components.AccessHelper.StorageMetaData.Iceberg.DbName": "DbName",
   "components.AccessHelper.StorageMetaData.Iceberg.TableName": "TableName",
+  "components.AccessHelper.StorageMetaData.Iceberg.Warehouse": "Warehouse",
   "components.AccessHelper.StorageMetaData.Iceberg.FileFormat": "FileFormat",
   "components.AccessHelper.StorageMetaData.Iceberg.Description": "Description",
   "components.AccessHelper.StorageMetaData.Iceberg.ExtList": "ExtList",
