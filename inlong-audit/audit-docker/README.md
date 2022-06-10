@@ -3,7 +3,7 @@ InLong Audit is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/audit:latest
+docker pull inlong/audit:1.2.0-incubating
 ```
 
 ##### Start Container

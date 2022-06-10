@@ -52,15 +52,15 @@ set -x
 set -e
 
 # tag all images
-docker tag inlong/manager:latest     ${docker_registry_org}/manager:latest
-docker tag inlong/agent:latest           ${docker_registry_org}/agent:latest
-docker tag inlong/dataproxy:latest       ${docker_registry_org}/dataproxy:latest
-docker tag inlong/tubemq-manager:latest  ${docker_registry_org}/tubemq-manager:latest
-docker tag inlong/tubemq-all:latest      ${docker_registry_org}/tubemq-all:latest
-docker tag inlong/tubemq-build:latest    ${docker_registry_org}/tubemq-build:latest
-docker tag inlong/dashboard:latest         ${docker_registry_org}/dashboard:latest
-docker tag inlong/tubemq-cpp:latest      ${docker_registry_org}/tubemq-cpp:latest
-docker tag inlong/audit:latest      ${docker_registry_org}/audit:latest
+docker tag inlong/manager:1.2.0-incubating     ${docker_registry_org}/manager:1.2.0-incubating
+docker tag inlong/agent:1.2.0-incubating           ${docker_registry_org}/agent:1.2.0-incubating
+docker tag inlong/dataproxy:1.2.0-incubating       ${docker_registry_org}/dataproxy:1.2.0-incubating
+docker tag inlong/tubemq-manager:1.2.0-incubating  ${docker_registry_org}/tubemq-manager:1.2.0-incubating
+docker tag inlong/tubemq-all:1.2.0-incubating      ${docker_registry_org}/tubemq-all:1.2.0-incubating
+docker tag inlong/tubemq-build:1.2.0-incubating    ${docker_registry_org}/tubemq-build:1.2.0-incubating
+docker tag inlong/dashboard:1.2.0-incubating         ${docker_registry_org}/dashboard:1.2.0-incubating
+docker tag inlong/tubemq-cpp:1.2.0-incubating      ${docker_registry_org}/tubemq-cpp:1.2.0-incubating
+docker tag inlong/audit:1.2.0-incubating      ${docker_registry_org}/audit:1.2.0-incubating
 
 docker tag inlong/manager:$MVN_VERSION     ${docker_registry_org}/manager:$MVN_VERSION
 docker tag inlong/agent:$MVN_VERSION           ${docker_registry_org}/agent:$MVN_VERSION
@@ -73,15 +73,15 @@ docker tag inlong/tubemq-cpp:$MVN_VERSION      ${docker_registry_org}/tubemq-cpp
 docker tag inlong/audit:$MVN_VERSION      ${docker_registry_org}/audit:$MVN_VERSION
 
 # Push all images and tags
-docker push inlong/manager:latest
-docker push inlong/agent:latest
-docker push inlong/dataproxy:latest
-docker push inlong/tubemq-manager:latest
-docker push inlong/tubemq-all:latest
-docker push inlong/tubemq-build:latest
-docker push inlong/dashboard:latest
-docker push inlong/tubemq-cpp:latest
-docker push inlong/audit:latest
+docker push inlong/manager:1.2.0-incubating
+docker push inlong/agent:1.2.0-incubating
+docker push inlong/dataproxy:1.2.0-incubating
+docker push inlong/tubemq-manager:1.2.0-incubating
+docker push inlong/tubemq-all:1.2.0-incubating
+docker push inlong/tubemq-build:1.2.0-incubating
+docker push inlong/dashboard:1.2.0-incubating
+docker push inlong/tubemq-cpp:1.2.0-incubating
+docker push inlong/audit:1.2.0-incubating
 
 docker push inlong/manager:$MVN_VERSION
 docker push inlong/agent:$MVN_VERSION
