@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ThreadUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadUtils.class);
 
     public static void threadThrowableHandler(Thread t, Throwable e) {
         if (AgentUtils.enableOOMExit()) {
@@ -36,7 +36,7 @@ public class ThreadUtils {
 
     private static void handleOOM(Thread t, Throwable e) {
         if (ExceptionUtils.indexOfThrowable(e, java.lang.OutOfMemoryError.class) != -1) {
-            logger.error("Agent exit caused by {} OutOfMemory: ", t.getName(), e);
+            LOGGER.error("Agent exit caused by {} OutOfMemory: ", t.getName(), e);
             forceShutDown();
         }
     }
@@ -45,7 +45,7 @@ public class ThreadUtils {
         try {
             Runtime.getRuntime().exit(-1);
         } catch (Throwable e) {
-            logger.error("exit failed, just halt, exception: ", e);
+            LOGGER.error("exit failed, just halt, exception: ", e);
             Runtime.getRuntime().halt(-2);
         }
     }
