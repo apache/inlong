@@ -38,8 +38,7 @@ public class PluginClassLoaderTest {
 
         String path = this.getClass().getClassLoader().getResource("").getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
-                Thread.currentThread()
-                        .getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
         Assert.assertEquals(1, pluginDefinitionMap.size());
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
