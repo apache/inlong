@@ -3,7 +3,7 @@ TubeMQ manager is available for development and experience.
 
 ##### Pull Image
 ```
-docker pull inlong/tubemq-manager:latest
+docker pull inlong/tubemq-manager:1.2.0-incubating
 ```
 
 ##### Start Container
