@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Stream sink service test
  */
-public class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
+class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
 
     private static final String globalGroupId = "b_group1_tdsqlpostgresql";
     private static final String globalStreamId = "stream1_tdsqlpostgresql";
@@ -85,22 +85,22 @@ public class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteTDSQLPostgresSink(Integer postgresSinkId) {
         boolean result = sinkService.delete(postgresSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
-    public void testListByIdentifier() {
+    void testListByIdentifier() {
         Integer sinkId = this.saveSink("tdsqlpostgresql_default1");
         StreamSink sink = sinkService.get(sinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteTDSQLPostgresSink(sinkId);
     }
 
     @Test
-    public void testGetAndUpdate() {
+    void testGetAndUpdate() {
         Integer sinkId = this.saveSink("tdsqlpostgresql_default2");
         StreamSink response = sinkService.get(sinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         TDSQLPostgreSQLSink tdsqlPostgreSQLSink = (TDSQLPostgreSQLSink) response;
         tdsqlPostgreSQLSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
@@ -108,7 +108,7 @@ public class TDSQLPostgreSQLStreamSinkServiceTest extends ServiceBaseTest {
         TDSQLPostgreSQLSinkRequest request = CommonBeanUtils.copyProperties(tdsqlPostgreSQLSink,
                 TDSQLPostgreSQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteTDSQLPostgresSink(sinkId);
     }
 
