@@ -31,10 +31,26 @@
             <directory>../inlong-agent/agent-release/target/apache-inlong-agent-${project.version}-bin</directory>
             <outputDirectory>inlong-agent</outputDirectory>
         </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-agent</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>inlong-agent</outputDirectory>
+        </fileSet>
 
         <!-- package InLong-DataProxy-->
         <fileSet>
             <directory>../inlong-dataproxy/dataproxy-dist/target/apache-inlong-dataproxy-${project.version}-bin</directory>
+            <outputDirectory>inlong-dataproxy</outputDirectory>
+        </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-dataproxy</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
             <outputDirectory>inlong-dataproxy</outputDirectory>
         </fileSet>
 
@@ -43,10 +59,26 @@
             <directory>../inlong-manager/manager-web/target/apache-inlong-manager-web-${project.version}-bin</directory>
             <outputDirectory>inlong-manager</outputDirectory>
         </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-manager</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>inlong-manager</outputDirectory>
+        </fileSet>
 
         <!-- package InLong-TubeMQ Server-->
         <fileSet>
             <directory>../inlong-tubemq/tubemq-server/target/apache-inlong-tubemq-server-${project.version}-bin</directory>
+            <outputDirectory>inlong-tubemq-server</outputDirectory>
+        </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-tubemq-server</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
             <outputDirectory>inlong-tubemq-server</outputDirectory>
         </fileSet>
 
@@ -55,10 +87,26 @@
             <directory>../inlong-tubemq/tubemq-manager/target/apache-inlong-tubemq-manager-${project.version}-bin</directory>
             <outputDirectory>inlong-tubemq-manager</outputDirectory>
         </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-tubemq-manager</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>inlong-tubemq-manager</outputDirectory>
+        </fileSet>
 
         <!-- package InLong-Audit-->
         <fileSet>
             <directory>../inlong-audit/audit-release/target/apache-inlong-audit-${project.version}-bin</directory>
+            <outputDirectory>inlong-audit</outputDirectory>
+        </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-audit</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
             <outputDirectory>inlong-audit</outputDirectory>
         </fileSet>
 
@@ -70,6 +118,15 @@
                 <include>sort-dist-${project.version}.jar</include>
             </includes>
         </fileSet>
+        <!-- module's 3td-licenses, notices-->
+        <fileSet>
+            <directory>../licenses/inlong-sort</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>inlong-sort</outputDirectory>
+        </fileSet>
+
         <!--basic connector-->
         <fileSet>
             <directory>../inlong-sort/sort-connectors/pulsar/target</directory>
@@ -88,21 +145,30 @@
             <fileMode>0644</fileMode>
         </fileSet>
 
-
         <!-- package InLong-Dashboard-->
         <fileSet>
             <directory>../inlong-dashboard/build</directory>
             <outputDirectory>inlong-dashboard</outputDirectory>
         </fileSet>
-
-        <!-- root license, notice and DISCLAIMER-->
+        <!-- module's 3td-licenses, notices-->
         <fileSet>
-            <directory>../licenses</directory>
+            <directory>../licenses/inlong-dashboard</directory>
             <includes>
                 <include>**/*</include>
             </includes>
+            <outputDirectory>inlong-dashboard</outputDirectory>
+        </fileSet>
+
+        <!-- root license, notice-->
+        <fileSet>
+            <directory>../licenses</directory>
+            <includes>
+                <include>LICENSE</include>
+                <include>NOTICE</include>
+            </includes>
             <outputDirectory>./</outputDirectory>
         </fileSet>
+        <!-- root DISCLAIMER-->
         <fileSet>
             <directory>../</directory>
             <includes>
