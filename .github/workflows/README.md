@@ -50,6 +50,12 @@ This directory contains all InLong CI checks.
 
   Interact with newcomers using the [actions/first-interaction](https://github.com/actions/first-interaction) action.
 
+- [![InLong Check Pull Request Title](https://github.com/apache/incubator-inlong/actions/workflows/ci_check_pr_title.yaml/badge.svg)](https://github.com/apache/incubator-inlong/actions/workflows/ci_check_pr_title.yaml)
+
+  Check pull request title.
+  The correct title should start with `[WIP]` or `[INLONG-xxx]`,
+  where **xxx** is the issue number, e.g. `[INLONG-123]`.
+
 ### Troubleshooting
 
 If you have any questions, welcome to contact the maintainers. And feel free to make a [pull request](https://github.com/apache/incubator-inlong/compare)!
