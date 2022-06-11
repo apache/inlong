@@ -511,6 +511,45 @@ The Apache Software Foundation (https://www.apache.org/).
 
 ========================================================================
 
+Curator Client NOTICE
+========================================================================
+
+Curator Client
+Copyright 2011-2018 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Curator Framework NOTICE
+========================================================================
+
+Curator Framework
+Copyright 2011-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Curator Recipes NOTICE
+========================================================================
+
+Curator Recipes
+Copyright 2011-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 aggs-matrix-stats NOTICE
 ------------------------------------------------------
 lang-mustache NOTICE
@@ -788,6 +827,28 @@ Copyright 2014-2021 The Apache Software Foundation
 
 ========================================================================
 
+Flink : Scala NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Scala
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
 Flink : Streaming Java NOTICE
 ========================================================================
 
@@ -804,6 +865,28 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 Flink : Streaming Java
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Streaming Scala NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Streaming Scala
 Copyright 2014-2021 The Apache Software Foundation
 
 
@@ -848,6 +931,50 @@ The Apache Software Foundation (http://www.apache.org/).
 
 
 Flink : Table : API Java bridge
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Table : API Scala NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : API Scala
+Copyright 2014-2021 The Apache Software Foundation
+
+
+
+========================================================================
+
+Flink : Table : API Scala bridge NOTICE
+========================================================================
+
+// ------------------------------------------------------------------
+// NOTICE file corresponding to the section 4d of The Apache License,
+// Version 2.0, in this case for Apache Flink
+// ------------------------------------------------------------------
+
+Apache Flink
+Copyright 2006-2021 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+Flink : Table : API Scala bridge
 Copyright 2014-2021 The Apache Software Foundation
 
 
@@ -1373,6 +1500,20 @@ Copyright 2005-2016 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache HttpClient Mime NOTICE
+========================================================================
+
+Apache HttpClient Mime
+Copyright 1999-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
 
 
 
