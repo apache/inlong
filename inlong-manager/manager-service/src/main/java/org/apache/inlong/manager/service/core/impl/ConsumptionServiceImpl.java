@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
@@ -153,14 +152,29 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(ConsumptionInfo info, String operator) {
-        fullConsumptionInfo(info);
-        Date now = new Date();
-        ConsumptionEntity entity = this.saveConsumption(info, operator, now);
+        log.debug("begin to save consumption info={}", info);
+        Preconditions.checkNotNull(info, "consumption info cannot be null");
+        Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
+        if (isConsumerGroupExists(info.getConsumerGroup(), info.getId())) {
+            throw new BusinessException(String.format("consumer group %s already exist", info.getConsumerGroup()));
+        }
+
+        if (info.getId() != null) {
+            ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
+            Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
+            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
+            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
+                    "consumption not allow update when status is " + consumptionStatus.name());
+        }
+
+        setTopicInfo(info);
+        ConsumptionEntity entity = this.saveConsumption(info, operator);
         MQType mqType = MQType.forType(entity.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             savePulsarInfo(info.getMqExtInfo(), entity);
         }
 
+        log.info("success to save consumption info by user={}", operator);
         return entity.getId();
     }
 
@@ -169,8 +183,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
      */
     private void savePulsarInfo(ConsumptionMqExtBase mqExtBase, ConsumptionEntity entity) {
         Preconditions.checkNotNull(mqExtBase, "Pulsar info cannot be empty, as the middleware is Pulsar");
-        // If it is transmitted from the web without specifying consumptionpulsarinfo,
-        // the mqextbase is not consumptionpulsarinfo and cannot be converted directly
+        // If it is transmitted from the web without specifying consumption pulsar info,
         ConsumptionPulsarInfo pulsarInfo;
         if (mqExtBase instanceof ConsumptionPulsarInfo) {
             pulsarInfo = (ConsumptionPulsarInfo) mqExtBase;
@@ -351,12 +364,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
     }
 
-    private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator, Date now) {
+    private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
         entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
         entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);
+        Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
 
@@ -371,25 +385,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     /**
-     * Fill in consumer information
+     * Set the topic for the consumption information
      */
-    private void fullConsumptionInfo(ConsumptionInfo info) {
-        Preconditions.checkNotNull(info, "consumption info cannot be null");
-        Preconditions.checkFalse(isConsumerGroupExists(info.getConsumerGroup(), info.getId()),
-                "consumer group " + info.getConsumerGroup() + " already exist");
-
-        if (info.getId() != null) {
-            ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
-            Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-
-            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
-                    "consumption not allow update when status is " + consumptionStatus.name());
-        }
-
+    private void setTopicInfo(ConsumptionInfo info) {
         // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
-        Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
-
         String groupId = info.getInlongGroupId();
         InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
