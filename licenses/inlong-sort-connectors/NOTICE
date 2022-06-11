@@ -28,6 +28,21 @@ Copyright 2014-2021 The Apache Software Foundation
 
 ========================================================================
 
+aggs-matrix-stats NOTICE
+========================================================================
+Elasticsearch
+Copyright 2009-2018 Elasticsearch
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+This product includes software developed by
+Joda.org (http://www.joda.org/).
+
+
+
+========================================================================
+
 aircompressor NOTICE
 ========================================================================
 
@@ -73,74 +88,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================
 
-Apache Ant Core NOTICE
-------------------------------------------------------
-Apache Ant Launcher NOTICE
-========================================================================
-
-   Apache Ant
-   Copyright 1999-2013 The Apache Software Foundation
-
-   The <sync> task is based on code Copyright (c) 2002, Landmark
-   Graphics Corp that has been kindly donated to the Apache Software
-   Foundation.
-
-
-
-========================================================================
-
-ApacheDS I18n NOTICE
-========================================================================
-
-ApacheDS I18n
-Copyright 2003-2013 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-ApacheDS Protocol Kerberos Codec NOTICE
-========================================================================
-
-ApacheDS Protocol Kerberos Codec
-Copyright 2003-2013 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Apache Directory API ASN.1 API NOTICE
-========================================================================
-
-Apache Directory API ASN.1 API
-Copyright 2003-2013 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Apache Directory LDAP API Utilities NOTICE
-========================================================================
-
-Apache Directory LDAP API Utilities
-Copyright 2003-2013 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
 Arrow Format NOTICE
 ========================================================================
 
@@ -180,7 +127,7 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache Yetus - Audience Annotations NOTICE
+Apache Yetus - Audience Annotations 0.5.0 NOTICE
 ========================================================================
 
 Apache Yetus - Audience Annotations
@@ -193,11 +140,11 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache Avro NOTICE
+Apache Yetus - Audience Annotations 0.12.0 NOTICE
 ========================================================================
 
-Apache Avro
-Copyright 2009-2020 The Apache Software Foundation
+Apache Yetus - Audience Annotations
+Copyright 2015-2020 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -206,10 +153,10 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache Avro IPC NOTICE
+Apache Avro NOTICE
 ========================================================================
 
-Apache Avro IPC
+Apache Avro
 Copyright 2009-2020 The Apache Software Foundation
 
 This product includes software developed at
@@ -283,6 +230,19 @@ Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
 
 ========================================================================
 
+Apache Commons Collections NOTICE
+========================================================================
+
+Apache Commons Collections
+Copyright 2001-2015 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 Apache Commons Compress NOTICE
 ========================================================================
 
@@ -341,32 +301,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Commons DBCP NOTICE
-========================================================================
-
-Apache Commons DBCP
-Copyright 2001-2010 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Curator Client NOTICE
-========================================================================
-
-Curator Client
-Copyright 2011-2017 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
 Digester NOTICE
 ========================================================================
 
@@ -419,6 +353,19 @@ The Apache Software Foundation (https://www.apache.org/).
 
 ========================================================================
 
+Commons Logging NOTICE
+========================================================================
+
+Apache Commons Logging
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
 Apache Commons Logging NOTICE
 ========================================================================
 
@@ -432,13 +379,30 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Commons Net NOTICE
+Apache Commons Math NOTICE
+========================================================================
+
+Apache Commons Math
+Copyright 2001-2015 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software developed for Orekit by
+CS Systèmes d'Information (http://www.c-s.fr/)
+Copyright 2010-2012 CS Systèmes d'Information
+
+
+
+========================================================================
+
+Apache Commons Net NOTICE
 ========================================================================
 
 Apache Commons Net
-Copyright 2001-2012 The Apache Software Foundation
+Copyright 2001-2017 The Apache Software Foundation
 
-This product includes software developed by
+This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
 
@@ -449,7 +413,157 @@ Commons Pool NOTICE
 ========================================================================
 
 Apache Commons Pool
-Copyright 1999-2009 The Apache Software Foundation
+Copyright 2001-2012 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Kafka NOTICE
+========================================================================
+
+Apache Kafka
+Copyright 2020 The Apache Software Foundation.
+
+This product includes software developed at
+The Apache Software Foundation (https://www.apache.org/).
+
+This distribution has a binary dependency on jersey, which is available under the CDDL
+License. The source code of jersey can be found at https://github.com/jersey/jersey/.
+
+
+
+========================================================================
+
+Curator Client NOTICE
+========================================================================
+
+Curator Client
+Copyright 2011-2018 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Curator Framework NOTICE
+========================================================================
+
+Curator Framework
+Copyright 2011-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Curator Recipes NOTICE
+========================================================================
+
+Curator Recipes
+Copyright 2011-2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+ApacheDS I18n NOTICE
+========================================================================
+
+ApacheDS I18n
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+========================================================================
+
+Apache HBase Relocated (Shaded) Third-party Miscellaneous Libs NOTICE
+========================================================================
+
+Apache Commons Collections
+Copyright 2001-2019 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Apache HBase Relocated (Shaded) Third-party Miscellaneous Libs
+Copyright 2017-2020 The Apache Software Foundation
+
+Apache Commons CLI
+Copyright 2001-2017 The Apache Software Foundation
+
+
+========================================================================
+
+ApacheDS Protocol Kerberos Codec NOTICE
+========================================================================
+
+ApacheDS Protocol Kerberos Codec
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Directory API ASN.1 API NOTICE
+========================================================================
+
+Apache Directory API ASN.1 API
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Directory LDAP API Utilities NOTICE
+========================================================================
+
+Apache Directory LDAP API Utilities
+Copyright 2003-2013 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Avro IPC NOTICE
+========================================================================
+
+Apache Avro IPC
+Copyright 2009-2020 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Commons DBCP NOTICE
+========================================================================
+
+Apache Commons DBCP
+Copyright 2001-2010 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
@@ -2433,18 +2547,6 @@ Apache Parquet Encodings NOTICE
 Apache Parquet Format Structures NOTICE
 ------------------------------------------------------
 Apache Parquet Hadoop NOTICE
-========================================================================
-
-
-========================================================================
-Elasticsearch
-Copyright 2009-2018 Elasticsearch
-
-This product includes software developed by The Apache Software
-Foundation (http://www.apache.org/).
-
-This product includes software developed by
-Joda.org (http://www.joda.org/).
 ========================================================================
 
 The NOTICE content is too long  and is included at notices/NOTICE-[project].txt
