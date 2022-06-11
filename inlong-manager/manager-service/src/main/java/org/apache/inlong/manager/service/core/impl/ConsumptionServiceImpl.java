@@ -21,11 +21,15 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
@@ -47,6 +51,7 @@ import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -86,6 +91,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private InlongGroupService groupService;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
@@ -404,7 +411,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             }
             InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
             if (null != inlongGroupEntity) {
-                info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, "public",
+                InlongClusterInfo clusterInfo = clusterService.getOne(inlongGroupEntity.getInlongClusterTag(), null, ClusterType.CLS_PULSAR);
+                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
+                String tenant = StringUtils.isEmpty(pulsarCluster.getTenant()) ?
+                        InlongGroupSettings.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant,
                         inlongGroupEntity.getMqResource(), info.getTopic()));
             }
 
