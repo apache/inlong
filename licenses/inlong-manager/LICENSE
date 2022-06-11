@@ -945,7 +945,7 @@ EDL licenses
 The following components are provided under EDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  jakarta.activation:jakarta.activation-api:1.2.2 - JavaBeans Activation Framework API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.1/activationapi), (EDL 1.0)
+  jakarta.activation:jakarta.activation-api:1.2.2 - JavaBeans Activation Framework API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.2/activationapi), (EDL 1.0)
   jakarta.xml.bind:jakarta.xml.bind-api:2.3.3 - jakarta.xml.bind-api (https://github.com/eclipse-ee4j/jaxb-api/tree/2.3.3/jaxb-api), (Eclipse Distribution License - v 1.0)
 
 
