@@ -411,10 +411,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             }
             InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
             if (null != inlongGroupEntity) {
-                InlongClusterInfo clusterInfo = clusterService.getOne(inlongGroupEntity.getInlongClusterTag(), null, ClusterType.CLS_PULSAR);
-                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-                String tenant = StringUtils.isEmpty(pulsarCluster.getTenant()) ?
-                        InlongGroupSettings.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
+                        inlongGroupEntity.getInlongClusterTag(), null, ClusterType.CLS_PULSAR);
+                String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
+                        ? InlongGroupSettings.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
                 info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant,
                         inlongGroupEntity.getMqResource(), info.getTopic()));
             }
