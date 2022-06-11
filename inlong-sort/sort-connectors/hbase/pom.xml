@@ -17,8 +17,8 @@
   ~  limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>sort-connectors</artifactId>
@@ -39,13 +39,19 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-hbase-2.2_${flink.scala.binary.version}</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>spotbugs-annotations</artifactId>
+                    <groupId>com.github.spotbugs</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <!-- HBase only works with Zookeper 3.4 -->
+                <!-- HBase only works with ZooKeeper 3.4 -->
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
@@ -67,9 +73,9 @@
                         </goals>
                         <configuration>
                             <!--
-                            Make the file hbase-default.xml under flink-sql-connector-hbase-2.2/src/main/resources as the
-                            hbase-default.xml in the shaded target jar here, because we don't want to check the hbase
-                            version at client side. Also we don't need the extra default configs keys.
+                            Make the file hbase-default.xml under flink-sql-connector-hbase-2.2/src/main/resources
+                            as the hbase-default.xml in the shaded target jar here, because we don't want to check
+                            the hbase version at client side. Also we don't need the extra default configs keys.
                             -->
                             <transformers>
                                 <transformer
@@ -81,8 +87,12 @@
                             <shadeTestJar>false</shadeTestJar>
                             <artifactSet>
                                 <includes>
-                                    <include>org.apache.flink:flink-connector-hbase-base_${scala.binary.version}</include>
-                                    <include>org.apache.flink:flink-connector-hbase-2.2_${scala.binary.version}</include>
+                                    <include>
+                                        org.apache.flink:flink-connector-hbase-base_${scala.binary.version}
+                                    </include>
+                                    <include>
+                                        org.apache.flink:flink-connector-hbase-2.2_${scala.binary.version}
+                                    </include>
                                     <include>org.apache.hbase:hbase-*</include>
                                     <include>org.apache.hbase.thirdparty:hbase-shaded-*</include>
                                     <include>org.apache.zookeeper:zookeeper</include>
@@ -149,10 +159,12 @@
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.hadoop.hbase</pattern>
-                                    <shadedPattern>org.apache.flink.hbase.shaded.org.apache.hadoop.hbase</shadedPattern>
-                                    <!-- HBase client uses shaded KeyValueCodec to encode data and put the class name in
-                                         the header of request, the HBase region server can not load the shaded
-                                        KeyValueCodec class when decode the data, so we exclude them here. -->
+                                    <shadedPattern>
+                                        org.apache.flink.hbase.shaded.org.apache.hadoop.hbase
+                                    </shadedPattern>
+                                    <!-- HBase client uses shaded KeyValueCodec to encode data and put the class name
+                                     in the header of request, the HBase region server can not load the shaded
+                                     KeyValueCodec class when decode the data, so we exclude them here. -->
                                     <excludes>
                                         <exclude>org.apache.hadoop.hbase.codec.*</exclude>
                                     </excludes>
