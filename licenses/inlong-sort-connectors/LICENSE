@@ -612,6 +612,19 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.httpcomponents:httpcore-nio:4.4.5 - Apache HttpCore NIO (http://hc.apache.org/httpcomponents-core-ga), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpcore-nio:4.4.12 - Apache HttpCore NIO (http://hc.apache.org/httpcomponents-core-ga), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpmime:4.5.13 - Apache HttpClient Mime (https://hc.apache.org/httpcomponents-client-4.5.x/), (Apache License, Version 2.0)
+  com.google.j2objc:j2objc-annotations:1.3 - J2ObjC Annotations (https://github.com/google/j2objc/), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-annotations:2.13.2 - Jackson-annotations (https://github.com/FasterXML/jackson-annotations), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-core:2.13.2 - Jackson-core (https://github.com/FasterXML/jackson-core/tree/jackson-core-2.13.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.core:jackson-databind:2.13.2.2 - jackson-databind (https://github.com/FasterXML/jackson-databind/tree/jackson-databind-2.13.2.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.8.11 - Jackson dataformat: CBOR (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/cbor), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.10.4 - Jackson dataformat: CBOR (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.10.4/cbor), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.8.11 - Jackson dataformat: Smile (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.8.11/smile), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.10.4 - Jackson dataformat: Smile (https://github.com/FasterXML/jackson-dataformats-binary/tree/jackson-dataformats-binary-2.10.4/smile), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.10.5 - Jackson datatype: jdk8 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.10.5), (The Apache Software License, Version 2.0)
+  com.jamesmurty.utils:java-xmlbuilder:0.4 - java-xmlbuilder (https://github.com/jmurty/java-xmlbuilder), (Apache License, Version 2.0)
+  javax.inject:javax.inject:1 - javax.inject (http://code.google.com/p/atinject/), (The Apache Software License, Version 2.0)
+  com.github.stephenc.jcip:jcip-annotations:1.0-1 - JCIP Annotations under Apache License (https://github.com/stephenc/jcip-annotations), (Apache License, Version 2.0)
+
 
 
 ========================================================================
@@ -652,6 +665,20 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.apache.iceberg:iceberg-hive-metastore:0.13.1 - Apache Iceberg (https://iceberg.apache.org), (The Apache Software License, Version 2.0)
   org.apache.iceberg:iceberg-orc:0.13.1 - Apache Iceberg (https://iceberg.apache.org), (The Apache Software License, Version 2.0)
   org.apache.iceberg:iceberg-parquet:0.13.1 - Apache Iceberg (https://iceberg.apache.org), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-core-asl:1.9.13 - Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl/1.9.13), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.2 - Jackson-dataformat-YAML (https://github.com/FasterXML/jackson-dataformat-yaml/tree/jackson-dataformat-yaml-2.13.2), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2 - Jackson datatype: JSR310 (https://github.com/FasterXML/jackson-modules-java8/tree/jackson-modules-java8-2.13.2), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-jaxrs:1.9.2 - JAX-RS provider for JSON content type (https://github.com/codehaus/jackson/tree/1.9/1.9.2), (The Apache Software License, Version 2.0;  GNU Lesser General Public License (LGPL), Version 2.1)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.7.8 - Jackson-JAXRS-base (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.7.8/base), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:2.10.5 - Jackson-JAXRS-base (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.10.5/base), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.7.8 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.7.8/json), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.10.5 - Jackson-JAXRS-JSON (https://github.com/FasterXML/jackson-jaxrs-providers/tree/jackson-jaxrs-providers-2.10.5/json), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-mapper-asl:1.9.13 - Data Mapper for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.9.13), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.8 - Jackson-module-JAXB-annotations (http://github.com/FasterXML/jackson-module-jaxb-annotations), (The Apache Software License, Version 2.0)
+  com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.10.5 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-module-jaxb-annotations), (The Apache Software License, Version 2.0)
+  org.codehaus.jackson:jackson-xc:1.9.13 - Xml Compatibility extensions for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-xc/1.9.13), (The Apache Software License, Version 2.0;  GNU Lesser General Public License (LGPL), Version 2.1)
+  org.codehaus.jackson:jackson-xc:1.9.2 - Xml Compatibility extensions for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-xc/1.9.2), (The Apache Software License, Version 2.0;  GNU Lesser General Public License (LGPL), Version 2.1)
+  org.javassist:javassist:3.25.0-GA - Javassist (https://github.com/jboss-javassist/javassist/tree/rel_3_25_0_ga), (Apache License 2.0;  MPL 1.1;  LGPL 2.1)
 
 
 ========================================================================
@@ -661,6 +688,9 @@ EDL licenses
 The following components are provided under EDL license. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
+  jakarta.activation:jakarta.activation-api:1.2.1 - JavaBeans Activation Framework API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.1/activationapi), (EDL 1.0)
+  jakarta.activation:jakarta.activation-api:1.2.2 - JavaBeans Activation Framework API jar (https://github.com/eclipse-ee4j/jaf/tree/1.2.2/activationapi), (EDL 1.0)
+  jakarta.xml.bind:jakarta.xml.bind-api:2.3.2 - jakarta.xml.bind-api (https://github.com/eclipse-ee4j/jaxb-api/tree/2.3.2/jaxb-api), (Eclipse Distribution License - v 1.0)
 
 
 ========================================================================
@@ -673,6 +703,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.antlr:antlr4-runtime:4.7.2 - ANTLR 4 Runtime (https://github.com/antlr/antlr4/tree/4.7.2), (The BSD License)
   org.ow2.asm:asm:5.0.4 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_4), (BSD)
   dnsjava:dnsjava:2.1.7 - dnsjava (https://github.com/dnsjava/dnsjava/tree/v2.1.7), (BSD 2-Clause license)
+  javolution:javolution:5.5.1 - Javolution (http://javolution.org), (BSD License)
 
 
 ========================================================================
@@ -690,6 +721,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.checkerframework:checker-qual:3.4.0 - checker-qual (https://checkerframework.org), (The MIT License)
   org.checkerframework:checker-qual:3.5.0 - checker-qual (https://checkerframework.org), (The MIT License)
   org.checkerframework:checker-qual:3.12.0 - checker-qual (https://checkerframework.org), (The MIT License)
+  org.jruby.jcodings:jcodings:1.0.18 - JCodings (Byte based encoding support library for java) (https://github.com/jruby/jcodings/tree/jcodings-1.0.18), (MIT License)
 
 
 ========================================================================
@@ -700,6 +732,13 @@ The following components are provided under CDDL license. See project link for d
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   javax.activation:activation:1.1.1 - JavaBeans(TM) Activation Framework (http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp), (COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0)
+  com.sun.activation:javax.activation:1.2.0 - JavaBeans Activation Framework (https://github.com/javaee/activation/tree/JAF-1_2_0), (CDDL/GPLv2+CE)
+  javax.servlet:javax.servlet-api:4.0.1 - Java Servlet API (https://javaee.github.io/servlet-spec/), (CDDL + GPLv2 with classpath exception)
+  javax.ws.rs:javax.ws.rs-api:2.1 - javax.ws.rs-api (https://github.com/javaee/jax-rs-api/tree/2.1/jaxrs-api), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.xml.bind:jaxb-api:2.2.11 - JAXB API bundle for GlassFish V3 (https://jaxb.dev.java.net/), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.xml.bind:jaxb-api:2.3.0 - jaxb-api (https://github.com/javaee/jaxb-spec/tree/2.3.0/jaxb-api), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.xml.bind:jaxb-api:2.3.1 - jaxb-api (https://github.com/javaee/jaxb-spec/tree/2.3.1/jaxb-api), (CDDL 1.1;  GPL2 w/ CPE)
+  com.sun.xml.bind:jaxb-impl:2.2.3-1 - JAXB RI (http://jaxb.java.net/), (CDDL 1.1;  GPL2 w/ CPE)
 
 
 ========================================================================
@@ -713,6 +752,8 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.glassfish.hk2:hk2-api:2.6.1 - HK2 API module (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-api), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-locator:2.6.1 - ServiceLocator Default Implementation (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-locator), (EPL 2.0;  GPL2 w/ CPE)
   org.glassfish.hk2:hk2-utils:2.6.1 - HK2 Implementation Utilities (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/hk2-utils), (EPL 2.0;  GPL2 w/ CPE)
+  org.glassfish.hk2.external:jakarta.inject:2.6.1 - javax.inject:1 as OSGi bundle (https://github.com/eclipse-ee4j/glassfish-hk2/tree/2.6.1/external/jsr330), (EPL 2.0;  GPL2 w/ CPE)
+  jakarta.ws.rs:jakarta.ws.rs-api:2.1.6 - jakarta.ws.rs-api (https://github.com/jakartaee/rest/tree/2.1.6/jaxrs-api), (EPL 2.0;  GPL2 w/ CPE)
 
 
 ========================================================================
@@ -732,3 +773,4 @@ The following components are provided under Public Domain license. See project l
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   aopalliance:aopalliance:1.0 - - AOP alliance (http://aopalliance.sourceforge.net), (Public Domain)
+  net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
