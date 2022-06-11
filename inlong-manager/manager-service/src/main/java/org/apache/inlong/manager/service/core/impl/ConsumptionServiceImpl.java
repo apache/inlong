@@ -21,7 +21,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.ClusterBean;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
@@ -78,8 +77,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
     @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private ConsumptionEntityMapper consumptionMapper;
@@ -128,8 +125,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be empty, as the middleware is Pulsar");
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
             info.setMqExtInfo(pulsarInfo);
-
-            info.setTopic(this.getFullPulsarTopic(info.getInlongGroupId(), info.getTopic()));
         }
 
         return info;
@@ -299,17 +294,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return true;
     }
 
-    /**
-     * According to groupId and topic, stitch the full path of Pulsar Topic
-     * TODO: save full topic of Pulsar in consumption info
-     */
-    private String getFullPulsarTopic(String groupId, String topic) {
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
-        String tenant = clusterBean.getDefaultTenant();
-        String namespace = inlongGroupEntity.getMqResource();
-        return String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant, namespace, topic);
-    }
-
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(Integer id, String operator) {
@@ -418,6 +402,12 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                 streamTopics.forEach(stream -> topicSet.remove(stream.getMqResource()));
                 Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
+            InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
+            if (null != inlongGroupEntity) {
+                info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, "public",
+                        inlongGroupEntity.getMqResource(), info.getTopic()));
+            }
+
         }
         info.setMqType(mqType.getType());
     }
