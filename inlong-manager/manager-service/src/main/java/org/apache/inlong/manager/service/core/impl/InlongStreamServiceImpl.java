@@ -41,7 +41,6 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -348,16 +347,16 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<StreamBriefResponse> getBriefList(String groupId) {
+    public List<InlongStreamBriefInfo> getBriefList(String groupId) {
         LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
-        List<StreamBriefResponse> briefInfoList = CommonBeanUtils
-                .copyListProperties(entityList, StreamBriefResponse::new);
+        List<InlongStreamBriefInfo> briefInfoList = CommonBeanUtils
+                .copyListProperties(entityList, InlongStreamBriefInfo::new);
 
         // Query stream sinks based on groupId and streamId
-        for (StreamBriefResponse briefInfo : briefInfoList) {
+        for (InlongStreamBriefInfo briefInfo : briefInfoList) {
             String streamId = briefInfo.getInlongStreamId();
             List<SinkBriefResponse> sinkList = sinkService.listBrief(groupId, streamId);
             briefInfo.setSinkList(sinkList);

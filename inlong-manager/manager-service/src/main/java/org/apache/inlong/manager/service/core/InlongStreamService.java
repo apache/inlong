@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 
 import java.util.List;
 
@@ -115,7 +114,7 @@ public interface InlongStreamService {
      * @param groupId Inlong group id
      * @return Summary list of inlong stream
      */
-    List<StreamBriefResponse> getBriefList(String groupId);
+    List<InlongStreamBriefInfo> getBriefList(String groupId);
 
     /**
      * Save all information related to the inlong stream, its data source, and stream sink
