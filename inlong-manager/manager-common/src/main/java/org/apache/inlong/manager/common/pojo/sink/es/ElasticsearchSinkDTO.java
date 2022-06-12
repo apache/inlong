@@ -90,6 +90,9 @@ public class ElasticsearchSinkDTO {
                 .flushInterval(request.getFlushInterval())
                 .flushRecord(request.getFlushRecord())
                 .retryTimes(request.getRetryTimes())
+                .documentType(request.getDocumentType())
+                .primaryKey(request.getPrimaryKey())
+                .version(request.getVersion())
                 .properties(request.getProperties())
                 .build();
     }
