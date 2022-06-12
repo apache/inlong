@@ -26,10 +26,10 @@
 ### Agent
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4483](https://github.com/apache/incubator-inlong/issues/4483) | [Bug][Agent] Many ConnectException logs in unit test of Kafka source                                   |
 | [INLONG-4193](https://github.com/apache/incubator-inlong/issues/4193) | [Improve][Agent] Add Java docs                                                                         |
 | [INLONG-4112](https://github.com/apache/incubator-inlong/issues/4112) | [Feature][Agent] Support collect data from a specified position for MySQL binlog                       |
 | [INLONG-2563](https://github.com/apache/incubator-inlong/issues/2563) | [Feature][Agent] Move public domain from agent to agent-common                                         |
-| [INLONG-3771](https://github.com/apache/incubator-inlong/issues/3771) | [Improve][Agent] Update the third-party components LICENSEs                                            |
 | [INLONG-4397](https://github.com/apache/incubator-inlong/issues/4397) | [Feature][Agent] Supports collect of full data for file type                                           |
 | [INLONG-4359](https://github.com/apache/incubator-inlong/issues/4359) | [Improve][Agent] Simplify agent process commands                                                       |
 | [INLONG-4292](https://github.com/apache/incubator-inlong/issues/4292) | [Improve][Agent][TubeMQ][Sort] Upgrade the property file for all modules from log4j to log4j2          |
@@ -39,15 +39,17 @@
 ### Audit
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4594](https://github.com/apache/incubator-inlong/issues/4594) | [Improve][Audit] Make Elasticsearch authentication configurable                                        |
 | [INLONG-4520](https://github.com/apache/incubator-inlong/issues/4520) | [Improve][Audit] Audit-proxy supports Pulsar authenticate                                              |
 | [INLONG-4477](https://github.com/apache/incubator-inlong/issues/4477) | [Improve][Audit] Audit-store supports Pulsar authenticate                                              |
 | [INLONG-3895](https://github.com/apache/incubator-inlong/issues/3895) | [Bug][Audit] Proxy store startup script log path error                                                 |
 | [INLONG-3853](https://github.com/apache/incubator-inlong/issues/3853) | [Bug][Audit] audit can not start for script bug                                                        |
-| [INLONG-3849](https://github.com/apache/incubator-inlong/issues/3849) | [Improve][Audit] Update the third-party components LICENSEs                                            |
 
 ### Dashboard
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4612](https://github.com/apache/incubator-inlong/issues/4612) | [Improve][Dashboard][Manager] Iceberg sink configuration protocol key update                           |
+| [INLONG-4610](https://github.com/apache/incubator-inlong/issues/4610) | [Improve][Dashboard] Save sink fields failed                                                           |
 | [INLONG-4588](https://github.com/apache/incubator-inlong/issues/4588) | [Improve][Dashboard] Approval management splits different routes                                       |
 | [INLONG-4580](https://github.com/apache/incubator-inlong/issues/4580) | [Bug][Dashboard] File source IP and Hive conf dir are mandatory                                        |
 | [INLONG-4577](https://github.com/apache/incubator-inlong/issues/4577) | [Feature][Dashboard] Support TubeMQ cluster management                                                 |
@@ -79,6 +81,12 @@
 ### Manager
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4626](https://github.com/apache/incubator-inlong/issues/4626) | [Improve][Manager] Remove redundant connector sub directory                                            |
+| [INLONG-4622](https://github.com/apache/incubator-inlong/issues/4622) | [Bug][Manager] Append db name in JDBC URL for load node                                                |
+| [INLONG-4615](https://github.com/apache/incubator-inlong/issues/4615) | [Improve][Manager] PluginClassLoader adapts to the Windows system                                      |
+| [INLONG-4612](https://github.com/apache/incubator-inlong/issues/4612) | [Improve][Dashboard][Manager] Iceberg sink configuration protocol key update                           |
+| [INLONG-4607](https://github.com/apache/incubator-inlong/issues/4607) | [Bug][Manager] Add ClickHouse field types for FormatInfo                                               |
+| [INLONG-4601](https://github.com/apache/incubator-inlong/issues/4601) | [Bug][Manager] The fieldList in SinkRequest should be changed to sinkFieldList                         |
 | [INLONG-4598](https://github.com/apache/incubator-inlong/issues/4598) | [Bug][Manager] Pulsar topic incorrect                                                                  |
 | [INLONG-4586](https://github.com/apache/incubator-inlong/issues/4586) | [Improve][Manager] Fix redefined streamFields in stream source                                         |
 | [INLONG-4583](https://github.com/apache/incubator-inlong/issues/4583) | [Bug][Manager] Query InlongGroup info error from the browser                                           |
@@ -253,7 +261,11 @@
 ### Sort
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
-| [INLONG-4591](https://github.com/apache/incubator-inlong/issues/4591) | [Bug][Sort] Set the default Hive version and upgrade the log4j to log4j2                                  |
+| [INLONG-4638](https://github.com/apache/incubator-inlong/issues/4638) | [Improve][Sort] Remove the dependency of spotbugs-annotations                                          |
+| [INLONG-4624](https://github.com/apache/incubator-inlong/issues/4624) | [Improve][Sort] Package Pulsar and Hive connectors to the same file                                    |
+| [INLONG-4619](https://github.com/apache/incubator-inlong/issues/4619) | [Bug][Sort] Fix maven package problem of Hive connector                                                |
+| [INLONG-4596](https://github.com/apache/incubator-inlong/issues/4596) | [Bug][Sort] Fix jdbc-connector packaging lost dependency                                               |
+| [INLONG-4591](https://github.com/apache/incubator-inlong/issues/4591) | [Bug][Sort] Set the default Hive version and upgrade the log4j to log4j2                               |
 | [INLONG-4557](https://github.com/apache/incubator-inlong/issues/4557) | [Bug][Sort] Fix HBase connector dependency and pom relocation problem                                  |
 | [INLONG-4527](https://github.com/apache/incubator-inlong/issues/4527) | [Improve][Sort] Upgrade the Elasticsearch version and add related license                              |
 | [INLONG-4493](https://github.com/apache/incubator-inlong/issues/4493) | [Improve][Sort] Remove hiveConfDir not null constraint                                                 |
@@ -388,10 +400,14 @@
 ### Other
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4640](https://github.com/apache/incubator-inlong/issues/4640) | [License] Complete the LICENSE of the third-party dependencies of the Sort connectors                  |
+| [INLONG-4633](https://github.com/apache/incubator-inlong/issues/4633) | [License] Add the third-party dependency LICENSE of Sort connectors module                             |
+| [INLONG-4628](https://github.com/apache/incubator-inlong/issues/4628) | [License] Update inlong-manager's third-party dependency LICENSE                                       |
 | [INLONG-4574](https://github.com/apache/incubator-inlong/issues/4574) | [Release] Bumped version to 1.3.0-incubating-SNAPSHOT                                                  |
 | [INLONG-4568](https://github.com/apache/incubator-inlong/issues/4568) | [Release] Bumped version to 1.2.1-incubating-SNAPSHOT                                                  |
 | [INLONG-4574](https://github.com/apache/incubator-inlong/issues/4567) | [Release] Update changes log for the 1.2.0 version                                                     |
 | [INLONG-4565](https://github.com/apache/incubator-inlong/issues/4565) | [Release] Add the 1.2.0 version option for the bug report                                              |
+| [INLONG-4368](https://github.com/apache/incubator-inlong/issues/4368) | [License] Final LICENSE check of all modules                                                           |
 | [INLONG-4336](https://github.com/apache/incubator-inlong/issues/4336) | [License] Update inlong-sort's third-party dependency LICENSE                                          |
 | [INLONG-4318](https://github.com/apache/incubator-inlong/issues/4318) | [License] Update inlong-manager's third-party dependency LICENSE                                       |
 | [INLONG-4314](https://github.com/apache/incubator-inlong/issues/4314) | [License] Update Sort-standalone's third-party dependency LICENSE                                      |
@@ -400,6 +416,8 @@
 | [INLONG-4288](https://github.com/apache/incubator-inlong/issues/4288) | [License] Update Agent's third-party dependency LICENSE                                                |
 | [INLONG-3968](https://github.com/apache/incubator-inlong/issues/3968) | [License] Remove the "WIP" label of the DISCLAIMER file                                                |
 | [INLONG-3864](https://github.com/apache/incubator-inlong/issues/3864) | [License] Recheck the third-party dependencies by combing each module                                  |
+| [INLONG-3849](https://github.com/apache/incubator-inlong/issues/3849) | [License] Update the third-party components LICENSEs for inlong-audit                                  |
+| [INLONG-3771](https://github.com/apache/incubator-inlong/issues/3771) | [License] Update the third-party components LICENSEs for inlong-agent                                  |
 | [INLONG-3422](https://github.com/apache/incubator-inlong/issues/3422) | [License] Sort out the LICENSEs of the third-party components that the project depends on              |
 | [INLONG-4426](https://github.com/apache/incubator-inlong/issues/4426) | [Improve][Office-Website] Update CI Nodejs Version                                                     |
 | [INLONG-4150](https://github.com/apache/incubator-inlong/issues/4150) | [Improve][Office-Website] Automatically identify version number sorting                                |
