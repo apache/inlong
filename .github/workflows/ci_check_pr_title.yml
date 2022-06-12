@@ -36,10 +36,16 @@ jobs:
       # The correct title should start with [WIP] or [INLONG-xxx],
       # where xxx is the issue number, e.g. [INLONG-123].
       - name: Check title
+        if: ${{ github.event_name == 'pull_request_target' }}
         run: |
           if [[ ! "$PR_TITLE" =~ ^\[(WIP|INLONG-[0-9]+)\].*$ ]]; then
             echo "This pull request title is not valid."
             echo "The correct title should start with [WIP] or [INLONG-xxx], where xxx is the issue number, e.g. [INLONG-123]."
+          
+            # add a job summary
+            echo "## This pull request title is not valid! :bug:" >> $GITHUB_STEP_SUMMARY
+            echo "The correct title should start with \`[WIP]\` or \`[INLONG-xxx]\`, where **xxx** is the issue number, e.g. \`[INLONG-123]\`." >> $GITHUB_STEP_SUMMARY
+
             exit 1
           fi
         env:
