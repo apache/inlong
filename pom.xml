@@ -238,9 +238,10 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <tencentcloud.api.version>3.1.439</tencentcloud.api.version>
         <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
         <cos.bundle.version>5.6.35</cos.bundle.version>
-        <dlc.client.version>1.0-SNAPSHOT</dlc.client.version>
+        <dlc.client.version>1.0</dlc.client.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
 
@@ -1506,7 +1507,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java</artifactId>
+                <version>${tencentcloud.api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.qcloud.cos</groupId>
                 <artifactId>hadoop-cos</artifactId>

@@ -41,12 +41,20 @@
             <artifactId>cos_api-bundle</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.tencentcloudapi</groupId>
+            <artifactId>tencentcloud-sdk-java</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>dlc-data-catalog-metastore-client</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-metastore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.tencentcloudapi</groupId>
+                    <artifactId>tencentcloud-sdk-java</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
