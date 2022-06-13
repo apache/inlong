@@ -61,11 +61,11 @@ public class DLCConstant {
     public static final String DLC_CATALOG_IMPL_CLASS =
             "org.apache.inlong.sort.iceberg.catalog.hybris.DlcWrappedHybrisCatalog";
     public static final Map<String, String> DLC_DEFAULT_IMPL =
-            Collections.unmodifiableMap(new HashMap<String, String>(){{
-        put(FS_LAKEFS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
-        put(FS_COS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
-        put(FS_COS_AUTH_PROVIDER, "org.apache.hadoop.fs.auth.SimpleCredentialProvider");
-    }});
-
-
+            Collections.unmodifiableMap(new HashMap<String, String>() {
+                {
+                    put(FS_LAKEFS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
+                    put(FS_COS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
+                    put(FS_COS_AUTH_PROVIDER, "org.apache.hadoop.fs.auth.SimpleCredentialProvider");
+                }
+            });
 }
