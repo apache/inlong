@@ -67,8 +67,9 @@ public class FlinkOperation {
         if (properties == null) {
             properties = new Properties();
             String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-            InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
-            properties.load(inputStream);
+            try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+                properties.load(inputStream);
+            }
         }
         return properties.getProperty(CONNECTOR_DIR_KEY, Paths.get(parent, INLONG_SORT, "connectors").toString());
     }
@@ -165,7 +166,7 @@ public class FlinkOperation {
         if (CollectionUtils.isEmpty(connectorPaths)) {
             String message = String.format("no sort connectors found in %s", connectorDir);
             log.error(message);
-            throw new Exception(message);
+            throw new RuntimeException(message);
         }
 
         flinkInfo.setConnectorJarPaths(connectorPaths);
