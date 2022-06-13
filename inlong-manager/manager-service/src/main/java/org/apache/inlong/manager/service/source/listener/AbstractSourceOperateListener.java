@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -71,7 +71,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         log.info("operate stream source for context={}", context);
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
-        List<StreamBriefResponse> streamResponses = streamService.getBriefList(groupId);
+        List<InlongStreamBriefInfo> streamResponses = streamService.getBriefList(groupId);
         List<StreamSource> unOperatedSources = Lists.newArrayList();
         streamResponses.forEach(stream ->
                 operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator(), unOperatedSources));

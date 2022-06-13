@@ -38,7 +38,7 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -402,7 +402,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             // Pulsar's topic is the inlong stream level.
             // There will be multiple inlong streams under one inlong group, and there will be multiple topics
-            List<InlongStreamTopicInfo> streamTopics = topicVO.getStreamTopics();
+            List<InlongStreamBriefInfo> streamTopics = topicVO.getStreamTopics();
             if (streamTopics != null && streamTopics.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
                 streamTopics.forEach(stream -> topicSet.remove(stream.getMqResource()));
