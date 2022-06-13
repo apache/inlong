@@ -1011,6 +1011,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.apache.iceberg</groupId>
+                <artifactId>iceberg-flink-runtime-1.13</artifactId>
+                <version>${iceberg.flink.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.flink</groupId>
