@@ -41,7 +41,7 @@ env:
   KIND_CONFIG_PATH: '.github/kind.yml'
 
 concurrency:
-  group: ${{ github.workflow || chart-test }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:

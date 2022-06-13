@@ -20,7 +20,7 @@ name: InLong Check License Header
 on: [ push, pull_request ]
 
 concurrency:
-  group: ${{ github.workflow || check-license-header }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
