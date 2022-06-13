@@ -59,6 +59,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -78,6 +82,7 @@
                                 <includes>
                                     <include>org.apache.iceberg:*</include>
                                     <include>org.apache.hive:hive-exec</include>
+                                    <include>org.apache.thrift:libfb303</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

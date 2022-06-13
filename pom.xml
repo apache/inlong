@@ -183,6 +183,7 @@
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
+        <thrift.version>0.9.3</thrift.version>
         <flume.version>1.9.0</flume.version>
         <hbase.version>2.4.12</hbase.version>
 
@@ -400,6 +401,11 @@
                         <artifactId>*</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libfb303</artifactId>
+                <version>${thrift.version}</version>
             </dependency>
 
             <!-- hadoop -->
