@@ -21,12 +21,19 @@ import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.AuditQuerySource;
+import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 import org.apache.inlong.manager.common.pojo.audit.AuditInfo;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
@@ -68,6 +75,9 @@ public class AuditServiceImpl implements AuditService {
     private AuditEntityMapper auditEntityMapper;
     @Autowired
     private ElasticsearchApi elasticsearchApi;
+
+    private static final String HOUR_FORMAT = "yyyy-MM-dd HH";
+    private static final String DAY_FORMAT = "yyyy-MM-dd";
 
     @Override
     public List<AuditVO> listByCondition(AuditRequest request) throws IOException {
@@ -118,14 +128,14 @@ public class AuditServiceImpl implements AuditService {
             }
         }
         LOGGER.info("success to query audit list for request={}", request);
-        return result;
+        return aggregateRequest(result, request.getTimeStaticsDim());
     }
 
     /**
      * Convert to elasticsearch search request
      *
-     * @param index The index of elasticsearch
-     * @param groupId The groupId of inlong
+     * @param index    The index of elasticsearch
+     * @param groupId  The groupId of inlong
      * @param streamId The streamId of inlong
      * @return The search request of elasticsearch
      */
@@ -144,4 +154,81 @@ public class AuditServiceImpl implements AuditService {
         return new SearchRequest(new String[]{index}, sourceBuilder);
     }
 
+    /**
+     * aggregate request
+     *
+     * @param searchRequest
+     * @param timeStaticsDim
+     * @return
+     */
+    private List<AuditVO> aggregateRequest(List<AuditVO> searchRequest, TimeStaticsDim timeStaticsDim) {
+        List<AuditVO> result;
+        switch (timeStaticsDim) {
+            case HOUR:
+                result = doAggregateRequest(searchRequest, HOUR_FORMAT);
+                break;
+            case DAY:
+                result = doAggregateRequest(searchRequest, DAY_FORMAT);
+                break;
+            default:
+                result = searchRequest;
+                break;
+        }
+        return result;
+    }
+
+    /**
+     * do aggregate request
+     *
+     * @param searchRequest
+     * @param format
+     * @return
+     */
+    private List<AuditVO> doAggregateRequest(List<AuditVO> searchRequest, String format) {
+        List<AuditVO> result = new ArrayList<>();
+        for (AuditVO auditVO : searchRequest) {
+            AuditVO auditVOStat = new AuditVO();
+            ConcurrentHashMap<String, AtomicLong> countMap = new ConcurrentHashMap<String, AtomicLong>();
+            auditVOStat.setAuditId(auditVO.getAuditId());
+            for (AuditInfo auditInfo : auditVO.getAuditSet()) {
+                String statKey = formatLogtime(auditInfo.getLogTs(), format);
+                if (statKey == null) {
+                    continue;
+                }
+                if (countMap.get(statKey) == null) {
+                    countMap.put(statKey, new AtomicLong(0));
+                }
+                countMap.get(statKey).addAndGet(auditInfo.getCount());
+            }
+            List<AuditInfo> auditInfoList = new LinkedList<>();
+            for (Map.Entry<String, AtomicLong> entry : countMap.entrySet()) {
+                AuditInfo auditInfoStat = new AuditInfo();
+                auditInfoStat.setLogTs(entry.getKey());
+                auditInfoStat.setCount(entry.getValue().get());
+                auditInfoList.add(auditInfoStat);
+            }
+            auditVOStat.setAuditSet(auditInfoList);
+            result.add(auditVOStat);
+        }
+        return result;
+    }
+
+    /**
+     * format log time
+     *
+     * @param dateString
+     * @param format
+     * @return
+     */
+    private String formatLogtime(String dateString, String format) {
+        String formatDateString = null;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat(format);
+            Date date = formatter.parse(dateString);
+            formatDateString = formatter.format(date);
+        } catch (Exception e) {
+            LOGGER.error("format lot time exception {}", e.getMessage());
+        }
+        return formatDateString;
+    }
 }
