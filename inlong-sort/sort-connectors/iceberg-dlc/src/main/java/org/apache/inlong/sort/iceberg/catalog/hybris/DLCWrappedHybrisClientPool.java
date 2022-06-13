@@ -31,6 +31,9 @@ import org.apache.iceberg.relocated.com.google.common.annotations.VisibleForTest
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransportException;
 
+/**
+ * DLC Catalog client pool.
+ */
 public class DLCWrappedHybrisClientPool extends ClientPoolImpl<IMetaStoreClient, TException> {
 
     // use appropriate ctor depending on whether we're working with Hive2 or Hive3 dependencies

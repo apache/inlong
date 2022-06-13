@@ -28,6 +28,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * test for dlc load node
+ */
 public class DLCIcebergLoadNodeTest extends SerializeBaseTest<DLCIcebergLoadNode> {
     @Override
     public DLCIcebergLoadNode getTestObject() {

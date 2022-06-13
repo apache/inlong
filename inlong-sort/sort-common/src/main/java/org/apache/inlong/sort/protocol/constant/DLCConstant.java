@@ -23,14 +23,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DLCConstant {
+    /**
+     * DLC internet access domain name.
+     */
     public static final String DLC_ENDPOINT = "dlc.tencentcloudapi.com";
 
+    /**
+     * dlc account region
+     */
     public static final String DLC_REGION  = "qcloud.dlc.region";
+    /**
+     * dlc account secret id
+     */
     public static final String DLC_SECRET_ID  = "qcloud.dlc.secret-id";
+    /**
+     * dlc account secret key
+     */
     public static final String DLC_SECRET_KEY  = "qcloud.dlc.secret-key";
 
+    /**
+     * dlc cos region
+     */
     public static final String FS_COS_REGION  = "fs.cosn.userinfo.region";
+    /**
+     * dlc main account cos secret id
+     */
     public static final String FS_COS_SECRET_ID  = "fs.cosn.userinfo.secretId";
+    /**
+     * dlc main account cos secret key
+     */
     public static final String FS_COS_SECRET_KEY  = "fs.cosn.userinfo.secretKey";
 
     public static final String FS_LAKEFS_IMPL  = "fs.lakefs.impl";

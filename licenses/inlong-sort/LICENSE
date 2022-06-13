@@ -803,7 +803,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.eclipse.jetty.websocket:websocket-common:9.3.20.v20170531 - Jetty :: Websocket :: Common (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-common), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty.websocket:websocket-server:9.3.20.v20170531 - Jetty :: Websocket :: Server (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty.websocket:websocket-servlet:9.3.20.v20170531 - Jetty :: Websocket :: Servlet Interface (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-
+  com.qcloud:cos_api-bundle:jar:5.6.35 - COS SDK for Java - Bundle (https://github.com/tencentyun/cos-java-sdk-v5-bundle),  (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
 
 ========================================================================
 EDL licenses

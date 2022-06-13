@@ -44,6 +44,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * test DLC search sql parse
+ */
 public class DLCIcebergSqlParseTest {
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(
@@ -117,6 +120,11 @@ public class DLCIcebergSqlParseTest {
         return new NodeRelation(inputIds, outputIds);
     }
 
+    /**
+     * Test mysql to DLC
+     *
+     * @throws Exception The exception may throws when execute the case
+     */
     @Test
     public void testDLCIceberg() throws Exception {
         EnvironmentSettings settings = EnvironmentSettings
