@@ -71,17 +71,7 @@ public class DLCIcebergSqlParseTest {
                 null);
     }
 
-
     private DLCIcebergLoadNode buildDLCLoadNode() {
-        List<FieldInfo> fields = Arrays.asList(
-                new FieldInfo("id", new IntFormatInfo()),
-                new FieldInfo("name", new StringFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
-                                new FieldInfo("id", new IntFormatInfo())),
-                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())));
-
         // set HIVE_CONF_DIR,or set uri and warehouse
         Map<String, String> properties = new HashMap<>();
         properties.put(DLCConstant.DLC_REGION, "ap-beijing");
@@ -91,6 +81,14 @@ public class DLCIcebergSqlParseTest {
         properties.put(DLCConstant.FS_COS_REGION, "ap-beijing");
         properties.put(DLCConstant.FS_COS_SECRET_ID, "XXXXXXXXXXX");
         properties.put(DLCConstant.FS_COS_SECRET_KEY, "XXXXXXXXXXX");
+        List<FieldRelation> relations = Arrays
+                .asList(new FieldRelation(new FieldInfo("id", new IntFormatInfo()),
+                                new FieldInfo("id", new IntFormatInfo())),
+                        new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                                new FieldInfo("name", new StringFormatInfo())));
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("id", new IntFormatInfo()),
+                new FieldInfo("name", new StringFormatInfo()));
         return new DLCIcebergLoadNode(
                 "iceberg",
                 "iceberg_output",
