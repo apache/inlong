@@ -1008,17 +1008,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink-1.13</artifactId>
-                <version>${iceberg.flink.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.avro</groupId>
-                        <artifactId>avro</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.iceberg</groupId>
                 <artifactId>iceberg-flink-runtime-1.13</artifactId>
                 <version>${iceberg.flink.version}</version>
             </dependency>
