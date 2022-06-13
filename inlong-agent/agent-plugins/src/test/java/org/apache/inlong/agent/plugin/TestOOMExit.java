@@ -20,7 +20,13 @@ package org.apache.inlong.agent.plugin;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.utils.ThreadUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +34,20 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ThreadUtils.class)
+@PowerMockIgnore({"javax.management.*"})
 public class TestOOMExit {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestOOMExit.class);
-    private final MockJobManager jobManager = new MockJobManager();
+    @BeforeClass
+    public static void setup() throws Exception {
+        PowerMockito.spy(ThreadUtils.class);
+        PowerMockito.doNothing().when(ThreadUtils.class, "forceShutDown");
+    }
 
     @Test
     public void testOOM() {
+        MockJobManager jobManager = new MockJobManager();
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
         conf.setBoolean(AGENT_ENABLE_OOM_EXIT, true);
         jobManager.start();
@@ -42,6 +55,7 @@ public class TestOOMExit {
     }
 
     static class MockJobManager extends AbstractDaemon {
+        private static final Logger LOGGER = LoggerFactory.getLogger(MockJobManager.class);
 
         @Override
         public void start() {
@@ -56,12 +70,12 @@ public class TestOOMExit {
         public Runnable throwOOMThread() {
             return () -> {
                 int i = 0;
-                while (true) {
+                while (i < 5) {
                     try {
                         LOGGER.info("throw OOM thread: " + i);
                         TimeUnit.SECONDS.sleep(1);
                         i++;
-                        if (i == 5) {
+                        if (i == 3) {
                             LOGGER.info("throw OOM");
                             throw new OutOfMemoryError();
                         }
