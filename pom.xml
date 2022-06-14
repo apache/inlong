@@ -183,6 +183,7 @@
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
+        <thrift.version>0.9.3</thrift.version>
         <flume.version>1.9.0</flume.version>
         <hbase.version>2.4.12</hbase.version>
 
@@ -400,6 +401,11 @@
                         <artifactId>*</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libfb303</artifactId>
+                <version>${thrift.version}</version>
             </dependency>
 
             <!-- hadoop -->
@@ -1002,14 +1008,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink-1.13</artifactId>
+                <artifactId>iceberg-flink-runtime-1.13</artifactId>
                 <version>${iceberg.flink.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.avro</groupId>
-                        <artifactId>avro</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
