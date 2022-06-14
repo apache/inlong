@@ -20,6 +20,8 @@ package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -72,8 +74,9 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
-        fields.add(new FieldInfo("_id", new StringFormatInfo()));
-        this.setFields(fields);
+        List<FieldInfo> allFields = new ArrayList<>(fields);
+        allFields.add(new FieldInfo("_id", new StringFormatInfo()));
+        this.setFields(allFields);
         this.collection = Preconditions.checkNotNull(collection, "collection is null");
         this.hosts = Preconditions.checkNotNull(hostname, "hostname is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
