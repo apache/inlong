@@ -61,23 +61,23 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
 
     @JsonCreator
     public MongoExtractNode(@JsonProperty("id") String id,
-        @JsonProperty("name") String name,
-        @JsonProperty("fields") List<FieldInfo> fields,
-        @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
-        @JsonProperty("properties") Map<String, String> properties,
-        @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("collection") @Nonnull String collection,
-        @JsonProperty("hostname") String hostname,
-        @JsonProperty("username") String username,
-        @JsonProperty("password") String password,
-        @JsonProperty("database") String database) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("collection") @Nonnull String collection,
+            @JsonProperty("hostname") String hostname,
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password,
+            @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
         this.collection = Preconditions.checkNotNull(collection, "collection is null");
         this.hosts = Preconditions.checkNotNull(hostname, "hostname is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.database = Preconditions.checkNotNull(database, "database is null");
-        this.primaryKey = primaryKey;
+        // the primaryKey must be "_id"
+        this.primaryKey = "_id";
     }
 
     @Override

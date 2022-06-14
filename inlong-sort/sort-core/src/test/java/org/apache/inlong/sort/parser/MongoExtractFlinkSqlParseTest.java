@@ -52,9 +52,8 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("_id", new StringFormatInfo()));
         return new MongoExtractNode("1", "mysql_input", fields,
-                null, null, "_id",
-                "test", "localhost:27017", "root", "inlong",
-                "test");
+                null, null, "test", "localhost:27017",
+                "root", "inlong", "test");
     }
 
     private KafkaLoadNode buildAllMigrateKafkaNode() {
