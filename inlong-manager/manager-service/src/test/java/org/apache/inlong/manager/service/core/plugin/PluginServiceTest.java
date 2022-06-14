@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.List;
  * Test class for reload plugin.
  */
 public class PluginServiceTest extends ServiceBaseTest {
+
+    public static final String PLUGIN_NAME = "plugins";
 
     @Autowired
     PluginService pluginService;
@@ -44,12 +47,7 @@ public class PluginServiceTest extends ServiceBaseTest {
         } catch (URISyntaxException e) {
             Assert.fail(e.getMessage());
         }
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.startsWith(PluginClassLoader.WINDOWS_PREFIX)) {
-            pluginService.setPluginLoc(path + "\\plugins");
-        } else {
-            pluginService.setPluginLoc(path + "/plugins");
-        }
+        pluginService.setPluginLoc(path + File.separator + PLUGIN_NAME);
         pluginService.pluginReload();
         List<Plugin> pluginList = pluginService.getPlugins();
         Assert.assertTrue(pluginList.size() > 0);
