@@ -756,6 +756,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.codehaus.jackson:jackson-mapper-asl:1.9.13 - Data Mapper for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl/1.9.13), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.7.8 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base), (The Apache Software License, Version 2.0)
   com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.10.5 - Jackson module: JAXB Annotations (https://github.com/FasterXML/jackson-modules-base), (The Apache Software License, Version 2.0)
+  com.qcloud:cos_api-bundle:5.6.35 - COS SDK for Java - Bundle (The Apache Software License, Version 2.0)
   org.codehaus.jackson:jackson-xc:1.9.2 - Xml Compatibility extensions for Jackson (https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-xc/1.9.2), (The Apache Software License, Version 2.0;  GNU Lesser General Public License (LGPL), Version 2.1)
   org.javassist:javassist:3.24.0-GA - Javassist (https://github.com/jboss-javassist/javassist/tree/rel_3_24_0_ga), (Apache License 2.0;  MPL 1.1;  LGPL 2.1)
   org.mortbay.jetty:jetty:6.1.26 - Jetty Server (http://www.eclipse.org/jetty/jetty-parent/project/modules/jetty), (Apache Software License - Version 2.0;  EPL 1.0)
