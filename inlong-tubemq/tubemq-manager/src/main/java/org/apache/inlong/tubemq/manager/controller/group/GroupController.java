@@ -24,6 +24,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.AddBlackGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.BatchDeleteGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteBlackGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.FilterCondGroupReq;
@@ -75,6 +76,8 @@ public class GroupController {
                 return batchAddGroup(gson.fromJson(req, BatchAddGroupAuthReq.class));
             case TubeConst.DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteGroupReq.class));
+            case TubeConst.BATCH_DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchDeleteGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER_GROUP:
                 return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER:
@@ -142,6 +145,8 @@ public class GroupController {
                 return masterService.baseRequestMaster(gson.fromJson(req, AddBlackGroupReq.class));
             case TubeConst.DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteBlackGroupReq.class));
+            case TubeConst.BATCH_DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchDeleteGroupReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
