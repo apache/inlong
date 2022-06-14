@@ -31,6 +31,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -71,6 +72,8 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
+        fields.add(new FieldInfo("_id", new StringFormatInfo()));
+        this.setFields(fields);
         this.collection = Preconditions.checkNotNull(collection, "collection is null");
         this.hosts = Preconditions.checkNotNull(hostname, "hostname is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
