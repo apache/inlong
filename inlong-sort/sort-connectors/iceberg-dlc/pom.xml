@@ -30,6 +30,10 @@
     <artifactId>sort-connector-iceberg-dlc</artifactId>
     <name>Apache InLong - Sort-connector-iceberg-dlc</name>
     <packaging>jar</packaging>
+    <description>
+        DLC is a data lake product.It's storage is based on iceberg.
+        Here is the product: https://cloud.tencent.com/product/dlc
+    </description>
 
     <dependencies>
         <dependency>
