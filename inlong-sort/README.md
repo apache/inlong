@@ -1,15 +1,15 @@
-## Description
+# Description
 
-## Overview
+# Overview
 
 InLong-Sort is used to extract data from different source systems, then transforms the data and finally loads the data
 into diffrent storage systems.
 InLong-Sort is simply a Flink Application, and relys on InLong-Manager to manage meta data(such as the source
 informations and storage informations).
 
-## Features
+# Features
 
-### Supported Extract Node
+## Supported Extract Node
 
 - Pulsar
 - MySQL
@@ -17,10 +17,8 @@ informations and storage informations).
 - MongoDB
 - PostgreSQL
 - HDFS
-- Oracle
-- SQLServer
 
-### Supported Transform
+## Supported Transform
 
 - String Split
 - String Regular Replace
@@ -29,7 +27,7 @@ informations and storage informations).
 - Data Distinct
 - Regular Join
 
-### Supported Load Node
+## Supported Load Node
 
 - Hive
 - Kafka
@@ -38,19 +36,18 @@ informations and storage informations).
 - Iceberg
 - PostgreSQL
 - HDFS
-- TDSQL PostgreSQL
-- Oracle
-- Elasticsearch
-- Greenplum
-- MySQL
-- SQLServer
+- TDSQL Postgres
 
 ## Future Plans
+
+### More kinds of Extract Node
+
+Oracle, SqlServer, and etc.
 
 ### More kinds of Transform
 
 Time window aggregation, Content extraction, Type conversion, Time format conversion, and etc.
 
-### More kinds of Load Nodes
+### More kinds of Load Node
 
-DB2, and etc.
+Elasticsearch, and etc.
