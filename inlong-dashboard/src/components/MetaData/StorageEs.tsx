@@ -206,7 +206,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Es.Analyzer'),
+      title: 'Analyzer',
       dataIndex: 'analyzer',
       type: 'input',
       props: (text, record, idx, isNew) => ({
@@ -215,7 +215,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       visible: (text, record) => record.fieldType === 'text',
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Es.SearchAnalyzer'),
+      title: 'SearchAnalyzer',
       dataIndex: 'searchAnalyzer',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
@@ -231,7 +231,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       visible: (text, record) => record.fieldType === 'date',
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Es.ScalingFactor'),
+      title: 'ScalingFactor',
       dataIndex: 'scalingFactor',
       props: (text, record, idx, isNew) => ({
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
