@@ -37,6 +37,7 @@ import org.apache.inlong.agent.pojo.DbCollectorTaskRequestDto;
 import org.apache.inlong.agent.pojo.DbCollectorTaskResult;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.db.CommandEntity;
 import org.apache.inlong.common.enums.ManagerOpEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
@@ -489,8 +490,9 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
 
                     // fetch db collector task from manager
                     fetchDbCollectTask();
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.warn("exception caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };

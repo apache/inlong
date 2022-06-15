@@ -52,10 +52,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 /**
@@ -427,6 +429,10 @@ public class AgentUtils {
             throw new RuntimeException(ex);
         }
         return finalPath;
+    }
+
+    public static boolean enableOOMExit() {
+        return AgentConfiguration.getAgentConf().getBoolean(AGENT_ENABLE_OOM_EXIT, DEFAULT_ENABLE_OOM_EXIT);
     }
 
 }
