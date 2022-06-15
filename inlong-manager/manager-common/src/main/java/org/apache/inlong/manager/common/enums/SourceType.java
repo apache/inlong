@@ -36,7 +36,7 @@ public enum SourceType {
     POSTGRES("POSTGRES", TaskTypeEnum.POSTGRES),
     ORACLE("ORACLE", TaskTypeEnum.ORACLE),
     SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER),
-    MONGODB("MONGO", TaskTypeEnum.MONGODB),
+    MONGODB("MONGODB", TaskTypeEnum.MONGODB),
 
     ;
 
@@ -71,7 +71,7 @@ public enum SourceType {
                 return type;
             }
         }
-        throw new IllegalArgumentException(String.format("Illegal sink type for %s", sourceType));
+        throw new IllegalArgumentException(String.format("Illegal source type for %s", sourceType));
     }
 
     @Override
