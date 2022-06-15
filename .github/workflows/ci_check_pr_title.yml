@@ -38,13 +38,17 @@ jobs:
       - name: Check title
         if: ${{ github.event_name == 'pull_request_target' }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^\[(WIP|INLONG-[0-9]+)\].*$ ]]; then
+          if [[ ! "$PR_TITLE" =~ ^\[(WIP|INLONG-[0-9]+)\]\[[a-zA-Z]+\].*$ ]]; then
             echo "This pull request title is not valid."
-            echo "The correct title should start with [WIP] or [INLONG-xxx], where xxx is the issue number, e.g. [INLONG-123]."
+            echo "Title Example: [INLONG-XYZ][Component] Title of the pull request"
+            echo "XYZ should be replaced by the actual GitHub Issue number, e.g. [INLONG-123]"
+            echo "Component should be replaced by the InLong component name, e.g. [INLONG-123][Manager]"
           
             # add a job summary
             echo "## This pull request title is not valid! :bug:" >> $GITHUB_STEP_SUMMARY
-            echo "The correct title should start with \`[WIP]\` or \`[INLONG-xxx]\`, where **xxx** is the issue number, e.g. \`[INLONG-123]\`." >> $GITHUB_STEP_SUMMARY
+            echo "Title Example: \`[INLONG-XYZ][Component] Title of the pull request\`" >> $GITHUB_STEP_SUMMARY
+            echo "> - **XYZ** should be replaced by the actual [GitHub Issue](https://github.com/apache/incubator-inlong/issues) number, e.g. \`[INLONG-123]\`" >> $GITHUB_STEP_SUMMARY
+            echo "> - **Component** should be replaced by the InLong component name, e.g. \`[INLONG-123][Manager]\`" >> $GITHUB_STEP_SUMMARY
 
             exit 1
           fi

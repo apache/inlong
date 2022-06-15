@@ -53,8 +53,12 @@ This directory contains all InLong CI checks.
 - [![InLong Check Pull Request Title](https://github.com/apache/incubator-inlong/actions/workflows/ci_check_pr_title.yml/badge.svg)](https://github.com/apache/incubator-inlong/actions/workflows/ci_check_pr_title.yml)
 
   Check pull request title.
-  The correct title should start with `[WIP]` or `[INLONG-xxx]`,
-  where **xxx** is the issue number, e.g. `[INLONG-123]`.
+
+  Title Example: `[INLONG-XYZ][Component] Title of the pull request`
+  
+  > - **XYZ** should be replaced by the actual [GitHub Issue](https://github.com/apache/incubator-inlong/issues) number, e.g. `[INLONG-123]`
+  >
+  > - **Component** should be replaced by the InLong component name, e.g. `[INLONG-123][Manager]`
 
 ### Troubleshooting
 
