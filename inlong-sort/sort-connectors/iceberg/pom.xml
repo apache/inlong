@@ -35,10 +35,35 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.iceberg</groupId>
-            <artifactId>iceberg-flink-1.13</artifactId>
+            <artifactId>iceberg-flink-runtime-1.13</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.calcite.avatica</groupId>
+                    <artifactId>avatica</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.pentaho</groupId>
+                    <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>
@@ -53,48 +78,13 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.apache.avro</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.apache.avro</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.apache.parquet</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.apache.parquet</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.com.google</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.com.fasterxml</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.github.benmanes</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.com.github.benmanes</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.checkerframework</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.checkerframework</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>shaded.parquet</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.apache.parquet.shaded</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.apache.orc</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.apache.orc</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>io.airlift</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.io.airlift</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.threeten.extra</pattern>
-                                    <shadedPattern>org.apache.iceberg.shaded.org.threeten.extra</shadedPattern>
-                                </relocation>
-                            </relocations>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.apache.iceberg:*</include>
+                                    <include>org.apache.hive:hive-exec</include>
+                                    <include>org.apache.thrift:libfb303</include>
+                                </includes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>

@@ -20,6 +20,7 @@ package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -44,6 +46,13 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 public class MongoExtractNode extends ExtractNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * the primary key must be "_id"
+     *
+     * @see <a href="https://ververica.github.io/flink-cdc-connectors/release-2.1/content/connectors/mongodb-cdc.html#">MongoDB CDC Connector</a>
+     */
+    private static final String ID = "_id";
 
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
@@ -61,23 +70,27 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
 
     @JsonCreator
     public MongoExtractNode(@JsonProperty("id") String id,
-        @JsonProperty("name") String name,
-        @JsonProperty("fields") List<FieldInfo> fields,
-        @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
-        @JsonProperty("properties") Map<String, String> properties,
-        @JsonProperty("primaryKey") String primaryKey,
-        @JsonProperty("collection") @Nonnull String collection,
-        @JsonProperty("hostname") String hostname,
-        @JsonProperty("username") String username,
-        @JsonProperty("password") String password,
-        @JsonProperty("database") String database) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermarkField") WatermarkField waterMarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @JsonProperty("collection") @Nonnull String collection,
+            @JsonProperty("hostname") String hostname,
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password,
+            @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
+        if (fields.stream().noneMatch(m -> m.getName().equals(ID))) {
+            List<FieldInfo> allFields = new ArrayList<>(fields);
+            allFields.add(new FieldInfo(ID, new StringFormatInfo()));
+            this.setFields(allFields);
+        }
         this.collection = Preconditions.checkNotNull(collection, "collection is null");
         this.hosts = Preconditions.checkNotNull(hostname, "hostname is null");
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.database = Preconditions.checkNotNull(database, "database is null");
-        this.primaryKey = primaryKey;
+        this.primaryKey = ID;
     }
 
     @Override

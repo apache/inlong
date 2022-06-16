@@ -21,8 +21,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Inlong stream brief info
@@ -48,5 +50,8 @@ public class InlongStreamBriefInfo {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Sink brief list")
+    private List<SinkBriefResponse> sinkList;
 
 }

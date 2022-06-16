@@ -385,7 +385,6 @@ public class ExtractNodeUtils {
                 fieldInfos,
                 null,
                 properties,
-                source.getPrimaryKey(),
                 source.getCollection(),
                 source.getHosts(),
                 source.getUsername(),

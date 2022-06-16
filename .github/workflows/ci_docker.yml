@@ -40,6 +40,10 @@ on:
       - 'inlong-tubemq/tubemq-docker/**'
       - '!**.md'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   docker:
     name: Docker build and push
@@ -73,6 +77,13 @@ jobs:
         env:
           CI: false
 
+      # Check if only the workflow file is changed.
+      - name: Check workflow diff
+        id: check-workflow-diff
+        uses: apache/pulsar-test-infra/diff-only@master
+        with:
+          args: .github/workflows/ci_docker.yml
+
       # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
       - name: Match branch
         id: match-branch
@@ -86,7 +97,10 @@ jobs:
           fi
 
       - name: Push Docker images to Docker Hub
-        if: ${{ success() && steps.match-branch.outputs.match == 'true' }}
+        if: |
+          success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-branch.outputs.match == 'true'
         working-directory: docker
         run: bash +x publish.sh
         env:

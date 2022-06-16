@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class NewGroupProcessForm extends BaseProcessForm {
     private InlongGroupInfo groupInfo;
 
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
-    private List<StreamBriefResponse> streamInfoList;
+    private List<InlongStreamBriefInfo> streamInfoList;
 
     @Override
     public void validate() throws FormValidateException {

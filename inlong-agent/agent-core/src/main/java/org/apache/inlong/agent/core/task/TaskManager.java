@@ -24,6 +24,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -236,8 +237,9 @@ public class TaskManager extends AbstractDaemon {
                         }
                     }
                     TimeUnit.SECONDS.sleep(monitorInterval);
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("Exception caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };

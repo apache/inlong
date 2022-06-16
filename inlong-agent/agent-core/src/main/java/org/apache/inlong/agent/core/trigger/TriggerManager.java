@@ -28,6 +28,7 @@ import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.db.TriggerProfileDb;
 import org.apache.inlong.agent.plugin.Trigger;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,8 +85,9 @@ public class TriggerManager extends AbstractDaemon {
             triggerMap.put(triggerId, trigger);
             trigger.init(triggerProfile);
             trigger.run();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOGGER.error("exception caught", ex);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
             return false;
         }
         return true;
@@ -140,8 +142,10 @@ public class TriggerManager extends AbstractDaemon {
                         }
                     });
                     TimeUnit.SECONDS.sleep(triggerFetchInterval);
-                } catch (Exception ignored) {
-                    LOGGER.info("ignored Exception ", ignored);
+                } catch (Throwable e) {
+                    LOGGER.info("ignored Exception ", e);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+
                 }
             }
 
@@ -180,8 +184,9 @@ public class TriggerManager extends AbstractDaemon {
                         }
                     });
                     TimeUnit.MINUTES.sleep(JOB_CHECK_INTERVAL);
-                } catch (Exception ignored) {
-                    LOGGER.info("ignored Exception ", ignored);
+                } catch (Throwable e) {
+                    LOGGER.info("ignored Exception ", e);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
                 }
             }
 

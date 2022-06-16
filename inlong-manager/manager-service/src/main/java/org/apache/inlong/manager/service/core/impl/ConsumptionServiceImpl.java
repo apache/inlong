@@ -21,12 +21,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
@@ -36,7 +38,7 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -48,6 +50,7 @@ import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
 import org.apache.inlong.manager.dao.mapper.ConsumptionPulsarEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -78,8 +81,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
     @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
     private ConsumptionEntityMapper consumptionMapper;
@@ -89,6 +90,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private InlongGroupService groupService;
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private InlongClusterService clusterService;
 
     @Override
     public ConsumptionSummary getSummary(ConsumptionQuery query) {
@@ -128,8 +131,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             Preconditions.checkNotNull(pulsarEntity, "Pulsar consumption cannot be empty, as the middleware is Pulsar");
             ConsumptionPulsarInfo pulsarInfo = CommonBeanUtils.copyProperties(pulsarEntity, ConsumptionPulsarInfo::new);
             info.setMqExtInfo(pulsarInfo);
-
-            info.setTopic(this.getFullPulsarTopic(info.getInlongGroupId(), info.getTopic()));
         }
 
         return info;
@@ -151,14 +152,29 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer save(ConsumptionInfo info, String operator) {
-        fullConsumptionInfo(info);
-        Date now = new Date();
-        ConsumptionEntity entity = this.saveConsumption(info, operator, now);
+        log.debug("begin to save consumption info={}", info);
+        Preconditions.checkNotNull(info, "consumption info cannot be null");
+        Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
+        if (isConsumerGroupExists(info.getConsumerGroup(), info.getId())) {
+            throw new BusinessException(String.format("consumer group %s already exist", info.getConsumerGroup()));
+        }
+
+        if (info.getId() != null) {
+            ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
+            Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
+            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
+            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
+                    "consumption not allow update when status is " + consumptionStatus.name());
+        }
+
+        setTopicInfo(info);
+        ConsumptionEntity entity = this.saveConsumption(info, operator);
         MQType mqType = MQType.forType(entity.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             savePulsarInfo(info.getMqExtInfo(), entity);
         }
 
+        log.info("success to save consumption info by user={}", operator);
         return entity.getId();
     }
 
@@ -167,8 +183,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
      */
     private void savePulsarInfo(ConsumptionMqExtBase mqExtBase, ConsumptionEntity entity) {
         Preconditions.checkNotNull(mqExtBase, "Pulsar info cannot be empty, as the middleware is Pulsar");
-        // If it is transmitted from the web without specifying consumptionpulsarinfo,
-        // the mqextbase is not consumptionpulsarinfo and cannot be converted directly
+        // If it is transmitted from the web without specifying consumption pulsar info,
         ConsumptionPulsarInfo pulsarInfo;
         if (mqExtBase instanceof ConsumptionPulsarInfo) {
             pulsarInfo = (ConsumptionPulsarInfo) mqExtBase;
@@ -299,17 +314,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         return true;
     }
 
-    /**
-     * According to groupId and topic, stitch the full path of Pulsar Topic
-     * TODO: save full topic of Pulsar in consumption info
-     */
-    private String getFullPulsarTopic(String groupId, String topic) {
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
-        String tenant = clusterBean.getDefaultTenant();
-        String namespace = inlongGroupEntity.getMqResource();
-        return String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant, namespace, topic);
-    }
-
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Boolean delete(Integer id, String operator) {
@@ -360,12 +364,13 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         log.debug("success save consumption, groupId={}, topic={}, consumer group={}", groupId, topic, consumerGroup);
     }
 
-    private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator, Date now) {
+    private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
         entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
         entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);
+        Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
 
@@ -380,25 +385,10 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     }
 
     /**
-     * Fill in consumer information
+     * Set the topic for the consumption information
      */
-    private void fullConsumptionInfo(ConsumptionInfo info) {
-        Preconditions.checkNotNull(info, "consumption info cannot be null");
-        Preconditions.checkFalse(isConsumerGroupExists(info.getConsumerGroup(), info.getId()),
-                "consumer group " + info.getConsumerGroup() + " already exist");
-
-        if (info.getId() != null) {
-            ConsumptionEntity consumptionEntity = consumptionMapper.selectByPrimaryKey(info.getId());
-            Preconditions.checkNotNull(consumptionEntity, "consumption not exist with id: " + info.getId());
-
-            ConsumptionStatus consumptionStatus = ConsumptionStatus.fromStatus(consumptionEntity.getStatus());
-            Preconditions.checkTrue(ConsumptionStatus.ALLOW_SAVE_UPDATE_STATUS.contains(consumptionStatus),
-                    "consumption not allow update when status is " + consumptionStatus.name());
-        }
-
+    private void setTopicInfo(ConsumptionInfo info) {
         // Determine whether the consumed topic belongs to this groupId or the inlong stream under it
-        Preconditions.checkNotNull(info.getTopic(), "consumption topic cannot be empty");
-
         String groupId = info.getInlongGroupId();
         InlongGroupTopicInfo topicVO = groupService.getTopic(groupId);
         Preconditions.checkNotNull(topicVO, "inlong group not exist: " + groupId);
@@ -412,12 +402,22 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         } else if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
             // Pulsar's topic is the inlong stream level.
             // There will be multiple inlong streams under one inlong group, and there will be multiple topics
-            List<InlongStreamTopicInfo> streamTopics = topicVO.getStreamTopics();
+            List<InlongStreamBriefInfo> streamTopics = topicVO.getStreamTopics();
             if (streamTopics != null && streamTopics.size() > 0) {
                 Set<String> topicSet = new HashSet<>(Arrays.asList(info.getTopic().split(",")));
                 streamTopics.forEach(stream -> topicSet.remove(stream.getMqResource()));
                 Preconditions.checkEmpty(topicSet, "topic [" + topicSet + "] not belong to inlong group " + groupId);
             }
+            InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
+            if (null != inlongGroupEntity) {
+                PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
+                        inlongGroupEntity.getInlongClusterTag(), null, ClusterType.CLS_PULSAR);
+                String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
+                        ? InlongGroupSettings.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant,
+                        inlongGroupEntity.getMqResource(), info.getTopic()));
+            }
+
         }
         info.setMqType(mqType.getType());
     }

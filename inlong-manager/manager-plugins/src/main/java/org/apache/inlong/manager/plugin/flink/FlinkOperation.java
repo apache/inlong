@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.flink;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
@@ -26,8 +27,14 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -39,17 +46,32 @@ import static org.apache.flink.api.common.JobStatus.RUNNING;
 @Slf4j
 public class FlinkOperation {
 
+    private static final String CONFIG_FILE = "application.properties";
+    private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
             + "or task already terminated or savepoint path is null";
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
-    private static final String SORT_PLUGIN = "sort-plugin" + File.separator + "connectors";
-
+    private static Properties properties;
     private final FlinkService flinkService;
 
     public FlinkOperation(FlinkService flinkService) {
         this.flinkService = flinkService;
+    }
+
+    /**
+     * Get sort connector directory
+     */
+    private static String getConnectorDir(String parent) throws IOException {
+        if (properties == null) {
+            properties = new Properties();
+            String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
+            try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+                properties.load(inputStream);
+            }
+        }
+        return properties.getProperty(CONNECTOR_DIR_KEY, Paths.get(parent, INLONG_SORT, "connectors").toString());
     }
 
     /**
@@ -139,8 +161,14 @@ public class FlinkOperation {
         flinkInfo.setLocalJarPath(jarPath);
         log.info("get sort jar path success, path: {}", jarPath);
 
-        String pluginPath = startPath + SORT_PLUGIN;
-        List<String> connectorPaths = FlinkUtils.listFiles(pluginPath, getConnectorJarPattern(flinkInfo), -1);
+        String connectorDir = getConnectorDir(startPath);
+        List<String> connectorPaths = FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(flinkInfo), -1);
+        if (CollectionUtils.isEmpty(connectorPaths)) {
+            String message = String.format("no sort connectors found in %s", connectorDir);
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+
         flinkInfo.setConnectorJarPaths(connectorPaths);
         log.info("get sort connector paths success, paths: {}", connectorPaths);
 

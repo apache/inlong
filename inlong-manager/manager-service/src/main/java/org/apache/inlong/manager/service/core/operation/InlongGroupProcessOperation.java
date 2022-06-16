@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
@@ -251,7 +251,7 @@ public class InlongGroupProcessOperation {
         NewGroupProcessForm form = new NewGroupProcessForm();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         form.setGroupInfo(groupInfo);
-        List<StreamBriefResponse> infoList = streamService.getBriefList(groupInfo.getInlongGroupId());
+        List<InlongStreamBriefInfo> infoList = streamService.getBriefList(groupInfo.getInlongGroupId());
         form.setStreamInfoList(infoList);
         return form;
     }

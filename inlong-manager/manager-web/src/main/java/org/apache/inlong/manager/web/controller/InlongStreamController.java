@@ -30,7 +30,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -190,7 +190,7 @@ public class InlongStreamController {
     @RequestMapping(value = "/getSummaryList/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get inlong stream summary list")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
-    public Response<List<StreamBriefResponse>> getSummaryList(@PathVariable String groupId) {
+    public Response<List<InlongStreamBriefInfo>> getSummaryList(@PathVariable String groupId) {
         return Response.success(streamService.getBriefList(groupId));
     }
 
