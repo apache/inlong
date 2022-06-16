@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.core.plugin;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -45,13 +45,13 @@ public class PluginServiceTest extends ServiceBaseTest {
         try {
             path = Paths.get(this.getClass().getClassLoader().getResource("").toURI()).toString();
         } catch (URISyntaxException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
         pluginService.setPluginLoc(path + File.separator + PLUGIN_NAME);
         pluginService.pluginReload();
         List<Plugin> pluginList = pluginService.getPlugins();
-        Assert.assertTrue(pluginList.size() > 0);
-        Assert.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
+        Assertions.assertTrue(pluginList.size() > 0);
+        Assertions.assertTrue(pluginList.get(0) instanceof ProcessPlugin);
     }
 
 }

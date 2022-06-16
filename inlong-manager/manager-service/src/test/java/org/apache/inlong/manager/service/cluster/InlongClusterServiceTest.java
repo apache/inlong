@@ -29,8 +29,8 @@ import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -151,46 +151,46 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String clusterTag = "default_cluster";
         String adminUrl = "http://127.0.0.1:8080";
         Integer id = this.savePulsarCluster(clusterTag, clusterName, adminUrl);
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         // list cluster
         PageInfo<InlongClusterInfo> listCluster = this.listCluster(ClusterType.CLS_PULSAR, clusterTag);
-        Assert.assertTrue(listCluster.getList().size() > 0);
+        Assertions.assertTrue(listCluster.getList().size() > 0);
         InlongClusterInfo clusterInfo = listCluster.getList().get(0);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
-        Assert.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
+        Assertions.assertEquals(adminUrl, pulsarCluster.getAdminUrl());
 
         // update cluster
         String clusterNameUpdate = "default_pulsar_2";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
         Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate);
-        Assert.assertTrue(updateSuccess);
+        Assertions.assertTrue(updateSuccess);
 
         // save cluster node
         Integer parentId = id;
         String ip = "127.0.0.1";
         Integer port = 8080;
         Integer nodeId = this.saveClusterNode(parentId, ClusterType.CLS_PULSAR, ip, port);
-        Assert.assertNotNull(nodeId);
+        Assertions.assertNotNull(nodeId);
 
         // list cluster node
         PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.CLS_PULSAR, ip);
-        Assert.assertEquals(listNode.getTotal(), 1);
+        Assertions.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
         Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate);
-        Assert.assertTrue(updateNodeSuccess);
+        Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node
         Boolean deleteNodeSuccess = this.deleteClusterNode(nodeId);
-        Assert.assertTrue(deleteNodeSuccess);
+        Assertions.assertTrue(deleteNodeSuccess);
 
         // delete cluster
         Boolean success = this.deleteCluster(id);
-        Assert.assertTrue(success);
+        Assertions.assertTrue(success);
     }
 
     @Test
@@ -201,23 +201,23 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // save cluster
         Integer id = this.saveDataProxyCluster(clusterTag, clusterName, extTag);
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
         Integer nodeId1 = this.saveClusterNode(id, ClusterType.CLS_DATA_PROXY, ip, port1);
-        Assert.assertNotNull(nodeId1);
+        Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
         Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
-        Assert.assertNotNull(nodeId2);
+        Assertions.assertNotNull(nodeId2);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
         List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(clusterTag, clusterName);
-        Assert.assertEquals(ipList.size(), 2);
-        Assert.assertEquals(port1, ipList.get(0).getPort());
-        Assert.assertEquals(port2, ipList.get(1).getPort());
+        Assertions.assertEquals(ipList.size(), 2);
+        Assertions.assertEquals(port1, ipList.get(0).getPort());
+        Assertions.assertEquals(port2, ipList.get(1).getPort());
 
         this.deleteClusterNode(nodeId1);
         this.deleteClusterNode(nodeId2);

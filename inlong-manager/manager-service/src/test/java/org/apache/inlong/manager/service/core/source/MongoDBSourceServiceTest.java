@@ -25,8 +25,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -63,17 +63,17 @@ public class MongoDBSourceServiceTest extends ServiceBaseTest {
     @Test
     public void testSaveAndDelete() {
         Integer id = this.saveSource();
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         boolean result = sourceService.delete(id, GLOBAL_OPERATOR);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSource();
         StreamSource source = sourceService.get(id);
-        Assert.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
+        Assertions.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }
@@ -82,12 +82,12 @@ public class MongoDBSourceServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
         StreamSource response = sourceService.get(id);
-        Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
+        Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         MongoDBSource mongoDBSource = (MongoDBSource) response;
         MongoDBSourceRequest request = CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }

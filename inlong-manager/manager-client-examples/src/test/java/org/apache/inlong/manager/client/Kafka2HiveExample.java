@@ -30,7 +30,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * Test class for kafka to hive.
  */
 @Slf4j
+@Disabled
 public class Kafka2HiveExample extends BaseExample {
 
     @Test

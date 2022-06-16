@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -67,14 +67,14 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteKafkaSink(Integer kafkaSinkId) {
         boolean result = sinkService.delete(kafkaSinkId, GLOBAL_OPERATOR);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer kafkaSinkId = this.saveSink("default1");
         StreamSink sink = sinkService.get(kafkaSinkId);
-        Assert.assertEquals(GLOBAL_GROUP_ID, sink.getInlongGroupId());
+        Assertions.assertEquals(GLOBAL_GROUP_ID, sink.getInlongGroupId());
         deleteKafkaSink(kafkaSinkId);
     }
 
@@ -82,13 +82,13 @@ public class KafkaStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer kafkaSinkId = this.saveSink("default2");
         StreamSink response = sinkService.get(kafkaSinkId);
-        Assert.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
+        Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
         KafkaSink kafkaSink = (KafkaSink) response;
         kafkaSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = kafkaSink.genSinkRequest();
         boolean result = sinkService.update(request, GLOBAL_OPERATOR);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteKafkaSink(kafkaSinkId);
     }
 

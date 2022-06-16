@@ -84,13 +84,15 @@ class InnerInlongManagerClientTest {
     public static WireMockServer wireMockServer;
     public static InnerInlongManagerClient innerInlongManagerClient;
 
+    private static final int SERVICE_PORT = 8085;
+
     @BeforeAll
     static void setup() {
-        wireMockServer = new WireMockServer(options().port(8084));
+        wireMockServer = new WireMockServer(options().port(SERVICE_PORT));
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 
-        String serviceUrl = "127.0.0.1:8084";
+        String serviceUrl = "127.0.0.1:" + SERVICE_PORT;
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);

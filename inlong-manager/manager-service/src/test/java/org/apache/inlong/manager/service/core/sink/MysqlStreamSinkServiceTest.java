@@ -27,8 +27,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -84,14 +84,14 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteMySQLSink(Integer mysqlSinkId) {
         boolean result = sinkService.delete(mysqlSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer mysqlSinkId = this.saveSink("mysql_default1");
         StreamSink sink = sinkService.get(mysqlSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteMySQLSink(mysqlSinkId);
     }
 
@@ -99,14 +99,14 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer mysqlSinkId = this.saveSink("mysql_default2");
         StreamSink response = sinkService.get(mysqlSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         MySQLSink mysqlSink = (MySQLSink) response;
         mysqlSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         MySQLSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
                 MySQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteMySQLSink(mysqlSinkId);
     }
 

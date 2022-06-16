@@ -58,12 +58,10 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 
 import java.util.ArrayList;
@@ -78,7 +76,6 @@ import static org.mockito.Mockito.when;
 /**
  * Test class for workflow service.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
@@ -250,15 +247,15 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
         // This method temporarily fails the test, so comment it out first
-        // Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+        // Assertions.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("initMQ");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(2, task.getNameToListenerMap().size());
+        Assertions.assertTrue(task instanceof ServiceTask);
+        Assertions.assertEquals(2, task.getNameToListenerMap().size());
 
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof CreatePulsarGroupTaskListener);
-        Assert.assertTrue(listeners.get(1) instanceof CreatePulsarResourceTaskListener);
+        Assertions.assertTrue(listeners.get(0) instanceof CreatePulsarGroupTaskListener);
+        Assertions.assertTrue(listeners.get(1) instanceof CreatePulsarResourceTaskListener);
     }
 
     // Tube cluster not found
@@ -269,16 +266,16 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         WorkflowContext context = processService.start(processName.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("initMQ");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(2, task.getNameToListenerMap().size());
+        Assertions.assertTrue(task instanceof ServiceTask);
+        Assertions.assertEquals(2, task.getNameToListenerMap().size());
 
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof CreateTubeTopicTaskListener);
-        Assert.assertTrue(listeners.get(1) instanceof CreateTubeGroupTaskListener);
+        Assertions.assertTrue(listeners.get(0) instanceof CreateTubeTopicTaskListener);
+        Assertions.assertTrue(listeners.get(1) instanceof CreateTubeGroupTaskListener);
     }
 
     // @Test
@@ -296,20 +293,20 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
                 .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask stopSortTask = process.getTaskByName("stopSort");
-        Assert.assertTrue(stopSortTask instanceof ServiceTask);
+        Assertions.assertTrue(stopSortTask instanceof ServiceTask);
         List<TaskEventListener> listeners = Lists.newArrayList(stopSortTask.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertTrue(listeners.get(0) instanceof MockStopSortListener);
+        Assertions.assertEquals(2, listeners.size());
 
         WorkflowTask stopSourceTask = process.getTaskByName("stopSource");
-        Assert.assertTrue(stopSourceTask instanceof ServiceTask);
+        Assertions.assertTrue(stopSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(stopSourceTask.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof MockStopSortListener);
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertTrue(listeners.get(0) instanceof MockStopSortListener);
+        Assertions.assertEquals(2, listeners.size());
     }
 
     // @Test
@@ -331,20 +328,20 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
                 .start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask restartSort = process.getTaskByName("restartSort");
-        Assert.assertTrue(restartSort instanceof ServiceTask);
+        Assertions.assertTrue(restartSort instanceof ServiceTask);
         // MockRestartSortListener + CreateSortConfigListener
         List<TaskEventListener> listeners = Lists.newArrayList(restartSort.getNameToListenerMap().values());
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertEquals(2, listeners.size());
 
         WorkflowTask restartSourceTask = process.getTaskByName("restartSource");
-        Assert.assertTrue(restartSourceTask instanceof ServiceTask);
+        Assertions.assertTrue(restartSourceTask instanceof ServiceTask);
         // MockRestartSourceListener + SourceRestartListener
         listeners = Lists.newArrayList(restartSourceTask.getNameToListenerMap().values());
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertEquals(2, listeners.size());
     }
 
     // @Test
@@ -367,20 +364,20 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
                 .start(ProcessName.DELETE_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse view = result.getProcessInfo();
-        Assert.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(view.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
         WorkflowTask deleteSort = process.getTaskByName("deleteSort");
-        Assert.assertTrue(deleteSort instanceof ServiceTask);
+        Assertions.assertTrue(deleteSort instanceof ServiceTask);
         // CreateSortConfigListener + MockDeleteSortListener
         List<TaskEventListener> listeners = Lists.newArrayList(deleteSort.getNameToListenerMap().values());
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertEquals(2, listeners.size());
 
         WorkflowTask deleteSourceTask = process.getTaskByName("deleteSource");
-        Assert.assertTrue(deleteSourceTask instanceof ServiceTask);
+        Assertions.assertTrue(deleteSourceTask instanceof ServiceTask);
         listeners = Lists.newArrayList(deleteSourceTask.getNameToListenerMap().values());
         // SourceDeleteListener + MockDeleteSourceListener
-        Assert.assertEquals(2, listeners.size());
+        Assertions.assertEquals(2, listeners.size());
     }
 
     @Test
@@ -418,7 +415,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         query.setProcessNames(Collections.singletonList("CREATE_GROUP_RESOURCE"));
         PageInfo<WorkflowExecuteLog> logPageInfo = workflowService.listTaskExecuteLogs(query);
 
-        // Assert.assertEquals(1, logPageInfo.getTotal());
+        // Assertions.assertEquals(1, logPageInfo.getTotal());
     }
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
@@ -33,9 +34,8 @@ import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition.JoinMode;
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
 import org.apache.inlong.manager.common.util.JsonUtils;
-import org.assertj.core.util.Lists;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for creat inlong stream.
@@ -87,7 +87,7 @@ public class InlongStreamImplTest {
         inlongStream.addTransform(singleDependencyTransform2);
         StreamPipeline streamPipeline = inlongStream.createPipeline();
         String pipelineView = JsonUtils.toJsonString(streamPipeline);
-        Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
-        Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
+        Assertions.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
+        Assertions.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
     }
 }

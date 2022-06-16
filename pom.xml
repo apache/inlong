@@ -110,8 +110,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
-        <plugin.surefire.version>2.22.2</plugin.surefire.version>
-        <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
+        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
+        <plugin.failsafe.version>3.0.0-M7</plugin.failsafe.version>
+        <junit.jupiter.engine.version>5.3.2</junit.jupiter.engine.version>
         <plugin.shade.version>3.2.4</plugin.shade.version>
         <plugin.maven.source>3.0.1</plugin.maven.source>
         <exec.maven.version>1.6.0</exec.maven.version>
@@ -226,6 +227,7 @@
         <slf4j.version>1.7.36</slf4j.version>
 
         <junit.version>4.13.2</junit.version>
+        <jupiter.version>5.8.2</jupiter.version>
         <awaitility.version>4.0.3</awaitility.version>
         <mockito.version>3.12.4</mockito.version>
         <powermock.version>2.0.9</powermock.version>
@@ -639,7 +641,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.boot.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -656,12 +657,6 @@
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring.boot.version}</version>
                 <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-test</artifactId>
-                <version>${spring.boot.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -693,12 +688,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- spring fox -->
@@ -1421,6 +1410,11 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${jupiter.version}</version>
             </dependency>
 
             <dependency>

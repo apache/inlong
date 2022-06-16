@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -72,14 +72,14 @@ public class ElasticsearchStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteElasticsearchSink(Integer elasticsearchSinkId) {
         boolean result = sinkService.delete(elasticsearchSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer elasticsearchSinkId = this.saveSink("Elasticsearch_default1");
         StreamSink sink = sinkService.get(elasticsearchSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteElasticsearchSink(elasticsearchSinkId);
     }
 
@@ -87,13 +87,13 @@ public class ElasticsearchStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer elasticsearchSinkId = this.saveSink("Elasticsearch_default2");
         StreamSink response = sinkService.get(elasticsearchSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         ElasticsearchSink elasticsearchSink = (ElasticsearchSink) response;
         elasticsearchSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = elasticsearchSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteElasticsearchSink(elasticsearchSinkId);
     }
 

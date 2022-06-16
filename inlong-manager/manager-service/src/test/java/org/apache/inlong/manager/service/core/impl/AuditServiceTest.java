@@ -22,8 +22,8 @@ import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -34,13 +34,13 @@ import java.util.List;
 /**
  * Audit service test for {@link AuditService}
  */
-public class AuditServiceTest extends ServiceBaseTest {
+class AuditServiceTest extends ServiceBaseTest {
 
     @Autowired
     private AuditService auditService;
 
     @Test
-    public void testQueryFromMySQL() throws IOException {
+    void testQueryFromMySQL() throws IOException {
         AuditRequest request = new AuditRequest();
         request.setAuditIds(Arrays.asList("3", "4"));
         request.setInlongGroupId("g1");
@@ -52,9 +52,9 @@ public class AuditServiceTest extends ServiceBaseTest {
         auditVO.setAuditSet(Arrays.asList(new AuditInfo("2022-01-01 00:00:00", 123L),
                 new AuditInfo("2022-01-01 00:01:00", 124L)));
         result.add(auditVO);
-        Assert.assertNotNull(result);
+        Assertions.assertNotNull(result);
         // close real test for testQueryFromMySQL due to date_format function not support in h2
-//        Assert.assertNotNull(auditService.listByCondition(request));
+//        Assertions.assertNotNull(auditService.listByCondition(request));
     }
 
     /**
@@ -70,6 +70,6 @@ public class AuditServiceTest extends ServiceBaseTest {
         request.setInlongGroupId("g1");
         request.setInlongStreamId("s1");
         request.setDt("2022-01-01");
-        Assert.assertNotNull(auditService.listByCondition(request));
+        Assertions.assertNotNull(auditService.listByCondition(request));
     }
 }

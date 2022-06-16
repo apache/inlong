@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -72,14 +72,14 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteSqlServerSink(Integer sqlserverSinkId) {
         boolean result = sinkService.delete(sqlserverSinkId, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer sqlserverSinkId = this.saveSink("sqlserver_default1");
         StreamSink sink = sinkService.get(sqlserverSinkId);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSqlServerSink(sqlserverSinkId);
     }
 
@@ -87,7 +87,7 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
     public void testGetAndUpdate() {
         Integer sqlserverSinkId = this.saveSink("sqlserver_default2");
         StreamSink response = sinkService.get(sqlserverSinkId);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         SqlServerSink sqlServerSink = (SqlServerSink) response;
         sqlServerSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
@@ -95,7 +95,7 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
         SqlServerSinkRequest request = CommonBeanUtils.copyProperties(sqlServerSink,
                 SqlServerSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         deleteSqlServerSink(sqlserverSinkId);
     }
 

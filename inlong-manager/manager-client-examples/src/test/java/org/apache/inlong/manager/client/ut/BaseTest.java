@@ -45,8 +45,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class BaseTest {
 
+    private static final int SERVICE_PORT = 8184;
     // Manager web url
-    public static final String SERVICE_URL = "127.0.0.1:8084";
+    public static final String SERVICE_URL = "127.0.0.1:" + SERVICE_PORT;
     // Inlong user && passwd
     public static DefaultAuthentication inlongAuth = new DefaultAuthentication("admin", "inlong");
     // Inlong group ID
@@ -76,7 +77,7 @@ public class BaseTest {
     @BeforeAll
     static void setup() {
         // create mock server
-        wireMockServer = new WireMockServer(options().port(8084));
+        wireMockServer = new WireMockServer(options().port(SERVICE_PORT));
         wireMockServer.start();
         WireMock.configureFor(wireMockServer.port());
 

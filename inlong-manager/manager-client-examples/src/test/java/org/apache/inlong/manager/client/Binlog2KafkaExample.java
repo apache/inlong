@@ -27,7 +27,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.shiro.util.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +38,11 @@ import java.util.concurrent.TimeUnit;
  * Test class for binlog to kafka.
  */
 @Slf4j
-public class Binlog2KafkaExample extends BaseExample {
+@Disabled
+class Binlog2KafkaExample extends BaseExample {
 
     @Test
-    public void testCreateGroupForKafka() {
+    void testCreateGroupForKafka() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -65,7 +67,7 @@ public class Binlog2KafkaExample extends BaseExample {
     }
 
     @Test
-    public void testStopGroup() {
+    void testStopGroup() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -84,7 +86,7 @@ public class Binlog2KafkaExample extends BaseExample {
     }
 
     @Test
-    public void testSuspendGroup() {
+    void testSuspendGroup() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);
@@ -103,7 +105,7 @@ public class Binlog2KafkaExample extends BaseExample {
     }
 
     @Test
-    public void testRestartGroup() {
+    void testRestartGroup() {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setWriteTimeout(10);
         configuration.setReadTimeout(10);

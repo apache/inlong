@@ -69,28 +69,8 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-junit-jupiter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>android-json</artifactId>
-                    <groupId>com.vaadin.external.google</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.jayway.jsonpath</groupId>
-                    <artifactId>json-path</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
         </dependency>
     </dependencies>
 
@@ -134,9 +114,9 @@
                 <version>${plugin.surefire.version}</version>
                 <dependencies>
                     <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>${plugin.surefire.version}</version>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${junit.jupiter.engine.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

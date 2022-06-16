@@ -32,8 +32,8 @@ import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.F
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.TargetValue;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition.JoinMode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +53,7 @@ public class TransformDefinitionTest {
                 TimeUnit.MICROSECONDS, DeDuplicationStrategy.RESERVE_FIRST);
         String definitionJson = gson.toJson(deDuplicationDefinition);
         DeDuplicationDefinition parsedDefinition = gson.fromJson(definitionJson, DeDuplicationDefinition.class);
-        Assert.assertEquals(deDuplicationDefinition.getDupFields().size(), parsedDefinition.getDupFields().size());
+        Assertions.assertEquals(deDuplicationDefinition.getDupFields().size(), parsedDefinition.getDupFields().size());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TransformDefinitionTest {
         FilterDefinition filterDefinition = new FilterDefinition(FilterStrategy.RETAIN, filterRules);
         String definitionJson = gson.toJson(filterDefinition);
         FilterDefinition parsedDefinition = gson.fromJson(definitionJson, FilterDefinition.class);
-        Assert.assertEquals(filterDefinition.getFilterRules().size(), parsedDefinition.getFilterRules().size());
+        Assertions.assertEquals(filterDefinition.getFilterRules().size(), parsedDefinition.getFilterRules().size());
     }
 
     @Test
@@ -76,8 +76,10 @@ public class TransformDefinitionTest {
                 JoinMode.INNER_JOIN);
         String definitionJson = gson.toJson(joinerDefinition);
         JoinerDefinition parsedDefinition = gson.fromJson(definitionJson, JoinerDefinition.class);
-        Assert.assertEquals(joinerDefinition.getLeftJoinFields().size(), parsedDefinition.getLeftJoinFields().size());
-        Assert.assertEquals(joinerDefinition.getRightJoinFields().size(), parsedDefinition.getRightJoinFields().size());
+        Assertions.assertEquals(joinerDefinition.getLeftJoinFields().size(),
+                parsedDefinition.getLeftJoinFields().size());
+        Assertions.assertEquals(joinerDefinition.getRightJoinFields().size(),
+                parsedDefinition.getRightJoinFields().size());
     }
 
     private List<StreamField> createStreamFields() {

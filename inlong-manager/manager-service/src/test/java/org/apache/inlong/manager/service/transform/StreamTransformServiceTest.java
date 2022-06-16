@@ -24,12 +24,10 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 
 import java.util.Date;
@@ -38,7 +36,6 @@ import java.util.List;
 /**
  * Test class for save stream transform.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class StreamTransformServiceTest extends ServiceBaseTest {
 
@@ -65,11 +62,11 @@ public class StreamTransformServiceTest extends ServiceBaseTest {
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
         int index = transformEntityMapper.insertSelective(transformEntity);
-        Assert.assertTrue(index == 1);
+        Assertions.assertEquals(1, index);
 
         List<TransformResponse> transformResponses = streamTransformService.listTransform(GLOBAL_GROUP_ID,
                 GLOBAL_STREAM_ID);
-        Assert.assertTrue(transformResponses.size() == 1);
+        Assertions.assertEquals(1, transformResponses.size());
 
     }
 

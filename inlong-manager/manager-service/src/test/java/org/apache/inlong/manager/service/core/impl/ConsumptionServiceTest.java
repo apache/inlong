@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -65,8 +65,8 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     public void testSaveAndDelete() {
         groupServiceTest.saveGroup(inlongGroupId, operator);
         Integer id = this.saveConsumption(inlongGroupId, consumerGroup, operator);
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
         boolean result = consumptionService.delete(id, operator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 }

@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.web.config;
 
 import org.apache.inlong.manager.web.WebBaseTest;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -39,12 +39,12 @@ public class RestTemplateConfigTest extends WebBaseTest {
 
     @Test
     public void configValue() {
-        Assert.assertEquals(maxTotal, restTemplateConfig.getMaxTotal());
-        Assert.assertEquals(defaultMaxPerRoute, restTemplateConfig.getDefaultMaxPerRoute());
-        Assert.assertEquals(validateAfterInactivity, restTemplateConfig.getValidateAfterInactivity());
-        Assert.assertEquals(connectionTimeout, restTemplateConfig.getConnectionTimeout());
-        Assert.assertEquals(readTimeout, restTemplateConfig.getReadTimeout());
-        Assert.assertEquals(connectionRequestTimeout, restTemplateConfig.getConnectionRequestTimeout());
+        Assertions.assertEquals(maxTotal, restTemplateConfig.getMaxTotal());
+        Assertions.assertEquals(defaultMaxPerRoute, restTemplateConfig.getDefaultMaxPerRoute());
+        Assertions.assertEquals(validateAfterInactivity, restTemplateConfig.getValidateAfterInactivity());
+        Assertions.assertEquals(connectionTimeout, restTemplateConfig.getConnectionTimeout());
+        Assertions.assertEquals(readTimeout, restTemplateConfig.getReadTimeout());
+        Assertions.assertEquals(connectionRequestTimeout, restTemplateConfig.getConnectionRequestTimeout());
     }
 
 }
