@@ -20,7 +20,6 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.table.api.TableEnvironment;
-import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
 import org.apache.inlong.sort.parser.Parser;
@@ -34,11 +33,7 @@ import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.Node;
-import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
-import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
-import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.DistinctNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -48,6 +43,7 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
+import org.apache.inlong.sort.util.MetaInfoParseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +58,7 @@ import java.util.stream.Collectors;
 
 /**
  * Flink sql parse handler
- * It accepts a Tableenv and GroupInfo, and outputs the parsed FlinkSqlParseResult
+ * It accepts a TableEnvironment and GroupInfo, and outputs the parsed FlinkSqlParseResult
  */
 public class FlinkSqlParser implements Parser {
 
@@ -668,7 +664,7 @@ public class FlinkSqlParser implements Parser {
             sb.append("    `").append(field.getName()).append("` ");
             if (field instanceof MetaFieldInfo) {
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
-                parseMetaField(node, metaFieldInfo, sb);
+                MetaInfoParseUtil.parseMetaField(node, metaFieldInfo, sb);
             } else {
                 sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString());
             }
@@ -678,184 +674,6 @@ public class FlinkSqlParser implements Parser {
             sb.delete(sb.lastIndexOf(","), sb.length());
         }
         return sb.toString();
-    }
-
-    private void parseMetaField(Node node, MetaFieldInfo metaFieldInfo, StringBuilder sb) {
-        if (metaFieldInfo.getMetaField() == MetaField.PROCESS_TIME) {
-            sb.append(" AS PROCTIME()");
-            return;
-        }
-        if (node instanceof MySqlExtractNode) {
-            sb.append(parseMySqlExtractNodeMetaField(metaFieldInfo));
-        } else if (node instanceof OracleExtractNode) {
-            sb.append(parseOracleExtractNodeMetaField(metaFieldInfo));
-        } else if (node instanceof KafkaExtractNode) {
-            sb.append(parseKafkaExtractNodeMetaField(metaFieldInfo));
-        } else if (node instanceof KafkaLoadNode) {
-            sb.append(parseKafkaLoadNodeMetaField(metaFieldInfo));
-        } else {
-            throw new UnsupportedOperationException(
-                    String.format("This node:%s does not currently support metadata fields",
-                            node.getClass().getName()));
-        }
-    }
-
-    private String parseKafkaLoadNodeMetaField(MetaFieldInfo metaFieldInfo) {
-        String metaType;
-        switch (metaFieldInfo.getMetaField()) {
-            case TABLE_NAME:
-                metaType = "STRING METADATA FROM 'value.table'";
-                break;
-            case DATABASE_NAME:
-                metaType = "STRING METADATA FROM 'value.database'";
-                break;
-            case OP_TS:
-                metaType = "TIMESTAMP(3) METADATA FROM 'value.event-timestamp'";
-                break;
-            case OP_TYPE:
-                metaType = "STRING METADATA FROM 'value.op-type'";
-                break;
-            case DATA:
-                metaType = "STRING METADATA FROM 'value.data'";
-                break;
-            case IS_DDL:
-                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
-                break;
-            case TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
-                break;
-            case SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
-                break;
-            case MYSQL_TYPE:
-                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
-                break;
-            case PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
-                break;
-            case BATCH_ID:
-                metaType = "BIGINT METADATA FROM 'value.batch-id'";
-                break;
-            case UPDATE_BEFORE:
-                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
-                break;
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
-                        metaFieldInfo.getMetaField()));
-        }
-        return metaType;
-    }
-
-    private String parseKafkaExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
-        String metaType;
-        switch (metaFieldInfo.getMetaField()) {
-            case TABLE_NAME:
-                metaType = "STRING METADATA FROM 'value.table'";
-                break;
-            case DATABASE_NAME:
-                metaType = "STRING METADATA FROM 'value.database'";
-                break;
-            case SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'value.sql-type'";
-                break;
-            case PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'value.pk-names'";
-                break;
-            case TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.ingestion-timestamp'";
-                break;
-            case OP_TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'value.event-timestamp'";
-                break;
-            // additional metadata
-            case OP_TYPE:
-                metaType = "STRING METADATA FROM 'value.op-type'";
-                break;
-            case IS_DDL:
-                metaType = "BOOLEAN METADATA FROM 'value.is-ddl'";
-                break;
-            case MYSQL_TYPE:
-                metaType = "MAP<STRING, STRING> METADATA FROM 'value.mysql-type'";
-                break;
-            case BATCH_ID:
-                metaType = "BIGINT METADATA FROM 'value.batch-id'";
-                break;
-            case UPDATE_BEFORE:
-                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'value.update-before'";
-                break;
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
-                        metaFieldInfo.getMetaField()));
-        }
-        return metaType;
-    }
-
-    private String parseMySqlExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
-        String metaType;
-        switch (metaFieldInfo.getMetaField()) {
-            case TABLE_NAME:
-                metaType = "STRING METADATA FROM 'meta.table_name' VIRTUAL";
-                break;
-            case DATABASE_NAME:
-                metaType = "STRING METADATA FROM 'meta.database_name' VIRTUAL";
-                break;
-            case OP_TS:
-                metaType = "TIMESTAMP(3) METADATA FROM 'meta.op_ts' VIRTUAL";
-                break;
-            case OP_TYPE:
-                metaType = "STRING METADATA FROM 'meta.op_type' VIRTUAL";
-                break;
-            case DATA:
-                metaType = "STRING METADATA FROM 'meta.data' VIRTUAL";
-                break;
-            case IS_DDL:
-                metaType = "BOOLEAN METADATA FROM 'meta.is_ddl' VIRTUAL";
-                break;
-            case TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'meta.ts' VIRTUAL";
-                break;
-            case SQL_TYPE:
-                metaType = "MAP<STRING, INT> METADATA FROM 'meta.sql_type' VIRTUAL";
-                break;
-            case MYSQL_TYPE:
-                metaType = "MAP<STRING, STRING> METADATA FROM 'meta.mysql_type' VIRTUAL";
-                break;
-            case PK_NAMES:
-                metaType = "ARRAY<STRING> METADATA FROM 'meta.pk_names' VIRTUAL";
-                break;
-            case BATCH_ID:
-                metaType = "BIGINT METADATA FROM 'meta.batch_id' VIRTUAL";
-                break;
-            case UPDATE_BEFORE:
-                metaType = "ARRAY<MAP<STRING, STRING>> METADATA FROM 'meta.update_before' VIRTUAL";
-                break;
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
-                        metaFieldInfo.getMetaField()));
-        }
-        return metaType;
-    }
-
-    private String parseOracleExtractNodeMetaField(MetaFieldInfo metaFieldInfo) {
-        String metaType;
-        switch (metaFieldInfo.getMetaField()) {
-            case TABLE_NAME:
-                metaType = "STRING METADATA FROM 'table_name' VIRTUAL";
-                break;
-            case SCHEMA_NAME:
-                metaType = "STRING METADATA FROM 'schema_name' VIRTUAL";
-                break;
-            case DATABASE_NAME:
-                metaType = "STRING METADATA FROM 'database_name' VIRTUAL";
-                break;
-            case OP_TS:
-                metaType = "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL";
-                break;
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupport meta field: %s",
-                        metaFieldInfo.getMetaField()));
-        }
-        return metaType;
     }
 
     /**
