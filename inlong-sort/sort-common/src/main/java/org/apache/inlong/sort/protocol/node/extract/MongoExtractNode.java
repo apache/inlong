@@ -47,6 +47,13 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * the primary key must be "_id"
+     *
+     * @see <a href="https://ververica.github.io/flink-cdc-connectors/release-2.1/content/connectors/mongodb-cdc.html#">MongoDB CDC Connector</a>
+     */
+    private static final String ID = "_id";
+
     @JsonInclude(Include.NON_NULL)
     @JsonProperty("primaryKey")
     private String primaryKey;
@@ -83,8 +90,7 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
         this.username = Preconditions.checkNotNull(username, "username is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
         this.database = Preconditions.checkNotNull(database, "database is null");
-        // the primaryKey must be "_id"
-        this.primaryKey = "_id";
+        this.primaryKey = ID;
     }
 
     @Override
