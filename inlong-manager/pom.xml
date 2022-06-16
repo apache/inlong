@@ -116,7 +116,7 @@
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit.jupiter.engine.version}</version>
+                        <version>${jupiter.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
