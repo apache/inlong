@@ -18,22 +18,24 @@
 package org.apache.inlong.manager.client.api.inner;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Request.Builder;
-import okhttp3.RequestBody;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
+import org.apache.inlong.manager.client.api.service.AuthInterceptor;
+import org.apache.inlong.manager.client.api.service.InlongGroupApi;
+import org.apache.inlong.manager.client.api.service.InlongStreamApi;
+import org.apache.inlong.manager.client.api.service.StreamSinkApi;
+import org.apache.inlong.manager.client.api.service.StreamSourceApi;
+import org.apache.inlong.manager.client.api.service.StreamTransformApi;
+import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
@@ -56,8 +58,13 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * InnerInlongManagerClient is used to invoke http api of inlong manager.
@@ -65,31 +72,43 @@ import java.util.List;
 @Slf4j
 public class InnerInlongManagerClient {
 
-    protected static final String HTTP_PATH = "api/inlong/manager";
-    private static final MediaType APPLICATION_JSON = MediaType.parse("application/json; charset=utf-8");
-    protected final OkHttpClient httpClient;
-    protected final String host;
-    protected final int port;
-    protected final String uname;
-    protected final String passwd;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final InlongStreamApi inlongStreamApi;
+    private final InlongGroupApi inlongGroupApi;
+    private final StreamSourceApi streamSourceApi;
+    private final StreamTransformApi streamTransformApi;
+    private final StreamSinkApi streamSinkApi;
+    private final WorkflowApi workflowApi;
+
     public InnerInlongManagerClient(ClientConfiguration configuration) {
-        this.host = configuration.getBindHost();
-        this.port = configuration.getBindPort();
         Authentication authentication = configuration.getAuthentication();
         AssertUtils.notNull(authentication, "Inlong should be authenticated");
         AssertUtils.isTrue(authentication instanceof DefaultAuthentication,
                 "Inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
-        this.uname = defaultAuthentication.getUserName();
-        this.passwd = defaultAuthentication.getPassword();
-        this.httpClient = new OkHttpClient.Builder()
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(
+                        new AuthInterceptor(defaultAuthentication.getUserName(), defaultAuthentication.getPassword()))
                 .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
                 .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
                 .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())
                 .retryOnConnectionFailure(true)
                 .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://" + configuration.getServiceUrl() + "/api/inlong/manager/")
+                .addConverterFactory(JacksonConverterFactory.create(JsonUtils.OBJECT_MAPPER))
+                .client(okHttpClient)
+                .build();
+
+        inlongStreamApi = retrofit.create(InlongStreamApi.class);
+        inlongGroupApi = retrofit.create(InlongGroupApi.class);
+        streamSinkApi = retrofit.create(StreamSinkApi.class);
+        streamSourceApi = retrofit.create(StreamSourceApi.class);
+        streamTransformApi = retrofit.create(StreamTransformApi.class);
+        workflowApi = retrofit.create(WorkflowApi.class);
     }
 
     /**
@@ -111,9 +130,9 @@ public class InnerInlongManagerClient {
     public Boolean isGroupExists(String inlongGroupId) {
         AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
-        String path = HTTP_PATH + "/group/exist/" + inlongGroupId;
-        return this.sendGet(formatUrl(path), new TypeReference<Response<Boolean>>() {
-        });
+        Response<Boolean> response = executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -122,11 +141,7 @@ public class InnerInlongManagerClient {
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
         AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
-        String path = HTTP_PATH + "/group/get/" + inlongGroupId;
-        final String url = formatUrl(path);
-        Response<InlongGroupInfo> responseBody = this.sendGetForResponse(url,
-                new TypeReference<Response<InlongGroupInfo>>() {
-                });
+        Response<InlongGroupInfo> responseBody = executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {
             return responseBody.getData();
         }
@@ -142,19 +157,15 @@ public class InnerInlongManagerClient {
      * Get information of groups.
      */
     public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
-        ObjectNode groupQuery = objectMapper.createObjectNode();
-        groupQuery.put("keyword", keyword);
-        groupQuery.put("status", status);
-        groupQuery.put("pageNum", pageNum <= 0 ? 1 : pageNum);
-        groupQuery.put("pageSize", pageSize);
+        InlongGroupPageRequest request = InlongGroupPageRequest.builder()
+                .keyword(keyword)
+                .status(status)
+                .build();
+        request.setPageNum(pageNum <= 0 ? 1 : pageNum);
+        request.setPageSize(pageSize);
 
-        String path = HTTP_PATH + "/group/list";
-        final String url = formatUrl(path);
-        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = this.sendPostForResponse(
-                url,
-                groupQuery.toString(),
-                new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
-                });
+        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = executeHttpCall(
+                inlongGroupApi.listGroups(request));
 
         if (pageInfoResponse.isSuccess()) {
             return pageInfoResponse.getData();
@@ -173,23 +184,19 @@ public class InnerInlongManagerClient {
      * @return Response encapsulate of inlong group list
      */
     public PageInfo<InlongGroupListResponse> listGroups(InlongGroupPageRequest pageRequest) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/group/list"),
-                JsonUtils.toJsonString(pageRequest),
-                new TypeReference<Response<PageInfo<InlongGroupListResponse>>>() {
-                }
-        );
+        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = executeHttpCall(
+                inlongGroupApi.listGroups(pageRequest));
+        assertRespSuccess(pageInfoResponse);
+        return pageInfoResponse.getData();
     }
 
     /**
      * Create inlong group
      */
     public String createGroup(InlongGroupRequest groupInfo) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/group/save"),
-                JsonUtils.toJsonString(groupInfo),
-                String.class
-        );
+        Response<String> response = executeHttpCall(inlongGroupApi.createGroup(groupInfo));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -198,24 +205,17 @@ public class InnerInlongManagerClient {
      * @return groupId && errMsg
      */
     public Pair<String, String> updateGroup(InlongGroupRequest groupRequest) {
-        Response<String> updateGroupResp = this.sendPostForResponse(
-                formatUrl(HTTP_PATH + "/group/update"),
-                JsonUtils.toJsonString(groupRequest),
-                String.class
-        );
-
-        return Pair.of(updateGroupResp.getData(), updateGroupResp.getErrMsg());
+        Response<String> response = executeHttpCall(inlongGroupApi.updateGroup(groupRequest));
+        return Pair.of(response.getData(), response.getErrMsg());
     }
 
     /**
      * Create information of stream.
      */
     public Integer createStreamInfo(InlongStreamInfo streamInfo) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/stream/save"),
-                JsonUtils.toJsonString(streamInfo),
-                Integer.class
-        );
+        Response<Integer> response = executeHttpCall(inlongStreamApi.createStreamInfo(streamInfo));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
@@ -224,14 +224,13 @@ public class InnerInlongManagerClient {
         AssertUtils.notEmpty(groupId, "InlongGroupId should not be empty");
         AssertUtils.notEmpty(streamId, "InlongStreamId should not be empty");
 
-        final String url = formatUrl(HTTP_PATH + "/stream/exist/" + groupId + "/" + streamId);
-        return this.sendGet(url, new TypeReference<Response<Boolean>>() {
-        });
+        Response<Boolean> response = executeHttpCall(inlongStreamApi.isStreamExists(groupId, streamId));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
-        final String url = formatUrl(HTTP_PATH + "/stream/update");
-        Response<Boolean> resp = this.sendPostForResponse(url, JsonUtils.toJsonString(streamInfo), Boolean.class);
+        Response<Boolean> resp = executeHttpCall(inlongStreamApi.updateStreamInfo(streamInfo));
 
         if (resp.getData() != null) {
             return Pair.of(resp.getData(), resp.getErrMsg());
@@ -243,20 +242,16 @@ public class InnerInlongManagerClient {
     /**
      * Get inlong stream by the given groupId and streamId.
      */
-    public InlongStreamInfo getStreamInfo(String inlongGroupId, String inlongStreamId) {
-        String url = formatUrl(HTTP_PATH + "/stream/get");
-        url += String.format("&groupId=%s&streamId=%s", inlongGroupId, inlongStreamId);
-        Response<InlongStreamInfo> streamInfoResponse = this.sendGetForResponse(url,
-                new TypeReference<Response<InlongStreamInfo>>() {
-                });
+    public InlongStreamInfo getStreamInfo(String groupId, String streamId) {
+        Response<InlongStreamInfo> response = executeHttpCall(inlongStreamApi.getStreamInfo(groupId, streamId));
 
-        if (streamInfoResponse.isSuccess()) {
-            return streamInfoResponse.getData();
+        if (response.isSuccess()) {
+            return response.getData();
         }
-        if (streamInfoResponse.getErrMsg().contains("not exist")) {
+        if (response.getErrMsg().contains("not exist")) {
             return null;
         } else {
-            throw new RuntimeException(streamInfoResponse.getErrMsg());
+            throw new RuntimeException(response.getErrMsg());
         }
     }
 
@@ -267,23 +262,18 @@ public class InnerInlongManagerClient {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
 
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/stream/listAll"),
-                JsonUtils.toJsonString(pageRequest),
-                new TypeReference<Response<PageInfo<FullStreamResponse>>>() {
-                }
-        ).getList();
+        Response<PageInfo<FullStreamResponse>> response = executeHttpCall(inlongStreamApi.listStreamInfo(pageRequest));
+        assertRespSuccess(response);
+        return response.getData().getList();
     }
 
     /**
      * Create an inlong stream source.
      */
-    public Integer createSource(SourceRequest sourceRequest) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/source/save"),
-                JsonUtils.toJsonString(sourceRequest),
-                Integer.class
-        );
+    public Integer createSource(SourceRequest request) {
+        Response<Integer> response = executeHttpCall(streamSourceApi.createSource(request));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -297,33 +287,21 @@ public class InnerInlongManagerClient {
      * List information of sources by the specified source type.
      */
     public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
-        String url = formatUrl(HTTP_PATH + "/source/list");
-        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s", url, groupId, streamId);
-        if (StringUtils.isNotEmpty(sourceType)) {
-            url = String.format("%s&sourceType=%s", url, sourceType);
-        }
-
-        return this.sendGet(
-                url,
-                new TypeReference<Response<PageInfo<SourceListResponse>>>() {
-                }
-        ).getList();
+        Response<PageInfo<SourceListResponse>> response = executeHttpCall(
+                streamSourceApi.listSources(groupId, streamId, sourceType));
+        assertRespSuccess(response);
+        return response.getData().getList();
     }
 
     /**
      * Update data Source Information.
      */
-    public Pair<Boolean, String> updateSource(SourceRequest sourceRequest) {
-        Response<Boolean> resEntity = sendPostForResponse(
-                formatUrl(HTTP_PATH + "/source/update"),
-                JsonUtils.toJsonString(sourceRequest),
-                Boolean.class
-        );
-
-        if (resEntity.getData() != null) {
-            return Pair.of(resEntity.getData(), resEntity.getErrMsg());
+    public Pair<Boolean, String> updateSource(SourceRequest request) {
+        Response<Boolean> response = executeHttpCall(streamSourceApi.updateSource(request));
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
         } else {
-            return Pair.of(false, resEntity.getErrMsg());
+            return Pair.of(false, response.getErrMsg());
         }
     }
 
@@ -332,51 +310,40 @@ public class InnerInlongManagerClient {
      */
     public boolean deleteSource(int id) {
         AssertUtils.isTrue(id > 0, "sourceId is illegal");
-        return this.sendDelete(
-                formatUrl(HTTP_PATH + "/source/delete/" + id),
-                null,
-                Boolean.class
-        );
+        Response<Boolean> response = executeHttpCall(streamSourceApi.deleteSource(id));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
      * Create a conversion function information.
      */
     public Integer createTransform(TransformRequest transformRequest) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/transform/save"),
-                JsonUtils.toJsonString(transformRequest),
-                Integer.class
-        );
+        Response<Integer> response = executeHttpCall(streamTransformApi.createTransform(transformRequest));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
      * Get all conversion function information.
      */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
-        String url = formatUrl(HTTP_PATH + "/transform/list");
-        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s", url, groupId, streamId);
-        return this.sendGet(
-                url,
-                new TypeReference<Response<List<TransformResponse>>>() {
-                }
-        );
+        Response<List<TransformResponse>> response = executeHttpCall(
+                streamTransformApi.listTransform(groupId, streamId));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
      * Update conversion function information.
      */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
-        Response<Boolean> responseBody = this.sendPostForResponse(
-                formatUrl(HTTP_PATH + "/transform/update"),
-                JsonUtils.toJsonString(transformRequest),
-                Boolean.class
-        );
+        Response<Boolean> response = executeHttpCall(streamTransformApi.updateTransform(transformRequest));
 
-        if (responseBody.getData() != null) {
-            return Pair.of(responseBody.getData(), responseBody.getErrMsg());
+        if (response.getData() != null) {
+            return Pair.of(response.getData(), response.getErrMsg());
         } else {
-            return Pair.of(false, responseBody.getErrMsg());
+            return Pair.of(false, response.getErrMsg());
         }
     }
 
@@ -388,21 +355,17 @@ public class InnerInlongManagerClient {
         AssertUtils.notEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
         AssertUtils.notEmpty(transformRequest.getTransformName(), "transformName should not be null");
 
-        String url = formatUrl(HTTP_PATH + "/transform/delete");
-        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s&transformName=%s", url,
-                transformRequest.getInlongGroupId(),
-                transformRequest.getInlongStreamId(),
-                transformRequest.getTransformName());
-
-        return this.sendDelete(url, null, Boolean.class);
+        Response<Boolean> response = executeHttpCall(
+                streamTransformApi.deleteTransform(transformRequest.getInlongGroupId(),
+                        transformRequest.getInlongStreamId(), transformRequest.getTransformName()));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     public Integer createSink(SinkRequest sinkRequest) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/sink/save"),
-                JsonUtils.toJsonString(sinkRequest),
-                Integer.class
-        );
+        Response<Integer> response = executeHttpCall(streamSinkApi.createSink(sinkRequest));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -410,12 +373,9 @@ public class InnerInlongManagerClient {
      */
     public boolean deleteSink(int id) {
         AssertUtils.isTrue(id > 0, "sinkId is illegal");
-
-        return this.sendDelete(
-                formatUrl(HTTP_PATH + "/sink/delete/" + id),
-                null,
-                Boolean.class
-        );
+        Response<Boolean> response = executeHttpCall(streamSinkApi.deleteSink(id));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
@@ -429,28 +389,18 @@ public class InnerInlongManagerClient {
      * Get information of data sinks.
      */
     public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
-        String url = formatUrl(HTTP_PATH + "/sink/list");
-        url = String.format("%s&inlongGroupId=%s&inlongStreamId=%s", url, groupId, streamId);
-        if (StringUtils.isNotEmpty(sinkType)) {
-            url = String.format("%s&sinkType=%s", url, sinkType);
-        }
-
-        return this.sendGet(
-                url,
-                new TypeReference<Response<PageInfo<SinkListResponse>>>() {
-                }
-        ).getList();
+        Response<PageInfo<SinkListResponse>> response = executeHttpCall(
+                streamSinkApi.listSinks(groupId, streamId, sinkType));
+        assertRespSuccess(response);
+        return response.getData().getList();
     }
 
     /**
      * Update information of data sink.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
-        Response<Boolean> responseBody = this.sendPostForResponse(
-                formatUrl(HTTP_PATH + "/sink/update"),
-                JsonUtils.toJsonString(sinkRequest),
-                Boolean.class
-        );
+        Response<Boolean> responseBody = executeHttpCall(streamSinkApi.updateSink(sinkRequest));
+        assertRespSuccess(responseBody);
 
         if (responseBody.getData() != null) {
             return Pair.of(responseBody.getData(), responseBody.getErrMsg());
@@ -460,11 +410,10 @@ public class InnerInlongManagerClient {
     }
 
     public WorkflowResult initInlongGroup(InlongGroupRequest groupInfo) {
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/group/startProcess/" + groupInfo.getInlongGroupId()),
-                "",
-                WorkflowResult.class
-        );
+        Response<WorkflowResult> responseBody = executeHttpCall(
+                inlongGroupApi.initInlongGroup(groupInfo.getInlongGroupId()));
+        assertRespSuccess(responseBody);
+        return responseBody.getData();
     }
 
     public WorkflowResult startInlongGroup(int taskId, NewGroupProcessForm newGroupProcessForm) {
@@ -478,14 +427,15 @@ public class InnerInlongManagerClient {
         inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
         workflowTaskOperation.set("form", inlongGroupApproveForm);
 
-        String operationData = workflowTaskOperation.toString();
-        log.info("startInlongGroup workflowTaskOperation: {}", operationData);
+        log.info("startInlongGroup workflowTaskOperation: {}", inlongGroupApproveForm);
 
-        return this.sendPost(
-                formatUrl(HTTP_PATH + "/workflow/approve/" + taskId),
-                operationData,
-                WorkflowResult.class
-        );
+        Map<String, Object> requestMap = JsonUtils.OBJECT_MAPPER.convertValue(workflowTaskOperation,
+                new TypeReference<Map<String, Object>>() {
+                });
+        Response<WorkflowResult> response = executeHttpCall(workflowApi.startInlongGroup(taskId, requestMap));
+        assertRespSuccess(response);
+
+        return response.getData();
     }
 
     public boolean operateInlongGroup(String groupId, SimpleGroupStatus status) {
@@ -493,29 +443,24 @@ public class InnerInlongManagerClient {
     }
 
     public boolean operateInlongGroup(String groupId, SimpleGroupStatus status, boolean async) {
-        String path = HTTP_PATH;
+        Call<Response<String>> responseCall;
         if (status == SimpleGroupStatus.STOPPED) {
             if (async) {
-                path += "/group/suspendProcessAsync/";
+                responseCall = inlongGroupApi.suspendProcessAsync(groupId);
             } else {
-                path += "/group/suspendProcess/";
+                responseCall = inlongGroupApi.suspendProcess(groupId);
             }
         } else if (status == SimpleGroupStatus.STARTED) {
             if (async) {
-                path += "/group/restartProcessAsync/";
+                responseCall = inlongGroupApi.restartProcessAsync(groupId);
             } else {
-                path += "/group/restartProcess/";
+                responseCall = inlongGroupApi.restartProcess(groupId);
             }
         } else {
             throw new IllegalArgumentException(String.format("Unsupported state: %s", status));
         }
 
-        path += groupId;
-        Response<String> responseBody = this.sendPostForResponse(
-                formatUrl(path),
-                null,
-                String.class
-        );
+        Response<String> responseBody = executeHttpCall(responseCall);
 
         String errMsg = responseBody.getErrMsg();
         return responseBody.isSuccess()
@@ -528,22 +473,14 @@ public class InnerInlongManagerClient {
     }
 
     public boolean deleteInlongGroup(String groupId, boolean async) {
-        String path = HTTP_PATH;
         if (async) {
-            path += "/group/deleteAsync/" + groupId;
-            String finalGroupId = this.sendDelete(
-                    formatUrl(path),
-                    null,
-                    String.class
-            );
-            return groupId.equals(finalGroupId);
+            Response<String> response = executeHttpCall(inlongGroupApi.deleteGroupAsync(groupId));
+            assertRespSuccess(response);
+            return groupId.equals(response.getData());
         } else {
-            path += "/group/delete/" + groupId;
-            return this.sendDelete(
-                    formatUrl(path),
-                    null,
-                    Boolean.class
-            );
+            Response<Boolean> response = executeHttpCall(inlongGroupApi.deleteGroup(groupId));
+            assertRespSuccess(response);
+            return response.getData();
         }
     }
 
@@ -551,183 +488,37 @@ public class InnerInlongManagerClient {
      * get inlong group error messages
      */
     public List<EventLogView> getInlongGroupError(String inlongGroupId) {
-        String url = formatUrl(HTTP_PATH + "/workflow/event/list");
-        url = url + "&inlongGroupId=" + inlongGroupId + "&status=-1";
-        return this.sendGet(url, new TypeReference<Response<PageInfo<EventLogView>>>() {
-        }).getList();
+        Response<PageInfo<EventLogView>> response = executeHttpCall(workflowApi.getInlongGroupError(inlongGroupId, -1));
+        assertRespSuccess(response);
+        return response.getData().getList();
     }
 
     /**
      * get inlong group error messages
      */
     public List<InlongStreamConfigLogListResponse> getStreamLogs(String inlongGroupId, String inlongStreamId) {
-        String url = formatUrl(HTTP_PATH + "/stream/config/log/list");
-        url = url + "&inlongGroupId=" + inlongGroupId + "&inlongStreamId=" + inlongStreamId;
-        return this.sendGet(
-                url,
-                new TypeReference<Response<PageInfo<InlongStreamConfigLogListResponse>>>() {
-                }
-        ).getList();
+        Response<PageInfo<InlongStreamConfigLogListResponse>> response = executeHttpCall(
+                inlongStreamApi.getStreamLogs(inlongGroupId, inlongStreamId));
+        assertRespSuccess(response);
+        return response.getData().getList();
     }
 
-    protected String formatUrl(String path) {
-        return String.format("http://%s:%s/%s?username=%s&password=%s", host, port, path, uname, passwd);
+    private <T> T executeHttpCall(Call<T> call) {
+        Request request = call.request();
+        String url = request.url().encodedPath();
+        try {
+            retrofit2.Response<T> response = call.execute();
+            Preconditions.checkState(response.isSuccessful(),
+                    "Request to Inlong %s failed: %s", url, response.message());
+            return response.body();
+        } catch (IOException e) {
+            log.error(String.format("Request to Inlong %s failed: %s", url, e.getMessage()), e);
+            throw new RuntimeException(String.format("Request to Inlong %s failed: %s", url, e.getMessage()), e);
+        }
     }
 
-    /**
-     * Send a GET request, and return the specified type object.
-     *
-     * @param url request url
-     * @param typeReference specified the result type reference
-     * @return the result of type T
-     */
-    private <T> T sendGet(String url, TypeReference<Response<T>> typeReference) {
-        return executeRequestWithCheck("GET", url, null, typeReference);
-    }
-
-    /**
-     * Send a GET request, and return the Response object.
-     *
-     * @param url request url
-     * @param typeReference specified the result type reference
-     * @param <T> result type
-     * @return the result of type Response&lt;T>
-     */
-    private <T> Response<T> sendGetForResponse(String url, TypeReference<Response<T>> typeReference) {
-        return executeRequestForResponse("GET", url, null, typeReference);
-    }
-
-    /**
-     * Send a POST request, and return the specified type object.
-     *
-     * @param url request url
-     * @param content request content
-     * @param clazz result type
-     * @return the result of type T
-     */
-    private <T> T sendPost(String url, String content, Class<T> clazz) {
-        return executeRequestWithCheck("POST", url, content, clazz);
-    }
-
-    /**
-     * Send a POST request, and return the specified type object.
-     *
-     * @param url request url
-     * @param content request content
-     * @param typeReference specified the result type reference
-     * @return the result of type T
-     */
-    private <T> T sendPost(String url, String content, TypeReference<Response<T>> typeReference) {
-        return executeRequestWithCheck("POST", url, content, typeReference);
-    }
-
-    /**
-     * Send a POST request, and return the Response object.
-     *
-     * @param url request url
-     * @param content request content
-     * @param clazz result type
-     * @return the result of type Response&lt;T>
-     */
-    private <T> Response<T> sendPostForResponse(String url, String content, Class<T> clazz) {
-        return executeRequestForResponse("POST", url, content, clazz);
-    }
-
-    /**
-     * Send a POST request, and return the Response object.
-     *
-     * @param url request url
-     * @param content request content
-     * @param typeReference specified the result type reference
-     * @return the result of type Response&lt;T>
-     */
-    private <T> Response<T> sendPostForResponse(String url, String content, TypeReference<Response<T>> typeReference) {
-        return executeRequestForResponse("POST", url, content, typeReference);
-    }
-
-    /**
-     * Send a DELETE request, and return the specified type object.
-     *
-     * @param url request url
-     * @param content request content
-     * @param clazz result type
-     * @return the result of type T
-     */
-    private <T> T sendDelete(String url, String content, Class<T> clazz) {
-        return executeRequestWithCheck("DELETE", url, content, clazz);
-    }
-
-    /**
-     * Execute the request, and check the status for the response.
-     */
-    private <T> T executeRequestWithCheck(String method, String url, String content, Class<T> clazz) {
-        Response<T> response = executeRequestForResponse(method, url, content, clazz);
+    private void assertRespSuccess(Response<?> response) {
         Preconditions.checkState(response.isSuccess(), "Inlong request failed: %s", response.getErrMsg());
-        return response.getData();
-    }
-
-    /**
-     * Execute the request, and check the status for the response.
-     */
-    private <T> T executeRequestWithCheck(String method, String url, String content,
-            TypeReference<Response<T>> typeReference) {
-        Response<T> response = executeRequestForResponse(method, url, content, typeReference);
-        Preconditions.checkState(response.isSuccess(), "Inlong request failed: %s", response.getErrMsg());
-        return response.getData();
-    }
-
-    private <T> Response<T> executeRequestForResponse(String method, String url, String content, Class<T> clazz) {
-        Builder requestBuilder = new Builder().url(url);
-        if (content == null) {
-            requestBuilder.method(method, null);
-        } else {
-            requestBuilder.method(method, RequestBody.create(APPLICATION_JSON, content));
-        }
-
-        return executeAndParse(requestBuilder.build(), clazz);
-    }
-
-    private <T> Response<T> executeRequestForResponse(String method, String url, String content,
-            TypeReference<Response<T>> typeReference) {
-        Builder requestBuilder = new Builder().url(url);
-        if (StringUtils.isBlank(content)) {
-            requestBuilder.method(method, null);
-        } else {
-            requestBuilder.method(method, RequestBody.create(APPLICATION_JSON, content));
-        }
-
-        return executeAndParse(requestBuilder.build(), typeReference);
-    }
-
-    private <T> Response<T> executeAndParse(Request request, Class<T> clazz) {
-        String body = executeHttpCall(request);
-        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(Response.class, clazz);
-        return JsonUtils.parseObject(body, javaType);
-    }
-
-    private <T> Response<T> executeAndParse(Request request, TypeReference<Response<T>> typeReference) {
-        String body = executeHttpCall(request);
-        return JsonUtils.parseObject(body, typeReference);
-    }
-
-    /**
-     * Execute HTTP request call
-     *
-     * @param request http request
-     * @return response body string
-     * @throws RuntimeException when response was not success, ex: timeout, code is not 200
-     */
-    private String executeHttpCall(Request request) {
-        String rul = request.url().encodedPath();
-        try (okhttp3.Response response = httpClient.newCall(request).execute()) {
-            assert response.body() != null;
-            String body = response.body().string();
-            Preconditions.checkState(response.isSuccessful(), "Request to Inlong %s failed: %s", rul, body);
-            return body;
-        } catch (Exception e) {
-            log.error(String.format("Request to Inlong %s failed: %s", rul, e.getMessage()), e);
-            throw new RuntimeException(String.format("Request to Inlong %s failed: %s", rul, e.getMessage()), e);
-        }
     }
 
 }
