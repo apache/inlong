@@ -488,8 +488,25 @@ public class InnerInlongManagerClient {
         );
     }
 
-    public boolean operateInlongGroup(String groupId, SimpleGroupStatus status) {
-        return operateInlongGroup(groupId, status, false);
+    public WorkflowResult rejectInlongGroup(int taskId, NewGroupProcessForm newGroupProcessForm) {
+        ObjectNode workflowTaskOperation = objectMapper.createObjectNode();
+        workflowTaskOperation.putPOJO("transferTo", Lists.newArrayList());
+        workflowTaskOperation.put("remark", "approved by system");
+
+        ObjectNode inlongGroupApproveForm = objectMapper.createObjectNode();
+        inlongGroupApproveForm.putPOJO("groupApproveInfo", newGroupProcessForm.getGroupInfo());
+        inlongGroupApproveForm.putPOJO("streamApproveInfoList", newGroupProcessForm.getStreamInfoList());
+        inlongGroupApproveForm.put("formName", "InlongGroupApproveForm");
+        workflowTaskOperation.set("form", inlongGroupApproveForm);
+
+        String operationData = workflowTaskOperation.toString();
+        log.info("rejectInlongGroup workflowTaskOperation: {}", operationData);
+
+        return this.sendPost(
+                formatUrl(HTTP_PATH + "/workflow/reject/" + taskId),
+                operationData,
+                WorkflowResult.class
+        );
     }
 
     public boolean operateInlongGroup(String groupId, SimpleGroupStatus status, boolean async) {

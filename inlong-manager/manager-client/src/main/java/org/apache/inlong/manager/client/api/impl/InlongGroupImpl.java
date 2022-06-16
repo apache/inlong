@@ -46,6 +46,7 @@ import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -125,6 +126,13 @@ public class InlongGroupImpl implements InlongGroup {
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = managerClient.getGroupInfo(groupId);
+        GroupStatus groupStatus = GroupStatus.forCode(existGroupInfo.getStatus());
+        Date lastModifyTime = existGroupInfo.getModifyTime();
+        Date now = new Date();
+        // If group in TO_BE_APPROVAL state for more than 10s, reject immediately
+        if (groupStatus == GroupStatus.TO_BE_APPROVAL && now.getTime() - lastModifyTime.getTime() >= 10000) {
+            reject();
+        }
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
         AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
                 "Inlong Group is in init status, should not be updated");
@@ -146,6 +154,13 @@ public class InlongGroupImpl implements InlongGroup {
         final String groupId = this.groupInfo.getInlongGroupId();
         InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
 
+        GroupStatus groupStatus = GroupStatus.forCode(groupInfo.getStatus());
+        Date lastModifyTime = groupInfo.getModifyTime();
+        Date now = new Date();
+        // If group in TO_BE_APPROVAL state for more than 10s, reject immediately
+        if (groupStatus == GroupStatus.TO_BE_APPROVAL && now.getTime() - lastModifyTime.getTime() >= 10000) {
+            reject();
+        }
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
         AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
                 "Inlong Group is in init status, should not be updated");
@@ -225,6 +240,30 @@ public class InlongGroupImpl implements InlongGroup {
     public List<InlongStream> listStreams() throws Exception {
         String inlongGroupId = this.groupContext.getGroupId();
         return fetchInlongStreams(inlongGroupId);
+    }
+
+    private void reject() throws Exception {
+        InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
+        WorkflowResult initWorkflowResult = managerClient.initInlongGroup(groupInfo.genRequest());
+        List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
+        AssertUtils.notEmpty(taskViews, "Init business info failed");
+        TaskResponse taskView = taskViews.get(0);
+        final int taskId = taskView.getId();
+        ProcessResponse processView = initWorkflowResult.getProcessInfo();
+        AssertUtils.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
+                String.format("Process status : %s is not corrected, should be PROCESSING",
+                        processView.getStatus()));
+
+        // init must be NewGroupProcessForm
+        NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
+                JsonUtils.toJsonString(processView.getFormData()), NewGroupProcessForm.class);
+        AssertUtils.notNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
+
+        groupContext.setInitMsg(newGroupProcessForm);
+        WorkflowResult rejectWorkflowResult = managerClient.rejectInlongGroup(taskId, newGroupProcessForm);
+        processView = rejectWorkflowResult.getProcessInfo();
+        AssertUtils.isTrue(ProcessStatus.REJECTED == processView.getStatus(),
+                String.format("inlong group status %s is incorrected, should be REJECTED", processView.getStatus()));
     }
 
     private InlongGroupContext generateSnapshot() {

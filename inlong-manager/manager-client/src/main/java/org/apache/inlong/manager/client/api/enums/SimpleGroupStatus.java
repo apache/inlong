@@ -40,6 +40,7 @@ public enum SimpleGroupStatus {
         switch (groupStatus) {
             case DRAFT:
             case TO_BE_SUBMIT:
+            case TO_BE_APPROVAL:
                 return CREATE;
             case DELETING:
             case SUSPENDING:
@@ -47,7 +48,6 @@ public enum SimpleGroupStatus {
                 return OPERATING;
             case APPROVE_REJECTED:
                 return REJECTED;
-            case TO_BE_APPROVAL:
             case APPROVE_PASSED:
             case CONFIG_ING:
                 return INITIALIZING;
