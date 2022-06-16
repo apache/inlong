@@ -39,7 +39,7 @@ public interface StreamSourceApi {
 
     @GET("source/list")
     Call<Response<PageInfo<SourceListResponse>>> listSources(@Query("inlongGroupId") String groupId,
-            @Query("inlongGroupId") String streamId, @Query("sourceType") String sourceType);
+            @Query("inlongStreamId") String streamId, @Query("sourceType") String sourceType);
 
     @DELETE("source/delete/{id}")
     Call<Response<Boolean>> deleteSource(@Path("id") Integer sourceId);
