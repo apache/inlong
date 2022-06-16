@@ -80,9 +80,9 @@ public class MongoExtractNode extends ExtractNode implements Serializable {
             @JsonProperty("password") String password,
             @JsonProperty("database") String database) {
         super(id, name, fields, waterMarkField, properties);
-        if (fields.stream().noneMatch(m -> m.getName().equals("_id"))) {
+        if (fields.stream().noneMatch(m -> m.getName().equals(ID))) {
             List<FieldInfo> allFields = new ArrayList<>(fields);
-            allFields.add(new FieldInfo("_id", new StringFormatInfo()));
+            allFields.add(new FieldInfo(ID, new StringFormatInfo()));
             this.setFields(allFields);
         }
         this.collection = Preconditions.checkNotNull(collection, "collection is null");
