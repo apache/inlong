@@ -45,7 +45,7 @@ public class PluginServiceTest extends ServiceBaseTest {
         try {
             path = Paths.get(this.getClass().getClassLoader().getResource("").toURI()).toString();
         } catch (URISyntaxException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
         pluginService.setPluginLoc(path + File.separator + PLUGIN_NAME);
         pluginService.pluginReload();

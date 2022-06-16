@@ -46,9 +46,9 @@ public class Kafka2HiveExample extends BaseExample {
     @Test
     public void testCreateGroupForHive() {
         ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setWriteTimeout(1000);
-        configuration.setReadTimeout(1000);
-        configuration.setConnectTimeout(1000);
+        configuration.setWriteTimeout(10);
+        configuration.setReadTimeout(10);
+        configuration.setConnectTimeout(10);
         configuration.setTimeUnit(TimeUnit.SECONDS);
         configuration.setAuthentication(super.getInlongAuth());
         InlongClient inlongClient = InlongClient.create(super.getServiceUrl(), configuration);
