@@ -84,4 +84,9 @@ public class TestAgentUtils {
         Assert.assertEquals(1620374040000L, AgentUtils.timeStrConvertToMillSec("202105071554", "M"));
     }
 
+    @Test
+    public void testFetchLocalIp() {
+        Assert.assertNotEquals("127.0.0.1",AgentUtils.fetchLocalIp());
+        LOGGER.info("local ip is {}", AgentUtils.fetchLocalIp());
+    }
 }
