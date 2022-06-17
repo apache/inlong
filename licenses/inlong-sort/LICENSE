@@ -526,6 +526,12 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry (https://github.com/prometheus/client_java/tree/parent-0.14.1/simpleclient_tracer/simpleclient_tracer_otel), (The Apache Software License, Version 2.0)
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1/simpleclient_tracer/simpleclient_tracer_otel_agent), (The Apache Software License, Version 2.0)
   org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (Apache-2.0)
+  com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp), (The Apache Software License, Version 2.0)
+  com.squareup.okio:okio:1.12.0 - okio (https://github.com/square/okio), (The Apache Software License, Version 2.0)
+  org.ini4j:ini4j:0.5.1 - ini4j (https://sourceforge.net/projects/ini4j), (The Apache Software License, Version 2.0)
+  com.squareup.okhttp:logging-interceptor:2.7.5 - logging-interceptor (https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor), (The Apache Software License, Version 2.0)
+  com.tencentcloudapi:tencentcloud-sdk-java:3.1.545 - tencentcloud-sdk-java (https://github.com/TencentCloud/tencentcloud-sdk-java), (The Apache Software License, Version 2.0)
+  com.qcloud:dlc-data-catalog-metastore-client:1.1 - dlc-data-catalog-metastore-client (https://mvnrepository.com/artifact/com.qcloud/dlc-data-catalog-metastore-client/1.1), (The Apache Software License, Version 2.0)
 
 
 ========================================================================
