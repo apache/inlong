@@ -166,7 +166,7 @@ public class AgentUtils {
      * Get local IP
      */
     public static String getLocalIp() {
-        String ip = "127.0.0.1";
+        String ip = DEFAULT_LOCAL_IP;
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             ip = socket.getLocalAddress().getHostAddress();
@@ -340,7 +340,7 @@ public class AgentUtils {
      * Check agent ip from manager
      */
     public static String fetchLocalIp() {
-        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
+        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
     }
 
     /**
