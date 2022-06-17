@@ -15,14 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.tubemq.manager.service;
+package org.apache.inlong.tubemq.manager.controller.group.request;
 
-public class TubeMQErrorConst {
-    public static final String PARAM_ILLEGAL = "param illegal";
-    public static final String BROKER_IN_OTHER_REGION = "resource already used";
-    public static final String RESOURCE_NOT_EXIST = "resource not exsit";
-    public static final String MYSQL_ERROR = "mysql error";
-    public static final String NO_SUCH_CLUSTER = "no such cluster";
-    public static final String NO_SUCH_METHOD = "no such method";
-    public static final String NO_SUCH_GROUP = "no such group";
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
+
+/**
+ * query consumer group
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class QueryConsumerGroupReq extends BaseReq {
+    private String consumerGroup;
+    private String topicName;
+
+    public boolean legal() {
+        return StringUtils.isNotBlank(topicName) && StringUtils.isNotBlank(consumerGroup);
+    }
 }
