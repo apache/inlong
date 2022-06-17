@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 @RequestMapping(path = "/business")
 @Slf4j
-public class TopicTdmController {
+public class TopicManagerController {
     @Autowired
     private TopicRepository topicRepository;
 
