@@ -33,20 +33,20 @@ import retrofit2.http.Query;
 public interface InlongStreamApi {
 
     @POST("stream/save")
-    Call<Response<Integer>> createStreamInfo(@Body InlongStreamInfo stream);
+    Call<Response<Integer>> createStream(@Body InlongStreamInfo stream);
 
     @GET("stream/exist/{groupId}/{streamId}")
     Call<Response<Boolean>> isStreamExists(@Path("groupId") String groupId, @Path("streamId") String streamId);
 
     @POST("stream/update")
-    Call<Response<Boolean>> updateStreamInfo(@Body InlongStreamInfo stream);
+    Call<Response<Boolean>> updateStream(@Body InlongStreamInfo stream);
 
     @GET("stream/get")
-    Call<Response<InlongStreamInfo>> getStreamInfo(@Query("inlongGroupId") String groupId,
+    Call<Response<InlongStreamInfo>> getStream(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId);
 
     @POST("stream/listAll")
-    Call<Response<PageInfo<FullStreamResponse>>> listStreamInfo(@Body InlongStreamPageRequest request);
+    Call<Response<PageInfo<FullStreamResponse>>> listStream(@Body InlongStreamPageRequest request);
 
     @GET("stream/config/log/list")
     Call<Response<PageInfo<InlongStreamConfigLogListResponse>>> getStreamLogs(@Query("inlongGroupId") String groupId,

@@ -219,7 +219,7 @@ public class InnerInlongManagerClient {
      * Create information of stream.
      */
     public Integer createStreamInfo(InlongStreamInfo streamInfo) {
-        Response<Integer> response = executeHttpCall(inlongStreamApi.createStreamInfo(streamInfo));
+        Response<Integer> response = executeHttpCall(inlongStreamApi.createStream(streamInfo));
         assertRespSuccess(response);
         return response.getData();
     }
@@ -236,7 +236,7 @@ public class InnerInlongManagerClient {
     }
 
     public Pair<Boolean, String> updateStreamInfo(InlongStreamInfo streamInfo) {
-        Response<Boolean> resp = executeHttpCall(inlongStreamApi.updateStreamInfo(streamInfo));
+        Response<Boolean> resp = executeHttpCall(inlongStreamApi.updateStream(streamInfo));
 
         if (resp.getData() != null) {
             return Pair.of(resp.getData(), resp.getErrMsg());
@@ -249,7 +249,7 @@ public class InnerInlongManagerClient {
      * Get inlong stream by the given groupId and streamId.
      */
     public InlongStreamInfo getStreamInfo(String groupId, String streamId) {
-        Response<InlongStreamInfo> response = executeHttpCall(inlongStreamApi.getStreamInfo(groupId, streamId));
+        Response<InlongStreamInfo> response = executeHttpCall(inlongStreamApi.getStream(groupId, streamId));
 
         if (response.isSuccess()) {
             return response.getData();
@@ -268,7 +268,7 @@ public class InnerInlongManagerClient {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
 
-        Response<PageInfo<FullStreamResponse>> response = executeHttpCall(inlongStreamApi.listStreamInfo(pageRequest));
+        Response<PageInfo<FullStreamResponse>> response = executeHttpCall(inlongStreamApi.listStream(pageRequest));
         assertRespSuccess(response);
         return response.getData().getList();
     }
