@@ -74,6 +74,9 @@ public class InnerInlongManagerClient {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    protected final String host;
+    protected final int port;
+
     private final InlongStreamApi inlongStreamApi;
     private final InlongGroupApi inlongGroupApi;
     private final StreamSourceApi streamSourceApi;
@@ -82,6 +85,9 @@ public class InnerInlongManagerClient {
     private final WorkflowApi workflowApi;
 
     public InnerInlongManagerClient(ClientConfiguration configuration) {
+        this.host = configuration.getBindHost();
+        this.port = configuration.getBindPort();
+
         Authentication authentication = configuration.getAuthentication();
         AssertUtils.notNull(authentication, "Inlong should be authenticated");
         AssertUtils.isTrue(authentication instanceof DefaultAuthentication,
@@ -98,7 +104,7 @@ public class InnerInlongManagerClient {
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + configuration.getServiceUrl() + "/api/inlong/manager/")
+                .baseUrl("http://" + host + ":" + port + "/api/inlong/manager/")
                 .addConverterFactory(JacksonConverterFactory.create(JsonUtils.OBJECT_MAPPER))
                 .client(okHttpClient)
                 .build();
