@@ -33,6 +33,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes.OffsetInfo;
@@ -96,6 +97,18 @@ public class TopicServiceImpl implements TopicService {
             log.error("exception caught while requesting group status", ex);
         }
         return null;
+    }
+
+    @Override
+    public TubeMQResult queryGroupExist(QueryConsumerGroupReq req) {
+        MasterEntry masterNode = masterService.getMasterNode(req);
+        TubeHttpGroupDetailInfo groupDetailInfo = requestGroupRunInfo(masterNode,
+                req.getConsumerGroup());
+        List<String> topicSet = groupDetailInfo.getTopicSet();
+        if (topicSet.stream().anyMatch(topic -> topic.equals(req.getTopicName()))) {
+            return TubeMQResult.successResult();
+        }
+        return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_GROUP);
     }
 
     @Override

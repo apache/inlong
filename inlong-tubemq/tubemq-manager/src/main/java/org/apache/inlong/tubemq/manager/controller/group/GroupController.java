@@ -29,6 +29,7 @@ import org.apache.inlong.tubemq.manager.controller.group.request.DeleteBlackGrou
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.FilterCondGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.FlowControlGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
@@ -86,9 +87,23 @@ public class GroupController {
                 return masterService.baseRequestMaster(gson.fromJson(req, FilterCondGroupReq.class));
             case TubeConst.FLOW_CONTROL:
                 return masterService.baseRequestMaster(gson.fromJson(req, FlowControlGroupReq.class));
+            case TubeConst.QUERY:
+                return queryGroupExist(gson.fromJson(req, QueryConsumerGroupReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
+    }
+
+    /**
+     * query group exist
+     * @param req
+     * @return
+     */
+    private TubeMQResult queryGroupExist(QueryConsumerGroupReq req) {
+        if (!req.legal()) {
+            return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
+        }
+        return topicService.queryGroupExist(req);
     }
 
     /**

@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.manager.service.interfaces;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
@@ -28,6 +29,7 @@ import org.apache.inlong.tubemq.manager.controller.node.request.CloneBrokersReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneTopicReq;
 import org.apache.inlong.tubemq.manager.entry.ClusterEntry;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
+import org.apache.inlong.tubemq.manager.service.TopicFuture;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpBrokerInfoList;
 
 public interface NodeService {
@@ -85,6 +87,13 @@ public interface NodeService {
                                    Set<String> topics, List<Integer> brokerList, int maxBrokers);
 
     void handleReloadBroker(MasterEntry masterEntry, List<Integer> needReloadList, ClusterEntry clusterEntry);
+
+    /**
+     * update broker status
+     * @param clusterId
+     * @param pendingTopic
+     */
+    void updateBrokerStatus(int clusterId, Map<String, TopicFuture> pendingTopic);
 
     void close() throws IOException;
 
