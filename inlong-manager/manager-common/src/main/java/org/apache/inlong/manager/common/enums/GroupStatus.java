@@ -109,7 +109,8 @@ public enum GroupStatus {
      * Checks whether the given status allows the update.
      */
     public static boolean notAllowedUpdate(GroupStatus status) {
-        return status == GroupStatus.CONFIG_ING || status == GroupStatus.TO_BE_APPROVAL;
+        return status == GroupStatus.CONFIG_ING || status == GroupStatus.SUSPENDING
+                || status == GroupStatus.RESTARTING || status == GroupStatus.DELETING;
     }
 
     /**
