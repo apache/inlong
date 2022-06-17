@@ -468,8 +468,23 @@ public class FlinkSqlParser implements Parser {
         for (FieldInfo field : fields) {
             FieldRelation fieldRelation = fieldRelationMap.get(field.getName());
             if (fieldRelation != null) {
-                sb.append("\n    ").append(fieldRelation.getInputField().format())
-                        .append(" AS ").append(field.format()).append(",");
+                if (fieldRelation.getInputField() instanceof FieldInfo) {
+                    FieldInfo inputField = (FieldInfo) fieldRelation.getInputField();
+                    if (inputField.getFormatInfo() != null && fieldRelation.getOutputField().getFormatInfo() != null
+                            && fieldRelation.getOutputField().getFormatInfo().getTypeInfo()
+                            .equals(inputField.getFormatInfo().getTypeInfo())) {
+                        sb.append("\n    ").append(fieldRelation.getInputField().format())
+                                .append(" AS ").append(field.format()).append(",");
+                    } else {
+                        String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
+                        sb.append("\n    CAST(").append(fieldRelation.getInputField().format()).append(" as ")
+                                .append(targetType).append(") AS ").append(field.format()).append(",");
+                    }
+                } else {
+                    String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
+                    sb.append("\n    CAST(").append(fieldRelation.getInputField().format()).append(" as ")
+                            .append(targetType).append(") AS ").append(field.format()).append(",");
+                }
             } else {
                 String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
                 sb.append("\n    CAST(NULL as ").append(targetType).append(") AS ").append(field.format()).append(",");
