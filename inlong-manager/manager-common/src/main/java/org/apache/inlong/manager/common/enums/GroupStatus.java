@@ -125,7 +125,8 @@ public enum GroupStatus {
      * allows change the MQ type of inlong group.
      */
     public static boolean notAllowedUpdateMQ(GroupStatus status) {
-        return status == GroupStatus.DRAFT || status == GroupStatus.TO_BE_SUBMIT;
+        return status != GroupStatus.DRAFT && status != GroupStatus.TO_BE_SUBMIT
+                && status != GroupStatus.APPROVE_REJECTED && status != GroupStatus.CONFIG_FAILED;
     }
 
     /**
