@@ -56,6 +56,10 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 
+    @Deprecated
+    @ApiModelProperty(value = "MQ type, replaced by mqType")
+    private String middlewareType;
+
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
