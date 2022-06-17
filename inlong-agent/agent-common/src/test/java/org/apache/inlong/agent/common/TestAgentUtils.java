@@ -86,7 +86,7 @@ public class TestAgentUtils {
 
     @Test
     public void testFetchLocalIp() {
-        Assert.assertNotEquals("127.0.0.1",AgentUtils.fetchLocalIp());
+        Assert.assertNotEquals("127.0.0.1", AgentUtils.fetchLocalIp());
         LOGGER.info("local ip is {}", AgentUtils.fetchLocalIp());
     }
 }
