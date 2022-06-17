@@ -18,14 +18,12 @@
 package org.apache.inlong.manager.service.workflow.group.listener.light;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -33,8 +31,6 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Listener of light group update complete.
@@ -77,11 +73,7 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
             default:
                 break;
         }
-
-        if (CollectionUtils.isEmpty(form.getStreamInfos())) {
-            List<InlongStreamInfo> streamInfos = streamService.list(groupId);
-            form.setStreamInfos(streamInfos);
-        }
+        groupService.update(form.getGroupInfo().genRequest(), applicant);
         return ListenerResult.success();
     }
 
