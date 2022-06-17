@@ -127,7 +127,8 @@ public enum GroupStatus {
      */
     public static boolean notAllowedUpdateMQ(GroupStatus status) {
         return status != GroupStatus.DRAFT && status != GroupStatus.TO_BE_SUBMIT
-                && status != GroupStatus.APPROVE_REJECTED && status != GroupStatus.CONFIG_FAILED;
+                && status != GroupStatus.TO_BE_APPROVAL && status != GroupStatus.APPROVE_REJECTED
+                && status != GroupStatus.CONFIG_FAILED;
     }
 
     /**
