@@ -41,9 +41,9 @@
 # What is Apache InLong?
 [Apache InLong](https://inlong.apache.org)(incubating) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
-InLong (应龙) is a divine beast in Chinese mythology who guides river into the sea, it is regarded as a metaphor of the InLong system for reporting streams of data.
+InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.
 
-InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 40 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
+InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 80 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
 
 For getting more information, please visit our project documentation at https://inlong.apache.org/
 <img src="https://github.com/apache/incubator-inlong-website/blob/master/static/img/inlong-structure-en.png" align="center" alt="Apache InLong"/>
@@ -51,11 +51,11 @@ For getting more information, please visit our project documentation at https://
 
 ## Features
 Apache InLong offers a variety of features:
-* **Ease of Use**: a SaaS-based service platform, you can easily and quickly report, transfer, and distribute data by publishing and subscribing to data based on topics.
-* **Stability & Reliability**: derived from the actual online production environment, it delivers high-performance processing capabilities for 10 trillion-level data streams and highly reliable services for 100 billion-level data streams.
-* **Comprehensive Features**: supports various types of data access methods and can be integrated with different types of Message Queue (MQ) services, it also provides real-time data extract, transform, and load (ETL) and sorting capabilities based on rules, allows you to plug features to extend system capabilities.
-* **Service Integration**: provides unified system monitoring and alert services, it provides fine-grained metrics to facilitate data visualization, you can view the running status of queues and topic-based data statistics in a unified data metric platform, configure the alert service based on your business requirements so that users can be alerted when errors occur.
-* **Scalability**: adopts a pluggable architecture that allows you to plug modules into the system based on specific protocols, so you can replace components and add features based on your business requirements
+* **Ease of Use**: a SaaS-based service platform. Users can easily and quickly report, transfer, and distribute data by publishing and subscribing to data based on topics.
+* **Stability & Reliability**: derived from the actual online production environment. It delivers high-performance processing capabilities for 10 trillion-level data streams and highly reliable services for 100 billion-level data streams.
+* **Comprehensive Features**: supports various types of data access methods and can be integrated with different types of Message Queue (MQ). It also provides real-time data extract, transform, and load (ETL) and sorting capabilities based on rules. InLong also allows users to plug features to extend system capabilities.
+* **Service Integration**: provides unified system monitoring and alert services. It provides fine-grained metrics to facilitate data visualization. Users can view the running status of queues and topic-based data statistics in a unified data metric platform. Users can also configure the alert service based on their business requirements so that users can be alerted when errors occur.
+* **Scalability**: adopts a pluggable architecture that allows you to plug modules into the system based on specific protocols. Users can replace components and add features based on their business requirements.
 
 
 ## When should I use InLong?
