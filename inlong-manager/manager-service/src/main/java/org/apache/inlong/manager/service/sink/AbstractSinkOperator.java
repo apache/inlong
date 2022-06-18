@@ -77,6 +77,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
      */
     protected abstract StreamSink getSink();
 
+    @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(request, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
@@ -96,6 +97,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
         return sinkId;
     }
 
+    @Override
     public void updateOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
@@ -113,6 +115,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
         LOGGER.info("success to update sink of type={}", request.getSinkType());
     }
 
+    @Override
     public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
         Integer sinkId = request.getId();
         List<SinkField> fieldRequestList = request.getSinkFieldList();
@@ -137,6 +140,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
         LOGGER.info("success to update field");
     }
 
+    @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
         LOGGER.info("begin to save field={}", fieldList);
