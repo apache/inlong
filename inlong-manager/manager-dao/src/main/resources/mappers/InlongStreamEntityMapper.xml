@@ -258,10 +258,9 @@
         stream.data_separator, stream.data_escape_char, stream.sync_send, stream.daily_records,
         stream.daily_storage, stream.peak_records, stream.max_length, stream.storage_period,
         stream.status, stream.creator, stream.modifier, stream.create_time, stream.modify_time
-        from inlong_stream stream, inlong_group grp, workflow_approver approver
+        from inlong_stream stream, inlong_group grp
         <where>
             stream.is_deleted = 0
-            and approver.process_name = "NEW_GROUP_PROCESS" and approver.is_deleted = 0
             and stream.inlong_group_id = grp.inlong_group_id and grp.is_deleted = 0
             <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
                 and stream.inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
@@ -270,7 +269,6 @@
                 and (
                 find_in_set(#{request.currentUser, jdbcType=VARCHAR}, grp.in_charges)
                 or find_in_set(#{request.currentUser, jdbcType=VARCHAR}, grp.followers)
-                or find_in_set(#{request.currentUser, jdbcType=VARCHAR}, approver.approvers)
                 )
             </if>
             <if test="request.keyword != null and request.keyword != ''">

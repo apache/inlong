@@ -28,7 +28,7 @@ public enum MetaField {
      */
     PROCESS_TIME,
     /**
-     * Name of the schema that contain the row, currently used for Oracle database
+     * Name of the schema that contain the row, currently used for Oracle, PostgreSQL, SQLSERVER
      */
     SCHEMA_NAME,
     /**
@@ -79,7 +79,12 @@ public enum MetaField {
     /**
      * Primary key field name. Currently, it is used for MySQL database.
      */
-    PK_NAMES;
+    PK_NAMES,
+
+    /**
+     * Name of the collection that contain the row. For MongoDB
+     */
+    COLLECTION_NAME;
 
     public static MetaField forName(String name) {
         for (MetaField metaField : values()) {
