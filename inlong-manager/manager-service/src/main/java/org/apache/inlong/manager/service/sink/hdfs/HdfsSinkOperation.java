@@ -38,6 +38,8 @@ import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +52,8 @@ import java.util.function.Supplier;
  */
 @Service
 public class HdfsSinkOperation extends AbstractSinkOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -109,6 +113,7 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
             HdfsSinkDTO dto = HdfsSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
+            LOGGER.error("Error occurred while saving or updating sink info", e);
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
         }
     }
