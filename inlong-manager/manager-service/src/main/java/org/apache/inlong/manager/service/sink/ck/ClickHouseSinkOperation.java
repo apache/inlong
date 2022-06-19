@@ -116,7 +116,7 @@ public class ClickHouseSinkOperation extends AbstractSinkOperator {
             ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("Error occurred while saving or updating sink info", e);
+            LOGGER.error("parsing json string to sink info failed", e);
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
         }
     }

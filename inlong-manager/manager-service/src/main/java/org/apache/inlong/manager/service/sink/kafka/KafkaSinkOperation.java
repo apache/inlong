@@ -112,7 +112,7 @@ public class KafkaSinkOperation extends AbstractSinkOperator {
             KafkaSinkDTO dto = KafkaSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            LOGGER.error("Error occurred while saving or updating sink info", e);
+            LOGGER.error("parsing json string to sink info failed", e);
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
         }
     }
