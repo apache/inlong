@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.GlobalConstants;
-import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -41,16 +40,14 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.sink.StreamSinkOperation;
+import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -58,14 +55,12 @@ import java.util.function.Supplier;
  * Iceberg sink operation, such as save or update iceberg field, etc.
  */
 @Service
-public class IcebergSinkOperation implements StreamSinkOperation {
+public class IcebergSinkOperation extends AbstractSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSinkOperation.class);
 
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private StreamSinkEntityMapper sinkMapper;
     @Autowired
     private StreamSinkFieldEntityMapper sinkFieldMapper;
 
@@ -75,39 +70,65 @@ public class IcebergSinkOperation implements StreamSinkOperation {
     }
 
     @Override
-    public Integer saveOpt(SinkRequest request, String operator) {
-        String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(sinkType),
-                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + sinkType);
+    public StreamSink getByEntity(StreamSinkEntity entity) {
+        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
+        String existType = entity.getSinkType();
+        Preconditions.checkTrue(this.getSinkType().equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        IcebergSinkRequest icebergSinkRequest = (IcebergSinkRequest) request;
-        StreamSinkEntity entity = CommonBeanUtils.copyProperties(icebergSinkRequest, StreamSinkEntity::new);
-        entity.setStatus(SinkStatus.NEW.getCode());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
-        entity.setCreator(operator);
-        entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
+        StreamSink response = this.getFromEntity(entity, this::getSink);
+        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkField::new);
+        response.setSinkFieldList(infos);
 
-        // get the ext params
-        IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(icebergSinkRequest);
-        try {
-            entity.setExtParams(objectMapper.writeValueAsString(dto));
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED);
+        return response;
+    }
+
+    @Override
+    public <T> T getFromEntity(StreamSinkEntity entity, Supplier<T> target) {
+        T result = target.get();
+        if (entity == null) {
+            return result;
         }
-        sinkMapper.insert(entity);
-        Integer sinkId = entity.getId();
-        request.setId(sinkId);
-        this.saveFieldOpt(request);
-        return sinkId;
+
+        String existType = entity.getSinkType();
+        Preconditions.checkTrue(this.getSinkType().equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
+
+        IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
+        CommonBeanUtils.copyProperties(entity, result, true);
+        CommonBeanUtils.copyProperties(dto, result, true);
+
+        return result;
+    }
+
+    @Override
+    public PageInfo<? extends SinkListResponse> getPageInfo(Page<StreamSinkEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, IcebergSinkListResponse::new));
+    }
+
+    @Override
+    protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
+        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
+                ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
+        IcebergSinkRequest sinkRequest = (IcebergSinkRequest) request;
+        try {
+            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(sinkRequest);
+            targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+        } catch (Exception e) {
+            LOGGER.error("parsing json string to sink info failed", e);
+            throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+        }
     }
 
     @Override
     public void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save iceberg field={}", fieldList);
+        LOGGER.info("begin to save field={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -133,7 +154,7 @@ public class IcebergSinkOperation implements StreamSinkOperation {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save iceberg field");
+        LOGGER.info("success to save field");
     }
 
     private void checkFieldInfo(SinkField field) {
@@ -153,105 +174,15 @@ public class IcebergSinkOperation implements StreamSinkOperation {
                 throw new BusinessException(errorMsg);
             }
         }
-        return;
     }
 
     @Override
-    public StreamSink getByEntity(StreamSinkEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, existType));
-
-        StreamSink response = this.getFromEntity(entity, IcebergSink::new);
-        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkField::new);
-        response.setSinkFieldList(infos);
-
-        return response;
+    protected String getSinkType() {
+        return SinkType.SINK_ICEBERG;
     }
 
     @Override
-    public <T> T getFromEntity(StreamSinkEntity entity, Supplier<T> target) {
-        T result = target.get();
-        if (entity == null) {
-            return result;
-        }
-
-        String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, existType));
-
-        IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(entity, result, true);
-        CommonBeanUtils.copyProperties(dto, result, true);
-
-        return result;
-    }
-
-    @Override
-    public PageInfo<? extends SinkListResponse> getPageInfo(Page<StreamSinkEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, IcebergSinkListResponse::new));
-    }
-
-    @Override
-    public void updateOpt(SinkRequest request, String operator) {
-        String sinkType = request.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_ICEBERG.equals(sinkType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_ICEBERG, sinkType));
-
-        StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        IcebergSinkRequest icebergSinkRequest = (IcebergSinkRequest) request;
-        CommonBeanUtils.copyProperties(icebergSinkRequest, entity, true);
-        try {
-            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(icebergSinkRequest);
-            entity.setExtParams(objectMapper.writeValueAsString(dto));
-        } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
-        }
-
-        entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(SinkStatus.CONFIG_ING.getCode());
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        sinkMapper.updateByPrimaryKeySelective(entity);
-
-        boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
-        this.updateFieldOpt(onlyAdd, icebergSinkRequest);
-
-        LOGGER.info("success to update sink of type={}", sinkType);
-    }
-
-    @Override
-    public void updateFieldOpt(Boolean onlyAdd, SinkRequest request) {
-        Integer sinkId = request.getId();
-        List<SinkField> fieldRequestList = request.getSinkFieldList();
-        if (CollectionUtils.isEmpty(fieldRequestList)) {
-            return;
-        }
-
-        if (onlyAdd) {
-            List<StreamSinkFieldEntity> existsFieldList = sinkFieldMapper.selectBySinkId(sinkId);
-            if (existsFieldList.size() > fieldRequestList.size()) {
-                throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
-            }
-            for (int i = 0; i < existsFieldList.size(); i++) {
-                if (!existsFieldList.get(i).getFieldName().equals(fieldRequestList.get(i).getFieldName())) {
-                    throw new BusinessException(ErrorCodeEnum.SINK_FIELD_UPDATE_NOT_ALLOWED);
-                }
-            }
-        }
-
-        // First physically delete the existing fields
-        sinkFieldMapper.deleteAll(sinkId);
-        // Then batch save the sink fields
-        this.saveFieldOpt(request);
-
-        LOGGER.info("success to update field");
+    protected StreamSink getSink() {
+        return new IcebergSink();
     }
 }
