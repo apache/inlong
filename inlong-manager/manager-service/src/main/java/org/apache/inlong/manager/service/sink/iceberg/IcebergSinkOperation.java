@@ -21,13 +21,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
@@ -43,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -117,6 +122,57 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
             throw new BusinessException(ErrorCodeEnum.SINK_SAVE_FAILED.getMessage());
+        }
+    }
+
+    @Override
+    public void saveFieldOpt(SinkRequest request) {
+        List<SinkField> fieldList = request.getSinkFieldList();
+        LOGGER.info("begin to save field={}", fieldList);
+        if (CollectionUtils.isEmpty(fieldList)) {
+            return;
+        }
+
+        int size = fieldList.size();
+        List<StreamSinkFieldEntity> entityList = new ArrayList<>(size);
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
+        String sinkType = request.getSinkType();
+        Integer sinkId = request.getId();
+        for (SinkField fieldInfo : fieldList) {
+            checkFieldInfo(fieldInfo);
+            StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
+            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
+                fieldEntity.setFieldComment(fieldEntity.getFieldName());
+            }
+            fieldEntity.setInlongGroupId(groupId);
+            fieldEntity.setInlongStreamId(streamId);
+            fieldEntity.setSinkType(sinkType);
+            fieldEntity.setSinkId(sinkId);
+            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+            entityList.add(fieldEntity);
+        }
+
+        sinkFieldMapper.insertAll(entityList);
+        LOGGER.info("success to save field");
+    }
+
+    private void checkFieldInfo(SinkField field) {
+        if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
+            IcebergColumnInfo info = IcebergColumnInfo.getFromJson(field.getExtParams());
+            if (info.getPrecision() == null || info.getScale() == null) {
+                String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
+                        field.getFieldName());
+                LOGGER.error("field info check error: {}", errorMsg);
+                throw new BusinessException(errorMsg);
+            }
+            if (info.getPrecision() < info.getScale()) {
+                String errorMsg = String.format(
+                        "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
+                        info.getPrecision(), info.getScale(), field.getFieldName());
+                LOGGER.error("field info check error: {}", errorMsg);
+                throw new BusinessException(errorMsg);
+            }
         }
     }
 
