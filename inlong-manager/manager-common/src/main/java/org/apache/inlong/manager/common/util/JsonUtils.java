@@ -46,7 +46,7 @@ import java.util.Set;
 public class JsonUtils {
 
     public static final String PROJECT_PACKAGE = "org.apache.inlong.manager.common.pojo";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

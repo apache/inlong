@@ -671,6 +671,8 @@ The text of each license is the standard Apache 2.0 license.
   io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
   com.nimbusds:nimbus-jose-jwt:7.9 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
   org.objenesis:objenesis:3.2 - Objenesis (http://objenesis.org/objenesis), (Apache License, Version 2.0)
+  com.squareup.retrofit2:converter-jackson:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
+  com.squareup.retrofit2:retrofit:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
   com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp/tree/parent-2.7.5/okhttp), (Apache 2.0)
   com.squareup.okhttp3:okhttp:3.14.9 - OkHttp (https://github.com/square/okhttp/tree/parent-3.14.9/okhttp), (Apache 2.0)
   com.squareup.okio:okio:1.17.2 - Okio (https://github.com/square/okio/tree/okio-parent-1.17.2/okio), (Apache 2.0)

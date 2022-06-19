@@ -129,6 +129,7 @@
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <okhttp.version>3.14.9</okhttp.version>
+        <retrofit.version>2.9.0</retrofit.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
         <spring.version>5.3.20</spring.version>
@@ -815,7 +816,11 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-jackson</artifactId>
+                <version>${retrofit.version}</version>
+            </dependency>
             <!-- elastic search -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
