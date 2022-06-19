@@ -195,7 +195,6 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
                 throw new BusinessException(errorMsg);
             }
         }
-        return;
     }
 
 }
