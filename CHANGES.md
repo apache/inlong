@@ -81,6 +81,7 @@
 ### Manager
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4648](https://github.com/apache/incubator-inlong/issues/4648) | [Improve][Manager] Read the path of Sort connectors from configuration file                            |
 | [INLONG-4626](https://github.com/apache/incubator-inlong/issues/4626) | [Improve][Manager] Remove redundant connector sub directory                                            |
 | [INLONG-4622](https://github.com/apache/incubator-inlong/issues/4622) | [Bug][Manager] Append db name in JDBC URL for load node                                                |
 | [INLONG-4615](https://github.com/apache/incubator-inlong/issues/4615) | [Improve][Manager] PluginClassLoader adapts to the Windows system                                      |
@@ -261,6 +262,7 @@
 ### Sort
 | ISSUE                                                                 | Summary                                                                                                |
 |:----------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------|
+| [INLONG-4647](https://github.com/apache/incubator-inlong/issues/4647) | [Improve][Sort] Re-optimize the distribution package of the Sort connectors                            |
 | [INLONG-4638](https://github.com/apache/incubator-inlong/issues/4638) | [Improve][Sort] Remove the dependency of spotbugs-annotations                                          |
 | [INLONG-4624](https://github.com/apache/incubator-inlong/issues/4624) | [Improve][Sort] Package Pulsar and Hive connectors to the same file                                    |
 | [INLONG-4619](https://github.com/apache/incubator-inlong/issues/4619) | [Bug][Sort] Fix maven package problem of Hive connector                                                |
@@ -405,7 +407,7 @@
 | [INLONG-4628](https://github.com/apache/incubator-inlong/issues/4628) | [License] Update inlong-manager's third-party dependency LICENSE                                       |
 | [INLONG-4574](https://github.com/apache/incubator-inlong/issues/4574) | [Release] Bumped version to 1.3.0-incubating-SNAPSHOT                                                  |
 | [INLONG-4568](https://github.com/apache/incubator-inlong/issues/4568) | [Release] Bumped version to 1.2.1-incubating-SNAPSHOT                                                  |
-| [INLONG-4574](https://github.com/apache/incubator-inlong/issues/4567) | [Release] Update changes log for the 1.2.0 version                                                     |
+| [INLONG-4567](https://github.com/apache/incubator-inlong/issues/4567) | [Release] Update changes log for the 1.2.0 version                                                     |
 | [INLONG-4565](https://github.com/apache/incubator-inlong/issues/4565) | [Release] Add the 1.2.0 version option for the bug report                                              |
 | [INLONG-4368](https://github.com/apache/incubator-inlong/issues/4368) | [License] Final LICENSE check of all modules                                                           |
 | [INLONG-4336](https://github.com/apache/incubator-inlong/issues/4336) | [License] Update inlong-sort's third-party dependency LICENSE                                          |
