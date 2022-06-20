@@ -105,7 +105,7 @@ public class InlongGroupImpl implements InlongGroup {
         // compile with old cluster
         String mqFieldOld = "middlewareType";
         String mqField = "mqType";
-        String formData = processView.getFormData().toString();
+        String formData = JsonUtils.toJsonString(processView.getFormData());
         if (formData.contains(mqFieldOld) && !formData.contains(mqField)) {
             formData = formData.replace(mqFieldOld, mqField);
         }
