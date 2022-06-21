@@ -25,7 +25,7 @@ import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 import java.util.List;
 
@@ -35,14 +35,14 @@ public interface StreamTransformApi {
     Call<Response<Integer>> createTransform(@Body TransformRequest request);
 
     @GET("transform/list")
-    Call<Response<List<TransformResponse>>> listTransform(@Path("inlongGroupId") String groupId,
-            @Path("inlongStreamId") String streamId);
+    Call<Response<List<TransformResponse>>> listTransform(@Query("inlongGroupId") String groupId,
+            @Query("inlongStreamId") String streamId);
 
     @POST("transform/update")
     Call<Response<Boolean>> updateTransform(@Body TransformRequest request);
 
     @DELETE("transform/delete")
-    Call<Response<Boolean>> deleteTransform(@Path("inlongGroupId") String groupId,
-            @Path("inlongStreamId") String streamId, @Path("transformName") String transformName);
+    Call<Response<Boolean>> deleteTransform(@Query("inlongGroupId") String groupId,
+            @Query("inlongStreamId") String streamId, @Query("transformName") String transformName);
 
 }
