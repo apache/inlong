@@ -19,7 +19,10 @@ package org.apache.inlong.manager.common.pojo.user;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.util.Preconditions;
 
@@ -27,11 +30,18 @@ import org.apache.inlong.manager.common.util.Preconditions;
  * User info, including username, password, etc.
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("User info")
 public class UserInfo {
 
     private Integer id;
 
+    /**
+     * user type
+     * {@link UserTypeEnum}
+     */
     @ApiModelProperty("type: 0 - manager, 1 - operator")
     private Integer type;
 

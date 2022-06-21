@@ -27,8 +27,6 @@ import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 
 import java.util.Date;
 import java.util.List;
@@ -36,7 +34,6 @@ import java.util.List;
 /**
  * Test class for save stream transform.
  */
-@EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class StreamTransformServiceTest extends ServiceBaseTest {
 
     public static final String TRANSFORM_NAME = "test_transform";
