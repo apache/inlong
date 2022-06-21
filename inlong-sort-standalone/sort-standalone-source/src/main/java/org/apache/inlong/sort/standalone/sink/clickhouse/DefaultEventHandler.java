@@ -115,7 +115,7 @@ public class DefaultEventHandler implements IEventHandler {
     public void setValue(ClickHouseIdConfig idConfig, Map<String, String> columnValueMap, PreparedStatement pstat)
             throws SQLException {
         List<Pair<String, Integer>> dbFieldList = idConfig.getDbFieldList();
-        for (int i = 0; i < dbFieldList.size(); i++) {
+        for (int i = 1; i <= dbFieldList.size(); i++) {
             Pair<String, Integer> pair = dbFieldList.get(i);
             String fieldValue = columnValueMap.getOrDefault(pair.getKey(), "");
             int fieldType = pair.getValue();
