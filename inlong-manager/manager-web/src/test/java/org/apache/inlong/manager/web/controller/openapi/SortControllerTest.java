@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.web.controller.openapi;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskSinkParamEntity;
@@ -24,14 +27,15 @@ import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
 import org.apache.inlong.manager.web.WebBaseTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -40,14 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Test class for sort controller.
  */
-public class SortControllerTest extends WebBaseTest {
-
-    private static final Logger logger = LoggerFactory.getLogger(SortControllerTest.class);
-
-    private MockMvc mockMvc;
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+@Slf4j
+@TestInstance(Lifecycle.PER_CLASS)
+class SortControllerTest extends WebBaseTest {
 
     // todo Service do not support insert method now, use mappers to insert data.
     @Autowired
@@ -59,9 +58,8 @@ public class SortControllerTest extends WebBaseTest {
     @Autowired
     private SortClusterConfgiEntityMapper sortClusterConfgiEntityMapper;
 
-    // @Before
-    public void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+    @BeforeAll
+    void setUp() {
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 1));
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask1", 2));
         taskIdParamEntityMapper.insert(this.prepareIdParamsEntity("testTask2", 1));
@@ -78,14 +76,21 @@ public class SortControllerTest extends WebBaseTest {
      *
      * @throws Exception Exceptions to request generating.
      */
-    // @Test
-    // @Transactional
-    public void testGetSortClusterConfig() throws Exception {
-        RequestBuilder request =
-                get("/openapi/sort/getClusterConfig")
-                        .param("clusterName", "testCluster")
-                        .param("md5", "testMd5");
-        mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
+    @Test
+    @Transactional
+    void testGetSortClusterConfig() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(
+                        get("/openapi/sort/getClusterConfig")
+                                .param("clusterName", "testCluster")
+                                .param("md5", "testMd5")
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        SortClusterResponse sortClusterResponse = JsonUtils.parseObject(mvcResult.getResponse().getContentAsString(),
+                SortClusterResponse.class);
+        Assertions.assertNotNull(sortClusterResponse);
+        Assertions.assertEquals("testCluster", sortClusterResponse.getData().getClusterName());
     }
 
     // @Test
@@ -137,9 +142,4 @@ public class SortControllerTest extends WebBaseTest {
                 .build();
     }
 
-    @Test
-    public void defaultTest() {
-        logger.info("Online exception druid connection timeout cannot create transaction, "
-                + "add default test method.");
-    }
 }

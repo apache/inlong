@@ -61,8 +61,6 @@ import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import springfox.boot.starter.autoconfigure.OpenApiAutoConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +74,6 @@ import static org.mockito.Mockito.when;
 /**
  * Test class for workflow service.
  */
-@EnableAutoConfiguration(exclude = OpenApiAutoConfiguration.class)
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String OPERATOR = "admin";
