@@ -28,7 +28,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.loader.ContextIdTopicConfigLoader;

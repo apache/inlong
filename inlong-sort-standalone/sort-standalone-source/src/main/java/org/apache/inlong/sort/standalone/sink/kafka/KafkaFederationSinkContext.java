@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sort.standalone.sink.kafka;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;

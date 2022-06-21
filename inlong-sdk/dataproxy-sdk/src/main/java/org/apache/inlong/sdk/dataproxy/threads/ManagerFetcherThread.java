@@ -20,7 +20,7 @@ package org.apache.inlong.sdk.dataproxy.threads;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.utils.ServiceDiscoveryUtils;
 import org.slf4j.Logger;

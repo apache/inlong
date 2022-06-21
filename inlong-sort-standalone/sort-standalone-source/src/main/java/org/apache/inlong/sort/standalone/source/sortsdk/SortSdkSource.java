@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;

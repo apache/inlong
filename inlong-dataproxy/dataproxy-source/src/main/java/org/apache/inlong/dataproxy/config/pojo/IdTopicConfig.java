@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.pojo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 

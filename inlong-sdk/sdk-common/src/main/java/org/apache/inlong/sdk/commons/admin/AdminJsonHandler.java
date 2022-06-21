@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sdk.commons.admin;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.source.http.HTTPBadRequestException;
