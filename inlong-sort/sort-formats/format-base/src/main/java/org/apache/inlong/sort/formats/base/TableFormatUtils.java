@@ -316,7 +316,8 @@ public class TableFormatUtils {
         } else if (logicalType instanceof NullType) {
             return NullFormatInfo.INSTANCE;
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException(String.format("not found logicalType %s",
+                    logicalType == null ? "null" : logicalType.toString()));
         }
     }
 
@@ -375,7 +376,8 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof NullFormatInfo) {
             return new NullType();
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException(String.format("not found formatInfo %s",
+                    formatInfo == null ? "null" : formatInfo.toString()));
         }
     }
 

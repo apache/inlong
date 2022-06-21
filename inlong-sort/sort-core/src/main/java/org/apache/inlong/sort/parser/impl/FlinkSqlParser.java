@@ -483,7 +483,7 @@ public class FlinkSqlParser implements Parser {
                         && outputField != null
                         && outputField.getFormatInfo() != null
                         && outputField.getFormatInfo().getTypeInfo().equals(formatInfo.getTypeInfo());
-                if (sameType) {
+                if (sameType || field.getFormatInfo() == null) {
                     sb.append("\n    ").append(inputField.format()).append(" AS ").append(field.format()).append(",");
                 } else {
                     String targetType = TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString();
