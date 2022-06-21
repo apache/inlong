@@ -119,10 +119,10 @@ after compile successfully, you could find distribution file at `inlong-distribu
 - [Bare Metal](https://inlong.apache.org/docs/next/deployment/bare_metal)
 
 ## Develop InLong
-- [Agent Plugin extends a new Extract Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_agent)
-- [Sort Plugin extends a new Load Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_sort)
-- [Manger Plugin extends an Operator](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_manager)
-- [Dashboard Plugin extends new data stream page](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_dashboard)
+- [Agent Plugin extends a Extract Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_agent)
+- [Sort Plugin extends a Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_extend_data_node_for_sort)
+- [Manager Plugin extends a Data Node](https://inlong.apache.org/docs/next/design_and_concept/how_to_extend_data_node_for_manager)
+- [Dashboard Plugin extends a Data Node page](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_dashboard)
 
 ## Contribute to InLong
 - Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
