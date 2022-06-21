@@ -18,3 +18,4 @@
 chart-dirs:
   - 'docker'
 validate-maintainers: true
+check-version-increment: false
