@@ -150,14 +150,6 @@
             </includes>
             <outputDirectory>./</outputDirectory>
         </fileSet>
-        <!-- root DISCLAIMER-->
-        <fileSet>
-            <directory>../</directory>
-            <includes>
-                <include>DISCLAIMER</include>
-            </includes>
-            <outputDirectory>./</outputDirectory>
-        </fileSet>
 
         <!-- package InLong Standalone bin-->
         <fileSet>

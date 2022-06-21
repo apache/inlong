@@ -30,7 +30,7 @@ import javax.sql.DataSource;
 /**
  * Class of base test.
  */
-@ActiveProfiles(value = {"test"})
+@ActiveProfiles(value = {"unit-test"})
 @EnableConfigurationProperties
 @ComponentScan(basePackages = "org.apache.inlong.manager")
 @SpringBootTest
