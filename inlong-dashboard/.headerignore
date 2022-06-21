@@ -25,7 +25,6 @@ __MAC_OS
 .stylelintrc
 .vscode/*
 config-overrides.js
-DISCLAIMER
 NOTICE
 KEYS
 LICENSE
