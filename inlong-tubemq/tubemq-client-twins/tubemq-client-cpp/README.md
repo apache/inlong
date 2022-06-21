@@ -39,4 +39,4 @@
  
 
 ## (Optional) build using docker
-  * [build c++ sdk](https://github.com/apache/incubator-tubemq/tree/master/tubemq-docker/tubemq-cpp)
+  * [build c++ sdk](https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-docker/tubemq-cpp)

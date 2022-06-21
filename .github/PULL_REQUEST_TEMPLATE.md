@@ -3,7 +3,7 @@
 
 - Title Example: [INLONG-XYZ][Component] Title of the pull request
 
-*(The following *XYZ* should be replaced by the actual [GitHub Issue](https://github.com/apache/incubator-inlong/issues) number)*
+*(The following *XYZ* should be replaced by the actual [GitHub Issue](https://github.com/apache/inlong/issues) number)*
 
 - Fixes #XYZ
 
