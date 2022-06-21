@@ -1633,7 +1633,6 @@
                         <!-- Generated content -->
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>DISCLAIMER</exclude>
                         <exclude>codestyle/checkstyle.xml</exclude>
 
                         <!-- Documents -->
