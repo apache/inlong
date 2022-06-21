@@ -40,7 +40,7 @@
         to
         facilitate the construction of streaming-based data analysis, modeling, and applications.
     </description>
-    <url>https://github.com/apache/incubator-inlong</url>
+    <url>https://github.com/apache/inlong</url>
 
     <organization>
         <name>Apache Software Foundation</name>
@@ -50,7 +50,7 @@
 
     <developers>
         <developer>
-            <organization>Apache InLong(incubating) developers</organization>
+            <organization>Apache InLong developers</organization>
             <organizationUrl>https://inlong.apache.org/</organizationUrl>
         </developer>
     </developers>
@@ -64,20 +64,20 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/apache/incubator-inlong</url>
-        <connection>scm:git:https://github.com/apache/incubator-inlong.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:apache/incubator-inlong.git
+        <url>https://github.com/apache/inlong</url>
+        <connection>scm:git:https://github.com/apache/inlong.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git
         </developerConnection>
     </scm>
 
     <ciManagement>
         <system>GitHub Actions</system>
-        <url>https://github.com/apache/incubator-inlong/actions</url>
+        <url>https://github.com/apache/inlong/actions</url>
     </ciManagement>
 
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/apache/incubator-inlong/issues</url>
+        <url>https://github.com/apache/inlong/issues</url>
     </issueManagement>
 
     <mailingLists>

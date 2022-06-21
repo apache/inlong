@@ -22,7 +22,7 @@ description: A Helm Chart for Apache InLong
 home: https://inlong.apache.org
 icon: https://inlong.apache.org/img/first-page-bg.png
 sources:
-  - https://github.com/apache/incubator-inlong
+  - https://github.com/apache/inlong
 keywords:
   - inlong
   - tubemq
