@@ -21,6 +21,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
@@ -28,12 +29,14 @@ import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
+import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.junit.Assert;
@@ -50,14 +53,37 @@ import java.util.stream.Collectors;
 public class DataTypeConvertSqlParseTest extends AbstractTestBase {
 
     private KafkaExtractNode buildKafkaExtractNode() {
+        MetaFieldInfo metaFieldInfo = new MetaFieldInfo("PROCESS_TIME", MetaField.PROCESS_TIME);
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
+                new FieldInfo("age", new IntFormatInfo()),
+                metaFieldInfo
         );
         return new KafkaExtractNode("1", "kafka_input", fields, null,
                 null, "topic_input", "localhost:9092",
                 new CanalJsonFormat(), KafkaScanStartupMode.EARLIEST_OFFSET,
                 null, "group_1");
+    }
+
+    /**
+     * Build a transform node
+     *
+     * @return A transform node
+     */
+    private Node buildTransformNode() {
+        return new TransformNode("4", "transform_node",
+                Arrays.asList(
+                        new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo()),
+                        new FieldInfo("PROCESS_TIME", null)
+                ), Arrays.asList(
+                new FieldRelation(new FieldInfo("id", "1", new LongFormatInfo()),
+                        new FieldInfo("id", new LongFormatInfo())),
+                new FieldRelation(new FieldInfo("age", "2", new IntFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo())),
+                new FieldRelation(new FieldInfo("PROCESS_TIME", "3", null),
+                        new FieldInfo("PROCESS_TIME", null))
+        ), null, null);
     }
 
     private KafkaLoadNode buildKafkaLoadNode() {
@@ -100,12 +126,15 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildKafkaExtractNode();
+        Node transformNode = buildTransformNode();
         Node outputNode = buildKafkaLoadNode();
         StreamInfo streamInfo = new StreamInfo("1",
-                Arrays.asList(inputNode, outputNode),
-                Collections.singletonList(
-                        buildNodeRelation(Collections.singletonList(inputNode), Collections.singletonList(outputNode))
-                ));
+                Arrays.asList(inputNode, transformNode, outputNode),
+                Arrays.asList(
+                        buildNodeRelation(Collections.singletonList(inputNode),
+                                Collections.singletonList(transformNode)),
+                        buildNodeRelation(Collections.singletonList(transformNode),
+                                Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
         ParseResult result = parser.parse();
