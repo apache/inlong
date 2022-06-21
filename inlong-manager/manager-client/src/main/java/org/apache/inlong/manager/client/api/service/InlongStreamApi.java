@@ -42,8 +42,8 @@ public interface InlongStreamApi {
     Call<Response<Boolean>> updateStream(@Body InlongStreamInfo stream);
 
     @GET("stream/get")
-    Call<Response<InlongStreamInfo>> getStream(@Query("inlongGroupId") String groupId,
-            @Query("inlongStreamId") String streamId);
+    Call<Response<InlongStreamInfo>> getStream(@Query("groupId") String groupId,
+            @Query("streamId") String streamId);
 
     @POST("stream/listAll")
     Call<Response<PageInfo<FullStreamResponse>>> listStream(@Body InlongStreamPageRequest request);

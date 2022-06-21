@@ -56,6 +56,10 @@ import java.util.stream.Collectors;
  */
 public class InlongGroupImpl implements InlongGroup {
 
+    public static final String GROUP_FIELD = "groupInfo";
+    public static final String MQ_FIELD_OLD = "middlewareType";
+    public static final String MQ_FIELD = "mqType";
+
     private final InnerGroupContext groupContext;
     private InlongGroupInfo groupInfo;
     private InnerInlongManagerClient managerClient;
@@ -104,16 +108,13 @@ public class InlongGroupImpl implements InlongGroup {
 
         // init must be NewGroupProcessForm
         // compile with old cluster
-        String groupField = "groupInfo";
-        String mqFieldOld = "middlewareType";
-        String mqField = "mqType";
         JSONObject formDataJson =
                 JsonUtils.parseObject(JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
                         JSONObject.class);
-        if (formDataJson.has(groupField)) {
-            JSONObject groupInfoJson = formDataJson.getJSONObject(groupField);
-            if (groupInfoJson.has(mqFieldOld) && !groupInfoJson.has(mqField)) {
-                groupInfoJson.put(mqField, groupInfoJson.get(mqFieldOld));
+        if (formDataJson.has(GROUP_FIELD)) {
+            JSONObject groupInfoJson = formDataJson.getJSONObject(GROUP_FIELD);
+            if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
+                groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
             }
         }
         String formDataNew = formDataJson.toString();

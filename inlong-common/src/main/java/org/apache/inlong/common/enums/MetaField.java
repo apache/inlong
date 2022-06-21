@@ -80,7 +80,6 @@ public enum MetaField {
      * Primary key field name. Currently, it is used for MySQL database.
      */
     PK_NAMES,
-
     /**
      * Name of the collection that contain the row. For MongoDB
      */
