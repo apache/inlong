@@ -116,7 +116,7 @@ public class DefaultEventHandler implements IEventHandler {
             throws SQLException {
         List<Pair<String, Integer>> dbFieldList = idConfig.getDbFieldList();
         for (int i = 1; i <= dbFieldList.size(); i++) {
-            Pair<String, Integer> pair = dbFieldList.get(i);
+            Pair<String, Integer> pair = dbFieldList.get(i - 1);
             String fieldValue = columnValueMap.getOrDefault(pair.getKey(), "");
             int fieldType = pair.getValue();
             switch (fieldType) {
