@@ -27,8 +27,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
 const (
@@ -45,7 +45,7 @@ const (
 )
 
 // Config defines multiple configuration options.
-// Refer to: https://github.com/apache/incubator-inlong/blob/3249de37acf054a9c43677131cfbb09fc6d366d1/tubemq-client/src/main/java/org/apache/tubemq/client/config/ConsumerConfig.java
+// Refer to: https://github.com/apache/inlong/blob/3249de37acf054a9c43677131cfbb09fc6d366d1/tubemq-client/src/main/java/org/apache/tubemq/client/config/ConsumerConfig.java
 type Config struct {
 	// Net is the namespace for network-level properties used by broker and Master.
 	Net struct {
@@ -282,7 +282,7 @@ func (c *Config) validateTopicFilters() error {
 	for topic, filters := range c.Consumer.TopicFilters {
 		if len(topic) > MaxTopicLen {
 			return errs.New(errs.RetInvalidConfig,
-				fmt.Sprintf("Check parameter topicFilters error: topic's length " +
+				fmt.Sprintf("Check parameter topicFilters error: topic's length "+
 					"over max length %d", MaxTopicLen))
 		}
 		if valid, err := util.IsValidString(topic); !valid {
@@ -295,7 +295,7 @@ func (c *Config) validateTopicFilters() error {
 			}
 			if len(filter) > MaxFilterLen {
 				return errs.New(errs.RetInvalidConfig,
-					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's " +
+					fmt.Sprintf("Check parameter topicFilters error: topic %s's filter's "+
 						"length over max length %d", topic, MaxFilterLen))
 			}
 			if valid, err := util.IsValidFilterItem(filter); !valid {
@@ -304,7 +304,7 @@ func (c *Config) validateTopicFilters() error {
 		}
 		if len(filters) > MaxFilterLen {
 			return errs.New(errs.RetInvalidConfig,
-				fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item " +
+				fmt.Sprintf("Check parameter topicFilters error: topic %s's filter item "+
 					"over max item count %d", topic, MaxFilterLen))
 		}
 	}
