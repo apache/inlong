@@ -51,5 +51,4 @@ public interface InlongStreamApi {
     @GET("stream/config/log/list")
     Call<Response<PageInfo<InlongStreamConfigLogListResponse>>> getStreamLogs(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId);
-
 }

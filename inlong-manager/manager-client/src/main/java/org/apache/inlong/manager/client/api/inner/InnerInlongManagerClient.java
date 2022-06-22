@@ -44,6 +44,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
@@ -227,6 +228,15 @@ public class InnerInlongManagerClient {
     public Pair<String, String> updateGroup(InlongGroupRequest groupRequest) {
         Response<String> response = executeHttpCall(inlongGroupApi.updateGroup(groupRequest));
         return Pair.of(response.getData(), response.getErrMsg());
+    }
+
+    /**
+     * Reset inlong group info
+     */
+    public boolean resetGroup(InlongGroupResetRequest resetRequest) {
+        Response<Boolean> response = executeHttpCall(inlongGroupApi.resetGroup(resetRequest));
+        assertRespSuccess(response);
+        return response.getData();
     }
 
     /**

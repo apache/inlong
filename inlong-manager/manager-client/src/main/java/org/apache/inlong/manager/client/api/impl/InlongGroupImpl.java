@@ -34,6 +34,7 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
@@ -241,6 +242,15 @@ public class InlongGroupImpl implements InlongGroup {
     public List<InlongStream> listStreams() throws Exception {
         String inlongGroupId = this.groupContext.getGroupId();
         return fetchInlongStreams(inlongGroupId);
+    }
+
+    @Override
+    public InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception {
+        InlongGroupInfo groupInfo = groupContext.getGroupInfo();
+        InlongGroupResetRequest request = new InlongGroupResetRequest(groupInfo.getInlongGroupId(),
+                rerun, resetFinalStatus);
+        managerClient.resetGroup(request);
+        return generateSnapshot();
     }
 
     private InlongGroupContext generateSnapshot() {

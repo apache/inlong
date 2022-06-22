@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
@@ -166,4 +167,10 @@ public class InlongGroupController {
         return Response.success(groupService.getTopic(groupId));
     }
 
+    @RequestMapping(value = "reset", method = RequestMethod.POST)
+    @ApiOperation(value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
+    public Response<Boolean> reset(@RequestBody InlongGroupResetRequest request) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        return Response.success(groupProcessOperation.resetGroupStatus(request, operator));
+    }
 }
