@@ -15,26 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.user;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import java.util.List;
 
-import javax.validation.constraints.NotBlank;
+public interface StringArrayValuable {
 
-/**
- * Login user and password
- */
-@Data
-@ApiModel("Login user and password")
-public class LoginUser {
-
-    @NotBlank
-    @ApiModelProperty(value = "username", required = true)
-    private String username;
-
-    @NotBlank
-    @ApiModelProperty(value = "password", required = true)
-    private String password;
+    List<String> valueList();
 }

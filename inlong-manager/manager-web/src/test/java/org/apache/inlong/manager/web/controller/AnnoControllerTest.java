@@ -118,4 +118,27 @@ class AnnoControllerTest extends WebBaseTest {
         Assertions.assertFalse(SecurityUtils.getSubject().isAuthenticated());
     }
 
+    @Test
+    void testRegisterFailByInvalidType() throws Exception {
+        UserInfo userInfo = UserInfo.builder()
+                .username("admin11")
+                .password("22222")
+                .type(3)
+                .validDays(88888)
+                .build();
+
+        MvcResult mvcResult = mockMvc.perform(
+                        post("/anno/doRegister")
+                                .content(JsonUtils.toJsonString(userInfo))
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
+        Assertions.assertFalse(resBody.isSuccess());
+        Assertions.assertEquals("type: must in 0,1\n", resBody.getErrMsg());
+    }
+
 }
