@@ -47,6 +47,7 @@
         <rat.basedir>${basedir}</rat.basedir>
         <hbase.version>2.2.3</hbase.version>
         <dlc.hive.version>2.3.7</dlc.hive.version>
+        <iceberg.hive.version>2.3.7</iceberg.hive.version>
     </properties>
     <dependencyManagement>
         <dependencies>
