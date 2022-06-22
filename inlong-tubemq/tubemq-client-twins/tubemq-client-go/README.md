@@ -35,13 +35,13 @@ depend on the [TubeMQ C++ library](https://github.com/apache/inlong/tree/master/
 
 Import the `client` and`config` library:
 ```go
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 ```
 
 Import the `log` library for log if needed:
 ```go
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 ```
 
 Create a Consumer by parsing address:

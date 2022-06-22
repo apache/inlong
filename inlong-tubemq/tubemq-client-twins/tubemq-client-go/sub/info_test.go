@@ -20,7 +20,7 @@ package sub
 import (
 	"testing"
 
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 	"github.com/stretchr/testify/assert"
 )
 
