@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.channel;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.event.SimpleEvent;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;

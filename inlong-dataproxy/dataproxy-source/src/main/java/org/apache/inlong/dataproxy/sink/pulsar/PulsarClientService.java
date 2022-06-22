@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;

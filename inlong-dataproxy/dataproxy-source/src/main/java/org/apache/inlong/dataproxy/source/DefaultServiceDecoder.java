@@ -20,7 +20,7 @@ package org.apache.inlong.dataproxy.source;
 import com.google.common.base.Splitter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.dataproxy.base.ProxyMessage;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;

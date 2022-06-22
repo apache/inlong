@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.TStringUtils;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;

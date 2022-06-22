@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.config.holder;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesManagerUrlLoader;
 import org.apache.inlong.sort.standalone.config.loader.ManagerUrlLoader;
