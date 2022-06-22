@@ -45,6 +45,7 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,10 @@ import java.util.stream.Collectors;
  * Inlong group service implementation.
  */
 public class InlongGroupImpl implements InlongGroup {
+
+    public static final String GROUP_FIELD = "groupInfo";
+    public static final String MQ_FIELD_OLD = "middlewareType";
+    public static final String MQ_FIELD = "mqType";
 
     private final InnerGroupContext groupContext;
     private InlongGroupInfo groupInfo;
@@ -102,8 +107,19 @@ public class InlongGroupImpl implements InlongGroup {
                         processView.getStatus()));
 
         // init must be NewGroupProcessForm
+        // compile with old cluster
+        JSONObject formDataJson =
+                JsonUtils.parseObject(JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
+                        JSONObject.class);
+        if (formDataJson.has(GROUP_FIELD)) {
+            JSONObject groupInfoJson = formDataJson.getJSONObject(GROUP_FIELD);
+            if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
+                groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
+            }
+        }
+        String formDataNew = formDataJson.toString();
         NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
-                JsonUtils.toJsonString(processView.getFormData()), NewGroupProcessForm.class);
+                formDataNew, NewGroupProcessForm.class);
         AssertUtils.notNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
 
         groupContext.setInitMsg(newGroupProcessForm);

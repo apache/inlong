@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
@@ -37,7 +36,7 @@ public interface InlongGroupApi {
     Call<Response<Boolean>> isGroupExists(@Path("id") String id);
 
     @GET("group/get/{id}")
-    Call<Response<InlongGroupInfo>> getGroupInfo(@Path("id") String id);
+    Call<Response<Object>> getGroupInfo(@Path("id") String id);
 
     @POST("group/list")
     Call<Response<PageInfo<InlongGroupListResponse>>> listGroups(@Body InlongGroupPageRequest request);

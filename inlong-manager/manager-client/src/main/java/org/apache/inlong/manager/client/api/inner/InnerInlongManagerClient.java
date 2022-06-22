@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,6 +59,7 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -65,6 +67,9 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD;
+import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD_OLD;
 
 /**
  * InnerInlongManagerClient is used to invoke http api of inlong manager.
@@ -144,12 +149,21 @@ public class InnerInlongManagerClient {
     /**
      * Get information of group.
      */
+    @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
         AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
-        Response<InlongGroupInfo> responseBody = executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
+        Response<Object> responseBody = executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {
-            return responseBody.getData();
+            JSONObject groupInfoJson = JsonUtils.parseObject(
+                    JsonUtils.toJsonString(JsonUtils.toJsonString(responseBody.getData())),
+                    JSONObject.class);
+            if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
+                groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
+            }
+            InlongGroupInfo inlongGroupInfo = JsonUtils.parseObject(
+                    groupInfoJson.toString(), InlongGroupInfo.class);
+            return inlongGroupInfo;
         }
 
         if (responseBody.getErrMsg().contains("not exist")) {
