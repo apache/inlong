@@ -344,9 +344,10 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof DoubleFormatInfo) {
             return new DoubleType();
         } else if (formatInfo instanceof DecimalFormatInfo) {
-            return new DecimalType();
+            DecimalFormatInfo decimalFormatInfo = (DecimalFormatInfo) formatInfo;
+            return new DecimalType(decimalFormatInfo.getPrecision(), decimalFormatInfo.getScale());
         } else if (formatInfo instanceof TimeFormatInfo) {
-            return new TimeType();
+            return new TimeType(((TimeFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof DateFormatInfo) {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {

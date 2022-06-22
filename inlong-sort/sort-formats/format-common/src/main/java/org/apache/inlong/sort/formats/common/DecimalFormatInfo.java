@@ -18,6 +18,9 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 /**
@@ -25,9 +28,32 @@ import java.math.BigDecimal;
  */
 public class DecimalFormatInfo implements BasicFormatInfo<BigDecimal> {
 
-    private static final long serialVersionUID = 1L;
-
     public static final DecimalFormatInfo INSTANCE = new DecimalFormatInfo();
+
+    public static final int DEFAULT_PRECISION = 10;
+
+    public static final int DEFAULT_SCALE = 0;
+
+    private static final long serialVersionUID = 1L;
+    @JsonProperty("precision")
+    private int precision;
+
+    @JsonProperty("scale")
+    private int scale;
+
+    public DecimalFormatInfo() {
+        this(DEFAULT_PRECISION, DEFAULT_SCALE);
+    }
+
+    public DecimalFormatInfo(@JsonProperty("scale") int scale) {
+        this(DEFAULT_PRECISION, scale);
+    }
+
+    @JsonCreator
+    public DecimalFormatInfo(@JsonProperty("precision") int precision, @JsonProperty("scale") int scale) {
+        this.precision = precision;
+        this.scale = scale;
+    }
 
     @Override
     public DecimalTypeInfo getTypeInfo() {
@@ -61,5 +87,21 @@ public class DecimalFormatInfo implements BasicFormatInfo<BigDecimal> {
     @Override
     public String toString() {
         return "DecimalFormatInfo";
+    }
+
+    public int getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
+
+    public int getScale() {
+        return scale;
+    }
+
+    public void setScale(int scale) {
+        this.scale = scale;
     }
 }
