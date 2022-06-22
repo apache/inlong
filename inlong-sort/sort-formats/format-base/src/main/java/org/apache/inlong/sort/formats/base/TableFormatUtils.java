@@ -108,9 +108,9 @@ public class TableFormatUtils {
      * Returns the {@link DeserializationSchema} described by the given
      * properties.
      *
-     * @param properties  The properties describing the deserializer.
+     * @param properties The properties describing the deserializer.
      * @param classLoader The class loader for the deserializer.
-     * @param <T>         The type of the data.
+     * @param <T> The type of the data.
      * @return The {@link DeserializationSchema} described by the properties.
      */
     public static <T> DeserializationSchema<T> getDeserializationSchema(
@@ -131,9 +131,9 @@ public class TableFormatUtils {
      * Returns the {@link SerializationSchema} described by the given
      * properties.
      *
-     * @param properties  The properties describing the serializer.
+     * @param properties The properties describing the serializer.
      * @param classLoader The class loader for the serializer.
-     * @param <T>         The type of the data.
+     * @param <T> The type of the data.
      * @return The {@link SerializationSchema} described by the properties.
      */
     public static <T> SerializationSchema<T> getSerializationSchema(
@@ -154,10 +154,10 @@ public class TableFormatUtils {
      * Returns the {@link DeserializationSchema} described by the given
      * properties.
      *
-     * @param properties  The properties describing the deserializer.
-     * @param fields      The fields to project.
+     * @param properties The properties describing the deserializer.
+     * @param fields The fields to project.
      * @param classLoader The class loader for the deserializer.
-     * @param <T>         The type of the data.
+     * @param <T> The type of the data.
      * @return The {@link DeserializationSchema} described by the properties.
      */
     public static <T> DeserializationSchema<Row> getProjectedDeserializationSchema(
@@ -180,8 +180,8 @@ public class TableFormatUtils {
      * Returns the {@link SerializationSchema} described by the given
      * properties.
      *
-     * @param properties  The properties describing the serializer.
-     * @param fields      The fields to project.
+     * @param properties The properties describing the serializer.
+     * @param fields The fields to project.
      * @param classLoader The class loader for the serializer.
      * @return The {@link SerializationSchema} described by the properties.
      */
@@ -205,7 +205,7 @@ public class TableFormatUtils {
      * Returns the {@link TableFormatSerializer} described by the given
      * properties.
      *
-     * @param properties  The properties describing the serializer.
+     * @param properties The properties describing the serializer.
      * @param classLoader The class loader for the serializer.
      * @return The {@link TableFormatSerializer} described by the properties.
      */
@@ -228,7 +228,7 @@ public class TableFormatUtils {
      * Returns the {@link TableFormatDeserializer} described by the
      * given properties.
      *
-     * @param properties  The properties describing the deserializer.
+     * @param properties The properties describing the deserializer.
      * @param classLoader The class loader for the deserializer.
      * @return The {@link TableFormatDeserializer} described by the properties.
      */
