@@ -24,7 +24,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCre
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.OracleConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
@@ -32,8 +34,10 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Oracle extract node for extract data from oracle(Currently support oracle 11,12,19)
@@ -41,7 +45,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("oracleExtract")
 @Data
-public class OracleExtractNode extends ExtractNode implements Serializable {
+public class OracleExtractNode extends ExtractNode implements Metadata, Serializable {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Nullable
@@ -74,20 +78,20 @@ public class OracleExtractNode extends ExtractNode implements Serializable {
 
     @JsonCreator
     public OracleExtractNode(@JsonProperty("id") String id,
-                             @JsonProperty("name") String name,
-                             @JsonProperty("fields") List<FieldInfo> fields,
-                             @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
-                             @JsonProperty("properties") Map<String, String> properties,
-                             @Nullable @JsonProperty("primaryKey") String primaryKey,
-                             @JsonProperty("hostname") String hostname,
-                             @JsonProperty("username") String username,
-                             @JsonProperty("password") String password,
-                             @JsonProperty("database") String database,
-                             @JsonProperty("schemaName") String schemaName,
-                             @JsonProperty("tableName") String tableName,
-                             @JsonProperty(value = "port", defaultValue = "1521") Integer port,
-                             @Nullable @JsonProperty("scanStartupMode")
-                             OracleConstant.ScanStartUpMode scanStartupMode) {
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") List<FieldInfo> fields,
+            @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
+            @JsonProperty("properties") Map<String, String> properties,
+            @Nullable @JsonProperty("primaryKey") String primaryKey,
+            @JsonProperty("hostname") String hostname,
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password,
+            @JsonProperty("database") String database,
+            @JsonProperty("schemaName") String schemaName,
+            @JsonProperty("tableName") String tableName,
+            @JsonProperty(value = "port", defaultValue = "1521") Integer port,
+            @Nullable @JsonProperty("scanStartupMode")
+            OracleConstant.ScanStartUpMode scanStartupMode) {
         super(id, name, fields, watermarkField, properties);
         this.primaryKey = primaryKey;
         this.hostname = Preconditions.checkNotNull(hostname, "hostname is null");
@@ -135,5 +139,16 @@ public class OracleExtractNode extends ExtractNode implements Serializable {
     @Override
     public String genTableName() {
         return String.format("node_%s", super.getId());
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME, MetaField.OP_TS);
     }
 }

@@ -22,13 +22,16 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
@@ -58,7 +61,13 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("ID", new LongFormatInfo()),
                 new FieldInfo("NAME", new StringFormatInfo()),
-                new FieldInfo("AGE", new IntFormatInfo()));
+                new FieldInfo("AGE", new IntFormatInfo()),
+                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
+                new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
+                new MetaFieldInfo("op_ts", MetaField.OP_TS),
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
+        );
         return new OracleExtractNode("1", "oracle_input", fields,
                 null, null, "ID", "localhost",
                 "flinkuser", "flinkpw", "xE",
@@ -68,16 +77,31 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
     private Node buildKafkaLoadNode() {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo())
+                new FieldInfo("age", new IntFormatInfo()),
+                new FieldInfo("proctime", new TimestampFormatInfo()),
+                new FieldInfo("database_name", new StringFormatInfo()),
+                new FieldInfo("table_name", new StringFormatInfo()),
+                new FieldInfo("op_ts", new TimestampFormatInfo()),
+                new FieldInfo("schema_name", new StringFormatInfo())
         );
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("NAME", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("AGE", new IntFormatInfo()),
-                                new FieldInfo("age", new IntFormatInfo()))
-                );
+        List<FieldRelation> relations = Arrays.asList(
+                new FieldRelation(new FieldInfo("ID", new LongFormatInfo()),
+                        new FieldInfo("id", new LongFormatInfo())),
+                new FieldRelation(new FieldInfo("NAME", new StringFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("AGE", new IntFormatInfo()),
+                        new FieldInfo("age", new IntFormatInfo())),
+                new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldInfo("proctime", new TimestampFormatInfo())),
+                new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldInfo("database_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("table_name", new StringFormatInfo()),
+                        new FieldInfo("table_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("op_ts", new TimestampFormatInfo())),
+                new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
+                        new FieldInfo("schema_name", new StringFormatInfo()))
+        );
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null,
                 null, "topic", "localhost:9092",
                 new CanalJsonFormat(), null,
@@ -87,7 +111,7 @@ public class OracleExtractSqlParseTest extends AbstractTestBase {
     /**
      * Build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */

@@ -29,6 +29,7 @@ import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.MetaFieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -44,7 +45,6 @@ import org.apache.inlong.sort.protocol.transformation.FunctionParam;
 import org.apache.inlong.sort.protocol.transformation.relation.JoinRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
-import org.apache.inlong.sort.util.MetaInfoParseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -351,8 +351,7 @@ public class FlinkSqlParser implements Parser {
      * Fill out the table name alias
      *
      * @param params The params used in filter, join condition, transform function etc.
-     * @param tableNameAliasMap The table name alias map,
-     *         contains all table name alias used in this relation of nodes
+     * @param tableNameAliasMap The table name alias map, contains all table name alias used in this relation of nodes
      */
     private void fillOutTableNameAlias(List<FunctionParam> params, Map<String, String> tableNameAliasMap) {
         for (FunctionParam param : params) {
@@ -681,8 +680,17 @@ public class FlinkSqlParser implements Parser {
         for (FieldInfo field : fields) {
             sb.append("    `").append(field.getName()).append("` ");
             if (field instanceof MetaFieldInfo) {
+                if (!(node instanceof Metadata)) {
+                    throw new IllegalArgumentException(String.format("Node: %s is not instance of Metadata",
+                            node.getClass().getSimpleName()));
+                }
                 MetaFieldInfo metaFieldInfo = (MetaFieldInfo) field;
-                MetaInfoParseUtil.parseMetaField(node, metaFieldInfo, sb);
+                Metadata metadataNode = (Metadata) node;
+                if (!metadataNode.supportedMetaFields().contains(metaFieldInfo.getMetaField())) {
+                    throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                            metadataNode.getClass().getSimpleName(), metaFieldInfo.getMetaField()));
+                }
+                sb.append(metadataNode.format(metaFieldInfo.getMetaField()));
             } else {
                 sb.append(TableFormatUtils.deriveLogicalType(field.getFormatInfo()).asSummaryString());
             }

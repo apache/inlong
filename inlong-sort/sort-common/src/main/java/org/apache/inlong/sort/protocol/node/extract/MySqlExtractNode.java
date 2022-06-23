@@ -18,11 +18,6 @@
 package org.apache.inlong.sort.protocol.node.extract;
 
 import com.google.common.base.Preconditions;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -31,9 +26,19 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInc
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.Serializable;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mysql extract node using debezium engine
@@ -41,7 +46,7 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("mysqlExtract")
 @Data
-public class MySqlExtractNode extends ExtractNode implements Serializable {
+public class MySqlExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = -5521981462461235277L;
 
@@ -136,5 +141,64 @@ public class MySqlExtractNode extends ExtractNode implements Serializable {
                 String.format("(%s)", StringUtils.join(tableNames, "|"));
         options.put("table-name", String.format("%s", formatTable));
         return options;
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "meta.table_name";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "meta.database_name";
+                break;
+            case OP_TS:
+                metadataKey = "meta.op_ts";
+                break;
+            case OP_TYPE:
+                metadataKey = "meta.op_type";
+                break;
+            case DATA:
+                metadataKey = "meta.data";
+                break;
+            case IS_DDL:
+                metadataKey = "meta.is_ddl";
+                break;
+            case TS:
+                metadataKey = "meta.ts";
+                break;
+            case SQL_TYPE:
+                metadataKey = "meta.sql_type";
+                break;
+            case MYSQL_TYPE:
+                metadataKey = "meta.mysql_type";
+                break;
+            case PK_NAMES:
+                metadataKey = "meta.pk_names";
+                break;
+            case BATCH_ID:
+                metadataKey = "meta.batch_id";
+                break;
+            case UPDATE_BEFORE:
+                metadataKey = "meta.update_before";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATA, MetaField.DATABASE_NAME,
+                MetaField.OP_TYPE, MetaField.OP_TS, MetaField.IS_DDL, MetaField.TS, MetaField.SQL_TYPE,
+                MetaField.MYSQL_TYPE, MetaField.PK_NAMES, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
     }
 }

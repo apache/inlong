@@ -18,13 +18,18 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test for {@link SqlServerExtractNode} serialize
@@ -40,5 +45,24 @@ public class SqlServerExtractNodeTest extends SerializeBaseTest<SqlServerExtract
                 "localhost", 1433, "SA",
                 "INLONG*123", "column_type_test",
                 "dbo", "full_types", null);
+    }
+
+    @Test
+    public void testMetaFields() {
+        Map<MetaField, String> formatMap = new HashMap<>();
+        formatMap.put(MetaField.PROCESS_TIME, "AS PROCTIME()");
+        formatMap.put(MetaField.TABLE_NAME, "STRING METADATA FROM 'table_name' VIRTUAL");
+        formatMap.put(MetaField.DATABASE_NAME, "STRING METADATA FROM 'database_name' VIRTUAL");
+        formatMap.put(MetaField.OP_TS, "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL");
+        formatMap.put(MetaField.SCHEMA_NAME, "STRING METADATA FROM 'schema_name' VIRTUAL");
+        SqlServerExtractNode node = getTestObject();
+        boolean formatEquals = true;
+        for (MetaField metaField : node.supportedMetaFields()) {
+            formatEquals = node.format(metaField).equals(formatMap.get(metaField));
+            if (!formatEquals) {
+                break;
+            }
+        }
+        Assert.assertTrue(formatEquals);
     }
 }

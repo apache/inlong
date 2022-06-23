@@ -24,7 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.KafkaConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -39,8 +41,10 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Kafka extract node for extract data from kafka
@@ -48,7 +52,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaExtract")
 @Data
-public class KafkaExtractNode extends ExtractNode implements Serializable {
+public class KafkaExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -137,5 +141,61 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @Override
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "value.table";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "value.database";
+                break;
+            case SQL_TYPE:
+                metadataKey = "value.sql-type";
+                break;
+            case PK_NAMES:
+                metadataKey = "value.pk-names";
+                break;
+            case TS:
+                metadataKey = "value.ingestion-timestamp";
+                break;
+            case OP_TS:
+                metadataKey = "value.event-timestamp";
+                break;
+            case OP_TYPE:
+                metadataKey = "value.op-type";
+                break;
+            case IS_DDL:
+                metadataKey = "value.is-ddl";
+                break;
+            case MYSQL_TYPE:
+                metadataKey = "value.mysql-type";
+                break;
+            case BATCH_ID:
+                metadataKey = "value.batch-id";
+                break;
+            case UPDATE_BEFORE:
+                metadataKey = "value.update-before";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return false;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
+                MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
     }
 }

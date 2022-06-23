@@ -17,26 +17,50 @@
 
 package org.apache.inlong.sort.protocol.node.extract;
 
-import java.util.Arrays;
-import java.util.List;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Test mongo extract node serialization and deserialization
  */
-public class MongoExtractNodeTest extends SerializeBaseTest<MongoExtractNode>  {
+public class MongoExtractNodeTest extends SerializeBaseTest<MongoExtractNode> {
 
     public MongoExtractNode getTestObject() {
         List<FieldInfo> fields = Arrays.asList(
-            new FieldInfo("name", new StringFormatInfo()),
-            new FieldInfo("age", new IntFormatInfo()));
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("age", new IntFormatInfo()));
         return new MongoExtractNode(
-            "1", "test", fields,  null, null,
+                "1", "test", fields, null, null,
                 "test", "localhost", "inlong", "password", "test"
         );
+    }
+
+    @Test
+    public void testMetaFields() {
+        Map<MetaField, String> formatMap = new HashMap<>();
+        formatMap.put(MetaField.PROCESS_TIME, "AS PROCTIME()");
+        formatMap.put(MetaField.COLLECTION_NAME, "STRING METADATA FROM 'collection_name' VIRTUAL");
+        formatMap.put(MetaField.DATABASE_NAME, "STRING METADATA FROM 'database_name' VIRTUAL");
+        formatMap.put(MetaField.OP_TS, "TIMESTAMP_LTZ(3) METADATA FROM 'op_ts' VIRTUAL");
+        MongoExtractNode node = getTestObject();
+        boolean formatEquals = true;
+        for (MetaField metaField : node.supportedMetaFields()) {
+            formatEquals = node.format(metaField).equals(formatMap.get(metaField));
+            if (!formatEquals) {
+                break;
+            }
+        }
+        Assert.assertTrue(formatEquals);
     }
 
 }
