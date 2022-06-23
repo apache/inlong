@@ -39,7 +39,6 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
@@ -321,7 +320,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(NodeListRequest params) {
+    public List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest params) {
         LOGGER.debug("begin to list data proxy node for params={}", params);
 
         InlongClusterPageRequest request = new InlongClusterPageRequest();

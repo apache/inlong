@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ public class DataProxyController {
      */
     @RequestMapping(value = "/dataproxy/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation(value = "Get data proxy ip list by cluster name and tag")
-    public Response<List<DataProxyNodeInfo>> getIpList(@RequestBody NodeListRequest request) {
+    public Response<List<DataProxyNodeInfo>> getIpList(@RequestBody InlongClusterPageRequest request) {
         return Response.success(clusterService.getDataProxyNodeList(request));
     }
 

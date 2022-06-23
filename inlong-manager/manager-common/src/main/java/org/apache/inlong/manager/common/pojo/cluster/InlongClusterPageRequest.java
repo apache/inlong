@@ -57,6 +57,9 @@ public class InlongClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Extend tag")
     private String extTag;
 
+    @ApiModelProperty(value = "Cluster name")
+    private String clusterName;
+
     @ApiModelProperty(value = "The inlong cluster tag list")
     private List<String> clusterTagList;
 

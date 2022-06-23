@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 
 import java.util.List;
@@ -145,7 +144,7 @@ public interface InlongClusterService {
      * @param request request params
      * @return data proxy node list
      */
-    List<DataProxyNodeInfo> getDataProxyNodeList(NodeListRequest request);
+    List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest request);
 
     /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
