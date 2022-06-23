@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
         // Whether the current user is an administrator
         UserEntity currentUserEntity = getByName(currentUser);
-        Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.Admin.getCode()),
+        Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "The current user is not a manager and does not have permission to update users");
 
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
@@ -142,7 +142,7 @@ public class UserServiceImpl implements UserService {
 
         // Whether the current user is an administrator
         UserEntity entity = getByName(currentUser);
-        Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.Admin.getCode()),
+        Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "The current user is not a manager and does not have permission to delete users");
 
         userMapper.deleteByPrimaryKey(userId);

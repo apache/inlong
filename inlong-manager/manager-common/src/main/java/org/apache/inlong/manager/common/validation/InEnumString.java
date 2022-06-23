@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.common.validation;
 
-import org.apache.inlong.manager.common.enums.StringArrayValuable;
+import org.apache.inlong.manager.common.enums.StringListValuable;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = InEnumIntValidator.class)
 public @interface InEnumString {
 
-    Class<? extends StringArrayValuable> value();
+    Class<? extends StringListValuable> value();
 
     String message() default "must in {value}";
 

@@ -75,7 +75,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Get inlong group list by paginating")
     public Response<PageInfo<InlongGroupListResponse>> listByCondition(@RequestBody InlongGroupPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.Admin.name()));
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(groupService.listByPage(request));
     }
 

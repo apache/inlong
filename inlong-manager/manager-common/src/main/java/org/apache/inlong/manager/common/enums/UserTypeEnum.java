@@ -27,16 +27,16 @@ import java.util.stream.Collectors;
 /**
  * User type enum
  */
-public enum UserTypeEnum implements IntArrayValuable {
+public enum UserTypeEnum implements IntListValuable {
 
     /**
-     * has all privilege
+     * Has all privilege
      */
-    Admin(0),
+    ADMIN(0),
     /**
      * No privilege to manage the system
      */
-    Operator(1),
+    OPERATOR(1),
     ;
 
     @Getter
@@ -47,7 +47,7 @@ public enum UserTypeEnum implements IntArrayValuable {
         this.code = code;
     }
 
-    public static final List<Integer> ARRAYS = Arrays.stream(values())
+    private static final List<Integer> ARRAYS = Arrays.stream(values())
             .map(UserTypeEnum::getCode)
             .collect(Collectors.toList());
 

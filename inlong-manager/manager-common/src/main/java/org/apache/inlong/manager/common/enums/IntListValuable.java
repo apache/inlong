@@ -19,7 +19,17 @@ package org.apache.inlong.manager.common.enums;
 
 import java.util.List;
 
-public interface StringArrayValuable {
+/**
+ * An interface that generates a list of Int
+ * e.g. for generating enum values
+ */
+public interface IntListValuable {
 
-    List<String> valueList();
+    /**
+     * generates a list of Int
+     *
+     * @return list of Integer values
+     */
+    List<Integer> valueList();
+
 }

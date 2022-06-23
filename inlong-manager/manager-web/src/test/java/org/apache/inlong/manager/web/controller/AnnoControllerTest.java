@@ -61,7 +61,7 @@ class AnnoControllerTest extends WebBaseTest {
         UserInfo userInfo = UserInfo.builder()
                 .username("test_name")
                 .password("test!!!!2343434")
-                .type(UserTypeEnum.Admin.getCode())
+                .type(UserTypeEnum.ADMIN.getCode())
                 .validDays(88888)
                 .build();
 
@@ -83,7 +83,7 @@ class AnnoControllerTest extends WebBaseTest {
         UserInfo userInfo = UserInfo.builder()
                 .username("admin")
                 .password("test!!!!2343434")
-                .type(UserTypeEnum.Admin.getCode())
+                .type(UserTypeEnum.ADMIN.getCode())
                 .validDays(88888)
                 .build();
 

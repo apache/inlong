@@ -18,20 +18,23 @@
 package org.apache.inlong.manager.common.validation;
 
 import com.google.common.base.Joiner;
-import org.apache.inlong.manager.common.enums.StringArrayValuable;
+import org.apache.inlong.manager.common.enums.StringListValuable;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Check whether the incoming String type parameter is in the corresponding enum value
+ */
 public class InEnumStringValidator implements ConstraintValidator<InEnumString, String> {
 
     private List<String> values;
 
     @Override
     public void initialize(InEnumString annotation) {
-        StringArrayValuable[] values = annotation.value().getEnumConstants();
+        StringListValuable[] values = annotation.value().getEnumConstants();
         if (values.length == 0) {
             this.values = Collections.emptyList();
         } else {
