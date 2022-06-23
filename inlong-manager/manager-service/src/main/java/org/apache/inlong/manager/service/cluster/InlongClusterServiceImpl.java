@@ -320,17 +320,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest params) {
-        LOGGER.debug("begin to list data proxy node for params={}", params);
+    public List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest request) {
+        LOGGER.debug("begin to list data proxy node for request={}", request);
 
-        InlongClusterPageRequest request = new InlongClusterPageRequest();
-        request.setClusterTag(params.getClusterTag());
-        request.setName(params.getClusterName());
-        request.setExtTag(params.getExtTag());
         request.setType(ClusterType.CLS_DATA_PROXY);
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         Preconditions.checkNotEmpty(clusterList,
-                "data proxy node not found by params=" + params);
+                "data proxy node not found by request=" + request);
 
         List<DataProxyNodeInfo> responseList = new ArrayList<>();
         for (InlongClusterEntity cluster : clusterList) {
@@ -347,7 +343,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to list data proxy node for params={}", params);
+            LOGGER.debug("success to list data proxy node for request={}", request);
         }
         return responseList;
     }

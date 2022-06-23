@@ -215,7 +215,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
         InlongClusterPageRequest request = new InlongClusterPageRequest();
-        request.setClusterName(clusterName);
+        request.setName(clusterName);
         request.setClusterTag(clusterTag);
         request.setExtTag(extTag);
         List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(request);
