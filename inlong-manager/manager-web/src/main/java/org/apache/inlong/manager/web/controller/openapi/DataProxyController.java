@@ -24,10 +24,12 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,15 +54,10 @@ public class DataProxyController {
      * GET is used for quick lookup of IP lists (e.g. via browser requests).
      */
     @RequestMapping(value = "/dataproxy/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
-    @ApiOperation(value = "Get data proxy ip list by cluster name")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
-            @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
-    })
-    public Response<List<DataProxyNodeInfo>> getIpList(
-            @RequestParam(required = false) String clusterTag,
-            @RequestParam(required = false) String clusterName) {
-        return Response.success(clusterService.getDataProxyNodeList(clusterTag, clusterName));
+    @ApiOperation(value = "Get data proxy ip list by cluster name and tag")
+    public Response<List<DataProxyNodeInfo>> getIpList(@RequestBody NodeListRequest request) {
+        return Response.success(clusterService.getDataProxyNodeList(request.getClusterTag(), request.getClusterName(),
+                request.getExtTag()));
     }
 
     @GetMapping("/dataproxy/getConfig")

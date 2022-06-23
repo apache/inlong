@@ -320,16 +320,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName) {
-        LOGGER.debug("begin to list data proxy node for tag={} name={}", clusterTag, clusterName);
+    public List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName, String extTag) {
+        LOGGER.debug("begin to list data proxy node for tag={} name={} extTag={}", clusterTag, clusterName, extTag);
 
         InlongClusterPageRequest request = new InlongClusterPageRequest();
         request.setClusterTag(clusterTag);
         request.setName(clusterName);
+        request.setExtTag(extTag);
         request.setType(ClusterType.CLS_DATA_PROXY);
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         Preconditions.checkNotEmpty(clusterList,
-                "data proxy node not found by tag=" + clusterTag + " name=" + clusterName);
+                "data proxy node not found by tag=" + clusterTag + " name=" + clusterName + " extTag=" + extTag);
 
         List<DataProxyNodeInfo> responseList = new ArrayList<>();
         for (InlongClusterEntity cluster : clusterList) {

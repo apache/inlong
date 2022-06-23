@@ -79,11 +79,10 @@ public class SenderManager {
     private final int maxSenderRetry;
     private final long retrySleepTime;
     private final String inlongGroupId;
-    private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
     private final String sourcePath;
     private final PluginMetric metric;
-
+    private TaskPositionManager taskPositionManager;
     private int ioThreadNum;
     private boolean enableBusyWait;
     private Semaphore semaphore;
@@ -160,7 +159,6 @@ public class SenderManager {
      * @return DefaultMessageSender
      */
     private DefaultMessageSender createMessageSender(String groupId) throws Exception {
-
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
                 localhost, isLocalVisit, managerHost, managerPort, groupId, netTag);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
@@ -190,50 +188,6 @@ public class SenderManager {
         }
         DefaultMessageSender sender = createMessageSender(inlongGroupId);
         senderList.add(sender);
-    }
-
-    /**
-     * sender callback
-     */
-    private class AgentSenderCallback implements SendMessageCallback {
-
-        private final int retry;
-        private final String groupId;
-        private final List<byte[]> bodyList;
-        private final String streamId;
-        private final long dataTime;
-        private final String jobId;
-
-        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
-                long dataTime) {
-            this.retry = retry;
-            this.groupId = groupId;
-            this.streamId = streamId;
-            this.bodyList = bodyList;
-            this.jobId = jobId;
-            this.dataTime = dataTime;
-        }
-
-        @Override
-        public void onMessageAck(SendResult result) {
-            // if send result is not ok, retry again.
-            if (result == null || !result.equals(SendResult.OK)) {
-                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
-                        + "error {}", groupId, streamId, jobId, dataTime, retry, result);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
-                return;
-            }
-            semaphore.release(bodyList.size());
-            metric.incSendSuccessNum(bodyList.size());
-            if (sourcePath != null) {
-                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
-            }
-        }
-
-        @Override
-        public void onException(Throwable e) {
-            LOGGER.error("exception caught", e);
-        }
     }
 
     /**
@@ -300,6 +254,50 @@ public class SenderManager {
             } catch (Exception ignored) {
                 // ignore it.
             }
+        }
+    }
+
+    /**
+     * sender callback
+     */
+    private class AgentSenderCallback implements SendMessageCallback {
+
+        private final int retry;
+        private final String groupId;
+        private final List<byte[]> bodyList;
+        private final String streamId;
+        private final long dataTime;
+        private final String jobId;
+
+        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
+                long dataTime) {
+            this.retry = retry;
+            this.groupId = groupId;
+            this.streamId = streamId;
+            this.bodyList = bodyList;
+            this.jobId = jobId;
+            this.dataTime = dataTime;
+        }
+
+        @Override
+        public void onMessageAck(SendResult result) {
+            // if send result is not ok, retry again.
+            if (result == null || !result.equals(SendResult.OK)) {
+                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
+                        + "error {}", groupId, streamId, jobId, dataTime, retry, result);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                return;
+            }
+            semaphore.release(bodyList.size());
+            metric.incSendSuccessNum(bodyList.size());
+            if (sourcePath != null) {
+                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            }
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            LOGGER.error("exception caught", e);
         }
     }
 

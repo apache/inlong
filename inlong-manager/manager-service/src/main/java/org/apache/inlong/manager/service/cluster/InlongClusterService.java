@@ -143,9 +143,10 @@ public interface InlongClusterService {
      *
      * @param clusterTag cluster tag
      * @param clusterName cluster name
+     * @param extTag extend tag
      * @return data proxy node list
      */
-    List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName);
+    List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName, String extTag);
 
     /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
