@@ -15,31 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.audit.config;
+package org.apache.inlong.audit.db.entities;
+
+import java.sql.Timestamp;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
 @Getter
 @Setter
-public class StoreConfig {
+public class ClickHouseDataPo {
 
-    @Value("${audit.config.store.mode:mysql}")
-    private String store;
-
-    public boolean isMysqlStore() {
-        return store.contains("mysql");
-    }
-
-    public boolean isElasticsearchStore() {
-        return store.contains("elasticsearch");
-    }
-
-    public boolean isClickHouseStore() {
-        return store.contains("clickhouse");
-    }
-
+    private String ip;
+    private String dockerId;
+    private String threadId;
+    private Timestamp sdkTs;
+    private long packetId;
+    private Timestamp logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private long count;
+    private long size;
+    private long delay;
+    private Timestamp updateTime;
 }
