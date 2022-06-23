@@ -53,7 +53,6 @@ import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
-import org.apache.shiro.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -92,11 +91,6 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         final String groupId = groupInfo.getInlongGroupId();
-        List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
-        if (CollectionUtils.isEmpty(streamSinks)) {
-            log.info("No sinks configured, assuming direct consumption from MQ");
-            return ListenerResult.success();
-        }
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
         String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
 

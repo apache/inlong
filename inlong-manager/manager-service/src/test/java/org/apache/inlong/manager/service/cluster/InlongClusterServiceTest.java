@@ -24,6 +24,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
@@ -214,7 +215,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId2);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2
-        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(clusterTag, clusterName, extTag);
+        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(
+                new NodeListRequest(clusterName, clusterTag, extTag));
         Assertions.assertEquals(ipList.size(), 2);
         Assertions.assertEquals(port1, ipList.get(0).getPort());
         Assertions.assertEquals(port2, ipList.get(1).getPort());

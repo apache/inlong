@@ -56,8 +56,7 @@ public class DataProxyController {
     @RequestMapping(value = "/dataproxy/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiOperation(value = "Get data proxy ip list by cluster name and tag")
     public Response<List<DataProxyNodeInfo>> getIpList(@RequestBody NodeListRequest request) {
-        return Response.success(clusterService.getDataProxyNodeList(request.getClusterTag(), request.getClusterName(),
-                request.getExtTag()));
+        return Response.success(clusterService.getDataProxyNodeList(request));
     }
 
     @GetMapping("/dataproxy/getConfig")

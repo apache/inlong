@@ -39,6 +39,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.NodeListRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
@@ -320,17 +321,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName, String extTag) {
-        LOGGER.debug("begin to list data proxy node for tag={} name={} extTag={}", clusterTag, clusterName, extTag);
+    public List<DataProxyNodeInfo> getDataProxyNodeList(NodeListRequest params) {
+        LOGGER.debug("begin to list data proxy node for params={}", params);
 
         InlongClusterPageRequest request = new InlongClusterPageRequest();
-        request.setClusterTag(clusterTag);
-        request.setName(clusterName);
-        request.setExtTag(extTag);
+        request.setClusterTag(params.getClusterTag());
+        request.setName(params.getClusterName());
+        request.setExtTag(params.getExtTag());
         request.setType(ClusterType.CLS_DATA_PROXY);
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         Preconditions.checkNotEmpty(clusterList,
-                "data proxy node not found by tag=" + clusterTag + " name=" + clusterName + " extTag=" + extTag);
+                "data proxy node not found by params=" + params);
 
         List<DataProxyNodeInfo> responseList = new ArrayList<>();
         for (InlongClusterEntity cluster : clusterList) {
@@ -347,8 +348,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to list data proxy node for tag={} name={}, result={}",
-                    clusterTag, clusterName, responseList);
+            LOGGER.debug("success to list data proxy node for params={}", params);
         }
         return responseList;
     }

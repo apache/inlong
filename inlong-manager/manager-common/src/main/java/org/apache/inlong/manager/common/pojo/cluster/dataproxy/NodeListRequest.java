@@ -19,12 +19,14 @@ package org.apache.inlong.manager.common.pojo.cluster.dataproxy;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * DataProxy node request
  */
 @Data
+@AllArgsConstructor
 @ApiModel("DataProxy node list request")
 public class NodeListRequest {
 
