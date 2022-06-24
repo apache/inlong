@@ -19,17 +19,26 @@ package org.apache.inlong.manager.common.pojo.node;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.common.UpdateReq;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Data node request
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Data node  request")
 public class DataNodeRequest {
 
+    @NotNull(groups = UpdateReq.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
@@ -53,7 +62,8 @@ public class DataNodeRequest {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @NotBlank
+    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
     private String inCharges;
 
 }

@@ -20,14 +20,18 @@ package org.apache.inlong.manager.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.user.LoginUser;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.test.BaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.SecurityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -39,7 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(classes = InLongWebApplication.class)
@@ -53,13 +59,63 @@ public abstract class WebBaseTest extends BaseTest {
     ObjectMapper objectMapper;
 
     @BeforeAll
-    void setup() {
+    void baseSetup() {
         SecurityUtils.setSecurityManager(context.getBean(SecurityManager.class));
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .alwaysDo(print())
                 .build();
+    }
+
+    @BeforeEach
+    void baseBeforeEach() throws Exception {
+        logout();
+        adminLogin();
+    }
+
+    protected void logout() {
+        SecurityUtils.getSubject().logout();
+    }
+
+    protected void adminLogin() throws Exception {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUsername("admin");
+        loginUser.setPassword("inlong");
+
+        MvcResult mvcResult = mockMvc.perform(
+                        post("/anno/login")
+                                .content(JsonUtils.toJsonString(loginUser))
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String resBodyObj = getResBodyObj(mvcResult, String.class);
+        Assertions.assertNotNull(resBodyObj);
+
+        Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());
+    }
+
+    protected void operatorLogin() throws Exception {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUsername("operator");
+        loginUser.setPassword("inlong");
+
+        MvcResult mvcResult = mockMvc.perform(
+                        post("/anno/login")
+                                .content(JsonUtils.toJsonString(loginUser))
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String resBodyObj = getResBodyObj(mvcResult, String.class);
+        Assertions.assertNotNull(resBodyObj);
+
+        Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());
     }
 
     public <T> Response<T> getResBody(MvcResult mvcResult, Class<T> t) throws Exception {

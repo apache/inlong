@@ -25,7 +25,10 @@ import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.web.WebBaseTest;
 import org.apache.shiro.SecurityUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -33,30 +36,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestInstance(Lifecycle.PER_CLASS)
 class AnnoControllerTest extends WebBaseTest {
 
     // Password contains uppercase and lowercase numeric special characters
     private static final String TEST_PWD = "test_#$%%Y@UI$123";
 
+    @BeforeAll
+    void setup() {
+        logout();
+    }
+
     @Test
     void testLogin() throws Exception {
-        LoginUser loginUser = new LoginUser();
-        loginUser.setUsername("admin");
-        loginUser.setPassword("inlong");
-
-        MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
-                                .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                                .accept(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String resBodyObj = getResBodyObj(mvcResult, String.class);
-        Assertions.assertNotNull(resBodyObj);
-
-        Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());
+        adminLogin();
     }
 
     @Test
