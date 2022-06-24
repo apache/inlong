@@ -45,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * End-to-end tests for sort-connector-kafka uber jar.
+ */
 public class KafkaE2ECase extends FlinkContainerTestEnv {
     private static final Logger LOG = LoggerFactory.getLogger(KafkaE2ECase.class);
 

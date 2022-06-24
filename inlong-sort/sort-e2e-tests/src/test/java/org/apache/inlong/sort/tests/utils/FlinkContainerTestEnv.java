@@ -67,7 +67,8 @@ import java.util.stream.Stream;
 import static org.apache.flink.util.Preconditions.checkState;
 
 /**
- * Every link : DataGen -> Xxx (Test connector) -> Print
+ * End to end base test environment for test sort-connectors.
+ * Every link : MySQL -> Xxx (Test connector) -> MySQL
  */
 public abstract class FlinkContainerTestEnv extends TestLogger {
     private static final Logger JM_LOG = LoggerFactory.getLogger(JobMaster.class);
