@@ -25,15 +25,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.PostgresConstant;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -42,7 +46,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("postgresExtract")
 @Data
-public class PostgresExtractNode extends ExtractNode implements Serializable {
+public class PostgresExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
     @JsonProperty("primaryKey")
@@ -95,9 +99,8 @@ public class PostgresExtractNode extends ExtractNode implements Serializable {
      * generate table options
      *
      * @return options
-     * @see
-     * <a href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
-     *         cdc</a>
+     * @see <a href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/postgres-cdc.html">postgres
+     * cdc</a>
      */
     @Override
     public Map<String, String> tableOptions() {
@@ -132,5 +135,16 @@ public class PostgresExtractNode extends ExtractNode implements Serializable {
     @Override
     public String getPrimaryKey() {
         return primaryKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME, MetaField.OP_TS);
     }
 }

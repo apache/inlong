@@ -22,11 +22,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
+import org.apache.inlong.common.enums.MetaField;
+import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.parser.result.ParseResult;
-import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
@@ -48,20 +51,41 @@ import java.util.stream.Collectors;
 public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
 
     private MongoExtractNode buildMongoNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("name", new StringFormatInfo()));
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("name", new StringFormatInfo()),
+                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
+                new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
+                new MetaFieldInfo("collection_name", MetaField.COLLECTION_NAME),
+                new MetaFieldInfo("op_ts", MetaField.OP_TS)
+        );
         return new MongoExtractNode("1", "mysql_input", fields,
                 null, null, "test", "localhost:27017",
                 "root", "inlong", "test");
     }
 
-    private KafkaLoadNode buildAllMigrateKafkaNode() {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("_id", new StringFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("name", new StringFormatInfo())),
-                        new FieldRelation(new FieldInfo("_id", new StringFormatInfo()),
-                                new FieldInfo("_id", new StringFormatInfo())));
+    private KafkaLoadNode buildKafkaLoadNode() {
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("name", new StringFormatInfo()),
+                new FieldInfo("_id", new StringFormatInfo()),
+                new FieldInfo("proctime", new TimestampFormatInfo()),
+                new FieldInfo("database_name", new StringFormatInfo()),
+                new FieldInfo("collection_name", new StringFormatInfo()),
+                new FieldInfo("op_ts", new TimestampFormatInfo())
+        );
+        List<FieldRelation> relations = Arrays.asList(
+                new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
+                        new FieldInfo("name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("_id", new StringFormatInfo()),
+                        new FieldInfo("_id", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldInfo("proctime", new TimestampFormatInfo())),
+                new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldInfo("database_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("collection_name", new StringFormatInfo()),
+                        new FieldInfo("collection_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("op_ts", new TimestampFormatInfo()))
+        );
         CsvFormat csvFormat = new CsvFormat();
         csvFormat.setDisableQuoteCharacter(true);
         return new KafkaLoadNode("2", "kafka_output", fields, relations, null, null,
@@ -93,7 +117,7 @@ public class MongoExtractFlinkSqlParseTest extends AbstractTestBase {
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
         Node inputNode = buildMongoNode();
-        Node outputNode = buildAllMigrateKafkaNode();
+        Node outputNode = buildKafkaLoadNode();
         StreamInfo streamInfo = new StreamInfo("1", Arrays.asList(inputNode, outputNode),
                 Collections.singletonList(buildNodeRelation(Collections.singletonList(inputNode),
                         Collections.singletonList(outputNode))));
