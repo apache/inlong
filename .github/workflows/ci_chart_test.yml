@@ -40,10 +40,6 @@ env:
   CT_CONFIG_PATH: '.github/ct.yml'
   KIND_CONFIG_PATH: '.github/kind.yml'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
   chart-test:
     name: Lint and test charts
