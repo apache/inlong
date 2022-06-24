@@ -94,7 +94,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         final String groupId = groupInfo.getInlongGroupId();
         List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
         if (CollectionUtils.isEmpty(streamSinks)) {
-            log.info("No sinks configured, assuming direct consumption from MQ");
+            log.warn("not any sinks found for groupId={}, skip creating sort config", groupId);
             return ListenerResult.success();
         }
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
