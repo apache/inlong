@@ -252,9 +252,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
     /**
      * Copy all other dependencies into user jar 'lib/' entry.
      * Flink per-job mode only support upload one jar to cluster.
-     * @param jars
-     * @return
-     * @throws IOException
      */
     private String constructDistJar(Path... jars) throws IOException {
 

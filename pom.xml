@@ -1700,6 +1700,8 @@
                         <exclude>
                             **/manager-service/src/test/resources/plugins/manager-plugin-examples.jar
                         </exclude>
+                        <!-- Test case: flink sql don't support comment -->
+                        <exclude>**/resources/flinkSql/**</exclude>
 
                         <!-- Referenced 3rd codes -->
                         <exclude>**/resources/assets/lib/**</exclude>

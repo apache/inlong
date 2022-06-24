@@ -41,8 +41,8 @@ public class MySqlContainer extends JdbcDatabaseContainer {
     private static final String MYSQL_ROOT_USER = "root";
 
     private String databaseName = "test";
-    private String username = "test";
-    private String password = "test";
+    private String username = "inlong";
+    private String password = "inlong";
 
     public MySqlContainer() {
         this(MySqlVersion.V5_7);
