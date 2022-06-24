@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
@@ -651,5 +652,20 @@ class InnerInlongManagerClientTest {
                 () -> innerInlongManagerClient.listSinks("", "11"));
 
         Assertions.assertTrue(exception.getMessage().contains("groupId should not empty"));
+    }
+
+    @Test
+    void testResetGroup() {
+        stubFor(
+                post(urlMatching("/api/inlong/manager/group/reset.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+
+        boolean isReset = innerInlongManagerClient.resetGroup(new InlongGroupResetRequest());
+        Assertions.assertTrue(isReset);
     }
 }

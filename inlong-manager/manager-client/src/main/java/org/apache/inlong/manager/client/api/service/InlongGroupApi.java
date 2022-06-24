@@ -22,6 +22,7 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -68,4 +69,6 @@ public interface InlongGroupApi {
     @DELETE("group/delete/{id}")
     Call<Response<Boolean>> deleteGroup(@Path("id") String id);
 
+    @POST("group/reset")
+    Call<Response<Boolean>> resetGroup(@Body InlongGroupResetRequest request);
 }

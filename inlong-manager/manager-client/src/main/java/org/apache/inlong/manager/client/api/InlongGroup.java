@@ -106,14 +106,14 @@ public interface InlongGroup {
     InlongGroupContext restart(boolean async) throws Exception;
 
     /**
-     * delete the stream group and return group info
+     * Delete the stream group and return group info
      *
      * @return group info
      */
     InlongGroupContext delete() throws Exception;
 
     /**
-     * delete the stream group and return group info
+     * Delete the stream group and return group info
      *
      * @return group info
      */
@@ -125,4 +125,17 @@ public interface InlongGroup {
      * @return inlong stream contained in this group
      */
     List<InlongStream> listStreams() throws Exception;
+
+    /**
+     * Reset group status when group is in INITIALIZING or OPERATING status for a long time.
+     * You can choose to rerun process, or reset to final status directly, both can push the group to next status.
+     * This method has side effect on group you create, use carefully
+     *
+     * @param rerun 1: rerun the process; 0: not rerun the process
+     * @param resetFinalStatus 1: reset to success status;  0: reset to failed status, this params will work
+     *         when rerun = 0
+     * @return group info
+     * @throws Exception
+     */
+    InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception;
 }
