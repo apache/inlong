@@ -62,6 +62,12 @@ public class FlinkSqlParseResult implements ParseResult, Serializable {
     }
 
     @Override
+    public void waitExecute() throws Exception {
+        executeCreateTableSqls(createTableSqls);
+        executeLoadSqls(loadSqls).await();
+    }
+
+    @Override
     public boolean tryExecute() throws Exception {
         executeCreateTableSqls(createTableSqls);
         return executeLoadSqls(loadSqls) != null;

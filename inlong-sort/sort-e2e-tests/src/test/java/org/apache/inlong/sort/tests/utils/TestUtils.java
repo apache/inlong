@@ -24,10 +24,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Test util for test container.
+ */
 public class TestUtils {
     private static final ParameterProperty<Path> MODULE_DIRECTORY =
             new ParameterProperty<>("moduleDir", Paths::get);
@@ -75,6 +79,31 @@ public class TestUtils {
             }
         } catch (final IOException ioe) {
             throw new RuntimeException("Could not search for resource resource files.", ioe);
+        }
+    }
+
+    /**
+     * A simple system properties value getter with default value when could not find the system property.
+     * @param <V>
+     */
+    static class ParameterProperty<V> {
+
+        private final String propertyName;
+        private final Function<String, V> converter;
+
+        public ParameterProperty(final String propertyName, final Function<String, V> converter) {
+            this.propertyName = propertyName;
+            this.converter = converter;
+        }
+
+        /**
+         * Retrieves the value of this property, or the given default if no value was set.
+         *
+         * @return the value of this property, or the given default if no value was set
+         */
+        public V get(final V defaultValue) {
+            final String value = System.getProperty(propertyName);
+            return value == null ? defaultValue : converter.apply(value);
         }
     }
 }

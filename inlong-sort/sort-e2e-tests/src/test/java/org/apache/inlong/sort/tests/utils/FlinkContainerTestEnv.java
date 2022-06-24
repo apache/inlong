@@ -178,7 +178,6 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         commands.add(FLINK_BIN + "/flink run -d");
         commands.add("-c org.apache.inlong.sort.Entrance");
         commands.add(copyToContainerTmpPath(jobManager, constructDistJar(jars)));
-        commands.add("--lightweight true");
         commands.add("--sql.script.file");
         commands.add(containerSqlFile);
 
@@ -217,6 +216,10 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         return restClusterClient;
     }
 
+    /**
+     * Polling to detect task status until the task successfully into {@link JobStatus.RUNNING}
+     * @param timeout
+     */
     public void waitUntilJobRunning(Duration timeout) {
         RestClusterClient<?> clusterClient = getRestClusterClient();
         Deadline deadline = Deadline.fromNow(timeout);
@@ -245,6 +248,13 @@ public abstract class FlinkContainerTestEnv extends TestLogger {
         }
     }
 
+    /**
+     * Copy all other dependencies into user jar 'lib/' entry.
+     * Flink per-job mode only support upload one jar to cluster.
+     * @param jars
+     * @return
+     * @throws IOException
+     */
     private String constructDistJar(Path... jars) throws IOException {
 
         File newJar = temporaryFolder.newFile("sort-dist.jar");

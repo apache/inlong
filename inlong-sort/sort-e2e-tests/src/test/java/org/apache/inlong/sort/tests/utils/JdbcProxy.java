@@ -31,7 +31,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-/** Proxy to communicate with database using JDBC protocol. */
+/**
+ * Proxy to communicate with database using JDBC protocol.
+ */
 public class JdbcProxy {
 
     private final String url;
@@ -46,6 +48,14 @@ public class JdbcProxy {
         this.driverClass = driverClass;
     }
 
+    /**
+     * Compare db select result and expected result in one time.
+     * @param expectedResult
+     * @param table
+     * @param fieldsLen
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
     public void checkResult(List<String> expectedResult, String table, int fieldsLen)
             throws SQLException, ClassNotFoundException {
         Class.forName(driverClass);
