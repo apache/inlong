@@ -103,12 +103,12 @@ Requirements:
 
 Compile and install:
 ```
-$ mvn clean install -DskipTests
+mvn clean install -DskipTests
 ```
 (Optional) Compile using docker image:
 ```
-$ docker pull maven:3.6-openjdk-8
-$ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install -DskipTests
+docker pull maven:3.6-openjdk-8
+docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install -DskipTests
 ```
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
