@@ -59,7 +59,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * Constructor
-     * @param chConfig
+     * @param chConfig ClickHouse service config, such as jdbc url, jdbc username, jdbc password.
      */
     public ClickHouseService(ClickHouseConfig chConfig) {
         this.chConfig = chConfig;
@@ -143,7 +143,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * reconnect
-     * @throws SQLException
+     * @throws SQLException Exception when creating connection.
      */
     private void reconnect() throws SQLException {
         if (this.conn != null) {
@@ -161,7 +161,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * insert
-     * @param msgBody
+     * @param msgBody audit data reading from Pulsar or other MessageQueue. 
      */
     @Override
     public void insert(AuditData msgBody) {
@@ -192,7 +192,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     /**
      * close
-     * @throws Exception
+     * @throws Exception Exception when closing ClickHouse connection.
      */
     @Override
     public void close() throws Exception {
