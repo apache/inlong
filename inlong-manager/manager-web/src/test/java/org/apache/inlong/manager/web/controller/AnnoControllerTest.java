@@ -122,7 +122,7 @@ class AnnoControllerTest extends WebBaseTest {
     void testRegisterFailByInvalidType() throws Exception {
         UserInfo userInfo = UserInfo.builder()
                 .username("admin11")
-                .password("22222")
+                .password("test_pwd@%$#%23434")
                 .type(3)
                 .validDays(88888)
                 .build();
