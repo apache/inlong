@@ -15,26 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.user;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
- * Login user and password
+ * An interface that generates a list of Int
+ * e.g. for generating enum values
  */
-@Data
-@ApiModel("Login user and password")
-public class LoginUser {
+public interface IntListValuable {
 
-    @NotBlank
-    @ApiModelProperty(value = "username", required = true)
-    private String username;
+    /**
+     * generates a list of Int
+     *
+     * @return list of Integer values
+     */
+    List<Integer> valueList();
 
-    @NotBlank
-    @ApiModelProperty(value = "password", required = true)
-    private String password;
 }

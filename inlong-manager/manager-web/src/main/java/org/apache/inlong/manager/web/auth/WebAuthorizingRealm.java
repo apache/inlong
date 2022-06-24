@@ -60,7 +60,7 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
         UserDetail userDetail = new UserDetail();
         userDetail.setUserName(username);
         userDetail.setRoles(Sets.newHashSet(userEntity.getAccountType() == 0
-                ? UserTypeEnum.Admin.name() : UserTypeEnum.Operator.name()));
+                ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
         return new SimpleAuthenticationInfo(userDetail, userEntity.getPassword(), getName());
     }
 
