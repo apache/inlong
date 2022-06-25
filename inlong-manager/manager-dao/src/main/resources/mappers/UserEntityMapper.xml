@@ -65,8 +65,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-        id
-        , name, password, account_type, secret_key, public_key, due_date,
+        id, name, password, account_type, secret_key, public_key, private_key, due_date,
         create_time, update_time, create_by, update_by
     </sql>
     <select id="selectByExample" parameterType="org.apache.inlong.manager.dao.entity.UserEntityExample"
@@ -158,13 +157,13 @@
                 #{accountType,jdbcType=INTEGER},
             </if>
             <if test="secretKey != null">
-                secret_key,
+                #{secretKey,jdbcType=VARCHAR},
             </if>
             <if test="publicKey != null">
-                public_key,
+                #{publicKey,jdbcType=VARCHAR},
             </if>
             <if test="privateKey != null">
-                private_key,
+                #{privateKey,jdbcType=VARCHAR},
             </if>
             <if test="dueDate != null">
                 #{dueDate,jdbcType=TIMESTAMP},
@@ -203,13 +202,13 @@
                 account_type = #{accountType,jdbcType=INTEGER},
             </if>
             <if test="secretKey != null">
-                secret_key = #{accountType,jdbcType=VARCHAR},
+                secret_key = #{secretKey,jdbcType=VARCHAR},
             </if>
             <if test="publicKey != null">
-                public_key = #{accountType,jdbcType=VARCHAR},
+                public_key = #{publicKey,jdbcType=VARCHAR},
             </if>
             <if test="privateKey != null">
-                private_key = #{accountType,jdbcType=VARCHAR},
+                private_key = #{privateKey,jdbcType=VARCHAR},
             </if>
             <if test="dueDate != null">
                 due_date = #{dueDate,jdbcType=TIMESTAMP},
