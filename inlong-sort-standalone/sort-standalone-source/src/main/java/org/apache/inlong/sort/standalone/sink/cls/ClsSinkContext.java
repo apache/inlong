@@ -268,25 +268,22 @@ public class ClsSinkContext extends SinkContext {
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        long count = 1;
-        long size = currentRecord.getBody().length;
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(count);
-            metricItem.sendSuccessSize.addAndGet(size);
+            metricItem.sendSuccessCount.addAndGet(1);
+            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
+                final long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime
-                        - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, currentRecord.getRawLogTime());
+                long nodeDuration = currentTime - currentRecord.getFetchTime();
                 long wholeDuration = currentTime - currentRecord.getRawLogTime();
-                metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                metricItem.sinkDuration.addAndGet(sinkDuration);
+                metricItem.nodeDuration.addAndGet(nodeDuration);
+                metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(count);
-            metricItem.sendFailSize.addAndGet(size);
+            metricItem.sendFailCount.addAndGet(1);
+            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
 

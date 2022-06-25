@@ -38,15 +38,6 @@ import javax.validation.constraints.NotNull;
 /**
  * Implementation of {@link ReadCallback}.
  *
- * TODO: Sort sdk should deliver one object which is held by {@link ProfileEvent} and used to ack upstream data store
- * The code should be like :
- *
- * public void onFinished(final MessageRecord messageRecord, ACKer acker) {
- * doSomething();
- * final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), acker);
- * channelProcessor.processEvent(profileEvent);
- * }
- *
  * The ACKer will be used to <b>ACK</b> upstream after that the downstream <b>ACKed</b> sort-standalone.
  * This process seems like <b>transaction</b> of the whole sort-standalone, and which
  * ensure <b>At Least One</b> semantics.
@@ -110,12 +101,7 @@ public class FetchCallback implements ReadCallback {
             CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client,
                     CommonPropertiesHolder.getAckPolicy());
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
-                final SubscribeFetchResult result = SubscribeFetchResult.Factory
-                        .create(sortTaskName, messageRecord.getMsgKey(), messageRecord.getOffset(),
-                                inLongMessage.getParams(), messageRecord.getRecTime(),
-                                inLongMessage.getBody());
-                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(),
-                        cacheRecord);
+                final ProfileEvent profileEvent = new ProfileEvent(inLongMessage, cacheRecord);
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }

@@ -37,7 +37,7 @@ public enum AckPolicy {
 
     /**
      * getValue
-     * @return
+     * @return int
      */
     public int getValue() {
         return value;
@@ -46,7 +46,7 @@ public enum AckPolicy {
     /**
      * getAckPolicy
      * @param value
-     * @return
+     * @return AckPolicy
      */
     public static AckPolicy getAckPolicy(int value) {
         switch (value) {
@@ -61,8 +61,8 @@ public enum AckPolicy {
 
     /**
      * getAckPolicy
-     * @param value
-     * @return
+     * @param name
+     * @return AckPolicy
      */
     public static AckPolicy getAckPolicy(String name) {
         if (AckPolicy.COUNT.name().equalsIgnoreCase(name)) {

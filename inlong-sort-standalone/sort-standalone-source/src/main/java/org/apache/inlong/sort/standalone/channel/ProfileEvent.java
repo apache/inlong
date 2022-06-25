@@ -19,6 +19,7 @@ package org.apache.inlong.sort.standalone.channel;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.event.SimpleEvent;
+import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
@@ -35,26 +36,44 @@ public class ProfileEvent extends SimpleEvent {
     private final String uid;
 
     private final long rawLogTime;
+    private final String sourceIp;
     private final long fetchTime;
-    private final CacheMessageRecord cacheRecord;
+    private CacheMessageRecord cacheRecord;
     private final int ackToken;
 
     /**
      * Constructor
-     * 
-     * @param body
      * @param headers
-     * @param cacheRecord
+     * @param body
      */
-    public ProfileEvent(byte[] body, Map<String, String> headers, CacheMessageRecord cacheRecord) {
-        super.setBody(body);
+    public ProfileEvent(Map<String, String> headers, byte[] body) {
         super.setHeaders(headers);
-        this.cacheRecord = cacheRecord;
+        super.setBody(body);
         this.inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         this.inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.fetchTime = System.currentTimeMillis();
         this.rawLogTime = NumberUtils.toLong(headers.get(Constants.HEADER_KEY_MSG_TIME), fetchTime);
+        this.sourceIp = headers.get(Constants.HEADER_KEY_SOURCE_IP);
+        this.ackToken = 0;
+    }
+
+    /**
+     * Constructor
+     * 
+     * @param sdkMessage
+     * @param cacheRecord
+     */
+    public ProfileEvent(InLongMessage sdkMessage, CacheMessageRecord cacheRecord) {
+        super.setHeaders(sdkMessage.getParams());
+        super.setBody(sdkMessage.getBody());
+        this.inlongGroupId = sdkMessage.getInlongGroupId();
+        this.inlongStreamId = sdkMessage.getInlongStreamId();
+        this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
+        this.rawLogTime = sdkMessage.getMsgTime();
+        this.sourceIp = sdkMessage.getSourceIp();
+        this.cacheRecord = cacheRecord;
+        this.fetchTime = System.currentTimeMillis();
         this.ackToken = cacheRecord.getToken();
     }
 
@@ -83,6 +102,14 @@ public class ProfileEvent extends SimpleEvent {
      */
     public long getRawLogTime() {
         return rawLogTime;
+    }
+
+    /**
+     * get sourceIp
+     * @return the sourceIp
+     */
+    public String getSourceIp() {
+        return sourceIp;
     }
 
     /**

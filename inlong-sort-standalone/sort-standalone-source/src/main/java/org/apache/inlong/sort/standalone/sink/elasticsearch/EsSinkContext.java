@@ -228,28 +228,26 @@ public class EsSinkContext extends SinkContext {
         fillInlongId(currentRecord, dimensions);
         dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, bid);
+        final long currentTime = System.currentTimeMillis();
         long msgTime = currentRecord.getRawLogTime();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        long count = 1;
-        long size = currentRecord.getBody().length;
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(count);
-            metricItem.sendSuccessSize.addAndGet(size);
+            metricItem.sendSuccessCount.addAndGet(1);
+            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                long wholeDuration = currentTime - msgTime;
-                metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                long nodeDuration = currentTime - currentRecord.getFetchTime();
+                long wholeDuration = currentTime - currentRecord.getRawLogTime();
+                metricItem.sinkDuration.addAndGet(sinkDuration);
+                metricItem.nodeDuration.addAndGet(nodeDuration);
+                metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(count);
-            metricItem.sendFailSize.addAndGet(size);
+            metricItem.sendFailCount.addAndGet(1);
+            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
 
