@@ -229,9 +229,13 @@
             <if test="clusterTag != null and clusterTag != ''">
                 and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
             </if>
+            <if test="extTag != null and extTag != ''">
+                and ext_tag = #{extTag, jdbcType=VARCHAR}
+            </if>
             <if test="keyword != null and keyword != ''">
                 name like CONCAT('%', #{keyword}, '%')
                 or cluster_tag like CONCAT('%', #{keyword}, '%')
+                or ext_tag like CONCAT('%', #{keyword}, '%')
                 or url like CONCAT('%', #{keyword}, '%')
                 )
             </if>
