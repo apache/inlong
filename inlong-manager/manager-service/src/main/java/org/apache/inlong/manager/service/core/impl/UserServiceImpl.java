@@ -73,6 +73,8 @@ public class UserServiceImpl implements UserService {
         result.setUsername(entity.getName());
         result.setValidDays(SmallTools.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
+        result.setSecretKey(entity.getSecretKey());
+        result.setPublicKey(entity.getPublicKey());
 
         log.debug("success to get user info by id={}", userId);
         return result;
@@ -90,6 +92,9 @@ public class UserServiceImpl implements UserService {
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
+        entity.setSecretKey(userInfo.getSecretKey());
+        entity.setPublicKey(userInfo.getPublicKey());
+        entity.setPrivateKey(userInfo.getPrivateKey());
         entity.setCreateTime(new Date());
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
@@ -114,6 +119,9 @@ public class UserServiceImpl implements UserService {
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
         entity.setAccountType(userInfo.getType());
         entity.setName(userInfo.getUsername());
+        entity.setSecretKey(userInfo.getSecretKey());
+        entity.setPublicKey(userInfo.getPublicKey());
+        entity.setPrivateKey(userInfo.getPrivateKey());
 
         log.debug("success to update user info={}", userInfo);
         return userMapper.updateByPrimaryKeySelective(entity);

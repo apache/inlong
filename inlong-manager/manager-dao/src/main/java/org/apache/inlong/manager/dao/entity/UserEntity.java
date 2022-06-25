@@ -17,9 +17,10 @@
 
 package org.apache.inlong.manager.dao.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * User entity, including username, password, etc.
@@ -32,6 +33,9 @@ public class UserEntity implements Serializable {
     private String name;
     private String password;
     private Integer accountType;
+    private String secretKey;
+    private String publicKey;
+    private String privateKey;
     private Date dueDate;
     private Date createTime;
     private Date updateTime;

@@ -64,4 +64,13 @@ public class UserInfo {
     @ApiModelProperty(value = "valid days", required = true)
     private Integer validDays;
 
+    @ApiModelProperty("secret key")
+    private String secretKey;
+
+    @ApiModelProperty("public key")
+    private String publicKey;
+
+    @ApiModelProperty("private key")
+    private String privateKey;
+
 }
