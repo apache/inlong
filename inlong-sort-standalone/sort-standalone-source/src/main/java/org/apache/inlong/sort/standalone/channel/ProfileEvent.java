@@ -37,6 +37,7 @@ public class ProfileEvent extends SimpleEvent {
     private final long rawLogTime;
     private final long fetchTime;
     private final CacheMessageRecord cacheRecord;
+    private final int ackToken;
 
     /**
      * Constructor
@@ -54,6 +55,7 @@ public class ProfileEvent extends SimpleEvent {
         this.uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         this.fetchTime = System.currentTimeMillis();
         this.rawLogTime = NumberUtils.toLong(headers.get(Constants.HEADER_KEY_MSG_TIME), fetchTime);
+        this.ackToken = cacheRecord.getToken();
     }
 
     /**
@@ -115,7 +117,7 @@ public class ProfileEvent extends SimpleEvent {
      */
     public void ack() {
         if (cacheRecord != null) {
-            cacheRecord.ackMessage();
+            cacheRecord.ackMessage(ackToken);
         }
     }
 }
