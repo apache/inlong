@@ -19,6 +19,7 @@ package org.apache.inlong.manager.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.user.LoginUser;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -35,6 +36,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
@@ -43,10 +45,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(classes = InLongWebApplication.class)
 public abstract class WebBaseTest extends BaseTest {
@@ -96,6 +101,40 @@ public abstract class WebBaseTest extends BaseTest {
         Assertions.assertNotNull(resBodyObj);
 
         Assertions.assertTrue(SecurityUtils.getSubject().isAuthenticated());
+    }
+
+    @SneakyThrows
+    protected MvcResult postForSuccessMvcResult(String url, Object body) {
+        return mockMvc.perform(
+                        post(url)
+                                .content(JsonUtils.toJsonString(body))
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @SneakyThrows
+    protected MvcResult getForSuccessMvcResult(String url, Object... pathVariable) {
+        return mockMvc.perform(
+                        get(url, pathVariable)
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    @SneakyThrows
+    protected MvcResult deleteForSuccessMvcResult(String url, Object... pathVariable) {
+        return mockMvc.perform(
+                        delete(url, pathVariable)
+                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn();
     }
 
     protected void operatorLogin() throws Exception {

@@ -20,8 +20,10 @@ package org.apache.inlong.manager.common.pojo.common;
 import javax.validation.groups.Default;
 
 /**
- * used for validate add request fields group
+ * Used for validate add request fields group
+ *
+ * @see UpdateReqValid
  */
-public interface AddReq extends Default {
+public interface SaveReqValid extends Default {
 
 }

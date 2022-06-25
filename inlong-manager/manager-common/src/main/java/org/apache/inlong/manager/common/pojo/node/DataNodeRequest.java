@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.common.UpdateReq;
+import org.apache.inlong.manager.common.pojo.common.UpdateReqValid;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -38,7 +38,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Data node  request")
 public class DataNodeRequest {
 
-    @NotNull(groups = UpdateReq.class)
+    @NotNull(groups = UpdateReqValid.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
