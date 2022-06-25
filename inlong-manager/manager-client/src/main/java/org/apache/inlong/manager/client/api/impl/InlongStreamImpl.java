@@ -31,7 +31,6 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.stream.StreamNodeRelation;
@@ -70,8 +69,7 @@ public class InlongStreamImpl implements InlongStream {
     /**
      * Constructor of InlongStreamImpl.
      */
-    public InlongStreamImpl(FullStreamResponse streamResponse, InnerInlongManagerClient managerClient) {
-        InlongStreamInfo streamInfo = streamResponse.getStreamInfo();
+    public InlongStreamImpl(InlongStreamInfo streamInfo, InnerInlongManagerClient managerClient) {
         this.managerClient = managerClient;
         this.inlongGroupId = streamInfo.getInlongGroupId();
         this.inlongStreamId = streamInfo.getInlongStreamId();
@@ -90,18 +88,19 @@ public class InlongStreamImpl implements InlongStream {
                             )
                     ).collect(Collectors.toList());
         }
-        List<StreamSink> responseList = streamResponse.getSinkInfo();
-        if (CollectionUtils.isNotEmpty(responseList)) {
-            this.streamSinks = responseList.stream()
+
+        List<? extends StreamSink> sinkInfos = streamInfo.getStreamSinks();
+        if (CollectionUtils.isNotEmpty(sinkInfos)) {
+            this.streamSinks = sinkInfos.stream()
                     .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
                             (sink1, sink2) -> {
                                 throw new RuntimeException(String.format("duplicate sinkName:%s in stream:%s",
                                         sink1.getSinkName(), this.inlongStreamId));
                             }));
         }
-        List<StreamSource> sourceList = streamResponse.getSourceInfo();
-        if (CollectionUtils.isNotEmpty(sourceList)) {
-            this.streamSources = sourceList.stream()
+        List<? extends StreamSource> sourceInfos = streamInfo.getStreamSources();
+        if (CollectionUtils.isNotEmpty(sourceInfos)) {
+            this.streamSources = sourceInfos.stream()
                     .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,
                             (source1, source2) -> {
                                 throw new RuntimeException(String.format("duplicate sourceName: %s in streamId: %s",
