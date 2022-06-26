@@ -26,21 +26,7 @@ import java.util.List;
 @Repository
 public interface InlongStreamExtEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(InlongStreamExtEntity record);
-
-    int insertSelective(InlongStreamExtEntity record);
-
-    InlongStreamExtEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(InlongStreamExtEntity record);
-
-    int updateByPrimaryKeyWithBLOBs(InlongStreamExtEntity record);
-
-    int updateByPrimaryKey(InlongStreamExtEntity record);
-
-    List<InlongStreamExtEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
     /**
      * Insert data in batches
@@ -56,12 +42,9 @@ public interface InlongStreamExtEntityMapper {
      */
     int insertOnDuplicateKeyUpdate(@Param("extList") List<InlongStreamExtEntity> extList);
 
-    /**
-     * Physically delete all extension fields based on group id and stream id
-     *
-     * @return rows deleted
-     */
-    int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+    List<InlongStreamExtEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    int updateByPrimaryKey(InlongStreamExtEntity record);
 
     /**
      * Logically delete all extended fields based on group id and stream id
@@ -69,4 +52,15 @@ public interface InlongStreamExtEntityMapper {
      * @return rows updated
      */
     int logicDeleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+    int deleteByPrimaryKey(Integer id);
+
+    /**
+     * Physically delete all extension fields based on group id and stream id
+     *
+     * @return rows deleted
+     */
+    int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
+
 }
