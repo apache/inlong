@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Default operation of stream sink.
  */
-public abstract class AbstractSinkOperator implements StreamSinkOperation {
+public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
 

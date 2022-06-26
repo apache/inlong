@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.kafka;
+package org.apache.inlong.manager.service.source.mongo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,41 +27,41 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * kafka stream source operation.
+ * MongoDB source operator.
  */
 @Service
-public class KafkaSourceOperation extends AbstractSourceOperation {
+public class MongoDBSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.KAFKA == sourceType;
+        return SourceType.MONGODB == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.KAFKA.getType();
+        return SourceType.MONGODB.getType();
     }
 
     @Override
     protected StreamSource getSource() {
-        return new KafkaSource();
+        return new MongoDBSource();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class KafkaSourceOperation extends AbstractSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MongoDBSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        KafkaSourceRequest sourceRequest = (KafkaSourceRequest) request;
+        MongoDBSourceRequest sourceRequest = (MongoDBSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
+            MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class KafkaSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        KafkaSourceDTO dto = KafkaSourceDTO.getFromJson(entity.getExtParams());
+        MongoDBSourceDTO dto = MongoDBSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

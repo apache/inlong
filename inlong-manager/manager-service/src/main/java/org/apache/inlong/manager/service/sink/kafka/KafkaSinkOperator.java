@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.mysql;
+package org.apache.inlong.manager.service.sink.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * MySQL sink operation
+ * Kafka sink operator
  */
 @Service
-public class MySQLSinkOperation extends AbstractSinkOperator {
+public class KafkaSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,7 +62,7 @@ public class MySQLSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.MYSQL.equals(sinkType);
+        return SinkType.KAFKA.equals(sinkType);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class MySQLSinkOperation extends AbstractSinkOperator {
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
-        StreamSink response = this.getFromEntity(entity, this::getSink);
+        StreamSink response = this.getFromEntity(entity, KafkaSink::new);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setSinkFieldList(infos);
@@ -88,7 +88,7 @@ public class MySQLSinkOperation extends AbstractSinkOperator {
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        MySQLSinkDTO dto = MySQLSinkDTO.getFromJson(entity.getExtParams());
+        KafkaSinkDTO dto = KafkaSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -100,16 +100,16 @@ public class MySQLSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MySQLSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        MySQLSinkRequest sinkRequest = (MySQLSinkRequest) request;
+        KafkaSinkRequest sinkRequest = (KafkaSinkRequest) request;
         try {
-            MySQLSinkDTO dto = MySQLSinkDTO.getFromRequest(sinkRequest);
+            KafkaSinkDTO dto = KafkaSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -119,12 +119,12 @@ public class MySQLSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_MYSQL;
+        return SinkType.SINK_KAFKA;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new MySQLSink();
+        return new KafkaSink();
     }
 
 }

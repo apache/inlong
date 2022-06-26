@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.binlog;
+package org.apache.inlong.manager.service.source.oracle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,41 +27,41 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * Binlog source operation
+ * Oracle source operator
  */
 @Service
-public class BinlogSourceOperation extends AbstractSourceOperation {
+public class OracleSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.BINLOG == sourceType;
+        return SourceType.ORACLE == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.BINLOG.getType();
+        return SourceType.ORACLE.getType();
     }
 
     @Override
     protected StreamSource getSource() {
-        return new MySQLBinlogSource();
+        return new OracleSource();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class BinlogSourceOperation extends AbstractSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MySQLBinlogSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, OracleSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        MySQLBinlogSourceRequest sourceRequest = (MySQLBinlogSourceRequest) request;
+        OracleSourceRequest sourceRequest = (OracleSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromRequest(sourceRequest);
+            OracleSourceDTO dto = OracleSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class BinlogSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromJson(entity.getExtParams());
+        OracleSourceDTO dto = OracleSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

@@ -15,27 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.iceberg;
+package org.apache.inlong.manager.service.sink.oracle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -47,17 +43,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Iceberg sink operation, such as save or update iceberg field, etc.
+ * Oracle sink operator
  */
 @Service
-public class IcebergSinkOperation extends AbstractSinkOperator {
+public class OracleSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(IcebergSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OracleSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -66,7 +61,7 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.ICEBERG.equals(sinkType);
+        return SinkType.ORACLE.equals(sinkType);
     }
 
     @Override
@@ -78,8 +73,7 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
 
         StreamSink response = this.getFromEntity(entity, this::getSink);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkField::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setSinkFieldList(infos);
 
         return response;
@@ -96,7 +90,7 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        IcebergSinkDTO dto = IcebergSinkDTO.getFromJson(entity.getExtParams());
+        OracleSinkDTO dto = OracleSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -108,16 +102,16 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, IcebergSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, OracleSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        IcebergSinkRequest sinkRequest = (IcebergSinkRequest) request;
+        OracleSinkRequest sinkRequest = (OracleSinkRequest) request;
         try {
-            IcebergSinkDTO dto = IcebergSinkDTO.getFromRequest(sinkRequest);
+            OracleSinkDTO dto = OracleSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -126,63 +120,13 @@ public class IcebergSinkOperation extends AbstractSinkOperator {
     }
 
     @Override
-    public void saveFieldOpt(SinkRequest request) {
-        List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save field={}", fieldList);
-        if (CollectionUtils.isEmpty(fieldList)) {
-            return;
-        }
-
-        int size = fieldList.size();
-        List<StreamSinkFieldEntity> entityList = new ArrayList<>(size);
-        String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        String sinkType = request.getSinkType();
-        Integer sinkId = request.getId();
-        for (SinkField fieldInfo : fieldList) {
-            checkFieldInfo(fieldInfo);
-            StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
-            if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
-                fieldEntity.setFieldComment(fieldEntity.getFieldName());
-            }
-            fieldEntity.setInlongGroupId(groupId);
-            fieldEntity.setInlongStreamId(streamId);
-            fieldEntity.setSinkType(sinkType);
-            fieldEntity.setSinkId(sinkId);
-            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
-            entityList.add(fieldEntity);
-        }
-
-        sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save field");
-    }
-
-    private void checkFieldInfo(SinkField field) {
-        if (FieldType.forName(field.getFieldType()) == FieldType.DECIMAL) {
-            IcebergColumnInfo info = IcebergColumnInfo.getFromJson(field.getExtParams());
-            if (info.getPrecision() == null || info.getScale() == null) {
-                String errorMsg = String.format("precision or scale not specified for decimal field (%s)",
-                        field.getFieldName());
-                LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(errorMsg);
-            }
-            if (info.getPrecision() < info.getScale()) {
-                String errorMsg = String.format(
-                        "precision (%d) must be greater or equal than scale (%d) for decimal field (%s)",
-                        info.getPrecision(), info.getScale(), field.getFieldName());
-                LOGGER.error("field info check error: {}", errorMsg);
-                throw new BusinessException(errorMsg);
-            }
-        }
-    }
-
-    @Override
     protected String getSinkType() {
-        return SinkType.SINK_ICEBERG;
+        return SinkType.SINK_ORACLE;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new IcebergSink();
+        return new OracleSink();
     }
 }
+

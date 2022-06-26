@@ -28,9 +28,9 @@ import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import java.util.function.Supplier;
 
 /**
- * Interface of the source operation
+ * Interface of the source operator
  */
-public interface StreamSourceOperation {
+public interface StreamSourceOperator {
 
     /**
      * Determines whether the current instance matches the specified type.

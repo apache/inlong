@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.oracle;
+package org.apache.inlong.manager.service.sink.es;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -43,16 +43,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Oracle sink operation
+ * Elasticsearch sink operator, such as save or update Elasticsearch field, etc.
  */
 @Service
-public class OracleSinkOperation extends AbstractSinkOperator {
+public class ElasticsearchSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OracleSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,11 +62,11 @@ public class OracleSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.ORACLE.equals(sinkType);
+        return SinkType.ELASTICSEARCH.equals(sinkType);
     }
 
     @Override
-    public StreamSink getByEntity(StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
@@ -73,7 +74,8 @@ public class OracleSinkOperation extends AbstractSinkOperator {
 
         StreamSink response = this.getFromEntity(entity, this::getSink);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkField::new);
         response.setSinkFieldList(infos);
 
         return response;
@@ -90,7 +92,7 @@ public class OracleSinkOperation extends AbstractSinkOperator {
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        OracleSinkDTO dto = OracleSinkDTO.getFromJson(entity.getExtParams());
+        ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -102,16 +104,16 @@ public class OracleSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, OracleSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, ElasticsearchSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        OracleSinkRequest sinkRequest = (OracleSinkRequest) request;
+        ElasticsearchSinkRequest sinkRequest = (ElasticsearchSinkRequest) request;
         try {
-            OracleSinkDTO dto = OracleSinkDTO.getFromRequest(sinkRequest);
+            ElasticsearchSinkDTO dto = ElasticsearchSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -121,12 +123,12 @@ public class OracleSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_ORACLE;
+        return SinkType.SINK_ELASTICSEARCH;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new OracleSink();
+        return new ElasticsearchSink();
     }
-}
 
+}
