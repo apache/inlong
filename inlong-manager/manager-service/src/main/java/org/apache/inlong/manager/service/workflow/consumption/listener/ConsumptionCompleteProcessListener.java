@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.consumption.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -28,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -127,7 +127,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             PulsarTopicBean topicMessage = new PulsarTopicBean();
             String tenant = pulsarCluster.getTenant();
             if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
             }
             topicMessage.setTenant(tenant);
             topicMessage.setNamespace(mqResource);

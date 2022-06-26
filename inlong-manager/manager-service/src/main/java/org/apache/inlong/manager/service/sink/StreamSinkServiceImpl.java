@@ -25,7 +25,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -252,7 +252,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(GlobalConstants.DELETED_STATUS);
+        entity.setStatus(InlongConstants.DELETED_STATUS);
         entity.setIsDeleted(id);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
@@ -279,7 +279,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
                 entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(GlobalConstants.DELETED_STATUS);
+                entity.setStatus(InlongConstants.DELETED_STATUS);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);

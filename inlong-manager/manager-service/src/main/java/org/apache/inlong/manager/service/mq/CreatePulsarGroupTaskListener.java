@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -90,7 +90,7 @@ public class CreatePulsarGroupTaskListener implements QueueOperateListener {
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             String tenant = pulsarCluster.getTenant();
             if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
             }
             String namespace = groupInfo.getMqResource();
 

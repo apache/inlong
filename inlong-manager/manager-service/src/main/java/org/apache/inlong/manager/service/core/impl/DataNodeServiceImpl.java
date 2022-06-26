@@ -21,7 +21,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.DataNodeType;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
@@ -72,7 +72,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         dataNodeMapper.insert(entity);
 
         LOGGER.debug("success to save data node={}", request);
@@ -138,7 +138,7 @@ public class DataNodeServiceImpl implements DataNodeService {
     public Boolean delete(Integer id, String operator) {
         Preconditions.checkNotNull(id, "data node id cannot be empty");
         DataNodeEntity entity = dataNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("data node not found or was already deleted for id={}", id);
             return false;
         }

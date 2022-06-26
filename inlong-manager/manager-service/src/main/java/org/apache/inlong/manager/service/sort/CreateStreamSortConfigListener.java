@@ -37,7 +37,7 @@ import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -105,7 +105,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
             InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
             extInfo.setInlongGroupId(groupId);
             extInfo.setInlongStreamId(streamId);
-            String keyName = InlongGroupSettings.DATA_FLOW;
+            String keyName = InlongConstants.DATA_FLOW;
             extInfo.setKeyName(keyName);
             extInfo.setKeyValue(dataFlows);
             if (streamInfo.getExtList() == null) {
