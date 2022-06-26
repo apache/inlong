@@ -62,5 +62,4 @@ public interface InlongStreamExtEntityMapper {
      */
     int deleteAllByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
-
 }
