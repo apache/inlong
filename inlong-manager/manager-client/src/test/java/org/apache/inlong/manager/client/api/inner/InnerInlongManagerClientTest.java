@@ -506,7 +506,7 @@ class InnerInlongManagerClientTest {
                         )
                 ).build();
 
-        ArrayList<StreamSource> streamSources = Lists.newArrayList(
+        ArrayList<StreamSource> sourceList = Lists.newArrayList(
                 AutoPushSource.builder()
                         .id(1)
                         .inlongStreamId("11")
@@ -536,7 +536,7 @@ class InnerInlongManagerClientTest {
                         .build()
         );
 
-        ArrayList<StreamSink> streamSinks = Lists.newArrayList(
+        ArrayList<StreamSink> sinkList = Lists.newArrayList(
                 HiveSink.builder()
                         .sinkType("HIVE")
                         .id(1)
@@ -559,8 +559,8 @@ class InnerInlongManagerClientTest {
                         .build()
         );
 
-        streamInfo.setStreamSources(streamSources);
-        streamInfo.setStreamSinks(streamSinks);
+        streamInfo.setSourceList(sourceList);
+        streamInfo.setSinkList(sinkList);
 
         stubFor(
                 post(urlMatching("/api/inlong/manager/stream/listAll.*"))

@@ -395,11 +395,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
             // Query stream sources information
             List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
-            streamInfo.setStreamSources(sourceList);
+            streamInfo.setSourceList(sourceList);
 
             // Query various stream sinks and its extended information, field information
             List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
-            streamInfo.setStreamSinks(sinkList);
+            streamInfo.setSinkList(sinkList);
         }
 
         PageInfo<InlongStreamInfo> pageInfo = new PageInfo<>(streamInfoList);

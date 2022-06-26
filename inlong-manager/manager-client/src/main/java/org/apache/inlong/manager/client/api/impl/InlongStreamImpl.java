@@ -89,7 +89,7 @@ public class InlongStreamImpl implements InlongStream {
                     ).collect(Collectors.toList());
         }
 
-        List<? extends StreamSink> sinkInfos = streamInfo.getStreamSinks();
+        List<? extends StreamSink> sinkInfos = streamInfo.getSinkList();
         if (CollectionUtils.isNotEmpty(sinkInfos)) {
             this.streamSinks = sinkInfos.stream()
                     .collect(Collectors.toMap(StreamSink::getSinkName, streamSink -> streamSink,
@@ -98,7 +98,7 @@ public class InlongStreamImpl implements InlongStream {
                                         sink1.getSinkName(), this.inlongStreamId));
                             }));
         }
-        List<? extends StreamSource> sourceInfos = streamInfo.getStreamSources();
+        List<? extends StreamSource> sourceInfos = streamInfo.getSourceList();
         if (CollectionUtils.isNotEmpty(sourceInfos)) {
             this.streamSources = sourceInfos.stream()
                     .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,

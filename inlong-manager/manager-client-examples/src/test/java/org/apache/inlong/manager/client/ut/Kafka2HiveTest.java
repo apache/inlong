@@ -321,8 +321,8 @@ class Kafka2HiveTest extends BaseTest {
                                         .build()
                         ))
                         .build());
-        streamInfo.setStreamSources(kafkaSources);
-        streamInfo.setStreamSinks(hiveSinks);
+        streamInfo.setSourceList(kafkaSources);
+        streamInfo.setSinkList(hiveSinks);
 
         Response<PageInfo<InlongStreamInfo>> fullStreamResponsePage = Response.success(
                 new PageInfo<>(Lists.newArrayList(streamInfo))
