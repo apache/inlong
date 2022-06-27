@@ -36,7 +36,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
@@ -305,12 +304,12 @@ public class InlongGroupImpl implements InlongGroup {
     }
 
     private List<InlongStream> fetchInlongStreams(String groupId) {
-        List<FullStreamResponse> streamResponses = managerClient.listStreamInfo(groupId);
-        if (CollectionUtils.isEmpty(streamResponses)) {
+        List<InlongStreamInfo> streamInfos = managerClient.listStreamInfo(groupId);
+        if (CollectionUtils.isEmpty(streamInfos)) {
             return null;
         }
-        return streamResponses.stream()
-                .map(response -> new InlongStreamImpl(response, managerClient))
+        return streamInfos.stream()
+                .map(streamInfo -> new InlongStreamImpl(streamInfo, managerClient))
                 .collect(Collectors.toList());
     }
 }
