@@ -70,7 +70,7 @@ public class RSAUtils {
         int offSet = 0;
         byte[] cache;
         int i = 0;
-        // 对数据分段加密
+        // encrypt data by block
         while (inputLen - offSet > 0) {
             if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
                 cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
@@ -97,7 +97,7 @@ public class RSAUtils {
         int offSet = 0;
         byte[] cache;
         int i = 0;
-        // 对数据分段解密
+        // decrypt data by block
         while (inputLen - offSet > 0) {
             if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
                 cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
