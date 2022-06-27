@@ -268,7 +268,7 @@ public class ClsSinkContext extends SinkContext {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(1);
+            metricItem.sendSuccessCount.incrementAndGet();
             metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
@@ -281,7 +281,7 @@ public class ClsSinkContext extends SinkContext {
                 metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(1);
+            metricItem.sendFailCount.incrementAndGet();
             metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }

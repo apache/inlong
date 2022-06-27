@@ -234,7 +234,7 @@ public class EsSinkContext extends SinkContext {
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(1);
+            metricItem.sendSuccessCount.incrementAndGet();
             metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
@@ -246,7 +246,7 @@ public class EsSinkContext extends SinkContext {
                 metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(1);
+            metricItem.sendFailCount.incrementAndGet();
             metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
