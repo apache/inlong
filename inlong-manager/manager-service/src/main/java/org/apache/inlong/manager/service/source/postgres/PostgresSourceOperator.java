@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.file;
+package org.apache.inlong.manager.service.source.postgres;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,62 +27,61 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.file.FileSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * File source operation, such as get or set file source info.
+ * postgres stream source operator.
  */
 @Service
-public class FileSourceOperation extends AbstractSourceOperation {
+public class PostgresSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Override
+    public Boolean accept(SourceType sourceType) {
+        return SourceType.POSTGRES == sourceType;
+    }
+
+    @Override
+    protected String getSourceType() {
+        return SourceType.POSTGRES.getType();
+    }
+
+    @Override
+    protected StreamSource getSource() {
+        return new PostgresSource();
+    }
 
     @Override
     public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, FileSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, PostgresSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        FileSourceRequest sourceRequest = (FileSourceRequest) request;
-
+        PostgresSourceRequest sourceRequest = (PostgresSourceRequest) request;
+        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
-            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
+            PostgresSourceDTO dto = PostgresSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
-    }
-
-    @Override
-    protected String getSourceType() {
-        return SourceType.SOURCE_FILE;
-    }
-
-    @Override
-    protected StreamSource getSource() {
-        return new FileSource();
-    }
-
-    @Override
-    public Boolean accept(SourceType sourceType) {
-        return sourceType == SourceType.FILE;
     }
 
     @Override
@@ -94,7 +93,7 @@ public class FileSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
+        PostgresSourceDTO dto = PostgresSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

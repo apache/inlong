@@ -15,38 +15,34 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink;
+package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Factory for {@link StreamSinkOperation}.
+ * Factory for {@link StreamSourceOperator}.
  */
 @Service
-public class SinkOperationFactory {
+public class SourceOperatorFactory {
 
     @Autowired
-    private List<StreamSinkOperation> sinkOperationList;
+    private List<StreamSourceOperator> sourceOperatorList;
 
     /**
-     * Get a sink operation instance via the given sinkType
+     * Get a sink operator instance via the given sourceType
      */
-    public StreamSinkOperation getInstance(SinkType sinkType) {
-        Optional<StreamSinkOperation> instance = sinkOperationList.stream()
-                .filter(inst -> inst.accept(sinkType))
-                .findFirst();
-        if (!instance.isPresent()) {
-            throw new BusinessException(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT,
-                    String.format(ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage(), sinkType));
-        }
-        return instance.get();
+    public StreamSourceOperator getInstance(SourceType sourceType) {
+        return sourceOperatorList.stream()
+                .filter(inst -> inst.accept(sourceType))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT,
+                        String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SUPPORT.getMessage(), sourceType)));
     }
 
 }

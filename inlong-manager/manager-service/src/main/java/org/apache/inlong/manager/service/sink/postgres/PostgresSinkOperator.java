@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Postgres sink operation
+ * Postgres sink operator
  */
 @Service
-public class PostgresSinkOperation extends AbstractSinkOperator {
+public class PostgresSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PostgresSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostgresSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;

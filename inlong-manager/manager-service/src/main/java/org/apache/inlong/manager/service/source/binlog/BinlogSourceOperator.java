@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.postgres;
+package org.apache.inlong.manager.service.source.binlog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,41 +27,41 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * postgres stream source operation.
+ * Binlog source operator
  */
 @Service
-public class PostgresSourceOperation extends AbstractSourceOperation {
+public class BinlogSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.POSTGRES == sourceType;
+        return SourceType.BINLOG == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.POSTGRES.getType();
+        return SourceType.BINLOG.getType();
     }
 
     @Override
     protected StreamSource getSource() {
-        return new PostgresSource();
+        return new MySQLBinlogSource();
     }
 
     @Override
@@ -69,15 +69,15 @@ public class PostgresSourceOperation extends AbstractSourceOperation {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, PostgresSourceListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, MySQLBinlogSourceListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        PostgresSourceRequest sourceRequest = (PostgresSourceRequest) request;
+        MySQLBinlogSourceRequest sourceRequest = (MySQLBinlogSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            PostgresSourceDTO dto = PostgresSourceDTO.getFromRequest(sourceRequest);
+            MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -93,7 +93,7 @@ public class PostgresSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        PostgresSourceDTO dto = PostgresSourceDTO.getFromJson(entity.getExtParams());
+        MySQLBinlogSourceDTO dto = MySQLBinlogSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;

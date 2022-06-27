@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.hdfs;
+package org.apache.inlong.manager.service.sink.ck;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Hdfs sink operation
+ * Click house sink operator, such as save or update click house field, etc.
  */
 @Service
-public class HdfsSinkOperation extends AbstractSinkOperator {
+public class ClickHouseSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,7 +62,7 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.HDFS.equals(sinkType);
+        return SinkType.CLICKHOUSE.equals(sinkType);
     }
 
     @Override
@@ -71,10 +71,13 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
+
         StreamSink response = this.getFromEntity(entity, this::getSink);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
+                SinkField::new);
         response.setSinkFieldList(infos);
+
         return response;
     }
 
@@ -89,7 +92,7 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        HdfsSinkDTO dto = HdfsSinkDTO.getFromJson(entity.getExtParams());
+        ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -101,16 +104,16 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, HdfsSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, ClickHouseSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        HdfsSinkRequest sinkRequest = (HdfsSinkRequest) request;
+        ClickHouseSinkRequest sinkRequest = (ClickHouseSinkRequest) request;
         try {
-            HdfsSinkDTO dto = HdfsSinkDTO.getFromRequest(sinkRequest);
+            ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -120,13 +123,12 @@ public class HdfsSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_HDFS;
+        return SinkType.SINK_CLICKHOUSE;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new HdfsSink();
+        return new ClickHouseSink();
     }
 
 }
-

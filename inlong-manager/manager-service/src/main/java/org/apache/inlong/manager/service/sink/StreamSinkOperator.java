@@ -28,9 +28,9 @@ import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import java.util.function.Supplier;
 
 /**
- * Interface of the sink operation
+ * Interface of the sink operator
  */
-public interface StreamSinkOperation {
+public interface StreamSinkOperator {
 
     /**
      * Determines whether the current instance matches the specified type.

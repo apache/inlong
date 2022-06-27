@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.pulsar;
+package org.apache.inlong.manager.service.source.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,34 +27,43 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * Pulsar stream source operation
+ * File source operator, such as get or set file source info.
  */
 @Service
-public class PulsarSourceOperation extends AbstractSourceOperation {
+public class FileSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
+    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, FileSourceListResponse::new));
+    }
+
+    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        PulsarSourceRequest sourceRequest = (PulsarSourceRequest) request;
-        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
+        FileSourceRequest sourceRequest = (FileSourceRequest) request;
+
         try {
-            PulsarSourceDTO dto = PulsarSourceDTO.getFromRequest(sourceRequest);
+            CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
+            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -63,17 +72,17 @@ public class PulsarSourceOperation extends AbstractSourceOperation {
 
     @Override
     protected String getSourceType() {
-        return SourceType.PULSAR.getType();
+        return SourceType.SOURCE_FILE;
     }
 
     @Override
     protected StreamSource getSource() {
-        return new PulsarSource();
+        return new FileSource();
     }
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.PULSAR == sourceType;
+        return sourceType == SourceType.FILE;
     }
 
     @Override
@@ -85,17 +94,9 @@ public class PulsarSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        PulsarSourceDTO dto = PulsarSourceDTO.getFromJson(entity.getExtParams());
+        FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;
-    }
-
-    @Override
-    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, PulsarSourceListResponse::new));
     }
 }

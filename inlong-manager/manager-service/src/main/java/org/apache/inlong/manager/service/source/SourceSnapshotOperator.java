@@ -48,9 +48,9 @@ import java.util.concurrent.TimeUnit;
  * Operate the source snapshot
  */
 @Service
-public class SourceSnapshotOperation implements AutoCloseable {
+public class SourceSnapshotOperator implements AutoCloseable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SourceSnapshotOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SourceSnapshotOperator.class);
     private final ExecutorService executorService = new ThreadPoolExecutor(
             1,
             1,
