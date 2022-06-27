@@ -136,6 +136,7 @@ public class InnerInlongManagerClient {
     public Integer saveCluster(InlongClusterRequest request) {
         AssertUtils.notEmpty(request.getName(), "cluster name should not be empty");
         AssertUtils.notEmpty(request.getType(), "cluster type should not be empty");
+        AssertUtils.notEmpty(request.getClusterTag(), "cluster tag should not be empty");
         Response<Integer> clusterIndexResponse = executeHttpCall(inlongClusterApi.save(request));
         assertRespSuccess(clusterIndexResponse);
         return clusterIndexResponse.getData();
