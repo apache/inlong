@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService {
         result.setType(entity.getAccountType());
         result.setSecretKey(entity.getSecretKey());
         result.setPublicKey(entity.getPublicKey());
+        // never reveal private key
 
         log.debug("success to get user info by id={}", userId);
         return result;
@@ -133,9 +134,6 @@ public class UserServiceImpl implements UserService {
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
         entity.setAccountType(userInfo.getType());
         entity.setName(userInfo.getUsername());
-        entity.setSecretKey(userInfo.getSecretKey());
-        entity.setPublicKey(userInfo.getPublicKey());
-        entity.setPrivateKey(userInfo.getPrivateKey());
 
         log.debug("success to update user info={}", userInfo);
         return userMapper.updateByPrimaryKeySelective(entity);
