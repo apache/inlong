@@ -21,14 +21,22 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User type enum
  */
-public enum UserTypeEnum {
+public enum UserTypeEnum implements IntListValuable {
 
-    Admin(0), // has all privilege
-    Operator(1), // No privilege to manage the system
+    /**
+     * Has all privilege
+     */
+    ADMIN(0),
+    /**
+     * No privilege to manage the system
+     */
+    OPERATOR(1),
     ;
 
     @Getter
@@ -39,11 +47,20 @@ public enum UserTypeEnum {
         this.code = code;
     }
 
+    private static final List<Integer> ARRAYS = Arrays.stream(values())
+            .map(UserTypeEnum::getCode)
+            .collect(Collectors.toList());
+
     public static UserTypeEnum parse(Integer value) {
         return Arrays.stream(UserTypeEnum.class.getEnumConstants())
                 .filter(x -> x.getCode().equals(value))
                 .findAny()
                 .orElse(null);
+    }
+
+    @Override
+    public List<Integer> valueList() {
+        return ARRAYS;
     }
 
 }

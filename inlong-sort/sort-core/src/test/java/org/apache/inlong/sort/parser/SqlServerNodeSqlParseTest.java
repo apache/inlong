@@ -23,6 +23,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
@@ -56,7 +57,7 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
     private MySqlExtractNode buildMySQLExtractNode(String id) {
         List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
                 new FieldInfo("name", new StringFormatInfo()));
-        //if you hope hive load mode of append,please add this config.
+        // if you hope hive load mode of append,please add this config.
         Map<String, String> map = new HashMap<>();
         map.put("append-mode", "true");
         return new MySqlExtractNode(id, "mysql", fields,
@@ -70,8 +71,15 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
      * Build sqlserver extract node.
      */
     private SqlServerExtractNode buildSqlServerExtractNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("val_char", new StringFormatInfo()));
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()),
+                new FieldInfo("proctime", new TimestampFormatInfo()),
+                new FieldInfo("database_name", new StringFormatInfo()),
+                new FieldInfo("table_name", new StringFormatInfo()),
+                new FieldInfo("op_ts", new TimestampFormatInfo()),
+                new FieldInfo("schema_name", new StringFormatInfo())
+        );
         return new SqlServerExtractNode(id, "sqlserver_out", fields, null, null,
                 null, "localhost", 1433, "SA", "INLONG*123",
                 "column_type_test", "dbo", "full_types", null);
@@ -81,20 +89,38 @@ public class SqlServerNodeSqlParseTest extends AbstractTestBase {
      * Build kafka load node.
      */
     private KafkaLoadNode buildKafkaNode(String id) {
-        List<FieldInfo> fields = Arrays.asList(new FieldInfo("id", new LongFormatInfo()),
-                new FieldInfo("val_char", new StringFormatInfo()));
-        List<FieldRelation> relations = Arrays
-                .asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
-                                new FieldInfo("id", new LongFormatInfo())),
-                        new FieldRelation(new FieldInfo("val_char", new StringFormatInfo()),
-                                new FieldInfo("val_char", new StringFormatInfo()))
-                );
+        List<FieldInfo> fields = Arrays.asList(
+                new FieldInfo("id", new LongFormatInfo()),
+                new FieldInfo("val_char", new StringFormatInfo()),
+                new FieldInfo("proctime", new TimestampFormatInfo()),
+                new FieldInfo("database_name", new StringFormatInfo()),
+                new FieldInfo("table_name", new StringFormatInfo()),
+                new FieldInfo("op_ts", new TimestampFormatInfo()),
+                new FieldInfo("schema_name", new StringFormatInfo())
+        );
+        List<FieldRelation> relations = Arrays.asList(
+                new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+                        new FieldInfo("id", new LongFormatInfo())),
+                new FieldRelation(new FieldInfo("val_char", new StringFormatInfo()),
+                        new FieldInfo("val_char", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
+                        new FieldInfo("proctime", new TimestampFormatInfo())),
+                new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
+                        new FieldInfo("database_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("table_name", new StringFormatInfo()),
+                        new FieldInfo("table_name", new StringFormatInfo())),
+                new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("op_ts", new TimestampFormatInfo())),
+                new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
+                        new FieldInfo("schema_name", new StringFormatInfo()))
+
+        );
         return new KafkaLoadNode(id, "kafka_output", fields, relations, null, null,
                 "sqlserver", "localhost:9092",
                 new JsonFormat(), null,
                 null, "id");
     }
-    
+
     /**
      * Build sqlserver load node.
      */

@@ -22,13 +22,16 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.test.util.AbstractTestBase;
-import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
-import org.apache.inlong.sort.parser.result.ParseResult;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
+import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
+import org.apache.inlong.sort.parser.impl.FlinkSqlParser;
+import org.apache.inlong.sort.parser.result.ParseResult;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.GroupInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
@@ -56,7 +59,13 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
     private PostgresExtractNode buildPostgresNode() {
         List<FieldInfo> fields = Arrays.asList(
                 new FieldInfo("name", new StringFormatInfo()),
-                new FieldInfo("age", new IntFormatInfo()));
+                new FieldInfo("age", new IntFormatInfo()),
+                new MetaFieldInfo("proctime", MetaField.PROCESS_TIME),
+                new MetaFieldInfo("database_name", MetaField.DATABASE_NAME),
+                new MetaFieldInfo("table_name", MetaField.TABLE_NAME),
+                new MetaFieldInfo("op_ts", MetaField.OP_TS),
+                new MetaFieldInfo("schema_name", MetaField.SCHEMA_NAME)
+        );
         return new PostgresExtractNode("1", "postgres_input", fields, null, null, null, Arrays.asList("user"),
                 "localhost", "postgres", "inlong", "postgres", "public", 5432, null);
     }
@@ -68,12 +77,32 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
      */
     private HbaseLoadNode buildHbaseLoadNode() {
         return new HbaseLoadNode("2", "hbase_output",
-                Arrays.asList(new FieldInfo("cf:age", new LongFormatInfo()), new FieldInfo("cf:name",
-                        new StringFormatInfo())),
-                Arrays.asList(new FieldRelation(new FieldInfo("age", new LongFormatInfo()),
+                Arrays.asList(
+                        new FieldInfo("cf:age", new LongFormatInfo()),
+                        new FieldInfo("cf:name", new StringFormatInfo()),
+                        new FieldInfo("cf:proctime", new TimestampFormatInfo()),
+                        new FieldInfo("cf:database_name", new StringFormatInfo()),
+                        new FieldInfo("cf:table_name", new StringFormatInfo()),
+                        new FieldInfo("cf:op_ts", new TimestampFormatInfo()),
+                        new FieldInfo("cf:schema_name", new StringFormatInfo())
+                ),
+                Arrays.asList(
+                        new FieldRelation(new FieldInfo("age", new LongFormatInfo()),
                                 new FieldInfo("cf:age", new LongFormatInfo())),
                         new FieldRelation(new FieldInfo("name", new StringFormatInfo()),
-                                new FieldInfo("cf:name", new StringFormatInfo()))), null, null, 1, null, "user",
+                                new FieldInfo("cf:name", new StringFormatInfo())),
+                        new FieldRelation(new FieldInfo("proctime", new TimestampFormatInfo()),
+                                new FieldInfo("cf:proctime", new TimestampFormatInfo())),
+                        new FieldRelation(new FieldInfo("database_name", new StringFormatInfo()),
+                                new FieldInfo("cf:database_name", new StringFormatInfo())),
+                        new FieldRelation(new FieldInfo("table_name", new StringFormatInfo()),
+                                new FieldInfo("cf:table_name", new StringFormatInfo())),
+                        new FieldRelation(new FieldInfo("op_ts", new TimestampFormatInfo()),
+                                new FieldInfo("cf:op_ts", new TimestampFormatInfo())),
+                        new FieldRelation(new FieldInfo("schema_name", new StringFormatInfo()),
+                                new FieldInfo("cf:schema_name", new StringFormatInfo()))
+                ),
+                null, null, 1, null, "user",
                 "default",
                 "localhost:2181", "MD5(`name`)", null, "/hbase", null, null);
     }
@@ -81,7 +110,7 @@ public class PostgresExtractFlinkSqlParseTest extends AbstractTestBase {
     /**
      * build node relation
      *
-     * @param inputs  extract node
+     * @param inputs extract node
      * @param outputs load node
      * @return node relation
      */

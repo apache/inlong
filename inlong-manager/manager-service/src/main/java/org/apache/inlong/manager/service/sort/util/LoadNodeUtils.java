@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
@@ -50,6 +51,7 @@ import org.apache.inlong.sort.protocol.node.format.DebeziumJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.Format;
 import org.apache.inlong.sort.protocol.node.format.JsonFormat;
 import org.apache.inlong.sort.protocol.node.load.ClickHouseLoadNode;
+import org.apache.inlong.sort.protocol.node.load.DLCIcebergLoadNode;
 import org.apache.inlong.sort.protocol.node.load.ElasticsearchLoadNode;
 import org.apache.inlong.sort.protocol.node.load.FileSystemLoadNode;
 import org.apache.inlong.sort.protocol.node.load.GreenplumLoadNode;
@@ -116,6 +118,8 @@ public class LoadNodeUtils {
                 return createLoadNode((OracleSink) streamSink);
             case TDSQLPOSTGRESQL:
                 return createLoadNode((TDSQLPostgreSQLSink) streamSink);
+            case DLCICEBERG:
+                return createLoadNode((DLCIcebergSink) streamSink);
             default:
                 throw new BusinessException(String.format("Unsupported sinkType=%s to create load node", sinkType));
         }
@@ -556,6 +560,37 @@ public class LoadNodeUtils {
                 tdsqlPostgreSQLSink.getPassword(),
                 tdsqlPostgreSQLSink.getSchemaName() + "." + tdsqlPostgreSQLSink.getTableName(),
                 tdsqlPostgreSQLSink.getPrimaryKey());
+    }
+
+    /**
+     * Create load node of DLCIceberg.
+     */
+    public static DLCIcebergLoadNode createLoadNode(DLCIcebergSink dlcIcebergSink) {
+        String id = dlcIcebergSink.getSinkName();
+        String name = dlcIcebergSink.getSinkName();
+        List<SinkField> sinkFields = dlcIcebergSink.getSinkFieldList();
+        List<FieldInfo> fields = sinkFields.stream()
+                .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
+                .collect(Collectors.toList());
+        List<FieldRelation> fieldRelationShips = parseSinkFields(sinkFields, name);
+        Map<String, String> properties = dlcIcebergSink.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+
+        return new DLCIcebergLoadNode(
+                id,
+                name,
+                fields,
+                fieldRelationShips,
+                null,
+                null,
+                1,
+                properties,
+                dlcIcebergSink.getDbName(),
+                dlcIcebergSink.getTableName(),
+                dlcIcebergSink.getPrimaryKey(),
+                dlcIcebergSink.getCatalogUri(),
+                dlcIcebergSink.getWarehouse()
+        );
     }
 
     /**

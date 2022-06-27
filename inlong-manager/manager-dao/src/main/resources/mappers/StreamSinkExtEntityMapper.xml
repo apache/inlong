@@ -149,7 +149,7 @@
     </update>
     <update id="logicDeleteAll">
         update stream_sink_ext
-        set is_deleted = 1
+        set is_deleted = id
         where sink_id = #{sinkId, jdbcType=INTEGER}
           and is_deleted = 0
     </update>

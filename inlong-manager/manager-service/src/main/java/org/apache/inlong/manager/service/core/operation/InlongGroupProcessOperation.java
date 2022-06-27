@@ -24,12 +24,14 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
@@ -224,6 +226,119 @@ public class InlongGroupProcessOperation {
             throw ex;
         }
         return groupService.delete(groupId, operator);
+    }
+
+    /**
+     * Reset group status when group is staying CONFIG_ING|SUSPENDING|RESTARTING|DELETING for a long time
+     * This api is side effect, must be used carefully.
+     *
+     * @param request
+     * @param operator
+     * @return
+     */
+    public boolean resetGroupStatus(InlongGroupResetRequest request, String operator) {
+        LOGGER.info("begin to reset group status, request = {}, operator = {}", request, operator);
+        final String groupId = request.getInlongGroupId();
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
+        final int rerunProcess = request.getRerunProcess();
+        final int resetFinalStatus = request.getResetFinalStatus();
+        switch (status) {
+            case CONFIG_ING:
+                return dealWithConfigingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
+            case SUSPENDING:
+                return dealWithSuspendingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
+            case RESTARTING:
+                return dealWithRestartingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
+            case DELETING:
+                return dealWithDeletingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
+            default:
+                throw new IllegalStateException(
+                        String.format("Unsupported status to reset for group = %s and status = %s",
+                                request.getInlongGroupId(), status));
+        }
+    }
+
+    private boolean dealWithConfigingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
+            int resetFinalStatus) {
+        if (rerunProcess == 1) {
+            initProcessAsync(groupInfo, operator);
+            return true;
+        }
+        final String groupId = groupInfo.getInlongGroupId();
+        if (resetFinalStatus == 1) {
+            groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        } else {
+            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        }
+        return true;
+    }
+
+    private boolean dealWithSuspendingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
+            int resetFinalStatus) {
+        final String groupId = groupInfo.getInlongGroupId();
+        if (rerunProcess == 1) {
+            suspendProcessAsync(groupId, operator);
+            return true;
+        }
+        if (resetFinalStatus == 1) {
+            groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+        } else {
+            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        }
+        return true;
+    }
+
+    private boolean dealWithRestartingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
+            int resetFinalStatus) {
+        final String groupId = groupInfo.getInlongGroupId();
+        if (rerunProcess == 1) {
+            restartProcessAsync(groupId, operator);
+            return true;
+        }
+        if (resetFinalStatus == 1) {
+            groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
+        } else {
+            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        }
+        return true;
+    }
+
+    private boolean dealWithDeletingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
+            int resetFinalStatus) {
+        final String groupId = groupInfo.getInlongGroupId();
+        if (rerunProcess == 1) {
+            deleteProcessAsync(groupId, operator);
+            return true;
+        }
+        if (resetFinalStatus == 1) {
+            groupService.delete(groupId, operator);
+        } else {
+            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        }
+        return true;
+    }
+
+    private String initProcessAsync(InlongGroupInfo groupInfo, String operator) {
+        LOGGER.info("begin to init process, groupId = {}, operator = {}", groupInfo.getInlongGroupId(), operator);
+        final String groupId = groupInfo.getInlongGroupId();
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
+        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
+        switch (mode) {
+            case NORMAL:
+                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.INIT);
+                executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
+                break;
+            case LIGHT:
+                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.INIT);
+                executorService.execute(
+                        () -> workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm));
+                break;
+            default:
+                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+        }
+        return groupId;
     }
 
     private void invokeDeleteProcess(String groupId, String operator) {

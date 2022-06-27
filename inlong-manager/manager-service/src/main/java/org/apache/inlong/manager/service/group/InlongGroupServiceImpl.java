@@ -46,8 +46,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.source.SourceOperationFactory;
-import org.apache.inlong.manager.service.source.StreamSourceOperation;
+import org.apache.inlong.manager.service.source.SourceOperatorFactory;
+import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +81,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private StreamSourceEntityMapper streamSourceMapper;
     @Autowired
-    private SourceOperationFactory sourceOperationFactory;
+    private SourceOperatorFactory sourceOperatorFactory;
     @Autowired
     private InlongStreamService streamService;
 
@@ -185,7 +185,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
             sourceEntities.forEach(sourceEntity -> {
                 SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-                StreamSourceOperation operation = sourceOperationFactory.getInstance(sourceType);
+                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceType);
                 SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
                         .add(sourceListResponse);

@@ -73,7 +73,7 @@ public class ControllerExceptionHandler {
         StringBuilder builder = new StringBuilder();
         BindingResult result = e.getBindingResult();
         result.getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(":")
+                error -> builder.append(error.getField()).append(": ")
                         .append(error.getDefaultMessage()).append(System.lineSeparator())
         );
 
@@ -100,7 +100,7 @@ public class ControllerExceptionHandler {
 
         StringBuilder builder = new StringBuilder();
         e.getBindingResult().getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(":")
+                error -> builder.append(error.getField()).append(": ")
                         .append(error.getDefaultMessage()).append(System.lineSeparator())
         );
         return Response.fail(builder.toString());

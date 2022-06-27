@@ -21,12 +21,18 @@ on:
   push:
     paths:
       - '.github/workflows/ci_docker.yml'
-      - '**/Dockerfile'
-      - 'inlong-agent/agent-docker/**'
-      - 'inlong-audit/audit-docker/**'
-      - 'inlong-dataproxy/dataproxy-docker/**'
-      - 'inlong-manager/manager-docker/**'
-      - 'inlong-tubemq/tubemq-docker/**'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
       - '!**.md'
 
   pull_request:
@@ -39,10 +45,6 @@ on:
       - 'inlong-manager/manager-docker/**'
       - 'inlong-tubemq/tubemq-docker/**'
       - '!**.md'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
-  cancel-in-progress: true
 
 jobs:
   docker:
@@ -96,6 +98,7 @@ jobs:
               echo "::set-output name=match::true"
           fi
 
+      # If only this workflow file is changed, there is no need to publish Docker images.
       - name: Push Docker images to Docker Hub
         if: |
           success()

@@ -32,7 +32,7 @@ import { timestampFormat } from '@/utils';
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
 ];
 
@@ -44,7 +44,7 @@ const Comp: React.FC = () => {
   );
 
   const [options, setOptions] = useState({
-    keyWord: '',
+    keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
     type,

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -46,10 +45,9 @@ public interface InlongStreamApi {
             @Query("streamId") String streamId);
 
     @POST("stream/listAll")
-    Call<Response<PageInfo<FullStreamResponse>>> listStream(@Body InlongStreamPageRequest request);
+    Call<Response<PageInfo<InlongStreamInfo>>> listStream(@Body InlongStreamPageRequest request);
 
     @GET("stream/config/log/list")
     Call<Response<PageInfo<InlongStreamConfigLogListResponse>>> getStreamLogs(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId);
-
 }

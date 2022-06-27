@@ -23,15 +23,19 @@ import lombok.EqualsAndHashCode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * SqlServer extract node using debezium engine.
@@ -39,41 +43,41 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("sqlserverExtract")
 @Data
-public class SqlServerExtractNode extends ExtractNode implements Serializable {
+public class SqlServerExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 5096171152872086083L;
 
     @JsonProperty("hostname")
     @Nonnull
     private String hostname;
-    
+
     @JsonProperty("port")
     @Nonnull
     private Integer port;
-    
+
     @JsonProperty("username")
     @Nonnull
     private String username;
-    
+
     @JsonProperty("password")
     @Nonnull
     private String password;
-    
+
     @JsonProperty("database")
     @Nonnull
     private String database;
-    
+
     @JsonProperty(value = "schemaName", defaultValue = "dbo")
     @Nonnull
     private String schemaName;
-    
+
     @JsonProperty("tableName")
     @Nonnull
     private String tableName;
-    
+
     @JsonProperty("serverTimeZone")
     private String serverTimeZone;
-    
+
     @JsonProperty("primaryKey")
     private String primaryKey;
 
@@ -124,5 +128,16 @@ public class SqlServerExtractNode extends ExtractNode implements Serializable {
     @Override
     public String genTableName() {
         return String.format("table_%s", super.getId());
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return true;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.DATABASE_NAME,
+                MetaField.SCHEMA_NAME, MetaField.OP_TS);
     }
 }

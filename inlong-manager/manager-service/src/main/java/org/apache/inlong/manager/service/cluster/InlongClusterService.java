@@ -141,11 +141,10 @@ public interface InlongClusterService {
     /**
      * Query data proxy nodes by the given cluster tag and name.
      *
-     * @param clusterTag cluster tag
-     * @param clusterName cluster name
+     * @param request request params
      * @return data proxy node list
      */
-    List<DataProxyNodeInfo> getDataProxyNodeList(String clusterTag, String clusterName);
+    List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest request);
 
     /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.
