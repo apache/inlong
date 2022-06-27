@@ -21,11 +21,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -71,7 +71,7 @@ public class RestartSortListener implements SortOperateListener {
 
         Map<String, String> kvConf = extList.stream().collect(
                 Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
-        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
+        String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
             String message = String.format("restart sort failed for groupId [%s], as the sort properties is empty",
                     groupId);
@@ -83,12 +83,12 @@ public class RestartSortListener implements SortOperateListener {
                 new TypeReference<Map<String, String>>() {
                 });
         kvConf.putAll(result);
-        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
             String message = String.format("sort job id is empty for groupId [%s]", groupId);
             return ListenerResult.fail(message);
         }
-        String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
+        String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
             String message = String.format("dataflow is empty for groupId [%s]", groupId);
             log.error(message);
@@ -99,7 +99,7 @@ public class RestartSortListener implements SortOperateListener {
         flinkInfo.setJobId(jobId);
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         flinkInfo.setJobName(jobName);
-        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        String sortUrl = kvConf.get(InlongConstants.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());

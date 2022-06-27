@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -55,7 +55,7 @@ public class HBaseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.SINK_HBASE);
-        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setTableName(tableName);
         sinkInfo.setNamespace(nameSpace);
@@ -87,7 +87,7 @@ public class HBaseStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HBaseSink hbaseSink = (HBaseSink) response;
-        hbaseSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        hbaseSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = hbaseSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);

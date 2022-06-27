@@ -17,76 +17,33 @@
 
 package org.apache.inlong.manager.service.mq.util;
 
-import com.google.common.collect.Lists;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
-import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.api.Authentication;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.impl.auth.AuthenticationDisabled;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 
 /**
- * Test class for pulsar utils.
+ * Test class for Pulsar utils.
  */
 public class PulsarUtilsTest {
 
-    // There will be concurrency problems in the overall operation,This method temporarily fails the test
-    // @Test
+    @Test
     public void testGetPulsarAdmin() {
-        InlongGroupExtInfo groupExtInfo1 = new InlongGroupExtInfo();
-        groupExtInfo1.setId(1);
-        groupExtInfo1.setInlongGroupId("group1");
-        groupExtInfo1.setKeyName(InlongGroupSettings.PULSAR_ADMIN_URL);
-        groupExtInfo1.setKeyValue("http://127.0.0.1:8080");
-
-        InlongGroupExtInfo groupExtInfo2 = new InlongGroupExtInfo();
-        groupExtInfo2.setId(2);
-        groupExtInfo2.setInlongGroupId("group1");
-        groupExtInfo2.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION);
-        groupExtInfo2.setKeyValue("QWEASDZXC");
-        ArrayList<InlongGroupExtInfo> groupExtInfoList = Lists.newArrayList(groupExtInfo1, groupExtInfo2);
-        InlongPulsarInfo groupInfo = new InlongPulsarInfo();
-        groupInfo.setExtList(groupExtInfoList);
-
         final String defaultServiceUrl = "http://127.0.0.1:10080";
         try {
             PulsarAdmin admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
-            Assertions.assertEquals("http://127.0.0.1:8080", admin.getServiceUrl());
+            Assertions.assertEquals(defaultServiceUrl, admin.getServiceUrl());
             Field auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
             assert auth != null;
             auth.setAccessible(true);
             Authentication authentication = (Authentication) auth.get(admin);
             Assertions.assertNotNull(authentication);
-
-            InlongGroupExtInfo groupExtInfo3 = new InlongGroupExtInfo();
-            groupExtInfo3.setId(3);
-            groupExtInfo3.setInlongGroupId("group1");
-            groupExtInfo3.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION_TYPE);
-            groupExtInfo3.setKeyValue("token1");
-            groupExtInfoList.add(groupExtInfo3);
-            try {
-                admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
-            } catch (Exception e) {
-                if (e instanceof IllegalArgumentException) {
-                    Assertions.assertTrue(e.getMessage().contains("illegal authentication type"));
-                }
-            }
-
-            groupExtInfoList = new ArrayList<>();
-            groupInfo.setExtList(groupExtInfoList);
-            admin = PulsarUtils.getPulsarAdmin(defaultServiceUrl);
-            Assertions.assertEquals("http://127.0.0.1:10080", admin.getServiceUrl());
-            auth = ReflectionUtils.findField(PulsarAdminImpl.class, "auth");
-            assert auth != null;
-            auth.setAccessible(true);
-            authentication = (Authentication) auth.get(admin);
             Assertions.assertTrue(authentication instanceof AuthenticationDisabled);
         } catch (PulsarClientException | IllegalAccessException e) {
             Assertions.fail();

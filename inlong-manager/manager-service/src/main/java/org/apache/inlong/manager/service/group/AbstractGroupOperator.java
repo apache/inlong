@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
@@ -54,7 +54,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
         // after saving, the status is set to [GROUP_WAIT_SUBMIT]
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
 
