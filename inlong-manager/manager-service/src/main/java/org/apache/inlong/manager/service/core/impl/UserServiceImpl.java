@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
         entity.setAccountType(userInfo.getType());
         entity.setPassword(SmallTools.passwordMd5(userInfo.getPassword()));
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
-        entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUserName());
+        entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
         entity.setCreateTime(new Date());
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
@@ -155,8 +155,8 @@ public class UserServiceImpl implements UserService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         UserEntityExample example = new UserEntityExample();
         Criteria criteria = example.createCriteria();
-        if (request.getUserName() != null) {
-            criteria.andNameLike(request.getUserName() + "%");
+        if (request.getUsername() != null) {
+            criteria.andNameLike(request.getUsername() + "%");
         }
 
         Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByExample(example);

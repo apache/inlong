@@ -111,7 +111,7 @@ public class ExtractNodeUtils {
         final String database = binlogSource.getDatabaseWhiteList();
         final String primaryKey = binlogSource.getPrimaryKey();
         final String hostName = binlogSource.getHostname();
-        final String userName = binlogSource.getUser();
+        final String username = binlogSource.getUser();
         final String password = binlogSource.getPassword();
         final Integer port = binlogSource.getPort();
         Integer serverId = null;
@@ -147,7 +147,7 @@ public class ExtractNodeUtils {
                 primaryKey,
                 tableNames,
                 hostName,
-                userName,
+                username,
                 password,
                 database,
                 port,
