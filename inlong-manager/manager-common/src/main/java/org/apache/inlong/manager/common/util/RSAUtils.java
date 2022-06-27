@@ -42,14 +42,13 @@ public class RSAUtils {
     private static final int MAX_ENCRYPT_BLOCK = 117;
     private static final int MAX_DECRYPT_BLOCK = 128;
 
-
     /**
      * Generate RSA key pairs
      */
     public static Map<String, String> generateRSAKeyPairs() throws NoSuchAlgorithmException {
         Map<String, String> keyPairMap = new HashMap<>();
         KeyPairGenerator generator = KeyPairGenerator.getInstance(KEY_ALGORITHM);
-        SecureRandom random = SecureRandom.getInstance(SIGNATURE_ALGORITHM);//随机值
+        SecureRandom random = SecureRandom.getInstance(SIGNATURE_ALGORITHM);
         generator.initialize(1024, random);
         KeyPair keyPair = generator.genKeyPair();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
