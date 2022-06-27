@@ -132,7 +132,7 @@ public class DataNodeServiceImpl implements DataNodeService {
             return false;
         }
 
-        entity.setIsDeleted(GlobalConstants.IS_DELETED);
+        entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         dataNodeMapper.updateById(entity);
         LOGGER.info("success to delete data node by id={}", id);
