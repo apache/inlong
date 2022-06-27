@@ -21,13 +21,13 @@ import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -93,7 +93,7 @@ public class CreateSortConfigListener implements SortOperateListener {
             // String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
             InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
             extInfo.setInlongGroupId(groupId);
-            extInfo.setKeyName(InlongGroupSettings.DATA_FLOW);
+            extInfo.setKeyName(InlongConstants.DATA_FLOW);
             // extInfo.setKeyValue(dataFlows);
             if (groupInfo.getExtList() == null) {
                 groupInfo.setExtList(Lists.newArrayList());
@@ -107,7 +107,7 @@ public class CreateSortConfigListener implements SortOperateListener {
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
-        groupInfo.getExtList().removeIf(ext -> InlongGroupSettings.DATA_FLOW.equals(ext.getKeyName()));
+        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATA_FLOW.equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
 

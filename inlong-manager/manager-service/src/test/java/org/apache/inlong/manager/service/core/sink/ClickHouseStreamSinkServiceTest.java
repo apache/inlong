@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -64,7 +64,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setUsername(ckUsername);
         sinkInfo.setDbName(ckDatabaseName);
         sinkInfo.setTableName(ckTableName);
-        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
@@ -92,7 +92,7 @@ public class ClickHouseStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         ClickHouseSink ckSink = (ClickHouseSink) response;
-        ckSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        ckSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = ckSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);

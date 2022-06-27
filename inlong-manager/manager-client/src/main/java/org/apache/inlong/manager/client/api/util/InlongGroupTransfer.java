@@ -25,13 +25,13 @@ import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.Authentication.AuthType;
 import org.apache.inlong.manager.common.auth.SecretTokenAuthentication;
 import org.apache.inlong.manager.common.auth.TokenAuthentication;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.common.pojo.sort.UserDefinedSortConf;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.ArrayList;
@@ -47,34 +47,33 @@ public class InlongGroupTransfer {
     /**
      * Create inlong group info from group config.
      */
-    public static InlongGroupInfo createGroupInfo(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) {
-        AssertUtils.notNull(originGroupInfo, "Inlong group info cannot be null");
-        AssertUtils.hasLength(originGroupInfo.getInlongGroupId(), "groupId cannot be empty");
-        originGroupInfo.setExtList(Lists.newArrayList());
+    public static InlongGroupInfo createGroupInfo(InlongGroupInfo groupInfo, BaseSortConf sortConf) {
+        AssertUtils.notNull(groupInfo, "Inlong group info cannot be null");
+        AssertUtils.hasLength(groupInfo.getInlongGroupId(), "groupId cannot be empty");
+        groupInfo.setExtList(Lists.newArrayList());
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
-        if (originGroupInfo.getAuthentication() != null) {
-            Authentication authentication = originGroupInfo.getAuthentication();
+        if (groupInfo.getAuthentication() != null) {
+            Authentication authentication = groupInfo.getAuthentication();
             AuthType authType = authentication.getAuthType();
             AssertUtils.isTrue(authType == AuthType.TOKEN,
                     String.format("Unsupported authentication:%s for pulsar", authType.name()));
             TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
-            authTypeExt.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION_TYPE);
+            authTypeExt.setKeyName(InlongConstants.PULSAR_AUTHENTICATION_TYPE);
             authTypeExt.setKeyValue(tokenAuthentication.getAuthType().toString());
             extInfos.add(authTypeExt);
 
             InlongGroupExtInfo authValue = new InlongGroupExtInfo();
-            authValue.setKeyName(InlongGroupSettings.PULSAR_AUTHENTICATION);
+            authValue.setKeyName(InlongConstants.PULSAR_AUTHENTICATION);
             authValue.setKeyValue(tokenAuthentication.getToken());
             extInfos.add(authValue);
 
-            originGroupInfo.getExtList().addAll(extInfos);
+            groupInfo.getExtList().addAll(extInfos);
         }
 
         if (sortConf == null) {
-            throw new IllegalArgumentException(
-                    String.format("sort config cannot be empty for group=", originGroupInfo.getInlongGroupId()));
+            throw new IllegalArgumentException("sort config cannot be empty for group=" + groupInfo.getInlongGroupId());
         }
         // set the sort config into ext list
         SortType sortType = sortConf.getType();
@@ -90,8 +89,8 @@ public class InlongGroupTransfer {
             sortExtInfos = new ArrayList<>();
         }
 
-        originGroupInfo.getExtList().addAll(sortExtInfos);
-        return originGroupInfo;
+        groupInfo.getExtList().addAll(sortExtInfos);
+        return groupInfo;
     }
 
     /**
@@ -100,7 +99,7 @@ public class InlongGroupTransfer {
     public static List<InlongGroupExtInfo> createFlinkExtInfo(FlinkSortConf flinkSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
-        sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
+        sortType.setKeyName(InlongConstants.SORT_TYPE);
         sortType.setKeyValue(SortType.FLINK.getType());
         extInfos.add(sortType);
         if (flinkSortConf.getAuthentication() != null) {
@@ -110,23 +109,23 @@ public class InlongGroupTransfer {
                     String.format("Unsupported authentication:%s for flink", authType.name()));
             final SecretTokenAuthentication secretTokenAuthentication = (SecretTokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
-            authTypeExt.setKeyName(InlongGroupSettings.SORT_AUTHENTICATION_TYPE);
+            authTypeExt.setKeyName(InlongConstants.SORT_AUTHENTICATION_TYPE);
             authTypeExt.setKeyValue(authType.toString());
             extInfos.add(authTypeExt);
             InlongGroupExtInfo authValue = new InlongGroupExtInfo();
-            authValue.setKeyName(InlongGroupSettings.SORT_AUTHENTICATION);
+            authValue.setKeyName(InlongConstants.SORT_AUTHENTICATION);
             authValue.setKeyValue(secretTokenAuthentication.toString());
             extInfos.add(authValue);
         }
         if (StringUtils.isNotEmpty(flinkSortConf.getServiceUrl())) {
             InlongGroupExtInfo flinkUrl = new InlongGroupExtInfo();
-            flinkUrl.setKeyName(InlongGroupSettings.SORT_URL);
+            flinkUrl.setKeyName(InlongConstants.SORT_URL);
             flinkUrl.setKeyValue(flinkSortConf.getServiceUrl());
             extInfos.add(flinkUrl);
         }
         if (MapUtils.isNotEmpty(flinkSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
-            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
+            flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
                 flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(flinkSortConf.getProperties()));
             } catch (Exception e) {
@@ -143,16 +142,16 @@ public class InlongGroupTransfer {
     public static List<InlongGroupExtInfo> createUserDefinedSortExtInfo(UserDefinedSortConf userDefinedSortConf) {
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         InlongGroupExtInfo sortType = new InlongGroupExtInfo();
-        sortType.setKeyName(InlongGroupSettings.SORT_TYPE);
+        sortType.setKeyName(InlongConstants.SORT_TYPE);
         sortType.setKeyValue(SortType.USER_DEFINED.getType());
         extInfos.add(sortType);
         InlongGroupExtInfo sortName = new InlongGroupExtInfo();
-        sortName.setKeyName(InlongGroupSettings.SORT_NAME);
+        sortName.setKeyName(InlongConstants.SORT_NAME);
         sortName.setKeyValue(userDefinedSortConf.getSortName());
         extInfos.add(sortName);
         if (MapUtils.isNotEmpty(userDefinedSortConf.getProperties())) {
             InlongGroupExtInfo flinkProperties = new InlongGroupExtInfo();
-            flinkProperties.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
+            flinkProperties.setKeyName(InlongConstants.SORT_PROPERTIES);
             try {
                 flinkProperties.setKeyValue(OBJECT_MAPPER.writeValueAsString(userDefinedSortConf.getProperties()));
             } catch (Exception e) {

@@ -15,29 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.settings;
+package org.apache.inlong.manager.common.consts;
 
-public class InlongGroupSettings {
+/**
+ * Global constant for the Inlong system.
+ */
+public class InlongConstants {
+
+    public static final Integer UN_DELETED = 0;
+
+    public static final Integer IS_DELETED = 1;
+
+    public static final Integer DELETED_STATUS = 10;
+
+    public static final Integer DISABLE_CREATE_RESOURCE = 0;
+
+    public static final Integer ENABLE_CREATE_RESOURCE = 1;
+
+    public static final Integer SYNC_SEND = 1;
+
+    public static final Integer UN_SYNC_SEND = 0;
 
     /**
-     * config of group
+     * Pulsar config
      */
-    public static final String DATA_FLOW_GROUP_ID_KEY = "inlong.group.id";
-
-    public static final String DATA_FLOW = "dataFlow";
-
-    /**
-     * Refer to{@link org.apache.inlong.manager.common.enums.GroupMode#getMode}
-     */
-    public static final String GROUP_MODE = "group.mode";
-
-    /**
-     * config of pulsar
-     */
-    public static final String PULSAR_ADMIN_URL = "pulsar_adminUrl";
-
-    public static final String PULSAR_SERVICE_URL = "pulsar_serviceUrl";
-
     public static final String PULSAR_AUTHENTICATION = "pulsar.authentication";
 
     public static final String PULSAR_AUTHENTICATION_TYPE = "pulsar.authentication.type";
@@ -52,22 +53,11 @@ public class InlongGroupSettings {
     public static final String PULSAR_TOPIC_FORMAT = "persistent://%s/%s/%s";
 
     /**
-     * config of tube mq
+     * Sort config
      */
-    public static final String TUBE_MANAGER_URL = "tube.manager.url";
 
-    public static final String TUBE_MASTER_URL = "tube.master.url";
+    public static final String DATA_FLOW = "dataFlow";
 
-    public static final String TUBE_CLUSTER_ID = "tube.cluster.id";
-
-    /**
-     * config of dataproxy
-     */
-    public static final String CLUSTER_DATA_PROXY = "DATA_PROXY";
-
-    /**
-     * config of sort
-     */
     public static final String SORT_JOB_ID = "sort.job.id";
 
     public static final String SORT_TYPE = "sort.type";

@@ -31,6 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
+import org.apache.inlong.manager.client.api.service.InlongClusterApi;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.service.StreamSinkApi;
@@ -40,15 +41,16 @@ import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -77,11 +79,12 @@ import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD
 @Slf4j
 public class InnerInlongManagerClient {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     protected final String host;
     protected final int port;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final InlongClusterApi inlongClusterApi;
     private final InlongStreamApi inlongStreamApi;
     private final InlongGroupApi inlongGroupApi;
     private final StreamSourceApi streamSourceApi;
@@ -120,6 +123,22 @@ public class InnerInlongManagerClient {
         streamSourceApi = retrofit.create(StreamSourceApi.class);
         streamTransformApi = retrofit.create(StreamTransformApi.class);
         workflowApi = retrofit.create(WorkflowApi.class);
+        inlongClusterApi = retrofit.create(InlongClusterApi.class);
+    }
+
+    /**
+     * Save component cluster for Inlong
+     *
+     * @param request cluster create request
+     * @return clusterIndex
+     */
+    public Integer saveCluster(InlongClusterRequest request) {
+        AssertUtils.notEmpty(request.getName(), "cluster name should not be empty");
+        AssertUtils.notEmpty(request.getType(), "cluster type should not be empty");
+        AssertUtils.notEmpty(request.getClusterTag(), "cluster tag should not be empty");
+        Response<Integer> clusterIndexResponse = executeHttpCall(inlongClusterApi.save(request));
+        assertRespSuccess(clusterIndexResponse);
+        return clusterIndexResponse.getData();
     }
 
     /**
@@ -230,6 +249,15 @@ public class InnerInlongManagerClient {
     }
 
     /**
+     * Reset inlong group info
+     */
+    public boolean resetGroup(InlongGroupResetRequest resetRequest) {
+        Response<Boolean> response = executeHttpCall(inlongGroupApi.resetGroup(resetRequest));
+        assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Create information of stream.
      */
     public Integer createStreamInfo(InlongStreamInfo streamInfo) {
@@ -278,11 +306,11 @@ public class InnerInlongManagerClient {
     /**
      * Get information of stream.
      */
-    public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
+    public List<InlongStreamInfo> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
 
-        Response<PageInfo<FullStreamResponse>> response = executeHttpCall(inlongStreamApi.listStream(pageRequest));
+        Response<PageInfo<InlongStreamInfo>> response = executeHttpCall(inlongStreamApi.listStream(pageRequest));
         assertRespSuccess(response);
         return response.getData().getList();
     }

@@ -23,7 +23,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -565,7 +565,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setMaxLength(1000);
 
         streamEntity.setStatus(StreamStatus.CONFIG_SUCCESSFUL.getCode());
-        streamEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        streamEntity.setIsDeleted(InlongConstants.UN_DELETED);
         streamEntity.setCreator(operator);
         streamEntity.setModifier(operator);
         Date now = new Date();
@@ -610,7 +610,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamFieldEntity entity : list) {
             entity.setInlongGroupId(groupId);
             entity.setInlongStreamId(streamId);
-            entity.setIsDeleted(GlobalConstants.UN_DELETED);
+            entity.setIsDeleted(InlongConstants.UN_DELETED);
         }
         streamFieldMapper.insertAll(list);
     }

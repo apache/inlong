@@ -28,9 +28,9 @@ import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -44,7 +44,6 @@ import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -194,7 +193,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean delete(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
             return false;
         }
@@ -223,7 +222,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterNodeEntity::new);
         entity.setCreator(operator);
         entity.setCreateTime(new Date());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         clusterNodeMapper.insert(entity);
 
         LOGGER.info("success to add inlong cluster node={}", request);
@@ -308,7 +307,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean deleteNode(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster node id cannot be empty");
         InlongClusterNodeEntity entity = clusterNodeMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > GlobalConstants.UN_DELETED) {
+        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster node not found by id={}", id);
             return false;
         }
@@ -408,11 +407,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     PulsarClusterDTO pulsarCluster = PulsarClusterDTO.getFromJson(cluster.getExtParams());
                     String tenant = pulsarCluster.getTenant();
                     if (StringUtils.isBlank(tenant)) {
-                        tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+                        tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
                     }
 
                     String streamId = streamInfo.getInlongStreamId();
-                    String topic = String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT,
+                    String topic = String.format(InlongConstants.PULSAR_TOPIC_FORMAT,
                             tenant, mqResource, streamInfo.getMqResource());
                     DataProxyTopicInfo topicConfig = new DataProxyTopicInfo();
                     topicConfig.setInlongGroupId(groupId + "/" + streamId);

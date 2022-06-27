@@ -22,10 +22,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
@@ -40,7 +40,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -346,7 +345,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setFilterEnabled(0);
 
         entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(groupInfo.getCreator());
         entity.setCreateTime(new Date());
 
@@ -357,7 +356,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             pulsarEntity.setConsumptionId(entity.getId());
             pulsarEntity.setConsumerGroup(consumerGroup);
             pulsarEntity.setInlongGroupId(groupId);
-            pulsarEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+            pulsarEntity.setIsDeleted(InlongConstants.UN_DELETED);
             consumptionPulsarMapper.insert(pulsarEntity);
         }
 
@@ -413,8 +412,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                 PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterService.getOne(
                         inlongGroupEntity.getInlongClusterTag(), null, ClusterType.CLS_PULSAR);
                 String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
-                        ? InlongGroupSettings.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
-                info.setTopic(String.format(InlongGroupSettings.PULSAR_TOPIC_FORMAT, tenant,
+                        ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+                info.setTopic(String.format(InlongConstants.PULSAR_TOPIC_FORMAT, tenant,
                         inlongGroupEntity.getMqResource(), info.getTopic()));
             }
 

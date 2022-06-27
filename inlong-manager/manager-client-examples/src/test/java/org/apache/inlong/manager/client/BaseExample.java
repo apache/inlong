@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -111,7 +111,7 @@ public class BaseExample {
         streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
         streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
         // if you need strictly order for data, set to 1
-        streamInfo.setSyncSend(GlobalConstants.SYNC_SEND);
+        streamInfo.setSyncSend(InlongConstants.SYNC_SEND);
         streamInfo.setMqResource(this.getTopic());
         return streamInfo;
     }

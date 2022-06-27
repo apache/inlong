@@ -15,25 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.client.api.service;
 
-/**
- * Global constant for system
- */
-public class GlobalConstants {
+import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
-    public static final Integer UN_DELETED = 0;
+public interface InlongClusterApi {
 
-    public static final Integer IS_DELETED = 1;
-
-    public static final Integer DELETED_STATUS = 10;
-
-    public static final Integer DISABLE_CREATE_RESOURCE = 0;
-
-    public static final Integer ENABLE_CREATE_RESOURCE = 1;
-
-    public static final Integer SYNC_SEND = 1;
-
-    public static final Integer UN_SYNC_SEND = 0;
+    @POST("cluster/save")
+    Call<Response<Integer>> save(@Body InlongClusterRequest request);
 
 }

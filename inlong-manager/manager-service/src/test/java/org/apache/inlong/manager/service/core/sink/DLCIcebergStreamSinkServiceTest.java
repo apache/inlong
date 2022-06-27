@@ -20,10 +20,10 @@ package org.apache.inlong.manager.service.core.sink;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkRequest;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -35,16 +35,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stream sink service test
+ * DLCIceberg stream sink service test..
  */
-public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
+public class DLCIcebergStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_mysql";
-    private static final String globalStreamId = "stream1_mysql";
-    private static final String globalOperator = "admin";
-    private static final String fieldName = "mysql_field";
-    private static final String fieldType = "mysql_type";
+    private final String globalGroupId = "b_group1";
+    private final String globalStreamId = "stream1_dlciceberg";
+    private final String globalOperator = "admin";
+    private static final String fieldName = "dlc_field";
+    private static final String fieldType = "dlc_type";
     private static final Integer fieldId = 1;
+    // private final String sinkName = "default";
 
     @Autowired
     private StreamSinkService sinkService;
@@ -56,18 +57,10 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        MySQLSinkRequest sinkInfo = new MySQLSinkRequest();
+        DLCIcebergSinkRequest sinkInfo = new DLCIcebergSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_MYSQL);
-
-        sinkInfo.setJdbcUrl("jdbc:mysql://localhost:5432/database");
-        sinkInfo.setUsername("mysql");
-        sinkInfo.setPassword("inlong");
-        sinkInfo.setTableName("user");
-        sinkInfo.setPrimaryKey("name,age");
-
-        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setSinkType(SinkType.SINK_DLCICEBERG);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         SinkField sinkField = new SinkField();
         sinkField.setFieldName(fieldName);
@@ -76,38 +69,38 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
         List<SinkField> sinkFieldList = new ArrayList<>();
         sinkFieldList.add(sinkField);
         sinkInfo.setSinkFieldList(sinkFieldList);
+
+        sinkInfo.setSinkName(sinkName);
+        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
-    /**
-     * Delete MySQL sink info by sink id.
-     */
-    public void deleteMySQLSink(Integer mysqlSinkId) {
-        boolean result = sinkService.delete(mysqlSinkId, globalOperator);
+    @Test
+    public void testSaveAndDelete() {
+        Integer id = this.saveSink("default1");
+        Assertions.assertNotNull(id);
+        boolean result = sinkService.delete(id, globalOperator);
         Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
-        Integer mysqlSinkId = this.saveSink("mysql_default1");
-        StreamSink sink = sinkService.get(mysqlSinkId);
+        Integer id = this.saveSink("default2");
+        StreamSink sink = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
-        deleteMySQLSink(mysqlSinkId);
+        sinkService.delete(id, globalOperator);
     }
 
     @Test
     public void testGetAndUpdate() {
-        Integer mysqlSinkId = this.saveSink("mysql_default2");
-        StreamSink response = sinkService.get(mysqlSinkId);
+        Integer id = this.saveSink("default3");
+        StreamSink response = sinkService.get(id);
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        MySQLSink mysqlSink = (MySQLSink) response;
-        mysqlSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        MySQLSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
-                MySQLSinkRequest::new);
+        DLCIcebergSink dlcIcebergSink = (DLCIcebergSink) response;
+        dlcIcebergSink.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        SinkRequest request = dlcIcebergSink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
-        deleteMySQLSink(mysqlSinkId);
     }
-
 }
