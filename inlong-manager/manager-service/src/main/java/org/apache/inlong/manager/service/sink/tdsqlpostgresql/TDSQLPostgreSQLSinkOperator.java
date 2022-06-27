@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.kafka;
+package org.apache.inlong.manager.service.sink.tdsqlpostgresql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Kafka sink operation
+ * TDSQLPostgreSQL sink operator
  */
 @Service
-public class KafkaSinkOperation extends AbstractSinkOperator {
+public class TDSQLPostgreSQLSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,16 +62,16 @@ public class KafkaSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.KAFKA.equals(sinkType);
+        return SinkType.TDSQLPOSTGRESQL.equals(sinkType);
     }
 
     @Override
     public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(this.getSinkType().equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
-        StreamSink response = this.getFromEntity(entity, KafkaSink::new);
+        Preconditions.checkTrue(getSinkType().equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), getSinkType(), existType));
+        StreamSink response = this.getFromEntity(entity, this::getSink);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
         List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setSinkFieldList(infos);
@@ -85,10 +85,10 @@ public class KafkaSinkOperation extends AbstractSinkOperator {
             return result;
         }
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(this.getSinkType().equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
+        Preconditions.checkTrue(getSinkType().equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), getSinkType(), existType));
 
-        KafkaSinkDTO dto = KafkaSinkDTO.getFromJson(entity.getExtParams());
+        TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -100,16 +100,16 @@ public class KafkaSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, TDSQLPostgreSQLSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
-        Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
+        Preconditions.checkTrue(getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        KafkaSinkRequest sinkRequest = (KafkaSinkRequest) request;
+        TDSQLPostgreSQLSinkRequest sinkRequest = (TDSQLPostgreSQLSinkRequest) request;
         try {
-            KafkaSinkDTO dto = KafkaSinkDTO.getFromRequest(sinkRequest);
+            TDSQLPostgreSQLSinkDTO dto = TDSQLPostgreSQLSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -119,12 +119,12 @@ public class KafkaSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_KAFKA;
+        return SinkType.SINK_TDSQLPOSTGRESQL;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new KafkaSink();
+        return new TDSQLPostgreSQLSink();
     }
 
 }

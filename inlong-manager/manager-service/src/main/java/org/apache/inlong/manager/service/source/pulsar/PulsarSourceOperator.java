@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.oracle;
+package org.apache.inlong.manager.service.source.pulsar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -27,61 +27,53 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceListResponse;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
-import org.apache.inlong.manager.service.source.AbstractSourceOperation;
+import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Supplier;
 
 /**
- * Oracle source operation
+ * Pulsar stream source operator
  */
 @Service
-public class OracleSourceOperation extends AbstractSourceOperation {
+public class PulsarSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
-    public Boolean accept(SourceType sourceType) {
-        return SourceType.ORACLE == sourceType;
-    }
-
-    @Override
-    protected String getSourceType() {
-        return SourceType.ORACLE.getType();
-    }
-
-    @Override
-    protected StreamSource getSource() {
-        return new OracleSource();
-    }
-
-    @Override
-    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, OracleSourceListResponse::new));
-    }
-
-    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        OracleSourceRequest sourceRequest = (OracleSourceRequest) request;
+        PulsarSourceRequest sourceRequest = (PulsarSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            OracleSourceDTO dto = OracleSourceDTO.getFromRequest(sourceRequest);
+            PulsarSourceDTO dto = PulsarSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
+    }
+
+    @Override
+    protected String getSourceType() {
+        return SourceType.PULSAR.getType();
+    }
+
+    @Override
+    protected StreamSource getSource() {
+        return new PulsarSource();
+    }
+
+    @Override
+    public Boolean accept(SourceType sourceType) {
+        return SourceType.PULSAR == sourceType;
     }
 
     @Override
@@ -93,9 +85,17 @@ public class OracleSourceOperation extends AbstractSourceOperation {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        OracleSourceDTO dto = OracleSourceDTO.getFromJson(entity.getExtParams());
+        PulsarSourceDTO dto = PulsarSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
         return result;
+    }
+
+    @Override
+    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, PulsarSourceListResponse::new));
     }
 }

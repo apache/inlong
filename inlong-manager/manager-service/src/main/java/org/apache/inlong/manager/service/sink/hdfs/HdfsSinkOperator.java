@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.greenplum;
+package org.apache.inlong.manager.service.sink.hdfs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
-import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Greenplum sink operation
+ * Hdfs sink operator
  */
 @Service
-public class GreenplumSinkOperation extends AbstractSinkOperator {
+public class HdfsSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreenplumSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,7 +62,7 @@ public class GreenplumSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.GREENPLUM.equals(sinkType);
+        return SinkType.HDFS.equals(sinkType);
     }
 
     @Override
@@ -84,11 +84,12 @@ public class GreenplumSinkOperation extends AbstractSinkOperator {
         if (entity == null) {
             return result;
         }
+
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        GreenplumSinkDTO dto = GreenplumSinkDTO.getFromJson(entity.getExtParams());
+        HdfsSinkDTO dto = HdfsSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -100,16 +101,16 @@ public class GreenplumSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, GreenplumSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, HdfsSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        GreenplumSinkRequest sinkRequest = (GreenplumSinkRequest) request;
+        HdfsSinkRequest sinkRequest = (HdfsSinkRequest) request;
         try {
-            GreenplumSinkDTO dto = GreenplumSinkDTO.getFromRequest(sinkRequest);
+            HdfsSinkDTO dto = HdfsSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -119,12 +120,13 @@ public class GreenplumSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_GREENPLUM;
+        return SinkType.SINK_HDFS;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new GreenplumSink();
+        return new HdfsSink();
     }
 
 }
+

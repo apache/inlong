@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.ck;
+package org.apache.inlong.manager.service.sink.dlc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -43,17 +43,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Click house sink operation, such as save or update click house field, etc.
+ * DLCIceberg sink operator, such as save or update DLCIceberg field, etc.
  */
 @Service
-public class ClickHouseSinkOperation extends AbstractSinkOperator {
+public class DLCIcebergSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClickHouseSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DLCIcebergSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,11 +61,11 @@ public class ClickHouseSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.CLICKHOUSE.equals(sinkType);
+        return SinkType.DLCICEBERG.equals(sinkType);
     }
 
     @Override
-    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
+    public StreamSink getByEntity(StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
@@ -89,10 +88,10 @@ public class ClickHouseSinkOperation extends AbstractSinkOperator {
         }
 
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(this.getSinkType().equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
+        Preconditions.checkTrue(SinkType.SINK_DLCICEBERG.equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_DLCICEBERG, existType));
 
-        ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromJson(entity.getExtParams());
+        DLCIcebergSinkDTO dto = DLCIcebergSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -104,16 +103,17 @@ public class ClickHouseSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, ClickHouseSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, DLCIcebergSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        ClickHouseSinkRequest sinkRequest = (ClickHouseSinkRequest) request;
+        DLCIcebergSinkRequest dlcIcebergSinkRequest = (DLCIcebergSinkRequest) request;
+
         try {
-            ClickHouseSinkDTO dto = ClickHouseSinkDTO.getFromRequest(sinkRequest);
+            DLCIcebergSinkDTO dto = DLCIcebergSinkDTO.getFromRequest(dlcIcebergSinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -123,12 +123,11 @@ public class ClickHouseSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_CLICKHOUSE;
+        return SinkType.SINK_DLCICEBERG;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new ClickHouseSink();
+        return new DLCIcebergSink();
     }
-
 }

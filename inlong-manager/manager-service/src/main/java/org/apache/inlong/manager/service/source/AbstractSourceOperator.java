@@ -47,11 +47,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Default operation of stream source.
+ * Default operator of stream source.
  */
-public abstract class AbstractSourceOperation implements StreamSourceOperation {
+public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperator.class);
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
     @Autowired

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.sink.dlc;
+package org.apache.inlong.manager.service.sink.greenplum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -28,10 +28,10 @@ import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkDTO;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -43,16 +43,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * DLCIceberg sink operation, such as save or update DLCIceberg field, etc.
+ * Greenplum sink operator
  */
 @Service
-public class DLCIcebergSinkOperation extends AbstractSinkOperator {
+public class GreenplumSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DLCIcebergSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GreenplumSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -61,22 +62,19 @@ public class DLCIcebergSinkOperation extends AbstractSinkOperator {
 
     @Override
     public Boolean accept(SinkType sinkType) {
-        return SinkType.DLCICEBERG.equals(sinkType);
+        return SinkType.GREENPLUM.equals(sinkType);
     }
 
     @Override
-    public StreamSink getByEntity(StreamSinkEntity entity) {
+    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
         String existType = entity.getSinkType();
         Preconditions.checkTrue(this.getSinkType().equals(existType),
                 String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
-
         StreamSink response = this.getFromEntity(entity, this::getSink);
         List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities,
-                SinkField::new);
+        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
         response.setSinkFieldList(infos);
-
         return response;
     }
 
@@ -86,12 +84,11 @@ public class DLCIcebergSinkOperation extends AbstractSinkOperator {
         if (entity == null) {
             return result;
         }
-
         String existType = entity.getSinkType();
-        Preconditions.checkTrue(SinkType.SINK_DLCICEBERG.equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), SinkType.SINK_DLCICEBERG, existType));
+        Preconditions.checkTrue(this.getSinkType().equals(existType),
+                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
 
-        DLCIcebergSinkDTO dto = DLCIcebergSinkDTO.getFromJson(entity.getExtParams());
+        GreenplumSinkDTO dto = GreenplumSinkDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, result, true);
         CommonBeanUtils.copyProperties(dto, result, true);
 
@@ -103,17 +100,16 @@ public class DLCIcebergSinkOperation extends AbstractSinkOperator {
         if (CollectionUtils.isEmpty(entityPage)) {
             return new PageInfo<>();
         }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, DLCIcebergSinkListResponse::new));
+        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, GreenplumSinkListResponse::new));
     }
 
     @Override
     protected void setTargetEntity(SinkRequest request, StreamSinkEntity targetEntity) {
         Preconditions.checkTrue(this.getSinkType().equals(request.getSinkType()),
                 ErrorCodeEnum.SINK_TYPE_NOT_SUPPORT.getMessage() + ": " + getSinkType());
-        DLCIcebergSinkRequest dlcIcebergSinkRequest = (DLCIcebergSinkRequest) request;
-
+        GreenplumSinkRequest sinkRequest = (GreenplumSinkRequest) request;
         try {
-            DLCIcebergSinkDTO dto = DLCIcebergSinkDTO.getFromRequest(dlcIcebergSinkRequest);
+            GreenplumSinkDTO dto = GreenplumSinkDTO.getFromRequest(sinkRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             LOGGER.error("parsing json string to sink info failed", e);
@@ -123,11 +119,12 @@ public class DLCIcebergSinkOperation extends AbstractSinkOperator {
 
     @Override
     protected String getSinkType() {
-        return SinkType.SINK_DLCICEBERG;
+        return SinkType.SINK_GREENPLUM;
     }
 
     @Override
     protected StreamSink getSink() {
-        return new DLCIcebergSink();
+        return new GreenplumSink();
     }
+
 }

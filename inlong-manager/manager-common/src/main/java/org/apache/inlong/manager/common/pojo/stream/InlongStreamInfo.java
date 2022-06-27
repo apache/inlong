@@ -24,8 +24,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -102,8 +105,10 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -117,6 +122,12 @@ public class InlongStreamInfo {
 
     @ApiModelProperty(value = "Inlong stream Extension properties")
     private List<InlongStreamExtInfo> extList;
+
+    @ApiModelProperty("Stream source infos")
+    private List<? extends StreamSource> sourceList = new ArrayList<>();
+
+    @ApiModelProperty("Stream sink infos")
+    private List<? extends StreamSink> sinkList = new ArrayList<>();
 
     public InlongStreamResponse genResponse() {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);

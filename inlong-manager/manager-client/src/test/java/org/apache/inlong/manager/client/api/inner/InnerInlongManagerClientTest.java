@@ -35,6 +35,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
@@ -47,6 +48,7 @@ import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
@@ -55,7 +57,6 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -77,15 +78,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 /**
- * Test class for InnerInlongManagerClientTest.
+ * Unit test for {@link InnerInlongManagerClient}.
  */
 @Slf4j
 class InnerInlongManagerClientTest {
 
-    public static WireMockServer wireMockServer;
-    public static InnerInlongManagerClient innerInlongManagerClient;
-
     private static final int SERVICE_PORT = 8085;
+    private static WireMockServer wireMockServer;
+    private static InnerInlongManagerClient innerInlongManagerClient;
 
     @BeforeAll
     static void setup() {
@@ -487,95 +487,92 @@ class InnerInlongManagerClientTest {
 
     @Test
     void testListStream4AllSink() {
-        FullStreamResponse fullStreamResponse = FullStreamResponse.builder()
-                .streamInfo(
-                        InlongStreamInfo.builder()
-                                .id(1)
-                                .inlongGroupId("11")
-                                .inlongStreamId("11")
-                                .fieldList(
-                                        Lists.newArrayList(
-                                                StreamField.builder()
-                                                        .id(1)
-                                                        .inlongGroupId("123")
-                                                        .inlongGroupId("11")
-                                                        .build(),
-                                                StreamField.builder()
-                                                        .id(2)
-                                                        .isMetaField(1)
-                                                        .fieldFormat("yyyy-MM-dd HH:mm:ss")
-                                                        .build()
-                                        )
-                                ).build()
-                )
-                .sourceInfo(
+        InlongStreamInfo streamInfo = InlongStreamInfo.builder()
+                .id(1)
+                .inlongGroupId("11")
+                .inlongStreamId("11")
+                .fieldList(
                         Lists.newArrayList(
-                                AutoPushSource.builder()
+                                StreamField.builder()
                                         .id(1)
-                                        .inlongStreamId("11")
+                                        .inlongGroupId("123")
                                         .inlongGroupId("11")
-                                        .sourceType("AUTO_PUSH")
-                                        .createTime(new Date())
-
-                                        .dataProxyGroup("111")
                                         .build(),
-                                MySQLBinlogSource.builder()
+                                StreamField.builder()
                                         .id(2)
-                                        .sourceType("BINLOG")
-                                        .user("user")
-                                        .password("pwd")
-                                        .build(),
-                                FileSource.builder()
-                                        .id(3)
-                                        .sourceType("FILE")
-                                        .agentIp("127.0.0.1")
-                                        .pattern("pattern")
-                                        .build(),
-                                KafkaSource.builder()
-                                        .id(4)
-                                        .sourceType("KAFKA")
-                                        .autoOffsetReset("11")
-                                        .bootstrapServers("10.110.221.22")
-                                        .build()
-                        )
-                )
-                .sinkInfo(
-                        Lists.newArrayList(
-                                HiveSink.builder()
-                                        .sinkType("HIVE")
-                                        .id(1)
-                                        .jdbcUrl("127.0.0.1")
-                                        .build(),
-                                ClickHouseSink.builder()
-                                        .sinkType("CLICKHOUSE")
-                                        .id(2)
-                                        .flushInterval(11)
-                                        .build(),
-                                IcebergSink.builder()
-                                        .sinkType("ICEBERG")
-                                        .id(3)
-                                        .dataPath("hdfs://aabb")
-                                        .build(),
-                                KafkaSink.builder()
-                                        .sinkType("KAFKA")
-                                        .id(4)
-                                        .bootstrapServers("127.0.0.1")
+                                        .isMetaField(1)
+                                        .fieldFormat("yyyy-MM-dd HH:mm:ss")
                                         .build()
                         )
                 ).build();
 
+        ArrayList<StreamSource> sourceList = Lists.newArrayList(
+                AutoPushSource.builder()
+                        .id(1)
+                        .inlongStreamId("11")
+                        .inlongGroupId("11")
+                        .sourceType("AUTO_PUSH")
+                        .createTime(new Date())
+
+                        .dataProxyGroup("111")
+                        .build(),
+                MySQLBinlogSource.builder()
+                        .id(2)
+                        .sourceType("BINLOG")
+                        .user("user")
+                        .password("pwd")
+                        .build(),
+                FileSource.builder()
+                        .id(3)
+                        .sourceType("FILE")
+                        .agentIp("127.0.0.1")
+                        .pattern("pattern")
+                        .build(),
+                KafkaSource.builder()
+                        .id(4)
+                        .sourceType("KAFKA")
+                        .autoOffsetReset("11")
+                        .bootstrapServers("10.110.221.22")
+                        .build()
+        );
+
+        ArrayList<StreamSink> sinkList = Lists.newArrayList(
+                HiveSink.builder()
+                        .sinkType("HIVE")
+                        .id(1)
+                        .jdbcUrl("127.0.0.1")
+                        .build(),
+                ClickHouseSink.builder()
+                        .sinkType("CLICKHOUSE")
+                        .id(2)
+                        .flushInterval(11)
+                        .build(),
+                IcebergSink.builder()
+                        .sinkType("ICEBERG")
+                        .id(3)
+                        .dataPath("hdfs://aabb")
+                        .build(),
+                KafkaSink.builder()
+                        .sinkType("KAFKA")
+                        .id(4)
+                        .bootstrapServers("127.0.0.1")
+                        .build()
+        );
+
+        streamInfo.setSourceList(sourceList);
+        streamInfo.setSinkList(sinkList);
+
         stubFor(
                 post(urlMatching("/api/inlong/manager/stream/listAll.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(
-                                        new PageInfo<>(Lists.newArrayList(fullStreamResponse))))
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(new PageInfo<>(Lists.newArrayList(streamInfo))))
                                 )
                         )
         );
 
-        List<FullStreamResponse> fullStreamResponses = innerInlongManagerClient.listStreamInfo("11");
-        Assertions.assertEquals(JsonUtils.toJsonString(fullStreamResponse),
-                JsonUtils.toJsonString(fullStreamResponses.get(0)));
+        List<InlongStreamInfo> streamInfos = innerInlongManagerClient.listStreamInfo("11");
+        Assertions.assertEquals(JsonUtils.toJsonString(streamInfo), JsonUtils.toJsonString(streamInfos.get(0)));
     }
 
     @Test

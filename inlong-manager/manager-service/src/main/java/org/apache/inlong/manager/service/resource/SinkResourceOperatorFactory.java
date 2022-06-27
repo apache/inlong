@@ -36,7 +36,7 @@ public class SinkResourceOperatorFactory {
     private List<SinkResourceOperator> operationList;
 
     /**
-     * Get a sink resource operation instance via the given sinkType
+     * Get a sink resource operator instance via the given sinkType
      */
     public SinkResourceOperator getInstance(SinkType sinkType) {
         Optional<SinkResourceOperator> instance = operationList.stream()

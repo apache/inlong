@@ -101,8 +101,10 @@ public class InlongStreamResponse {
     @Builder.Default
     private Integer isDeleted = 0;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

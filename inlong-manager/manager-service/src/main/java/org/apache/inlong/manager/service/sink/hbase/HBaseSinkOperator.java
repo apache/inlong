@@ -47,12 +47,12 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * HBase sink operation
+ * HBase sink operator
  */
 @Service
-public class HBaseSinkOperation extends AbstractSinkOperator {
+public class HBaseSinkOperator extends AbstractSinkOperator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseSinkOperation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseSinkOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
