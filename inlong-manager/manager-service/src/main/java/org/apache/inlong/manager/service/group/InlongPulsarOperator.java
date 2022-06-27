@@ -110,7 +110,7 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
         // TODO add cache for cluster info
         // pulsar topic corresponds to the inlong stream one-to-one
         // topicInfo.setDsTopicList(streamService.getTopicList(groupInfo.getInlongGroupId()));
-        // commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
+        // commonOperateService.getSpecifiedParam(InlongConstants.TUBE_MASTER_URL);
         // groupInfo.setTenant();
         // groupInfo.setAdminUrl();
         // groupInfo.setServiceUrl();

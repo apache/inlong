@@ -69,7 +69,7 @@ public class DataFlowUtils {
         FieldMappingRule fieldMappingRule = new FieldMappingRule(mappingUnitList.toArray(new FieldMappingUnit[0]));
 
         // Get source info
-        String masterAddress = commonOperateService.getSpecifiedParam(InlongGroupSettings.TUBE_MASTER_URL);
+        String masterAddress = commonOperateService.getSpecifiedParam(InlongConstants.TUBE_MASTER_URL);
         PulsarClusterInfo pulsarCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMqType());
         org.apache.inlong.sort.protocol.source.SourceInfo sourceInfo = SourceInfoUtils.createSourceInfo(pulsarCluster,
                 masterAddress, clusterBean,
@@ -86,7 +86,7 @@ public class DataFlowUtils {
         if (MapUtils.isNotEmpty(streamSink.getProperties())) {
             properties.putAll(streamSink.getProperties());
         }
-        properties.put(InlongGroupSettings.DATA_FLOW_GROUP_ID_KEY, groupId);
+        properties.put(InlongConstants.DATA_FLOW_GROUP_ID_KEY, groupId);
 
         return new DataFlowInfo(streamSink.getId(), sourceInfo, transInfo, sinkInfo, properties);
     }*/

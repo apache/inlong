@@ -25,7 +25,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -66,7 +66,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
     @Autowired
-    private SinkOperationFactory operationFactory;
+    private SinkOperatorFactory operatorFactory;
     @Autowired
     private GroupCheckService groupCheckService;
     @Autowired
@@ -100,7 +100,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
 
         // According to the sink type, save sink information
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
         List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
@@ -121,7 +121,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_NOT_FOUND);
         }
         String sinkType = entity.getSinkType();
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
         StreamSink streamSink = operation.getByEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return streamSink;
@@ -174,7 +174,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<SinkListResponse> sinkListResponses = Lists.newArrayList();
         for (Map.Entry<SinkType, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
             SinkType sinkType = entry.getKey();
-            StreamSinkOperation operation = operationFactory.getInstance(sinkType);
+            StreamSinkOperator operation = operatorFactory.getInstance(sinkType);
             PageInfo<? extends SinkListResponse> pageInfo = operation.getPageInfo(entry.getValue());
             sinkListResponses.addAll(pageInfo.getList());
         }
@@ -214,7 +214,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             fields.stream().forEach(sinkField -> sinkField.setId(null));
         }
 
-        StreamSinkOperation operation = operationFactory.getInstance(SinkType.forType(sinkType));
+        StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
         operation.updateOpt(request, operator);
 
         // The inlong group status is [Configuration successful], then asynchronously initiate
@@ -252,7 +252,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
         entity.setPreviousStatus(entity.getStatus());
-        entity.setStatus(GlobalConstants.DELETED_STATUS);
+        entity.setStatus(InlongConstants.DELETED_STATUS);
         entity.setIsDeleted(id);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
@@ -279,7 +279,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             entityList.forEach(entity -> {
                 Integer id = entity.getId();
                 entity.setPreviousStatus(entity.getStatus());
-                entity.setStatus(GlobalConstants.DELETED_STATUS);
+                entity.setStatus(InlongConstants.DELETED_STATUS);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);

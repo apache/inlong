@@ -51,7 +51,7 @@
 
     <delete id="deleteByConsumptionId">
         update consumption_pulsar
-        set is_deleted = 1
+        set is_deleted = id
         where consumption_id = #{consumptionId, jdbcType=INTEGER}
           and is_deleted = 0
     </delete>

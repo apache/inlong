@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
@@ -28,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
@@ -74,7 +74,7 @@ public class CreatePulsarTopicTaskListener implements QueueOperateListener {
             PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
             String tenant = pulsarCluster.getTenant();
             if (StringUtils.isEmpty(tenant)) {
-                tenant = InlongGroupSettings.DEFAULT_PULSAR_TENANT;
+                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
             }
 
             try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {

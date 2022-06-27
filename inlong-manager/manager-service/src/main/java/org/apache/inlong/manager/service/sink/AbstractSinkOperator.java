@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Default operation of stream sink.
  */
-public abstract class AbstractSinkOperator implements StreamSinkOperation {
+public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
 
@@ -81,7 +81,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
     public Integer saveOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(request, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
         Date now = new Date();
@@ -163,7 +163,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperation {
             fieldEntity.setInlongStreamId(streamId);
             fieldEntity.setSinkType(sinkType);
             fieldEntity.setSinkId(sinkId);
-            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+            fieldEntity.setIsDeleted(InlongConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 

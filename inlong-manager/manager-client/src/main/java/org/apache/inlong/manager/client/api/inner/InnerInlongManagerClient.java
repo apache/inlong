@@ -51,7 +51,6 @@ import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -80,10 +79,10 @@ import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD
 @Slf4j
 public class InnerInlongManagerClient {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     protected final String host;
     protected final int port;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final InlongClusterApi inlongClusterApi;
     private final InlongStreamApi inlongStreamApi;
@@ -307,11 +306,11 @@ public class InnerInlongManagerClient {
     /**
      * Get information of stream.
      */
-    public List<FullStreamResponse> listStreamInfo(String inlongGroupId) {
+    public List<InlongStreamInfo> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
         pageRequest.setInlongGroupId(inlongGroupId);
 
-        Response<PageInfo<FullStreamResponse>> response = executeHttpCall(inlongStreamApi.listStream(pageRequest));
+        Response<PageInfo<InlongStreamInfo>> response = executeHttpCall(inlongStreamApi.listStream(pageRequest));
         assertRespSuccess(response);
         return response.getData().getList();
     }

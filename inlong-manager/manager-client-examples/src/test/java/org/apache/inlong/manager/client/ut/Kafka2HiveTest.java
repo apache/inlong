@@ -31,7 +31,6 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
@@ -243,90 +242,90 @@ class Kafka2HiveTest extends BaseTest {
                         )
         );
 
-        Response<PageInfo<FullStreamResponse>> fullStreamResponsePage = Response.success(
-                new PageInfo<>(
-                        Lists.newArrayList(FullStreamResponse.builder()
-                                .streamInfo(InlongStreamInfo.builder()
-                                        .id(8)
-                                        .inlongGroupId(GROUP_ID)
-                                        .inlongStreamId(STREAM_ID)
-                                        .name(STREAM_ID)
-                                        .mqResource("test_topic")
-                                        .dataEncoding("UTF-8")
-                                        .dataSeparator("|")
-                                        .syncSend(1)
-                                        .dailyRecords(10)
-                                        .dailyStorage(10)
-                                        .peakRecords(1000)
-                                        .maxLength(10240)
-                                        .storagePeriod(1)
-                                        .status(120)
-                                        .creator("admin")
-                                        .modifier("admin")
-                                        .createTime(new Date())
-                                        .modifyTime(new Date())
-                                        .fieldList(createStreamFields())
+        InlongStreamInfo streamInfo = InlongStreamInfo.builder()
+                .id(8)
+                .inlongGroupId(GROUP_ID)
+                .inlongStreamId(STREAM_ID)
+                .name(STREAM_ID)
+                .mqResource("test_topic")
+                .dataEncoding("UTF-8")
+                .dataSeparator("|")
+                .syncSend(1)
+                .dailyRecords(10)
+                .dailyStorage(10)
+                .peakRecords(1000)
+                .maxLength(10240)
+                .storagePeriod(1)
+                .status(120)
+                .creator("admin")
+                .modifier("admin")
+                .createTime(new Date())
+                .modifyTime(new Date())
+                .fieldList(createStreamFields())
+                .build();
+
+        ArrayList<KafkaSource> kafkaSources = Lists.newArrayList(
+                KafkaSource.builder()
+                        .id(6)
+                        .topic(TOPIC)
+                        .bootstrapServers("{kafka.bootstrap}")
+                        .inlongGroupId(GROUP_ID)
+                        .inlongStreamId(STREAM_ID)
+                        .sourceType("KAFKA")
+                        .sourceName("{kafka.source.name}")
+                        .serializationType("json")
+                        .version(1)
+                        .status(110)
+                        .creator("admin")
+                        .modifier("admin")
+                        .createTime(new Date())
+                        .modifyTime(new Date())
+                        .build()
+        );
+
+        ArrayList<HiveSink> hiveSinks = Lists.newArrayList(
+                HiveSink.builder()
+                        .id(6)
+                        .inlongStreamId(STREAM_ID)
+                        .inlongGroupId(GROUP_ID)
+                        .jdbcUrl("jdbc:hive2://{ip:port}")
+                        .dbName("test_db")
+                        .tableName("test_table")
+                        .dataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}")
+                        .fileFormat("TextFile")
+                        .dataEncoding("UTF-8")
+                        .dataSeparator("|")
+                        .sinkType("HIVE")
+                        .sinkName("sink_name")
+                        .enableCreateResource(1)
+                        .status(110)
+                        .creator("admin")
+                        .modifier("admin")
+                        .dataFormat(DataFormat.NONE)
+                        .sinkFieldList(Lists.newArrayList(
+                                SinkField.builder()
+                                        .id(17)
+                                        .fieldName("age")
+                                        .fieldType("INT")
+                                        .fieldComment("age")
+                                        .sourceFieldName("age")
+                                        .sourceFieldType("INT")
+                                        .build(),
+                                SinkField.builder()
+                                        .id(18)
+                                        .fieldName("name")
+                                        .fieldType("STRING")
+                                        .fieldComment("name")
+                                        .sourceFieldName("name")
+                                        .sourceFieldType("STRING")
                                         .build()
-                                )
-                                .sourceInfo(Lists.newArrayList(
-                                        KafkaSource.builder()
-                                                .id(6)
-                                                .topic(TOPIC)
-                                                .bootstrapServers("{kafka.bootstrap}")
-                                                .inlongGroupId(GROUP_ID)
-                                                .inlongStreamId(STREAM_ID)
-                                                .sourceType("KAFKA")
-                                                .sourceName("{kafka.source.name}")
-                                                .serializationType("json")
-                                                .version(1)
-                                                .status(110)
-                                                .creator("admin")
-                                                .modifier("admin")
-                                                .createTime(new Date())
-                                                .modifyTime(new Date())
-                                                .build()
-                                ))
-                                .sinkInfo(Lists.newArrayList(
-                                        HiveSink.builder()
-                                                .id(6)
-                                                .inlongStreamId(STREAM_ID)
-                                                .inlongGroupId(GROUP_ID)
-                                                .jdbcUrl("jdbc:hive2://{ip:port}")
-                                                .dbName("test_db")
-                                                .tableName("test_table")
-                                                .dataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}")
-                                                .fileFormat("TextFile")
-                                                .dataEncoding("UTF-8")
-                                                .dataSeparator("|")
-                                                .sinkType("HIVE")
-                                                .sinkName("sink_name")
-                                                .enableCreateResource(1)
-                                                .status(110)
-                                                .creator("admin")
-                                                .modifier("admin")
-                                                .dataFormat(DataFormat.NONE)
-                                                .sinkFieldList(Lists.newArrayList(
-                                                        SinkField.builder()
-                                                                .id(17)
-                                                                .fieldName("age")
-                                                                .fieldType("INT")
-                                                                .fieldComment("age")
-                                                                .sourceFieldName("age")
-                                                                .sourceFieldType("INT")
-                                                                .build(),
-                                                        SinkField.builder()
-                                                                .id(18)
-                                                                .fieldName("name")
-                                                                .fieldType("STRING")
-                                                                .fieldComment("name")
-                                                                .sourceFieldName("name")
-                                                                .sourceFieldType("STRING")
-                                                                .build()
-                                                ))
-                                                .build()
-                                ))
-                                .build())
-                )
+                        ))
+                        .build());
+        streamInfo.setSourceList(kafkaSources);
+        streamInfo.setSinkList(hiveSinks);
+
+        Response<PageInfo<InlongStreamInfo>> fullStreamResponsePage = Response.success(
+                new PageInfo<>(Lists.newArrayList(streamInfo))
         );
         stubFor(
                 post(urlMatching(MANAGER_URL_PREFIX + "/stream/listAll.*"))
@@ -382,22 +381,6 @@ class Kafka2HiveTest extends BaseTest {
         );
     }
 
-    @Test
-    void testCreateGroupForHive() {
-        Assertions.assertDoesNotThrow(() -> {
-            InlongGroup group = inlongClient.forGroup(groupInfo);
-            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
-            streamBuilder.fields(createStreamFields());
-            streamBuilder.source(createKafkaSource());
-            streamBuilder.sink(createHiveSink());
-            streamBuilder.initOrUpdate();
-            // start group
-            InlongGroupContext inlongGroupContext = group.init();
-            Assertions.assertNotNull(inlongGroupContext);
-        });
-
-    }
-
     private static KafkaSource createKafkaSource() {
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setBootstrapServers("127.0.0.1");
@@ -412,5 +395,21 @@ class Kafka2HiveTest extends BaseTest {
                 new StreamField(0, FieldType.STRING.toString(), "name", null, null),
                 new StreamField(1, FieldType.INT.toString(), "age", null, null)
         );
+    }
+
+    @Test
+    void testCreateGroupForHive() {
+        Assertions.assertDoesNotThrow(() -> {
+            InlongGroup group = inlongClient.forGroup(groupInfo);
+            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
+            streamBuilder.fields(createStreamFields());
+            streamBuilder.source(createKafkaSource());
+            streamBuilder.sink(createHiveSink());
+            streamBuilder.initOrUpdate();
+            // start group
+            InlongGroupContext inlongGroupContext = group.init();
+            Assertions.assertNotNull(inlongGroupContext);
+        });
+
     }
 }
