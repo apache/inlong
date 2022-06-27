@@ -27,7 +27,6 @@ public enum ClusterType {
     TUBE,
     PULSAR,
     DATA_PROXY,
-
     ;
 
     public static final String CLS_TUBE = "TUBE";
