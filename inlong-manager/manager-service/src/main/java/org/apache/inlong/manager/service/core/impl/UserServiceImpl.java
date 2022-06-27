@@ -21,7 +21,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
@@ -29,6 +31,7 @@ import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.common.util.RSAUtils;
 import org.apache.inlong.manager.common.util.SmallTools;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.entity.UserEntityExample;
@@ -40,6 +43,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.inlong.manager.common.util.SmallTools.getOverDueDate;
 
@@ -92,9 +96,19 @@ public class UserServiceImpl implements UserService {
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
-        entity.setSecretKey(userInfo.getSecretKey());
-        entity.setPublicKey(userInfo.getPublicKey());
-        entity.setPrivateKey(userInfo.getPrivateKey());
+        entity.setSecretKey(RandomStringUtils.randomAlphanumeric(8));
+        try {
+            Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
+            String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
+            String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
+            entity.setPublicKey(publicKey);
+            entity.setPrivateKey(privateKey);
+        } catch (Exception e) {
+            String errMsg = String.format("generate rsa key error: {}", e);
+            log.error(errMsg);
+            throw new BusinessException(errMsg);
+        }
+
         entity.setCreateTime(new Date());
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
