@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.client.api.service;
 
-/**
- * Enum of cluster type.
- */
-public class ClusterType {
+import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.POST;
 
-    public static final String CLS_TUBE = "TUBE";
-    public static final String CLS_PULSAR = "PULSAR";
-    public static final String CLS_DATA_PROXY = "DATA_PROXY";
+public interface InlongClusterApi {
+
+    @POST("cluster/save")
+    Call<Response<Integer>> save(@Body InlongClusterRequest request);
 
 }

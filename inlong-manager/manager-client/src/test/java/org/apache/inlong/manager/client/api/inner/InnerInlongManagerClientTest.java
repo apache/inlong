@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
@@ -665,4 +666,23 @@ class InnerInlongManagerClientTest {
         boolean isReset = innerInlongManagerClient.resetGroup(new InlongGroupResetRequest());
         Assertions.assertTrue(isReset);
     }
+
+    @Test
+    void testSaveCluster() {
+        stubFor(
+                post(urlMatching("/api/inlong/manager/cluster/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        InlongClusterRequest request = new InlongClusterRequest();
+        request.setName("pulsar");
+        request.setType("PULSAR");
+        request.setClusterTag("test_cluster");
+        Integer clusterIndex = innerInlongManagerClient.saveCluster(request);
+        Assertions.assertTrue(clusterIndex == 1);
+    }
+
 }
