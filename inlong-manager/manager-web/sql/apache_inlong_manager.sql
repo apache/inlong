@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `in_charges`  varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
     `status`      int(4)            DEFAULT '0' COMMENT 'Cluster status',
     `is_deleted`  int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`     varchar(64)       DEFAULT NULL COMMENT 'Creator name',
+    `creator`     varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`    varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
