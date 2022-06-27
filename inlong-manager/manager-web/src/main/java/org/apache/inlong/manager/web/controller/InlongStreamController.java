@@ -24,12 +24,13 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -66,6 +67,21 @@ public class InlongStreamController {
         return Response.success(result);
     }
 
+    @RequestMapping(value = "/saveAll", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE)
+    @ApiOperation(value = "Save inlong stream info page")
+    public Response<Boolean> saveAll(@RequestBody FullStreamRequest pageInfo) {
+        return Response.success(streamService.saveAll(pageInfo, LoginUserUtils.getLoginUserDetail().getUserName()));
+    }
+
+    @RequestMapping(value = "/batchSaveAll", method = RequestMethod.POST)
+    @OperationLog(operation = OperationType.CREATE)
+    @ApiOperation(value = "Save inlong stream page info in batch")
+    public Response<Boolean> batchSaveAll(@RequestBody List<FullStreamRequest> infoList) {
+        boolean result = streamService.batchSaveAll(infoList, LoginUserUtils.getLoginUserDetail().getUserName());
+        return Response.success(result);
+    }
+
     @RequestMapping(value = "/exist/{groupId}/{streamId}", method = RequestMethod.GET)
     @ApiOperation(value = "Is exists of the inlong stream")
     @ApiImplicitParams({
@@ -95,8 +111,8 @@ public class InlongStreamController {
     }
 
     @RequestMapping(value = "/listAll", method = RequestMethod.POST)
-    @ApiOperation(value = "Get inlong stream info by paginating")
-    public Response<PageInfo<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
+    @ApiOperation(value = "Get all inlong stream info by paginating")
+    public Response<PageInfo<FullStreamResponse>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
         request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
         request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listAllWithGroupId(request));

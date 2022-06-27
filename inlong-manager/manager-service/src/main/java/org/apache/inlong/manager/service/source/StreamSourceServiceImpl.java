@@ -64,7 +64,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSourceServiceImpl.class);
 
     @Autowired
-    private SourceOperatorFactory operationFactory;
+    private SourceOperationFactory operationFactory;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -84,7 +84,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
 
         // According to the source type, save source information
         String sourceType = request.getSourceType();
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
@@ -104,7 +104,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             LOGGER.error("source not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
         }
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
         StreamSource streamSource = operation.getByEntity(entity);
         LOGGER.debug("success to get source by id={}", id);
         return streamSource;
@@ -147,7 +147,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         List<SourceListResponse> responseList = Lists.newArrayList();
         for (Map.Entry<SourceType, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
             SourceType sourceType = entry.getKey();
-            StreamSourceOperator operation = operationFactory.getInstance(sourceType);
+            StreamSourceOperation operation = operationFactory.getInstance(sourceType);
             PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
             if (null != pageInfo && CollectionUtils.isNotEmpty(pageInfo.getList())) {
                 responseList.addAll(pageInfo.getList());
@@ -172,7 +172,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         String sourceType = request.getSourceType();
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(sourceType));
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
@@ -237,7 +237,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.restartOpt(sourceRequest, operator);
@@ -255,7 +255,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSourceOperation operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
         operation.stopOpt(sourceRequest, operator);

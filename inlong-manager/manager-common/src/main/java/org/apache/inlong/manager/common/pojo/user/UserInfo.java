@@ -24,11 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.validation.InEnumInt;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
  * User info, including username, password, etc.
@@ -46,22 +42,23 @@ public class UserInfo {
      * user type
      * {@link UserTypeEnum}
      */
-    @NotNull
-    @InEnumInt(UserTypeEnum.class)
-    @ApiModelProperty(value = "type: 0 - manager, 1 - operator", required = true)
+    @ApiModelProperty("type: 0 - manager, 1 - operator")
     private Integer type;
 
-    @NotBlank
-    @ApiModelProperty(value = "username", required = true)
+    @ApiModelProperty("username")
     private String username;
 
-    @NotBlank
-    @ApiModelProperty(value = "password", required = true)
+    @ApiModelProperty("password")
     private String password;
 
-    @NotNull
-    @Min(1)
-    @ApiModelProperty(value = "valid days", required = true)
+    @ApiModelProperty("valid days")
     private Integer validDays;
 
+    public void checkValid() {
+        Preconditions.checkNotEmpty(username, "username should not be empty");
+        Preconditions.checkNotEmpty(password, "password should not be empty");
+        Preconditions.checkNotNull(validDays, "valid days should not be empty");
+        UserTypeEnum userType = UserTypeEnum.parse(type);
+        Preconditions.checkNotNull(userType, "user type incorrect");
+    }
 }

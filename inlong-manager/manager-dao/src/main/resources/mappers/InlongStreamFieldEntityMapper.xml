@@ -107,7 +107,7 @@
 
     <update id="logicDeleteAllByIdentifier">
         update inlong_stream_field
-        set is_deleted = id
+        set is_deleted = 1
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
           and is_deleted = 0

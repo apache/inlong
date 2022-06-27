@@ -29,7 +29,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -79,8 +79,8 @@ public class DescribeCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<InlongStreamInfo> streamInfos = managerClient.listStreamInfo(groupId);
-                streamInfos.forEach(PrintUtils::printJson);
+                List<FullStreamResponse> fullStreamResponseList = managerClient.listStreamInfo(groupId);
+                fullStreamResponseList.forEach(response -> PrintUtils.printJson(response.getStreamInfo()));
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

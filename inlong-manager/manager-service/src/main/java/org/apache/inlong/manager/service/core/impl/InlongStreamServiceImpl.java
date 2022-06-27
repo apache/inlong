@@ -28,8 +28,12 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
@@ -362,8 +366,76 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         return briefInfoList;
     }
 
+    @Transactional(rollbackFor = Throwable.class)
     @Override
-    public PageInfo<InlongStreamInfo> listAllWithGroupId(InlongStreamPageRequest request) {
+    public boolean saveAll(FullStreamRequest fullStreamRequest, String operator) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("begin to save all stream page info: {}", fullStreamRequest);
+        }
+        Preconditions.checkNotNull(fullStreamRequest, "fullStreamRequest is empty");
+        InlongStreamRequest streamRequest = fullStreamRequest.getStreamInfo();
+        Preconditions.checkNotNull(streamRequest, "inlong stream info is empty");
+
+        // Save inlong stream
+        save(streamRequest, operator);
+
+        // Save source info
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getSourceInfo())) {
+            for (SourceRequest source : fullStreamRequest.getSourceInfo()) {
+                sourceService.save(source, operator);
+            }
+        }
+
+        // Save sink info
+        if (CollectionUtils.isNotEmpty(fullStreamRequest.getSinkInfo())) {
+            for (SinkRequest sinkInfo : fullStreamRequest.getSinkInfo()) {
+                sinkService.save(sinkInfo, operator);
+            }
+        }
+
+        LOGGER.info("success to save all stream page info");
+        return true;
+    }
+
+    @Transactional(rollbackFor = Throwable.class)
+    @Override
+    public boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator) {
+        if (CollectionUtils.isEmpty(fullStreamRequestList)) {
+            return true;
+        }
+        LOGGER.info("begin to batch save all stream page info, batch size={}", fullStreamRequestList.size());
+
+        // Check if it can be added
+        InlongStreamRequest firstStream = fullStreamRequestList.get(0).getStreamInfo();
+        Preconditions.checkNotNull(firstStream, "inlong stream info is empty");
+        String groupId = firstStream.getInlongGroupId();
+        this.checkGroupStatusIsTemp(groupId);
+
+        // This bulk save is only used when creating or editing inlong group after approval is rejected.
+        // To ensure data consistency, you need to physically delete all associated data and then add
+        // Note: There may be records with the same groupId and streamId in the historical data,
+        // and the ones with is_deleted=0 should be deleted
+        streamMapper.deleteAllByGroupId(groupId);
+
+        for (FullStreamRequest pageInfo : fullStreamRequestList) {
+            // Delete the inlong stream extensions and fields corresponding to groupId and streamId
+            InlongStreamRequest streamInfo = pageInfo.getStreamInfo();
+            String streamId = streamInfo.getInlongStreamId();
+            streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
+            streamExtMapper.deleteAllByRelatedId(groupId, streamId);
+            //  Delete all stream source
+            sourceService.deleteAll(groupId, streamId, operator);
+            // Delete all stream sink
+            sinkService.deleteAll(groupId, streamId, operator);
+            // Save the inlong stream of this batch
+            this.saveAll(pageInfo, operator);
+        }
+        LOGGER.info("success to batch save all stream page info");
+        return true;
+    }
+
+    @Override
+    public PageInfo<FullStreamResponse> listAllWithGroupId(InlongStreamPageRequest request) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("begin to list full inlong stream page by {}", request);
         }
@@ -384,6 +456,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
 
         // Convert and encapsulate the paged results
+        List<FullStreamResponse> responseList = new ArrayList<>(streamInfoList.size());
         for (InlongStreamInfo streamInfo : streamInfoList) {
             // Set the field information of the inlong stream
             String streamId = streamInfo.getInlongStreamId();
@@ -393,16 +466,22 @@ public class InlongStreamServiceImpl implements InlongStreamService {
                     streamExtMapper.selectByRelatedId(groupId, streamId), InlongStreamExtInfo::new);
             streamInfo.setExtList(streamExtInfos);
 
+            FullStreamResponse pageInfo = new FullStreamResponse();
+            pageInfo.setStreamInfo(streamInfo);
+
             // Query stream sources information
             List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
-            streamInfo.setSourceList(sourceList);
+            pageInfo.setSourceInfo(sourceList);
 
             // Query various stream sinks and its extended information, field information
             List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
-            streamInfo.setSinkList(sinkList);
+            pageInfo.setSinkInfo(sinkList);
+
+            // Add a single result to the paginated list
+            responseList.add(pageInfo);
         }
 
-        PageInfo<InlongStreamInfo> pageInfo = new PageInfo<>(streamInfoList);
+        PageInfo<FullStreamResponse> pageInfo = new PageInfo<>(responseList);
         pageInfo.setTotal(pageInfo.getTotal());
 
         LOGGER.debug("success to list full inlong stream info");

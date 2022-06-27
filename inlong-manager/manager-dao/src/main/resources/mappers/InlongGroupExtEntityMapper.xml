@@ -146,7 +146,7 @@
     </update>
     <update id="logicDeleteAllByGroupId">
         update inlong_group_ext
-        set is_deleted = id
+        set is_deleted = 1
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and is_deleted = 0
     </update>

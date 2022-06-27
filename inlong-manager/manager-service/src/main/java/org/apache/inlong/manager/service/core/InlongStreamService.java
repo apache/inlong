@@ -18,6 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
+import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -115,12 +117,32 @@ public interface InlongStreamService {
     List<InlongStreamBriefInfo> getBriefList(String groupId);
 
     /**
+     * Save all information related to the inlong stream, its data source, and stream sink
+     *
+     * @param fullStreamRequest All information on the page
+     * @param operator Edit person's name
+     * @return Whether the save was successful
+     */
+    boolean saveAll(FullStreamRequest fullStreamRequest, String operator);
+
+    /**
+     * Save inlong streams, their data sources, and all information related to stream sink in batches
+     *
+     * @param fullStreamRequestList List of inlong stream page information
+     * @param operator Edit person's name
+     * @return Whether the save was successful
+     * @apiNote This interface is only used when creating a new inlong group. To ensure data consistency,
+     *         all associated data needs to be physically deleted, and then added
+     */
+    boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator);
+
+    /**
      * Paging query all data of the inlong stream page under the specified groupId
      *
      * @param request Query
      * @return Paging list of all data on the inlong stream page
      */
-    PageInfo<InlongStreamInfo> listAllWithGroupId(InlongStreamPageRequest request);
+    PageInfo<FullStreamResponse> listAllWithGroupId(InlongStreamPageRequest request);
 
     /**
      * According to the group id, query the number of valid inlong streams belonging to this service

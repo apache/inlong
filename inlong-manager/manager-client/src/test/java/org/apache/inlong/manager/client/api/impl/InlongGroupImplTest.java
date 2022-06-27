@@ -23,9 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- * Unit test for {@link InlongGroupImpl}
- */
 class InlongGroupImplTest {
 
     @Test

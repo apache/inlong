@@ -96,9 +96,4 @@ public class BlankInlongGroup implements InlongGroup {
     public List<InlongStream> listStreams() throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
-
-    @Override
-    public InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception {
-        throw new UnsupportedOperationException("Inlong group is not exists");
-    }
 }

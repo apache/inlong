@@ -31,7 +31,6 @@ import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +43,6 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * User related interface
  */
-@Validated
 @RestController
 @RequestMapping("/user")
 @Api(tags = "User - Auth")
@@ -62,7 +60,8 @@ public class UserController {
     @PostMapping("/register")
     @ApiOperation(value = "Register user")
     @RequiresRoles(value = UserRoleCode.ADMIN)
-    public Response<Boolean> register(@Validated @RequestBody UserInfo userInfo) {
+    public Response<Boolean> register(@RequestBody UserInfo userInfo) {
+        userInfo.checkValid();
         return Response.success(userService.create(userInfo));
     }
 
@@ -74,7 +73,7 @@ public class UserController {
 
     @PostMapping("/update")
     @ApiOperation(value = "Update user info")
-    public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
+    public Response<Integer> update(@RequestBody UserInfo userInfo) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
         return Response.success(userService.update(userInfo, currentUser));
     }
