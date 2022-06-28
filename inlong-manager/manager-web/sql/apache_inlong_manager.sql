@@ -190,26 +190,6 @@ CREATE TABLE IF NOT EXISTS `consumption_pulsar`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Pulsar consumption table';
 
 -- ----------------------------
--- Table structure for data_schema
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `data_schema`
-(
-    `id`                 int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `name`               varchar(128) NOT NULL COMMENT 'Data format name, globally unique',
-    `agent_type`         varchar(20)  NOT NULL COMMENT 'Agent type: file, db_incr, db_full',
-    `data_generate_rule` varchar(32)  NOT NULL COMMENT 'Data file generation rules, including day and hour',
-    `sort_type`          int(11)      NOT NULL COMMENT 'sort logic rules, 0, 5, 9, 10, 13, 15',
-    `time_offset`        varchar(10)  NOT NULL COMMENT 'time offset',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_schema_name` (`name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Data format table';
-
--- create default data schema
-INSERT INTO `data_schema` (name, agent_type, data_generate_rule, sort_type, time_offset)
-values ('m0_day', 'file_agent', 'day', 0, '-0d');
-
--- ----------------------------
 -- Table structure for stream_source_cmd_config
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_source_cmd_config`
