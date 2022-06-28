@@ -65,7 +65,7 @@ public class DataProxyController {
             @RequestParam(required = true) String clusterName) {
         DataProxyConfig config = clusterService.getDataProxyConfig(clusterTag, clusterName);
         if (CollectionUtils.isEmpty(config.getMqClusterList()) || CollectionUtils.isEmpty(config.getTopicList())) {
-            return Response.fail("failed to get mq clusters or topics");
+            return Response.fail("Failed to get mq clusters or topics, make sure register mq to manager successfully");
         }
         return Response.success(config);
     }
