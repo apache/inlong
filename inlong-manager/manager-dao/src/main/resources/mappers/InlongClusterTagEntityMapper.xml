@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper">
+    <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
+        <result column="in_charges" jdbcType="VARCHAR" property="inCharges"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="creator" jdbcType="VARCHAR" property="creator"/>
+        <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, cluster_tag, ext_params, in_charges, status, is_deleted, creator, modifier, create_time, modify_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        insert into inlong_cluster_tag (id, cluster_tag, ext_params,
+                                        in_charges, status, is_deleted,
+                                        creator, modifier,
+                                        create_time, modify_time)
+        values (#{id,jdbcType=INTEGER}, #{clusterTag,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR},
+                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
+                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_tag
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByTag" resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_tag
+        where cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+        and is_deleted = 0
+    </select>
+    <select id="selectByCondition"
+            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest"
+            resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_cluster_tag
+        <where>
+            is_deleted = 0
+            <if test="keyword != null and keyword != ''">
+                and cluster_tag like CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        order by modify_time desc
+    </select>
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        update inlong_cluster_tag
+        set cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            ext_params  = #{extParams,jdbcType=LONGVARCHAR},
+            in_charges  = #{inCharges,jdbcType=VARCHAR},
+            status      = #{status,jdbcType=INTEGER},
+            is_deleted  = #{isDeleted,jdbcType=INTEGER},
+            creator     = #{creator,jdbcType=VARCHAR},
+            modifier    = #{modifier,jdbcType=VARCHAR},
+            create_time = #{createTime,jdbcType=TIMESTAMP},
+            modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
+        update inlong_cluster_tag
+        <set>
+            <if test="clusterTag != null">
+                cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            </if>
+            <if test="extParams != null">
+                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="inCharges != null">
+                in_charges = #{inCharges,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=INTEGER},
+            </if>
+            <if test="creator != null">
+                creator = #{creator,jdbcType=VARCHAR},
+            </if>
+            <if test="modifier != null">
+                modifier = #{modifier,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from inlong_cluster_tag
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+</mapper>

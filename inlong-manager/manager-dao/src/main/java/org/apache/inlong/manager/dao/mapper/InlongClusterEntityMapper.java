@@ -29,8 +29,6 @@ public interface InlongClusterEntityMapper {
 
     int insert(InlongClusterEntity record);
 
-    int insertSelective(InlongClusterEntity record);
-
     InlongClusterEntity selectById(Integer id);
 
     /**
@@ -41,9 +39,9 @@ public interface InlongClusterEntityMapper {
 
     List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
 
-    int updateByIdSelective(InlongClusterEntity record);
-
     int updateById(InlongClusterEntity record);
+
+    int updateByIdSelective(InlongClusterEntity record);
 
     int deleteByPrimaryKey(Integer id);
 
