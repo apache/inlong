@@ -402,13 +402,12 @@ public class EncryptUtil {
      */
     public static byte[] aesEncrypt(byte[] plainText, byte[] aesKey) {
         try {
-//          byte[] buffer = Base64.decodeBase64(AESKey);
             SecretKeySpec secretKeySpec = new SecretKeySpec(aesKey, AES);
             Cipher cipher = Cipher.getInstance(AES);
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
             return cipher.doFinal(plainText);
         } catch (Exception e) {
-            logger.error("AESEncrypt error {}", e);
+            logger.error("aesEncrypt error {}", e);
             return null;
         }
     }
@@ -427,7 +426,7 @@ public class EncryptUtil {
             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
             return cipher.doFinal(cipherText);
         } catch (Exception e) {
-            logger.error("AESDecrypt error {}", e);
+            logger.error("aesDecrypt error {}", e);
             return null;
         }
     }
