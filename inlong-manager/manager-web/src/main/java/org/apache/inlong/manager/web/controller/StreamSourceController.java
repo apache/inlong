@@ -53,7 +53,7 @@ public class StreamSourceController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated @RequestBody SourceRequest request) {
-        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(sourceService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
@@ -73,7 +73,7 @@ public class StreamSourceController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify stream source")
     public Response<Boolean> update(@Validated @RequestBody SourceRequest request) {
-        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(sourceService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -81,7 +81,7 @@ public class StreamSourceController {
     @ApiOperation(value = "Delete stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sourceService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName());
+        boolean result = sourceService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(result);
     }
 

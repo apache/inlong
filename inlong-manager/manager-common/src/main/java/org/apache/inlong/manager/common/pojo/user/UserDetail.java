@@ -28,17 +28,17 @@ import java.util.Set;
 public class UserDetail {
 
     @ApiModelProperty(value = "username")
-    private String userName;
+    private String username;
 
     @ApiModelProperty(value = "user roles")
     private Set<String> roles;
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public UserDetail setUserName(String userName) {
-        this.userName = userName;
+    public UserDetail setUsername(String username) {
+        this.username = username;
         return this;
     }
 

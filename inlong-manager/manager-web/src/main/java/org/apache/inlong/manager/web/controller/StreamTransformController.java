@@ -54,7 +54,7 @@ public class StreamTransformController {
     @ApiOperation(value = "Save stream transform")
     public Response<Integer> save(@Validated @RequestBody TransformRequest request) {
         return Response.success(
-                streamTransformService.save(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+                streamTransformService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -69,7 +69,7 @@ public class StreamTransformController {
     @ApiOperation(value = "Modify stream source")
     public Response<Boolean> update(@Validated @RequestBody TransformRequest request) {
         return Response.success(
-                streamTransformService.update(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+                streamTransformService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
@@ -79,6 +79,6 @@ public class StreamTransformController {
             @RequestParam("inlongStreamId") String streamId, @RequestParam("transformName") String transformName) {
         return Response.success(
                 streamTransformService.delete(groupId, streamId, transformName,
-                        LoginUserUtils.getLoginUserDetail().getUserName()));
+                        LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 }

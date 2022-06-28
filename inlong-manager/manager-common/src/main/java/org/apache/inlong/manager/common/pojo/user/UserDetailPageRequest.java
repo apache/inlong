@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 @EqualsAndHashCode(callSuper = false)
 public class UserDetailPageRequest extends PageRequest {
 
-    public String userName;
+    public String username;
 
     public Integer type;
 

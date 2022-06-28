@@ -104,7 +104,7 @@ public class InnerInlongManagerClient {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(
-                        new AuthInterceptor(defaultAuthentication.getUserName(), defaultAuthentication.getPassword()))
+                        new AuthInterceptor(defaultAuthentication.getUsername(), defaultAuthentication.getPassword()))
                 .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
                 .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
                 .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())

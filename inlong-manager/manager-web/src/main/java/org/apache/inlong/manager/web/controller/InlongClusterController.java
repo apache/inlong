@@ -59,7 +59,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@RequestBody InlongClusterRequest request) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.save(request, currentUser));
     }
 
@@ -80,7 +80,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster")
     public Response<Boolean> update(@RequestBody InlongClusterRequest request) {
-        String username = LoginUserUtils.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.update(request, username));
     }
 
@@ -90,14 +90,14 @@ public class InlongClusterController {
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(clusterService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @PostMapping(value = "/node/save")
     @ApiOperation(value = "Save cluster node")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> saveNode(@RequestBody ClusterNodeRequest request) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.saveNode(request, currentUser));
     }
 
@@ -118,7 +118,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster node")
     public Response<Boolean> updateNode(@RequestBody ClusterNodeRequest request) {
-        String username = LoginUserUtils.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.updateNode(request, username));
     }
 
@@ -127,7 +127,7 @@ public class InlongClusterController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "id", value = "Cluster node id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
-        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
 }
