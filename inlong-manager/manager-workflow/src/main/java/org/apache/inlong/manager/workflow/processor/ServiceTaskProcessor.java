@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
@@ -120,6 +121,10 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     }
 
     private void resetActionContext(WorkflowContext context) {
+        if (CollectionUtils.isEmpty(context.getNewTaskList())) {
+            // direct complete request where the action context is already present
+            return;
+        }
         context.setActionContext(
                 new WorkflowContext.ActionContext()
                         .setTask((WorkflowTask) context.getCurrentElement())
