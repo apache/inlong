@@ -1700,7 +1700,7 @@
                         <exclude>
                             **/manager-service/src/test/resources/plugins/manager-plugin-examples.jar
                         </exclude>
-                        <!-- Test case: flink sql don't support comment -->
+                        <!-- Test case: flink sql comments statement support limit for end2end test cases -->
                         <exclude>**/resources/flinkSql/**</exclude>
 
                         <!-- Referenced 3rd codes -->
