@@ -134,21 +134,6 @@ start_inlong_agent() {
   wait_port_to_listen agent ${agent_port}
 }
 
-# register dataproxy for standalone
-register_service() {
-  curl --header "Content-Type: application/json" --request POST http://${manager_server_hostname}:${manager_server_port}/api/inlong/manager/openapi/cluster/save --data '
-  {
-     "name": "default_dataproxy",
-     "type": "DATA_PROXY",
-     "ip": "127.0.0.7",
-     "port": 46801,
-     "mqSetName": "default_set_name",
-     "inCharges": "admin",
-     "creator": "admin"
-  }
-  '
-}
-
 # start inlong
 start_inlong_all() {
   echo "init configuration"
