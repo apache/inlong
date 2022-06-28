@@ -58,6 +58,7 @@ public class EncryptUtil {
      * load key
      *
      * @param path path
+     *
      * @throws Exception exception
      */
     public static String loadPublicKeyByFileText(String path) throws Exception {
@@ -146,6 +147,7 @@ public class EncryptUtil {
      *
      * @param path key path
      * @return whether success
+     *
      * @throws Exception
      */
     public static String loadPrivateKeyByFileText(String path) throws Exception {
@@ -194,6 +196,7 @@ public class EncryptUtil {
      * load private key by text
      *
      * @param privateKeyStr private key
+     *
      * @throws Exception exception
      */
     public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr)
@@ -235,6 +238,7 @@ public class EncryptUtil {
      * @param publicKey public key
      * @param data data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] rsaEncrypt(RSAPublicKey publicKey, byte[] data)
@@ -265,11 +269,12 @@ public class EncryptUtil {
     }
 
     /**
-     * key encrypt
+     * key decrypt
      *
      * @param privateKey key
      * @param encryptedData data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] decryptByPrivateKey(RSAPrivateKey privateKey, byte[] encryptedData)
@@ -303,6 +308,7 @@ public class EncryptUtil {
      * @param privateKey private key
      * @param cipherData data
      * @return message
+     *
      * @throws Exception exception
      */
     public static byte[] rsaDecrypt(RSAPrivateKey privateKey, byte[] cipherData)
@@ -337,6 +343,7 @@ public class EncryptUtil {
      * @param publicKey public key
      * @param cipherData cipher data
      * @return
+     *
      * @throws Exception exception
      */
     public static byte[] rsaDecrypt(RSAPublicKey publicKey, byte[] cipherData)
