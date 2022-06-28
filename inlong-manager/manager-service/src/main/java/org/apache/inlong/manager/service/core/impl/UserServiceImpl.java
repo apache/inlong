@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
             entity.setPrivateKey(privateKey);
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
-            log.error(errMsg);
+            log.error("generate rsa key error ", e);
             throw new BusinessException(errMsg);
         }
 
