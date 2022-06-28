@@ -72,6 +72,10 @@ init_inlong_manager() {
     sed -i 's/spring.datasource.druid.username=.*/'''spring.datasource.druid.username=${spring_datasource_username}'''/g' application-prod.properties
     sed -i 's/spring.datasource.druid.password=.*/'''spring.datasource.druid.password=${spring_datasource_password}'''/g' application-prod.properties
   fi
+  echo "Init inlong manager flink plugin configuration"
+  cd $INLONG_HOME/inlong-manager/plugins
+  sed -i 's/flink.rest.address=.*/'''flink.rest.address=${flink_rest_address}'''/g' flink-sort-plugin.properties
+  sed -i 's/flink.rest.port=.*/'''flink.rest.port=${flink_rest_port}'''/g' flink-sort-plugin.properties
 }
 
 if [ $# -eq 0 ]; then
