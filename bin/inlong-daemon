@@ -147,7 +147,6 @@ start_inlong_all() {
   start_inlong_dashboard
   # start inlong dataproxy
   start_inlong_dataproxy
-  register_service
   # start inlong agent
   start_inlong_agent
 }
