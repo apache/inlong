@@ -24,9 +24,12 @@ import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
@@ -38,6 +41,8 @@ import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * Delete Pulsar tenant, namespace and topic after group is operated to delete
  */
@@ -47,6 +52,8 @@ public class DeletePulsarResourceTaskListener implements QueueOperateListener {
 
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
     @Autowired
     private InlongClusterService clusterService;
     @Autowired
@@ -81,18 +88,28 @@ public class DeletePulsarResourceTaskListener implements QueueOperateListener {
     }
 
     /**
-     * Delete Pulsar namespace forcefully
+     * Delete all Pulsar topics forcefully
      */
     private void deletePulsarProcess(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster) throws Exception {
         String groupId = pulsarInfo.getInlongGroupId();
         log.info("begin to delete pulsar resource for groupId={} in cluster={}", groupId, pulsarCluster);
-
-        String namespace = pulsarInfo.getMqResource();
+        final String tenant = pulsarCluster.getTenant();
+        final String namespace = pulsarInfo.getMqResource();
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty for groupId=" + groupId);
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
-            String tenant = pulsarCluster.getTenant();
-            // create pulsar namespace
-            pulsarOperator.forceDeleteNamespace(pulsarAdmin, tenant, namespace);
+            List<InlongStreamBriefInfo> streamTopicList = streamService.getTopicList(groupId);
+            for (InlongStreamBriefInfo streamInfo : streamTopicList) {
+                final String topic = streamInfo.getMqResource();
+                if (topic == null) {
+                    continue;
+                }
+                PulsarTopicBean topicBean = PulsarTopicBean.builder()
+                        .tenant(tenant)
+                        .namespace(namespace)
+                        .topicName(topic)
+                        .build();
+                pulsarOperator.forceDeleteTopic(pulsarAdmin, topicBean);
+            }
         }
         log.info("finish to delete pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
     }
