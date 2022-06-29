@@ -44,8 +44,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
@@ -56,6 +56,8 @@ public class UdpClientExample {
     private static final Logger logger = LoggerFactory.getLogger(UdpClientExample.class);
 
     private static SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+
+    private static SecureRandom random = new SecureRandom();
 
     public static void main(String[] args) {
         long sentCount = 10;
@@ -93,10 +95,10 @@ public class UdpClientExample {
     }
 
     public static String getRandomString(int length) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String string = "i am bus test client!";
         for (int i = 0; i < length; i++) {
-            int number = new Random().nextInt(string.length());
+            int number = random.nextInt(string.length());
             sb.append(string.charAt(number));
         }
         return sb.toString();
@@ -199,7 +201,7 @@ public class UdpClientExample {
                         endAttr = endAttr + "_userName=" + object.getUserName() + "&_encyVersion="
                                 + encryptInfo.getVersion() + "&_encyAesKey="
                                 + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getDesKey());
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (!object.isGroupIdTransfer()) {

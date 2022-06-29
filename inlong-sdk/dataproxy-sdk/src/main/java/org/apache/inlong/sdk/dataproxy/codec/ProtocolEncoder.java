@@ -137,7 +137,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     endAttr = endAttr + "_userName=" + object.getUserName()
                             + "&_encyVersion=" + encryptInfo.getVersion()
                             + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
-                    body = EncryptUtil.aesEncrypt(body, encryptInfo.getDesKey());
+                    body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                 }
             }
             if (!object.isGroupIdTransfer()) {
@@ -289,7 +289,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         msgAttrs = msgAttrs + "_userName=" + object.getUserName()
                                 + "&_encyVersion=" + encryptInfo.getVersion()
                                 + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getDesKey());
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {
@@ -379,7 +379,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         msgAttrs = msgAttrs + "_userName=" + object.getUserName()
                                 + "&_encyVersion=" + encryptInfo.getVersion()
                                 + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getDesKey());
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {

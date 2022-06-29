@@ -28,8 +28,7 @@ public class EncryptUtilTest {
 
     @Test
     public void testEncryptDecrypt() {
-        String plainText = "TDB-30001 Create Tdw Table Error26880 FAILED: "
-                + "TDWServer run SQL error (session: 6425308280519064 query: CREATE TABLE a";
+        String plainText = "some arbitrary text to encrypt";
 
         byte[] key = EncryptUtil.generateAesKey();
         Assert.assertEquals(key.length, EncryptUtil.AES_KEY_SIZE / 8);
