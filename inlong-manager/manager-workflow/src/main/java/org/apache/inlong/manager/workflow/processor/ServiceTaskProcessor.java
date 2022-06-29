@@ -122,7 +122,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
 
     private void resetActionContext(WorkflowContext context) {
         if (CollectionUtils.isEmpty(context.getNewTaskList())) {
-            // direct complete request where the action context is already present
+            // independent complete request when the action context is already built
             return;
         }
         context.setActionContext(
