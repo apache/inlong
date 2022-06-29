@@ -88,7 +88,6 @@ public class GroupApproveProcessListener implements ProcessEventListener {
         String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);
-        log.info("===> group approved, start CREATE_GROUP_RESOURCE");
         workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
     }
 
