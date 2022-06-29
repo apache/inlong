@@ -47,7 +47,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer saveDataProxyCluster(String clusterTag, String clusterName, String extTag) {
         DataProxyClusterRequest request = new DataProxyClusterRequest();
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setName(clusterName);
         request.setType(ClusterType.CLS_DATA_PROXY);
         request.setExtTag(extTag);
@@ -60,7 +60,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
         PulsarClusterRequest request = new PulsarClusterRequest();
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setName(clusterName);
         request.setType(ClusterType.CLS_PULSAR);
         request.setAdminUrl(adminUrl);
@@ -86,7 +86,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.update(request, GLOBAL_OPERATOR);

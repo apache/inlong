@@ -680,9 +680,9 @@ class InnerInlongManagerClientTest {
         InlongClusterRequest request = new InlongClusterRequest();
         request.setName("pulsar");
         request.setType("PULSAR");
-        request.setClusterTag("test_cluster");
+        request.setClusterTags("test_cluster");
         Integer clusterIndex = innerInlongManagerClient.saveCluster(request);
-        Assertions.assertTrue(clusterIndex == 1);
+        Assertions.assertEquals(1, (int) clusterIndex);
     }
 
 }

@@ -192,7 +192,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
 
         // check if the cluster already exist
-        String clusterTag = request.getClusterTag();
+        String clusterTag = request.getClusterTags();
         String name = request.getName();
         String type = request.getType();
         List<InlongClusterEntity> exist = clusterMapper.selectByKey(clusterTag, name, type);
@@ -263,7 +263,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
 
         // check whether the cluster already exists
-        String clusterTag = request.getClusterTag();
+        String clusterTag = request.getClusterTags();
         String name = request.getName();
         String type = request.getType();
         List<InlongClusterEntity> exist = clusterMapper.selectByKey(clusterTag, name, type);
@@ -466,7 +466,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         // get all inlong groups which was successful and belongs to this data proxy cluster
         List<String> clusterTagList = clusterList.stream()
-                .map(InlongClusterEntity::getClusterTag)
+                .map(InlongClusterEntity::getClusterTags)
                 .collect(Collectors.toList());
         InlongGroupPageRequest groupRequest = InlongGroupPageRequest.builder()
                 .status(GroupStatus.CONFIG_SUCCESSFUL.getCode())
