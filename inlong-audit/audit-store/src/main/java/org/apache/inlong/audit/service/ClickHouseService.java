@@ -50,7 +50,7 @@ public class ClickHouseService implements InsertData, AutoCloseable {
 
     private ClickHouseConfig chConfig;
 
-    private ScheduledExecutorService timerService = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService timerService = Executors.newSingleThreadScheduledExecutor();
     private LinkedBlockingQueue<ClickHouseDataPo> batchQueue;
     private AtomicBoolean needBatchOutput = new AtomicBoolean(false);
     private AtomicInteger batchCounter = new AtomicInteger(0);
