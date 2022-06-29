@@ -28,7 +28,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sort-e2e-tests</artifactId>
+    <artifactId>sort-end-to-end-tests</artifactId>
     <name>Apache InLong - Sort End to End Tests</name>
 
 
