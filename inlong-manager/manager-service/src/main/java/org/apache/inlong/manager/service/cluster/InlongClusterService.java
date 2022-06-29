@@ -21,6 +21,9 @@ import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
@@ -32,6 +35,49 @@ import java.util.List;
  * Inlong cluster service layer interface
  */
 public interface InlongClusterService {
+
+    /**
+     * Save cluster tag.
+     *
+     * @param request cluster tag
+     * @param operator name of operator
+     * @return cluster tag id after saving
+     */
+    Integer saveTag(ClusterTagRequest request, String operator);
+
+    /**
+     * Get cluster tag by id.
+     *
+     * @param id cluster tag id
+     * @return cluster tag info
+     */
+    ClusterTagResponse getTag(Integer id);
+
+    /**
+     * Paging query cluster tags according to conditions.
+     *
+     * @param request page request conditions
+     * @return cluster tag list
+     */
+    PageInfo<ClusterTagResponse> listTag(ClusterTagPageRequest request);
+
+    /**
+     * Update cluster tag.
+     *
+     * @param request cluster tag to be modified
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean updateTag(ClusterTagRequest request, String operator);
+
+    /**
+     * Delete cluster tag.
+     *
+     * @param id cluster tag id to be deleted
+     * @param operator current operator
+     * @return whether succeed
+     */
+    Boolean deleteTag(Integer id, String operator);
 
     /**
      * Save cluster info.

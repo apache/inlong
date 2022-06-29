@@ -25,7 +25,7 @@
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="url" jdbcType="VARCHAR" property="url"/>
-        <result column="cluster_tag" jdbcType="VARCHAR" property="clusterTag"/>
+        <result column="cluster_tags" jdbcType="VARCHAR" property="clusterTags"/>
         <result column="ext_tag" jdbcType="VARCHAR" property="extTag"/>
         <result column="token" jdbcType="VARCHAR" property="token"/>
         <result column="ext_params" jdbcType="LONGVARCHAR" property="extParams"/>
@@ -39,128 +39,24 @@
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, name, type, url, cluster_tag, ext_tag, token, ext_params, heartbeat,
+        id, name, type, url, cluster_tags, ext_tag, token, ext_params, heartbeat,
         in_charges, status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         insert into inlong_cluster (id, name, type,
-                                    url, cluster_tag, ext_tag,
+                                    url, cluster_tags, ext_tag,
                                     token, ext_params, heartbeat,
                                     in_charges, status, is_deleted,
                                     creator, modifier,
                                     create_time, modify_time)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{clusterTag,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
+                #{url,jdbcType=VARCHAR}, #{clusterTags,jdbcType=VARCHAR}, #{extTag,jdbcType=VARCHAR},
                 #{token,jdbcType=VARCHAR}, #{extParams,jdbcType=LONGVARCHAR}, #{heartbeat,jdbcType=LONGVARCHAR},
                 #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
                 #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
-    </insert>
-    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
-            parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        insert into inlong_cluster
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
-            <if test="name != null">
-                name,
-            </if>
-            <if test="type != null">
-                type,
-            </if>
-            <if test="url != null">
-                url,
-            </if>
-            <if test="clusterTag != null">
-                cluster_tag,
-            </if>
-            <if test="extTag != null">
-                ext_tag,
-            </if>
-            <if test="token != null">
-                token,
-            </if>
-            <if test="inCharges != null">
-                in_charges,
-            </if>
-            <if test="status != null">
-                status,
-            </if>
-            <if test="isDeleted != null">
-                is_deleted,
-            </if>
-            <if test="creator != null">
-                creator,
-            </if>
-            <if test="modifier != null">
-                modifier,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="modifyTime != null">
-                modify_time,
-            </if>
-            <if test="extParams != null">
-                ext_params,
-            </if>
-            <if test="heartbeat != null">
-                heartbeat,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=INTEGER},
-            </if>
-            <if test="name != null">
-                #{name,jdbcType=VARCHAR},
-            </if>
-            <if test="type != null">
-                #{type,jdbcType=VARCHAR},
-            </if>
-            <if test="url != null">
-                #{url,jdbcType=VARCHAR},
-            </if>
-            <if test="clusterTag != null">
-                #{clusterTag,jdbcType=VARCHAR},
-            </if>
-            <if test="extTag != null">
-                #{extTag,jdbcType=VARCHAR},
-            </if>
-            <if test="token != null">
-                #{token,jdbcType=VARCHAR},
-            </if>
-            <if test="inCharges != null">
-                #{inCharges,jdbcType=VARCHAR},
-            </if>
-            <if test="status != null">
-                #{status,jdbcType=INTEGER},
-            </if>
-            <if test="isDeleted != null">
-                #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                #{creator,jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                #{modifier,jdbcType=VARCHAR},
-            </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="extParams != null">
-                #{extParams,jdbcType=LONGVARCHAR},
-            </if>
-            <if test="heartbeat != null">
-                #{heartbeat,jdbcType=LONGVARCHAR},
-            </if>
-        </trim>
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -169,26 +65,6 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
-
-    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
-        update inlong_cluster
-        set name        = #{name,jdbcType=VARCHAR},
-            type        = #{type,jdbcType=VARCHAR},
-            url         = #{url,jdbcType=VARCHAR},
-            cluster_tag = #{clusterTag,jdbcType=VARCHAR},
-            ext_tag     = #{extTag,jdbcType=VARCHAR},
-            token       = #{token,jdbcType=VARCHAR},
-            ext_params  = #{extParams,jdbcType=LONGVARCHAR},
-            heartbeat   = #{heartbeat,jdbcType=LONGVARCHAR},
-            in_charges  = #{inCharges,jdbcType=VARCHAR},
-            status      = #{status,jdbcType=INTEGER},
-            is_deleted  = #{isDeleted,jdbcType=INTEGER},
-            creator     = #{creator,jdbcType=VARCHAR},
-            modifier    = #{modifier,jdbcType=VARCHAR},
-            create_time = #{createTime,jdbcType=TIMESTAMP},
-            modify_time = #{modifyTime,jdbcType=TIMESTAMP}
-        where id = #{id,jdbcType=INTEGER}
-    </update>
     <select id="selectByKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
@@ -198,7 +74,7 @@
             is_deleted = 0
             and `type` = #{type, jdbcType=VARCHAR}
             <if test="clusterTag != null and clusterTag != ''">
-                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+                and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
             <if test="name != null and name != ''">
                 and name = #{name, jdbcType=VARCHAR}
@@ -227,16 +103,15 @@
                 </foreach>
             </if>
             <if test="clusterTag != null and clusterTag != ''">
-                and cluster_tag = #{clusterTag, jdbcType=VARCHAR}
+                and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
             <if test="extTag != null and extTag != ''">
                 and ext_tag = #{extTag, jdbcType=VARCHAR}
             </if>
             <if test="keyword != null and keyword != ''">
                 name like CONCAT('%', #{keyword}, '%')
-                or cluster_tag like CONCAT('%', #{keyword}, '%')
+                or cluster_tags like CONCAT('%', #{keyword}, '%')
                 or ext_tag like CONCAT('%', #{keyword}, '%')
-                or url like CONCAT('%', #{keyword}, '%')
                 )
             </if>
             <if test="status != null and status != ''">
@@ -246,6 +121,25 @@
         order by modify_time desc
     </select>
 
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+        update inlong_cluster
+        set name         = #{name,jdbcType=VARCHAR},
+            type         = #{type,jdbcType=VARCHAR},
+            url          = #{url,jdbcType=VARCHAR},
+            cluster_tags = #{clusterTags,jdbcType=VARCHAR},
+            ext_tag      = #{extTag,jdbcType=VARCHAR},
+            token        = #{token,jdbcType=VARCHAR},
+            ext_params   = #{extParams,jdbcType=LONGVARCHAR},
+            heartbeat    = #{heartbeat,jdbcType=LONGVARCHAR},
+            in_charges   = #{inCharges,jdbcType=VARCHAR},
+            status       = #{status,jdbcType=INTEGER},
+            is_deleted   = #{isDeleted,jdbcType=INTEGER},
+            creator      = #{creator,jdbcType=VARCHAR},
+            modifier     = #{modifier,jdbcType=VARCHAR},
+            create_time  = #{createTime,jdbcType=TIMESTAMP},
+            modify_time  = #{modifyTime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
         <set>
@@ -258,8 +152,8 @@
             <if test="url != null">
                 url = #{url,jdbcType=VARCHAR},
             </if>
-            <if test="clusterTag != null">
-                cluster_tag = #{clusterTag,jdbcType=VARCHAR},
+            <if test="clusterTags != null">
+                cluster_tags = #{clusterTags,jdbcType=VARCHAR},
             </if>
             <if test="extTag != null">
                 ext_tag = #{extTag,jdbcType=VARCHAR},

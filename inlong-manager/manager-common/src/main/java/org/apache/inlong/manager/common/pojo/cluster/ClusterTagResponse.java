@@ -15,38 +15,47 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong cluster entity, including name, type, cluster tag, etc.
+ * Inlong cluster tag response
  */
 @Data
-public class InlongClusterEntity implements Serializable {
+@ApiModel("Cluster tag response")
+public class ClusterTagResponse {
 
-    private static final long serialVersionUID = 1L;
-
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
-    private String name;
-    private String type;
-    private String url;
-    private String clusterTags;
-    private String extTag;
-    private String token;
 
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
+
+    @ApiModelProperty(value = "Extended params")
     private String extParams;
-    private String heartbeat;
+
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 
+    @ApiModelProperty(value = "Cluster status")
     private Integer status;
-    private Integer isDeleted;
+
+    @ApiModelProperty(value = "Name of in creator")
     private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
     private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
 }

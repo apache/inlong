@@ -18,30 +18,27 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
-import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface InlongClusterNodeEntityMapper {
+public interface InlongClusterTagEntityMapper {
 
-    int insert(InlongClusterNodeEntity record);
+    int insert(InlongClusterTagEntity record);
 
-    InlongClusterNodeEntity selectById(Integer id);
+    InlongClusterTagEntity selectById(Integer id);
 
-    InlongClusterNodeEntity selectByUniqueKey(ClusterNodeRequest request);
+    InlongClusterTagEntity selectByTag(@Param("clusterTag") String clusterTag);
 
-    List<InlongClusterNodeEntity> selectByCondition(InlongClusterPageRequest request);
+    List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
 
-    List<InlongClusterNodeEntity> selectByParentId(@Param("parentId") Integer parentId);
+    int updateById(InlongClusterTagEntity record);
 
-    int updateById(InlongClusterNodeEntity record);
+    int updateByPrimaryKeySelective(InlongClusterTagEntity record);
 
-    int updateByIdSelective(InlongClusterNodeEntity record);
-
-    int deleteById(Integer id);
+    int deleteByPrimaryKey(Integer id);
 
 }

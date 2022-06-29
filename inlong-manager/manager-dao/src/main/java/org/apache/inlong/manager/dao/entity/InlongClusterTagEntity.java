@@ -23,25 +23,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Inlong cluster entity, including name, type, cluster tag, etc.
+ * Inlong cluster tag entity.
  */
 @Data
-public class InlongClusterEntity implements Serializable {
+public class InlongClusterTagEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     private Integer id;
-    private String name;
-    private String type;
-    private String url;
-    private String clusterTags;
-    private String extTag;
-    private String token;
-
+    private String clusterTag;
     private String extParams;
-    private String heartbeat;
     private String inCharges;
-
     private Integer status;
     private Integer isDeleted;
     private String creator;

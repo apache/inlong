@@ -53,8 +53,8 @@ public class InlongClusterRequest {
     private String url;
 
     @NotBlank
-    @ApiModelProperty(value = "Cluster tag")
-    private String clusterTag;
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
 
     @ApiModelProperty(value = "Extension tag")
     private String extTag;

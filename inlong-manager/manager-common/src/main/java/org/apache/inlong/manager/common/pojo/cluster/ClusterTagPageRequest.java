@@ -15,38 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.cluster;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
-import java.util.Date;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
- * Inlong cluster entity, including name, type, cluster tag, etc.
+ * Cluster tag paging query conditions
  */
 @Data
-public class InlongClusterEntity implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Cluster tag paging query request")
+public class ClusterTagPageRequest extends PageRequest {
 
-    private static final long serialVersionUID = 1L;
+    @ApiModelProperty(value = "Keywords, used for fuzzy query")
+    private String keyword;
 
-    private Integer id;
-    private String name;
-    private String type;
-    private String url;
-    private String clusterTags;
-    private String extTag;
-    private String token;
-
-    private String extParams;
-    private String heartbeat;
-    private String inCharges;
-
+    @ApiModelProperty(value = "Status")
     private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
+
+    @ApiModelProperty(value = "Current user", hidden = true)
+    private String currentUser;
 
 }

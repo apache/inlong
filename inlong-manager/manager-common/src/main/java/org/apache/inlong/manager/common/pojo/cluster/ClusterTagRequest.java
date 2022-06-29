@@ -15,38 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.cluster;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.Date;
+import javax.validation.constraints.NotNull;
 
 /**
- * Inlong cluster entity, including name, type, cluster tag, etc.
+ * Inlong cluster tag request
  */
 @Data
-public class InlongClusterEntity implements Serializable {
+@ApiModel("Cluster tag request")
+public class ClusterTagRequest {
 
-    private static final long serialVersionUID = 1L;
-
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
-    private String name;
-    private String type;
-    private String url;
-    private String clusterTags;
-    private String extTag;
-    private String token;
 
+    @NotNull
+    @ApiModelProperty(value = "Cluster type")
+    private String clusterTag;
+
+    @ApiModelProperty(value = "Extended params")
     private String extParams;
-    private String heartbeat;
-    private String inCharges;
 
-    private Integer status;
-    private Integer isDeleted;
-    private String creator;
-    private String modifier;
-    private Date createTime;
-    private Date modifyTime;
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
+    private String inCharges;
 
 }

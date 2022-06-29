@@ -104,7 +104,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
-            fields.stream().forEach(sinkField -> sinkField.setId(null));
+            fields.forEach(sinkField -> sinkField.setId(null));
         }
         int id = operation.saveOpt(request, operator);
 
