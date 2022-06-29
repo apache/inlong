@@ -99,13 +99,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer saveTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to save cluster tag {}", request);
-        Preconditions.checkNotNull(request, "cluster tag cannot be empty");
+        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.checkNotNull(request.getClusterTag(), "cluster tag cannot be empty");
 
         // check if the cluster tag already exist
         String clusterTag = request.getClusterTag();
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(clusterTag);
         if (exist != null) {
-            String errMsg = String.format("inlong cluster tag already exist for cluster tag=%s", clusterTag);
+            String errMsg = String.format("inlong cluster tag already exist for tag=%s", clusterTag);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -146,7 +147,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean updateTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to update cluster tag={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster tag cannot be empty");
+        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
+        Preconditions.checkNotNull(request.getClusterTag(), "inlong cluster tag cannot be empty");
 
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
@@ -189,7 +191,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Integer save(InlongClusterRequest request, String operator) {
         LOGGER.debug("begin to save inlong cluster={}", request);
-        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
+        Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
 
         // check if the cluster already exist
         String clusterTag = request.getClusterTags();
