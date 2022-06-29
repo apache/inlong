@@ -93,6 +93,7 @@ public abstract class WorkflowTask extends NextableElement implements SkippableE
         cloneTask.setSyncListeners(new HashMap<>(syncListeners));
         cloneTask.setAsyncListeners(new HashMap<>(asyncListeners));
         cloneTask.setNameToListenerMap(new HashMap<>(nameToListenerMap));
+        cloneTask.setSkipResolver(skipResolver);
         return cloneTask;
     }
 

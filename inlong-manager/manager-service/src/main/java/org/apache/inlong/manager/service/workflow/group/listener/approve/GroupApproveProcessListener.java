@@ -26,8 +26,8 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -88,6 +88,7 @@ public class GroupApproveProcessListener implements ProcessEventListener {
         String groupId = groupInfo.getInlongGroupId();
         List<InlongStreamInfo> streamList = streamService.list(groupId);
         processForm.setStreamInfos(streamList);
+        log.info("===> group approved, start CREATE_GROUP_RESOURCE");
         workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
     }
 

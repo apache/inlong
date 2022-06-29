@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.sort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.enums.DataTypeEnum;
@@ -92,11 +91,6 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         final String groupId = groupInfo.getInlongGroupId();
-        List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
-        if (CollectionUtils.isEmpty(streamSinks)) {
-            log.warn("not any sinks found for groupId={}, skip creating sort config", groupId);
-            return ListenerResult.success();
-        }
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
         String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
 

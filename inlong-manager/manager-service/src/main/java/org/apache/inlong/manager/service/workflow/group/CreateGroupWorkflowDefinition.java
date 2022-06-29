@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupCompleteProcessListener;
@@ -28,6 +29,7 @@ import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFact
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
+import org.apache.inlong.manager.workflow.definition.SkipResolver;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,8 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
     private GroupFailedProcessListener groupFailedProcessListener;
     @Autowired
     private GroupTaskListenerFactory groupTaskListenerFactory;
+    @Autowired
+    private StreamSinkService sinkService;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -65,6 +69,10 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         process.setVersion(1);
         process.setHidden(1);
 
+        // skip resolver
+        final SkipResolver emptySinkResolver = context ->
+                sinkService.getCount(context.getProcessForm().getInlongGroupId(), null) == 0;
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
@@ -79,6 +87,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
         // init Sink
         ServiceTask initSinkTask = new ServiceTask();
+        initSinkTask.setSkipResolver(emptySinkResolver);
         initSinkTask.setName("initSink");
         initSinkTask.setDisplayName("Group-InitSink");
         initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
@@ -87,6 +96,7 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
         // init Sort
         ServiceTask initSortTask = new ServiceTask();
+        initSortTask.setSkipResolver(emptySinkResolver);
         initSortTask.setName("initSort");
         initSortTask.setDisplayName("Group-InitSort");
         initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);

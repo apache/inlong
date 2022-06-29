@@ -95,6 +95,7 @@ public class ServiceTask extends WorkflowTask {
     @Override
     public ServiceTask clone() {
         ServiceTask serviceTask = new ServiceTask();
+        serviceTask.setSkipResolver(this.getSkipResolver());
         serviceTask.setName(this.getName());
         serviceTask.setDisplayName(this.getDisplayName());
         serviceTask.addServiceTaskType(this.serviceTaskType);
