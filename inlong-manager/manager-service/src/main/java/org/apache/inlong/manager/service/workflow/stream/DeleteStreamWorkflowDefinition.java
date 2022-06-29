@@ -67,7 +67,7 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        //delete datasource
+        // Delete datasource
         ServiceTask deleteDataSourceTask = new ServiceTask();
         deleteDataSourceTask.setName("deleteSource");
         deleteDataSourceTask.setDisplayName("Stream-DeleteSource");
@@ -75,7 +75,15 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
         deleteDataSourceTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(deleteDataSourceTask);
 
-        //delete sort
+        // Delete MQ
+        ServiceTask deleteMQTask = new ServiceTask();
+        deleteMQTask.setName("deleteMQ");
+        deleteMQTask.setDisplayName("Stream-DeleteMQ");
+        deleteMQTask.addServiceTaskType(ServiceTaskType.DELETE_MQ);
+        deleteMQTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(deleteMQTask);
+
+        // Delete sort
         ServiceTask deleteSortTask = new ServiceTask();
         deleteSortTask.setName("deleteSort");
         deleteSortTask.setDisplayName("Stream-DeleteSort");
@@ -88,7 +96,8 @@ public class DeleteStreamWorkflowDefinition implements WorkflowDefinition {
         process.setEndEvent(endEvent);
 
         startEvent.addNext(deleteDataSourceTask);
-        deleteDataSourceTask.addNext(deleteSortTask);
+        deleteDataSourceTask.addNext(deleteMQTask);
+        deleteMQTask.addNext(deleteSortTask);
         deleteSortTask.addNext(endEvent);
 
         return process;
