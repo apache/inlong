@@ -57,8 +57,6 @@ public class PulsarTopicDeleteSelector implements EventSelector {
                 return false;
             }
         }
-        log.warn("no need to delete pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
-                groupId, streamId, mqType);
         return false;
     }
 }

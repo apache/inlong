@@ -57,8 +57,6 @@ public class PulsarTopicCreateSelector implements EventSelector {
                 return false;
             }
         }
-        log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
-                groupId, streamId, mqType);
         return false;
 
     }
