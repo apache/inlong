@@ -79,6 +79,9 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
+    @ApiModelProperty("ClickHouse table engine")
+    private String engine;
+
     public ClickHouseSink() {
         this.setSinkType(SinkType.SINK_CLICKHOUSE);
     }

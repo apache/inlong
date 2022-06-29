@@ -112,6 +112,12 @@ public class MySQLBinlogSourceDTO {
     @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
     private String primaryKey;
 
+    @ApiModelProperty("Directly read binlog from the specified offset filename")
+    public String specificOffsetFile;
+
+    @ApiModelProperty("Directly read binlog from the specified offset position")
+    public Integer specificOffsetPos;
+
     /**
      * Get the dto instance from the request
      */
@@ -133,6 +139,8 @@ public class MySQLBinlogSourceDTO {
                 .monitoredDdl(request.getMonitoredDdl())
                 .allMigration(request.isAllMigration())
                 .primaryKey(request.getPrimaryKey())
+                .specificOffsetFile(request.getSpecificOffsetFile())
+                .specificOffsetPos(request.getSpecificOffsetPos())
                 .build();
     }
 

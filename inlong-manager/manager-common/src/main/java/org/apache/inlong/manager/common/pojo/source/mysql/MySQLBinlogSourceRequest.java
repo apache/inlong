@@ -107,6 +107,12 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
+    @ApiModelProperty("Directly read binlog from the specified offset filename")
+    public String specificOffsetFile;
+
+    @ApiModelProperty("Directly read binlog from the specified offset position")
+    public Integer specificOffsetPos;
+
     public MySQLBinlogSourceRequest() {
         this.setSourceType(SourceType.BINLOG.toString());
         this.setSerializationType(DataFormat.DEBEZIUM_JSON.getName());
