@@ -91,6 +91,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         List<StreamSink> streamSinks = streamSinkService.listSink(groupId, streamId);
+        addExtInfo(groupInfo, streamInfo, InlongConstants.SINK_COUNT, String.valueOf(streamSinks.size()));
         if (CollectionUtils.isEmpty(streamSinks)) {
             log.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
@@ -102,22 +103,25 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
             StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelations);
             GroupInfo sortGroupInfo = new GroupInfo(groupId, Lists.newArrayList(sortStreamInfo));
             String dataFlows = OBJECT_MAPPER.writeValueAsString(sortGroupInfo);
-            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
-            extInfo.setInlongGroupId(groupId);
-            extInfo.setInlongStreamId(streamId);
-            String keyName = InlongConstants.DATA_FLOW;
-            extInfo.setKeyName(keyName);
-            extInfo.setKeyValue(dataFlows);
-            if (streamInfo.getExtList() == null) {
-                groupInfo.setExtList(Lists.newArrayList());
-            }
-            upsertDataFlow(streamInfo, extInfo, keyName);
+            addExtInfo(groupInfo, streamInfo, InlongConstants.DATA_FLOW, dataFlows);
         } catch (Exception e) {
             log.error("create sort config failed for sink list={} of groupId={}, streamId={}", streamSinks, groupId,
                     streamId, e);
             throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
         return ListenerResult.success();
+    }
+
+    private void addExtInfo(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String key, String value) {
+        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
+        extInfo.setKeyName(key);
+        extInfo.setKeyValue(value);
+        if (streamInfo.getExtList() == null) {
+            streamInfo.setExtList(Lists.newArrayList());
+        }
+        upsertDataFlow(streamInfo, extInfo, key);
     }
 
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {

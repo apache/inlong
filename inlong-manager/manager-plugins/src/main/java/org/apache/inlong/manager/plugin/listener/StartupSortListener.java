@@ -81,6 +81,12 @@ public class StartupSortListener implements SortOperateListener {
             kvConf.putAll(result);
         }
 
+        String sinkCount = kvConf.get(InlongConstants.SINK_COUNT);
+        if (StringUtils.isNotEmpty(sinkCount) && Integer.parseInt(sinkCount) == 0) {
+            log.warn("not any sink configured for group {}, skip launching sort job", groupId);
+            return ListenerResult.success();
+        }
+
         String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);
         if (StringUtils.isEmpty(dataFlows)) {
             String message = String.format("dataflow is empty for groupId [%s]", groupId);

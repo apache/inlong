@@ -22,24 +22,21 @@ import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * WorkflowTask
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class WorkflowTask extends NextableElement implements SkippableElement {
+public abstract class WorkflowTask extends NextableElement {
 
     private boolean needAllApprove = false;
-    private SkipResolver skipResolver = SkipResolver.DEFAULT_NOT_SKIP;
 
     private Map<TaskEvent, List<TaskEventListener>> syncListeners = Maps.newHashMap();
     private Map<TaskEvent, List<TaskEventListener>> asyncListeners = Maps.newHashMap();
@@ -93,15 +90,7 @@ public abstract class WorkflowTask extends NextableElement implements SkippableE
         cloneTask.setSyncListeners(new HashMap<>(syncListeners));
         cloneTask.setAsyncListeners(new HashMap<>(asyncListeners));
         cloneTask.setNameToListenerMap(new HashMap<>(nameToListenerMap));
-        cloneTask.setSkipResolver(skipResolver);
         return cloneTask;
-    }
-
-    @Override
-    public boolean isSkip(WorkflowContext workflowContext) {
-        return Optional.ofNullable(skipResolver)
-                .map(skipResolver -> skipResolver.isSkip(workflowContext))
-                .orElse(false);
     }
 
 }

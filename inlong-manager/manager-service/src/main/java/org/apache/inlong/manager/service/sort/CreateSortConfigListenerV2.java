@@ -89,20 +89,30 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             return ListenerResult.success();
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
-        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         final String groupId = groupInfo.getInlongGroupId();
+        int sinkCount = sinkService.getCount(groupId, null);
+        addExtInfo(groupInfo, InlongConstants.SINK_COUNT, String.valueOf(sinkCount));
+        if (sinkCount == 0) {
+            log.warn("not any sink for group {} found, skip creating sort config", groupId);
+            return ListenerResult.success();
+        }
+
+        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
         String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
+        addExtInfo(groupInfo, InlongConstants.DATA_FLOW, dataFlows);
+        return ListenerResult.success();
+    }
 
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(groupId);
-        extInfo.setKeyName(InlongConstants.DATA_FLOW);
-        extInfo.setKeyValue(dataFlows);
+    private void addExtInfo(InlongGroupInfo groupInfo, String key, String value) {
         if (groupInfo.getExtList() == null) {
             groupInfo.setExtList(Lists.newArrayList());
         }
+        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        extInfo.setKeyName(key);
+        extInfo.setKeyValue(value);
         upsertDataFlow(groupInfo, extInfo);
-        return ListenerResult.success();
     }
 
     /**
@@ -194,7 +204,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
-        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATA_FLOW.equals(ext.getKeyName()));
+        groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
 
