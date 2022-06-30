@@ -18,15 +18,17 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 @Slf4j
-public class PulsarTopicSelector implements EventSelector {
+public class PulsarTopicDeleteSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
@@ -35,14 +37,26 @@ public class PulsarTopicSelector implements EventSelector {
             return false;
         }
         StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
-        MQType mqType = MQType.forType(streamResourceProcessForm.getGroupInfo().getMqType());
-        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
-            return true;
-        } else {
-            InlongStreamInfo streamInfo = streamResourceProcessForm.getStreamInfo();
-            log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
-                    streamInfo.getInlongGroupId(), streamInfo.getInlongStreamId(), mqType);
+        GroupOperateType operateType = streamResourceProcessForm.getGroupOperateType();
+        if (operateType != GroupOperateType.DELETE) {
             return false;
         }
+        MQType mqType = MQType.forType(streamResourceProcessForm.getGroupInfo().getMqType());
+        String groupId = streamResourceProcessForm.getGroupInfo().getInlongGroupId();
+        String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) streamResourceProcessForm.getGroupInfo();
+            boolean enable = InlongConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
+            if (enable) {
+                log.info("need to delete pulsar topic as the createResource was true for groupId [{}] streamId [{}]",
+                        groupId, streamId);
+                return true;
+            } else {
+                log.info("skip to delete pulsar topic as the createResource was false for groupId [{}] streamId [{}]",
+                        groupId, streamId);
+                return false;
+            }
+        }
+        return false;
     }
 }

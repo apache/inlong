@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
@@ -28,10 +29,10 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
 /**
- * Selector of pulsar event for create pulsar resource.
+ * Selector of pulsar event for deleting pulsar resource
  */
 @Slf4j
-public class PulsarEventSelector implements EventSelector {
+public class PulsarResourceDeleteSelector implements EventSelector {
 
     @Override
     public boolean accept(WorkflowContext context) {
@@ -39,8 +40,11 @@ public class PulsarEventSelector implements EventSelector {
         if (!(processForm instanceof GroupResourceProcessForm)) {
             return false;
         }
-
         GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        GroupOperateType operateType = form.getGroupOperateType();
+        if (operateType != GroupOperateType.DELETE) {
+            return false;
+        }
         String groupId = form.getInlongGroupId();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         MQType mqType = MQType.forType(groupInfo.getMqType());
@@ -48,16 +52,15 @@ public class PulsarEventSelector implements EventSelector {
             InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
             boolean enable = InlongConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
             if (enable) {
-                log.info("need to create pulsar resource as the createResource was true for groupId [{}]", groupId);
+                log.info("need to delete pulsar resource as the createResource was true for groupId [{}]", groupId);
                 return true;
             } else {
-                log.info("skip to create pulsar resource as the createResource was false for groupId [{}]", groupId);
+                log.info("skip to delete pulsar resource as the createResource was false for groupId [{}]", groupId);
                 return false;
             }
         }
 
-        log.warn("skip to create pulsar subscription as the mq type is {} for groupId [{}]", mqType, groupId);
+        log.warn("skip to delete pulsar subscription as the mq type is {} for groupId [{}]", mqType, groupId);
         return false;
     }
-
 }

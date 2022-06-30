@@ -33,6 +33,7 @@ public enum ServiceTaskType {
     RESTART_SORT,
 
     DELETE_SOURCE,
+    DELETE_MQ,
     DELETE_SORT;
 
     @Override

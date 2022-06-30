@@ -24,7 +24,9 @@ import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.mq.PulsarEventSelector;
+import org.apache.inlong.manager.service.mq.DeletePulsarResourceTaskListener;
+import org.apache.inlong.manager.service.mq.PulsarResourceCreateSelector;
+import org.apache.inlong.manager.service.mq.PulsarResourceDeleteSelector;
 import org.apache.inlong.manager.service.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.CreateSortConfigListenerV2;
@@ -86,6 +88,8 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     private CreatePulsarResourceTaskListener createPulsarResourceTaskListener;
     @Autowired
     private CreatePulsarGroupTaskListener createPulsarGroupTaskListener;
+    @Autowired
+    private DeletePulsarResourceTaskListener deletePulsarResourceTaskListener;
 
     @Autowired
     private SinkResourceListener sinkResourceListener;
@@ -105,8 +109,9 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
         queueOperateListeners = new LinkedHashMap<>();
         queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
         queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
-        queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarEventSelector());
-        queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarEventSelector());
+        queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarResourceCreateSelector());
+        queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarResourceCreateSelector());
+        queueOperateListeners.put(deletePulsarResourceTaskListener, new PulsarResourceDeleteSelector());
         sortOperateListeners = new LinkedHashMap<>();
         sortOperateListeners.put(createSortConfigListener, new ZookeeperDisabledSelector());
         sortOperateListeners.put(lightGroupSortListener, new LightGroupSortSelector());
@@ -122,6 +127,7 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     public List<TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType) {
         switch (serviceTaskType) {
             case INIT_MQ:
+            case DELETE_MQ:
                 List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
                 return Lists.newArrayList(queueOperateListeners);
             case INIT_SORT:
