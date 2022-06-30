@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -37,7 +38,6 @@ import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -121,7 +121,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         if (streamInfo.getExtList() == null) {
             streamInfo.setExtList(Lists.newArrayList());
         }
-        upsertDataFlow(streamInfo, extInfo, key);
+        upsertExtInfo(streamInfo, extInfo, key);
     }
 
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
@@ -177,7 +177,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         return Lists.newArrayList(relation);
     }
 
-    private void upsertDataFlow(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {
+    private void upsertExtInfo(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {
         streamInfo.getExtList().removeIf(ext -> keyName.equals(ext.getKeyName()));
         streamInfo.getExtList().add(extInfo);
     }

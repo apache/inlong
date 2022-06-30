@@ -112,7 +112,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
         extInfo.setKeyName(key);
         extInfo.setKeyValue(value);
-        upsertDataFlow(groupInfo, extInfo);
+        upsertExtInfo(groupInfo, extInfo);
     }
 
     /**
@@ -203,7 +203,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return Lists.newArrayList(relation);
     }
 
-    private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
+    private void upsertExtInfo(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
