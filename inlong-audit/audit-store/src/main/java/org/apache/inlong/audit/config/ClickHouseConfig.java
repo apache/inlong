@@ -17,29 +17,35 @@
 
 package org.apache.inlong.audit.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
+@Configuration
 @Getter
 @Setter
-public class StoreConfig {
+public class ClickHouseConfig {
 
-    @Value("${audit.config.store.mode:mysql}")
-    private String store;
+    @Value("${clickhouse.driver}")
+    private String driver;
 
-    public boolean isMysqlStore() {
-        return store.contains("mysql");
-    }
+    @Value("${clickhouse.url}")
+    private String url;
 
-    public boolean isElasticsearchStore() {
-        return store.contains("elasticsearch");
-    }
+    @Value("${clickhouse.username}")
+    private String username;
 
-    public boolean isClickHouseStore() {
-        return store.contains("clickhouse");
-    }
+    @Value("${clickhouse.password}")
+    private String password;
 
+    @Value("${clickhouse.batchIntervalMs:1000}")
+    private int batchIntervalMs;
+    
+    @Value("${clickhouse.batchThreshold:500}")
+    private int batchThreshold;
+
+    @Value("${clickhouse.processIntervalMs:100}")
+    private int processIntervalMs;
 }
