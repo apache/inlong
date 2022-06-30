@@ -18,24 +18,28 @@
 # under the License.
 #
 
+SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
+
+cd ${SHELL_FOLDER}
 cd ..
 mvn clean install -DskipTests
-cd -
 
-tag="1.2.0-incubating"
-manager_tarball="../inlong-manager/manager-web/target/*manager-web*bin.tar.gz"
-agent_tarball="../inlong-agent/agent-release/target/*agent*bin.tar.gz"
-audit_tarball="../inlong-audit/audit-release/target/*audit*bin.tar.gz"
-dataproxy_tarball="../inlong-dataproxy/dataproxy-dist/target/*dataproxy*bin.tar.gz"
-tubemq_manager_tarball="../inlong-tubemq/tubemq-manager/target/*tubemq-manager*bin.tar.gz"
-tubemq_all_tarball="../inlong-tubemq/tubemq-server/target/*tubemq-server*bin.tar.gz"
+tag=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' pom.xml`
+tag=${tag}-aarch64
 
-manager_dockerfile_path="../inlong-manager/manager-docker/"
-agent_dockerfile_path="../inlong-agent/agent-docker/"
-audit_dockerfile_path="../inlong-audit/audit-docker/"
-dataproxy_dockerfile_path="../inlong-dataproxy/dataproxy-docker/"
-tubemq_manager_dockerfile_path="../inlong-tubemq/tubemq-docker/tubemq-manager/"
-tubemq_all_dockerfile_path="../inlong-tubemq/tubemq-docker/tubemq-all/"
+manager_tarball="inlong-manager/manager-web/target/*manager-web*bin.tar.gz"
+agent_tarball="inlong-agent/agent-release/target/*agent*bin.tar.gz"
+audit_tarball="inlong-audit/audit-release/target/*audit*bin.tar.gz"
+dataproxy_tarball="inlong-dataproxy/dataproxy-dist/target/*dataproxy*bin.tar.gz"
+tubemq_manager_tarball="inlong-tubemq/tubemq-manager/target/*tubemq-manager*bin.tar.gz"
+tubemq_all_tarball="inlong-tubemq/tubemq-server/target/*tubemq-server*bin.tar.gz"
+
+manager_dockerfile_path="inlong-manager/manager-docker/"
+agent_dockerfile_path="inlong-agent/agent-docker/"
+audit_dockerfile_path="inlong-audit/audit-docker/"
+dataproxy_dockerfile_path="inlong-dataproxy/dataproxy-docker/"
+tubemq_manager_dockerfile_path="inlong-tubemq/tubemq-docker/tubemq-manager/"
+tubemq_all_dockerfile_path="inlong-tubemq/tubemq-docker/tubemq-all/"
 
 manager_tarball_name=$(basename $manager_tarball)
 agent_tarball_name=$(basename $agent_tarball)
@@ -58,24 +62,17 @@ cp ${agent_tarball} ${agent_dockerfile_path}/target/${agent_tarball_name}
 cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
 cp ${tubemq_manager_tarball} ${tubemq_manager_dockerfile_path}/target/${tubemq_manager_tarball_name}
-cp ${tubemq_all_tarball} ${tubemq_all_dockerfile_path}/target/${tubemq_all_tarball_name}
 
-docker build -t inlong/manager:${tag} ../inlong-manager/manager-docker/ --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
-docker build -t inlong/dataproxy:${tag} ../inlong-dataproxy/dataproxy-docker/ --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
-docker build -t inlong/audit:${tag} ../inlong-audit/audit-docker/ --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
-docker build -t inlong/tubemq-manager:${tag} ../inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
-docker build -f ../inlong-tubemq/tubemq-docker/tubemq-all/ArmDockerfile -t inlong/tubemq-all:${tag} --build-arg TUBEMQ_TARBALL=${TUBEMQ_TARBALL} ../inlong-tubemq/tubemq-docker/tubemq-all/
-docker build -t inlong/dashboard:${tag} ../inlong-dashboard/ --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
-docker build -t inlong/agent:${tag} ../inlong-agent/agent-docker/ --build-arg AGENT_TARBALL=${AGENT_TARBALL}
-docker build -f ../inlong-tubemq/tubemq-docker/tubemq-cpp/ArmDockerfile -t inlong/tubemq-cpp:${tag} ../inlong-tubemq/tubemq-docker/tubemq-cpp/
-docker build -f ../inlong-tubemq/tubemq-docker/tubemq-build/ArmDockerfile -t inlong/tubemq-build:${tag} ../inlong-tubemq/tubemq-docker/tubemq-build/
+docker build -t inlong/manager:${tag} inlong-manager/manager-docker/ --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
+docker build -t inlong/dataproxy:${tag} inlong-dataproxy/dataproxy-docker/ --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
+docker build -t inlong/audit:${tag} inlong-audit/audit-docker/ --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
+docker build -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
+docker build -t inlong/dashboard:${tag} inlong-dashboard/ --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
+docker build -t inlong/agent:${tag} inlong-agent/agent-docker/ --build-arg AGENT_TARBALL=${AGENT_TARBALL}
 
-docker tag inlong/manager:${tag} inlong/manager:latest
-docker tag inlong/dataproxy:${tag} inlong/dataproxy:latest
-docker tag inlong/audit:${tag} inlong/audit:latest
-docker tag inlong/tubemq-manager:${tag} inlong/tubemq-manager:latest
-docker tag inlong/tubemq-all:${tag} inlong/tubemq-all:latest
-docker tag inlong/dashboard:${tag} inlong/dashboard:latest
-docker tag inlong/agent:${tag} inlong/agent:latest
-docker tag inlong/tubemq-cpp:${tag} inlong/tubemq-cpp:latest
-docker tag inlong/tubemq-build:${tag} inlong/tubemq-build:latest
+docker tag inlong/manager:${tag} inlong/manager:latest-aarch64
+docker tag inlong/dataproxy:${tag} inlong/dataproxy:latest-aarch64
+docker tag inlong/audit:${tag} inlong/audit:latest-aarch64
+docker tag inlong/tubemq-manager:${tag} inlong/tubemq-manager:latest-aarch64
+docker tag inlong/dashboard:${tag} inlong/dashboard:latest-aarch64
+docker tag inlong/agent:${tag} inlong/agent:latest-aarch64
