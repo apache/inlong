@@ -24,36 +24,32 @@ cd ${SHELL_FOLDER}
 cd ..
 mvn clean install -DskipTests
 
-tag=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' pom.xml`
-tag=${tag}-aarch64
-
-manager_tarball="inlong-manager/manager-web/target/*manager-web*bin.tar.gz"
-agent_tarball="inlong-agent/agent-release/target/*agent*bin.tar.gz"
-audit_tarball="inlong-audit/audit-release/target/*audit*bin.tar.gz"
-dataproxy_tarball="inlong-dataproxy/dataproxy-dist/target/*dataproxy*bin.tar.gz"
-tubemq_manager_tarball="inlong-tubemq/tubemq-manager/target/*tubemq-manager*bin.tar.gz"
-tubemq_all_tarball="inlong-tubemq/tubemq-server/target/*tubemq-server*bin.tar.gz"
+version=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' pom.xml`
+tag=${version}-aarch64
 
 manager_dockerfile_path="inlong-manager/manager-docker/"
 agent_dockerfile_path="inlong-agent/agent-docker/"
 audit_dockerfile_path="inlong-audit/audit-docker/"
 dataproxy_dockerfile_path="inlong-dataproxy/dataproxy-docker/"
 tubemq_manager_dockerfile_path="inlong-tubemq/tubemq-docker/tubemq-manager/"
-tubemq_all_dockerfile_path="inlong-tubemq/tubemq-docker/tubemq-all/"
 
-manager_tarball_name=$(basename $manager_tarball)
-agent_tarball_name=$(basename $agent_tarball)
-audit_tarball_name=$(basename $audit_tarball)
-dataproxy_tarball_name=$(basename $dataproxy_tarball)
+manager_tarball_name="apache-inlong-manager-web-${version}-bin.tar.gz"
+agent_tarball_name="apache-inlong-agent-${version}-bin.tar.gz"
+audit_tarball_name="apache-inlong-audit-${version}-bin.tar.gz"
+dataproxy_tarball_name="apache-inlong-dataproxy-${version}-bin.tar.gz"
 dashboard_file_name="build"
-tubemq_manager_tarball_name=$(basename $tubemq_manager_tarball)
-tubemq_all_tarball_name=$(basename $tubemq_all_tarball)
+tubemq_manager_tarball_name="apache-inlong-tubemq-manager-${version}-bin.tar.gz"
+
+manager_tarball="inlong-manager/manager-web/target/${manager_tarball_name}"
+agent_tarball="inlong-agent/agent-release/target/${agent_tarball_name}"
+audit_tarball="inlong-audit/audit-release/target/${audit_tarball_name}"
+dataproxy_tarball="inlong-dataproxy/dataproxy-dist/target/${dataproxy_tarball_name}"
+tubemq_manager_tarball="inlong-tubemq/tubemq-manager/target/${tubemq_manager_tarball_name}"
 
 MANAGER_TARBALL="target/${manager_tarball_name}"
 DATAPROXY_TARBALL="target/${dataproxy_tarball_name}"
 AUDIT_TARBALL="target/${audit_tarball_name}"
 TUBEMQ_MANAGER_TARBALL="target/${tubemq_manager_tarball_name}"
-TUBEMQ_TARBALL="target/${tubemq_all_tarball_name}"
 DASHBOARD_FILE="${dashboard_file_name}"
 AGENT_TARBALL="target/${agent_tarball_name}"
 
