@@ -259,14 +259,16 @@ public class TubeSink extends AbstractSink implements Configurable {
      * @throws FlumeException if an RPC client connection could not be opened
      */
     private void initCreateConnection() throws FlumeException {
-//        synchronized (tubeSessionLock) {
+        // check the TubeMQ address
+        if (masterHostAndPortLists == null || masterHostAndPortLists.isEmpty()) {
+            logger.warn("Failed to get TubeMQ Cluster, make sure register TubeMQ to manager successfully.");
+            return;
+        }
         // if already connected, just skip
         if (sessionFactories != null) {
             return;
         }
         sessionFactories = new HashMap<>();
-        Preconditions.checkState(masterHostAndPortLists != null && !masterHostAndPortLists.isEmpty(),
-                "No tube service url specified");
         for (String masterUrl : masterHostAndPortLists) {
             createConnection(masterUrl);
         }

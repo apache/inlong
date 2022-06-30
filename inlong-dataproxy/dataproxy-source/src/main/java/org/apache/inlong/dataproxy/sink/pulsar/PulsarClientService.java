@@ -136,7 +136,7 @@ public class PulsarClientService {
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
-        if (pulsarUrl2token.isEmpty()) {
+        if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
             logger.warn("Failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
             return;
         }
