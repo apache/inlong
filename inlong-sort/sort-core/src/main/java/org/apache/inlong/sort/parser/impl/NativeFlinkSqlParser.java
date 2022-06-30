@@ -86,8 +86,8 @@ public class NativeFlinkSqlParser implements Parser {
                 createTableSqls.add(statement);
             } else if (statement.toUpperCase(Locale.ROOT).startsWith("INSERT INTO")) {
                 insertSqls.add(statement);
-            } else {
-                throw new IllegalArgumentException("not support sql: " + statement);
+            } else if (!statement.isEmpty()) {
+                log.warn("Not support sql statement: " + statement);
             }
         }
         return new FlinkSqlParseResult(tableEnv, createTableSqls, insertSqls);

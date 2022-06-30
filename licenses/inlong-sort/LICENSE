@@ -548,4 +548,3 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.checkerframework:checker-qual:3.12.0 - Checker Qual (https://checkerframework.org), (The MIT License)
   org.projectlombok:lombok:1.18.22 - Lombok (https://projectlombok.org), (The MIT License)
   org.slf4j:slf4j-api:1.7.36 - SLF4J API Module (http://www.slf4j.org), (MIT License)
-
