@@ -18,26 +18,27 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import java.util.Set;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class ProxyUtils {
+
     private static final Logger logger = LoggerFactory.getLogger(ProxyUtils.class);
     private static final int TIME_LENGTH = 13;
     private static final Set<String> invalidAttr = new HashSet<>();
 
     static {
         Collections.addAll(invalidAttr, "groupId", "streamId", "dt", "msgUUID", "cp",
-            "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
-            "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyDesKey");
+                "cnt", "mt", "m", "sid", "t", "NodeIP", "messageId", "_file_status_check", "_secretId",
+                "_signature", "_timeStamp", "_nonce", "_userName", "_clientIP", "_encyVersion", "_encyAesKey");
     }
 
     public static boolean isAttrKeysValid(Map<String, String> attrsMap) {
