@@ -218,14 +218,32 @@ public class RocksDbImp implements Db {
     }
 
     @Override
-    public List<KeyValueEntity> search(StateSearchKey searchKey) {
+    public List<KeyValueEntity> searchWithKeyPrefix(StateSearchKey searchKey, String keyPrefix) {
         List<KeyValueEntity> results = new LinkedList<>();
         try (final RocksIterator it = db.newIterator(
-            columnHandlesMap.get(defaultFamilyName))) {
+                columnHandlesMap.get(defaultFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
                 KeyValueEntity keyValueItem = GSON
-                    .fromJson(new String(it.value()), KeyValueEntity.class);
+                        .fromJson(new String(it.value()), KeyValueEntity.class);
+                if (keyValueItem.getStateSearchKey().equals(searchKey) && keyValueItem.getKey().startsWith(keyPrefix)) {
+                    results.add(keyValueItem);
+                }
+                it.next();
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public List<KeyValueEntity> search(StateSearchKey searchKey) {
+        List<KeyValueEntity> results = new LinkedList<>();
+        try (final RocksIterator it = db.newIterator(
+                columnHandlesMap.get(defaultFamilyName))) {
+            it.seekToFirst();
+            while (it.isValid()) {
+                KeyValueEntity keyValueItem = GSON
+                        .fromJson(new String(it.value()), KeyValueEntity.class);
                 if (keyValueItem.getStateSearchKey().equals(searchKey)) {
                     results.add(keyValueItem);
                 }
@@ -239,11 +257,11 @@ public class RocksDbImp implements Db {
     public List<CommandEntity> searchCommands(boolean isAcked) {
         List<CommandEntity> results = new LinkedList<>();
         try (final RocksIterator it = db.newIterator(
-            columnHandlesMap.get(commandFamilyName))) {
+                columnHandlesMap.get(commandFamilyName))) {
             it.seekToFirst();
             while (it.isValid()) {
                 CommandEntity commandEntity = GSON
-                    .fromJson(new String(it.value()), CommandEntity.class);
+                        .fromJson(new String(it.value()), CommandEntity.class);
                 if (commandEntity.isAcked() == isAcked) {
                     results.add(commandEntity);
                 }
