@@ -25,7 +25,6 @@ import com.tencentcloudapi.cls.producer.errors.ProducerException;
 import com.tencentcloudapi.cls.producer.util.NetworkUtils;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
@@ -268,25 +267,22 @@ public class ClsSinkContext extends SinkContext {
     public void addSendResultMetric(ProfileEvent currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = this.getDimensions(currentRecord, bid);
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        long count = 1;
-        long size = currentRecord.getBody().length;
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(count);
-            metricItem.sendSuccessSize.addAndGet(size);
+            metricItem.sendSuccessCount.incrementAndGet();
+            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
+                final long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime
-                        - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, currentRecord.getRawLogTime());
+                long nodeDuration = currentTime - currentRecord.getFetchTime();
                 long wholeDuration = currentTime - currentRecord.getRawLogTime();
-                metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                metricItem.sinkDuration.addAndGet(sinkDuration);
+                metricItem.nodeDuration.addAndGet(nodeDuration);
+                metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(count);
-            metricItem.sendFailSize.addAndGet(size);
+            metricItem.sendFailCount.incrementAndGet();
+            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
 
