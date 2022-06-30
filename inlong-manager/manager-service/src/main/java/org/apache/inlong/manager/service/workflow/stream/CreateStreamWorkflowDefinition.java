@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.workflow.stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
@@ -49,8 +48,6 @@ public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
     private StreamCompleteProcessListener streamCompleteProcessListener;
     @Autowired
     private StreamTaskListenerFactory streamTaskListenerFactory;
-    @Autowired
-    private StreamSinkService sinkService;
 
     @Override
     public WorkflowProcess defineProcess() {
