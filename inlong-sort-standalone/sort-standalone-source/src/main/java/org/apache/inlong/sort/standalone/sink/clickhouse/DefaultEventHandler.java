@@ -25,8 +25,6 @@ import org.apache.pulsar.shade.org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -120,178 +118,72 @@ public class DefaultEventHandler implements IEventHandler {
             String fieldValue = columnValueMap.getOrDefault(pair.getKey(), "");
             int fieldType = pair.getValue();
             switch (fieldType) {
-                case Types.ARRAY :
-                    // ARRAY = 2003;
-                    // pstat.setArray(1, null); // String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.BIGINT :
-                    // BIGINT = -5;
-                    pstat.setLong(i, NumberUtils.toLong(fieldValue, 0));
-                    break;
-                case Types.BINARY :
-                    // BINARY = -2;
-                    pstat.setBytes(i, fieldValue.getBytes());
-                    break;
-                case Types.BIT :
-                    // BIT = -7;
-                    pstat.setBoolean(i, Boolean.TRUE.toString().equals(fieldValue));
-                    break;
-                case Types.BLOB :
-                    // BLOB= 2004;
-                    // pstat.setBlob(1, null); //String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.BOOLEAN :
-                    // BOOLEAN = 16;
-                    pstat.setBoolean(i, Boolean.TRUE.toString().equals(fieldValue));
-                    break;
-                case Types.CHAR :
-                    // CHAR= 1;
-                    // not supported
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.CLOB :
-                    // CLOB= 2005;
-                    // pstat.setClob(1, null); //String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.DATALINK :
-                    // DATALINK = 70;
-                    pstat.setURL(i, this.parseURL(fieldValue));
-                    break;
-                case Types.DATE :
-                    // DATE= 91;
-                    pstat.setDate(i, this.parseDate(fieldValue));
-                    break;
-                case Types.DECIMAL :
-                    // DECIMAL = 3;
-                    // not supported
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.DISTINCT :
-                    // DISTINCT= 2001;
-                    // pstat.setNull(1, 0, "");
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.DOUBLE :
-                    // DOUBLE = 8;
-                    pstat.setDouble(i, NumberUtils.toDouble(fieldValue, 0));
-                    break;
-                case Types.FLOAT :
-                    // FLOAT = 6;
-                    pstat.setFloat(i, NumberUtils.toFloat(fieldValue, 0));
-                    break;
-                case Types.INTEGER :
-                    // INTEGER = 4;
-                    pstat.setInt(i, NumberUtils.toInt(fieldValue, 0));
-                    break;
-                case Types.JAVA_OBJECT :
-                    // JAVA_OBJECT = 2000;
-                    // pstat.setObject(1, null); // String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.LONGNVARCHAR :
-                    // LONGNVARCHAR = -16;
-                    pstat.setNString(i, fieldValue);
-                    break;
-                case Types.LONGVARBINARY :
-                    // LONGVARBINARY = -4;
-                    // pstat.setBinaryStream(1, null);
-                    pstat.setBytes(i, fieldValue.getBytes());
-                    break;
-                case Types.LONGVARCHAR :
-                    // LONGVARCHAR = -1;
-                    // pstat.setAsciiStream(1, null); // String
-                    pstat.setString(i, fieldValue);
-                    // pstat.setCharacterStream(1, null);
-                    break;
-                case Types.NCHAR :
-                    // NCHAR = -15;
-                    // pstat.setNCharacterStream(1, null);
-                    pstat.setNString(i, fieldValue);
-                    break;
-                case Types.NCLOB :
-                    // NCLOB = 2011;
-                    // pstat.setNClob(1, null); // String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.NULL :
-                    // NULL= 0;
-                    // pstat.setNull(1, 0);
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.NUMERIC :
-                    // NUMERIC = 2;
-                    pstat.setBigDecimal(i, NumberUtils.toScaledBigDecimal(fieldValue));
-                    break;
-                case Types.NVARCHAR :
-                    // NVARCHAR = -9;
-                    pstat.setNString(i, fieldValue);
-                    break;
-                case Types.OTHER :
-                    // OTHER = 1111;
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.REAL :
-                    // REAL= 7;
-                    pstat.setFloat(i, NumberUtils.toFloat(fieldValue, 0));
-                    break;
-                case Types.REF :
-                    // REF = 2006;
-                    // pstat.setObject(1, null); // String
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.REF_CURSOR :
-                    // REF_CURSOR = 2012;
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.ROWID :
-                    // ROWID = -8;
-                    // pstat.setRowId(1, null);
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.SMALLINT :
-                    // SMALLINT= 5;
-                    pstat.setShort(i, NumberUtils.toShort(fieldValue, (short) 0));
-                    break;
-                case Types.SQLXML :
-                    // SQLXML = 2009;
-                    // pstat.setSQLXML(1, null);
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.STRUCT :
-                    // STRUCT = 2002;
-                    // pstat.setNull(1, 0);
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.TIME_WITH_TIMEZONE :
-                    // TIME_WITH_TIMEZONE = 2013;
-                    pstat.setString(i, fieldValue);
-                    break;
-                case Types.TIME :
-                    // TIME= 92;
-                    pstat.setTime(i, new Time(this.parseDate(fieldValue).getTime()));
-                    break;
-                case Types.TIMESTAMP :
-                    // TIMESTAMP = 93;
-                    pstat.setTimestamp(i, new Timestamp(this.parseDate(fieldValue).getTime()));
-                    break;
-                case Types.TIMESTAMP_WITH_TIMEZONE :
-                    // TIMESTAMP_WITH_TIMEZONE = 2014;
-                    pstat.setString(i, fieldValue);
-                    break;
+                // Int8 - [-128 : 127]
                 case Types.TINYINT :
                     // TINYINT = -6;
                     pstat.setByte(i, NumberUtils.toByte(fieldValue, (byte) 0));
                     break;
-                case Types.VARBINARY :
-                    // VARBINARY = -3;
-                    pstat.setBytes(i, fieldValue.getBytes());
+                // Int16 - [-32768 : 32767]
+                case Types.SMALLINT :
+                    // SMALLINT= 5;
+                    pstat.setShort(i, NumberUtils.toShort(fieldValue, (short) 0));
                     break;
+                // Int32 - [-2147483648 : 2147483647]
+                case Types.INTEGER :
+                    // INTEGER = 4;
+                    pstat.setInt(i, NumberUtils.toInt(fieldValue, 0));
+                    break;
+                // Int64 - [-9223372036854775808 : 9223372036854775807]
+                // UInt8 - [0 : 255]
+                // UInt16 - [0 : 65535]
+                // UInt32 - [0 : 4294967295]
+                // UInt64 - [0 : 18446744073709551615]
+                case Types.BIGINT :
+                    // BIGINT = -5;
+                    pstat.setLong(i, NumberUtils.toLong(fieldValue, 0));
+                    break;
+                // Float32 - float
+                case Types.FLOAT :
+                    // FLOAT = 6;
+                    pstat.setFloat(i, NumberUtils.toFloat(fieldValue, 0));
+                    break;
+                // Float64 – double
+                case Types.DOUBLE :
+                    // DOUBLE = 8;
+                    pstat.setDouble(i, NumberUtils.toDouble(fieldValue, 0));
+                    break;
+                // Decimal32(s)
+                // Decimal64(s)
+                // Decimal128(s)
+                case Types.NUMERIC :
+                    // NUMERIC = 2;
+                    pstat.setBigDecimal(i, NumberUtils.toScaledBigDecimal(fieldValue));
+                    break;
+                // String
+                // FixedString(N)
+                // Enum8
+                // Enum16
                 case Types.VARCHAR :
                     // VARCHAR = 12;
+                case Types.LONGVARCHAR :
+                    // LONGVARCHAR = -1;
                     pstat.setString(i, fieldValue);
+                    break;
+                // Date
+                case Types.DATE :
+                    // DATE= 91;
+                    pstat.setDate(i, this.parseDate(fieldValue));
+                    break;
+                // Datetime
+                // Datetime64
+                case Types.TIMESTAMP :
+                    // TIMESTAMP = 93;
+                    pstat.setTimestamp(i, new Timestamp(this.parseDate(fieldValue).getTime()));
+                    break;
+
+                case Types.TIME :
+                    // TIME= 92;
+                    pstat.setTime(i, new Time(this.parseDate(fieldValue).getTime()));
                     break;
                 default :
                     pstat.setString(i, fieldValue);
@@ -310,24 +202,6 @@ public class DefaultEventHandler implements IEventHandler {
             return new Date(dateFormat.parse(fieldValue).getTime());
         } catch (Exception e) {
             return new Date(0);
-        }
-    }
-
-    /**
-     * parseURL
-     * @param fieldValue
-     * @return
-     */
-    private URL parseURL(String fieldValue) {
-        try {
-            return new URL(fieldValue);
-        } catch (Exception e) {
-            try {
-                return new URL("http://127.0.0.1");
-            } catch (MalformedURLException e1) {
-                LOG.error(e1.getMessage(), e1);
-                return null;
-            }
         }
     }
 }
