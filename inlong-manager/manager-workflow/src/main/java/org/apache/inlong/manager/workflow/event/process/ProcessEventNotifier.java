@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
-import org.apache.inlong.manager.workflow.event.EventListenerManager;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,27 +52,18 @@ public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent>
             new CallerRunsPolicy());
 
     @Autowired
-    private EventListenerManager<ProcessEvent, ProcessEventListener> eventListenerManager;
-    @Autowired
     private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override
     public void notify(ProcessEvent event, WorkflowContext context) {
         WorkflowProcess process = context.getProcess();
-
-        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
         process.syncListeners(event).forEach(syncLogableNotify(context));
-
-        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(context));
         process.asyncListeners(event).forEach(asyncLogableNotify(context));
     }
 
     @Override
     public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
         WorkflowProcess process = sourceContext.getProcess();
-
-        Optional.ofNullable(this.eventListenerManager.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, sourceContext));
         Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, sourceContext));
     }
 

@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
-import org.apache.inlong.manager.workflow.event.EventListenerManager;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,32 +52,21 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
             new CallerRunsPolicy());
 
     @Autowired
-    private EventListenerManager<TaskEvent, TaskEventListener> eventListenerManager;
-    @Autowired
     private WorkflowEventLogEntityMapper eventLogMapper;
 
-    public TaskEventNotifier(TaskEventListenerManager listenerManager, WorkflowEventLogEntityMapper eventLogMapper) {
-        this.eventListenerManager = listenerManager;
+    public TaskEventNotifier(WorkflowEventLogEntityMapper eventLogMapper) {
         this.eventLogMapper = eventLogMapper;
     }
 
     @Override
     public void notify(TaskEvent event, WorkflowContext context) {
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
-        eventListenerManager.syncListeners(event).forEach(syncLogableNotify(context));
-
         task.syncListeners(event).forEach(syncLogableNotify(context));
-
-        eventListenerManager.asyncListeners(event).forEach(asyncLogableNotify(context));
-
         task.asyncListeners(event).forEach(asyncLogableNotify(context));
     }
 
     @Override
     public void notify(String listenerName, boolean forceSync, WorkflowContext context) {
-        Optional.ofNullable(this.eventListenerManager.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
-
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
         Optional.ofNullable(task.listener(listenerName))
                 .ifPresent(logableNotify(forceSync, context));
