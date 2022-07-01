@@ -90,7 +90,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<StreamSink> streamSinks = (List<StreamSink>) streamInfo.getSinkList();
+        List<StreamSink> streamSinks = streamInfo.getSinkList();
         if (CollectionUtils.isEmpty(streamSinks)) {
             log.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
