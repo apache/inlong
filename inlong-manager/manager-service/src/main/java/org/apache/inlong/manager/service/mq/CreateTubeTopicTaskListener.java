@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.mq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
@@ -59,7 +59,7 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
         try {
             InlongGroupInfo groupInfo = form.getGroupInfo();
             String clusterTag = groupInfo.getInlongClusterTag();
-            InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
+            ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.TUBE);
             tubeMQOperator.createTopic((TubeClusterInfo) clusterInfo, groupInfo.getMqResource(), context.getOperator());
             log.info("finish to create tube topic for groupId={}", groupId);
         } catch (Exception e) {

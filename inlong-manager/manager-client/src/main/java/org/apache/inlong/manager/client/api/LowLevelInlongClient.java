@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.client.api.impl.LowLevelInlongClientImpl;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 
@@ -47,7 +47,7 @@ public interface LowLevelInlongClient {
      * @return cluster index
      * @throws Exception
      */
-    Integer saveCluster(InlongClusterRequest request) throws Exception;
+    Integer saveCluster(ClusterRequest request) throws Exception;
 
     /**
      * List group

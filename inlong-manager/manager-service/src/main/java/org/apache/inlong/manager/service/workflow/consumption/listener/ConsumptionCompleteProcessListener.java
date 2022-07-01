@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
@@ -121,7 +121,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_PULSAR);
+        ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             PulsarTopicBean topicMessage = new PulsarTopicBean();
@@ -163,7 +163,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         Preconditions.checkNotNull(mqResource, "mq resource cannot empty for groupId=" + groupId);
 
         String clusterTag = groupEntity.getInlongClusterTag();
-        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
+        TubeClusterInfo clusterInfo = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
         try {
             tubeMQOperator.createConsumerGroup(clusterInfo, entity.getTopic(), entity.getConsumerGroup(), operator);
         } catch (Exception e) {

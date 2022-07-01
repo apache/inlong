@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +37,7 @@ public interface InlongClusterEntityMapper {
     List<InlongClusterEntity> selectByKey(@Param("clusterTag") String clusterTag, @Param("name") String name,
             @Param("type") String type);
 
-    List<InlongClusterEntity> selectByCondition(InlongClusterPageRequest request);
+    List<InlongClusterEntity> selectByCondition(ClusterPageRequest request);
 
     int updateById(InlongClusterEntity record);
 

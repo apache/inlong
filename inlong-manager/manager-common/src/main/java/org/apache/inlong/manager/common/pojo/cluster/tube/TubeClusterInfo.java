@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -32,14 +32,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.CLS_TUBE)
+@JsonTypeDefine(value = ClusterType.TUBE)
 @ApiModel("Inlong cluster info for Tube")
-public class TubeClusterInfo extends InlongClusterInfo {
+public class TubeClusterInfo extends ClusterInfo {
 
     // no fields
 
     public TubeClusterInfo() {
-        this.setType(ClusterType.CLS_TUBE);
+        this.setType(ClusterType.TUBE);
     }
 
     @Override

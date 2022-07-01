@@ -25,7 +25,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.util.HttpUtils;
@@ -71,7 +71,7 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     }
 
     @Override
-    public Integer saveCluster(InlongClusterRequest request) throws Exception {
+    public Integer saveCluster(ClusterRequest request) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         return managerClient.saveCluster(request);
     }

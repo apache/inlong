@@ -17,42 +17,39 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
-import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 /**
- * Inlong cluster request
+ * Inlong cluster info
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Inlong cluster request")
+@ApiModel("Inlong cluster info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public class InlongClusterRequest {
+public class ClusterInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @NotBlank
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster url")
     private String url;
 
-    @NotBlank
     @ApiModelProperty(value = "Cluster tags, separated by commas")
     private String clusterTags;
 
@@ -68,7 +65,26 @@ public class InlongClusterRequest {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Cluster status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    public ClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, ClusterRequest::new);
+    }
 
 }
