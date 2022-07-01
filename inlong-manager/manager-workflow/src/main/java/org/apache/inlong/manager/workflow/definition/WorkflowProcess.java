@@ -151,7 +151,7 @@ public class WorkflowProcess extends Element {
         WorkflowProcess cloneProcess = (WorkflowProcess) super.clone();
         cloneProcess.setStartEvent((StartEvent) this.startEvent.clone());
         cloneProcess.setEndEvent((EndEvent) this.endEvent.clone());
-        Map<String, WorkflowTask> cloneMap = new HashMap<>();
+        Map<String, WorkflowTask> nameToTaskMap = new HashMap<>();
 
         StartEvent startEvent = cloneProcess.getStartEvent();
         Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap = startEvent.getActionToNextElementMap();
@@ -166,7 +166,7 @@ public class WorkflowProcess extends Element {
                     Element element = conditionNextElement.getElement();
                     if (element instanceof WorkflowTask) {
                         WorkflowTask workflowTask = (WorkflowTask) element;
-                        cloneMap.put(workflowTask.getName(), workflowTask);
+                        nameToTaskMap.put(workflowTask.getName(), workflowTask);
                     }
                     if (element instanceof NextableElement) {
                         NextableElement nextableElement = (NextableElement) element;
@@ -180,7 +180,7 @@ public class WorkflowProcess extends Element {
             }
         }
 
-        cloneProcess.setNameToTaskMap(cloneMap);
+        cloneProcess.setNameToTaskMap(nameToTaskMap);
         Map<ProcessEvent, List<ProcessEventListener>> cloneSyncListener = Maps.newHashMap();
         Map<ProcessEvent, List<ProcessEventListener>> cloneAsyncListeners = Maps.newHashMap();
         cloneSyncListener.putAll(syncListeners);

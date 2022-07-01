@@ -17,9 +17,13 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowAction;
@@ -37,14 +41,15 @@ import java.util.List;
  * WorkflowProcess service
  */
 @Service
+@Slf4j
 public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     private ProcessorExecutor processorExecutor;
     @Autowired
-    private WorkflowContextBuilder workflowContextBuilder;
-    @Autowired
     private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired
+    private WorkflowContextBuilder workflowContextBuilder;
 
     @Override
     public WorkflowContext start(String name, String applicant, ProcessForm form) {
@@ -59,12 +64,38 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
+    public WorkflowContext continueProcess(Integer processId, String operator, String remark) {
+        Preconditions.checkNotEmpty(operator, "operator cannot be null");
+        Preconditions.checkNotNull(processId, "processId cannot be null");
+        WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
+        WorkflowProcessEntity processEntity = context.getProcessEntity();
+        ProcessStatus processStatus = ProcessStatus.valueOf(processEntity.getStatus());
+        Preconditions.checkTrue(processStatus == ProcessStatus.PROCESSING,
+                String.format("processId=%s should be in processing", processId));
+        List<WorkflowTaskEntity> startElements = Lists.newArrayList();
+        startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING));
+        startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.FAILED));
+        for (WorkflowTaskEntity taskEntity:startElements){
+            String taskName = taskEntity.getName();
+            WorkflowTask task = context.getProcess().getTaskByName(taskName);
+            context.setActionContext(new WorkflowContext.ActionContext()
+                    .setAction(WorkflowAction.COMPLETE)
+                    .setTaskEntity(taskEntity)
+                    .setOperator(operator)
+                    .setRemark(remark)
+                    .setTask(task)
+            );
+            this.processorExecutor.executeStart(task, context);
+        }
+        return context;
+    }
+
+    @Override
     public WorkflowContext cancel(Integer processId, String operator, String remark) {
         Preconditions.checkNotEmpty(operator, "operator cannot be null");
         Preconditions.checkNotNull(processId, "processId cannot be null");
 
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
-
         List<WorkflowTaskEntity> pendingTasks = taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING);
         for (WorkflowTaskEntity taskEntity : pendingTasks) {
             WorkflowTask task = context.getProcess().getTaskByName(taskEntity.getName());

@@ -50,6 +50,16 @@ public interface WorkflowService {
     WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
 
     /**
+     * Continue process when pending or failed
+     *
+     * @param processId Process id.
+     * @param operator Operator.
+     * @param remark Remarks information.
+     * @return Workflow result.
+     */
+    WorkflowResult continueProcess(Integer processId, String operator, String remark);
+
+    /**
      * Cancellation process application
      *
      * @param processId Process id.
