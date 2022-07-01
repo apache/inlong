@@ -50,8 +50,8 @@ public class InlongClusterInfo {
     @ApiModelProperty(value = "Cluster url")
     private String url;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
-    private String clusterTag;
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
 
     @ApiModelProperty(value = "Extension tag")
     private String extTag;

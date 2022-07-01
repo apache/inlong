@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -68,7 +68,7 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setPrimaryKey("name,age");
 
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         SinkField sinkField = new SinkField();
         sinkField.setFieldName(fieldName);
         sinkField.setFieldType(fieldType);
@@ -102,7 +102,7 @@ public class MysqlStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         MySQLSink mysqlSink = (MySQLSink) response;
-        mysqlSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        mysqlSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         MySQLSinkRequest request = CommonBeanUtils.copyProperties(mysqlSink,
                 MySQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);

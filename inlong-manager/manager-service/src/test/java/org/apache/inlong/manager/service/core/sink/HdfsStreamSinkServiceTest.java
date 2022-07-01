@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -61,7 +61,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
         hdfsSinkRequest.setInlongGroupId(globalGroupId);
         hdfsSinkRequest.setInlongStreamId(globalStreamId);
         hdfsSinkRequest.setSinkType(SinkType.SINK_HDFS);
-        hdfsSinkRequest.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        hdfsSinkRequest.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         hdfsSinkRequest.setSinkName(sinkName);
         hdfsSinkRequest.setFileFormat(fileFormat);
         hdfsSinkRequest.setDataPath(dataPath);
@@ -101,7 +101,7 @@ public class HdfsStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         HdfsSink hdfsSink = (HdfsSink) response;
-        hdfsSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        hdfsSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
 
         HdfsSinkRequest request = CommonBeanUtils.copyProperties(hdfsSink, HdfsSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);

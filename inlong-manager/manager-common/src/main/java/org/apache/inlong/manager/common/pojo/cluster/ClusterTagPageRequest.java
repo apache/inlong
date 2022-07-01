@@ -15,34 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.group;
+package org.apache.inlong.manager.common.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
- * Data schema info
+ * Cluster tag paging query conditions
  */
 @Data
-@ApiModel("Data schema info")
-public class DataSchemaInfo {
+@EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Cluster tag paging query request")
+public class ClusterTagPageRequest extends PageRequest {
 
-    private Integer id;
+    @ApiModelProperty(value = "Keywords, used for fuzzy query")
+    private String keyword;
 
-    @ApiModelProperty(value = "schema name")
-    private String name;
+    @ApiModelProperty(value = "Status")
+    private Integer status;
 
-    @ApiModelProperty(value = "Agent type, support: file, db_incr, db_full")
-    private String agentType;
-
-    @ApiModelProperty(value = "data generate rule, support: day, hour")
-    private String dataGenerateRule;
-
-    @ApiModelProperty(value = "sort type, support: 0, 5, 9, 10, 13, 15")
-    private Integer sortType;
-
-    @ApiModelProperty(value = "time offset")
-    private String timeOffset;
+    @ApiModelProperty(value = "Current user", hidden = true)
+    private String currentUser;
 
 }

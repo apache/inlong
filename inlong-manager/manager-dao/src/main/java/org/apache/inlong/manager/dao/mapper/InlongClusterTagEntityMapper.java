@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.dao.mapper;
 
-/**
- * Global constant for system
- */
-public class GlobalConstants {
+import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
+import org.springframework.stereotype.Repository;
 
-    public static final Integer UN_DELETED = 0;
+import java.util.List;
 
-    public static final Integer IS_DELETED = 1;
+@Repository
+public interface InlongClusterTagEntityMapper {
 
-    public static final Integer DELETED_STATUS = 10;
+    int insert(InlongClusterTagEntity record);
 
-    public static final Integer DISABLE_CREATE_RESOURCE = 0;
+    InlongClusterTagEntity selectById(Integer id);
 
-    public static final Integer ENABLE_CREATE_RESOURCE = 1;
+    InlongClusterTagEntity selectByTag(@Param("clusterTag") String clusterTag);
 
-    public static final Integer SYNC_SEND = 1;
+    List<InlongClusterTagEntity> selectByCondition(ClusterTagPageRequest request);
 
-    public static final Integer UN_SYNC_SEND = 0;
+    int updateById(InlongClusterTagEntity record);
+
+    int updateByPrimaryKeySelective(InlongClusterTagEntity record);
+
+    int deleteByPrimaryKey(Integer id);
 
 }

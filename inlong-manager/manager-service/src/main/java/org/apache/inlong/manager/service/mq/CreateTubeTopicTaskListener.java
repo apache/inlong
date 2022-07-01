@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mq.util.TubeMQOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -45,8 +44,6 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
     private InlongClusterService clusterService;
     @Autowired
     private TubeMQOperator tubeMQOperator;
-    @Autowired
-    private InlongGroupService groupService;
 
     @Override
     public TaskEvent event() {

@@ -1,10 +1,10 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -15,21 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.audit.service;
 
-import org.apache.inlong.manager.common.pojo.group.DataSchemaInfo;
-
-import java.util.List;
+import org.apache.inlong.audit.protocol.AuditData;
 
 /**
- * Data format service layer interface for inlong group
+ * InsertData
+ * 
  */
-public interface DataSchemaService {
+public interface InsertData {
 
     /**
-     * Query all data formats
-     *
-     * @return Data format list
+     * insert
+     * @param msgBody
      */
-    List<DataSchemaInfo> listAllDataSchema();
+    void insert(AuditData msgBody);
 }

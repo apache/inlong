@@ -58,7 +58,7 @@ public class DataNodeController {
     @OperationLog(operation = OperationType.CREATE)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Integer> save(@Validated @RequestBody DataNodeRequest request) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(dataNodeService.save(request, currentUser));
     }
 
@@ -79,7 +79,7 @@ public class DataNodeController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node")
     public Response<Boolean> update(@Validated(UpdateReqValid.class) @RequestBody DataNodeRequest request) {
-        String username = LoginUserUtils.getLoginUserDetail().getUserName();
+        String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(dataNodeService.update(request, username));
     }
 
@@ -89,7 +89,7 @@ public class DataNodeController {
     @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(dataNodeService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @PostMapping("/testConnection")

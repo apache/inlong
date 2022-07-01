@@ -15,23 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.audit.db.entities;
 
-import java.io.Serializable;
-import lombok.Data;
+import java.sql.Timestamp;
 
-/**
- * Data schema entity, including name, agent type, etc.
- */
-@Data
-public class DataSchemaEntity implements Serializable {
+import lombok.Getter;
+import lombok.Setter;
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String name;
-    private String agentType;
-    private String dataGenerateRule;
-    private Integer sortType;
-    private String timeOffset;
+@Getter
+@Setter
+public class ClickHouseDataPo {
 
+    private String ip;
+    private String dockerId;
+    private String threadId;
+    private Timestamp sdkTs;
+    private long packetId;
+    private Timestamp logTs;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private String auditId;
+    private long count;
+    private long size;
+    private long delay;
+    private Timestamp updateTime;
 }

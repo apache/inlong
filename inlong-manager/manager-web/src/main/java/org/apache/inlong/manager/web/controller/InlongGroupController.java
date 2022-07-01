@@ -63,7 +63,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Save inlong group info")
     public Response<String> save(@RequestBody InlongGroupRequest groupRequest) {
         groupRequest.checkParams();
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.save(groupRequest, operator));
     }
 
@@ -77,7 +77,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ApiOperation(value = "Get inlong group list by paginating")
     public Response<PageInfo<InlongGroupListResponse>> listByCondition(@RequestBody InlongGroupPageRequest request) {
-        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUsername());
         request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.ADMIN.name()));
         return Response.success(groupService.listByPage(request));
     }
@@ -87,7 +87,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Update inlong group info")
     public Response<String> update(@RequestBody InlongGroupRequest groupRequest) {
         groupRequest.checkParams();
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.update(groupRequest, operator));
     }
 
@@ -101,7 +101,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
     public Response<InlongGroupCountResponse> countGroupByUser() {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.countGroupByUser(operator));
     }
 
@@ -109,7 +109,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Start inlong approval process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.startProcess(groupId, operator));
     }
 
@@ -117,7 +117,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> suspendProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.suspendProcess(groupId, operator));
     }
 
@@ -125,7 +125,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.restartProcess(groupId, operator));
     }
 
@@ -134,7 +134,7 @@ public class InlongGroupController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
     }
 
@@ -142,7 +142,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<String> suspendProcessAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.suspendProcessAsync(groupId, operator));
     }
 
@@ -150,7 +150,7 @@ public class InlongGroupController {
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<String> restartProcessAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.restartProcessAsync(groupId, operator));
     }
 
@@ -159,7 +159,7 @@ public class InlongGroupController {
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<String> deleteAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
     }
 
@@ -172,7 +172,7 @@ public class InlongGroupController {
     @PostMapping(value = "/reset")
     @ApiOperation(value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
     public Response<Boolean> reset(@RequestBody @Validated InlongGroupResetRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.resetGroupStatus(request, operator));
     }
 }

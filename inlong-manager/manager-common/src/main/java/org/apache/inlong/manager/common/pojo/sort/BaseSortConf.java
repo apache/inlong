@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.common.pojo.sort;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -25,14 +27,21 @@ import lombok.Data;
  */
 @Data
 @ApiModel("Sort configuration for inlong group")
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "sortType")
 public abstract class BaseSortConf {
+
+    public String sortType;
 
     public abstract SortType getType();
 
+    public static final String SORT_FLINK = "flink";
+    public static final String SORT_LOCAL = "local";
+    public static final String SORT_USER_DEFINED = "user_defined";
+
     public enum SortType {
-        FLINK("flink"),
-        LOCAL("local"),
-        USER_DEFINED("user_defined");
+        FLINK(SORT_FLINK),
+        LOCAL(SORT_LOCAL),
+        USER_DEFINED(SORT_USER_DEFINED);
 
         private final String type;
 

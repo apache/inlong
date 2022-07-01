@@ -53,7 +53,7 @@ public class StreamSinkController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save sink information")
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
-        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(sinkService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
@@ -73,7 +73,7 @@ public class StreamSinkController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Modify data sink information")
     public Response<Boolean> update(@Validated @RequestBody SinkRequest request) {
-        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUserDetail().getUserName()));
+        return Response.success(sinkService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -81,7 +81,7 @@ public class StreamSinkController {
     @ApiOperation(value = "Delete data sink information")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> delete(@PathVariable Integer id) {
-        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUserDetail().getUserName());
+        boolean result = sinkService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(result);
     }
 

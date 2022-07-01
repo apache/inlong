@@ -58,7 +58,7 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
         Preconditions.checkNotNull(userEntity, "User doesn't exist");
         Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");
         UserDetail userDetail = new UserDetail();
-        userDetail.setUserName(username);
+        userDetail.setUsername(username);
         userDetail.setRoles(Sets.newHashSet(userEntity.getAccountType() == 0
                 ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
         return new SimpleAuthenticationInfo(userDetail, userEntity.getPassword(), getName());

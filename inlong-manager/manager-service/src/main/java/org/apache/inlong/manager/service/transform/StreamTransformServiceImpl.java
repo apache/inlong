@@ -22,7 +22,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
@@ -86,7 +86,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         Date now = new Date();
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
-        transformEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        transformEntity.setIsDeleted(InlongConstants.UN_DELETED);
         transformMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, transformRequest.getFieldList());
         return transformEntity.getId();
@@ -221,7 +221,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             fieldEntity.setRankNum(fieldInfo.getId());
             fieldEntity.setTransformId(transformId);
             fieldEntity.setTransformType(transformType);
-            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+            fieldEntity.setIsDeleted(InlongConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 

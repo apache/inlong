@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -44,8 +44,11 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         this.setTargetEntity(request, entity);
 
         entity.setCreator(operator);
-        entity.setCreateTime(new Date());
-        entity.setIsDeleted(GlobalConstants.UN_DELETED);
+        entity.setModifier(operator);
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         clusterMapper.insert(entity);
 
         return entity.getId();

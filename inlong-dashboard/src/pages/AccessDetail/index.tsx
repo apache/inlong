@@ -135,7 +135,9 @@ const Comp: React.FC = () => {
           onClick={async () => {
             await onOk(current).catch(err => {
               if (err?.errorFields?.length) {
-                message.error(t('pages.AccessCreate.CheckFormIntegrity'));
+                message.error(t('pages.AccessCreate.CheckMsg'));
+              } else if (typeof err === 'string') {
+                message.error(err);
               }
               return Promise.reject(err);
             });

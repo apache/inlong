@@ -23,9 +23,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,11 +48,12 @@ public class OpenClusterController {
     @Autowired
     private InlongClusterService clusterService;
 
+    @Deprecated
     @PostMapping(value = "/save")
     @ApiOperation(value = "Save cluster info")
     @OperationLog(operation = OperationType.CREATE)
     public Response<Integer> save(@RequestBody InlongClusterRequest request) {
-        return Response.success(clusterService.save(request, null));
+        return Response.success(clusterService.save(request, "admin"));
     }
 
     @GetMapping(value = "/get/{id}")

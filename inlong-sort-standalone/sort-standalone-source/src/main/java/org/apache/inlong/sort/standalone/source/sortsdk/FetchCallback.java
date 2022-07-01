@@ -18,9 +18,7 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import com.google.common.base.Preconditions;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
@@ -28,20 +26,17 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * Implementation of {@link ReadCallback}.
- *
- * TODO: Sort sdk should deliver one object which is held by {@link ProfileEvent} and used to ack upstream data store
- * The code should be like :
- *
- * public void onFinished(final MessageRecord messageRecord, ACKer acker) {
- * doSomething();
- * final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), acker);
- * channelProcessor.processEvent(profileEvent);
- * }
  *
  * The ACKer will be used to <b>ACK</b> upstream after that the downstream <b>ACKed</b> sort-standalone.
  * This process seems like <b>transaction</b> of the whole sort-standalone, and which
@@ -103,14 +98,10 @@ public class FetchCallback implements ReadCallback {
     public void onFinished(final MessageRecord messageRecord) {
         try {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
-            CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client);
+            CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client,
+                    CommonPropertiesHolder.getAckPolicy());
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
-                final SubscribeFetchResult result = SubscribeFetchResult.Factory
-                        .create(sortTaskName, messageRecord.getMsgKey(), messageRecord.getOffset(),
-                                inLongMessage.getParams(), messageRecord.getRecTime(),
-                                inLongMessage.getBody());
-                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), 
-                        cacheRecord);
+                final ProfileEvent profileEvent = new ProfileEvent(inLongMessage, cacheRecord);
                 channelProcessor.processEvent(profileEvent);
                 context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }

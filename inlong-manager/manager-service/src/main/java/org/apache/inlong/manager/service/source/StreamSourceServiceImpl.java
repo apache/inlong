@@ -88,7 +88,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
-            streamFields.stream().forEach(streamField -> streamField.setId(null));
+            streamFields.forEach(streamField -> streamField.setId(null));
         }
         int id = operation.saveOpt(request, groupEntity.getStatus(), operator);
 

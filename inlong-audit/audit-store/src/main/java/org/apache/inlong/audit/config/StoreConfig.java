@@ -38,4 +38,8 @@ public class StoreConfig {
         return store.contains("elasticsearch");
     }
 
+    public boolean isClickHouseStore() {
+        return store.contains("clickhouse");
+    }
+
 }

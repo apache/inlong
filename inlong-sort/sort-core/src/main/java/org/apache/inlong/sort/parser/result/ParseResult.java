@@ -23,11 +23,18 @@ package org.apache.inlong.sort.parser.result;
 public interface ParseResult {
 
     /**
-     * Execute the parse result
+     * Execute the parse result without waiting
      *
      * @throws Exception The exception may throws when executing
      */
     void execute() throws Exception;
+
+    /**
+     * Execute the parse result and wait result unit data is ready
+     *
+     * @throws Exception The exception may throws when executing
+     */
+    void waitExecute() throws Exception;
 
     /**
      * Try to execute, it mostly for unit test and syntax error checking

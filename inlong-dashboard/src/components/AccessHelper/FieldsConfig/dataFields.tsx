@@ -20,12 +20,9 @@
 import React from 'react';
 import { FormItemProps } from '@/components/FormGenerator';
 import { pickObjectArray } from '@/utils';
-import DataSourcesEditor from '../DataSourcesEditor';
-import DataStorageEditor from '../DataStorageEditor/Editor';
 import EditableTable from '@/components/EditableTable';
 import i18n from '@/i18n';
 import { fieldTypes as sourceFieldsTypes } from '@/components/MetaData/SourceDataFields';
-import { Storages } from '@/components/MetaData';
 
 type RestParams = {
   inlongGroupId?: string;
@@ -49,10 +46,10 @@ export default (
     readonly = false,
   }: RestParams = {},
 ): FormItemProps[] => {
-  const basicProps = {
-    inlongGroupId: inlongGroupId,
-    inlongStreamId: currentValues.inlongStreamId,
-  };
+  // const basicProps = {
+  //   inlongGroupId: inlongGroupId,
+  //   inlongStreamId: currentValues.inlongStreamId,
+  // };
 
   const fields: FormItemProps[] = [
     {
@@ -89,44 +86,6 @@ export default (
     },
     {
       type: 'radio',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Source'),
-      name: 'dataSourceType',
-      initialValue: currentValues.dataSourceType ?? 'AUTO_PUSH',
-      props: {
-        options: [
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.File'),
-            value: 'FILE',
-          },
-          {
-            label: 'BINLOG',
-            value: 'BINLOG',
-          },
-          {
-            label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.Autonomous'),
-            value: 'AUTO_PUSH',
-          },
-        ],
-      },
-      rules: [{ required: true }],
-    },
-    {
-      type: currentValues.dataSourceType ? (
-        <DataSourcesEditor
-          readonly={readonly}
-          type={currentValues.dataSourceType}
-          useActionRequest={useDataSourcesActionRequest}
-          {...basicProps}
-        />
-      ) : (
-        <div />
-      ),
-      preserve: false,
-      name: 'dataSourcesConfig',
-      visible: values => values.dataSourceType === 'BINLOG' || values.dataSourceType === 'FILE',
-    },
-    {
-      type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataType'),
       name: 'dataType',
       initialValue: currentValues.dataType ?? 'CSV',
@@ -152,7 +111,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: values => values.dataSourceType !== 'BINLOG',
+      // visible: values => values.dataSourceType !== 'BINLOG',
     },
     {
       type: 'radio',
@@ -172,7 +131,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
+      // visible: values => values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH',
     },
     {
       type: 'select',
@@ -222,9 +181,9 @@ export default (
           max: 127,
         },
       ],
-      visible: values =>
-        (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
-        values.dataType === 'CSV',
+      // visible: values =>
+      //   (values.dataSourceType === 'FILE' || values.dataSourceType === 'AUTO_PUSH') &&
+      //   values.dataType === 'CSV',
     },
     {
       type: (
@@ -268,40 +227,6 @@ export default (
       name: 'rowTypeFields',
       visible: () => !(currentValues.dataType as string[])?.includes('PB'),
     },
-    {
-      type: 'checkboxgroup',
-      label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.DataFlowDirection'),
-      name: 'streamSink',
-      props: {
-        options: Storages.map(item => {
-          return {
-            label: item.label,
-            value: item.value,
-          };
-        }).concat({
-          label: i18n.t('components.AccessHelper.FieldsConfig.dataFields.AutoConsumption'),
-          value: 'AUTO_CONSUMPTION',
-        }),
-      },
-    },
-    ...Storages.map(item => item.value).reduce(
-      (acc, item) =>
-        acc.concat({
-          type: (
-            <DataStorageEditor
-              readonly={readonly}
-              defaultRowTypeFields={currentValues.rowTypeFields}
-              type={item}
-              dataType={currentValues.dataType}
-              useActionRequest={useDataStorageActionRequest}
-              {...basicProps}
-            />
-          ),
-          name: `streamSink${item}`,
-          visible: values => (values.streamSink as string[])?.includes(item),
-        }),
-      [],
-    ),
   ];
 
   return pickObjectArray(names, fields);

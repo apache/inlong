@@ -81,7 +81,7 @@ public class BufferQueueChannel extends AbstractChannel {
             ProfileEvent profile = (ProfileEvent) event;
             transaction.doPut(profile);
         } else {
-            ProfileEvent profile = new ProfileEvent(event.getBody(), event.getHeaders(), null);
+            ProfileEvent profile = new ProfileEvent(event.getHeaders(), event.getBody());
             transaction.doPut(profile);
         }
     }

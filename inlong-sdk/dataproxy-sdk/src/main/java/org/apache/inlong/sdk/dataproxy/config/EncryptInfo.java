@@ -19,14 +19,15 @@
 package org.apache.inlong.sdk.dataproxy.config;
 
 public class EncryptInfo {
+
     private String version;
-    private byte[] desKey;
+    private byte[] aesKey;
     private String rsaEncryptedKey;
 
-    public EncryptInfo(String version, String rsaEncryptedKey, byte[] desKey) {
+    public EncryptInfo(String version, String rsaEncryptedKey, byte[] aesKey) {
         this.version = version;
         this.rsaEncryptedKey = rsaEncryptedKey;
-        this.desKey = desKey;
+        this.aesKey = aesKey;
     }
 
     public String getVersion() {
@@ -37,12 +38,12 @@ public class EncryptInfo {
         this.version = version;
     }
 
-    public byte[] getDesKey() {
-        return desKey;
+    public byte[] getAesKey() {
+        return aesKey;
     }
 
-    public void setDesKey(byte[] desKey) {
-        this.desKey = desKey;
+    public void setAesKey(byte[] aesKey) {
+        this.aesKey = aesKey;
     }
 
     public String getRsaEncryptedKey() {

@@ -17,11 +17,13 @@
 
 package org.apache.inlong.manager.common.pojo.sort;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.Map;
 
@@ -31,8 +33,10 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Base configuration for user defined sort functions")
+@JsonTypeDefine(value = BaseSortConf.SORT_USER_DEFINED)
 public class UserDefinedSortConf extends BaseSortConf {
 
+    @JsonIgnore
     @ApiModelProperty(value = "Sort type")
     private SortType type = SortType.USER_DEFINED;
 

@@ -57,7 +57,7 @@ public class OperationLogRecorder {
 
         UserDetail userDetail = Optional.ofNullable(LoginUserUtils.getLoginUserDetail())
                 .orElseGet(UserDetail::new);
-        String operator = userDetail.getUserName();
+        String operator = userDetail.getUsername();
         operator = StringUtils.isBlank(operator) ? ANONYMOUS_USER : operator;
 
         String requestUrl = request.getRequestURI();

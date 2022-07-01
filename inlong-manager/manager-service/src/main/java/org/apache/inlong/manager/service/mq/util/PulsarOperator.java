@@ -91,7 +91,6 @@ public class PulsarOperator {
             List<String> clusters = PulsarUtils.getPulsarClusters(pulsarAdmin);
             Namespaces namespaces = pulsarAdmin.namespaces();
             namespaces.createNamespace(namespaceName, Sets.newHashSet(clusters));
-
             // Configure message TTL
             Integer ttl = pulsarInfo.getTtl();
             if (ttl > 0) {
@@ -122,6 +121,30 @@ public class PulsarOperator {
             LOGGER.info("success to create namespace={}", namespaceName);
         } catch (PulsarAdminException e) {
             LOGGER.error("failed to create namespace=" + namespaceName, e);
+            throw e;
+        }
+    }
+
+    public void forceDeleteNamespace(PulsarAdmin pulsarAdmin, String tenant, String namespace)
+            throws PulsarAdminException {
+        Preconditions.checkNotNull(tenant, "pulsar tenant cannot be empty during create namespace");
+        Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty during create namespace");
+
+        String namespaceName = tenant + "/" + namespace;
+        LOGGER.info("begin to delete namespace={}", namespaceName);
+
+        try {
+            // Check whether the namespace exists, and create it if it does not exist
+            boolean isExists = this.namespacesIsExists(pulsarAdmin, tenant, namespace);
+            if (!isExists) {
+                LOGGER.warn("namespace={} already delete", namespaceName);
+                return;
+            }
+            Namespaces namespaces = pulsarAdmin.namespaces();
+            namespaces.deleteNamespace(namespaceName, true);
+            LOGGER.info("success to delete namespace={}", namespaceName);
+        } catch (PulsarAdminException e) {
+            LOGGER.error("failed to delete namespace=" + namespaceName, e);
             throw e;
         }
     }
@@ -159,6 +182,29 @@ public class PulsarOperator {
             LOGGER.info("success to create topic={}", topicFullName);
         } catch (Exception e) {
             LOGGER.error("failed to create topic=" + topicFullName, e);
+            throw e;
+        }
+    }
+
+    public void forceDeleteTopic(PulsarAdmin pulsarAdmin, PulsarTopicBean topicBean) throws PulsarAdminException {
+        Preconditions.checkNotNull(topicBean, "pulsar topic info cannot be empty");
+
+        String tenant = topicBean.getTenant();
+        String namespace = topicBean.getNamespace();
+        String topic = topicBean.getTopicName();
+        String topicFullName = tenant + "/" + namespace + "/" + topic;
+
+        // Topic will be returned if it not exists
+        if (topicIsExists(pulsarAdmin, tenant, namespace, topic)) {
+            LOGGER.warn("pulsar topic={} already delete", topicFullName);
+            return;
+        }
+
+        try {
+            pulsarAdmin.topics().delete(topicFullName, true);
+            LOGGER.info("success to delete topic={}", topicFullName);
+        } catch (PulsarAdminException e) {
+            LOGGER.error("failed to delete topic=" + topicFullName, e);
             throw e;
         }
     }

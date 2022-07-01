@@ -136,6 +136,10 @@ public class PulsarClientService {
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
+        if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
+            logger.warn("Failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
+            return;
+        }
         try {
             createConnection(callBack);
         } catch (FlumeException e) {
@@ -289,7 +293,6 @@ public class PulsarClientService {
         }
         pulsarClients = new ConcurrentHashMap<>();
         pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
-        Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
         logger.debug("number of pulsar cluster is {}", pulsarUrl2token.size());
         for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
             try {

@@ -64,7 +64,7 @@ public class ConsumptionQuery extends PageRequest {
     private String modifier;
 
     @ApiModelProperty(value = "Current login user")
-    private String userName;
+    private String username;
 
     @ApiModelProperty(value = "Weather current user have admin role", hidden = true)
     private Boolean isAdminRole;

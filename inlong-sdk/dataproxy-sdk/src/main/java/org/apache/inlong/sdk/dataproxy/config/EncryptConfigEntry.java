@@ -18,24 +18,25 @@
 
 package org.apache.inlong.sdk.dataproxy.config;
 
-import java.net.URLEncoder;
-import java.security.interfaces.RSAPublicKey;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.inlong.sdk.dataproxy.utils.EncryptUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLEncoder;
+import java.security.interfaces.RSAPublicKey;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Created by lamberliu on 2016/5/13.
  */
 public class EncryptConfigEntry implements java.io.Serializable {
+
     private static final Logger logger = LoggerFactory.getLogger(EncryptConfigEntry.class);
     private String userName = "";
     private String version;
     private String pubKey;
-    private byte[] desKey;
+    private byte[] aesKey;
     private String rsaEncryptedKey;
     private AtomicLong lastUpdateTime = new AtomicLong(0);
 
@@ -43,7 +44,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
         this.userName = userName;
         this.version = version;
         this.pubKey = pubKey;
-        this.desKey = null;
+        this.aesKey = null;
         this.rsaEncryptedKey = null;
         // this.rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
     }
@@ -52,27 +53,35 @@ public class EncryptConfigEntry implements java.io.Serializable {
         return version;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public String getPubKey() {
         return pubKey;
+    }
+
+    public void setPubKey(String pubKey) {
+        this.pubKey = pubKey;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public synchronized byte[] getDesKey() {
-        if (desKey == null) {
-            desKey = EncryptUtil.generateDesKey();
+    public synchronized byte[] getAesKey() {
+        if (aesKey == null) {
+            aesKey = EncryptUtil.generateAesKey();
         }
 
-        return desKey;
+        return aesKey;
     }
 
     public String getRsaEncryptedKey() {
         if (rsaEncryptedKey == null) {
             RSAPublicKey rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
             try {
-                byte[] encryptedKey = EncryptUtil.rsaEncrypt(rsaKey, getDesKey());
+                byte[] encryptedKey = EncryptUtil.rsaEncrypt(rsaKey, getAesKey());
                 String tmpKey = Base64.encodeBase64String(encryptedKey);
                 rsaEncryptedKey = URLEncoder.encode(tmpKey, "utf8");
                 this.lastUpdateTime.set(System.currentTimeMillis());
@@ -90,7 +99,7 @@ public class EncryptConfigEntry implements java.io.Serializable {
         EncryptInfo encryptInfo = null;
         long visitTime = this.lastUpdateTime.get();
         if (rsaEncryptedKey != null && (System.currentTimeMillis() - visitTime) <= 3 * 60 * 1000) {
-            encryptInfo = new EncryptInfo(this.version, this.rsaEncryptedKey, this.desKey);
+            encryptInfo = new EncryptInfo(this.version, this.rsaEncryptedKey, this.aesKey);
             if (visitTime == this.lastUpdateTime.get()) {
                 return encryptInfo;
             }
@@ -99,20 +108,20 @@ public class EncryptConfigEntry implements java.io.Serializable {
         synchronized (this.lastUpdateTime) {
             if (visitTime == this.lastUpdateTime.get()) {
                 RSAPublicKey rsaKey = EncryptUtil.loadPublicKeyByText(pubKey);
-                this.desKey = EncryptUtil.generateDesKey();
+                this.aesKey = EncryptUtil.generateAesKey();
                 try {
-                    byte[] encryptedKey = EncryptUtil.rsaEncrypt(rsaKey, this.desKey);
+                    byte[] encryptedKey = EncryptUtil.rsaEncrypt(rsaKey, this.aesKey);
                     String tmpKey = Base64.encodeBase64String(encryptedKey);
                     rsaEncryptedKey = URLEncoder.encode(tmpKey, "utf8");
                     this.lastUpdateTime.set(System.currentTimeMillis());
-                    return new EncryptInfo(this.version, this.rsaEncryptedKey, this.desKey);
+                    return new EncryptInfo(this.version, this.rsaEncryptedKey, this.aesKey);
                 } catch (Throwable e) {
                     logger.error("getRsaEncryptInfo failure, RSA Encrypt error {}", e);
                     return null;
                 }
             }
         }
-        return new EncryptInfo(this.version, this.rsaEncryptedKey, this.desKey);
+        return new EncryptInfo(this.version, this.rsaEncryptedKey, this.aesKey);
     }
 
     @Override
@@ -127,14 +136,6 @@ public class EncryptConfigEntry implements java.io.Serializable {
         return (this.userName.equals(info.getUserName()))
                 && (this.version.equals(info.getVersion()))
                 && (this.pubKey == info.getPubKey());
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public void setPubKey(String pubKey) {
-        this.pubKey = pubKey;
     }
 
     public String toString() {

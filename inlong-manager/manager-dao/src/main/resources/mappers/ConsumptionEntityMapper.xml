@@ -268,8 +268,8 @@
         </if>
         <if test="isAdminRole == false">
             and (
-            FIND_IN_SET(#{userName,jdbcType=VARCHAR},c.in_charges)
-            or c.creator = #{userName,jdbcType=VARCHAR}
+            FIND_IN_SET(#{username,jdbcType=VARCHAR},c.in_charges)
+            or c.creator = #{username,jdbcType=VARCHAR}
             )
         </if>
         <if test="keyword != null and keyword !=''">
@@ -321,10 +321,10 @@
         <if test="modifier != null and modifier != ''">
             and modifier = #{modifier,jdbcType=VARCHAR}
         </if>
-        <if test="userName != null and userName !=''">
+        <if test="username != null and username !=''">
             and (
-            FIND_IN_SET(#{userName,jdbcType=VARCHAR},in_charges)
-            or creator = #{userName,jdbcType=VARCHAR}
+            FIND_IN_SET(#{username,jdbcType=VARCHAR},in_charges)
+            or creator = #{username,jdbcType=VARCHAR}
             )
         </if>
         <if test="keyword != null and keyword !=''">

@@ -27,7 +27,6 @@ import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterR
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer saveDataProxyCluster(String clusterTag, String clusterName, String extTag) {
         DataProxyClusterRequest request = new DataProxyClusterRequest();
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setName(clusterName);
         request.setType(ClusterType.CLS_DATA_PROXY);
         request.setExtTag(extTag);
@@ -61,7 +60,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
      */
     public Integer savePulsarCluster(String clusterTag, String clusterName, String adminUrl) {
         PulsarClusterRequest request = new PulsarClusterRequest();
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setName(clusterName);
         request.setType(ClusterType.CLS_PULSAR);
         request.setAdminUrl(adminUrl);
@@ -87,7 +86,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
-        request.setClusterTag(clusterTag);
+        request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.update(request, GLOBAL_OPERATOR);
@@ -210,7 +209,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, InlongGroupSettings.CLUSTER_DATA_PROXY, ip, port2);
+        Integer nodeId2 = this.saveClusterNode(id, ClusterType.CLS_DATA_PROXY, ip, port2);
         Assertions.assertNotNull(nodeId2);
 
         // Get the data proxy cluster ip list, the first port should is p1, second port is p2

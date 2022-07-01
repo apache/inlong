@@ -15,31 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.mapper;
+package org.apache.inlong.manager.dao.entity;
 
-import org.apache.inlong.manager.dao.entity.DataSchemaEntity;
+import lombok.Data;
 
-import java.util.List;
+import java.io.Serializable;
+import java.util.Date;
 
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
+/**
+ * Inlong cluster tag entity.
+ */
+@Data
+public class InlongClusterTagEntity implements Serializable {
 
-@Repository
-public interface DataSchemaEntityMapper {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String clusterTag;
+    private String extParams;
+    private String inCharges;
+    private Integer status;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
+    private Date createTime;
+    private Date modifyTime;
 
-    int deleteByPrimaryKey(Integer id);
-
-    int insert(DataSchemaEntity record);
-
-    int insertSelective(DataSchemaEntity record);
-
-    DataSchemaEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(DataSchemaEntity record);
-
-    int updateByPrimaryKey(DataSchemaEntity record);
-
-    DataSchemaEntity selectByName(@Param("name") String name);
-
-    List<DataSchemaEntity> selectAll();
 }

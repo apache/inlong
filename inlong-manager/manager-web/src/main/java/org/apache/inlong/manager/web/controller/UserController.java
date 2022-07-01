@@ -75,7 +75,7 @@ public class UserController {
     @PostMapping("/update")
     @ApiOperation(value = "Update user info")
     public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(userService.update(userInfo, currentUser));
     }
 
@@ -95,7 +95,7 @@ public class UserController {
     @ApiOperation(value = "Delete user by id")
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> delete(@RequestParam("id") Integer id) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUserName();
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(userService.delete(id, currentUser));
     }
 

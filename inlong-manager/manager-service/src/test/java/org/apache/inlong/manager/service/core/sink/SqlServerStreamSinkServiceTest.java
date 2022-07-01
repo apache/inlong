@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
@@ -63,7 +63,7 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setPrimaryKey("name,age");
 
         sinkInfo.setSinkName(sinkName);
-        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -90,7 +90,7 @@ public class SqlServerStreamSinkServiceTest extends ServiceBaseTest {
         Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
         SqlServerSink sqlServerSink = (SqlServerSink) response;
-        sqlServerSink.setEnableCreateResource(GlobalConstants.ENABLE_CREATE_RESOURCE);
+        sqlServerSink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
 
         SqlServerSinkRequest request = CommonBeanUtils.copyProperties(sqlServerSink,
                 SqlServerSinkRequest::new);

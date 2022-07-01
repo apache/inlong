@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -72,7 +72,7 @@ public class DeleteStreamListener implements SortOperateListener {
         streamExtList.stream().forEach(extInfo -> {
             kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
         });
-        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
+        String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isEmpty(sortExt)) {
             String message = String.format(
                     "delete sort failed for groupId [%s] and streamId [%s], as the sort properties is empty",
@@ -85,7 +85,7 @@ public class DeleteStreamListener implements SortOperateListener {
                 new TypeReference<Map<String, String>>() {
                 });
         kvConf.putAll(result);
-        String jobId = kvConf.get(InlongGroupSettings.SORT_JOB_ID);
+        String jobId = kvConf.get(InlongConstants.SORT_JOB_ID);
         if (StringUtils.isBlank(jobId)) {
             String message = String.format("sort job id is empty for groupId [%s] streamId [%s]", groupId, streamId);
             return ListenerResult.fail(message);
@@ -93,7 +93,7 @@ public class DeleteStreamListener implements SortOperateListener {
 
         FlinkInfo flinkInfo = new FlinkInfo();
         flinkInfo.setJobId(jobId);
-        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        String sortUrl = kvConf.get(InlongConstants.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
 
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());

@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.sink.cls;
 
 import com.tencentcloudapi.cls.producer.common.LogItem;
+
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.junit.Assert;
@@ -85,7 +86,7 @@ public class TestDefaultEvent2LogItemHandler {
         headers.put(Constants.INLONG_GROUP_ID, "testGroup");
         headers.put(Constants.INLONG_STREAM_ID, "testStream");
         headers.put(Constants.HEADER_KEY_MSG_TIME, "1234456");
-        return new ProfileEvent(body, headers, null);
+        return new ProfileEvent(headers, body);
     }
 
 }

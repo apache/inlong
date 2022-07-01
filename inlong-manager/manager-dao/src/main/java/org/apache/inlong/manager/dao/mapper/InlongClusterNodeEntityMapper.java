@@ -30,8 +30,6 @@ public interface InlongClusterNodeEntityMapper {
 
     int insert(InlongClusterNodeEntity record);
 
-    int insertSelective(InlongClusterNodeEntity record);
-
     InlongClusterNodeEntity selectById(Integer id);
 
     InlongClusterNodeEntity selectByUniqueKey(ClusterNodeRequest request);

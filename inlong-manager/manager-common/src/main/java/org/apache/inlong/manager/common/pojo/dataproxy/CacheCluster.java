@@ -24,7 +24,7 @@ public class CacheCluster {
 
     private String clusterName;
     private String type;
-    private String clusterTag;
+    private String clusterTags;
     private String extTag;
     private String extParams;
 
@@ -69,17 +69,17 @@ public class CacheCluster {
      *
      * @return the clusterTag
      */
-    public String getClusterTag() {
-        return clusterTag;
+    public String getClusterTags() {
+        return clusterTags;
     }
 
     /**
      * set clusterTag
      *
-     * @param clusterTag the clusterTag to set
+     * @param clusterTags the clusterTag to set
      */
-    public void setClusterTag(String clusterTag) {
-        this.clusterTag = clusterTag;
+    public void setClusterTags(String clusterTags) {
+        this.clusterTags = clusterTags;
     }
 
     /**

@@ -31,6 +31,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.service.AuthInterceptor;
+import org.apache.inlong.manager.client.api.service.InlongClusterApi;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.service.InlongStreamApi;
 import org.apache.inlong.manager.client.api.service.StreamSinkApi;
@@ -40,6 +41,7 @@ import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -79,7 +81,10 @@ public class InnerInlongManagerClient {
 
     protected final String host;
     protected final int port;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final InlongClusterApi inlongClusterApi;
     private final InlongStreamApi inlongStreamApi;
     private final InlongGroupApi inlongGroupApi;
     private final StreamSourceApi streamSourceApi;
@@ -99,7 +104,7 @@ public class InnerInlongManagerClient {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(
-                        new AuthInterceptor(defaultAuthentication.getUserName(), defaultAuthentication.getPassword()))
+                        new AuthInterceptor(defaultAuthentication.getUsername(), defaultAuthentication.getPassword()))
                 .connectTimeout(configuration.getConnectTimeout(), configuration.getTimeUnit())
                 .readTimeout(configuration.getReadTimeout(), configuration.getTimeUnit())
                 .writeTimeout(configuration.getWriteTimeout(), configuration.getTimeUnit())
@@ -118,6 +123,22 @@ public class InnerInlongManagerClient {
         streamSourceApi = retrofit.create(StreamSourceApi.class);
         streamTransformApi = retrofit.create(StreamTransformApi.class);
         workflowApi = retrofit.create(WorkflowApi.class);
+        inlongClusterApi = retrofit.create(InlongClusterApi.class);
+    }
+
+    /**
+     * Save component cluster for Inlong
+     *
+     * @param request cluster create request
+     * @return clusterIndex
+     */
+    public Integer saveCluster(InlongClusterRequest request) {
+        AssertUtils.notEmpty(request.getName(), "cluster name should not be empty");
+        AssertUtils.notEmpty(request.getType(), "cluster type should not be empty");
+        AssertUtils.notEmpty(request.getClusterTags(), "cluster tags should not be empty");
+        Response<Integer> clusterIndexResponse = executeHttpCall(inlongClusterApi.save(request));
+        assertRespSuccess(clusterIndexResponse);
+        return clusterIndexResponse.getData();
     }
 
     /**
