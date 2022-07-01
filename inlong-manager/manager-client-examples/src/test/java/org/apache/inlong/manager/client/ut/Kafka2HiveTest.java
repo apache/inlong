@@ -29,7 +29,9 @@ import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -264,7 +266,7 @@ class Kafka2HiveTest extends BaseTest {
                 .fieldList(createStreamFields())
                 .build();
 
-        ArrayList<KafkaSource> kafkaSources = Lists.newArrayList(
+        ArrayList<StreamSource> kafkaSources = Lists.newArrayList(
                 KafkaSource.builder()
                         .id(6)
                         .topic(TOPIC)
@@ -283,7 +285,7 @@ class Kafka2HiveTest extends BaseTest {
                         .build()
         );
 
-        ArrayList<HiveSink> hiveSinks = Lists.newArrayList(
+        ArrayList<StreamSink> hiveSinks = Lists.newArrayList(
                 HiveSink.builder()
                         .id(6)
                         .inlongStreamId(STREAM_ID)

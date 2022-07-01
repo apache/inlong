@@ -124,10 +124,10 @@ public class InlongStreamInfo {
     private List<InlongStreamExtInfo> extList;
 
     @ApiModelProperty("Stream source infos")
-    private List<? extends StreamSource> sourceList = new ArrayList<>();
+    private List<StreamSource> sourceList = new ArrayList<>();
 
     @ApiModelProperty("Stream sink infos")
-    private List<? extends StreamSink> sinkList = new ArrayList<>();
+    private List<StreamSink> sinkList = new ArrayList<>();
 
     public InlongStreamResponse genResponse() {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);

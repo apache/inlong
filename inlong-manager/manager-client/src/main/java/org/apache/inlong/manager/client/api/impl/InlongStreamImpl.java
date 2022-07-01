@@ -98,7 +98,7 @@ public class InlongStreamImpl implements InlongStream {
                                         sink1.getSinkName(), this.inlongStreamId));
                             }));
         }
-        List<? extends StreamSource> sourceInfos = streamInfo.getSourceList();
+        List<StreamSource> sourceInfos = streamInfo.getSourceList();
         if (CollectionUtils.isNotEmpty(sourceInfos)) {
             this.streamSources = sourceInfos.stream()
                     .collect(Collectors.toMap(StreamSource::getSourceName, streamSource -> streamSource,

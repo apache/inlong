@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -37,7 +38,6 @@ import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -90,7 +90,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         InlongStreamInfo streamInfo = form.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<StreamSink> streamSinks = streamSinkService.listSink(groupId, streamId);
+        List<StreamSink> streamSinks = streamInfo.getSinkList();
         if (CollectionUtils.isEmpty(streamSinks)) {
             log.warn("Sink not found by groupId={}", groupId);
             return ListenerResult.success();
@@ -102,22 +102,25 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
             StreamInfo sortStreamInfo = new StreamInfo(streamId, nodes, nodeRelations);
             GroupInfo sortGroupInfo = new GroupInfo(groupId, Lists.newArrayList(sortStreamInfo));
             String dataFlows = OBJECT_MAPPER.writeValueAsString(sortGroupInfo);
-            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
-            extInfo.setInlongGroupId(groupId);
-            extInfo.setInlongStreamId(streamId);
-            String keyName = InlongConstants.DATA_FLOW;
-            extInfo.setKeyName(keyName);
-            extInfo.setKeyValue(dataFlows);
-            if (streamInfo.getExtList() == null) {
-                groupInfo.setExtList(Lists.newArrayList());
-            }
-            upsertDataFlow(streamInfo, extInfo, keyName);
+            addExtInfo(groupInfo, streamInfo, InlongConstants.DATA_FLOW, dataFlows);
         } catch (Exception e) {
             log.error("create sort config failed for sink list={} of groupId={}, streamId={}", streamSinks, groupId,
                     streamId, e);
             throw new WorkflowListenerException("create sort config failed: " + e.getMessage());
         }
         return ListenerResult.success();
+    }
+
+    private void addExtInfo(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String key, String value) {
+        InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
+        extInfo.setKeyName(key);
+        extInfo.setKeyValue(value);
+        if (streamInfo.getExtList() == null) {
+            streamInfo.setExtList(Lists.newArrayList());
+        }
+        upsertExtInfo(streamInfo, extInfo, key);
     }
 
     private List<StreamSource> createPulsarSources(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo) {
@@ -173,7 +176,7 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         return Lists.newArrayList(relation);
     }
 
-    private void upsertDataFlow(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {
+    private void upsertExtInfo(InlongStreamInfo streamInfo, InlongStreamExtInfo extInfo, String keyName) {
         streamInfo.getExtList().removeIf(ext -> keyName.equals(ext.getKeyName()));
         streamInfo.getExtList().add(extInfo);
     }
