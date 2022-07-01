@@ -129,7 +129,8 @@ public class AesUtils {
      */
     public static String encryptToString(byte[] plainBytes, Integer version) throws Exception {
         if (version == null) {
-            version = getCurrentVersion(null);
+            // no encryption
+            return new String(plainBytes, StandardCharsets.UTF_8);
         }
         byte[] keyBytes = getAesKeyByConfig(version).getBytes(StandardCharsets.UTF_8);
         return parseByte2HexStr(encrypt(plainBytes, keyBytes));
@@ -148,7 +149,11 @@ public class AesUtils {
     /**
      * Encrypt by property key
      */
-    public static byte[] decryptAsString(String cipherText, int version) throws Exception {
+    public static byte[] decryptAsString(String cipherText, Integer version) throws Exception {
+        if (version == null) {
+            // No decryption: treated as plain text
+            return cipherText.getBytes(StandardCharsets.UTF_8);
+        }
         byte[] keyBytes = getAesKeyByConfig(version).getBytes(StandardCharsets.UTF_8);
         return decrypt(parseHexStr2Byte(cipherText), keyBytes);
     }

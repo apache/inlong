@@ -29,11 +29,33 @@ import java.nio.charset.StandardCharsets;
 public class AesUtilsTest {
 
     @Test
-    public void testEncryptDecrypt() throws Exception {
+    public void testEncryptDecryptDirectly() throws Exception {
         byte[] key = "key-123".getBytes(StandardCharsets.UTF_8);
         String plainText = "hello, inlong";
         byte[] cipheredBytes = AesUtils.encrypt(plainText.getBytes(StandardCharsets.UTF_8), key);
         byte[] decipheredBytes = AesUtils.decrypt(cipheredBytes, key);
+        Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void testEncryptDecryptByConfigVersion() throws Exception {
+        String plainText = "hello, inlong again";
+        Integer version = AesUtils.getCurrentVersion(null);
+        String cipheredText = AesUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), version);
+        byte[] decipheredBytes = AesUtils.decryptAsString(cipheredText, version);
+        Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void testEncryptDecryptByNullVersion() throws Exception {
+        String plainText = "hello, inlong again";
+
+        // when version is null no encryption is performed
+        String cipheredText = AesUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), null);
+        Assertions.assertEquals(plainText, cipheredText);
+
+        // when version is null no decryption is performed
+        byte[] decipheredBytes = AesUtils.decryptAsString(cipheredText, null);
         Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
     }
 }

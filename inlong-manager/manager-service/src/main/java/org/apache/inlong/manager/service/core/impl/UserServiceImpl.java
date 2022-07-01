@@ -82,13 +82,12 @@ public class UserServiceImpl implements UserService {
 
         try {
             // decipher according to stored key version
+            // note that if the version is null then the string is treated as unencrypted plain text
             Integer version = entity.getEcVersion();
-            if (version != null) {
-                byte[] secretKeyBytes = AesUtils.decryptAsString(entity.getSecretKey(), version);
-                byte[] publicKeyBytes = AesUtils.decryptAsString(entity.getPublicKey(), version);
-                result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
-                result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
-            }
+            byte[] secretKeyBytes = AesUtils.decryptAsString(entity.getSecretKey(), version);
+            byte[] publicKeyBytes = AesUtils.decryptAsString(entity.getPublicKey(), version);
+            result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
+            result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
         } catch (Exception e) {
             String errMsg = String.format("decryption error: %s", e.getMessage());
             log.error("decryption error error ", e);
@@ -112,11 +111,11 @@ public class UserServiceImpl implements UserService {
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
         try {
-            Integer ecVersion = AesUtils.getCurrentVersion(null);
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
             String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
             String secretKey = RandomStringUtils.randomAlphanumeric(8);
+            Integer ecVersion = AesUtils.getCurrentVersion(null);
             entity.setEcVersion(ecVersion);
             entity.setPublicKey(AesUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), ecVersion));
             entity.setPrivateKey(AesUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), ecVersion));
