@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
@@ -65,6 +66,13 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
+        List<InlongStreamInfo> streamInfos = groupResourceForm.getStreamInfos();
+        int sinkCount = streamInfos.stream().map(s -> s == null ? 0 : s.getSinkList().size()).reduce(0, Integer::sum);
+        if (sinkCount == 0) {
+            log.warn("not any sink configured for group {}, skip launching sort job", groupId);
+            return ListenerResult.success();
+        }
+
         InlongGroupInfo inlongGroupInfo = groupResourceForm.getGroupInfo();
         List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
         log.info("inlong group ext info: {}", extList);
@@ -79,12 +87,6 @@ public class StartupSortListener implements SortOperateListener {
                     new TypeReference<Map<String, String>>() {
                     });
             kvConf.putAll(result);
-        }
-
-        String sinkCount = kvConf.get(InlongConstants.SINK_COUNT);
-        if (StringUtils.isNotEmpty(sinkCount) && Integer.parseInt(sinkCount) == 0) {
-            log.warn("not any sink configured for group {}, skip launching sort job", groupId);
-            return ListenerResult.success();
         }
 
         String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);

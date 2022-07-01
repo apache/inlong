@@ -20,6 +20,7 @@ package org.apache.inlong.manager.plugin.listener;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -69,6 +70,11 @@ public class StartupStreamListener implements SortOperateListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
 
+        if (CollectionUtils.isEmpty(streamResourceProcessForm.getStreamInfo().getSinkList())) {
+            log.warn("not any sink configured for group {} and stream {}, skip launching sort job", groupId, streamId);
+            return ListenerResult.success();
+        }
+
         Map<String, String> kvConf = groupExtList.stream().collect(
                 Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
         streamExtList.stream().forEach(extInfo -> {
@@ -80,12 +86,6 @@ public class StartupStreamListener implements SortOperateListener {
                     new TypeReference<Map<String, String>>() {
                     });
             kvConf.putAll(result);
-        }
-
-        String sinkCount = kvConf.get(InlongConstants.SINK_COUNT);
-        if (StringUtils.isNotEmpty(sinkCount) && Integer.parseInt(sinkCount) == 0) {
-            log.warn("not any sink configured for group {} and stream {}, skip launching sort job", groupId, streamId);
-            return ListenerResult.success();
         }
 
         String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);

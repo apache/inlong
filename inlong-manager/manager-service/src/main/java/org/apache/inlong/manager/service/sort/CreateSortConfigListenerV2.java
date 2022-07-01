@@ -89,15 +89,12 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             return ListenerResult.success();
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
-        final String groupId = groupInfo.getInlongGroupId();
-        int sinkCount = sinkService.getCount(groupId, null);
-        addExtInfo(groupInfo, InlongConstants.SINK_COUNT, String.valueOf(sinkCount));
+        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
+        int sinkCount = streamInfos.stream().map(s -> s == null ? 0 : s.getSinkList().size()).reduce(0, Integer::sum);
         if (sinkCount == 0) {
-            log.warn("not any sink for group {} found, skip creating sort config", groupId);
+            log.warn("not any sink for group {} found, skip creating sort config", groupInfo.getInlongGroupId());
             return ListenerResult.success();
         }
-
-        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
         String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
         addExtInfo(groupInfo, InlongConstants.DATA_FLOW, dataFlows);

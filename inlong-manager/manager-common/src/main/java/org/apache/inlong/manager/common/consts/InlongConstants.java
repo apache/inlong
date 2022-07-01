@@ -76,6 +76,4 @@ public class InlongConstants {
 
     public static final String SORT_PROPERTIES = "sort.properties";
 
-    public static final String SINK_COUNT = "sinkCount";
-
 }

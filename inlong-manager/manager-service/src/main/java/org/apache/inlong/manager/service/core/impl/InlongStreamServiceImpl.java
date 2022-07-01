@@ -22,8 +22,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -144,6 +144,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
         List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
         streamInfo.setExtList(exts);
+        List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+        streamInfo.setSinkList(sinkList);
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
         return streamInfo;
     }
@@ -171,6 +173,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             streamInfo.setFieldList(fieldInfos);
             List<InlongStreamExtInfo> extInfos = extInfoMap.get(streamId);
             streamInfo.setExtList(extInfos);
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+            streamInfo.setSinkList(sinkList);
         });
         return streamList;
     }
