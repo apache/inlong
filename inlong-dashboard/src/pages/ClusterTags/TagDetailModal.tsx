@@ -18,33 +18,30 @@
  */
 
 import React, { useMemo } from 'react';
+import i18n from '@/i18n';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
+import StaffSelect from '@/components/StaffSelect';
 import request from '@/utils/request';
-import { Clusters } from './config';
-import i18n from '@/i18n';
 
-export interface Props extends ModalProps {
-  type: string;
-  // Require when edit
-  id?: string;
+export interface TagDetailModalProps extends ModalProps {
+  id?: number;
 }
 
-const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
+const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) => {
   const [form] = useForm();
 
   const { run: getData } = useRequest(
     id => ({
-      url: `/cluster/get/${id}`,
+      url: `/cluster/tag/get/${id}`,
     }),
     {
       manual: true,
       formatResult: result => ({
         ...result,
-        inCharges: result.inCharges?.split(','),
-        clusterTags: result.clusterTags?.split(','),
+        inCharges: result.inCharges ? result.inCharges.split(',') : [],
       }),
       onSuccess: result => {
         form.setFieldsValue(result);
@@ -57,16 +54,13 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     const isUpdate = id;
     const submitData = {
       ...values,
-      type,
       inCharges: values.inCharges?.join(','),
-      clusterTags: values.clusterTags?.join(','),
     };
     if (isUpdate) {
       submitData.id = id;
-      // submitData.version = data?.version;
     }
     await request({
-      url: `/cluster/${isUpdate ? 'update' : 'save'}`,
+      url: `/cluster/tag/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -85,14 +79,24 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   }, [modalProps.visible]);
 
   const content = useMemo(() => {
-    const current = Clusters.find(item => item.value === type);
-    return current?.config;
-  }, [type]);
+    return [
+      {
+        type: 'input',
+        label: i18n.t('pages.ClusterTags.Name'),
+        name: 'clusterTag',
+      },
+      {
+        type: <StaffSelect mode="multiple" currentUserClosable={false} />,
+        label: i18n.t('pages.ClusterTags.InCharges'),
+        name: 'inCharges',
+      },
+    ];
+  }, []);
 
   return (
     <Modal
       {...modalProps}
-      title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
+      title={i18n.t(id ? 'basic.Edit' : 'basic.Create') + i18n.t('pages.ClusterTags.Name')}
       onOk={onOk}
     >
       <FormGenerator content={content} form={form} useMaxWidth />
@@ -100,4 +104,4 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   );
 };
 
-export default Comp;
+export default TagDetailModal;
