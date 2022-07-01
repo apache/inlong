@@ -61,12 +61,33 @@ export const Clusters: ClusterItemType[] = [
       _inTable: true,
     },
     {
-      type: 'input',
+      type: 'select',
       label: i18n.t('pages.Clusters.Tag'),
-      name: 'clusterTag',
+      name: 'clusterTags',
       rules: [{ required: true }],
       props: {
-        maxLength: 128,
+        mode: 'multiple',
+        filterOption: false,
+        options: {
+          requestTrigger: ['onOpen', 'onSearch'],
+          requestService: keyword => ({
+            url: '/cluster/tag/list',
+            method: 'POST',
+            data: {
+              keyword,
+              pageNum: 1,
+              pageSize: 20,
+            },
+          }),
+          requestParams: {
+            formatResult: result =>
+              result?.list?.map(item => ({
+                ...item,
+                label: item.clusterTag,
+                value: item.clusterTag,
+              })),
+          },
+        },
       },
       _inTable: true,
     },

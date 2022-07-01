@@ -116,6 +116,11 @@ const routes: RouteProps[] = [
     ],
   },
   {
+    path: '/clusterTags',
+    component: () => import('@/pages/ClusterTags'),
+    exact: true,
+  },
+  {
     component: () => import('@/pages/Error/404'),
   },
 ];

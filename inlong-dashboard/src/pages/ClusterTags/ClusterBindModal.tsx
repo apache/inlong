@@ -17,60 +17,33 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useRequest, useUpdateEffect } from '@/hooks';
-import request from '@/utils/request';
-import { Clusters } from './config';
+import { useUpdateEffect } from '@/hooks';
 import i18n from '@/i18n';
+import request from '@/utils/request';
 
 export interface Props extends ModalProps {
-  type: string;
-  // Require when edit
-  id?: string;
+  tagId: number;
 }
 
-const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ tagId, ...modalProps }) => {
   const [form] = useForm();
-
-  const { run: getData } = useRequest(
-    id => ({
-      url: `/cluster/get/${id}`,
-    }),
-    {
-      manual: true,
-      formatResult: result => ({
-        ...result,
-        inCharges: result.inCharges?.split(','),
-        clusterTags: result.clusterTags?.split(','),
-      }),
-      onSuccess: result => {
-        form.setFieldsValue(result);
-      },
-    },
-  );
 
   const onOk = async () => {
     const values = await form.validateFields();
-    const isUpdate = id;
     const submitData = {
+      tagId,
       ...values,
-      type,
-      inCharges: values.inCharges?.join(','),
-      clusterTags: values.clusterTags?.join(','),
     };
-    if (isUpdate) {
-      submitData.id = id;
-      // submitData.version = data?.version;
-    }
     await request({
-      url: `/cluster/${isUpdate ? 'update' : 'save'}`,
+      url: '/cluster/tag/bind',
       method: 'POST',
       data: submitData,
     });
-    await modalProps?.onOk(submitData);
+    await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
@@ -78,24 +51,49 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     if (modalProps.visible) {
       // open
       form.resetFields();
-      if (id) {
-        getData(id);
-      }
     }
   }, [modalProps.visible]);
 
-  const content = useMemo(() => {
-    const current = Clusters.find(item => item.value === type);
-    return current?.config;
-  }, [type]);
+  const getCreateFormContent = useCallback(
+    () => [
+      {
+        type: 'select',
+        label: i18n.t('pages.Clusters.Name'),
+        name: 'clusters',
+        rules: [{ required: true }],
+        props: {
+          mode: 'multiple',
+          filterOption: false,
+          options: {
+            requestTrigger: ['onOpen', 'onSearch'],
+            requestService: keyword => ({
+              url: '/cluster/list',
+              method: 'POST',
+              data: {
+                keyword,
+                pageNum: 1,
+                pageSize: 20,
+                type: '',
+              },
+            }),
+            requestParams: {
+              formatResult: result =>
+                result?.list?.map(item => ({
+                  ...item,
+                  label: item.clusterTag,
+                  value: item.clusterTag,
+                })),
+            },
+          },
+        },
+      },
+    ],
+    [],
+  );
 
   return (
-    <Modal
-      {...modalProps}
-      title={id ? i18n.t('pages.Clusters.Edit') : i18n.t('pages.Clusters.Create')}
-      onOk={onOk}
-    >
-      <FormGenerator content={content} form={form} useMaxWidth />
+    <Modal {...modalProps} title={i18n.t('pages.ClusterTags.BindCluster')} onOk={onOk}>
+      <FormGenerator content={getCreateFormContent()} form={form} useMaxWidth />
     </Modal>
   );
 };
