@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
@@ -80,7 +79,7 @@ class DataNodeControllerTest extends WebBaseTest {
         Assertions.assertTrue(success);
 
         DataNodeEntity dataNodeEntity = dataNodeEntityMapper.selectById(dataNodeId);
-        Assertions.assertEquals(GlobalConstants.IS_DELETED, dataNodeEntity.getIsDeleted());
+        Assertions.assertEquals(dataNodeEntity.getId(), dataNodeEntity.getIsDeleted());
     }
 
     @Test
