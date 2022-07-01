@@ -90,12 +90,14 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         }
         InlongGroupInfo groupInfo = form.getGroupInfo();
         List<InlongStreamInfo> streamInfos = form.getStreamInfos();
-        int sinkCount = streamInfos.stream().map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
+        int sinkCount = streamInfos.stream()
+                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
                 .reduce(0, Integer::sum);
         if (sinkCount == 0) {
             log.warn("not any sink for group {} found, skip creating sort config", groupInfo.getInlongGroupId());
             return ListenerResult.success();
         }
+
         GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
         String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
         addExtInfo(groupInfo, InlongConstants.DATA_FLOW, dataFlows);

@@ -67,7 +67,8 @@ public class StartupSortListener implements SortOperateListener {
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         List<InlongStreamInfo> streamInfos = groupResourceForm.getStreamInfos();
-        int sinkCount = streamInfos.stream().map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
+        int sinkCount = streamInfos.stream()
+                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
                 .reduce(0, Integer::sum);
         if (sinkCount == 0) {
             log.warn("not any sink configured for group {}, skip launching sort job", groupId);
