@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.definition;
+package org.apache.inlong.manager.common.pojo.common;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
+import javax.validation.groups.Default;
 
 /**
- * Whether to skip the arbiter
+ * Used for validate update request fields group
+ *
+ * In general, the request body of save and update can be shared,
+ * but we need to verify the parameters of the two requests separately
+ *
+ * For example, the request body save and update only have the difference in id,
+ * and this id must be carried when updating, we can use it like this
+ * {@link org.apache.inlong.manager.common.pojo.node.DataNodeRequest}
  */
-@FunctionalInterface
-public interface SkipResolver {
-
-    SkipResolver DEFAULT_NOT_SKIP = c -> false;
-
-    /**
-     * Determine whether to skip the current node
-     *
-     * @param context Context
-     * @return Whether
-     */
-    boolean isSkip(WorkflowContext context);
+public interface UpdateReqValid extends Default {
 
 }

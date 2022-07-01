@@ -41,15 +41,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public WorkflowContext approve(Integer taskId, String remark, TaskForm form, String operator) {
-        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.APPROVE, form, remark,
-                operator);
+        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.APPROVE, form,
+                remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;
     }
 
     @Override
     public WorkflowContext reject(Integer taskId, String remark, String operator) {
-        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.REJECT, remark, operator);
+        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.REJECT, remark,
+                operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;
     }
@@ -59,7 +60,6 @@ public class TaskServiceImpl implements TaskService {
         WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.TRANSFER, to, remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
-
         return context;
     }
 

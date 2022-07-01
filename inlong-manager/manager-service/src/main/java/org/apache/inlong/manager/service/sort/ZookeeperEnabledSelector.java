@@ -37,7 +37,7 @@ public class ZookeeperEnabledSelector implements EventSelector {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("zookeeper enabled was [false] for groupId [{}]", groupId);
+            log.warn("zookeeper enabled was [false] for groupId [{}]", groupId);
             return false;
         }
 

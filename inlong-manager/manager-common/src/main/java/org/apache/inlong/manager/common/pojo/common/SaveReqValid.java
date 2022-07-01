@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.processor;
+package org.apache.inlong.manager.common.pojo.common;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.definition.Element;
+import javax.validation.groups.Default;
 
 /**
- * Skippable element executor
+ * Used for validate add request fields group
+ *
+ * @see UpdateReqValid
  */
-public interface SkipableElementProcessor<T extends Element> {
-
-    /**
-     * Execute skip logic
-     *
-     * @param element Current component
-     * @param context context
-     */
-    void skip(T element, WorkflowContext context);
+public interface SaveReqValid extends Default {
 
 }

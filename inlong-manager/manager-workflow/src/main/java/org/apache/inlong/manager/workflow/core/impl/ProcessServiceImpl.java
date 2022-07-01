@@ -75,7 +75,7 @@ public class ProcessServiceImpl implements ProcessService {
         List<WorkflowTaskEntity> startElements = Lists.newArrayList();
         startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.PENDING));
         startElements.addAll(taskEntityMapper.selectByProcess(processId, TaskStatus.FAILED));
-        for (WorkflowTaskEntity taskEntity:startElements){
+        for (WorkflowTaskEntity taskEntity : startElements) {
             String taskName = taskEntity.getName();
             WorkflowTask task = context.getProcess().getTaskByName(taskName);
             context.setActionContext(new WorkflowContext.ActionContext()

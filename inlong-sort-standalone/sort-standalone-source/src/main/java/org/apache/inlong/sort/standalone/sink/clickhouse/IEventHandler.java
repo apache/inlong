@@ -15,21 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.definition;
+package org.apache.inlong.sort.standalone.sink.clickhouse;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
- * Whether it can be skipped
+ * 
+ * IEventHandler
  */
-public interface SkippableElement {
+public interface IEventHandler {
 
     /**
-     * Whether it can be skipped
-     *
-     * @param workflowContext workflow context
-     * @return whether to skip
+     * parse
+     * 
+     * @param  idConfig
+     * @param  event
+     * @return
      */
-    boolean isSkip(WorkflowContext workflowContext);
+    Map<String, String> parse(ClickHouseIdConfig idConfig, ProfileEvent event);
 
+    /**
+     * setValue
+     * @param idConfig
+     * @param columnValueMap
+     * @param pstat
+     * @throws SQLException
+     */
+    void setValue(ClickHouseIdConfig idConfig, Map<String, String> columnValueMap, PreparedStatement pstat)
+            throws SQLException;
 }
