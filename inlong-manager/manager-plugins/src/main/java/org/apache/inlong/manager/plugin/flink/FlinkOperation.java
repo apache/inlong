@@ -17,13 +17,19 @@
 
 package org.apache.inlong.manager.plugin.flink;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
+import org.apache.inlong.manager.plugin.flink.enums.ConnectorJarType;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
@@ -33,10 +39,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.apache.flink.api.common.JobStatus.RUNNING;
 
@@ -46,6 +57,7 @@ import static org.apache.flink.api.common.JobStatus.RUNNING;
 @Slf4j
 public class FlinkOperation {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String CONFIG_FILE = "application.properties";
     private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
@@ -53,6 +65,8 @@ public class FlinkOperation {
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
+    private static final String CONNECTOR_JAR_PATTERN = "^sort-connector-(?i)(%s).*jar$";
+    private static final String CONNECTOR_JAR_ALL_PATTERN = "^sort-connector-.*jar$";
     private static Properties properties;
     private final FlinkService flinkService;
 
@@ -77,13 +91,12 @@ public class FlinkOperation {
     /**
      * Get Sort connector jar patterns from the Flink info.
      */
-    private static String getConnectorJarPattern(FlinkInfo flinkInfo) {
-        if (StringUtils.isNotEmpty(flinkInfo.getSourceType()) && StringUtils.isNotEmpty(flinkInfo.getSinkType())) {
-            return String.format("^sort-connector-(?i)(%s|%s).*jar$", flinkInfo.getSourceType(),
-                    flinkInfo.getSinkType());
-        } else {
-            return "^sort-connector-.*jar$";
-        }
+    private String getConnectorJarPattern(String dataSourceType) {
+
+        ConnectorJarType connectorJarType = ConnectorJarType.getInstance(dataSourceType);
+        return connectorJarType == null
+                ? CONNECTOR_JAR_ALL_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
+
     }
 
     /**
@@ -161,15 +174,46 @@ public class FlinkOperation {
         flinkInfo.setLocalJarPath(jarPath);
         log.info("get sort jar path success, path: {}", jarPath);
 
+        List<String> nodeTypes = new ArrayList<>();
+        if (StringUtils.isNotEmpty(dataflow)) {
+            JsonNode streams = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS);
+            for (int i = 0; i < streams.size(); i++) {
+                JsonNode relations = streams.get(i).get(InlongConstants.RELATIONS);
+                for (int j = 0; j < relations.size(); j++) {
+                    String inputNames = OBJECT_MAPPER.convertValue(relations.get(j).get(InlongConstants.INPUTS),
+                                    new TypeReference<List<String>>(){}).stream().findFirst().orElse(null);
+                    String outputNames = OBJECT_MAPPER.convertValue(relations.get(j).get(InlongConstants.OUTPUTS),
+                            new TypeReference<List<String>>(){}).stream().findFirst().orElse(null);
+
+                    if (inputNames.equals(outputNames)) {
+                        String message = String.format("input nodeName: %s equals to output nodeName: %s",
+                                inputNames, outputNames);
+                        log.error(message);
+                        throw new Exception(message);
+                    }
+                }
+
+                Object type = InlongConstants.NODE_TYPE;
+                JsonNode nodes = streams.get(i).get(InlongConstants.NODES);
+                List<String> types = OBJECT_MAPPER.convertValue(nodes,
+                        new TypeReference<List<Map<String, Object>>>() {
+                        }).stream().map(s -> s.get(type).toString()).collect(Collectors.toList());
+                nodeTypes.addAll(types);
+            }
+        }
+
         String connectorDir = getConnectorDir(startPath);
-        List<String> connectorPaths = FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(flinkInfo), -1);
+        Set<String> connectorPaths = nodeTypes.stream().map(
+                s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1)
+        ).flatMap(Collection::stream).collect(Collectors.toSet());
+
         if (CollectionUtils.isEmpty(connectorPaths)) {
             String message = String.format("no sort connectors found in %s", connectorDir);
             log.error(message);
             throw new RuntimeException(message);
         }
 
-        flinkInfo.setConnectorJarPaths(connectorPaths);
+        flinkInfo.setConnectorJarPaths(new ArrayList<>(connectorPaths));
         log.info("get sort connector paths success, paths: {}", connectorPaths);
 
         if (FlinkUtils.writeConfigToFile(path, flinkInfo.getJobName(), dataflow)) {
