@@ -27,6 +27,8 @@ EXPOSE 46801
 ENV MANAGER_OPENAPI_IP=127.0.0.1
 ENV MANAGER_OPENAPI_PORT=8083
 ENV AUDIT_PROXY_URL=127.0.0.1:10081
+# pulsar or tubemq
+ENV MQ_TYPE=pulsar
 ENV DATAPROXY_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-dataproxy
 ADD dataproxy-docker.sh bin/
