@@ -84,7 +84,8 @@ public class WorkflowController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Continue process")
     @ApiImplicitParam(name = "id", value = "WorkflowProcess ID", dataTypeClass = Integer.class, required = true)
-    public Response<WorkflowResult> continueProcess(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
+    public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
+            @RequestBody WorkflowOperation operation) {
         String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
     }

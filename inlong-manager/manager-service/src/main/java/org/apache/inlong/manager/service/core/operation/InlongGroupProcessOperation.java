@@ -255,7 +255,7 @@ public class InlongGroupProcessOperation {
             case SUSPENDING:
             case RESTARTING:
             case DELETING:
-                dealWithPendingGroup(groupInfo, operator, status, rerunProcess, resetFinalStatus);
+                return dealWithPendingGroup(groupInfo, operator, status, rerunProcess, resetFinalStatus);
             default:
                 throw new IllegalStateException(
                         String.format("Unsupported status to reset for group = %s and status = %s",
@@ -279,11 +279,10 @@ public class InlongGroupProcessOperation {
         }
         if (resetFinalStatus == 1) {
             GroupStatus finalStatus = getFinalStatus(status);
-            groupService.updateStatus(groupId, finalStatus.getCode(), operator);
+            return groupService.updateStatus(groupId, finalStatus.getCode(), operator);
         } else {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+            return groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
         }
-        return true;
     }
 
     private GroupStatus getFinalStatus(GroupStatus pendingStatus) {

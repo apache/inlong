@@ -119,33 +119,6 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    // There will be concurrency problems in the overall operation,This method temporarily fails the test
-    // @Test
-    public void testCreateSortConfigInCreateWorkflow() {
-        InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
-        groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-        groupInfo.setEnableZookeeper(0);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
-        createHiveSink(streamInfo);
-        createKafkaSource(streamInfo);
-        mockTaskListenerFactory();
-        WorkflowContext context = processService.start(processName.name(), applicant, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
-        ProcessResponse response = result.getProcessInfo();
-        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
-        WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("initSort");
-        Assertions.assertTrue(task instanceof ServiceTask);
-        Assertions.assertEquals(1, task.getNameToListenerMap().size());
-
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assertions.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
-        ProcessForm form = context.getProcessForm();
-        InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
-        Assertions.assertEquals(1, curGroupRequest.getExtList().size());
-    }
-
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
