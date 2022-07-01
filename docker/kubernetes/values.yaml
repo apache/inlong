@@ -646,6 +646,6 @@ external:
     serviceUrl: "localhost:6650"
     adminUrl: "localhost:8080"
   flink:
-    enabled: false
+    enabled: true
     hostname: "127.0.0.1"
     port: 8081
