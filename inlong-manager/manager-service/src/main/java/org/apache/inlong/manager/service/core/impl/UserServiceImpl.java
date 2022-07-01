@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
+import org.apache.inlong.manager.common.util.AesUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -41,6 +42,7 @@ import org.apache.inlong.manager.service.core.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +79,21 @@ public class UserServiceImpl implements UserService {
         result.setUsername(entity.getName());
         result.setValidDays(SmallTools.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
-        result.setSecretKey(entity.getSecretKey());
-        result.setPublicKey(entity.getPublicKey());
-        // never reveal private key
+
+        try {
+            // decipher according to stored key version
+            Integer version = entity.getEcVersion();
+            if (version != null) {
+                byte[] secretKeyBytes = AesUtils.decryptAsString(entity.getSecretKey(), version);
+                byte[] publicKeyBytes = AesUtils.decryptAsString(entity.getPublicKey(), version);
+                result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
+                result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
+            }
+        } catch (Exception e) {
+            String errMsg = String.format("decryption error: %s", e.getMessage());
+            log.error("decryption error error ", e);
+            throw new BusinessException(errMsg);
+        }
 
         log.debug("success to get user info by id={}", userId);
         return result;
@@ -97,13 +111,16 @@ public class UserServiceImpl implements UserService {
         entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
-        entity.setSecretKey(RandomStringUtils.randomAlphanumeric(8));
         try {
+            Integer ecVersion = AesUtils.getCurrentVersion(null);
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
             String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
-            entity.setPublicKey(publicKey);
-            entity.setPrivateKey(privateKey);
+            String secretKey = RandomStringUtils.randomAlphanumeric(8);
+            entity.setEcVersion(ecVersion);
+            entity.setPublicKey(AesUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), ecVersion));
+            entity.setPrivateKey(AesUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), ecVersion));
+            entity.setSecretKey(AesUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), ecVersion));
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
             log.error("generate rsa key error ", e);

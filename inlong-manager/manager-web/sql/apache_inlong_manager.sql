@@ -594,6 +594,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `secret_key`   varchar(256)          DEFAULT NULL COMMENT 'auth key for public network access',
     `public_key`   text                  DEFAULT NULL COMMENT 'public key for asymmetric data encryption',
     `private_key`  text                  DEFAULT NULL COMMENT 'private key for asymmetric data encryption',
+    `ec_version`   int(11)               DEFAULT NULL COMMENT 'encryption key version',
     `due_date`     datetime              DEFAULT NULL COMMENT 'due date for account',
     `create_time`  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `update_time`  datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'update time',

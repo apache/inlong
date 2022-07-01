@@ -29,6 +29,7 @@
         <result column="secret_key" jdbcType="VARCHAR" property="secretKey"/>
         <result column="public_key" jdbcType="VARCHAR" property="publicKey"/>
         <result column="private_key" jdbcType="VARCHAR" property="privateKey"/>
+        <result column="ec_version" jdbcType="INTEGER" property="ecVersion"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
@@ -65,7 +66,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-        id, name, password, account_type, secret_key, public_key, private_key, due_date,
+        id, name, password, account_type, secret_key, public_key, private_key, ec_version, due_date,
         create_time, update_time, create_by, update_by
     </sql>
     <select id="selectByExample" parameterType="org.apache.inlong.manager.dao.entity.UserEntityExample"
@@ -96,12 +97,13 @@
     </delete>
     <insert id="insert" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         insert into user (id, name, password, account_type, secret_key,
-                          public_key, private_key, due_date, create_time,
+                          public_key, private_key, ec_version, due_date, create_time,
                           update_time, create_by, update_by)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{accountType,jdbcType=INTEGER}, #{secretKey,jdbcType=VARCHAR}, #{publicKey,jdbcType=VARCHAR},
-                #{privateKey,jdbcType=VARCHAR}, #{dueDate,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP},
-                #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR})
+                #{privateKey,jdbcType=VARCHAR}, #{ecVersion,jdbcType=INTEGER}, #{dueDate,jdbcType=TIMESTAMP},
+                #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
+                #{updateBy,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         insert into user
@@ -126,6 +128,9 @@
             </if>
             <if test="privateKey != null">
                 private_key,
+            </if>
+            <if test="ecVersion != null">
+                ec_version,
             </if>
             <if test="dueDate != null">
                 due_date,
@@ -164,6 +169,9 @@
             </if>
             <if test="privateKey != null">
                 #{privateKey,jdbcType=VARCHAR},
+            </if>
+            <if test="ecVersion != null">
+                #{ecVersion,jdbcType=INTEGER},
             </if>
             <if test="dueDate != null">
                 #{dueDate,jdbcType=TIMESTAMP},
@@ -210,6 +218,9 @@
             <if test="privateKey != null">
                 private_key = #{privateKey,jdbcType=VARCHAR},
             </if>
+            <if test="ecVersion != null">
+                ec_version = #{ecVersion,jdbcType=INTEGER},
+            </if>
             <if test="dueDate != null">
                 due_date = #{dueDate,jdbcType=TIMESTAMP},
             </if>
@@ -236,6 +247,7 @@
             secret_key   = #{secretKey,jdbcType=VARCHAR},
             public_key   = #{publicKey,jdbcType=VARCHAR},
             private_key  = #{privateKey,jdbcType=VARCHAR},
+            ec_version   = #{ecVersion,jdbcType=INTEGER},
             due_date     = #{dueDate,jdbcType=TIMESTAMP},
             create_time  = #{createTime,jdbcType=TIMESTAMP},
             update_time  = #{updateTime,jdbcType=TIMESTAMP},
