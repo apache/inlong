@@ -699,7 +699,8 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
     `ext_params`      text COMMENT 'Extended information-json',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to hidden, 0: not hidden, 1: hidden',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    INDEX group_status_index (`inlong_group_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow process table';
 

@@ -80,6 +80,15 @@ public class WorkflowController {
         return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
     }
 
+    @PostMapping("/continue/{id}")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Continue process")
+    @ApiImplicitParam(name = "id", value = "WorkflowProcess ID", dataTypeClass = Integer.class, required = true)
+    public Response<WorkflowResult> continueProcess(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
+    }
+
     @PostMapping("/approve/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Approval and consent")
