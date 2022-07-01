@@ -95,6 +95,10 @@ spec:
                   key: mysql-password
             - name: ZK_URL
               value: "{{ template "inlong.zookeeper.hostname" . }}:{{ .Values.zookeeper.ports.client }}"
+            - name: FLINK_HOST
+              value: {{ .Values.external.flink.hostname | quote }}
+            - name: FLINK_PORT
+              value: {{ .Values.external.flink.port | quote }}
             {{- range $key, $value := .Values.manager.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}

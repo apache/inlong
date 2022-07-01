@@ -55,6 +55,8 @@ services:
       - USERNAME=root
       - PASSWORD=inlong
       - ZK_URL=tubemq-server:2181
+      - FLINK_HOST=localhost
+      - FLINK_PORT=8081
 
   webisite:
     image: inlong/dashboard
