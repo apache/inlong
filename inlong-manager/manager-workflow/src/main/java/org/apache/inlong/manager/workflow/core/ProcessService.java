@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.workflow.core;
 
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 
 /**
  * WorkflowProcess definition service

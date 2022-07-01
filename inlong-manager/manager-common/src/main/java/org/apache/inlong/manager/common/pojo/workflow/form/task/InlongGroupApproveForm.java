@@ -15,38 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
 
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * New inlong group process form
+ * The approval form of the inlong group
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class NewGroupProcessForm extends BaseProcessForm {
+public class InlongGroupApproveForm extends BaseTaskForm {
 
-    public static final String FORM_NAME = "NewGroupProcessForm";
+    public static final String FORM_NAME = "InlongGroupApproveForm";
 
-    @ApiModelProperty(value = "Inlong group info", required = true)
-    private InlongGroupInfo groupInfo;
+    @ApiModelProperty(value = "Inlong group approve info", required = true)
+    private InlongGroupApproveRequest groupApproveInfo;
 
     @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
-    private List<InlongStreamBriefInfo> streamInfoList;
+    private List<InlongStreamApproveRequest> streamApproveInfoList;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
+        Preconditions.checkNotNull(groupApproveInfo, "inlong group approve info is empty");
     }
 
     @Override
@@ -54,15 +52,4 @@ public class NewGroupProcessForm extends BaseProcessForm {
         return FORM_NAME;
     }
 
-    @Override
-    public String getInlongGroupId() {
-        return groupInfo.getInlongGroupId();
-    }
-
-    @Override
-    public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
-        show.put("inlongGroupId", groupInfo.getInlongGroupId());
-        return show;
-    }
 }

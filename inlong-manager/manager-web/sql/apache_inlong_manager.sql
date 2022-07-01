@@ -725,7 +725,8 @@ CREATE TABLE IF NOT EXISTS `workflow_task`
     `end_time`             datetime      DEFAULT NULL COMMENT 'End time',
     `ext_params`           text COMMENT 'Extended information-json',
     PRIMARY KEY (`id`),
-    INDEX process_status_index (`process_id`, `status`)
+    INDEX process_status_index (`process_id`, `status`),
+    INDEX process_name_index (`process_id`, `name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow task table';
 

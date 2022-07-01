@@ -15,11 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.apache.inlong.manager.common.exceptions.FormValidateException;
 
 /**
- * WorkflowTask form
+ * Taskform of service task
  */
-public interface TaskForm extends Form {
+@Data
+@EqualsAndHashCode(callSuper = false)
+public class ServiceTaskForm extends BaseTaskForm {
 
+    public static final String FORM_NAME = "ServiceTaskForm";
+
+    private String inlongGroupId;
+
+    private String inlongStreamId;
+
+    @Override
+    public void validate() throws FormValidateException {
+    }
+
+    @Override
+    public String getFormName() {
+        return FORM_NAME;
+    }
 }

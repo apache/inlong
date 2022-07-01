@@ -15,34 +15,54 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * The approval form of the consumption
+ * New inlong group process form
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class ConsumptionApproveForm extends BaseTaskForm {
+@EqualsAndHashCode(callSuper = false)
+public class NewGroupProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "ConsumptionApproveForm";
+    public static final String FORM_NAME = "NewGroupProcessForm";
 
-    @ApiModelProperty("Consumer group")
-    private String consumerGroup;
+    @ApiModelProperty(value = "Inlong group info", required = true)
+    private InlongGroupInfo groupInfo;
+
+    @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
+    private List<InlongStreamBriefInfo> streamInfoList;
 
     @Override
-
     public void validate() throws FormValidateException {
-        Preconditions.checkNotEmpty(consumerGroup, "Consumer group cannot be empty");
+        Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
     }
 
     @Override
     public String getFormName() {
         return FORM_NAME;
+    }
+
+    @Override
+    public String getInlongGroupId() {
+        return groupInfo.getInlongGroupId();
+    }
+
+    @Override
+    public Map<String, Object> showInList() {
+        Map<String, Object> show = Maps.newHashMap();
+        show.put("inlongGroupId", groupInfo.getInlongGroupId());
+        return show;
     }
 }

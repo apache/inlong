@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.InlongGroupApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

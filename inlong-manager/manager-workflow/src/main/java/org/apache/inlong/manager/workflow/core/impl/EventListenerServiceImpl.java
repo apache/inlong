@@ -80,7 +80,8 @@ public class EventListenerServiceImpl implements EventListenerService {
     @Override
     public void executeTaskEventListener(Integer taskId, String listenerName) {
         WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, null);
-        TaskEventListener eventListener = getTaskEventListener((WorkflowTask) context.getCurrentElement(), listenerName);
+        TaskEventListener eventListener = getTaskEventListener((WorkflowTask) context.getCurrentElement(),
+                listenerName);
         context.getActionContext().setAction(WorkflowAction.fromTaskEvent(eventListener.event()));
         taskEventNotifier.notify(listenerName, true, context);
     }

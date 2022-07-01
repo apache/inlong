@@ -15,36 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.core;
+package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.inlong.manager.common.pojo.workflow.form.Form;
 
-import java.util.List;
+import java.util.Map;
 
 /**
- * WorkflowTask service interface
+ * WorkflowProcess main form
  */
-public interface TaskService {
+public interface ProcessForm extends Form {
 
     /**
-     * Approve task via the taskId
+     * Get inlong group id.
+     *
+     * @return inlong group id.
      */
-    WorkflowContext approve(Integer taskId, String remark, TaskForm form, String operator);
+    @JsonIgnore
+    String getInlongGroupId();
 
     /**
-     * Reject task via the taskId
+     * Get form title.
      */
-    WorkflowContext reject(Integer taskId, String remark, String operator);
+    @JsonIgnore
+    default String getTitle() {
+        return null;
+    }
 
     /**
-     * Change approver for task via the taskId
+     * Field data displayed in the process list.
      */
-    WorkflowContext transfer(Integer taskId, String remark, List<String> to, String operator);
-
-    /**
-     * Complete task - only true automatic tasks for exceptions
-     */
-    WorkflowContext complete(Integer taskId, String remark, String operator);
+    default Map<String, Object> showInList() {
+        return null;
+    }
 
 }

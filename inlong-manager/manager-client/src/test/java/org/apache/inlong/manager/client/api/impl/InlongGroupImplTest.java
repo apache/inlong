@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.junit.jupiter.api.Test;
 

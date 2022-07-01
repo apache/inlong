@@ -15,51 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
 
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.Map;
-
 /**
- * New data consumption form
+ * The approval form of the consumption
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class NewConsumptionProcessForm extends BaseProcessForm {
+public class ConsumptionApproveForm extends BaseTaskForm {
 
-    public static final String FORM_NAME = "NewConsumptionProcessForm";
+    public static final String FORM_NAME = "ConsumptionApproveForm";
 
-    @ApiModelProperty(value = "Data consumption information")
-    private ConsumptionInfo consumptionInfo;
+    @ApiModelProperty("Consumer group")
+    private String consumerGroup;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(consumptionInfo, "Data consumption information cannot be empty");
+        Preconditions.checkNotEmpty(consumerGroup, "Consumer group cannot be empty");
     }
 
     @Override
     public String getFormName() {
         return FORM_NAME;
-    }
-
-    @Override
-    public String getInlongGroupId() {
-        return consumptionInfo.getConsumerGroup();
-    }
-
-    @Override
-    public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
-        if (consumptionInfo != null) {
-            show.put("inlongGroupId", consumptionInfo.getInlongGroupId());
-        }
-        return show;
     }
 }

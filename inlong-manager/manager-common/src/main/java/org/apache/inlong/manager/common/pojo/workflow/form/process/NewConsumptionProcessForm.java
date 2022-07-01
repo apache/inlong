@@ -15,33 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
+import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
+
+import java.util.Map;
 
 /**
- * Form of create inlong stream resource
+ * New data consumption form
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class StreamResourceProcessForm extends BaseProcessForm {
+@EqualsAndHashCode(callSuper = true)
+public class NewConsumptionProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "StreamResourceProcessForm";
+    public static final String FORM_NAME = "NewConsumptionProcessForm";
 
-    private InlongGroupInfo groupInfo;
-
-    private InlongStreamInfo streamInfo;
-
-    private GroupOperateType groupOperateType = GroupOperateType.INIT;
+    @ApiModelProperty(value = "Data consumption information")
+    private ConsumptionInfo consumptionInfo;
 
     @Override
     public void validate() throws FormValidateException {
-
+        Preconditions.checkNotNull(consumptionInfo, "Data consumption information cannot be empty");
     }
 
     @Override
@@ -51,6 +51,15 @@ public class StreamResourceProcessForm extends BaseProcessForm {
 
     @Override
     public String getInlongGroupId() {
-        return groupInfo.getInlongGroupId();
+        return consumptionInfo.getConsumerGroup();
+    }
+
+    @Override
+    public Map<String, Object> showInList() {
+        Map<String, Object> show = Maps.newHashMap();
+        if (consumptionInfo != null) {
+            show.put("inlongGroupId", consumptionInfo.getInlongGroupId());
+        }
+        return show;
     }
 }

@@ -24,8 +24,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -64,12 +64,11 @@ public class WorkflowContextBuilderImpl implements WorkflowContextBuilder {
     @Override
     public WorkflowContext buildContextForProcess(String name, String applicant, ProcessForm form) {
         WorkflowProcess process = definitionRepository.get(name).clone();
-        WorkflowContext context = new WorkflowContext();
-        context.setProcess(process);
-        context.setProcessForm(form);
-        context.setOperator(applicant);
 
-        return context;
+        return new WorkflowContext()
+                .setOperator(applicant)
+                .setProcess(process)
+                .setProcessForm(form);
     }
 
     @SneakyThrows
