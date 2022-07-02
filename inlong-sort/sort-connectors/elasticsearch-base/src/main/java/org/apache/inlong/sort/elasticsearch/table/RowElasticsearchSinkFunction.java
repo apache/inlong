@@ -27,6 +27,7 @@ import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
 
 import org.elasticsearch.action.ActionRequest;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -49,19 +50,23 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private final RequestFactory requestFactory;
     private final Function<RowData, String> createKey;
 
+    private final Function<RowData, String> createRouting;
+
     public RowElasticsearchSinkFunction(
             IndexGenerator indexGenerator,
             @Nullable String docType, // this is deprecated in es 7+
             SerializationSchema<RowData> serializationSchema,
             XContentType contentType,
             RequestFactory requestFactory,
-            Function<RowData, String> createKey) {
+            Function<RowData, String> createKey,
+            @Nullable Function<RowData, String> createRouting) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
         this.serializationSchema = Preconditions.checkNotNull(serializationSchema);
         this.contentType = Preconditions.checkNotNull(contentType);
         this.requestFactory = Preconditions.checkNotNull(requestFactory);
         this.createKey = Preconditions.checkNotNull(createKey);
+        this.createRouting = createRouting;
     }
 
     @Override
@@ -92,11 +97,13 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             final UpdateRequest updateRequest =
                     requestFactory.createUpdateRequest(
                             indexGenerator.generate(row), docType, key, contentType, document);
+            addRouting(updateRequest, row);
             indexer.add(updateRequest);
         } else {
             final IndexRequest indexRequest =
                     requestFactory.createIndexRequest(
                             indexGenerator.generate(row), docType, key, contentType, document);
+            addRouting(indexRequest, row);
             indexer.add(indexRequest);
         }
     }
@@ -105,7 +112,15 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         final String key = createKey.apply(row);
         final DeleteRequest deleteRequest =
                 requestFactory.createDeleteRequest(indexGenerator.generate(row), docType, key);
+        addRouting(deleteRequest, row);
         indexer.add(deleteRequest);
+    }
+
+    private void addRouting(DocWriteRequest<?> request, RowData row) {
+        if (null != createRouting) {
+            String routing = createRouting.apply(row);
+            request.routing(routing);
+        }
     }
 
     @Override

@@ -40,6 +40,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.inlong.sort.elasticsearch.table.RoutingExtractor;
 import org.apache.inlong.sort.elasticsearch.table.RowElasticsearchSinkFunction;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -129,7 +130,9 @@ final class Elasticsearch6DynamicSink implements DynamicTableSink {
                             format,
                             XContentType.JSON,
                             REQUEST_FACTORY,
-                            KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()));
+                            KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
+                            RoutingExtractor.createRoutingExtractor(
+                                    schema, config.getRoutingField().orElse(null)));
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);

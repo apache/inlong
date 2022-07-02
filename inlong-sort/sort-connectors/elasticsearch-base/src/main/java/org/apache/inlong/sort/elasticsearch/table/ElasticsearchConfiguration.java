@@ -143,6 +143,10 @@ public class ElasticsearchConfiguration {
         return config.get(ElasticsearchOptions.KEY_DELIMITER_OPTION);
     }
 
+    public Optional<String> getRoutingField() {
+        return config.getOptional(ElasticsearchOptions.ROUTING_FILED_NAME);
+    }
+
     public Optional<String> getPathPrefix() {
         return config.getOptional(ElasticsearchOptions.CONNECTION_PATH_PREFIX);
     }
