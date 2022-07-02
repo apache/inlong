@@ -27,6 +27,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -66,7 +68,8 @@ public interface InlongGroupService {
      * @param operator Operator name
      * @return Inlong group id
      */
-    String update(InlongGroupRequest groupInfo, String operator);
+    String update(@Valid @NotNull(message = "inlongGroupRequest must not be null") InlongGroupRequest groupInfo,
+            String operator);
 
     /**
      * Modify the status of the specified group
@@ -119,7 +122,9 @@ public interface InlongGroupService {
      * @param operator Edit person's name
      * @return whether succeed
      */
-    boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator);
+    boolean updateAfterApprove(
+            @Valid @NotNull(message = "inlongGroupId must not be null") InlongGroupApproveRequest approveInfo,
+            String operator);
 
     /**
      * Save or update extended information

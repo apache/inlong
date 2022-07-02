@@ -61,7 +61,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong group info")
-    public Response<String> save(@RequestBody InlongGroupRequest groupRequest) {
+    public Response<String> save(@Validated @RequestBody InlongGroupRequest groupRequest) {
         groupRequest.checkParams();
         String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.save(groupRequest, operator));

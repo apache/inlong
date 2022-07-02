@@ -45,11 +45,12 @@ import java.util.List;
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
 public class InlongGroupRequest {
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
-    @Length(min = 4, max = 200)
+    @NotBlank(message = "inlongGroupId must not be blank")
+    @Length(min = 4, max = 200, message = "inlongGroupId length must be between 4 and 200")
     @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
             message = "inlongGroupId must starts with a lowercase letter "
                     + "and contains only lowercase letters, digits, `-` or `_`")
+    @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -62,7 +63,7 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @NotBlank
+    @NotBlank(message = "mqType must not be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
@@ -100,8 +101,8 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
+    @NotBlank(message = "inCharges must not be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
-    @NotBlank
     private String inCharges;
 
     @ApiModelProperty(value = "Name of followers, separated by commas")
