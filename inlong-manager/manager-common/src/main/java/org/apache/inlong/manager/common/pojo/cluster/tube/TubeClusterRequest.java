@@ -36,8 +36,8 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel("Inlong cluster request for Tube")
 public class TubeClusterRequest extends ClusterRequest {
 
-    @ApiModelProperty(value = "Master URL http://120.0.0.1:8080")
-    private String masterUrl;
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
+    private String masterWebUrl;
 
     // no field
 

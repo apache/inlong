@@ -43,8 +43,8 @@ public class TubeClusterDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty(value = "Master URL http://120.0.0.1:8080")
-    private String masterUrl;
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
+    private String masterWebUrl;
 
     /**
      * Get the dto instance from the JSON string.

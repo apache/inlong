@@ -37,8 +37,8 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @ApiModel("Inlong cluster info for Tube")
 public class TubeClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Master URL http://120.0.0.1:8080")
-    private String masterUrl;
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
+    private String masterWebUrl;
 
     public TubeClusterInfo() {
         this.setType(ClusterType.TUBE);

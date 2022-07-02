@@ -69,7 +69,7 @@ public class TubeMQOperator {
      * Create topic for the given tube cluster.
      */
     public void createTopic(@Nonnull TubeClusterInfo tubeCluster, String topicName, String operator) {
-        String masterUrl = tubeCluster.getMasterUrl();
+        String masterUrl = tubeCluster.getMasterWebUrl();
         LOGGER.info("begin to create tube topic {} in master {}", topicName, masterUrl);
         if (StringUtils.isEmpty(masterUrl) || StringUtils.isEmpty(topicName)) {
             throw new BusinessException("tube master url or tube topic cannot be null");
@@ -88,7 +88,7 @@ public class TubeMQOperator {
      * Create consumer group for the given tube topic and cluster.
      */
     public void createConsumerGroup(TubeClusterInfo tubeCluster, String topic, String consumerGroup, String operator) {
-        String masterUrl = tubeCluster.getMasterUrl();
+        String masterUrl = tubeCluster.getMasterWebUrl();
         LOGGER.info("begin to create consumer group {} for topic {} in master {}", consumerGroup, topic, masterUrl);
         if (StringUtils.isEmpty(masterUrl) || StringUtils.isEmpty(consumerGroup) || StringUtils.isEmpty(topic)) {
             throw new BusinessException("tube master url, consumer group, or tube topic cannot be null");
