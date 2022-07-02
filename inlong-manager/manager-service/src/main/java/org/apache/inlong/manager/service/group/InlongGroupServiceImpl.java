@@ -355,8 +355,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         Preconditions.checkNotNull(approveInfo, "inlong approve request cannot be empty");
         String groupId = approveInfo.getInlongGroupId();
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        String mqType = approveInfo.getMqType();
-        Preconditions.checkNotNull(mqType, "MQ type cannot be empty");
+        // String mqType = approveInfo.getMqType();
+        Preconditions.checkNotNull("TUBE", "MQ type cannot be empty");
 
         // update status to [GROUP_APPROVE_PASSED]
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
