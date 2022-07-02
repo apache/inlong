@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.common.util.AesUtils;
+import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo getById(Integer userId) {
         Preconditions.checkNotNull(userId, "User id should not be empty");
-
         UserEntity entity = userMapper.selectByPrimaryKey(userId);
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
 
@@ -83,14 +82,14 @@ public class UserServiceImpl implements UserService {
         try {
             // decipher according to stored key version
             // note that if the version is null then the string is treated as unencrypted plain text
-            Integer version = entity.getEcVersion();
-            byte[] secretKeyBytes = AesUtils.decryptAsString(entity.getSecretKey(), version);
-            byte[] publicKeyBytes = AesUtils.decryptAsString(entity.getPublicKey(), version);
+            Integer version = entity.getEncryptVersion();
+            byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
+            byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
             result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
             result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
         } catch (Exception e) {
             String errMsg = String.format("decryption error: %s", e.getMessage());
-            log.error("decryption error error ", e);
+            log.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
 
@@ -102,7 +101,7 @@ public class UserServiceImpl implements UserService {
     public boolean create(UserInfo userInfo) {
         String username = userInfo.getUsername();
         UserEntity userExists = getByName(username);
-        Preconditions.checkNull(userExists, "User [" + username + "] already exists");
+        Preconditions.checkNull(userExists, "username [" + username + "] already exists");
 
         UserEntity entity = new UserEntity();
         entity.setAccountType(userInfo.getType());
@@ -115,14 +114,14 @@ public class UserServiceImpl implements UserService {
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
             String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
             String secretKey = RandomStringUtils.randomAlphanumeric(8);
-            Integer ecVersion = AesUtils.getCurrentVersion(null);
-            entity.setEcVersion(ecVersion);
-            entity.setPublicKey(AesUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), ecVersion));
-            entity.setPrivateKey(AesUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), ecVersion));
-            entity.setSecretKey(AesUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), ecVersion));
+            Integer encryptVersion = AESUtils.getCurrentVersion(null);
+            entity.setEncryptVersion(encryptVersion);
+            entity.setPublicKey(AESUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setPrivateKey(AESUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
-            log.error("generate rsa key error ", e);
+            log.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
 
@@ -135,13 +134,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int update(UserInfo userInfo, String currentUser) {
-        Preconditions.checkNotNull(userInfo, "User info should not be null");
-        Preconditions.checkNotNull(userInfo.getId(), "User id should not be null");
+        Preconditions.checkNotNull(userInfo, "user info should not be null");
+        Preconditions.checkNotNull(userInfo.getId(), "user id should not be null");
 
         // Whether the current user is an administrator
         UserEntity currentUserEntity = getByName(currentUser);
         Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
-                "The current user is not a manager and does not have permission to update users");
+                "current user is not a manager and does not have permission to update users");
 
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
@@ -164,7 +163,6 @@ public class UserServiceImpl implements UserService {
         String oldPassword = request.getOldPassword();
         String oldPasswordMd = SmallTools.passwordMd5(oldPassword);
         Preconditions.checkTrue(oldPasswordMd.equals(entity.getPassword()), "Old password is wrong");
-
         String newPasswordMd5 = SmallTools.passwordMd5(request.getNewPassword());
         entity.setPassword(newPasswordMd5);
 
@@ -179,7 +177,7 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is an administrator
         UserEntity entity = getByName(currentUser);
         Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
-                "The current user is not a manager and does not have permission to delete users");
+                "current user is not a manager and does not have permission to delete users");
 
         userMapper.deleteByPrimaryKey(userId);
         log.debug("success to delete user by id={}, current user={}", userId, currentUser);

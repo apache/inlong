@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * RSA Encryption/Decryption Utils
+ * RSA encryption and decryption utils.
  */
 public class RSAUtils {
 

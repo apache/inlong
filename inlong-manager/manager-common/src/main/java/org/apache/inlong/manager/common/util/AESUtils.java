@@ -1,13 +1,12 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +34,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * AES encryption and decryption utils.
+ */
 @Slf4j
-public class AesUtils {
+public class AESUtils {
 
     private static final int DEFAULT_VERSION = 1;
     private static final int KEY_SIZE = 128;
@@ -44,8 +46,8 @@ public class AesUtils {
     private static final String RNG_ALGORITHM = "SHA1PRNG";
 
     private static final String CONFIG_FILE = "application.properties";
-    private static final String CONFIG_ITEM_ENCRYPT_KEY_PREFIX = "inlong.encrypt.key.v";
-    private static final String CONFIG_ITEM_ENCRYPT_VERSION = "inlong.encrypt.ver";
+    private static final String CONFIG_ITEM_ENCRYPT_KEY_PREFIX = "inlong.encrypt.key.value";
+    private static final String CONFIG_ITEM_ENCRYPT_VERSION = "inlong.encrypt.version";
 
     public static Map<Integer, String> AES_KEY_MAP = new ConcurrentHashMap<>();
     public static Integer CURRENT_VERSION;
@@ -93,11 +95,10 @@ public class AesUtils {
         }
 
         // get aes key under specified version
-        String confKeyName = CONFIG_ITEM_ENCRYPT_KEY_PREFIX + targetVersion;
-        String aesKey = properties.getProperty(confKeyName);
+        String keyName = CONFIG_ITEM_ENCRYPT_KEY_PREFIX + targetVersion;
+        String aesKey = properties.getProperty(keyName);
         if (StringUtils.isEmpty(aesKey)) {
-            log.error("cannot find config item {} in application config", confKeyName);
-            throw new RuntimeException("cannot find encryption key in application config");
+            throw new RuntimeException(String.format("cannot find encryption key %s in application config", keyName));
         }
         AES_KEY_MAP.put(targetVersion, aesKey);
         return aesKey;

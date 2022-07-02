@@ -24,25 +24,25 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Inlong encrytion util test.
+ * AES encryption and decryption util test.
  */
-public class AesUtilsTest {
+public class AESUtilsTest {
 
     @Test
     public void testEncryptDecryptDirectly() throws Exception {
         byte[] key = "key-123".getBytes(StandardCharsets.UTF_8);
         String plainText = "hello, inlong";
-        byte[] cipheredBytes = AesUtils.encrypt(plainText.getBytes(StandardCharsets.UTF_8), key);
-        byte[] decipheredBytes = AesUtils.decrypt(cipheredBytes, key);
+        byte[] cipheredBytes = AESUtils.encrypt(plainText.getBytes(StandardCharsets.UTF_8), key);
+        byte[] decipheredBytes = AESUtils.decrypt(cipheredBytes, key);
         Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
     }
 
     @Test
     void testEncryptDecryptByConfigVersion() throws Exception {
         String plainText = "hello, inlong again";
-        Integer version = AesUtils.getCurrentVersion(null);
-        String cipheredText = AesUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), version);
-        byte[] decipheredBytes = AesUtils.decryptAsString(cipheredText, version);
+        Integer version = AESUtils.getCurrentVersion(null);
+        String cipheredText = AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), version);
+        byte[] decipheredBytes = AESUtils.decryptAsString(cipheredText, version);
         Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
     }
 
@@ -51,11 +51,11 @@ public class AesUtilsTest {
         String plainText = "hello, inlong again";
 
         // when version is null no encryption is performed
-        String cipheredText = AesUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), null);
+        String cipheredText = AESUtils.encryptToString(plainText.getBytes(StandardCharsets.UTF_8), null);
         Assertions.assertEquals(plainText, cipheredText);
 
         // when version is null no decryption is performed
-        byte[] decipheredBytes = AesUtils.decryptAsString(cipheredText, null);
+        byte[] decipheredBytes = AESUtils.decryptAsString(cipheredText, null);
         Assertions.assertEquals(plainText, new String(decipheredBytes, StandardCharsets.UTF_8));
     }
 }
