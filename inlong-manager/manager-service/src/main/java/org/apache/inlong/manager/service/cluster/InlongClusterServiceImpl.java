@@ -342,6 +342,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return false;
         }
 
+        List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(id);
+        if (CollectionUtils.isNotEmpty(nodeEntities)) {
+            String errMsg = String.format("there are undeleted nodes under the cluster [%s], "
+                    + "please delete the node first", entity.getName());
+            throw new BusinessException(errMsg);
+        }
+
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
         clusterMapper.updateById(entity);
