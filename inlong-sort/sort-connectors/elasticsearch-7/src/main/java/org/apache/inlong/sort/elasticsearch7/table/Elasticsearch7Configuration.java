@@ -21,6 +21,7 @@ package org.apache.inlong.sort.elasticsearch7.table;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.table.api.ValidationException;
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchConfiguration;
 
 import org.apache.http.HttpHost;
 

@@ -32,6 +32,7 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.StringUtils;
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
 
 import java.util.Set;
 import java.util.function.Supplier;

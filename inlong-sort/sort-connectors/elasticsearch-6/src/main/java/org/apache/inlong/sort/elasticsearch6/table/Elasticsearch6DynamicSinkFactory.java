@@ -22,9 +22,6 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.connectors.elasticsearch.table.Elasticsearch6Configuration;
-import org.apache.flink.streaming.connectors.elasticsearch.table.Elasticsearch6DynamicSink;
-import org.apache.flink.streaming.connectors.elasticsearch.table.ElasticsearchValidationUtils;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.connector.format.EncodingFormat;
@@ -35,6 +32,7 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.factories.SerializationFormatFactory;
 import org.apache.flink.table.utils.TableSchemaUtils;
 import org.apache.flink.util.StringUtils;
+import org.apache.inlong.sort.elasticsearch.table.ElasticsearchValidationUtils;
 
 import java.util.Set;
 import java.util.function.Supplier;

@@ -42,6 +42,18 @@
             <version>${flink.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-elasticsearch-base</artifactId>
+            <version>1.3.0-SNAPSHOT</version>
+            <exclusions>
+                <!-- Elasticsearch Java Client has been moved to a different module in 5.x -->
+                <exclusion>
+                    <groupId>org.elasticsearch</groupId>
+                    <artifactId>elasticsearch</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>${elasticsearch.version}</version>

@@ -85,13 +85,16 @@ public class ElasticsearchOptions {
                                             "Failure handling strategy in case a request to Elasticsearch fails")
                                     .list(
                                             text(
-                                                    "\"fail\" (throws an exception if a request fails and thus causes a job failure)"),
+                                                    "\"fail\" (throws an exception if a request fails "
+                                                            + "and thus causes a job failure)"),
                                             text(
                                                     "\"ignore\" (ignores failures and drops the request)"),
                                             text(
-                                                    "\"retry-rejected\" (re-adds requests that have failed due to queue capacity saturation)"),
+                                                    "\"retry-rejected\" (re-adds requests that have failed "
+                                                            + "due to queue capacity saturation)"),
                                             text(
-                                                    "\"class name\" for failure handling with a ActionRequestFailureHandler subclass"))
+                                                    "\"class name\" for failure handling with "
+                                                            + "a ActionRequestFailureHandler subclass"))
                                     .build());
     public static final ConfigOption<Boolean> FLUSH_ON_CHECKPOINT_OPTION =
             ConfigOptions.key("sink.flush-on-checkpoint")
@@ -146,5 +149,7 @@ public class ElasticsearchOptions {
                             "The format must produce a valid JSON document. "
                                     + "Please refer to the documentation on formats for more details.");
 
-    private ElasticsearchOptions() {}
+    private ElasticsearchOptions() {
+
+    }
 }

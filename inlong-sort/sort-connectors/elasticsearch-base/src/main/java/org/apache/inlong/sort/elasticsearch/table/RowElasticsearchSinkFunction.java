@@ -18,7 +18,6 @@
 
 package org.apache.inlong.sort.elasticsearch.table;
 
-import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkFunction;
@@ -39,8 +38,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /** Sink function for converting upserts into Elasticsearch {@link ActionRequest}s. */
-@Internal
-class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
+public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<RowData> {
 
     private static final long serialVersionUID = 1L;
 

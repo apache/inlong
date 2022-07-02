@@ -43,13 +43,14 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-elasticsearch-base_${scala.binary.version}</artifactId>
+            <artifactId>flink-connector-elasticsearch-base_2.12</artifactId>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-streaming-java_2.12</artifactId>
+            <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -76,16 +77,16 @@
         <!-- Projects depending on this project won't depend on flink-table-*. -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java-bridge_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-table-api-java-bridge_2.12</artifactId>
+            <version>${flink.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <!-- A planner dependency won't be necessary once FLIP-32 has been completed. -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-table-planner_2.12</artifactId>
+            <version>${flink.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -94,23 +95,23 @@
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-test-utils_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-test-utils_2.12</artifactId>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-runtime_2.12</artifactId>
+            <version>${flink.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-streaming-java_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-streaming-java_2.12</artifactId>
+            <version>${flink.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
@@ -118,8 +119,8 @@
         <!-- Elasticsearch table descriptor testing -->
         <dependency>
             <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner_${scala.binary.version}</artifactId>
-            <version>${project.version}</version>
+            <artifactId>flink-table-planner_2.12</artifactId>
+            <version>${flink.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -128,7 +129,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
-            <version>${project.version}</version>
+            <version>${flink.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -137,7 +138,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
-            <version>${project.version}</version>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
 
