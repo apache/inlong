@@ -203,8 +203,7 @@ public class Elasticsearch7DynamicSinkITCase {
                 .await();
 
         Client client = getClient();
-        Map<String, Object> response =
-                client.get(new GetRequest(index, "1_2012-12-12T12:12:12")).actionGet().getSource();
+
         Map<Object, Object> expectedMap = new HashMap<>();
         expectedMap.put("a", 1);
         expectedMap.put("b", "00:00:12");
@@ -213,6 +212,8 @@ public class Elasticsearch7DynamicSinkITCase {
         expectedMap.put("e", 2);
         expectedMap.put("f", "2003-10-20");
         expectedMap.put("g", "2012-12-12 12:12:12");
+        Map<String, Object> response =
+                client.get(new GetRequest(index, "1_2012-12-12T12:12:12")).actionGet().getSource();
         assertThat(response, equalTo(expectedMap));
     }
 
@@ -416,9 +417,6 @@ public class Elasticsearch7DynamicSinkITCase {
         environment.execute();
 
         Client client = getClient();
-        GetResponse response =
-                client.get(new GetRequest(index, "1_2012-12-12T12:12:12").routing("ABCDE"))
-                        .actionGet();
         Map<Object, Object> expectedMap = new HashMap<>();
         expectedMap.put("a", 1);
         expectedMap.put("b", "00:00:12");
@@ -427,6 +425,9 @@ public class Elasticsearch7DynamicSinkITCase {
         expectedMap.put("e", 2);
         expectedMap.put("f", "2003-10-20");
         expectedMap.put("g", "2012-12-12 12:12:12");
+        GetResponse response =
+                client.get(new GetRequest(index, "1_2012-12-12T12:12:12").routing("ABCDE"))
+                        .actionGet();
         assertThat(response.getSource(), equalTo(expectedMap));
     }
 
