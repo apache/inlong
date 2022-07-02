@@ -20,6 +20,8 @@ package org.apache.inlong.manager.service.cluster;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,14 +36,15 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterDTO;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
@@ -67,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -106,7 +110,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String clusterTag = request.getClusterTag();
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(clusterTag);
         if (exist != null) {
-            String errMsg = String.format("inlong cluster tag already exist for tag=%s", clusterTag);
+            String errMsg = String.format("inlong cluster tag [%s] already exist", clusterTag);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -117,6 +121,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         clusterTagMapper.insert(entity);
         LOGGER.info("success to save cluster tag={} by user={}", request, operator);
         return entity.getId();
@@ -160,7 +165,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // check cluster tag if exist
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(request.getClusterTag());
         if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("inlong cluster tag already exist for tag=%s", request.getClusterTag());
+            String errMsg = String.format("inlong cluster tag [%s] already exist", request.getClusterTag());
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
         }
@@ -194,7 +199,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public Integer save(InlongClusterRequest request, String operator) {
+    public Integer save(ClusterRequest request, String operator) {
         LOGGER.debug("begin to save inlong cluster={}", request);
         Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
 
@@ -217,7 +222,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public InlongClusterInfo get(Integer id) {
+    public ClusterInfo get(Integer id) {
         Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
         InlongClusterEntity entity = clusterMapper.selectById(id);
         if (entity == null) {
@@ -226,29 +231,28 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
-        InlongClusterInfo clusterInfo = instance.getFromEntity(entity);
+        ClusterInfo clusterInfo = instance.getFromEntity(entity);
         LOGGER.debug("success to get inlong cluster info by id={}", id);
         return clusterInfo;
     }
 
     @Override
-    public PageInfo<InlongClusterInfo> list(InlongClusterPageRequest request) {
+    public PageInfo<ClusterInfo> list(ClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterEntity> entityPage = (Page<InlongClusterEntity>) clusterMapper.selectByCondition(request);
-
-        List<InlongClusterInfo> list = entityPage.stream()
+        List<ClusterInfo> list = entityPage.stream()
                 .map(entity -> {
                     InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
                     return instance.getFromEntity(entity);
                 }).collect(Collectors.toList());
-        PageInfo<InlongClusterInfo> page = new PageInfo<>(list);
+        PageInfo<ClusterInfo> page = new PageInfo<>(list);
         page.setTotal(list.size());
         LOGGER.debug("success to list inlong cluster by {}", request);
         return page;
     }
 
     @Override
-    public InlongClusterInfo getOne(String clusterTag, String name, String type) {
+    public ClusterInfo getOne(String clusterTag, String name, String type) {
         List<InlongClusterEntity> entityList = clusterMapper.selectByKey(clusterTag, name, type);
         if (CollectionUtils.isEmpty(entityList)) {
             throw new BusinessException(String.format("cluster not found by tag=%s, name=%s, type=%s",
@@ -257,14 +261,14 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         InlongClusterEntity entity = entityList.get(0);
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
-        InlongClusterInfo result = instance.getFromEntity(entity);
+        ClusterInfo result = instance.getFromEntity(entity);
         LOGGER.debug("success to get inlong cluster by tag={}, name={}, type={}", clusterTag, name, type);
         return result;
     }
 
     @Override
-    public Boolean update(InlongClusterRequest request, String operator) {
-        LOGGER.debug("begin to update inlong cluster={}", request);
+    public Boolean update(ClusterRequest request, String operator) {
+        LOGGER.debug("begin to update inlong cluster: {}", request);
         Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "inlong cluster id cannot be empty");
@@ -289,7 +293,43 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(request.getType());
         instance.updateOpt(request, operator);
-        LOGGER.info("success to update inlong cluster={}", request);
+        LOGGER.info("success to update inlong cluster: {} by {}", request, operator);
+        return true;
+    }
+
+    @Override
+    public Boolean bindTag(BindTagRequest request, String operator) {
+        LOGGER.info("begin to bind or unbind cluster tag: {}", request);
+        Preconditions.checkNotNull(request, "inlong cluster info cannot be empty");
+        String clusterTag = request.getClusterTag();
+        Preconditions.checkNotNull(clusterTag, "cluster tag cannot be empty");
+
+        if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
+            request.getBindClusters().forEach(id -> {
+                InlongClusterEntity entity = clusterMapper.selectById(id);
+                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                tagSet.add(clusterTag);
+                String updateTags = Joiner.on(",").join(tagSet);
+                InlongClusterEntity updateEntity = new InlongClusterEntity();
+                updateEntity.setId(id);
+                updateEntity.setClusterTags(updateTags);
+                updateEntity.setModifier(operator);
+                clusterMapper.updateByIdSelective(updateEntity);
+            });
+        }
+
+        if (CollectionUtils.isNotEmpty(request.getUnbindClusters())) {
+            request.getUnbindClusters().forEach(id -> {
+                InlongClusterEntity entity = clusterMapper.selectById(id);
+                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                tagSet.remove(clusterTag);
+                String updateTags = Joiner.on(",").join(tagSet);
+                entity.setClusterTags(updateTags);
+                entity.setModifier(operator);
+                clusterMapper.updateByIdSelective(entity);
+            });
+        }
+        LOGGER.info("success to bind or unbind cluster tag {} by {}", request, operator);
         return true;
     }
 
@@ -350,7 +390,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public PageInfo<ClusterNodeResponse> listNode(InlongClusterPageRequest request) {
+    public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request) {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
                 clusterNodeMapper.selectByCondition(request);
@@ -365,7 +405,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public List<String> listNodeIpByType(String type) {
         Preconditions.checkNotNull(type, "cluster type cannot be empty");
-        InlongClusterPageRequest request = new InlongClusterPageRequest();
+        ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByCondition(request);
         if (CollectionUtils.isEmpty(nodeList)) {
@@ -426,10 +466,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(InlongClusterPageRequest request) {
+    public List<DataProxyNodeInfo> getDataProxyNodeList(ClusterPageRequest request) {
         LOGGER.debug("begin to list data proxy node for request={}", request);
 
-        request.setType(ClusterType.CLS_DATA_PROXY);
+        request.setType(ClusterType.DATA_PROXY);
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         Preconditions.checkNotEmpty(clusterList,
                 "data proxy node not found by request=" + request);
@@ -459,10 +499,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         LOGGER.debug("GetDPConfig: begin to get config by cluster tag={} name={}", clusterTag, clusterName);
 
         // get all data proxy clusters
-        InlongClusterPageRequest request = InlongClusterPageRequest.builder()
+        ClusterPageRequest request = ClusterPageRequest.builder()
                 .clusterTag(clusterTag)
                 .name(clusterName)
-                .type(ClusterType.CLS_DATA_PROXY)
+                .type(ClusterType.DATA_PROXY)
                 .build();
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         DataProxyConfig result = new DataProxyConfig();
@@ -499,7 +539,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 List<InlongStreamBriefInfo> streamList = streamMapper.selectBriefList(groupId);
                 for (InlongStreamBriefInfo streamInfo : streamList) {
                     List<InlongClusterEntity> pulsarClusters = clusterMapper.selectByKey(realClusterTag, null,
-                            ClusterType.CLS_PULSAR);
+                            ClusterType.PULSAR);
                     if (CollectionUtils.isEmpty(pulsarClusters)) {
                         LOGGER.error("GetDPConfig: pulsar cluster not found by cluster tag={}", realClusterTag);
                         continue;
@@ -532,8 +572,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // get mq cluster info
         LOGGER.debug("GetDPConfig: begin to get mq clusters by tags={}", clusterTagList);
         List<MQClusterInfo> mqSet = new ArrayList<>();
-        List<String> typeList = Arrays.asList(ClusterType.CLS_TUBE, ClusterType.CLS_PULSAR);
-        InlongClusterPageRequest pageRequest = InlongClusterPageRequest.builder()
+        List<String> typeList = Arrays.asList(ClusterType.TUBE, ClusterType.PULSAR);
+        ClusterPageRequest pageRequest = ClusterPageRequest.builder()
                 .typeList(typeList)
                 .clusterTagList(clusterTagList)
                 .build();

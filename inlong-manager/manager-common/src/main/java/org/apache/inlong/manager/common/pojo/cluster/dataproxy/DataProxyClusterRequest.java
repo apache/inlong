@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
@@ -31,14 +31,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.CLS_DATA_PROXY)
+@JsonTypeDefine(value = ClusterType.DATA_PROXY)
 @ApiModel("Inlong cluster request for DataProxy")
-public class DataProxyClusterRequest extends InlongClusterRequest {
+public class DataProxyClusterRequest extends ClusterRequest {
 
     // no field
 
     public DataProxyClusterRequest() {
-        this.setType(ClusterType.CLS_DATA_PROXY);
+        this.setType(ClusterType.DATA_PROXY);
     }
 
 }

@@ -15,15 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.pojo.cluster;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
- * Constant of cluster type.
+ * Inlong cluster bind or unbind tag request
  */
-public class ClusterType {
+@Data
+@ApiModel("Cluster bind and unbind tag request")
+public class BindTagRequest {
 
-    public static final String TUBE = "TUBE";
-    public static final String PULSAR = "PULSAR";
-    public static final String DATA_PROXY = "DATA_PROXY";
+    @NotNull
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
+
+    @ApiModelProperty(value = "Cluster-ID list which needs to bind tag")
+    private List<Integer> bindClusters;
+
+    @ApiModelProperty(value = "Cluster-ID list which needs to unbind tag")
+    private List<Integer> unbindClusters;
 
 }

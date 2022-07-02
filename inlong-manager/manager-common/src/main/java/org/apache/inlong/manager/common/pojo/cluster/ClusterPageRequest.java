@@ -37,7 +37,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong cluster paging query request")
-public class InlongClusterPageRequest extends PageRequest {
+public class ClusterPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
@@ -47,6 +47,9 @@ public class InlongClusterPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Cluster name")
     private String name;
+
+    @ApiModelProperty(value = "Parent cluster ID, used for cluster node")
+    private Integer parentId;
 
     @ApiModelProperty(value = "Keywords, name, url, cluster tag, etc.")
     private String keyword;

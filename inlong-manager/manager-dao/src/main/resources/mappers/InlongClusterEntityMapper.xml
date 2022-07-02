@@ -65,7 +65,7 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest"
+    <select id="selectByKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
@@ -83,7 +83,7 @@
         order by modify_time desc
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.InlongClusterPageRequest"
+            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>

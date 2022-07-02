@@ -60,7 +60,7 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
 
         InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
         String clusterTag = groupEntity.getInlongClusterTag();
-        TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
+        TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
 
         String topicName = groupEntity.getMqResource();
         // Consumer naming rules: clusterTag_topicName_consumer_group

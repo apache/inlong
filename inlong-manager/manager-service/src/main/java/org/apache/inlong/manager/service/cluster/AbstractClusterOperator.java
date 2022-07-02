@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
@@ -38,7 +38,7 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Integer saveOpt(InlongClusterRequest request, String operator) {
+    public Integer saveOpt(ClusterRequest request, String operator) {
         InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
         // set the ext params
         this.setTargetEntity(request, entity);
@@ -60,11 +60,11 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
      * @param request inlong cluster request
      * @param targetEntity entity which will set the new parameters
      */
-    protected abstract void setTargetEntity(InlongClusterRequest request, InlongClusterEntity targetEntity);
+    protected abstract void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity);
 
     @Override
     @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
-    public void updateOpt(InlongClusterRequest request, String operator) {
+    public void updateOpt(ClusterRequest request, String operator) {
         InlongClusterEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterEntity::new);
         // set the ext params
         this.setTargetEntity(request, entity);

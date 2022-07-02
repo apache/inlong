@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.client.api.service;
 
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
@@ -26,6 +26,6 @@ import retrofit2.http.POST;
 public interface InlongClusterApi {
 
     @POST("cluster/save")
-    Call<Response<Integer>> save(@Body InlongClusterRequest request);
+    Call<Response<Integer>> save(@Body ClusterRequest request);
 
 }

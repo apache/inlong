@@ -41,7 +41,7 @@ import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -132,7 +132,7 @@ public class InnerInlongManagerClient {
      * @param request cluster create request
      * @return clusterIndex
      */
-    public Integer saveCluster(InlongClusterRequest request) {
+    public Integer saveCluster(ClusterRequest request) {
         AssertUtils.notEmpty(request.getName(), "cluster name should not be empty");
         AssertUtils.notEmpty(request.getType(), "cluster type should not be empty");
         AssertUtils.notEmpty(request.getClusterTags(), "cluster tags should not be empty");

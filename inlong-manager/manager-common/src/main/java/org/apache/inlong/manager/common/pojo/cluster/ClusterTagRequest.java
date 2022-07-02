@@ -34,7 +34,7 @@ public class ClusterTagRequest {
     private Integer id;
 
     @NotNull
-    @ApiModelProperty(value = "Cluster type")
+    @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
 
     @ApiModelProperty(value = "Extended params")

@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.cluster;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -45,16 +45,16 @@ public class TubeClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.CLS_TUBE;
+        return ClusterType.TUBE;
     }
 
     @Override
-    protected void setTargetEntity(InlongClusterRequest request, InlongClusterEntity targetEntity) {
+    protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
         LOGGER.info("do nothing for tube cluster in set target entity");
     }
 
     @Override
-    public InlongClusterInfo getFromEntity(InlongClusterEntity entity) {
+    public ClusterInfo getFromEntity(InlongClusterEntity entity) {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
