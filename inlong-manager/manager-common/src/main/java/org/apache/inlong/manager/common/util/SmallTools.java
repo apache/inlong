@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class SmallTools {
 
-    private static final Pattern LOWER_NUMBER_PATTERN = Pattern.compile("^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$");
+    private static final Pattern LOWER_NUMBER_PATTERN = Pattern.compile("^[a-z0-9_-]{1,200}$");
 
     private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};

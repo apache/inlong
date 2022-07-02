@@ -126,8 +126,7 @@ public class InlongGroupRequest {
         }
 
         if (!SmallTools.isLowerOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`");
+            throw new BusinessException("inlongGroupId must contains only lowercase letters, digits, `-` or `_`");
         }
 
         if (StringUtils.isBlank(mqType)) {
