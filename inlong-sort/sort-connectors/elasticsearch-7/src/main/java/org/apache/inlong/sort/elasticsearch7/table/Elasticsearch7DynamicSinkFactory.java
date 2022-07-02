@@ -53,7 +53,7 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FO
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.INDEX_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.KEY_DELIMITER_OPTION;
-import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FILED_NAME; 
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.USERNAME_OPTION;
 
@@ -65,7 +65,7 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
     private static final Set<ConfigOption<?>> optionalOptions =
             Stream.of(
                     KEY_DELIMITER_OPTION,
-                    ROUTING_FILED_NAME,
+                            ROUTING_FIELD_NAME,
                     FAILURE_HANDLER_OPTION,
                     FLUSH_ON_CHECKPOINT_OPTION,
                     BULK_FLASH_MAX_SIZE_OPTION,

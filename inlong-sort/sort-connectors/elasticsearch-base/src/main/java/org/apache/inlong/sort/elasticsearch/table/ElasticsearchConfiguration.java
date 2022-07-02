@@ -144,7 +144,7 @@ public class ElasticsearchConfiguration {
     }
 
     public Optional<String> getRoutingField() {
-        return config.getOptional(ElasticsearchOptions.ROUTING_FILED_NAME);
+        return config.getOptional(ElasticsearchOptions.ROUTING_FIELD_NAME);
     }
 
     public Optional<String> getPathPrefix() {

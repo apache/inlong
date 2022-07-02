@@ -421,7 +421,7 @@ public class Elasticsearch6DynamicSinkITCase {
                                                                 .key(),
                                                         myType)
                                                 .withOption(
-                                                        ElasticsearchOptions.ROUTING_FILED_NAME
+                                                        ElasticsearchOptions.ROUTING_FIELD_NAME
                                                                 .key(),
                                                         "c")
                                                 .withOption(

@@ -395,7 +395,7 @@ public class Elasticsearch7DynamicSinkITCase {
                                                         ElasticsearchOptions.INDEX_OPTION.key(),
                                                         index)
                                                 .withOption(
-                                                        ElasticsearchOptions.ROUTING_FILED_NAME
+                                                        ElasticsearchOptions.ROUTING_FIELD_NAME
                                                                 .key(),
                                                         "c")
                                                 .withOption(

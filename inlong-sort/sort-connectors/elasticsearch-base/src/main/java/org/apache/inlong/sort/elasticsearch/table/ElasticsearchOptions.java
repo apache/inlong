@@ -76,8 +76,8 @@ public class ElasticsearchOptions {
                     .withDescription(
                             "Delimiter for composite keys e.g., \"$\" would result in IDs \"KEY1$KEY2$KEY3\".");
 
-    public static final ConfigOption<String> ROUTING_FILED_NAME =
-            ConfigOptions.key("routing.filed-name")
+    public static final ConfigOption<String> ROUTING_FIELD_NAME =
+            ConfigOptions.key("routing.field-name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Elasticsearch routing filed.");

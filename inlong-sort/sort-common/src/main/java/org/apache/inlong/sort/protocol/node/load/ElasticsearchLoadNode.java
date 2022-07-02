@@ -68,6 +68,9 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
+    @JsonProperty("routingFieldName")
+    private String routingFieldName;
+
     @JsonProperty("version")
     private int version;
 
@@ -94,6 +97,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         this.index = Preconditions.checkNotNull(index, "index is null");
         this.documentType = documentType;
         this.primaryKey = primaryKey;
+        this.routingFieldName = primaryKey;
         this.version = version;
     }
 
@@ -109,6 +113,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         options.put("index", index);
         options.put("password", password);
         options.put("username", username);
+        options.put("routing.field-name", routingFieldName);
         return options;
     }
 
