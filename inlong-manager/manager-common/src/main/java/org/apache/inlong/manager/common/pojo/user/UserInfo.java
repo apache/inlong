@@ -43,8 +43,7 @@ public class UserInfo {
     private Integer id;
 
     /**
-     * user type
-     * {@link UserTypeEnum}
+     * user type {@link UserTypeEnum}
      */
     @NotNull
     @InEnumInt(UserTypeEnum.class)
@@ -58,6 +57,15 @@ public class UserInfo {
     @NotBlank
     @ApiModelProperty(value = "password", required = true)
     private String password;
+
+    @ApiModelProperty("secret key")
+    private String secretKey;
+
+    @ApiModelProperty("public key")
+    private String publicKey;
+
+    @ApiModelProperty("private key")
+    private String privateKey;
 
     @NotNull
     @Min(1)

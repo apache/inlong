@@ -70,8 +70,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         Response<String> response = getResBody(mvcResult, String.class);
         Assertions.assertFalse(response.isSuccess());
-        Assertions.assertEquals("Username or password was incorrect, or the account has expired",
-                response.getErrMsg());
+        Assertions.assertTrue(response.getErrMsg().contains("incorrect"));
     }
 
     @Test
@@ -117,7 +116,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(resBody.isSuccess());
-        Assertions.assertEquals("User [admin] already exists", resBody.getErrMsg());
+        Assertions.assertTrue(resBody.getErrMsg().contains("already exists"));
     }
 
     @Test
