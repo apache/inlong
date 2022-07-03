@@ -91,7 +91,7 @@ public abstract class WebBaseTest extends BaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ public abstract class WebBaseTest extends BaseTest {
         return mockMvc.perform(
                         post(url)
                                 .content(JsonUtils.toJsonString(body))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -119,7 +119,7 @@ public abstract class WebBaseTest extends BaseTest {
     protected MvcResult getForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
                         get(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -130,7 +130,7 @@ public abstract class WebBaseTest extends BaseTest {
     protected MvcResult deleteForSuccessMvcResult(String url, Object... pathVariable) {
         return mockMvc.perform(
                         delete(url, pathVariable)
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -145,7 +145,7 @@ public abstract class WebBaseTest extends BaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
