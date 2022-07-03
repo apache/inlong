@@ -23,7 +23,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.common.UpdateReqValid;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
@@ -78,7 +78,7 @@ public class DataNodeController {
     @PostMapping(value = "/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data node")
-    public Response<Boolean> update(@Validated(UpdateReqValid.class) @RequestBody DataNodeRequest request) {
+    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody DataNodeRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(dataNodeService.update(request, username));
     }

@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
 
@@ -39,19 +39,19 @@ public class SinkRequest {
     @ApiModelProperty("Sink id")
     private Integer id;
 
-    @NotNull(message = "inlongGroupId cannot be null")
+    @NotBlank(message = "inlongGroupId cannot be null")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull(message = "inlongStreamId cannot be null")
+    @NotBlank(message = "inlongStreamId cannot be null")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull(message = "sinkType cannot be null")
+    @NotBlank(message = "sinkType cannot be null")
     @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
     private String sinkType;
 
-    @NotNull(message = "sinkName cannot be null")
+    @NotBlank(message = "sinkName cannot be null")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 

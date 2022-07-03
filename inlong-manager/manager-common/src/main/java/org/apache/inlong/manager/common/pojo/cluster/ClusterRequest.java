@@ -24,8 +24,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Inlong cluster request
@@ -38,6 +40,7 @@ import javax.validation.constraints.NotBlank;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public class ClusterRequest {
 
+    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 

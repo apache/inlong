@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -42,7 +42,7 @@ import java.util.List;
 @JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
-    @NotNull(message = "jdbcUrl cannot be null")
+    @NotBlank(message = "jdbcUrl cannot be null")
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
@@ -52,15 +52,15 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("User password")
     private String password;
 
-    @NotNull(message = "dbName cannot be null")
+    @NotBlank(message = "dbName cannot be null")
     @ApiModelProperty("Target database name")
     private String dbName;
 
-    @NotNull(message = "tableName cannot be null")
+    @NotBlank(message = "tableName cannot be null")
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @NotNull(message = "dataPath cannot be null")
+    @NotBlank(message = "dataPath cannot be null")
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;
 

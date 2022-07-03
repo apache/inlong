@@ -43,18 +43,18 @@ public class UserInfo {
     private Integer id;
 
     /**
-     * user type {@link UserTypeEnum}
+     * User type {@link UserTypeEnum}
      */
-    @NotNull
+    @NotNull(message = "type cannot be null")
     @InEnumInt(UserTypeEnum.class)
     @ApiModelProperty(value = "type: 0 - manager, 1 - operator", required = true)
     private Integer type;
 
-    @NotBlank
+    @NotBlank(message = "username cannot be blank")
     @ApiModelProperty(value = "username", required = true)
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "password cannot be blank")
     @ApiModelProperty(value = "password", required = true)
     private String password;
 
@@ -67,8 +67,8 @@ public class UserInfo {
     @ApiModelProperty("private key")
     private String privateKey;
 
-    @NotNull
     @Min(1)
+    @NotNull(message = "validDays cannot be null")
     @ApiModelProperty(value = "valid days", required = true)
     private Integer validDays;
 
