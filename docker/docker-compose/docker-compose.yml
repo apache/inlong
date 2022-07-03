@@ -79,6 +79,7 @@ services:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
       - AUDIT_PROXY_URL=audit:10081
+      - MQ_TYPE=pulsar
 
   agent:
     image: inlong/agent:latest
@@ -108,5 +109,6 @@ services:
       - USERNAME=root
       - PASSWORD=inlong
       - PULSAR_BROKER_LIST=pulsar:6650
+      - MQ_TYPE=pulsar
     ports:
       - "10081:10081"
