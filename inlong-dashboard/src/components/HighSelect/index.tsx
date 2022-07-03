@@ -26,17 +26,6 @@ import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
 import debounce from 'lodash/debounce';
 
-// example options: {
-//   requestService: '/basic/schema/listAll',
-//   requestParams: {
-//     formatResult: result =>
-//       result.map(item => ({
-//         label: item.name,
-//         value: item.name,
-//       })),
-//   },
-//   requestAuto: false // Whether to automatically initiate a request when the component is mounted, by default when the drop-down box is expanded
-// },
 export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
   options?:
     | OptionProps

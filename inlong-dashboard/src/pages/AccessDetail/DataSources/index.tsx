@@ -109,7 +109,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeletConfirm'),
+      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/source/delete/${id}`,

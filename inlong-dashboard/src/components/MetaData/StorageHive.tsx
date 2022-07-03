@@ -352,7 +352,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [
         { required: true },
         {
-          pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+          pattern: /^[a-z][0-9a-z_]*$/,
           message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
         },
       ],

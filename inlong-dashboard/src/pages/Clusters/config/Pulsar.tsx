@@ -23,15 +23,23 @@ import type { ClsConfigItemType } from './types';
 export const Pulsar: ClsConfigItemType[] = [
   {
     type: 'input',
-    label: 'AdminUrl',
-    name: 'adminUrl',
+    label: 'Service URL',
+    name: 'url',
+    tooltip: i18n.t('pages.Clusters.Pulsar.ServiceUrlHelper'),
     rules: [{ required: true }],
+    props: {
+      placeholder: 'pulsar://127.0.0.1:6650,127.0.1.2:6650',
+    },
   },
   {
     type: 'input',
-    label: 'ServiceUrl',
-    name: 'url',
+    label: 'Admin URL',
+    name: 'adminUrl',
+    tooltip: i18n.t('pages.Clusters.Pulsar.AdminUrlHelper'),
     rules: [{ required: true }],
+    props: {
+      placeholder: 'http://127.0.0.1:8080,127.0.1.2:8080',
+    },
   },
   {
     type: 'input',
@@ -44,5 +52,8 @@ export const Pulsar: ClsConfigItemType[] = [
     type: 'input',
     label: 'Token',
     name: 'token',
+    props: {
+      placeholder: 'Required if the cluster is configured with Token',
+    },
   },
 ];
