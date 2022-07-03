@@ -22,13 +22,28 @@ import type { ClsConfigItemType } from './types';
 export const TubeMQ: ClsConfigItemType[] = [
   {
     type: 'input',
-    label: 'MasterUrl',
+    label: 'MasterWebUrl',
+    name: 'masterWebUrl',
+    rules: [{ required: true }],
+    props: {
+      placeholder: 'http://127.0.0.1:8080',
+    },
+  },
+  {
+    type: 'input',
+    label: 'MasterRpcUrl',
     name: 'url',
     rules: [{ required: true }],
+    props: {
+      placeholder: '127.0.0.1:8715,127.0.1.1:8715',
+    },
   },
   {
     type: 'input',
     label: 'Token',
     name: 'token',
+    props: {
+      placeholder: 'Tube cluster token example: abc',
+    },
   },
 ];
