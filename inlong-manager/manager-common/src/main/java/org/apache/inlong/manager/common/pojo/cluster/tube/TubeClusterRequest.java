@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.cluster.tube;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -34,6 +35,9 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = ClusterType.TUBE)
 @ApiModel("Inlong cluster request for Tube")
 public class TubeClusterRequest extends ClusterRequest {
+
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
+    private String masterWebUrl;
 
     // no field
 

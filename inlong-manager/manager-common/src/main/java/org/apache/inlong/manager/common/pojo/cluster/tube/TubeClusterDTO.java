@@ -13,40 +13,49 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.inlong.manager.common.pojo.cluster.tube;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+
+import javax.validation.constraints.NotNull;
 
 /**
- * Inlong cluster info for Tube
+ * Tube cluster info
  */
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.TUBE)
-@ApiModel("Inlong cluster info for Tube")
-public class TubeClusterInfo extends ClusterInfo {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Tube cluster info")
+public class TubeClusterDTO {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
     private String masterWebUrl;
 
-    public TubeClusterInfo() {
-        this.setType(ClusterType.TUBE);
-    }
-
-    @Override
-    public TubeClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, TubeClusterRequest::new);
+    /**
+     * Get the dto instance from the JSON string.
+     */
+    public static TubeClusterDTO getFromJson(@NotNull String extParams) {
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, TubeClusterDTO.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+        }
     }
 
 }
