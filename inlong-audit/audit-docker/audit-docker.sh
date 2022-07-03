@@ -53,7 +53,7 @@ if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
 fi
 
 # start proxy
-cd ${file_path}/
+cd "${file_path}/"
 if [[ "${MQ_TYPE}" == "pulsar" ]]; then
   bash +x ./bin/proxy-start.sh pulsar
 fi
