@@ -18,7 +18,7 @@
 
 file_path=$(cd "$(dirname "$0")"/../;pwd)
 # config
-cd ${file_path}/
+cd "${file_path}/"
 common_conf_file=./conf/common.properties
 sed -i "s/manager.hosts=.*$/manager.hosts=${MANAGER_OPENAPI_IP}:${MANAGER_OPENAPI_PORT}/g" "${common_conf_file}"
 sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_file}"
