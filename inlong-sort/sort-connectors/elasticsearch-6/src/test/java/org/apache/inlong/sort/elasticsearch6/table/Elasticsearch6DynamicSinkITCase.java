@@ -377,6 +377,12 @@ public class Elasticsearch6DynamicSinkITCase {
         assertThat(response, equalTo(expectedMap));
     }
 
+    /**
+     * testing for ES field routing
+     * according to <a href="https://github.com/apache/flink/pull/14493/files">MR</a>
+     * and <a href="https://github.com/apache/flink/tree/release-1.13.2-rc2">flink release-1.13.2-rc2</a>
+     * @throws Exception
+     */
     @Test
     public void testWritingDocumentsWithRouting() throws Exception {
         ResolvedSchema schema =
