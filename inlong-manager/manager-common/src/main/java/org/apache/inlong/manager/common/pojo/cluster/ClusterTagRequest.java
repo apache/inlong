@@ -20,7 +20,9 @@ package org.apache.inlong.manager.common.pojo.cluster;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -30,10 +32,11 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Cluster tag request")
 public class ClusterTagRequest {
 
+    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotNull
+    @NotBlank(message = "clusterTag cannot be blank")
     @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
 

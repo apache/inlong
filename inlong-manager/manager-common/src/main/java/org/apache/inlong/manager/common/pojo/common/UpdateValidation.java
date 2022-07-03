@@ -29,6 +29,6 @@ import javax.validation.groups.Default;
  * and this id must be carried when updating, we can use it like this
  * {@link org.apache.inlong.manager.common.pojo.node.DataNodeRequest}
  */
-public interface UpdateReqValid extends Default {
+public interface UpdateValidation extends Default {
 
 }

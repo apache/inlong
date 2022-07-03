@@ -21,7 +21,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -31,7 +31,7 @@ import java.util.List;
 @ApiModel("Cluster bind and unbind tag request")
 public class BindTagRequest {
 
-    @NotNull
+    @NotBlank(message = "clusterTag cannot be blank")
     @ApiModelProperty(value = "Cluster tag")
     private String clusterTag;
 

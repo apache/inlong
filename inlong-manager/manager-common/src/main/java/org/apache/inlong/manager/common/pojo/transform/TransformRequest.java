@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -34,31 +34,31 @@ public class TransformRequest {
 
     private int id;
 
-    @NotNull
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull
+    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
+    @NotBlank(message = "transformName cannot be blank")
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
 
-    @NotNull
+    @NotBlank(message = "transformType cannot be blank")
     @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")
     private String transformType;
 
-    @NotNull
+    @NotBlank(message = "preNodeNames cannot be blank")
     @ApiModelProperty("Pre node names of transform in this stream, join by ','")
-    private String preNodeNames = "";
+    private String preNodeNames;
 
-    @NotNull
+    @NotBlank(message = "postNodeNames cannot be blank")
     @ApiModelProperty("Post node names of transform in this stream, join by ','")
-    private String postNodeNames = "";
+    private String postNodeNames;
 
-    @NotNull
+    @NotBlank(message = "transformDefinition cannot be blank")
     @ApiModelProperty("Transform definition in json type")
     private String transformDefinition;
 

@@ -22,8 +22,8 @@ import javax.validation.groups.Default;
 /**
  * Used for validate add request fields group
  *
- * @see UpdateReqValid
+ * @see UpdateValidation
  */
-public interface SaveReqValid extends Default {
+public interface SaveValidation extends Default {
 
 }

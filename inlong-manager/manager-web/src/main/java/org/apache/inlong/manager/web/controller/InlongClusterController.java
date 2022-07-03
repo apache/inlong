@@ -32,6 +32,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -84,7 +85,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/tag/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster tag")
-    public Response<Boolean> updateTag(@Validated @RequestBody ClusterTagRequest request) {
+    public Response<Boolean> updateTag(@Validated(UpdateValidation.class) @RequestBody ClusterTagRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.updateTag(request, username));
     }
@@ -123,7 +124,7 @@ public class InlongClusterController {
     @PostMapping(value = "/cluster/update")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster")
-    public Response<Boolean> update(@Validated @RequestBody ClusterRequest request) {
+    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody ClusterRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.update(request, username));
     }
@@ -169,7 +170,7 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update cluster node")
-    public Response<Boolean> updateNode(@Validated @RequestBody ClusterNodeRequest request) {
+    public Response<Boolean> updateNode(@Validated(UpdateValidation.class) @RequestBody ClusterNodeRequest request) {
         String username = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(clusterService.updateNode(request, username));
     }
