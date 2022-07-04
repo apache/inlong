@@ -18,8 +18,6 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
-import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskIdParamEntity;
 import org.apache.inlong.manager.dao.entity.SortTaskSinkParamEntity;
@@ -27,15 +25,11 @@ import org.apache.inlong.manager.dao.mapper.SortClusterConfgiEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskIdParamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.SortTaskSinkParamEntityMapper;
 import org.apache.inlong.manager.web.WebBaseTest;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
