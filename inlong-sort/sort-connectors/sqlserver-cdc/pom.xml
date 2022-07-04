@@ -71,11 +71,9 @@
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
+                                        <include>org/apache/inlong/**</include>
                                         <include>META-INFO/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
-                                    <excludes>
-                                        <exclude>META-INFO/services/**</exclude>
-                                    </excludes>
                                 </filter>
                                 <filter>
                                     <artifact>org.apache.kafka:*</artifact>
