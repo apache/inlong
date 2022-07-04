@@ -73,21 +73,6 @@ public class SortControllerTest extends WebBaseTest {
         sortClusterConfgiEntityMapper.insert(this.prepareClusterConfigEntity("testTask2", "pulsar"));
     }
 
-    /**
-     * Test if the interface works.
-     *
-     * @throws Exception Exceptions to request generating.
-     */
-    // @Test
-    // @Transactional
-    public void testGetSortClusterConfig() throws Exception {
-        RequestBuilder request =
-                get("/openapi/sort/getClusterConfig")
-                        .param("clusterName", "testCluster")
-                        .param("md5", "testMd5");
-        mockMvc.perform(request).andExpect(status().isOk()).andDo(print());
-    }
-
     // @Test
     // @Transactional
     public void testErrorSinkType() throws Exception {
