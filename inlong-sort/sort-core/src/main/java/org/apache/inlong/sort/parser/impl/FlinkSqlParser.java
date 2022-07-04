@@ -534,8 +534,11 @@ public class FlinkSqlParser implements Parser {
         for (Map.Entry<String, List<FieldRelation>> entry : columnFamilyMapFields.entrySet()) {
             StringBuilder fieldAppend = new StringBuilder(" ROW(");
             for (FieldRelation fieldRelation : entry.getValue()) {
-                FieldInfo fieldInfo = (FieldInfo) fieldRelation.getInputField();
-                fieldAppend.append(fieldInfo.getName()).append(",");
+                FieldInfo outputField = fieldRelation.getOutputField();
+                FieldInfo inputField = (FieldInfo) fieldRelation.getInputField();
+                String targetType = TableFormatUtils.deriveLogicalType(outputField.getFormatInfo()).asSummaryString();
+                fieldAppend.append(" CAST(").append(inputField.format()).append(" AS ")
+                        .append(targetType).append(" ) ").append(",");
             }
             if (fieldAppend.length() > 0) {
                 fieldAppend.delete(fieldAppend.lastIndexOf(","), fieldAppend.length());
