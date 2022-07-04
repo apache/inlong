@@ -103,7 +103,6 @@ const BasicLayout: React.FC = props => {
           getContainer={() => document.getElementById('root')}
           settings={settings}
           onSettingChange={setSetting}
-          enableDarkTheme
         />
       )}
     </>
