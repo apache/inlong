@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowBriefDTO;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;

@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -81,11 +81,6 @@ public class StreamSinkResourceListener implements SinkOperateListener {
         String result = "success to create sink resources for group [" + groupId + "] and stream [" + streamId + "]";
         log.info(result);
         return ListenerResult.success(result);
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

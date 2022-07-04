@@ -21,7 +21,7 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -66,11 +66,6 @@ public class GroupCancelProcessListener implements ProcessEventListener {
         groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), username);
 
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

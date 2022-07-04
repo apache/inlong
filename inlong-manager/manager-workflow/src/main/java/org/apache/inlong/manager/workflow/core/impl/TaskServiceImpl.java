@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
@@ -37,35 +37,35 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private ProcessorExecutor processorExecutor;
     @Autowired
-    private WorkflowContextBuilder contextBuilder;
+    private WorkflowContextBuilder workflowContextBuilder;
 
     @Override
     public WorkflowContext approve(Integer taskId, String remark, TaskForm form, String operator) {
-        WorkflowContext context = contextBuilder.buildContextForTask(taskId, WorkflowAction.APPROVE, form, remark,
-                operator);
+        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.APPROVE, form,
+                remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;
     }
 
     @Override
     public WorkflowContext reject(Integer taskId, String remark, String operator) {
-        WorkflowContext context = contextBuilder.buildContextForTask(taskId, WorkflowAction.REJECT, remark, operator);
+        WorkflowContext context = workflowContextBuilder.buildContextForTask(taskId, WorkflowAction.REJECT, remark,
+                operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;
     }
 
     @Override
     public WorkflowContext transfer(Integer taskId, String remark, List<String> to, String operator) {
-        WorkflowContext context = contextBuilder
+        WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.TRANSFER, to, remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
-
         return context;
     }
 
     @Override
     public WorkflowContext complete(Integer taskId, String remark, String operator) {
-        WorkflowContext context = contextBuilder
+        WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.COMPLETE, remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;

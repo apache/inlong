@@ -22,7 +22,7 @@ import org.apache.inlong.manager.common.enums.ConsumptionStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.mapper.ConsumptionEntityMapper;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -62,11 +62,6 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
 
         consumptionEntityMapper.updateByPrimaryKeySelective(update);
         return ListenerResult.success("Application process is cancelled");
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

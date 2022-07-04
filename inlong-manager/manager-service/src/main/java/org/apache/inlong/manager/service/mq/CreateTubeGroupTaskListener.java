@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -72,11 +72,6 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
         }
         log.info("finish to create tube consumer group for groupId={}", groupId);
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

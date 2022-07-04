@@ -27,14 +27,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.WorkflowContext.ActionContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.UserTask;
+import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * User task processor
@@ -72,7 +76,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     }
 
     @Override
-    public void create(UserTask userTask, WorkflowContext context) {
+    public boolean create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
         Preconditions.checkNotEmpty(approvers, "cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers was empty");
@@ -82,11 +86,14 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         }
 
         WorkflowProcessEntity processEntity = context.getProcessEntity();
-        approvers.stream()
+        List<WorkflowTaskEntity> userTaskEntities = approvers.stream()
                 .map(approver -> saveTaskEntity(userTask, processEntity, approver))
-                .forEach(context.getNewTaskList()::add);
+                .collect(Collectors.toList());
 
-        taskEventNotifier.notify(TaskEvent.CREATE, context);
+        resetActionContext(context, userTaskEntities);
+
+        ListenerResult listenerResult = taskEventNotifier.notify(TaskEvent.CREATE, context);
+        return listenerResult.isSuccess();
     }
 
     @Override
@@ -107,8 +114,8 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         checkOperator(actionContext);
         completeTaskInstance(actionContext);
 
-        this.taskEventNotifier.notify(toTaskEvent(actionContext.getAction()), context);
-        return true;
+        ListenerResult listenerResult = taskEventNotifier.notify(toTaskEvent(actionContext.getAction()), context);
+        return listenerResult.isSuccess();
     }
 
     @Override
@@ -125,6 +132,14 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         }
 
         return super.next(userTask, context);
+    }
+
+    private void resetActionContext(WorkflowContext context, List<WorkflowTaskEntity> userTaskEntities) {
+        ActionContext actionContext = new WorkflowContext.ActionContext()
+                .setTask((WorkflowTask) context.getCurrentElement())
+                .setAction(WorkflowAction.COMPLETE)
+                .setTaskEntity(userTaskEntities.get(0));
+        context.setActionContext(actionContext);
     }
 
     private WorkflowTaskEntity saveTaskEntity(UserTask task, WorkflowProcessEntity processEntity, String approvers) {

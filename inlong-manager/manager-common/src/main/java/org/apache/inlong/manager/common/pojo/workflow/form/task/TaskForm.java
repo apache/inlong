@@ -15,38 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.Map;
+import org.apache.inlong.manager.common.pojo.workflow.form.Form;
 
 /**
- * WorkflowProcess main form
+ * WorkflowTask form
  */
-public interface ProcessForm extends Form {
-
-    /**
-     * Get inlong group id.
-     *
-     * @return inlong group id.
-     */
-    @JsonIgnore
-    String getInlongGroupId();
-
-    /**
-     * Get form title.
-     */
-    @JsonIgnore
-    default String getTitle() {
-        return null;
-    }
-
-    /**
-     * Field data displayed in the process list.
-     */
-    default Map<String, Object> showInList() {
-        return null;
-    }
+public interface TaskForm extends Form {
 
 }

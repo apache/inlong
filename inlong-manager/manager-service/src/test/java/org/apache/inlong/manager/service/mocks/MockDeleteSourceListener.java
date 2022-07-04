@@ -37,8 +37,4 @@ public class MockDeleteSourceListener implements DataSourceOperateListener {
         return ListenerResult.success("Mock delete source success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

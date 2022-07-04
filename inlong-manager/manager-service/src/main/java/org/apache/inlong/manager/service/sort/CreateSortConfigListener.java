@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.DataFlowUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -111,8 +111,4 @@ public class CreateSortConfigListener implements SortOperateListener {
         groupInfo.getExtList().add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

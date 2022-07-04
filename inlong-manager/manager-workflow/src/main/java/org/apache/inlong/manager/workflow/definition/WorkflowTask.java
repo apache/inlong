@@ -38,8 +38,7 @@ public abstract class WorkflowTask extends NextableElement {
 
     private boolean needAllApprove = false;
 
-    private Map<TaskEvent, List<TaskEventListener>> syncListeners = Maps.newHashMap();
-    private Map<TaskEvent, List<TaskEventListener>> asyncListeners = Maps.newHashMap();
+    private Map<TaskEvent, List<TaskEventListener>> listeners = Maps.newHashMap();
     private Map<String, TaskEventListener> nameToListenerMap = Maps.newHashMap();
 
     /**
@@ -52,26 +51,15 @@ public abstract class WorkflowTask extends NextableElement {
         }
         nameToListenerMap.put(listener.name(), listener);
 
-        if (listener.async()) {
-            this.asyncListeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
-        } else {
-            this.syncListeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
-        }
+        listeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
         return this;
-    }
-
-    /**
-     * Get async task event listener list.
-     */
-    public List<TaskEventListener> asyncListeners(TaskEvent taskEvent) {
-        return this.asyncListeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
     }
 
     /**
      * Get sync task event listener list.
      */
-    public List<TaskEventListener> syncListeners(TaskEvent taskEvent) {
-        return this.syncListeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
+    public List<TaskEventListener> listeners(TaskEvent taskEvent) {
+        return this.listeners.getOrDefault(taskEvent, TaskEventListener.EMPTY_LIST);
     }
 
     /**
@@ -87,8 +75,7 @@ public abstract class WorkflowTask extends NextableElement {
     @Override
     public WorkflowTask clone() throws CloneNotSupportedException {
         WorkflowTask cloneTask = (WorkflowTask) super.clone();
-        cloneTask.setSyncListeners(new HashMap<>(syncListeners));
-        cloneTask.setAsyncListeners(new HashMap<>(asyncListeners));
+        cloneTask.setListeners(new HashMap<>(listeners));
         cloneTask.setNameToListenerMap(new HashMap<>(nameToListenerMap));
         return cloneTask;
     }

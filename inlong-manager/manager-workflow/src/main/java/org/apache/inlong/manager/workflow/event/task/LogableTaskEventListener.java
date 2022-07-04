@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.workflow.event.task;
 
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
-import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
@@ -40,14 +39,6 @@ public class LogableTaskEventListener extends LogableEventListener<TaskEvent> im
     }
 
     private Integer getTaskId(WorkflowContext context) {
-        if (TaskEvent.CREATE.equals(this.event())) {
-            return context.getNewTaskList().stream()
-                    .filter(entity -> entity.getName().equals(context.getCurrentElement().getName()))
-                    .findFirst()
-                    .map(WorkflowTaskEntity::getId)
-                    .orElse(null);
-        }
-
         return context.getActionContext().getTaskEntity().getId();
     }
 }

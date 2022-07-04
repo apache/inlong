@@ -20,7 +20,7 @@ package org.apache.inlong.manager.service.workflow.stream.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -56,8 +56,4 @@ public class StreamUpdateFailedListener implements ProcessEventListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

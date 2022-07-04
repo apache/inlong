@@ -37,9 +37,4 @@ public class MockDeleteSortListener implements SortOperateListener {
         return ListenerResult.success("Mock delete sort success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

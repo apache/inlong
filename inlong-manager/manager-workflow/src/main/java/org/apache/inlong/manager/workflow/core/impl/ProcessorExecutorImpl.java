@@ -79,7 +79,10 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         ElementProcessor processor = this.getProcessor(element.getClass());
         context.setCurrentElement(element);
 
-        processor.create(element, context);
+        if (!processor.create(element, context)) {
+            return;
+        }
+
         if (processor.pendingForAction(context)) {
             return;
         }
@@ -91,8 +94,7 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
     public void executeComplete(Element element, WorkflowContext context) {
         ElementProcessor processor = this.getProcessor(element.getClass());
         context.setCurrentElement(element);
-        boolean completed = processor.complete(context);
-        if (!completed) {
+        if (!processor.complete(context)) {
             return;
         }
         List<Element> nextElements = processor.next(element, context);

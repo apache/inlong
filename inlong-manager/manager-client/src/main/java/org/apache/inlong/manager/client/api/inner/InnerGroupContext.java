@@ -24,7 +24,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.AssertUtils;
 
 import java.util.Map;

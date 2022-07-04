@@ -15,26 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.mocks;
+package org.apache.inlong.manager.common.util;
 
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-/**
- * Test class for listen restart sort event.
- */
-public class MockRestartSortListener implements SortOperateListener {
+public class SmallToolsTest {
 
-    @Override
-    public TaskEvent event() {
-        return TaskEvent.COMPLETE;
+    @Test
+    public void testIsLetterOrPattern() {
+        String testGroupId = "test14DisableZkFor";
+        Assertions.assertFalse(SmallTools.isLowerOrNum(testGroupId));
     }
-
-    @Override
-    public ListenerResult listen(WorkflowContext context) {
-        return ListenerResult.success("Mock restart sort success");
-    }
-
 }

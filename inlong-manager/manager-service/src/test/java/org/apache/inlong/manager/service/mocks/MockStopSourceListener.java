@@ -37,9 +37,4 @@ public class MockStopSourceListener implements DataSourceOperateListener {
         return ListenerResult.success("Mock stop source success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

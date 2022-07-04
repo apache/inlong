@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -63,8 +63,7 @@ public class WorkflowProcess extends Element {
      */
     private Integer hidden = 0;
 
-    private Map<ProcessEvent, List<ProcessEventListener>> syncListeners = Maps.newHashMap();
-    private Map<ProcessEvent, List<ProcessEventListener>> asyncListeners = Maps.newHashMap();
+    private Map<ProcessEvent, List<ProcessEventListener>> listeners = Maps.newHashMap();
     private Map<String, ProcessEventListener> nameToListenerMap = Maps.newHashMap();
 
     private int version;
@@ -77,26 +76,15 @@ public class WorkflowProcess extends Element {
             throw new WorkflowListenerException("duplicate listener:" + listener.name());
         }
         nameToListenerMap.put(listener.name(), listener);
-        if (listener.async()) {
-            this.asyncListeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
-        } else {
-            this.syncListeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
-        }
+        listeners.computeIfAbsent(listener.event(), a -> Lists.newArrayList()).add(listener);
         return this;
-    }
-
-    /**
-     * Get async process event listener list.
-     */
-    public List<ProcessEventListener> asyncListeners(ProcessEvent processEvent) {
-        return this.asyncListeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
     }
 
     /**
      * Get sync process event listener list.
      */
-    public List<ProcessEventListener> syncListeners(ProcessEvent processEvent) {
-        return this.syncListeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
+    public List<ProcessEventListener> listeners(ProcessEvent processEvent) {
+        return this.listeners.getOrDefault(processEvent, ProcessEventListener.EMPTY_LIST);
     }
 
     /**
@@ -151,7 +139,7 @@ public class WorkflowProcess extends Element {
         WorkflowProcess cloneProcess = (WorkflowProcess) super.clone();
         cloneProcess.setStartEvent((StartEvent) this.startEvent.clone());
         cloneProcess.setEndEvent((EndEvent) this.endEvent.clone());
-        Map<String, WorkflowTask> cloneMap = new HashMap<>();
+        Map<String, WorkflowTask> nameToTaskMap = new HashMap<>();
 
         StartEvent startEvent = cloneProcess.getStartEvent();
         Map<WorkflowAction, List<ConditionNextElement>> workflowActionListMap = startEvent.getActionToNextElementMap();
@@ -166,7 +154,7 @@ public class WorkflowProcess extends Element {
                     Element element = conditionNextElement.getElement();
                     if (element instanceof WorkflowTask) {
                         WorkflowTask workflowTask = (WorkflowTask) element;
-                        cloneMap.put(workflowTask.getName(), workflowTask);
+                        nameToTaskMap.put(workflowTask.getName(), workflowTask);
                     }
                     if (element instanceof NextableElement) {
                         NextableElement nextableElement = (NextableElement) element;
@@ -180,13 +168,10 @@ public class WorkflowProcess extends Element {
             }
         }
 
-        cloneProcess.setNameToTaskMap(cloneMap);
-        Map<ProcessEvent, List<ProcessEventListener>> cloneSyncListener = Maps.newHashMap();
-        Map<ProcessEvent, List<ProcessEventListener>> cloneAsyncListeners = Maps.newHashMap();
-        cloneSyncListener.putAll(syncListeners);
-        cloneAsyncListeners.putAll(asyncListeners);
-        cloneProcess.syncListeners = cloneSyncListener;
-        cloneProcess.asyncListeners = cloneAsyncListeners;
+        cloneProcess.setNameToTaskMap(nameToTaskMap);
+        Map<ProcessEvent, List<ProcessEventListener>> cloneListeners = Maps.newHashMap();
+        cloneListeners.putAll(listeners);
+        cloneProcess.listeners = cloneListeners;
 
         return cloneProcess;
     }

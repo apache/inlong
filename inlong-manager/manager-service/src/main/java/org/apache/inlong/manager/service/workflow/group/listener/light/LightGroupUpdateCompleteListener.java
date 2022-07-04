@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -77,8 +77,4 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

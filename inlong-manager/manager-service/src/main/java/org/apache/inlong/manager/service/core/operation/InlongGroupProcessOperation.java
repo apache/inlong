@@ -27,20 +27,24 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
+import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -67,6 +71,8 @@ public class InlongGroupProcessOperation {
 
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private WorkflowQueryService workflowQueryService;
     @Autowired
     private WorkflowService workflowService;
     @Autowired
@@ -246,13 +252,10 @@ public class InlongGroupProcessOperation {
         final int resetFinalStatus = request.getResetFinalStatus();
         switch (status) {
             case CONFIG_ING:
-                return dealWithConfigingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
             case SUSPENDING:
-                return dealWithSuspendingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
             case RESTARTING:
-                return dealWithRestartingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
             case DELETING:
-                return dealWithDeletingGroup(groupInfo, operator, rerunProcess, resetFinalStatus);
+                return dealWithPendingGroup(groupInfo, operator, status, rerunProcess, resetFinalStatus);
             default:
                 throw new IllegalStateException(
                         String.format("Unsupported status to reset for group = %s and status = %s",
@@ -260,85 +263,39 @@ public class InlongGroupProcessOperation {
         }
     }
 
-    private boolean dealWithConfigingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
-            int resetFinalStatus) {
-        if (rerunProcess == 1) {
-            initProcessAsync(groupInfo, operator);
-            return true;
-        }
-        final String groupId = groupInfo.getInlongGroupId();
-        if (resetFinalStatus == 1) {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
-        } else {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
-        }
-        return true;
-    }
-
-    private boolean dealWithSuspendingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
-            int resetFinalStatus) {
+    private boolean dealWithPendingGroup(InlongGroupInfo groupInfo, String operator, GroupStatus status,
+            int rerunProcess, int resetFinalStatus) {
         final String groupId = groupInfo.getInlongGroupId();
         if (rerunProcess == 1) {
-            suspendProcessAsync(groupId, operator);
+            ProcessQuery processQuery = new ProcessQuery();
+            processQuery.setInlongGroupId(groupId);
+            List<WorkflowProcessEntity> entities = workflowQueryService.listProcessEntity(processQuery);
+            Collections.sort(entities, (process1, process2) -> process1.getId() - process2.getId());
+            WorkflowProcessEntity lastProcess = entities.get(entities.size() - 1);
+            executorService.execute(() -> {
+                workflowService.continueProcess(lastProcess.getId(), operator, "Reset group status");
+            });
             return true;
         }
         if (resetFinalStatus == 1) {
-            groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+            GroupStatus finalStatus = getFinalStatus(status);
+            return groupService.updateStatus(groupId, finalStatus.getCode(), operator);
         } else {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+            return groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
         }
-        return true;
     }
 
-    private boolean dealWithRestartingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
-            int resetFinalStatus) {
-        final String groupId = groupInfo.getInlongGroupId();
-        if (rerunProcess == 1) {
-            restartProcessAsync(groupId, operator);
-            return true;
-        }
-        if (resetFinalStatus == 1) {
-            groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
-        } else {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
-        }
-        return true;
-    }
-
-    private boolean dealWithDeletingGroup(InlongGroupInfo groupInfo, String operator, int rerunProcess,
-            int resetFinalStatus) {
-        final String groupId = groupInfo.getInlongGroupId();
-        if (rerunProcess == 1) {
-            deleteProcessAsync(groupId, operator);
-            return true;
-        }
-        if (resetFinalStatus == 1) {
-            groupService.delete(groupId, operator);
-        } else {
-            groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
-        }
-        return true;
-    }
-
-    private String initProcessAsync(InlongGroupInfo groupInfo, String operator) {
-        LOGGER.info("begin to init process, groupId = {}, operator = {}", groupInfo.getInlongGroupId(), operator);
-        final String groupId = groupInfo.getInlongGroupId();
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), operator);
-        GroupMode mode = GroupMode.parseGroupMode(groupInfo);
-        switch (mode) {
-            case NORMAL:
-                GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.INIT);
-                executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
-                break;
-            case LIGHT:
-                LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.INIT);
-                executorService.execute(
-                        () -> workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm));
-                break;
+    private GroupStatus getFinalStatus(GroupStatus pendingStatus) {
+        switch (pendingStatus) {
+            case CONFIG_ING:
+                return GroupStatus.CONFIG_SUCCESSFUL;
+            case SUSPENDING:
+                return GroupStatus.SUSPENDED;
+            case RESTARTING:
+                return GroupStatus.RESTARTED;
             default:
-                throw new WorkflowListenerException(ErrorCodeEnum.GROUP_MODE_UNSUPPORTED.getMessage());
+                return GroupStatus.DELETED;
         }
-        return groupId;
     }
 
     private void invokeDeleteProcess(String groupId, String operator) {

@@ -23,8 +23,8 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -63,11 +63,6 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
         }
         return ListenerResult.success("Consumer group from " + info.getConsumerGroup()
                 + " change to " + approveForm.getConsumerGroup());
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

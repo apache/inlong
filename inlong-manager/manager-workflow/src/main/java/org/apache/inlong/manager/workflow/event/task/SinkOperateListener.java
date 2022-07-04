@@ -35,11 +35,6 @@ public interface SinkOperateListener extends TaskEventListener {
         public ListenerResult listen(WorkflowContext context) {
             return ListenerResult.success();
         }
-
-        @Override
-        public boolean async() {
-            return false;
-        }
     };
 
 }
