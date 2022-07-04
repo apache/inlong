@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -41,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -92,7 +94,6 @@ public class FlinkOperation {
      * Get Sort connector jar patterns from the Flink info.
      */
     private String getConnectorJarPattern(String dataSourceType) {
-
         ConnectorJarType connectorJarType = ConnectorJarType.getInstance(dataSourceType);
         return connectorJarType == null
                 ? CONNECTOR_JAR_ALL_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
@@ -149,6 +150,55 @@ public class FlinkOperation {
     }
 
     /**
+     * Check if nodeIds equal.
+     */
+    private void checkNodeIds(String dataflow) throws Exception {
+        JsonNode streams = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS).get(0);
+
+        JsonNode relations = streams.get(InlongConstants.RELATIONS);
+        List<Pair<List<String>, List<String>>> nodeIds = new ArrayList<>();
+        for (int i = 0; i < relations.size(); i++) {
+            List<String> inputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.INPUTS),
+                    new TypeReference<List<String>>() {
+                    }).stream().collect(Collectors.toList());
+            List<String> outputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.OUTPUTS),
+                    new TypeReference<List<String>>() {
+                    }).stream().collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(inputIds) || CollectionUtils.isEmpty(outputIds)) {
+                String message = String.format("input nodeId %s and output nodeId %s cannot be empty",
+                        inputIds, outputIds);
+                log.error(message);
+                throw new Exception(message);
+            }
+
+            if (!Collections.disjoint(inputIds, outputIds)) {
+                String message = String.format("input nodeId %s cannot be equal to output nodeId %s",
+                        inputIds, outputIds);
+                log.error(message);
+                throw new Exception(message);
+            }
+
+            nodeIds.add(Pair.of(inputIds, outputIds));
+        }
+
+        List<String> allSites = new ArrayList<>(nodeIds.get(0).getLeft());
+        allSites.addAll(nodeIds.get(0).getRight());
+        if (nodeIds.size() > 1) {
+            for (int i = 1; i < relations.size(); i++) {
+                if (!Collections.disjoint(allSites, nodeIds.get(i).getLeft())) {
+                    String message = String.format("input nodeId %s cannot be equal to output nodeId %s",
+                            nodeIds.get(i).getRight(), nodeIds.get(i).getLeft());
+                    log.error(message);
+                    throw new Exception(message);
+                }
+                allSites.addAll(nodeIds.get(i).getLeft());
+            }
+
+        }
+    }
+
+    /**
      * Build Flink local path.
      */
     public void genPath(FlinkInfo flinkInfo, String dataflow) throws Exception {
@@ -176,34 +226,19 @@ public class FlinkOperation {
 
         List<String> nodeTypes = new ArrayList<>();
         if (StringUtils.isNotEmpty(dataflow)) {
-            JsonNode streams = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS);
-            for (int i = 0; i < streams.size(); i++) {
-                JsonNode relations = streams.get(i).get(InlongConstants.RELATIONS);
-                for (int j = 0; j < relations.size(); j++) {
-                    String inputNames = OBJECT_MAPPER.convertValue(relations.get(j).get(InlongConstants.INPUTS),
-                                    new TypeReference<List<String>>(){}).stream().findFirst().orElse(null);
-                    String outputNames = OBJECT_MAPPER.convertValue(relations.get(j).get(InlongConstants.OUTPUTS),
-                            new TypeReference<List<String>>(){}).stream().findFirst().orElse(null);
 
-                    if (inputNames.equals(outputNames)) {
-                        String message = String.format("input nodeName: %s equals to output nodeName: %s",
-                                inputNames, outputNames);
-                        log.error(message);
-                        throw new Exception(message);
-                    }
-                }
-
-                Object type = InlongConstants.NODE_TYPE;
-                JsonNode nodes = streams.get(i).get(InlongConstants.NODES);
-                List<String> types = OBJECT_MAPPER.convertValue(nodes,
-                        new TypeReference<List<Map<String, Object>>>() {
-                        }).stream().map(s -> s.get(type).toString()).collect(Collectors.toList());
-                nodeTypes.addAll(types);
-            }
+            checkNodeIds(dataflow);
+            JsonNode nodes = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
+                    .get(0).get(InlongConstants.NODES);
+            List<String> types = OBJECT_MAPPER.convertValue(nodes,
+                    new TypeReference<List<Map<String, Object>>>() {
+                    }).stream().map(s -> s.get(InlongConstants.NODE_TYPE).toString()).collect(Collectors.toList());
+            nodeTypes.addAll(types);
         }
 
         String connectorDir = getConnectorDir(startPath);
-        Set<String> connectorPaths = nodeTypes.stream().map(
+        Set<String> connectorPaths = nodeTypes.stream().filter(
+                s -> s.endsWith(InlongConstants.LOAD) || s.endsWith(InlongConstants.EXTRACT)).map(
                 s -> FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(s), -1)
         ).flatMap(Collection::stream).collect(Collectors.toSet());
 

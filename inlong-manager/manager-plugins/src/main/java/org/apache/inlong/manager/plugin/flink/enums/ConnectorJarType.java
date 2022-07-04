@@ -70,12 +70,12 @@ public enum ConnectorJarType {
 
     ;
 
-    private String dataSourceType;
+    private String sourceType;
     private String connectorType;
 
-    ConnectorJarType(String dataSourceType, String connectorType) {
+    ConnectorJarType(String sourceType, String connectorType) {
         this.connectorType = connectorType;
-        this.dataSourceType = dataSourceType;
+        this.sourceType = sourceType;
     }
 
     /**
@@ -86,7 +86,7 @@ public enum ConnectorJarType {
      */
     public static ConnectorJarType getInstance(String type) {
         for (ConnectorJarType value : values()) {
-            if (value.getDataSourceType().equals(type)) {
+            if (value.getSourceType().equals(type)) {
                 return value;
             }
         }
