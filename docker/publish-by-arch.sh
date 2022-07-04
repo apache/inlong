@@ -18,25 +18,27 @@
 # under the License.
 #
 
-ARCH="x86"
+ARCH_X86="x86_64"
+ARCH_AARCH64="aarch64"
+ARCH=$(uname -m)
 NEED_BUILD=false
 NEED_TAG=false
 NEED_PUBLISH=false
 NEED_MANIFEST=false
 
 SRC_POSTFIX=""
-DES_POSTFIX="x86"
+DES_POSTFIX="-x86"
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
-MVN_VERSION=`python ./get-project-version.py`
+MVN_VERSION=$(python ./get-project-version.py)
 
 buildImage() {
   echo "Start building images"
-  if [ $ARCH = "aarch64" ]; then
+  if [ $ARCH = "$ARCH_AARCH64" ]; then
     sh build-arm-docker-images.sh
   else
-    cd ${SHELL_FOLDER}
+    cd "${SHELL_FOLDER}"
     cd ..
     mvn clean install -DskipTests -Pdocker
   fi
@@ -45,39 +47,39 @@ buildImage() {
 
 tagImage() {
   echo "Start tagging images"
-  if [ $ARCH = "aarch64" ]; then
-    SRC_POSTFIX="aarch64"
-    DES_POSTFIX="aarch64"
+  if [ $ARCH = "$ARCH_AARCH64" ]; then
+    SRC_POSTFIX="-aarch64"
+    DES_POSTFIX="-aarch64"
   fi
 
-  docker tag inlong/manager:latest-${SRC_POSTFIX}      ${docker_registry_org}/manager:latest-${DES_POSTFIX}
-  docker tag inlong/agent:latest-${SRC_POSTFIX}           ${docker_registry_org}/agent:latest-${DES_POSTFIX}
-  docker tag inlong/dataproxy:latest-${SRC_POSTFIX}       ${docker_registry_org}/dataproxy:latest-${DES_POSTFIX}
-  docker tag inlong/tubemq-manager:latest-${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:latest-${DES_POSTFIX}
-  docker tag inlong/tubemq-all:latest-${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:latest-${DES_POSTFIX}
-  docker tag inlong/tubemq-build:latest-${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:latest-${DES_POSTFIX}
-  docker tag inlong/dashboard:latest-${SRC_POSTFIX}         ${docker_registry_org}/dashboard:latest-${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:latest-${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:latest-${DES_POSTFIX}
-  docker tag inlong/audit:latest-${SRC_POSTFIX}      ${docker_registry_org}/audit:latest-${DES_POSTFIX}
+  docker tag inlong/manager:latest${SRC_POSTFIX}      ${docker_registry_org}/manager:latest${DES_POSTFIX}
+  docker tag inlong/agent:latest${SRC_POSTFIX}           ${docker_registry_org}/agent:latest${DES_POSTFIX}
+  docker tag inlong/dataproxy:latest${SRC_POSTFIX}       ${docker_registry_org}/dataproxy:latest${DES_POSTFIX}
+  docker tag inlong/tubemq-manager:latest${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:latest${DES_POSTFIX}
+  docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:latest${DES_POSTFIX}
+  docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:latest${DES_POSTFIX}
+  docker tag inlong/dashboard:latest${SRC_POSTFIX}         ${docker_registry_org}/dashboard:latest${DES_POSTFIX}
+  docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:latest${DES_POSTFIX}
+  docker tag inlong/audit:latest${SRC_POSTFIX}      ${docker_registry_org}/audit:latest${DES_POSTFIX}
 
-  docker tag inlong/manager:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/manager:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/agent:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/agent:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/dataproxy:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/dataproxy:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/tubemq-manager:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-manager:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/tubemq-all:${MVN_VERSION}-${SRC_POSTFIX}  \
-  ${docker_registry_org}/tubemq-all:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/tubemq-build:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-build:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/dashboard:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/dashboard:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:${MVN_VERSION}-${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-cpp:${MVN_VERSION}-${DES_POSTFIX}
-  docker tag inlong/audit:${MVN_VERSION}-${SRC_POSTFIX}  \
-    ${docker_registry_org}/audit:${MVN_VERSION}-${DES_POSTFIX}
+  docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/agent:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/dataproxy:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}  \
+  ${docker_registry_org}/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/dashboard:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX} \
+    ${docker_registry_org}/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}  \
+    ${docker_registry_org}/audit:${MVN_VERSION}${DES_POSTFIX}
   echo "End tagging images"
 }
 
@@ -118,32 +120,32 @@ pushImage() {
   echo "Start pushing images"
   docker_registry_org=$1
 
-  if [ $ARCH = "aarch64" ]; then
-    SRC_POSTFIX="aarch64"
-    DES_POSTFIX="arm64"
-  elif [ $NEED_TAG = true ]; then
-    SRC_POSTFIX="x86"
+  if [ "$ARCH" = "$ARCH_AARCH64" ]; then
+    SRC_POSTFIX="-aarch64"
+    DES_POSTFIX="-arm64"
+  elif [ "$NEED_TAG" = true ]; then
+    SRC_POSTFIX="-x86"
   fi
 
-  docker push inlong/manager:latest-${SRC_POSTFIX}
-  docker push inlong/agent:latest-${SRC_POSTFIX}
-  docker push inlong/dataproxy:latest-${SRC_POSTFIX}
-  docker push inlong/tubemq-manager:latest-${SRC_POSTFIX}
-  docker push inlong/tubemq-all:latest-${SRC_POSTFIX}
-  docker push inlong/tubemq-build:latest-${SRC_POSTFIX}
-  docker push inlong/dashboard:latest-${SRC_POSTFIX}
-  docker push inlong/tubemq-cpp:latest-${SRC_POSTFIX}
-  docker push inlong/audit:latest-${SRC_POSTFIX}
+  docker push inlong/manager:latest${SRC_POSTFIX}
+  docker push inlong/agent:latest${SRC_POSTFIX}
+  docker push inlong/dataproxy:latest${SRC_POSTFIX}
+  docker push inlong/tubemq-manager:latest${SRC_POSTFIX}
+  docker push inlong/tubemq-all:latest${SRC_POSTFIX}
+  docker push inlong/tubemq-build:latest${SRC_POSTFIX}
+  docker push inlong/dashboard:latest${SRC_POSTFIX}
+  docker push inlong/tubemq-cpp:latest${SRC_POSTFIX}
+  docker push inlong/audit:latest${SRC_POSTFIX}
 
-  docker push inlong/manager:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/agent:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/dataproxy:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/tubemq-manager:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/tubemq-all:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/tubemq-build:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/dashboard:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/tubemq-cpp:${MVN_VERSION}-${SRC_POSTFIX}
-  docker push inlong/audit:${MVN_VERSION}-${SRC_POSTFIX}
+  docker push inlong/manager:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/agent:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}
+  docker push inlong/audit:${MVN_VERSION}${SRC_POSTFIX}
 
   echo "Finished pushing images to ${docker_registry_org}"
 }
@@ -192,57 +194,50 @@ pushManifest() {
 
 help() {
   cat <<EOF
-Usage: ./publish-by-arch.sh [option] <arch>
-where arch is one of:
-  x86
-  aarch64
+Usage: ./publish-by-arch.sh [option]
 Options:
-  -b        Add build operation before publish. Build docker images by arch.
-  -t        Add tag operation before publish. Add arch after version.
-  -p        Publish images according to docker registry information.
-  -m        Push manifest. This option doesn't need arch.
-  -h        Show help information.
+  -b/--build        Add build operation before publish. Build docker images by arch.
+  -t/--tag          Add tag operation before publish. Add arch after version.
+  -p/--publish      Publish images according to docker registry information.
+  -m/--manifest     Push manifest. This option doesn't need arch.
+  -h/--help         Show help information.
 Example:
-  Use "./publish-by-arch.sh -b aarch64" to publish arm images after build operation.
-  Use "./publish-by-arch.sh -t x86" to publish amd images after tag already x86 images as x86.
+  Use "./publish-by-arch.sh -b" to publish arm images after build operation.
+  Use "./publish-by-arch.sh -t" to publish amd images after tag already x86 images as x86.
 EOF
 }
 
-for arg in $@
+for arg in "$@"
 do
-  if [ "$arg" = "-b" ]; then
+  if [ "$arg" = "-b" ] || [ "$arg" = "--build" ]; then
     NEED_BUILD=true
-  elif [ "$arg" = "-t" ]; then
+  elif [ "$arg" = "-t" ] || [ "$arg" = "--tag" ]; then
     NEED_TAG=true
-  elif [ "$arg" = "-m" ]; then
+  elif [ "$arg" = "-m" ] || [ "$arg" = "--manifest" ]; then
     NEED_MANIFEST=true
-  elif [ "$arg" = "-p" ]; then
+  elif [ "$arg" = "-p" ] || [ "$arg" = "--publish" ]; then
     NEED_PUBLISH=true
-  elif [ "$arg" = "-h" ]; then
+  elif [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     help
     exit 0
-  elif [ "$arg" = "aarch64" ]; then
-    ARCH="aarch64"
-  elif [ "$arg" = "x86" ]; then
-    ARCH="x86"
   else
     echo "Wrong param: $arg. Please check help information."
     exit 1
   fi
 done
 
-if [ $NEED_BUILD = true ]; then
+if [ "$NEED_BUILD" = true ]; then
   buildImage
 fi
 
-if [ $NEED_TAG = true ]; then
+if [ "$NEED_TAG" = true ]; then
   tagImage
 fi
 
-if [ $NEED_PUBLISH = true ]; then
+if [ "$NEED_PUBLISH" = true ]; then
   publishImages
 fi
 
-if [ $NEED_MANIFEST = true ]; then
+if [ "$NEED_MANIFEST" = true ]; then
   pushManifest
 fi
