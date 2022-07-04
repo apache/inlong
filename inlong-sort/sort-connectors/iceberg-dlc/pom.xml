@@ -123,6 +123,17 @@
                                     <include>com.google.code.gson:gson</include>
                                 </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>org.apache.inlong:sort-connector-*</artifact>
+                                    <includes>
+                                        <include>META-INFO/services/org.apache.flink.table.factories.Factory</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>META-INFO/services/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>org.apache.parquet</pattern>

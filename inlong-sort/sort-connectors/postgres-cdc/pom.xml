@@ -75,6 +75,15 @@
                             </artifactSet>
                             <filters>
                                 <filter>
+                                    <artifact>org.apache.inlong:sort-connector-*</artifact>
+                                    <includes>
+                                        <include>META-INFO/services/org.apache.flink.table.factories.Factory</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>META-INFO/services/**</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
                                     <artifact>org.apache.kafka:*</artifact>
                                     <excludes>
                                         <exclude>kafka/kafka-version.properties</exclude>
