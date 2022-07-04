@@ -101,9 +101,4 @@ public class GroupApproveProcessListener implements ProcessEventListener {
         workflowService.start(ProcessName.CREATE_LIGHT_GROUP_PROCESS, username, processForm);
     }
 
-    @Override
-    public boolean async() {
-        return true;
-    }
-
 }

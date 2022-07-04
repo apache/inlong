@@ -72,8 +72,4 @@ public class LightGroupInitListener implements ProcessEventListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

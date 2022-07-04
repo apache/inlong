@@ -51,15 +51,6 @@ public interface EventListener<EventType extends WorkflowEvent> {
     ListenerResult listen(WorkflowContext context) throws Exception;
 
     /**
-     * Whether to execute asynchronously
-     *
-     * @return yes/no
-     * @apiNote If you need to perceive the execution of each sub-process in time,
-     *         it should be synchronized, that is, set to false; otherwise, set to true
-     */
-    boolean async();
-
-    /**
      * Whether to ignore the execution log, if ignored, it will not be recorded in the log table
      *
      * @return yes/no

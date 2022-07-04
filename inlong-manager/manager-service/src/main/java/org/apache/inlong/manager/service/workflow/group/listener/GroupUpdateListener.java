@@ -72,9 +72,4 @@ public class GroupUpdateListener implements ProcessEventListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

@@ -113,8 +113,4 @@ public class SuspendStreamListener implements SortOperateListener {
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

@@ -113,8 +113,4 @@ public class DeleteStreamListener implements SortOperateListener {
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

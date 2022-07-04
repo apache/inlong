@@ -115,9 +115,4 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

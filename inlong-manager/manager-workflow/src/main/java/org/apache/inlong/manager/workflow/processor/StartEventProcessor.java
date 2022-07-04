@@ -28,6 +28,7 @@ import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
     }
 
     @Override
-    public void create(StartEvent startEvent, WorkflowContext context) {
+    public boolean create(StartEvent startEvent, WorkflowContext context) {
         String applicant = context.getOperator();
         WorkflowProcess process = context.getProcess();
         ProcessForm form = context.getProcessForm();
@@ -69,6 +70,7 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
         WorkflowProcessEntity processEntity = saveProcessEntity(applicant, process, form);
         context.setProcessEntity(processEntity);
         context.setActionContext(new WorkflowContext.ActionContext().setAction(WorkflowAction.START));
+        return true;
     }
 
     @Override
@@ -78,8 +80,8 @@ public class StartEventProcessor extends AbstractNextableElementProcessor<StartE
 
     @Override
     public boolean complete(WorkflowContext context) {
-        processEventNotifier.notify(ProcessEvent.CREATE, context);
-        return true;
+        ListenerResult listenerResult = processEventNotifier.notify(ProcessEvent.CREATE, context);
+        return listenerResult.isSuccess();
     }
 
     private WorkflowProcessEntity saveProcessEntity(String applicant, WorkflowProcess process, ProcessForm form) {

@@ -176,9 +176,4 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

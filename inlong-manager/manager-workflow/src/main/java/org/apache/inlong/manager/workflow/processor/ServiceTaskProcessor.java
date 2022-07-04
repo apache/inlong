@@ -39,6 +39,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext.ActionContext;
 import org.apache.inlong.manager.workflow.definition.ApproverAssign;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
@@ -77,15 +78,20 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
     }
 
     @Override
-    public void create(ServiceTask serviceTask, WorkflowContext context) {
+    public boolean create(ServiceTask serviceTask, WorkflowContext context) {
         context.setCurrentElement(serviceTask);
         WorkflowTaskEntity workflowTaskEntity = resetActionContext(context);
         try {
             serviceTask.initListeners(context);
-            this.taskEventNotifier.notify(TaskEvent.CREATE, context);
+            ListenerResult listenerResult = taskEventNotifier.notify(TaskEvent.CREATE, context);
+            if (!listenerResult.isSuccess()) {
+                failedTask(context, workflowTaskEntity);
+            }
+            return listenerResult.isSuccess();
         } catch (Exception e) {
             log.error("Create service task failed", e);
             failedTask(context, workflowTaskEntity);
+            return false;
         }
     }
 
@@ -104,9 +110,13 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         Preconditions.checkTrue(ALLOW_COMPLETE_STATE.contains(TaskStatus.valueOf(workflowTaskEntity.getStatus())),
                 "task status should allow complete");
         try {
-            this.taskEventNotifier.notify(TaskEvent.COMPLETE, context);
-            completeTaskEntity(context, workflowTaskEntity, TaskStatus.COMPLETED);
-            return true;
+            ListenerResult listenerResult = this.taskEventNotifier.notify(TaskEvent.COMPLETE, context);
+            if (!listenerResult.isSuccess()) {
+                failedTask(context, workflowTaskEntity);
+            } else {
+                completeTaskEntity(context, workflowTaskEntity, TaskStatus.COMPLETED);
+            }
+            return listenerResult.isSuccess();
         } catch (Exception e) {
             log.error("Complete service task failed", e);
             failedTask(context, workflowTaskEntity);

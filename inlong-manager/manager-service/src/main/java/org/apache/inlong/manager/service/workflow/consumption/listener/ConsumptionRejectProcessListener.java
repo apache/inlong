@@ -61,10 +61,4 @@ public class ConsumptionRejectProcessListener implements ProcessEventListener {
         consumptionEntityMapper.updateByPrimaryKeySelective(update);
         return ListenerResult.success("The application process was rejected");
     }
-
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

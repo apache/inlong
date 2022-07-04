@@ -172,9 +172,4 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

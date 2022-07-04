@@ -106,9 +106,4 @@ public class PushSortConfigListener implements SortOperateListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

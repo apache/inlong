@@ -59,9 +59,4 @@ public class LightGroupFailedListener implements ProcessEventListener {
         streamService.updateStatus(groupId, null, StreamStatus.CONFIG_FAILED.getCode(), applicant);
         return ListenerResult.fail();
     }
-
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

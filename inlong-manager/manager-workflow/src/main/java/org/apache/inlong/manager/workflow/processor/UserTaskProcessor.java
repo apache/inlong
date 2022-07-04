@@ -37,6 +37,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext.ActionContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +76,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     }
 
     @Override
-    public void create(UserTask userTask, WorkflowContext context) {
+    public boolean create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
         Preconditions.checkNotEmpty(approvers, "cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers was empty");
@@ -91,7 +92,8 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
 
         resetActionContext(context, userTaskEntities);
 
-        taskEventNotifier.notify(TaskEvent.CREATE, context);
+        ListenerResult listenerResult = taskEventNotifier.notify(TaskEvent.CREATE, context);
+        return listenerResult.isSuccess();
     }
 
     @Override
@@ -112,8 +114,8 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
         checkOperator(actionContext);
         completeTaskInstance(actionContext);
 
-        this.taskEventNotifier.notify(toTaskEvent(actionContext.getAction()), context);
-        return true;
+        ListenerResult listenerResult = taskEventNotifier.notify(toTaskEvent(actionContext.getAction()), context);
+        return listenerResult.isSuccess();
     }
 
     @Override

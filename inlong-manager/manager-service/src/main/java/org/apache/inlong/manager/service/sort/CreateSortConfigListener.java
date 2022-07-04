@@ -111,8 +111,4 @@ public class CreateSortConfigListener implements SortOperateListener {
         groupInfo.getExtList().add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

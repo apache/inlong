@@ -30,15 +30,14 @@ public interface EventListenerNotifier<E extends WorkflowEvent> {
      * @param event event
      * @param context context
      */
-    void notify(E event, WorkflowContext context);
+    ListenerResult notify(E event, WorkflowContext context);
 
     /**
      * Notify the specified listener
      *
      * @param listenerName listener
-     * @param forceSync Whether to force synchronous execution
      * @param context context
      */
-    void notify(String listenerName, boolean forceSync, WorkflowContext context);
+    ListenerResult notify(String listenerName, WorkflowContext context);
 
 }

@@ -17,23 +17,18 @@
 
 package org.apache.inlong.manager.workflow.event.process;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * WorkflowProcess event notifier
@@ -42,47 +37,32 @@ import java.util.function.Consumer;
 @Service
 public class ProcessEventNotifier implements EventListenerNotifier<ProcessEvent> {
 
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            20,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("async-process-event-notifier-%s").build(),
-            new CallerRunsPolicy());
-
     @Autowired
     private WorkflowEventLogEntityMapper eventLogMapper;
 
     @Override
-    public void notify(ProcessEvent event, WorkflowContext context) {
+    public ListenerResult notify(ProcessEvent event, WorkflowContext context) {
         WorkflowProcess process = context.getProcess();
-        process.syncListeners(event).forEach(syncLogableNotify(context));
-        process.asyncListeners(event).forEach(asyncLogableNotify(context));
+        List<LogableProcessEventListener> logableListeners = process.listeners(event).stream()
+                .map(listener -> logableEventListener(listener))
+                .collect(Collectors.toList());
+        for (LogableProcessEventListener listener : logableListeners) {
+            ListenerResult result = listener.listen(context);
+            if (!result.isSuccess()) {
+                return result;
+            }
+        }
+        return ListenerResult.success();
     }
 
     @Override
-    public void notify(String listenerName, boolean forceSync, WorkflowContext sourceContext) {
+    public ListenerResult notify(String listenerName, WorkflowContext sourceContext) {
         WorkflowProcess process = sourceContext.getProcess();
-        Optional.ofNullable(process.listener(listenerName)).ifPresent(logableNotify(forceSync, sourceContext));
-    }
-
-    private Consumer<ProcessEventListener> logableNotify(boolean forceSync, WorkflowContext context) {
-        return listener -> {
-            if (forceSync || !listener.async()) {
-                syncLogableNotify(context).accept(listener);
-                return;
-            }
-            asyncLogableNotify(context).accept(listener);
-        };
-    }
-
-    private Consumer<ProcessEventListener> asyncLogableNotify(WorkflowContext context) {
-        return listener -> executorService.execute(() -> logableEventListener(listener).listen(context));
-    }
-
-    private Consumer<ProcessEventListener> syncLogableNotify(WorkflowContext context) {
-        return listener -> logableEventListener(listener).listen(context);
+        ProcessEventListener listener = process.listener(listenerName);
+        if (listener == null) {
+            return ListenerResult.success();
+        }
+        return logableEventListener(listener).listen(sourceContext);
     }
 
     private LogableProcessEventListener logableEventListener(ProcessEventListener listener) {

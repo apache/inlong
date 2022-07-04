@@ -83,9 +83,4 @@ public class StreamSinkResourceListener implements SinkOperateListener {
         return ListenerResult.success(result);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

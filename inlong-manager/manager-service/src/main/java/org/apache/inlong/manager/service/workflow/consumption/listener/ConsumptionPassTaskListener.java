@@ -65,9 +65,4 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
                 + " change to " + approveForm.getConsumerGroup());
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

@@ -68,9 +68,4 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

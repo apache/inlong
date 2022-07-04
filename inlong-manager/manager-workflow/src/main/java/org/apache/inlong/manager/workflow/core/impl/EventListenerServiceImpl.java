@@ -74,7 +74,7 @@ public class EventListenerServiceImpl implements EventListenerService {
         WorkflowContext context = workflowContextBuilder.buildContextForProcess(processId);
         ProcessEvent processEvent = getProcessEventListener(context.getProcess(), listenerName).event();
         context.setCurrentElement(getCurrentElement(context.getProcess(), processEvent));
-        processEventNotifier.notify(listenerName, true, context);
+        processEventNotifier.notify(listenerName, context);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class EventListenerServiceImpl implements EventListenerService {
         TaskEventListener eventListener = getTaskEventListener((WorkflowTask) context.getCurrentElement(),
                 listenerName);
         context.getActionContext().setAction(WorkflowAction.fromTaskEvent(eventListener.event()));
-        taskEventNotifier.notify(listenerName, true, context);
+        taskEventNotifier.notify(listenerName, context);
     }
 
     @Override

@@ -17,23 +17,18 @@
 
 package org.apache.inlong.manager.workflow.event.task;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.dao.mapper.WorkflowEventLogEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.EventListenerNotifier;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.LogableEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * WorkflowProcess event notifier
@@ -41,15 +36,6 @@ import java.util.function.Consumer;
 @Slf4j
 @Service
 public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
-
-    private final ExecutorService executorService = new ThreadPoolExecutor(
-            20,
-            20,
-            0L,
-            TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(),
-            new ThreadFactoryBuilder().setNameFormat("async-task-event-notifier-%s").build(),
-            new CallerRunsPolicy());
 
     @Autowired
     private WorkflowEventLogEntityMapper eventLogMapper;
@@ -59,42 +45,30 @@ public class TaskEventNotifier implements EventListenerNotifier<TaskEvent> {
     }
 
     @Override
-    public void notify(TaskEvent event, WorkflowContext context) {
+    public ListenerResult notify(TaskEvent event, WorkflowContext context) {
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
-        task.syncListeners(event).forEach(syncLogableNotify(context));
-        task.asyncListeners(event).forEach(asyncLogableNotify(context));
+        List<LogableTaskEventListener> logableListeners = task.listeners(event).stream()
+                .map(listener -> logableEventListener(listener))
+                .collect(Collectors.toList());
+
+        for (LogableTaskEventListener listener : logableListeners) {
+            ListenerResult result = listener.listen(context);
+            if (!result.isSuccess()) {
+                return result;
+            }
+        }
+        return ListenerResult.success();
+
     }
 
     @Override
-    public void notify(String listenerName, boolean forceSync, WorkflowContext context) {
+    public ListenerResult notify(String listenerName, WorkflowContext context) {
         WorkflowTask task = (WorkflowTask) context.getCurrentElement();
-        Optional.ofNullable(task.listener(listenerName))
-                .ifPresent(logableNotify(forceSync, context));
-    }
-
-    private Consumer<TaskEventListener> logableNotify(boolean forceSync, WorkflowContext context) {
-        return listener -> {
-            if (forceSync || !listener.async()) {
-                syncLogableNotify(context).accept(listener);
-                return;
-            }
-
-            asyncLogableNotify(context).accept(listener);
-        };
-    }
-
-    private Consumer<TaskEventListener> asyncLogableNotify(WorkflowContext context) {
-        return listener -> executorService.execute(() -> {
-            try {
-                logableEventListener(listener).listen(context);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private Consumer<TaskEventListener> syncLogableNotify(WorkflowContext context) {
-        return listener -> logableEventListener(listener).listen(context);
+        TaskEventListener listener = task.listener(listenerName);
+        if (listener == null) {
+            return ListenerResult.success();
+        }
+        return logableEventListener(listener).listen(context);
     }
 
     private LogableTaskEventListener logableEventListener(TaskEventListener listener) {

@@ -55,9 +55,4 @@ public class LightGroupUpdateFailedListener implements ProcessEventListener {
         groupService.update(groupInfo.genRequest(), applicant);
         return ListenerResult.success();
     }
-
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

@@ -181,8 +181,4 @@ public class CreateStreamSortConfigListener implements SortOperateListener {
         streamInfo.getExtList().add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

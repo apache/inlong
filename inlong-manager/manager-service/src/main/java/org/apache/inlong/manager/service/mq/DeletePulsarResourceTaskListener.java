@@ -113,9 +113,4 @@ public class DeletePulsarResourceTaskListener implements QueueOperateListener {
         }
         log.info("finish to delete pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
     }
-
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

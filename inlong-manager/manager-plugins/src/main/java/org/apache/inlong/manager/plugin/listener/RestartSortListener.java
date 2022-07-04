@@ -120,8 +120,4 @@ public class RestartSortListener implements SortOperateListener {
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

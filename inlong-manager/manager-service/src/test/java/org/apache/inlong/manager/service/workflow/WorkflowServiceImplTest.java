@@ -238,11 +238,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
                     return ListenerResult.success();
                 }
             }
-
-            @Override
-            public boolean async() {
-                return false;
-            }
         };
     }
 

@@ -139,8 +139,4 @@ public class StartupSortListener implements SortOperateListener {
         extInfoList.add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

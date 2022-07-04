@@ -95,8 +95,4 @@ public class DeletePulsarTopicTaskListener implements QueueOperateListener {
         return ListenerResult.success();
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

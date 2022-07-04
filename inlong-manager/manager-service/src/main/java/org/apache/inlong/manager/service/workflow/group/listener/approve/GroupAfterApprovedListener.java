@@ -80,10 +80,4 @@ public class GroupAfterApprovedListener implements TaskEventListener {
         streamService.updateAfterApprove(streamApproveInfoList, context.getOperator());
         return ListenerResult.success();
     }
-
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

@@ -123,8 +123,4 @@ public class RestartStreamListener implements SortOperateListener {
         }
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

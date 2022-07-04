@@ -64,9 +64,4 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
         return ListenerResult.success("Application process is cancelled");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }
