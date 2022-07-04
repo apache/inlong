@@ -153,7 +153,6 @@ public class FlinkOperation {
      * Check if nodeIds equal.
      */
     private void checkNodeIds(String dataflow) throws Exception {
-
         JsonNode relations = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
                 .get(0).get(InlongConstants.RELATIONS);
         List<Pair<List<String>, List<String>>> nodeIds = new ArrayList<>();
