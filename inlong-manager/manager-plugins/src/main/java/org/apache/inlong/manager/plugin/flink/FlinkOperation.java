@@ -59,7 +59,7 @@ import static org.apache.flink.api.common.JobStatus.RUNNING;
 @Slf4j
 public class FlinkOperation {
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String CONFIG_FILE = "application.properties";
     private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
@@ -68,7 +68,7 @@ public class FlinkOperation {
     private static final String INLONG_SORT = "inlong-sort";
     private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
     private static final String CONNECTOR_JAR_PATTERN = "^sort-connector-(?i)(%s).*jar$";
-    private static final String CONNECTOR_JAR_ALL_PATTERN = "^sort-connector-.*jar$";
+    private static final String ALL_CONNECTOR_JAR_PATTERN = "^sort-connector-.*jar$";
     private static Properties properties;
     private final FlinkService flinkService;
 
@@ -96,7 +96,7 @@ public class FlinkOperation {
     private String getConnectorJarPattern(String dataSourceType) {
         ConnectorJarType connectorJarType = ConnectorJarType.getInstance(dataSourceType);
         return connectorJarType == null
-                ? CONNECTOR_JAR_ALL_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
+                ? ALL_CONNECTOR_JAR_PATTERN : String.format(CONNECTOR_JAR_PATTERN, connectorJarType.getConnectorType());
 
     }
 
@@ -155,18 +155,22 @@ public class FlinkOperation {
     private void checkNodeIds(String dataflow) throws Exception {
         JsonNode relations = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
                 .get(0).get(InlongConstants.RELATIONS);
-        List<Pair<List<String>, List<String>>> nodeIds = new ArrayList<>();
+        List<Pair<List<String>, List<String>>> nodeIdsPairList = new ArrayList<>();
         for (int i = 0; i < relations.size(); i++) {
             List<String> inputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.INPUTS),
                     new TypeReference<List<String>>() {
                     }).stream().collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(inputIds)) {
+                String message = String.format("input nodeId %s cannot be empty", inputIds);
+                log.error(message);
+                throw new Exception(message);
+            }
+
             List<String> outputIds = OBJECT_MAPPER.convertValue(relations.get(i).get(InlongConstants.OUTPUTS),
                     new TypeReference<List<String>>() {
                     }).stream().collect(Collectors.toList());
-
-            if (CollectionUtils.isEmpty(inputIds) || CollectionUtils.isEmpty(outputIds)) {
-                String message = String.format("input nodeId %s and output nodeId %s cannot be empty",
-                        inputIds, outputIds);
+            if (CollectionUtils.isEmpty(outputIds)) {
+                String message = String.format("output nodeId %s cannot be empty", outputIds);
                 log.error(message);
                 throw new Exception(message);
             }
@@ -177,23 +181,23 @@ public class FlinkOperation {
                 log.error(message);
                 throw new Exception(message);
             }
-
-            nodeIds.add(Pair.of(inputIds, outputIds));
+            nodeIdsPairList.add(Pair.of(inputIds, outputIds));
         }
 
-        List<String> allSites = new ArrayList<>(nodeIds.get(0).getLeft());
-        allSites.addAll(nodeIds.get(0).getRight());
-        if (nodeIds.size() > 1) {
+        // Determine whether there are duplicate NodeIds in different relations, allNodeIds contains all nodeIds
+        // such as dataflow A -> B -> C, resulting topological relationship is [[B,C],[A,B]]
+        // The output of the next node is the input of the previous node
+        if (nodeIdsPairList.size() > 1) {
+            List<String> allNodeIds = new ArrayList<>(nodeIdsPairList.get(0).getLeft());
+            allNodeIds.addAll(nodeIdsPairList.get(0).getRight());
             for (int i = 1; i < relations.size(); i++) {
-                if (!Collections.disjoint(allSites, nodeIds.get(i).getLeft())) {
-                    String message = String.format("input nodeId %s cannot be equal to output nodeId %s",
-                            nodeIds.get(i).getRight(), nodeIds.get(i).getLeft());
+                if (!Collections.disjoint(allNodeIds, nodeIdsPairList.get(i).getLeft())) {
+                    String message = String.format("input nodeId %s already exists ", nodeIdsPairList.get(i).getLeft());
                     log.error(message);
                     throw new Exception(message);
                 }
-                allSites.addAll(nodeIds.get(i).getLeft());
+                allNodeIds.addAll(nodeIdsPairList.get(i).getLeft());
             }
-
         }
     }
 
@@ -225,7 +229,6 @@ public class FlinkOperation {
 
         List<String> nodeTypes = new ArrayList<>();
         if (StringUtils.isNotEmpty(dataflow)) {
-
             checkNodeIds(dataflow);
             JsonNode nodes = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
                     .get(0).get(InlongConstants.NODES);
