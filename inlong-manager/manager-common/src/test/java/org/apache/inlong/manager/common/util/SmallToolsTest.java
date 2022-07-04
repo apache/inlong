@@ -25,6 +25,6 @@ public class SmallToolsTest {
     @Test
     public void testIsLetterOrPattern() {
         String testGroupId = "test14DisableZkFor";
-        Assertions.assertFalse(SmallTools.isLetterOrNum(testGroupId));
+        Assertions.assertFalse(SmallTools.isLowerOrNum(testGroupId));
     }
 }
