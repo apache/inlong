@@ -21,7 +21,7 @@ package org.apache.inlong.agent.plugin.metrics;
 
 import io.prometheus.client.Counter;
 
-public class SinkPrometheusMetrics implements SinkMetrics {
+public class SinkPrometheusMetric implements SinkMetric {
 
     public static final String AGENT_SINK_METRICS_PREFIX = "inlong_agent_sink_";
 
@@ -30,19 +30,19 @@ public class SinkPrometheusMetrics implements SinkMetrics {
 
     private final String tagName;
 
-    private static final Counter SINK_SUCCESS_COUNTER = Counter.build()
+    private final Counter sinkSuccessCounter = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_SUCCESS_COUNTER_NAME)
             .help("The success message count in agent sink since agent started.")
             .labelNames("tag")
             .register();
 
-    private static final Counter SINK_FAIL_COUNTER = Counter.build()
+    private final Counter sinkFailCounter = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_FAIL_COUNTER_NAME)
             .help("The failed message count in agent sink since agent started.")
             .labelNames("tag")
             .register();
 
-    public SinkPrometheusMetrics(String tagName) {
+    public SinkPrometheusMetric(String tagName) {
         this.tagName = tagName;
     }
 
@@ -53,21 +53,21 @@ public class SinkPrometheusMetrics implements SinkMetrics {
 
     @Override
     public void incSinkSuccessCount() {
-        SINK_SUCCESS_COUNTER.labels(tagName).inc();
+        sinkSuccessCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSinkSuccessCount() {
-        return (long) SINK_SUCCESS_COUNTER.labels(tagName).get();
+        return (long) sinkSuccessCounter.labels(tagName).get();
     }
 
     @Override
     public void incSinkFailCount() {
-        SINK_FAIL_COUNTER.labels(tagName).inc();
+        sinkFailCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSinkFailCount() {
-        return (long) SINK_FAIL_COUNTER.labels(tagName).get();
+        return (long) sinkFailCounter.labels(tagName).get();
     }
 }

@@ -17,43 +17,38 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
-import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 /**
  * Make database as Source
  */
-public class DatabaseSqlSource  implements Source {
+public class DatabaseSqlSource implements Source {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSqlSource.class);
 
     private static final String JOB_DATABASE_SQL = "job.sql.command";
 
     private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
 
-    private final SourceMetrics sourceMetrics;
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public DatabaseSqlSource() {
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
-                DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
-        } else {
-            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
-                DATABASE_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
-        }
     }
 
     /**
@@ -81,6 +76,9 @@ public class DatabaseSqlSource  implements Source {
      */
     @Override
     public List<Reader> split(JobProfile conf) {
+        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+        String metricTagName = DATABASE_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         String sqlPattern = conf.get(JOB_DATABASE_SQL, "").toLowerCase();
         List<Reader> readerList = null;
         if (!sqlPattern.isEmpty()) {
@@ -88,11 +86,11 @@ public class DatabaseSqlSource  implements Source {
         }
         if (readerList != null) {
             // increment the count of successful sources
-            sourceMetrics.incSourceSuccessCount();
+            GlobalMetrics.incSourceSuccessCount(metricTagName);
         } else {
             // database type or sql is incorrect
             // increment the count of failed sources
-            sourceMetrics.incSourceFailCount();
+            GlobalMetrics.incSourceFailCount(metricTagName);
         }
         return readerList;
     }

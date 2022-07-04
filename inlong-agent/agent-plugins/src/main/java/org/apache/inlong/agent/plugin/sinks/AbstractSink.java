@@ -17,14 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import com.google.common.base.Joiner;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
-import org.apache.inlong.agent.plugin.metrics.SinkJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SinkMetrics;
-import org.apache.inlong.agent.plugin.metrics.SinkPrometheusMetrics;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +38,10 @@ public abstract class AbstractSink implements Sink {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSink.class);
 
-    protected static SinkMetrics sinkMetric;
-
-    protected static SinkMetrics streamMetric;
     private static AtomicLong index = new AtomicLong(0);
     protected String inlongGroupId;
     protected String inlongStreamId;
+    protected String metricTagName;
 
     @Override
     public MessageFilter initMessageFilter(JobProfile jobConf) {
@@ -69,24 +62,24 @@ public abstract class AbstractSink implements Sink {
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
-    /**
-     * init sinkMetric
-     *
-     * @param tagName metric tagName
-     */
-    protected void intMetric(String tagName) {
-        String label = Joiner.on(",").join(tagName, index.getAndIncrement());
-        if (ConfigUtil.isPrometheusEnabled()) {
-            sinkMetric = new SinkPrometheusMetrics(label);
-        } else {
-            sinkMetric = new SinkJmxMetric(label);
-        }
-        label = Joiner.on(",").join(tagName, inlongGroupId, inlongStreamId);
-        if (ConfigUtil.isPrometheusEnabled()) {
-            streamMetric = new SinkPrometheusMetrics(label);
-        } else {
-            streamMetric = new SinkJmxMetric(label);
-        }
-    }
+//    /**
+//     * init sinkMetric
+//     *
+//     * @param tagName metric tagName
+//     */
+//    protected void intMetric(String tagName) {
+//        String label = Joiner.on(",").join(tagName, index.getAndIncrement());
+//        if (ConfigUtil.isPrometheusEnabled()) {
+//            sinkMetric = new SinkPrometheusMetric(label);
+//        } else {
+//            sinkMetric = new SinkJmxMetric(label);
+//        }
+//        label = Joiner.on(",").join(tagName, inlongGroupId, inlongStreamId);
+//        if (ConfigUtil.isPrometheusEnabled()) {
+//            streamMetric = new SinkPrometheusMetric(label);
+//        } else {
+//            streamMetric = new SinkJmxMetric(label);
+//        }
+//    }
 
 }

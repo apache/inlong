@@ -27,6 +27,7 @@ import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
@@ -111,12 +112,10 @@ public class ProxySink extends AbstractSink {
                     AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_SEND_SUCCESS,
                             inlongGroupId, inlongStreamId, System.currentTimeMillis());
                     // increment the count of successful sinks
-                    sinkMetric.incSinkSuccessCount();
-                    streamMetric.incSinkSuccessCount();
+                    GlobalMetrics.incSinkSuccessCount(metricTagName);
                 } else {
                     // increment the count of failed sinks
-                    sinkMetric.incSinkFailCount();
-                    streamMetric.incSinkFailCount();
+                    GlobalMetrics.incSinkFailCount(metricTagName);
                 }
             }
         } catch (Exception e) {
@@ -183,7 +182,7 @@ public class ProxySink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        intMetric(PROXY_SINK_TAG_NAME);
+        metricTagName = PROXY_SINK_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         syncSend = jobConf.getBoolean(PROXY_SEND_SYNC, false);
         maxBatchSize = jobConf.getInt(PROXY_PACKAGE_MAX_SIZE, DEFAULT_PROXY_PACKAGE_MAX_SIZE);
         maxQueueNumber = jobConf.getInt(PROXY_INLONG_STREAM_ID_QUEUE_MAX_NUMBER,

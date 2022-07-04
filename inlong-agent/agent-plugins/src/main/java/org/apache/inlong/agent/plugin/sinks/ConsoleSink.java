@@ -17,10 +17,12 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import java.nio.charset.StandardCharsets;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * message write to console
@@ -38,12 +40,10 @@ public class ConsoleSink extends AbstractSink {
         if (message != null) {
             System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
             // increment the count of successful sinks
-            sinkMetric.incSinkSuccessCount();
-            streamMetric.incSinkSuccessCount();
+            GlobalMetrics.incSinkSuccessCount(metricTagName);
         } else {
             // increment the count of failed sinks
-            sinkMetric.incSinkFailCount();
-            streamMetric.incSinkFailCount();
+            GlobalMetrics.incSinkFailCount(metricTagName);
         }
     }
 
@@ -60,7 +60,7 @@ public class ConsoleSink extends AbstractSink {
     @Override
     public void init(JobProfile jobConf) {
         super.init(jobConf);
-        intMetric(CONSOLE_SINK_TAG_NAME);
+        metricTagName = CONSOLE_SINK_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
     }
 
     @Override
