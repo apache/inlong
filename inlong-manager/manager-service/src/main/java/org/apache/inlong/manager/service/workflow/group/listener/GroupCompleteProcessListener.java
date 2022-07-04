@@ -23,8 +23,9 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.common.util.InlongGroupUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -64,6 +65,9 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
         String applicant = context.getOperator();
         // Update inlong group status and other info
         groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
+        if (InlongGroupUtils.isBatchTask(form.getGroupInfo())) {
+            groupService.updateStatus(groupId, GroupStatus.FINISH.getCode(), applicant);
+        }
         groupService.update(form.getGroupInfo().genRequest(), applicant);
 
         // Update status of other related configs

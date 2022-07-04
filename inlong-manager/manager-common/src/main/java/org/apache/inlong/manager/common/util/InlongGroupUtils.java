@@ -17,38 +17,35 @@
 
 package org.apache.inlong.manager.common.util;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+
+import java.util.List;
 
 /**
  * String utils for inlong.
  */
-public class InlongStringUtils {
+public class InlongGroupUtils {
 
     /**
-     * Trim the first and last char if its equals to the given element.
+     * Check if group is batch task.
+     *
+     * @param groupInfo
+     * @return
      */
-    public static String trimFirstAndLastChar(String origin, String replacement) {
-        origin = origin.replaceAll(" ", "");
-        if (StringUtils.isBlank(origin)) {
-            return origin;
+    public static boolean isBatchTask(InlongGroupInfo groupInfo) {
+        if (groupInfo == null || CollectionUtils.isEmpty(groupInfo.getExtList())) {
+            return false;
         }
-
-        int length;
-        boolean beginFlag;
-        boolean endFlag;
-        do {
-            int first = origin.indexOf(replacement);
-            int last = origin.lastIndexOf(replacement);
-            length = origin.length();
-            int beginIndex = (first == 0) ? 1 : 0;
-            int endIndex = (last + 1 == length) ? last : length;
-            origin = origin.substring(beginIndex, endIndex);
-
-            beginFlag = (first == 0);
-            endFlag = (last + 1 == length);
-        } while (beginFlag || endFlag);
-
-        return origin;
+        List<InlongGroupExtInfo> extInfos = groupInfo.getExtList();
+        for (InlongGroupExtInfo extInfo : extInfos) {
+            if (InlongConstants.BATCH_TASK.equals(extInfo.getKeyName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

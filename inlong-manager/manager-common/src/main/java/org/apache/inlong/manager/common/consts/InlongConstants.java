@@ -22,6 +22,9 @@ package org.apache.inlong.manager.common.consts;
  */
 public class InlongConstants {
 
+    /**
+     * Group config
+     */
     public static final Integer UN_DELETED = 0;
 
     public static final Integer IS_DELETED = 1;
@@ -35,6 +38,8 @@ public class InlongConstants {
     public static final Integer SYNC_SEND = 1;
 
     public static final Integer UN_SYNC_SEND = 0;
+
+    public static final String BATCH_TASK = "batch.task";
 
     /**
      * Pulsar config
@@ -55,7 +60,6 @@ public class InlongConstants {
     /**
      * Sort config
      */
-
     public static final String DATA_FLOW = "dataFlow";
 
     public static final String SORT_JOB_ID = "sort.job.id";
