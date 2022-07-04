@@ -62,7 +62,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -85,7 +85,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -125,7 +125,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         MvcResult mvcResult = mockMvc.perform(
                         get("/anno/logout")
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -149,7 +149,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
