@@ -84,11 +84,13 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         type: 'input',
         label: i18n.t('pages.ClusterTags.Name'),
         name: 'clusterTag',
+        rules: [{ required: true }],
       },
       {
         type: <StaffSelect mode="multiple" currentUserClosable={false} />,
         label: i18n.t('pages.ClusterTags.InCharges'),
         name: 'inCharges',
+        rules: [{ required: true }],
       },
     ];
   }, []);
