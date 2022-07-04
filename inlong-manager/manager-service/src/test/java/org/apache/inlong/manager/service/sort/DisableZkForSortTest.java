@@ -67,7 +67,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
 
     @BeforeEach
     public void init() {
-        subType = "DisableZkFor";
+        subType = "disable_zk";
     }
 
     /**

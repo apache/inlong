@@ -53,7 +53,7 @@ public class DataSourceListenerTest extends WorkflowServiceImplTest {
 
     @BeforeEach
     public void init() {
-        subType = "DataSource";
+        subType = "data_source";
     }
 
     public Integer createBinlogSource(InlongGroupInfo groupInfo) {

@@ -126,7 +126,7 @@ public class InlongGroupRequest {
         }
 
         if (!SmallTools.isLetterOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId must contains only letters, digits, `-` or `_`");
+            throw new BusinessException("inlongGroupId must contains only lower letters, digits, `-` or `_`");
         }
 
         if (StringUtils.isBlank(mqType)) {
