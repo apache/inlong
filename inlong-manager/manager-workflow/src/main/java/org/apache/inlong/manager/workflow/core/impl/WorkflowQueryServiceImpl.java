@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.core.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
@@ -35,6 +36,7 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowBriefDTO;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
@@ -49,7 +51,6 @@ import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.NextableElement;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
@@ -81,6 +82,8 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
     private WorkflowEventLogEntityMapper eventLogMapper;
     @Autowired
     private WorkflowApproverEntityMapper approverMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public WorkflowProcessEntity getProcessEntity(Integer processId) {
@@ -240,7 +243,7 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
         elementDTO.setName(startEvent.getName());
         elementDTO.setDisplayName(startEvent.getDisplayName());
 
-        WorkflowContext context = WorkflowBeanUtils.buildContext(process, processEntity);
+        WorkflowContext context = WorkflowBeanUtils.buildContext(objectMapper, process, processEntity);
         addNext(startEvent, elementDTO, context, nameStatusMap);
 
         WorkflowBriefDTO briefDTO = new WorkflowBriefDTO();

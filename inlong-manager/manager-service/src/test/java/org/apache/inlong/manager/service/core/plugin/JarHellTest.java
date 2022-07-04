@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.core.plugin;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for deal with jar hell.
@@ -31,9 +31,9 @@ public class JarHellTest {
         try {
             JarHell.checkJavaVersion("test_java", "1.81");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof IllegalArgumentException);
+            Assertions.assertTrue(e instanceof IllegalArgumentException);
             String msg = e.getMessage();
-            Assert.assertTrue(msg.contains("requires Java 1.8"));
+            Assertions.assertTrue(msg.contains("requires Java 1.8"));
         }
     }
 

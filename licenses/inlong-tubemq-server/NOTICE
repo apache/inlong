@@ -17,6 +17,13 @@ Copyright 2010-2019 The Apache Software Foundation
 Apache Pulsar
 Copyright 2017-2019 The Apache Software Foundation
 
+flink-cdc-connectors
+Copyright 2022 Ververica Inc.
+Apache Flink, Flink®, Apache®, the squirrel logo, and the Apache feather logo are either registered trademarks or trademarks of The Apache Software Foundation.
+
+Apache Flink
+Copyright 2014-2021 The Apache Software Foundation
+
 
 
 ========================================================================
@@ -297,7 +304,7 @@ Spring Object/Relational Mapping NOTICE
 Spring Transaction NOTICE
 ========================================================================
 
-Spring Framework 5.3.18
+Spring Framework 5.3.20
 Copyright (c) 2002-2022 Pivotal, Inc.
 
 This product is licensed to you under the Apache License, Version 2.0

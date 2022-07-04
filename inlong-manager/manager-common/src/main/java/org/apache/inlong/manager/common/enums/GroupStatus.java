@@ -60,7 +60,8 @@ public enum GroupStatus {
     static {
         GROUP_STATE_AUTOMATON.put(DRAFT, Sets.newHashSet(DRAFT, TO_BE_SUBMIT, DELETING));
         GROUP_STATE_AUTOMATON.put(TO_BE_SUBMIT, Sets.newHashSet(TO_BE_SUBMIT, TO_BE_APPROVAL, DELETING));
-        GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL, Sets.newHashSet(TO_BE_APPROVAL, APPROVE_REJECTED, APPROVE_PASSED));
+        GROUP_STATE_AUTOMATON.put(TO_BE_APPROVAL,
+                Sets.newHashSet(TO_BE_APPROVAL, APPROVE_REJECTED, APPROVE_PASSED, DELETING));
 
         GROUP_STATE_AUTOMATON.put(APPROVE_REJECTED, Sets.newHashSet(APPROVE_REJECTED, TO_BE_APPROVAL, DELETING));
         GROUP_STATE_AUTOMATON.put(APPROVE_PASSED, Sets.newHashSet(APPROVE_PASSED, CONFIG_ING, DELETING));
@@ -97,7 +98,7 @@ public enum GroupStatus {
                 return status;
             }
         }
-        throw new IllegalStateException(String.format("Illegal code=%s for GroupState", code));
+        throw new IllegalStateException(String.format("Illegal code=%s for GroupStatus", code));
     }
 
     public static boolean notAllowedTransition(GroupStatus pre, GroupStatus now) {
@@ -105,14 +106,30 @@ public enum GroupStatus {
         return nextStates == null || !nextStates.contains(now);
     }
 
+    /**
+     * Checks whether the given status allows the update.
+     */
     public static boolean notAllowedUpdate(GroupStatus status) {
-        return status == GroupStatus.CONFIG_ING
-                || status == GroupStatus.TO_BE_APPROVAL;
+        return status == GroupStatus.CONFIG_ING || status == GroupStatus.SUSPENDING
+                || status == GroupStatus.RESTARTING || status == GroupStatus.DELETING;
     }
 
-    public static boolean isAllowedLogicDel(GroupStatus status) {
+    /**
+     * Checks whether the given status allows the logical delete
+     */
+    public static boolean allowedLogicDelete(GroupStatus status) {
         return status == GroupStatus.DRAFT || status == GroupStatus.TO_BE_SUBMIT
                 || status == GroupStatus.DELETED || status == GroupStatus.FINISH;
+    }
+
+    /**
+     * Only the {@link GroupStatus#DRAFT} and {@link GroupStatus#TO_BE_SUBMIT} status
+     * allows change the MQ type of inlong group.
+     */
+    public static boolean notAllowedUpdateMQ(GroupStatus status) {
+        return status != GroupStatus.DRAFT && status != GroupStatus.TO_BE_SUBMIT
+                && status != GroupStatus.TO_BE_APPROVAL && status != GroupStatus.APPROVE_REJECTED
+                && status != GroupStatus.CONFIG_FAILED;
     }
 
     /**

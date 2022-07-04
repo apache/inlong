@@ -17,6 +17,13 @@ Copyright 2010-2019 The Apache Software Foundation
 Apache Pulsar
 Copyright 2017-2019 The Apache Software Foundation
 
+flink-cdc-connectors
+Copyright 2022 Ververica Inc.
+Apache Flink, Flink®, Apache®, the squirrel logo, and the Apache feather logo are either registered trademarks or trademarks of The Apache Software Foundation.
+
+Apache Flink
+Copyright 2014-2021 The Apache Software Foundation
+
 
 
 ========================================================================
@@ -185,10 +192,26 @@ The Apache Software Foundation (http://www.apache.org/).
 
 ========================================================================
 
-Apache Log4j to SLF4J Adapter NOTICE
+Apache Log4j Core NOTICE
 ========================================================================
 
-Apache Log4j to SLF4J Adapter
+Apache Log4j Core
+Copyright 1999-2012 Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+ResolverUtil.java
+Copyright 2005-2006 Tim Fennell
+
+
+
+========================================================================
+
+Apache Log4j JUL Adapter NOTICE
+========================================================================
+
+Apache Log4j JUL Adapter
 Copyright 1999-2022 The Apache Software Foundation
 
 This product includes software developed at
@@ -215,13 +238,32 @@ Spring AOP NOTICE
 ------------------------------------------------------
 Spring Aspects NOTICE
 ------------------------------------------------------
+Spring Expression Language (SpEL) NOTICE
+------------------------------------------------------
+Spring Web MVC NOTICE
+========================================================================
+
+Spring Framework 5.3.18
+Copyright (c) 2002-2022 Pivotal, Inc.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License"). You may not use this product except in compliance with
+the License.
+
+This product may include a number of subcomponents with separate
+copyright notices and license terms. Your use of the source code for
+these subcomponents is subject to the terms and conditions of the
+subcomponent's license, as noted in the license.txt file.
+
+
+
+========================================================================
+
 Spring Beans NOTICE
 ------------------------------------------------------
 Spring Context NOTICE
 ------------------------------------------------------
 Spring Core NOTICE
-------------------------------------------------------
-Spring Expression Language (SpEL) NOTICE
 ------------------------------------------------------
 Spring Commons Logging Bridge NOTICE
 ------------------------------------------------------
@@ -230,11 +272,9 @@ Spring JDBC NOTICE
 Spring Object/Relational Mapping NOTICE
 ------------------------------------------------------
 Spring Web NOTICE
-------------------------------------------------------
-Spring Web MVC NOTICE
 ========================================================================
 
-Spring Framework 5.3.18
+Spring Framework 5.3.20
 Copyright (c) 2002-2022 Pivotal, Inc.
 
 This product is licensed to you under the Apache License, Version 2.0

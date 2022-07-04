@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.client.cli.pojo;
 
 import lombok.Data;
+import org.apache.inlong.manager.client.cli.util.ParseStatus;
 
 import java.util.Date;
 
@@ -33,6 +34,8 @@ public class SourceInfo {
     private String sourceType;
     private String sourceName;
     private String serializationType;
-    private Integer status;
+
+    @ParseStatus
+    private String status;
     private Date modifyTime;
 }

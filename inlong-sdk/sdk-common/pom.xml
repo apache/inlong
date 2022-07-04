@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>org.apache.inlong</groupId>
 		<artifactId>inlong-sdk</artifactId>
-		<version>1.2.0-incubating-SNAPSHOT</version>
+		<version>1.3.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.apache.inlong</groupId>
@@ -55,7 +55,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
-					<protocArtifact>com.google.protobuf:protoc:2.5.0:exe:${os.detected.classifier}</protocArtifact>
+					<protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
 				</configuration>
 				<executions>
 					<execution>

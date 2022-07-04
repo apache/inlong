@@ -27,9 +27,13 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.node.extract.FileSystemExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.MongoExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.MySqlExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
 import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nullable;
@@ -46,7 +50,11 @@ import java.util.Map;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MySqlExtractNode.class, name = "mysqlExtract"),
         @JsonSubTypes.Type(value = KafkaExtractNode.class, name = "kafkaExtract"),
-        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract")
+        @JsonSubTypes.Type(value = PostgresExtractNode.class, name = "postgresExtract"),
+        @JsonSubTypes.Type(value = FileSystemExtractNode.class, name = "fileSystemExtract"),
+        @JsonSubTypes.Type(value = MongoExtractNode.class, name = "mongoExtract"),
+        @JsonSubTypes.Type(value = SqlServerExtractNode.class, name = "sqlserverExtract"),
+        @JsonSubTypes.Type(value = OracleExtractNode.class, name = "oracleExtract")
 })
 @Data
 @NoArgsConstructor
@@ -70,10 +78,10 @@ public abstract class ExtractNode implements Node {
 
     @JsonCreator
     public ExtractNode(@JsonProperty("id") String id,
-            @JsonProperty("name") String name,
-            @JsonProperty("fields") List<FieldInfo> fields,
-            @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
-            @JsonProperty("properties") Map<String, String> properties) {
+                       @JsonProperty("name") String name,
+                       @JsonProperty("fields") List<FieldInfo> fields,
+                       @Nullable @JsonProperty("watermark_field") WatermarkField watermarkField,
+                       @Nullable @JsonProperty("properties") Map<String, String> properties) {
         this.id = Preconditions.checkNotNull(id, "id is null");
         this.name = name;
         this.fields = Preconditions.checkNotNull(fields, "fields is null");

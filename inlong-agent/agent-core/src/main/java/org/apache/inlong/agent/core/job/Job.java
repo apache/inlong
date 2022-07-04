@@ -24,6 +24,7 @@ import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Sink;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,9 @@ public class Job {
                 String taskId = String.format("%s_%d", jobInstanceId, index++);
                 taskList.add(new Task(taskId, reader, writer, channel, getJobConf()));
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOGGER.error("create task failed", ex);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
             throw new RuntimeException(ex);
         }
         return taskList;

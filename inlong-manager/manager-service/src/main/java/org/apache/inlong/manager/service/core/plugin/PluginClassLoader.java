@@ -51,6 +51,8 @@ public class PluginClassLoader extends URLClassLoader {
 
     public static final String PLUGIN_PATH = "META-INF/plugin.yaml";
 
+    public static final String WINDOWS_PREFIX = "win";
+
     /**
      * plugin.yaml should less than 1k
      */
@@ -61,10 +63,12 @@ public class PluginClassLoader extends URLClassLoader {
      */
     private Map<String, PluginDefinition> pluginDefinitionMap = new HashMap<>();
     private ObjectMapper yamlMapper;
+    private String osName;
 
-    private PluginClassLoader(URL url, ClassLoader parent) throws IOException {
+    private PluginClassLoader(URL url, ClassLoader parent, String osName) throws IOException {
         super(new URL[]{url}, parent);
         this.pluginDirectory = new File(url.getPath());
+        this.osName = osName;
         initYamlMapper();
         loadPluginDefinition();
     }
@@ -73,13 +77,19 @@ public class PluginClassLoader extends URLClassLoader {
      * Get pluginClassLoader by plugin url.
      */
     public static PluginClassLoader getFromPluginUrl(String url, ClassLoader parent) {
+        log.info("ClassLoaderPath:{}", url);
         checkClassLoader(parent);
         checkUrl(url);
         return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
             @SneakyThrows
             @Override
             public PluginClassLoader run() {
-                return new PluginClassLoader(new URL("file://" + url), parent);
+                String os = System.getProperty("os.name").toLowerCase();
+                if (os.startsWith(WINDOWS_PREFIX)) {
+                    return new PluginClassLoader(new URL("file:///" + url), parent, os);
+                } else {
+                    return new PluginClassLoader(new URL("file://" + url), parent, os);
+                }
             }
         });
     }
@@ -122,8 +132,14 @@ public class PluginClassLoader extends URLClassLoader {
      * load pluginDefinition in **.jar/META-INF/plugin.yaml
      */
     private void loadPluginDefinition() throws IOException {
-        List<PluginDefinition> definitions = new ArrayList();
-        for (File jarFile : pluginDirectory.listFiles()) {
+        File[] files = pluginDirectory.listFiles();
+        if (files == null) {
+            log.warn("plugin directory {} has no files", pluginDirectory);
+            return;
+        }
+
+        List<PluginDefinition> definitions = new ArrayList<>();
+        for (File jarFile : files) {
             if (!jarFile.getName().endsWith(".jar")) {
                 log.warn("{} is not valid plugin jar, skip to load", jarFile);
                 continue;
@@ -133,12 +149,16 @@ public class PluginClassLoader extends URLClassLoader {
             String pluginDef = readPluginDef(pluginJar);
             pluginDef = pluginDef.replaceAll("[\\x00]+", "");
             PluginDefinition definition = yamlMapper.readValue(pluginDef, PluginDefinition.class);
-            addURL(new URL("file://" + jarFile.getAbsolutePath()));
+            if (osName.startsWith(WINDOWS_PREFIX)) {
+                addURL(new URL("file:///" + jarFile.getAbsolutePath()));
+            } else {
+                addURL(new URL("file://" + jarFile.getAbsolutePath()));
+            }
             checkPluginValid(jarFile, definition);
             definitions.add(definition);
         }
         pluginDefinitionMap = definitions.stream()
-                .collect(Collectors.toMap(definition -> definition.getName(), definition -> definition));
+                .collect(Collectors.toMap(PluginDefinition::getName, definition -> definition));
     }
 
     private void checkPluginValid(File jarFile, PluginDefinition pluginDefinition) {

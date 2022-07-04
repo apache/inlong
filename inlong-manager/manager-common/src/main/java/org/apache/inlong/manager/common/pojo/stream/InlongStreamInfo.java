@@ -20,9 +20,15 @@ package org.apache.inlong.manager.common.pojo.stream;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,17 +36,14 @@ import java.util.List;
  * Inlong stream info
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong stream info")
 public class InlongStreamInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
-
-    @ApiModelProperty(value = "Inlong stream name", required = true)
-    private String name;
-
-    @ApiModelProperty(value = "Inlong stream description")
-    private String description;
 
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
@@ -48,12 +51,15 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "MQ resource object, in inlong group",
-            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
-    private String mqResourceObj;
+    @ApiModelProperty(value = "Inlong stream name", required = true)
+    private String name;
 
-    @ApiModelProperty(value = "Data storage period, unit: day (required when dataSourceType=AUTO_PUSH)")
-    private Integer storagePeriod;
+    @ApiModelProperty(value = "Inlong stream description")
+    private String description;
+
+    @ApiModelProperty(value = "MQ resource for inlong stream. Default: ${inlongStreamId}",
+            notes = "in inlong stream, Tube corresponds to filter consumption ID, Pulsar corresponds to Topic")
+    private String mqResource;
 
     @ApiModelProperty(value = "Data type, including: TEXT, KV, etc.")
     private String dataType;
@@ -67,13 +73,10 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "Data field escape symbol, stored as ASCII code")
     private String dataEscapeChar;
 
-    @ApiModelProperty(value = "(File and DB access) Whether there are predefined fields, 0: no, 1: yes")
-    private Integer havePredefinedFields;
-
     @ApiModelProperty(value = "Whether to send synchronously, 0: no, 1: yes",
             notes = "Each task under this stream sends data synchronously, "
                     + "which will affect the throughput of data collection, please choose carefully")
-    private Integer syncSend;
+    private Integer syncSend = 0;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -87,8 +90,11 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
-    @ApiModelProperty(value = "Names of responsible persons, separated by commas")
-    private String inCharges;
+    @ApiModelProperty(value = "Data storage period, unit: day")
+    private Integer storagePeriod;
+
+    @ApiModelProperty(value = "Extended params, will be saved as JSON string")
+    private String extParams;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
@@ -99,8 +105,10 @@ public class InlongStreamInfo {
     @ApiModelProperty(value = "is deleted? 0: deleted, 1: not deleted")
     private Integer isDeleted = 0;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -109,14 +117,23 @@ public class InlongStreamInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
-
     @ApiModelProperty(value = "Field list")
-    private List<InlongStreamFieldInfo> fieldList;
+    private List<StreamField> fieldList;
+
+    @ApiModelProperty(value = "Inlong stream Extension properties")
+    private List<InlongStreamExtInfo> extList;
+
+    @ApiModelProperty("Stream source infos")
+    private List<StreamSource> sourceList = new ArrayList<>();
+
+    @ApiModelProperty("Stream sink infos")
+    private List<StreamSink> sinkList = new ArrayList<>();
 
     public InlongStreamResponse genResponse() {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
     }
 
+    public InlongStreamRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, InlongStreamRequest::new);
+    }
 }

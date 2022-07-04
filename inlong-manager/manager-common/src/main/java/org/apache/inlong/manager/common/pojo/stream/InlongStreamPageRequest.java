@@ -19,8 +19,11 @@ package org.apache.inlong.manager.common.pojo.stream;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
 /**
@@ -28,6 +31,9 @@ import org.apache.inlong.manager.common.beans.PageRequest;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong stream paging query request")
 public class InlongStreamPageRequest extends PageRequest {
 
@@ -36,9 +42,6 @@ public class InlongStreamPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Keyword, can be stream id or name")
     private String keyword;
-
-    @ApiModelProperty(value = "Source type, including: FILE, DB, AUTO_PUSH (DATA_PROXY_SDK, HTTP)")
-    private String dataSourceType;
 
     @ApiModelProperty(value = "Sink type to be created (which has no inlong stream of this type)")
     private String sinkType;

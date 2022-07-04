@@ -41,7 +41,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.core.StreamConfigLogService;
-import org.apache.inlong.manager.service.source.SourceSnapshotOperation;
+import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +72,7 @@ public class AgentServiceImpl implements AgentService {
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
-    private SourceSnapshotOperation snapshotOperation;
+    private SourceSnapshotOperator snapshotOperator;
     @Autowired
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
@@ -82,7 +82,7 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
-        return snapshotOperation.snapshot(request);
+        return snapshotOperator.snapshot(request);
     }
 
     @Override

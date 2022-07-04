@@ -19,14 +19,14 @@ package org.apache.inlong.dataproxy.sink.pulsar;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 import org.apache.inlong.common.reporpter.ConfigLogTypeEnum;
 import org.apache.inlong.common.reporpter.StreamConfigLogMetric;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -99,7 +99,7 @@ public class PulsarClientService {
      *
      * @param pulsarConfig
      */
-    public PulsarClientService(ThirdPartyClusterConfig pulsarConfig, int sinkThreadPoolSize) {
+    public PulsarClientService(MQClusterConfig pulsarConfig, int sinkThreadPoolSize) {
 
         this.sinkThreadPoolSize = sinkThreadPoolSize;
 
@@ -136,6 +136,10 @@ public class PulsarClientService {
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
+        if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
+            logger.warn("Failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
+            return;
+        }
         try {
             createConnection(callBack);
         } catch (FlumeException e) {
@@ -146,13 +150,6 @@ public class PulsarClientService {
 
     /**
      * send message
-     *
-     * @param poolIndex
-     * @param topic
-     * @param event
-     * @param sendMessageCallBack
-     * @param es
-     * @return
      */
     public boolean sendMessage(int poolIndex, String topic, Event event,
                                SendMessageCallBack sendMessageCallBack, EventStat es) {
@@ -295,8 +292,7 @@ public class PulsarClientService {
             return;
         }
         pulsarClients = new ConcurrentHashMap<>();
-        pulsarUrl2token = ConfigManager.getInstance().getThirdPartyClusterUrl2Token();
-        Preconditions.checkState(!pulsarUrl2token.isEmpty(), "No pulsar server url specified");
+        pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         logger.debug("number of pulsar cluster is {}", pulsarUrl2token.size());
         for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
             try {
@@ -335,7 +331,7 @@ public class PulsarClientService {
 
     private PulsarClient initPulsarClient(String pulsarUrl, String token) throws Exception {
         ClientBuilder builder = PulsarClient.builder();
-        if (ThirdPartyClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
+        if (MQClusterConfig.PULSAR_DEFAULT_AUTH_TYPE.equals(authType) && StringUtils.isNotEmpty(token)) {
             builder.authentication(AuthenticationFactory.token(token));
         }
         builder.serviceUrl(pulsarUrl)
@@ -345,6 +341,9 @@ public class PulsarClientService {
         return builder.build();
     }
 
+    /**
+     * Producer initialization.
+     */
     public List<TopicProducerInfo> initTopicProducer(String topic, String inlongGroupId,
             String inlongStreamId) {
         List<TopicProducerInfo> producerInfoList = producerInfoMap.computeIfAbsent(topic, (k) -> {

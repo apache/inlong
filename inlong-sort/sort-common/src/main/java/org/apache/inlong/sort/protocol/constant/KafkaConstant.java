@@ -27,6 +27,8 @@ public class KafkaConstant {
 
     public static final String PROPERTIES_BOOTSTRAP_SERVERS = "properties.bootstrap.servers";
 
+    public static final String PROPERTIES_GROUP_ID = "properties.group.id";
+
     public static final String CONNECTOR = "connector";
 
     public static final String SCAN_STARTUP_MODE = "scan.startup.mode";
@@ -34,6 +36,8 @@ public class KafkaConstant {
     public static final String KAFKA = "kafka";
 
     /**
+     * upsert-kafka
+     * 
      * @see <a href="https://nightlies.apache.org/flink/flink-docs-release-1.13/zh/docs/connectors/table/upsert-kafka/">
      *         Upsert Kafka</a>
      */

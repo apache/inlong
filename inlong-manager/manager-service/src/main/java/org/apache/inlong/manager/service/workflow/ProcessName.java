@@ -30,7 +30,7 @@ public enum ProcessName {
     /**
      * Startup inlong group application process
      */
-    CREATE_GROUP_RESOURCE("Group-Resource"),
+    CREATE_GROUP_RESOURCE("Create-Group"),
 
     /**
      * Suspend inlong group application process
@@ -73,9 +73,24 @@ public enum ProcessName {
     NEW_CONSUMPTION_PROCESS("New-Consumption"),
 
     /**
-     * Single inlong stream resource creation
+     * Startup single stream process
      */
-    CREATE_STREAM_RESOURCE("Stream-Resource");
+    CREATE_STREAM_RESOURCE("Create-Stream"),
+
+    /**
+     * Suspend single stream process
+     */
+    SUSPEND_STREAM_RESOURCE("Suspend-Stream"),
+
+    /**
+     * Restart single stream process
+     */
+    RESTART_STREAM_RESOURCE("Restart-Stream"),
+
+    /**
+     * Delete single stream process
+     */
+    DELETE_STREAM_RESOURCE("Delete-Stream");
 
     private final String displayName;
 

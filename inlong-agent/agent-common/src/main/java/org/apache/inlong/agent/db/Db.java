@@ -77,6 +77,16 @@ public interface Db extends Closeable {
     List<KeyValueEntity> search(StateSearchKey searchKey);
 
     /**
+     * search keyValue list by search key.
+     *
+     * @param searchKey search keys.
+     * @param keyPrefix key prefix.
+     * @return key/value list
+     * @throws NullPointerException search key should not be null.
+     */
+    List<KeyValueEntity> searchWithKeyPrefix(StateSearchKey searchKey, String keyPrefix);
+
+    /**
      * search commands using ack status
      */
     List<CommandEntity> searchCommands(boolean isAcked);

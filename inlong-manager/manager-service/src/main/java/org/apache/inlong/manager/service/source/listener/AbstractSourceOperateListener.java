@@ -27,14 +27,14 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceResponse;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -68,19 +68,17 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        log.info("Operate data source for context={}", context);
+        log.info("operate stream source for context={}", context);
         InlongGroupInfo groupInfo = getGroupInfo(context.getProcessForm());
         final String groupId = groupInfo.getInlongGroupId();
-        List<StreamBriefResponse> streamBriefResponses = streamService.getBriefList(groupId);
-        List<SourceResponse> unOperatedSources = Lists.newArrayList();
-        streamBriefResponses.forEach(streamBriefResponse ->
-                operateStreamSources(groupId, streamBriefResponse.getInlongStreamId(), context.getApplicant(),
-                        unOperatedSources));
+        List<InlongStreamBriefInfo> streamResponses = streamService.getBriefList(groupId);
+        List<StreamSource> unOperatedSources = Lists.newArrayList();
+        streamResponses.forEach(stream ->
+                operateStreamSources(groupId, stream.getInlongStreamId(), context.getOperator(), unOperatedSources));
         if (CollectionUtils.isNotEmpty(unOperatedSources)) {
             GroupOperateType groupOperateType = getOperateType(context.getProcessForm());
             StringBuilder builder = new StringBuilder("Unsupported operate ").append(groupOperateType).append(" for (");
-            unOperatedSources.stream()
-                    .forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
+            unOperatedSources.forEach(source -> builder.append(" ").append(source.getSourceName()).append(" "));
             String errMsg = builder.append(")").toString();
             throw new WorkflowListenerException(errMsg);
         } else {
@@ -89,42 +87,45 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
     }
 
     /**
-     * Operate stream sources ,such as delete, stop, restart.
+     * Operate stream sources, such as delete, stop, restart.
      */
     protected void operateStreamSources(String groupId, String streamId, String operator,
-            List<SourceResponse> unOperatedSources) {
-        List<SourceResponse> sourceResponses = streamSourceService.listSource(groupId, streamId);
-        sourceResponses.forEach(sourceResponse -> {
-            boolean checkIfOp = checkIfOp(sourceResponse, unOperatedSources);
+            List<StreamSource> unOperatedSources) {
+        List<StreamSource> sources = streamSourceService.listSource(groupId, streamId);
+        sources.forEach(source -> {
+            boolean checkIfOp = checkIfOp(source, unOperatedSources);
             if (checkIfOp) {
-                SourceRequest sourceRequest = createSourceRequest(sourceResponse);
+                SourceRequest sourceRequest = createSourceRequest(source);
                 operateStreamSource(sourceRequest, operator);
             }
         });
     }
 
+    /**
+     * Check source status.
+     */
     @SneakyThrows
-    public boolean checkIfOp(SourceResponse sourceResponse, List<SourceResponse> unOperatedSources) {
+    public boolean checkIfOp(StreamSource streamSource, List<StreamSource> unOperatedSources) {
         for (int retry = 0; retry < 60; retry++) {
-            int status = sourceResponse.getStatus();
+            int status = streamSource.getStatus();
             SourceStatus sourceStatus = SourceStatus.forCode(status);
             if (sourceStatus == SourceStatus.SOURCE_NORMAL || sourceStatus == SourceStatus.SOURCE_FROZEN) {
                 return true;
             } else if (sourceStatus == SourceStatus.SOURCE_FAILED || sourceStatus == SourceStatus.SOURCE_DISABLE) {
                 return false;
             } else {
-                log.warn("StreamSource={} cannot be operated for state={}", sourceResponse, sourceStatus);
+                log.warn("stream source={} cannot be operated for status={}", streamSource, sourceStatus);
                 TimeUnit.SECONDS.sleep(5);
-                sourceResponse = streamSourceService.get(sourceResponse.getId());
+                streamSource = streamSourceService.get(streamSource.getId());
             }
         }
-        SourceStatus sourceStatus = SourceStatus.forCode(sourceResponse.getStatus());
+        SourceStatus sourceStatus = SourceStatus.forCode(streamSource.getStatus());
         if (sourceStatus != SourceStatus.SOURCE_NORMAL
                 && sourceStatus != SourceStatus.SOURCE_FROZEN
                 && sourceStatus != SourceStatus.SOURCE_DISABLE
                 && sourceStatus != SourceStatus.SOURCE_FAILED) {
-            log.error("StreamSource={} cannot be operated for state={}", sourceResponse, sourceStatus);
-            unOperatedSources.add(sourceResponse);
+            log.error("stream source ={} cannot be operated for status={}", streamSource, sourceStatus);
+            unOperatedSources.add(streamSource);
         }
         return false;
     }
@@ -132,17 +133,17 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
     /**
      * Creat source request by source type.
      *
-     * @param sourceResponse source infomation.
-     * @return source request.
+     * @param streamSource source information
+     * @return source request
      */
-    public SourceRequest createSourceRequest(SourceResponse sourceResponse) {
-        String sourceType = sourceResponse.getSourceType();
+    public SourceRequest createSourceRequest(StreamSource streamSource) {
+        String sourceType = streamSource.getSourceType();
         SourceType type = SourceType.valueOf(sourceType);
         switch (type) {
             case BINLOG:
-                return CommonBeanUtils.copyProperties((BinlogSourceResponse) sourceResponse, BinlogSourceRequest::new);
+                return CommonBeanUtils.copyProperties((MySQLBinlogSource) streamSource, MySQLBinlogSourceRequest::new);
             case KAFKA:
-                return CommonBeanUtils.copyProperties((KafkaSourceResponse) sourceResponse, KafkaSourceRequest::new);
+                return CommonBeanUtils.copyProperties((KafkaSource) streamSource, KafkaSourceRequest::new);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported type=%s for DataSourceOperateListener", type));
@@ -158,7 +159,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
         if (processForm instanceof GroupResourceProcessForm) {
             return ((GroupResourceProcessForm) processForm).getGroupOperateType();
         } else {
-            log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
+            log.error("illegal process form {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
                     processForm.getFormName()));
         }
@@ -169,15 +170,10 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
             return groupResourceProcessForm.getGroupInfo();
         } else {
-            log.error("Illegal ProcessForm {} to get inlong group info", processForm.getFormName());
+            log.error("illegal process form {} to get inlong group info", processForm.getFormName());
             throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
                     processForm.getFormName()));
         }
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

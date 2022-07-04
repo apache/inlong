@@ -22,10 +22,10 @@ import ReactDom from 'react-dom';
 import { Form, Collapse, Button, Empty, Modal, Space, message } from 'antd';
 import FormGenerator, { FormItemContent } from '@/components/FormGenerator';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest } from '@/hooks';
+import { useRequest, useEventEmitter } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
+import { dataToValues, valuesToData } from './helper';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent, genExtraContent, genFormContent } from './config';
@@ -34,7 +34,7 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
+const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
@@ -96,7 +96,6 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
       'id',
       'inlongGroupId',
       'inlongStreamId',
-      'dataSourceBasicId',
       'dataSourceType',
       'havePredefinedFields',
     ]);
@@ -179,11 +178,11 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
     });
   };
 
-  const genExtra = (record, index) => {
+  const genExtra = (record = {}, index) => {
     const list = genExtraContent({
       editingId,
       record,
-      middlewareType,
+      mqType,
       onSave,
       onEdit,
       onCancel,
@@ -214,25 +213,28 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
       <div className={styles.collapseHeader}>
         {(record as any).inlongStreamId ? (
           ['inlongStreamId', 'name', 'modifier', 'createTime', 'status'].map(key => (
-            <div key={key} className={styles.collapseHeaderItem}>
-              {key === 'status' ? genStatusTag(record?.[key]) : record?.[key]}
-            </div>
+            <div key={key}>{key === 'status' ? genStatusTag(record?.[key]) : record?.[key]}</div>
           ))
         ) : (
-          <div className={styles.collapseHeaderItem}>
-            {t('pages.AccessDetail.DataStream.NewDataStream')}
-          </div>
+          <div>{t('pages.AccessDetail.DataStream.NewDataStream')}</div>
         )}
-        {!readonly && genExtra(record, index)}
       </div>
     );
   };
+
+  const event$ = useEventEmitter();
+
+  event$.useSubscription(() => {
+    setTimeout(() => {
+      setRealTimeValues(form.getFieldsValue());
+    }, 0);
+  });
 
   return (
     <>
       <div className={styles.topFilterContainer}>
         <FormGenerator layout="inline" content={getFilterFormContent()} onFilter={onFilter} />
-        <div ref={topRightRef}></div>
+        <div ref={topRightRef} />
       </div>
 
       <Form
@@ -255,11 +257,8 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
                       onClick={async () => {
                         setEditingId(true);
                         await add({}, 0);
-                        setTimeout(() => {
-                          setRealTimeValues(form.getFieldsValue());
-                          const newActiveKey = Math.max(...fields.map(item => item.key)) + 1 + '';
-                          setActiveKey(newActiveKey);
-                        }, 0);
+                        event$.emit();
+                        setActiveKey('isAdd');
                         mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
                       }}
                     >
@@ -279,7 +278,8 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
                   {fields.map((field, index) => (
                     <Collapse.Panel
                       header={genHeader(data?.list?.[index], index)}
-                      key={field.key.toString()}
+                      extra={!readonly && genExtra(data?.list?.[index], index)}
+                      key={editingId === true && index === 0 ? 'isAdd' : field.key.toString()}
                       style={{
                         marginBottom: 10,
                         border: '1px solid #e5e5e5',
@@ -293,7 +293,7 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
                           { ...realTimeValues.list?.[index] },
                           inlongGroupId,
                           readonly,
-                          middlewareType,
+                          mqType,
                         ).map(item => {
                           const obj = { ...item } as any;
                           if (obj.name) {
@@ -321,7 +321,7 @@ const Comp = ({ inlongGroupId, readonly, middlewareType }: Props, ref) => {
 
       <StreamItemModal
         {...streamItemModal}
-        middlewareType={middlewareType}
+        mqType={mqType}
         onOk={async () => {
           await getList();
           setEditingId(false);

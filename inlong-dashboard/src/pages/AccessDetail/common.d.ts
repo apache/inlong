@@ -19,7 +19,7 @@
 
 export interface CommonInterface {
   inlongGroupId: string;
-  middlewareType: 'TUBE' | 'PULSAR';
+  mqType: 'TUBE' | 'PULSAR';
   readonly?: boolean;
   isCreate?: boolean;
   ref?: React.RefObject<unknown>;

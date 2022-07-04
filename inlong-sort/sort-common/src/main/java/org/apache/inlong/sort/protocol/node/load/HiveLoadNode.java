@@ -29,7 +29,7 @@ import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 
 import javax.annotation.Nonnull;
@@ -52,6 +52,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     private static final String timestampPattern = "partition.time-extractor.timestamp-pattern";
     private static final String delay = "sink.partition-commit.delay";
     private static final String policyKind = "sink.partition-commit.policy.kind";
+    private static final String HIVE_VERSION = "3.1.2";
 
     @JsonProperty("tableName")
     @Nonnull
@@ -64,11 +65,13 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String database;
 
+    /**
+     * hive conf directory in which contains hive-site.xml(vital)
+     */
     @JsonProperty("hiveConfDir")
     private String hiveConfDir;
 
     @JsonProperty("hiveVersion")
-    @Nonnull
     private String hiveVersion;
 
     @JsonProperty("hadoopConfDir")
@@ -81,7 +84,7 @@ public class HiveLoadNode extends LoadNode implements Serializable {
     public HiveLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @JsonProperty("filterStrategy") FilterStrategy filterStrategy,
             @JsonProperty("sinkParallelism") Integer sinkParallelism,
@@ -92,12 +95,12 @@ public class HiveLoadNode extends LoadNode implements Serializable {
             @JsonProperty("hiveConfDir") String hiveConfDir,
             @JsonProperty("hiveVersion") String hiveVersion,
             @JsonProperty("hadoopConfDir") String hadoopConfDir,
-            @JsonProperty("parFields") List<FieldInfo> partitionFields) {
-        super(id, name, fields, fieldRelationShips, filters, filterStrategy, sinkParallelism, properties);
+            @JsonProperty("partitionFields") List<FieldInfo> partitionFields) {
+        super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.database = Preconditions.checkNotNull(database, "database of hive is null");
         this.tableName = Preconditions.checkNotNull(tableName, "table of hive is null");
-        this.hiveVersion = Preconditions.checkNotNull(hiveVersion, "version of hive is null");
         this.hiveConfDir = hiveConfDir;
+        this.hiveVersion = null == hiveVersion ? HIVE_VERSION : hiveVersion;
         this.catalogName = catalogName;
         this.hadoopConfDir = hadoopConfDir;
         this.partitionFields = partitionFields;
@@ -124,7 +127,9 @@ public class HiveLoadNode extends LoadNode implements Serializable {
         Map<String, String> map = super.tableOptions();
         map.put("connector", "hive");
         map.put("default-database", database);
-        map.put("hive-version", hiveVersion);
+        if (null != hiveVersion) {
+            map.put("hive-version", hiveVersion);
+        }
         if (null != hadoopConfDir) {
             map.put("hadoop-conf-dir", hadoopConfDir);
         }

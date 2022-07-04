@@ -30,6 +30,7 @@ public enum DataFormat {
     AVRO("avro"),
     CANAL("canal"),
     JSON("json"),
+    DEBEZIUM_JSON("debezium_json"),
     NONE("none");
 
     @Getter
@@ -40,7 +41,7 @@ public enum DataFormat {
     }
 
     /**
-     * Get dataformat for inlong by name.
+     * Get data format by name.
      */
     public static DataFormat forName(String name) {
         for (DataFormat dataFormat : values()) {
@@ -48,6 +49,6 @@ public enum DataFormat {
                 return dataFormat;
             }
         }
-        throw new IllegalArgumentException(String.format("Unsupported DataFormat=%s for Inlong", name));
+        throw new IllegalArgumentException(String.format("Unsupported data format for %s", name));
     }
 }

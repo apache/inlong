@@ -32,8 +32,7 @@ import java.util.stream.Collectors;
 /**
  * Non-terminal element processor
  */
-public abstract class AbstractNextableElementProcessor<T extends NextableElement> implements
-        ElementProcessor<T> {
+public abstract class AbstractNextableElementProcessor<T extends NextableElement> implements ElementProcessor<T> {
 
     @Override
     public List<Element> next(T element, WorkflowContext context) {

@@ -19,16 +19,25 @@ package org.apache.inlong.manager.common.pojo.sink.kafka;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
  * Response of Kafka sink list
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Response of Kafka sink paging list")
+@JsonTypeDefine(value = SinkType.SINK_KAFKA)
 public class KafkaSinkListResponse extends SinkListResponse {
 
     @ApiModelProperty("Kafka bootstrap servers")

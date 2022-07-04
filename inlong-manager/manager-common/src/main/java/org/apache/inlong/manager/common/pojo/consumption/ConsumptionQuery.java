@@ -31,14 +31,8 @@ import org.apache.inlong.manager.common.beans.PageRequest;
 @ApiModel("Data consumption query conditions")
 public class ConsumptionQuery extends PageRequest {
 
-    @ApiModelProperty(value = "Consumer Group Name")
-    private String consumerGroupName;
-
-    @ApiModelProperty(value = "Consumer Group ID")
-    private String consumerGroupId;
-
-    @ApiModelProperty(value = "Consumer Group Id is fuzzy")
-    private String consumerGroupIdLike;
+    @ApiModelProperty(value = "Consumer Group")
+    private String consumerGroup;
 
     @ApiModelProperty(value = "Person in charge of consumption")
     private String inCharges;
@@ -46,14 +40,11 @@ public class ConsumptionQuery extends PageRequest {
     @ApiModelProperty(value = "Consumption target inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
-    @ApiModelProperty(value = "Consumption target TOPIC")
+    @ApiModelProperty(value = "Consumption target Topic")
     private String topic;
-
-    @ApiModelProperty(value = "Fuzzy matching of consumption target TOPIC")
-    private String topicLike;
 
     @ApiModelProperty(value = "Whether to filter consumption")
     private Boolean filterEnabled;
@@ -73,11 +64,11 @@ public class ConsumptionQuery extends PageRequest {
     private String modifier;
 
     @ApiModelProperty(value = "Current login user")
-    private String userName;
+    private String username;
 
     @ApiModelProperty(value = "Weather current user have admin role", hidden = true)
     private Boolean isAdminRole;
 
-    @ApiModelProperty(value = "Fuzzy query keyword, fuzzy query topic, consumer group ID")
+    @ApiModelProperty(value = "Fuzzy query keyword, topic, or consumer group")
     private String keyword;
 }

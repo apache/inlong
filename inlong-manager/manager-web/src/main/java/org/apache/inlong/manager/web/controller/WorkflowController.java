@@ -67,7 +67,7 @@ public class WorkflowController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperation operation) {
-        String applicant = LoginUserUtils.getLoginUserDetail().getUserName();
+        String applicant = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.start(operation.getName(), applicant, operation.getForm()));
     }
 
@@ -76,8 +76,18 @@ public class WorkflowController {
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "WorkflowProcess ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
+    }
+
+    @PostMapping("/continue/{id}")
+    @OperationLog(operation = OperationType.UPDATE)
+    @ApiOperation(value = "Continue process")
+    @ApiImplicitParam(name = "id", value = "WorkflowProcess ID", dataTypeClass = Integer.class, required = true)
+    public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
+            @RequestBody WorkflowOperation operation) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
     }
 
     @PostMapping("/approve/{id}")
@@ -85,7 +95,7 @@ public class WorkflowController {
     @ApiOperation(value = "Approval and consent")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.approve(id, operation.getRemark(), operation.getForm(), operator));
     }
 
@@ -94,7 +104,7 @@ public class WorkflowController {
     @ApiOperation(value = "Approval rejected")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.reject(id, operation.getRemark(), operator));
     }
 
@@ -103,7 +113,7 @@ public class WorkflowController {
     @ApiOperation(value = "Turn to do", notes = "Change approver")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.transfer(id, operation.getRemark(),
                 operation.getTransferTo(), operator));
     }
@@ -113,7 +123,7 @@ public class WorkflowController {
     @ApiOperation(value = "Finish task by id")
     @ApiImplicitParam(name = "id", value = "WorkflowTask ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowTaskRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.complete(id, request.getRemark(), operator));
     }
 
@@ -125,35 +135,35 @@ public class WorkflowController {
     })
     public Response<ProcessDetailResponse> detail(@PathVariable(name = "id") Integer id,
             @RequestParam(required = false) Integer taskId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(workflowService.detail(id, taskId, operator));
     }
 
     @GetMapping("/listProcess")
     @ApiOperation(value = "List my processes")
     public Response<PageInfo<ProcessResponse>> listProcess(ProcessQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUserName());
+        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(workflowService.listProcess(query));
     }
 
     @GetMapping("/listTask")
     @ApiOperation(value = "List my tasks")
     public Response<PageInfo<TaskResponse>> listTask(TaskQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUserName());
+        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(workflowService.listTask(query));
     }
 
     @GetMapping("/processSummary")
     @ApiOperation(value = "Get process statistics")
     public Response<ProcessCountResponse> processSummary(ProcessCountQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUserName());
+        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(workflowService.countProcess(query));
     }
 
     @GetMapping("/taskSummary")
     @ApiOperation(value = "Get task statistics")
     public Response<TaskCountResponse> taskSummary(TaskCountQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUserName());
+        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(workflowService.countTask(query));
     }
 

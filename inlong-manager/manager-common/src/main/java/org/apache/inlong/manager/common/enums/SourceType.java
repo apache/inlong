@@ -31,13 +31,25 @@ public enum SourceType {
     FILE("FILE", TaskTypeEnum.FILE),
     SQL("SQL", TaskTypeEnum.SQL),
     BINLOG("BINLOG", TaskTypeEnum.BINLOG),
-    KAFKA("KAFKA", TaskTypeEnum.KAFKA);
+    KAFKA("KAFKA", TaskTypeEnum.KAFKA),
+    PULSAR("PULSAR", TaskTypeEnum.PULSAR),
+    POSTGRES("POSTGRES", TaskTypeEnum.POSTGRES),
+    ORACLE("ORACLE", TaskTypeEnum.ORACLE),
+    SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER),
+    MONGODB("MONGODB", TaskTypeEnum.MONGODB),
+
+    ;
 
     public static final String SOURCE_AUTO_PUSH = "AUTO_PUSH";
     public static final String SOURCE_FILE = "FILE";
     public static final String SOURCE_SQL = "SQL";
     public static final String SOURCE_BINLOG = "BINLOG";
     public static final String SOURCE_KAFKA = "KAFKA";
+    public static final String SOURCE_PULSAR = "PULSAR";
+    public static final String SOURCE_POSTGRES = "POSTGRES";
+    public static final String SOURCE_ORACLE = "ORACLE";
+    public static final String SOURCE_SQLSERVER = "SQLSERVER";
+    public static final String SOURCE_MONGODB = "MONGODB";
 
     @Getter
     private final String type;
@@ -59,7 +71,7 @@ public enum SourceType {
                 return type;
             }
         }
-        throw new IllegalArgumentException(String.format("Illegal sink type for %s", sourceType));
+        throw new IllegalArgumentException(String.format("Illegal source type for %s", sourceType));
     }
 
     @Override

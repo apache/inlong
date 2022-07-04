@@ -19,11 +19,11 @@ package org.apache.inlong.manager.service.resource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -66,7 +66,7 @@ public class SinkResourceListener implements SinkOperateListener {
         }
         List<SinkInfo> configList = sinkMapper.selectAllConfig(groupId, streamIdList);
         List<SinkInfo> needCreateList = configList.stream()
-                .filter(sinkInfo -> GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
+                .filter(sinkInfo -> InlongConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(needCreateList)) {
@@ -83,11 +83,6 @@ public class SinkResourceListener implements SinkOperateListener {
         String result = "success to create sink resources for group [" + groupId + "] and stream " + streamIdList;
         log.info(result);
         return ListenerResult.success(result);
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

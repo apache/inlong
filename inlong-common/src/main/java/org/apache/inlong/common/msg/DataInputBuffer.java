@@ -21,13 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
 /**
- * A reusable {@link java.io.DataInput} implementation that reads from an in-memory
- * buffer.
+ * A reusable {@link java.io.DataInput} implementation that reads from an in-memory buffer.
  *
- * <p>This saves memory over creating a new DataInputStream and
+ * This saves memory over creating a new DataInputStream and
  * ByteArrayInputStream each time data is read.
  *
- * <p>Typical usage is something like the following:<pre>
+ * Typical usage is something like the following:
  *
  * DataInputBuffer buffer = new DataInputBuffer();
  * while (... loop condition ...) {
@@ -36,7 +35,6 @@ import java.io.DataInputStream;
  *   buffer.reset(data, dataLength);
  *   ... read buffer using DataInput methods ...
  * }
- * </pre>
  */
 public class DataInputBuffer extends DataInputStream {
     private static class Buffer extends ByteArrayInputStream {

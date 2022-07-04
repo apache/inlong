@@ -44,7 +44,7 @@ import org.apache.inlong.dataproxy.base.HighPriorityThreadFactory;
 import org.apache.inlong.dataproxy.base.OrderEvent;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
-import org.apache.inlong.dataproxy.config.pojo.ThirdPartyClusterConfig;
+import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.apache.inlong.dataproxy.metrics.DataProxyMetricItem;
@@ -172,7 +172,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
     private Map<String, String> topicProperties;
 
     private Map<String, String> pulsarCluster;
-    private ThirdPartyClusterConfig pulsarConfig;
+    private MQClusterConfig pulsarConfig;
 
     private static final Long PRINT_INTERVAL = 30L;
 
@@ -215,8 +215,8 @@ public class PulsarSink extends AbstractSink implements Configurable,
 
         configManager = ConfigManager.getInstance();
         topicProperties = configManager.getTopicProperties();
-        pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
-        pulsarConfig = configManager.getThirdPartyClusterConfig(); //pulsar common config
+        pulsarCluster = configManager.getMqClusterUrl2Token();
+        pulsarConfig = configManager.getMqClusterConfig(); //pulsar common config
         commonProperties = configManager.getCommonProperties();
         sinkThreadPoolSize = pulsarConfig.getThreadNum();
         if (sinkThreadPoolSize <= 0) {
@@ -250,12 +250,12 @@ public class PulsarSink extends AbstractSink implements Configurable,
                 }
             }
         });
-        configManager.getThirdPartyClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
+        configManager.getMqClusterHolder().addUpdateCallback(new ConfigUpdateCallback() {
             @Override
             public void update() {
                 if (pulsarClientService != null) {
                     diffUpdatePulsarClient(pulsarClientService, pulsarCluster,
-                            configManager.getThirdPartyClusterUrl2Token());
+                            configManager.getMqClusterUrl2Token());
                 }
             }
         });
@@ -337,7 +337,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         pulsarClientService.updatePulsarClients(this, needToClose, needToStart,
                 new HashSet<>(topicProperties.values()));
 
-        pulsarCluster = configManager.getThirdPartyClusterUrl2Token();
+        pulsarCluster = configManager.getMqClusterUrl2Token();
     }
 
     @Override
@@ -752,7 +752,7 @@ public class PulsarSink extends AbstractSink implements Configurable,
         return currentInFlightCount;
     }
 
-    public ThirdPartyClusterConfig getPulsarConfig() {
+    public MQClusterConfig getPulsarConfig() {
         return pulsarConfig;
     }
 

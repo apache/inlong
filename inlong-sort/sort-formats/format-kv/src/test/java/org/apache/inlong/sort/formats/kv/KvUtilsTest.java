@@ -29,7 +29,6 @@ import org.junit.Test;
  * Unit tests for kv splitting and concating.
  */
 public class KvUtilsTest {
-
     @Test
     public void testSplitNormal() {
         assertEquals(

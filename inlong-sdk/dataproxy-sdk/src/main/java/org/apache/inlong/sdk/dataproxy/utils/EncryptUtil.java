@@ -18,6 +18,17 @@
 
 package org.apache.inlong.sdk.dataproxy.utils;
 
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -29,39 +40,25 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EncryptUtil {
-    private static final Logger logger =
-            LoggerFactory.getLogger(EncryptUtil.class);
 
+    public static final String AES = "AES";
+    public static final int AES_KEY_SIZE = 128;
     public static final int MAX_ENCRYPT_BLOCK = 117;
-
     public static final int MAX_DECRYPT_BLOCK = 128;
-
-    public static final String DES = "DES";
+    private static final Logger logger = LoggerFactory.getLogger(EncryptUtil.class);
 
     /**
      * load key
      *
      * @param path path
+     *
      * @throws Exception exception
      */
     public static String loadPublicKeyByFileText(String path) throws Exception {
@@ -150,6 +147,7 @@ public class EncryptUtil {
      *
      * @param path key path
      * @return whether success
+     *
      * @throws Exception
      */
     public static String loadPrivateKeyByFileText(String path) throws Exception {
@@ -198,6 +196,7 @@ public class EncryptUtil {
      * load private key by text
      *
      * @param privateKeyStr private key
+     *
      * @throws Exception exception
      */
     public static RSAPrivateKey loadPrivateKeyByText(String privateKeyStr)
@@ -237,7 +236,7 @@ public class EncryptUtil {
      * key encrypt
      *
      * @param publicKey public key
-     * @param data      data
+     * @param data data
      * @return
      *
      * @throws Exception exception
@@ -270,9 +269,9 @@ public class EncryptUtil {
     }
 
     /**
-     * key encrypt
+     * key decrypt
      *
-     * @param privateKey    key
+     * @param privateKey key
      * @param encryptedData data
      * @return
      *
@@ -309,6 +308,7 @@ public class EncryptUtil {
      * @param privateKey private key
      * @param cipherData data
      * @return message
+     *
      * @throws Exception exception
      */
     public static byte[] rsaDecrypt(RSAPrivateKey privateKey, byte[] cipherData)
@@ -340,7 +340,7 @@ public class EncryptUtil {
     /**
      * rsa decrypt
      *
-     * @param publicKey  public key
+     * @param publicKey public key
      * @param cipherData cipher data
      * @return
      *
@@ -374,101 +374,60 @@ public class EncryptUtil {
     }
 
     /**
-     * generate des key
+     * generate AES key
      *
      * @return base64 key
      */
-    public static byte[] generateDesKey() {
+    public static byte[] generateAesKey() {
 
         KeyGenerator kg = null;
         try {
-            kg = KeyGenerator.getInstance("DES");
+            kg = KeyGenerator.getInstance(AES);
         } catch (NoSuchAlgorithmException e) {
-            logger.error("generate Des key error {}", e);
+            logger.error("generate Aes key error {}", e);
         }
 
-        kg.init(56);
+        kg.init(AES_KEY_SIZE);
 
         SecretKey secretKey = kg.generateKey();
         return secretKey.getEncoded();
     }
 
     /**
-     * des encrypt
+     * AES encrypt
      *
      * @param plainText
-     * @param desKey
+     * @param aesKey
      * @return
      */
-    public static byte[] desEncrypt(byte[] plainText, byte[] desKey) {
+    public static byte[] aesEncrypt(byte[] plainText, byte[] aesKey) {
         try {
-//            byte[] buffer = Base64.decodeBase64(DesKey);
-
-            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-
-            DESKeySpec dks = new DESKeySpec(desKey);
-
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
-            SecretKey key = keyFactory.generateSecret(dks);
-
-            Cipher cipher = Cipher.getInstance(DES);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-
-            byte[] encryptedData = cipher.doFinal(plainText);
-
-            return encryptedData;
+            SecretKeySpec secretKeySpec = new SecretKeySpec(aesKey, AES);
+            Cipher cipher = Cipher.getInstance(AES);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(plainText);
         } catch (Exception e) {
-            logger.error("desEncrypt error {}", e);
+            logger.error("aesEncrypt error {}", e);
             return null;
         }
     }
 
     /**
-     * des decrypt
+     * AES decrypt
      *
-     * @param plainText
-     * @param desKey
+     * @param cipherText
+     * @param aesKey
      * @return des decrypt
      */
-    public static byte[] dESDecrypt(byte[] plainText, byte[] desKey) {
+    public static byte[] aesDecrypt(byte[] cipherText, byte[] aesKey) {
         try {
-            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-
-            DESKeySpec dks = new DESKeySpec(desKey);
-            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES);
-            SecretKey key = keyFactory.generateSecret(dks);
-
-            Cipher cipher = Cipher.getInstance(DES);
-
-            cipher.init(Cipher.DECRYPT_MODE, key);
-
-            byte[] decryptedData = cipher.doFinal(plainText);
-
-//            System.out.println("decrypted data");
-//            System.out.println(new String(decryptedData));
-
-            return decryptedData;
+            SecretKeySpec secretKeySpec = new SecretKeySpec(aesKey, AES);
+            Cipher cipher = Cipher.getInstance(AES);
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(cipherText);
         } catch (Exception e) {
-//            e.printStackTrace();
-            logger.error("dESDecrypt error {}", e);
+            logger.error("aesDecrypt error {}", e);
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        String plainText = "TDB-30001 Create Tdw Table Error26880 FAILED: "
-                + "TDWServer run SQL error (session: 6425308280519064 query: CREATE TABLE a";
-        System.out.println("plainText: \n" + plainText);
-        byte[] key = new byte[0];
-        try {
-            key = generateDesKey();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        byte[] encryptedData = desEncrypt(plainText.getBytes(), key);
-        System.out.println("after encrypted: \n" + new String(encryptedData));
-        byte[] decryptedData = dESDecrypt(encryptedData, key);
-        System.out.println("after decrypted: \n" + new String(decryptedData));
-
     }
 }

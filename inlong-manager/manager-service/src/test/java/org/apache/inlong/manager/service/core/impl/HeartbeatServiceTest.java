@@ -35,15 +35,13 @@ import org.apache.inlong.manager.dao.mapper.ComponentHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.GroupHeartbeatEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamHeartbeatEntityMapper;
 import org.apache.inlong.manager.service.core.HeartbeatService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,7 +52,6 @@ import static org.mockito.BDDMockito.given;
 /**
  * Heartbeat service test.
  */
-@RunWith(SpringRunner.class)
 public class HeartbeatServiceTest {
 
     @InjectMocks
@@ -66,7 +63,10 @@ public class HeartbeatServiceTest {
     @Mock
     private StreamHeartbeatEntityMapper streamHeartbeatMapper;
 
-    @Before
+    /**
+     * setUp
+     */
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         ComponentHeartbeatEntity componentHeartbeat = new ComponentHeartbeatEntity();
@@ -147,7 +147,7 @@ public class HeartbeatServiceTest {
         streamHeartbeats.add(streamHeartbeat);
         request.setStreamHeartbeats(streamHeartbeats);
 
-        Assert.assertTrue(heartbeatService.reportHeartbeat(request));
+        Assertions.assertTrue(heartbeatService.reportHeartbeat(request));
     }
 
     @Test
@@ -156,7 +156,7 @@ public class HeartbeatServiceTest {
         request.setComponent("Sort");
         request.setInstance("127.0.0.1");
         ComponentHeartbeatResponse response = heartbeatService.getComponentHeartbeat(request);
-        Assert.assertEquals("127.0.0.1", response.getInstance());
+        Assertions.assertEquals("127.0.0.1", response.getInstance());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class HeartbeatServiceTest {
         request.setInstance("127.0.0.1");
         request.setInlongGroupId("group1");
         GroupHeartbeatResponse response = heartbeatService.getGroupHeartbeat(request);
-        Assert.assertEquals("127.0.0.1", response.getInstance());
+        Assertions.assertEquals("127.0.0.1", response.getInstance());
     }
 
     @Test
@@ -178,7 +178,7 @@ public class HeartbeatServiceTest {
         request.setInlongStreamId("stream1");
 
         StreamHeartbeatResponse response = heartbeatService.getStreamHeartbeat(request);
-        Assert.assertEquals("127.0.0.1", response.getInstance());
+        Assertions.assertEquals("127.0.0.1", response.getInstance());
     }
 
     @Test
@@ -188,7 +188,7 @@ public class HeartbeatServiceTest {
         request.setPageNum(1);
         request.setPageSize(10);
         PageInfo<ComponentHeartbeatResponse> pageResponse = heartbeatService.listComponentHeartbeat(request);
-        Assert.assertEquals(1, pageResponse.getTotal());
+        Assertions.assertEquals(1, pageResponse.getTotal());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class HeartbeatServiceTest {
         request.setPageNum(1);
         request.setPageSize(10);
         PageInfo<GroupHeartbeatResponse> pageResponse = heartbeatService.listGroupHeartbeat(request);
-        Assert.assertEquals(1, pageResponse.getTotal());
+        Assertions.assertEquals(1, pageResponse.getTotal());
     }
 
     @Test
@@ -211,6 +211,6 @@ public class HeartbeatServiceTest {
         request.setPageNum(1);
         request.setPageSize(10);
         PageInfo<StreamHeartbeatResponse> pageResponse = heartbeatService.listStreamHeartbeat(request);
-        Assert.assertEquals(1, pageResponse.getTotal());
+        Assertions.assertEquals(1, pageResponse.getTotal());
     }
 }

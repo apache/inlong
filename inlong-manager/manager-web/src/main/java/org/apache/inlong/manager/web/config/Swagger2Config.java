@@ -27,6 +27,10 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 /**
  * Swagger2 API Configuration
  */
@@ -38,6 +42,9 @@ public class Swagger2Config {
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
+                .directModelSubstitute(LocalDate.class, String.class)
+                .directModelSubstitute(LocalDateTime.class, String.class)
+                .directModelSubstitute(LocalTime.class, String.class)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("org.apache.inlong.manager.web"))
                 .paths(PathSelectors.any())

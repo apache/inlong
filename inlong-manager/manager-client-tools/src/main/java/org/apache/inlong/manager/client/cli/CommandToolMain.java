@@ -21,15 +21,12 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Command tool main.
  */
 public class CommandToolMain {
 
-    protected final Map<String, Class<?>> commandMap = new HashMap<>();
     private final JCommander jcommander;
 
     @Parameter(names = {"-h", "--help"}, help = true, description = "Get all command about managerctl.")
@@ -40,17 +37,9 @@ public class CommandToolMain {
         jcommander.setProgramName("managerctl");
         jcommander.addObject(this);
 
-        commandMap.put("list", CommandList.class);
-        commandMap.put("describe", CommandDescribe.class);
-        commandMap.put("create", CommandCreate.class);
-
-        for (Map.Entry<String, Class<?>> cmd : commandMap.entrySet()) {
-            try {
-                jcommander.addCommand(cmd.getKey(), cmd.getValue().getConstructor().newInstance());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        jcommander.addCommand("list", new ListCommand());
+        jcommander.addCommand("describe", new DescribeCommand());
+        jcommander.addCommand("create", new CreateCommand());
     }
 
     public static void main(String[] args) {
@@ -78,7 +67,7 @@ public class CommandToolMain {
 
         String cmd = args[0];
         JCommander obj = jcommander.getCommands().get(cmd);
-        CommandBase cmdObj = (CommandBase) obj.getObjects().get(0);
+        AbstractCommand cmdObj = (AbstractCommand) obj.getObjects().get(0);
         return cmdObj.run(Arrays.copyOfRange(args, 1, args.length));
     }
 }

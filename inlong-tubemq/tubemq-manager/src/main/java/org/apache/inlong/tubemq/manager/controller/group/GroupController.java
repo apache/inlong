@@ -24,8 +24,12 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.AddBlackGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.BatchDeleteGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteBlackGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.FilterCondGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.FlowControlGroupReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.BatchAddGroupAuthReq;
@@ -58,22 +62,48 @@ public class GroupController {
     @Autowired
     private TopicServiceImpl topicService;
 
+    /**
+     * Consumer group related request operations
+     *
+     * @param method method type
+     * @param req incoming data
+     * @return return request data
+     */
+    @ResponseBody
     @PostMapping("")
-    public @ResponseBody
-        TubeMQResult groupMethodProxy(
-            @RequestParam String method, @RequestBody String req) {
+    public TubeMQResult groupMethodProxy(@RequestParam String method, @RequestBody String req) {
         switch (method) {
             case TubeConst.ADD:
                 return batchAddGroup(gson.fromJson(req, BatchAddGroupAuthReq.class));
             case TubeConst.DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteGroupReq.class));
+            case TubeConst.BATCH_DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchDeleteGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER_GROUP:
                 return topicService.rebalanceGroup(gson.fromJson(req, RebalanceGroupReq.class));
             case TubeConst.REBALANCE_CONSUMER:
                 return masterService.baseRequestMaster(gson.fromJson(req, RebalanceConsumerReq.class));
+            case TubeConst.FILTER_CONDITION:
+                return masterService.baseRequestMaster(gson.fromJson(req, FilterCondGroupReq.class));
+            case TubeConst.FLOW_CONTROL:
+                return masterService.baseRequestMaster(gson.fromJson(req, FlowControlGroupReq.class));
+            case TubeConst.QUERY:
+                return queryGroupExist(gson.fromJson(req, QueryConsumerGroupReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }
+    }
+
+    /**
+     * query group exist
+     * @param req
+     * @return
+     */
+    private TubeMQResult queryGroupExist(QueryConsumerGroupReq req) {
+        if (!req.legal()) {
+            return TubeMQResult.errorResult(TubeMQErrorConst.PARAM_ILLEGAL);
+        }
+        return topicService.queryGroupExist(req);
     }
 
     /**
@@ -130,6 +160,8 @@ public class GroupController {
                 return masterService.baseRequestMaster(gson.fromJson(req, AddBlackGroupReq.class));
             case TubeConst.DELETE:
                 return masterService.baseRequestMaster(gson.fromJson(req, DeleteBlackGroupReq.class));
+            case TubeConst.BATCH_DELETE:
+                return masterService.baseRequestMaster(gson.fromJson(req, BatchDeleteGroupReq.class));
             default:
                 return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_METHOD);
         }

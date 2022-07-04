@@ -20,25 +20,67 @@ package org.apache.inlong.manager.common.pojo.stream;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.MetaFieldType;
 
 /**
  * Stream filed, including field name, field type, etc.
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Stream field configuration")
 public class StreamField {
 
-    public static final StreamField PROCESSING_TIME = new StreamField(100, FieldType.BIGINT,
-            MetaFieldType.PROCESSING_TIME.getName(),
-            null, null, 1);
+    @ApiModelProperty("Field index")
+    private Integer id;
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue) {
+    @ApiModelProperty(value = "inlong group id", required = true)
+    private String inlongGroupId;
+
+    @ApiModelProperty(value = "inlong stream id", required = true)
+    private String inlongStreamId;
+
+    @ApiModelProperty(value = "Field name", required = true)
+    private String fieldName;
+
+    @ApiModelProperty(value = "Field type", required = true)
+    private String fieldType;
+
+    @ApiModelProperty("Field comment")
+    private String fieldComment;
+
+    @ApiModelProperty(value = "Is predefined field, 1: yes, 0: no")
+    private Integer isPredefinedField;
+
+    @ApiModelProperty(value = "Field value for constants")
+    private String fieldValue;
+
+    @ApiModelProperty(value = "Value expression of predefined field")
+    private String preExpression;
+
+    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    private Integer isMetaField = 0;
+
+    @ApiModelProperty(value = "Meta field name")
+    private String metaFieldName;
+
+    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
+            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
+    private String fieldFormat;
+
+    @ApiModelProperty("Origin node name which stream fields belong")
+    private String originNodeName;
+
+    @ApiModelProperty("Origin field name before transform operation")
+    private String originFieldName;
+
+    @ApiModelProperty("Extra Param in JSON style")
+    private String extParams;
+
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue) {
         this.id = index;
         this.fieldType = fieldType;
         this.fieldName = fieldName;
@@ -46,53 +88,28 @@ public class StreamField {
         this.fieldValue = fieldValue;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField) {
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String metaFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String originNodeName) {
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String metaFieldName, String originNodeName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
     }
 
-    public StreamField(int index, FieldType fieldType, String fieldName, String fieldComment, String fieldValue,
-            Integer isMetaField, String originNodeName, String originFieldName) {
+    public StreamField(int index, String fieldType, String fieldName, String fieldComment, String fieldValue,
+            Integer isMetaField, String metaFieldName, String originNodeName, String originFieldName) {
         this(index, fieldType, fieldName, fieldComment, fieldValue);
         this.isMetaField = isMetaField;
+        this.metaFieldName = metaFieldName;
         this.originNodeName = originNodeName;
         this.originFieldName = originFieldName;
     }
-
-    @ApiModelProperty("Field index")
-    private Integer id;
-
-    @ApiModelProperty(value = "Field type", required = true)
-    private FieldType fieldType;
-
-    @ApiModelProperty(value = "Field name", required = true)
-    private String fieldName;
-
-    @ApiModelProperty(value = "Field comment")
-    private String fieldComment;
-
-    @ApiModelProperty(value = "Field value for constants")
-    private String fieldValue;
-
-    @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
-    private Integer isMetaField = 0;
-
-    @ApiModelProperty("Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601"
-            + " and custom such as 'yyyy-MM-dd HH:mm:ss'. This is mainly used for time format")
-    private String fieldFormat;
-
-    @ApiModelProperty("Origin Node name which stream field belongs")
-    private String originNodeName;
-
-    @ApiModelProperty("Origin field name before transform operation")
-    private String originFieldName;
 
 }

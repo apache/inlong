@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,20 +17,9 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import com.google.gson.Gson;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -50,35 +39,48 @@ import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxySink;
 import org.apache.inlong.common.pojo.dataproxy.ProxySource;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * RemoteConfigManager
  */
 public class RemoteConfigManager implements IRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConfigManager.class);
-    public static final String KEY_CONFIG_CHECK_INTERVAL = "configCheckInterval";
     public static final String KEY_PROXY_CLUSTER_NAME = "proxy.cluster.name";
-    public static final String KEY_SET_NAME = "set.name";
-    public static final char FLUME_SEPARATOR = '.';
+    private static final String KEY_PROXY_CLUSTER_TAG = "proxy.cluster.tag";
+    private static final char FLUME_SEPARATOR = '.';
+    private static final String KEY_CONFIG_CHECK_INTERVAL = "configCheckInterval";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoteConfigManager.class);
+    private static final Gson GSON = new Gson();
     private static volatile boolean isInit = false;
     private static RemoteConfigManager instance = null;
+
+    private final AtomicInteger managerIpListIndex = new AtomicInteger(0);
+    private final AtomicReference<DataProxyCluster> currentClusterConfigRef = new AtomicReference<>();
+    private String dataProxyConfigMd5;
 
     private long reloadInterval;
     private Timer reloadTimer;
 
-    //
     private IManagerIpListParser ipListParser;
     private CloseableHttpClient httpClient;
-    private Gson gson = new Gson();
-    private AtomicInteger managerIpListIndex = new AtomicInteger(0);
-    // config
-    private String dataProxyConfigMd5;
-    private AtomicReference<DataProxyCluster> currentClusterConfigRef = new AtomicReference<>();
+
     // flume properties
     private Map<String, String> flumeProperties;
     // inlong id map
@@ -89,7 +91,7 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * get instance for manager
-     * 
+     *
      * @return RemoteConfigManager
      */
     @SuppressWarnings("unchecked")
@@ -102,12 +104,10 @@ public class RemoteConfigManager implements IRepository {
             if (!isInit) {
                 instance = new RemoteConfigManager();
                 try {
-                    String strReloadInterval = ConfigManager.getInstance().getCommonProperties()
-                            .get(KEY_CONFIG_CHECK_INTERVAL);
+                    String strReloadInterval = CommonPropertiesHolder.getString(KEY_CONFIG_CHECK_INTERVAL);
                     instance.reloadInterval = NumberUtils.toLong(strReloadInterval, DEFAULT_HEARTBEAT_INTERVAL_MS);
                     //
-                    String ipListParserType = ConfigManager.getInstance().getCommonProperties()
-                            .get(IManagerIpListParser.KEY_MANAGER_TYPE);
+                    String ipListParserType = CommonPropertiesHolder.getString(IManagerIpListParser.KEY_MANAGER_TYPE);
                     Class<? extends IManagerIpListParser> ipListParserClass;
                     ipListParserClass = (Class<? extends IManagerIpListParser>) Class
                             .forName(ipListParserType);
@@ -130,17 +130,30 @@ public class RemoteConfigManager implements IRepository {
     }
 
     /**
-     * reload
+     * constructHttpClient
+     */
+    private static synchronized CloseableHttpClient constructHttpClient() {
+        long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout((int) timeoutInMs)
+                .setSocketTimeout((int) timeoutInMs).build();
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        httpClientBuilder.setDefaultRequestConfig(requestConfig);
+        return httpClientBuilder.build();
+    }
+
+    /**
+     * Reload config
      */
     public void reload() {
-        LOGGER.info("start to reload config.");
-        String proxyClusterName = ConfigManager.getInstance().getCommonProperties().get(KEY_PROXY_CLUSTER_NAME);
-        String setName = ConfigManager.getInstance().getCommonProperties().get(KEY_SET_NAME);
-        if (StringUtils.isBlank(proxyClusterName) || StringUtils.isBlank(setName)) {
+        LOGGER.info("start to reload config");
+        String proxyClusterName = CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
+        String proxyClusterTag = CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_TAG);
+        if (StringUtils.isBlank(proxyClusterName) || StringUtils.isBlank(proxyClusterTag)) {
             return;
         }
-        //
-        this.ipListParser.setCommonProperties(ConfigManager.getInstance().getCommonProperties());
+
+        this.ipListParser.setCommonProperties(CommonPropertiesHolder.get());
         List<String> managerIpList = this.ipListParser.getIpList();
         if (managerIpList == null || managerIpList.size() == 0) {
             return;
@@ -148,12 +161,12 @@ public class RemoteConfigManager implements IRepository {
         int managerIpSize = managerIpList.size();
         for (int i = 0; i < managerIpList.size(); i++) {
             String host = managerIpList.get(Math.abs(managerIpListIndex.getAndIncrement()) % managerIpSize);
-            if (this.reloadDataProxyConfig(proxyClusterName, setName, host)) {
+            if (this.reloadDataProxyConfig(proxyClusterName, proxyClusterTag, host)) {
                 break;
             }
         }
 
-        LOGGER.info("end to reload config.");
+        LOGGER.info("success to reload config");
     }
 
     /**
@@ -167,15 +180,12 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * reloadDataProxyConfig
-     * 
-     * @param  host
-     * @return
      */
-    private boolean reloadDataProxyConfig(String proxyClusterName, String setName, String host) {
+    private boolean reloadDataProxyConfig(String clusterName, String clusterTag, String host) {
         HttpGet httpGet = null;
         try {
-            String url = "http://" + host + "/api/inlong/manager/openapi/dataproxy/getAllConfig?clusterName="
-                    + proxyClusterName + "&setName=" + setName;
+            String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH
+                    + "?clusterName=" + clusterName + "&clusterTag=" + clusterTag;
             if (StringUtils.isNotBlank(this.dataProxyConfigMd5)) {
                 url += "&md5=" + this.dataProxyConfigMd5;
             }
@@ -189,7 +199,7 @@ public class RemoteConfigManager implements IRepository {
             LOGGER.info("end to request {} to get config info:{}", url, returnStr);
             // get groupId <-> topic and m value.
 
-            DataProxyConfigResponse proxyResponse = gson.fromJson(returnStr, DataProxyConfigResponse.class);
+            DataProxyConfigResponse proxyResponse = GSON.fromJson(returnStr, DataProxyConfigResponse.class);
             if (!proxyResponse.isResult()) {
                 LOGGER.info("Fail to get config info from url:{}, error code is {}", url, proxyResponse.getErrCode());
                 return false;
@@ -218,23 +228,8 @@ public class RemoteConfigManager implements IRepository {
     }
 
     /**
-     * constructHttpClient
-     * 
-     * @return
-     */
-    private static synchronized CloseableHttpClient constructHttpClient() {
-        long timeoutInMs = TimeUnit.MILLISECONDS.toMillis(50000);
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout((int) timeoutInMs)
-                .setSocketTimeout((int) timeoutInMs).build();
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-        httpClientBuilder.setDefaultRequestConfig(requestConfig);
-        return httpClientBuilder.build();
-    }
-
-    /**
      * getZone
-     * 
+     *
      * @return
      */
     public String getZone() {
@@ -246,29 +241,25 @@ public class RemoteConfigManager implements IRepository {
     }
 
     /**
-     * getProxyClusterName
-     * 
-     * @return
+     * Get proxy cluster name
      */
     public String getProxyClusterName() {
         DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getName();
         }
-        return ConfigManager.getInstance().getCommonProperties().get(KEY_PROXY_CLUSTER_NAME);
+        return CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_NAME);
     }
 
     /**
-     * getProxyClusterName
-     * 
-     * @return
+     * Get proxy cluster tag
      */
-    public String getSetName() {
+    public String getProxyClusterTag() {
         DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
         if (currentClusterConfig != null) {
             return currentClusterConfig.getProxyCluster().getSetName();
         }
-        return ConfigManager.getInstance().getCommonProperties().get(KEY_SET_NAME);
+        return CommonPropertiesHolder.getString(KEY_PROXY_CLUSTER_TAG);
     }
 
     /**
@@ -286,7 +277,6 @@ public class RemoteConfigManager implements IRepository {
     }
 
     /**
-     * 
      * generateFlumeProperties
      */
     private void generateFlumeProperties() {
@@ -303,9 +293,6 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * generateFlumeChannels
-     * 
-     * @param proxyClusterObject
-     * @param newConfig
      */
     private void generateFlumeChannels(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
@@ -342,9 +329,6 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * generateFlumeSink
-     * 
-     * @param proxyClusterObject
-     * @param newConfig
      */
     private void generateFlumeSinks(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
@@ -415,9 +399,6 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * generateFlumeSources
-     * 
-     * @param proxyClusterObject
-     * @param newConfig
      */
     private void generateFlumeSources(Map<String, String> newConfig) {
         StringBuilder builder = new StringBuilder();
@@ -469,8 +450,6 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * getFlumeProperties
-     * 
-     * @return
      */
     public Map<String, String> getFlumeProperties() {
         return flumeProperties;
@@ -478,28 +457,20 @@ public class RemoteConfigManager implements IRepository {
 
     /**
      * getInlongIdMap
-     * 
-     * @return
      */
     public Map<String, InLongIdObject> getInlongIdMap() {
         return inlongIdMap;
     }
 
     /**
-     * 
      * getCurrentClusterConfig
-     * 
-     * @return
      */
     public DataProxyCluster getCurrentClusterConfig() {
-        DataProxyCluster currentClusterConfig = currentClusterConfigRef.get();
-        return currentClusterConfig;
+        return currentClusterConfigRef.get();
     }
 
     /**
      * get currentClusterConfigRef
-     * 
-     * @return the currentClusterConfigRef
      */
     public AtomicReference<DataProxyCluster> getCurrentClusterConfigRef() {
         return currentClusterConfigRef;

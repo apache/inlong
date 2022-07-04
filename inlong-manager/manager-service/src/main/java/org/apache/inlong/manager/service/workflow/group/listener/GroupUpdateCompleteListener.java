@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -48,11 +48,11 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String username = context.getApplicant();
-        GroupOperateType groupOperateType = form.getGroupOperateType();
+        String operator = context.getOperator();
+        GroupOperateType operateType = form.getGroupOperateType();
         InlongGroupInfo groupInfo = form.getGroupInfo();
         Integer nextStatus;
-        switch (groupOperateType) {
+        switch (operateType) {
             case RESTART:
                 nextStatus = GroupStatus.RESTARTED.getCode();
                 break;
@@ -63,18 +63,12 @@ public class GroupUpdateCompleteListener implements ProcessEventListener {
                 nextStatus = GroupStatus.DELETED.getCode();
                 break;
             default:
-                throw new RuntimeException(
-                        String.format("Unsupported operation=%s for Inlong group", groupOperateType));
+                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
         }
         // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, username);
-        groupService.update(groupInfo.genRequest(), username);
+        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, operator);
+        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

@@ -39,6 +39,12 @@ public class MessageQueueConfig {
     @Value("${audit.pulsar.consumer.enable.retry:false}")
     private boolean pulsarConsumerEnableRetry = false;
 
+    @Value("${audit.pulsar.token:}")
+    private String pulsarToken;
+
+    @Value("${audit.pulsar.enable.auth:false}")
+    private boolean pulsarEnableAuth;
+
     @Value("${audit.pulsar.consumer.receive.queue.size:1000}")
     private int consumerReceiveQueueSize = 1000;
 

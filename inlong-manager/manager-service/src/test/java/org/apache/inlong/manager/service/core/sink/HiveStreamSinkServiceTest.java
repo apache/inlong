@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -55,7 +55,7 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
         sinkInfo.setSinkType(SinkType.SINK_HIVE);
-        sinkInfo.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
+        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         sinkInfo.setSinkName(sinkName);
         return sinkService.save(sinkInfo, globalOperator);
     }
@@ -63,18 +63,18 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testSaveAndDelete() {
         Integer id = this.saveSink();
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
         boolean result = sinkService.delete(id, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSink();
 
-        SinkResponse sink = sinkService.get(id);
-        Assert.assertEquals(globalGroupId, sink.getInlongGroupId());
+        StreamSink sink = sinkService.get(id);
+        Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
 
         sinkService.delete(id, globalOperator);
     }
@@ -82,15 +82,14 @@ public class HiveStreamSinkServiceTest extends ServiceBaseTest {
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSink();
-        SinkResponse response = sinkService.get(id);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        StreamSink response = sinkService.get(id);
+        Assertions.assertEquals(globalGroupId, response.getInlongGroupId());
 
-        HiveSinkResponse hiveResponse = (HiveSinkResponse) response;
-        hiveResponse.setEnableCreateResource(GlobalConstants.DISABLE_CREATE_RESOURCE);
-
+        HiveSink hiveResponse = (HiveSink) response;
+        hiveResponse.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
         HiveSinkRequest request = CommonBeanUtils.copyProperties(hiveResponse, HiveSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
 }

@@ -33,7 +33,7 @@ on:
       - 'inlong-sort/**'
       - 'inlong-sort-standalone/**'
       - 'inlong-tubemq/**'
-      - '!*.md'
+      - '!**.md'
 
   pull_request:
     paths:
@@ -50,7 +50,7 @@ on:
       - 'inlong-sort/**'
       - 'inlong-sort-standalone/**'
       - 'inlong-tubemq/**'
-      - '!*.md'
+      - '!**.md'
 
 jobs:
   unit-test:

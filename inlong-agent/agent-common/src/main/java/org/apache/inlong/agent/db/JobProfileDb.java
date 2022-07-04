@@ -185,7 +185,7 @@ public class JobProfileDb {
      * @return list of job profile.
      */
     public List<JobProfile> getJobsByState(StateSearchKey stateSearchKey) {
-        List<KeyValueEntity> entityList = db.search(stateSearchKey);
+        List<KeyValueEntity> entityList = db.searchWithKeyPrefix(stateSearchKey, JobConstants.JOB_ID_PREFIX);
         List<JobProfile> profileList = new ArrayList<>();
         for (KeyValueEntity entity : entityList) {
             profileList.add(entity.getAsJobProfile());

@@ -48,18 +48,19 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_ENABLE_OOM_EXIT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
 
 /**
- * AgentUtils
+ * Agent utils
  */
 public class AgentUtils {
 
@@ -75,14 +76,10 @@ public class AgentUtils {
     public static final String HOUR_LOW_CASE = "h";
     public static final String MINUTE = "m";
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
-    private static final AtomicLong INDEX = new AtomicLong(0);
     private static final String HEX_PREFIX = "0x";
 
     /**
-     * get md5 of file.
-     *
-     * @param file file name
-     * @return
+     * Get MD5 of file.
      */
     public static String getFileMd5(File file) {
         try (InputStream is = Files.newInputStream(Paths.get(file.getAbsolutePath()))) {
@@ -94,14 +91,14 @@ public class AgentUtils {
     }
 
     /**
-     * return system current time
+     * Get current system time
      */
     public static long getCurrentTime() {
         return System.currentTimeMillis();
     }
 
     /**
-     * finally close resources
+     * Finally close resources
      *
      * @param resource resource which is closable.
      */
@@ -116,7 +113,7 @@ public class AgentUtils {
     }
 
     /**
-     * finally close resources.
+     * Finally close resources.
      *
      * @param resource resource which is closable.
      */
@@ -150,7 +147,7 @@ public class AgentUtils {
      * @return list of methods
      */
     public static List<Method> getDeclaredMethodsIncludingInherited(Class<?> clazz) {
-        List<Method> methods = new ArrayList<Method>();
+        List<Method> methods = new ArrayList<>();
         while (clazz != null) {
             methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
             clazz = clazz.getSuperclass();
@@ -159,14 +156,17 @@ public class AgentUtils {
     }
 
     /**
-     * get random int of [seed, seed * 2]
+     * Get random int of [seed, seed * 2]
      */
     public static int getRandomBySeed(int seed) {
         return ThreadLocalRandom.current().nextInt(0, seed) + seed;
     }
 
+    /**
+     * Get local IP
+     */
     public static String getLocalIp() {
-        String ip = "127.0.0.1";
+        String ip = DEFAULT_LOCAL_IP;
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             ip = socket.getLocalAddress().getHostAddress();
@@ -174,15 +174,6 @@ public class AgentUtils {
             LOGGER.error("error while get local ip", ex);
         }
         return ip;
-    }
-
-    /**
-     * Get uniq id with timestamp.
-     *
-     * @return uniq id.
-     */
-    public static String getUniqId(String prefix, String id) {
-        return getUniqId(prefix, id, 0L);
     }
 
     /**
@@ -207,30 +198,30 @@ public class AgentUtils {
     }
 
     /**
-     * sleep millisecond
+     * Sleep millisecond
      */
     public static void silenceSleepInMs(long millisecond) {
         try {
             TimeUnit.MILLISECONDS.sleep(millisecond);
-        } catch (Exception ignored) {
-            LOGGER.warn("silenceSleepInMs ", ignored);
+        } catch (Exception e) {
+            LOGGER.warn("silenceSleepInMs: ", e);
         }
     }
 
     /**
-     * sleep minutes
+     * Sleep minutes
      */
     public static void silenceSleepInMinute(long minutes) {
         try {
             TimeUnit.MINUTES.sleep(minutes);
-        } catch (Exception ignored) {
-            LOGGER.warn("silenceSleepInMs ", ignored);
+        } catch (Exception e) {
+            LOGGER.warn("silenceSleepInMs: ", e);
         }
     }
 
     public static String parseHexStr(String delimiter) throws IllegalArgumentException {
         if (delimiter.trim().toLowerCase().startsWith(HEX_PREFIX)) {
-            //only one char
+            // only one char
             byte[] byteArr = new byte[1];
             byteArr[0] = Byte.decode(delimiter.trim());
             return new String(byteArr, StandardCharsets.UTF_8);
@@ -247,7 +238,7 @@ public class AgentUtils {
     }
 
     /**
-     * formatter for current time based on zone
+     * Formatter for current time based on zone
      */
     public static String formatCurrentTime(String formatter, Locale locale) {
         ZonedDateTime zoned = ZonedDateTime.now();
@@ -256,7 +247,7 @@ public class AgentUtils {
     }
 
     /**
-     * formatter with time offset
+     * Formatter with time offset
      *
      * @param formatter formatter string
      * @param day day offset
@@ -275,7 +266,7 @@ public class AgentUtils {
     }
 
     /**
-     * whether all class of path name are matched
+     * Whether all class of path name are matched
      *
      * @param pathStr path string
      * @param patternStr regex pattern
@@ -297,7 +288,7 @@ public class AgentUtils {
     }
 
     /**
-     * parse addition attr, the attributes must be send in proxy sender
+     * Parse addition attr, the attributes must be sent in proxy sender
      */
     public static Pair<String, Map<String, String>> parseAddAttr(String additionStr) {
         Map<String, String> attr = new HashMap<>();
@@ -318,7 +309,7 @@ public class AgentUtils {
     }
 
     /**
-     * the attrs in pairs can be complicated in online env
+     * Get the attrs in pairs can be complicated in online env
      */
     private static void getAttrs(Map<String, String> attr, String s, String[] pairs) {
         // when addiction attr be like "m=10&__addcol1__worldid="
@@ -330,7 +321,7 @@ public class AgentUtils {
     }
 
     /**
-     * get addition attributes in additionStr
+     * Get addition attributes in additionStr
      */
     public static Map<String, String> getAdditionAttr(String additionStr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(additionStr);
@@ -338,7 +329,7 @@ public class AgentUtils {
     }
 
     /**
-     * get m value in additionStr
+     * Get m value in additionStr
      */
     public static String getmValue(String addictiveAttr) {
         Pair<String, Map<String, String>> mValueAttrs = parseAddAttr(addictiveAttr);
@@ -346,14 +337,14 @@ public class AgentUtils {
     }
 
     /**
-     * check agent ip from manager
+     * Check agent ip from manager
      */
     public static String fetchLocalIp() {
-        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
+        return AgentConfiguration.getAgentConf().get(AGENT_LOCAL_IP, getLocalIp());
     }
 
     /**
-     * check agent uuid from manager
+     * Check agent uuid from manager
      */
     public static String fetchLocalUuid() {
         String uuid = "";
@@ -380,7 +371,7 @@ public class AgentUtils {
     }
 
     /**
-     * time str convert to mill sec
+     * Convert the time string to mill second.
      */
     public static long timeStrConvertToMillSec(String time, String cycleUnit) {
         long defaultTime = System.currentTimeMillis();
@@ -407,6 +398,9 @@ public class AgentUtils {
         return parseTimeToMillSec(time, pattern);
     }
 
+    /**
+     * Convert the time string to mill second
+     */
     private static long parseTimeToMillSec(String time, String pattern) {
         try {
             SimpleDateFormat df = new SimpleDateFormat(pattern);
@@ -418,6 +412,11 @@ public class AgentUtils {
         return System.currentTimeMillis();
     }
 
+    /**
+     * Create directory if the path not exists.
+     *
+     * @return the file after creation
+     */
     public static File makeDirsIfNotExist(String childPath, String parentPath) {
         File finalPath = new File(parentPath, childPath);
         try {
@@ -427,6 +426,13 @@ public class AgentUtils {
             throw new RuntimeException(ex);
         }
         return finalPath;
+    }
+
+    /**
+     * Whether the config of exiting the program when OOM is enabled
+     */
+    public static boolean enableOOMExit() {
+        return AgentConfiguration.getAgentConf().getBoolean(AGENT_ENABLE_OOM_EXIT, DEFAULT_ENABLE_OOM_EXIT);
     }
 
 }

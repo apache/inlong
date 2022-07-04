@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
@@ -46,7 +47,7 @@ public class KafkaSinkRequest extends SinkRequest {
     private String partitionNum;
 
     @ApiModelProperty("Data Serialization, support: json, canal, avro")
-    private String serializationType;
+    private String serializationType = DataFormat.CANAL.getName();
 
     @ApiModelProperty(value = "The strategy of auto offset reset",
             notes = "including earliest, latest (the default), none")

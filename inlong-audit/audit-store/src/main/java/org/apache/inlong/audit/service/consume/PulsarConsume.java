@@ -18,11 +18,13 @@
 package org.apache.inlong.audit.service.consume;
 
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
-import org.apache.inlong.audit.service.ElasticsearchService;
+import org.apache.inlong.audit.service.InsertData;
+import org.apache.pulsar.client.api.AuthenticationFactory;
+import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.Consumer;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.client.api.MessageListener;
@@ -43,9 +45,15 @@ public class PulsarConsume extends BaseConsume {
     private static final Logger LOG = LoggerFactory.getLogger(PulsarConsume.class);
     private final ConcurrentHashMap<String, List<Consumer<byte[]>>> topicConsumerMap = new ConcurrentHashMap<>();
 
-    public PulsarConsume(AuditDataDao auditDataDao, ElasticsearchService esService, StoreConfig storeConfig,
+    /**
+     * Constructor
+     * @param insertServiceList
+     * @param storeConfig
+     * @param mqConfig
+     */
+    public PulsarConsume(List<InsertData> insertServiceList, StoreConfig storeConfig,
             MessageQueueConfig mqConfig) {
-        super(auditDataDao, esService, storeConfig, mqConfig);
+        super(insertServiceList, storeConfig, mqConfig);
     }
 
     @Override
@@ -63,10 +71,13 @@ public class PulsarConsume extends BaseConsume {
     private PulsarClient getOrCreatePulsarClient(String pulsarServerUrl) {
         LOG.info("start consumer pulsarServerUrl = {}", pulsarServerUrl);
         PulsarClient pulsarClient = null;
+        ClientBuilder builder = PulsarClient.builder();
         try {
-            pulsarClient = PulsarClient.builder().serviceUrl(pulsarServerUrl)
-                    .connectionTimeout(mqConfig.getClientOperationTimeoutSecond(),
-                            TimeUnit.SECONDS).build();
+            if (mqConfig.isPulsarEnableAuth() && StringUtils.isNotEmpty(mqConfig.getPulsarToken())) {
+                builder.authentication(AuthenticationFactory.token(mqConfig.getPulsarToken()));
+            }
+            pulsarClient = builder.serviceUrl(pulsarServerUrl)
+                    .connectionTimeout(mqConfig.getClientOperationTimeoutSecond(), TimeUnit.SECONDS).build();
         } catch (PulsarClientException e) {
             LOG.error("getOrCreatePulsarClient has pulsar {} err {}", pulsarServerUrl, e);
         }
@@ -74,9 +85,8 @@ public class PulsarConsume extends BaseConsume {
     }
 
     protected void updateConcurrentConsumer(PulsarClient pulsarClient) {
-        List<Consumer<byte[]>> list =
-                topicConsumerMap.computeIfAbsent(mqConfig.getPulsarTopic(),
-                        key -> new ArrayList<Consumer<byte[]>>());
+        List<Consumer<byte[]>> list = topicConsumerMap.computeIfAbsent(mqConfig.getPulsarTopic(),
+                key -> new ArrayList<Consumer<byte[]>>());
         int currentConsumerNum = list.size();
         int createNum = mqConfig.getConcurrentConsumerNum() - currentConsumerNum;
         /*
@@ -115,6 +125,7 @@ public class PulsarConsume extends BaseConsume {
                         .receiverQueueSize(mqConfig.getConsumerReceiveQueueSize())
                         .enableRetry(mqConfig.isPulsarConsumerEnableRetry())
                         .messageListener(new MessageListener<byte[]>() {
+
                             public void received(Consumer<byte[]> consumer, Message<byte[]> msg) {
                                 try {
                                     String body = new String(msg.getData(), StandardCharsets.UTF_8);
@@ -130,7 +141,7 @@ public class PulsarConsume extends BaseConsume {
                                             consumer.reconsumeLater(msg, 10, TimeUnit.SECONDS);
                                         } catch (PulsarClientException pulsarClientException) {
                                             LOG.error("Consumer reconsumeLater has exception "
-                                                            + "topic {}, subName {}, ex {}",
+                                                    + "topic {}, subName {}, ex {}",
                                                     topic,
                                                     mqConfig.getPulsarConsumerSubName(),
                                                     pulsarClientException);

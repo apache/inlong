@@ -22,14 +22,14 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.mocks.MockPlugin;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
@@ -42,8 +42,8 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.nio.charset.StandardCharsets;
@@ -65,44 +65,44 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     @Autowired
     protected StreamSourceService streamSourceService;
 
-    @Before
+    @BeforeEach
     public void init() {
-        subType = "DisableZkFor";
+        subType = "disable_zk";
     }
 
     /**
-     * Creat hvie sink by inlong stream info.
+     * Create Hive sink by inlong stream info.
      */
     public HiveSinkRequest createHiveSink(InlongStreamInfo streamInfo) {
-        HiveSinkRequest hiveSinkRequest = new HiveSinkRequest();
-        hiveSinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
-        hiveSinkRequest.setSinkType("HIVE");
-        hiveSinkRequest.setSinkName("HIVE");
-        hiveSinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
-        List<SinkFieldRequest> sinkFieldRequests = createStreamFields(streamInfo.getInlongGroupId(),
+        HiveSinkRequest sinkRequest = new HiveSinkRequest();
+        sinkRequest.setInlongGroupId(streamInfo.getInlongGroupId());
+        sinkRequest.setSinkType("HIVE");
+        sinkRequest.setSinkName("HIVE");
+        sinkRequest.setInlongStreamId(streamInfo.getInlongStreamId());
+        List<SinkField> sinkFields = createStreamFields(streamInfo.getInlongGroupId(),
                 streamInfo.getInlongStreamId())
                 .stream()
-                .map(streamFieldInfo -> {
-                    SinkFieldRequest fieldInfo = new SinkFieldRequest();
-                    fieldInfo.setFieldName(streamFieldInfo.getFieldName());
-                    fieldInfo.setFieldType(streamFieldInfo.getFieldType());
-                    fieldInfo.setFieldComment(streamFieldInfo.getFieldComment());
+                .map(streamField -> {
+                    SinkField fieldInfo = new SinkField();
+                    fieldInfo.setFieldName(streamField.getFieldName());
+                    fieldInfo.setFieldType(streamField.getFieldType());
+                    fieldInfo.setFieldComment(streamField.getFieldComment());
                     return fieldInfo;
                 })
                 .collect(Collectors.toList());
-        hiveSinkRequest.setFieldList(sinkFieldRequests);
-        hiveSinkRequest.setEnableCreateTable(0);
-        hiveSinkRequest.setUsername(OPERATOR);
-        hiveSinkRequest.setPassword("password");
-        hiveSinkRequest.setDbName("default");
-        hiveSinkRequest.setTableName("kip_test");
-        hiveSinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
-        hiveSinkRequest.setFileFormat("TextFile");
-        hiveSinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
-        hiveSinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
-        hiveSinkRequest.setDataSeparator("124");
-        streamSinkService.save(hiveSinkRequest, OPERATOR);
-        return hiveSinkRequest;
+        sinkRequest.setSinkFieldList(sinkFields);
+        sinkRequest.setEnableCreateResource(0);
+        sinkRequest.setUsername(OPERATOR);
+        sinkRequest.setPassword("password");
+        sinkRequest.setDbName("default");
+        sinkRequest.setTableName("kip_test");
+        sinkRequest.setJdbcUrl("jdbc:hive2://localhost:7001");
+        sinkRequest.setFileFormat("TextFile");
+        sinkRequest.setDataPath("hdfs://localhost:4007/user/hive/warehouse/default");
+        sinkRequest.setFileFormat(StandardCharsets.UTF_8.name());
+        sinkRequest.setDataSeparator("124");
+        streamSinkService.save(sinkRequest, OPERATOR);
+        return sinkRequest;
     }
 
     /**
@@ -119,37 +119,10 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         return kafkaSourceRequest;
     }
 
-    // There will be concurrency problems in the overall operation,This method temporarily fails the test
-    // @Test
-    public void testCreateSortConfigInCreateWorkflow() {
-        InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test21");
-        groupInfo.setStatus(GroupStatus.CONFIG_SUCCESSFUL.getCode());
-        groupInfo.setZookeeperEnabled(0);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
-        InlongStreamInfo streamInfo = createStreamInfo(groupInfo);
-        createHiveSink(streamInfo);
-        createKafkaSource(streamInfo);
-        mockTaskListenerFactory();
-        WorkflowContext context = workflowEngine.processService().start(processName.name(), applicant, form);
-        WorkflowResult result = WorkflowBeanUtils.result(context);
-        ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
-        WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("initSort");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(1, task.getNameToListenerMap().size());
-
-        List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(0) instanceof CreateSortConfigListener);
-        ProcessForm form = context.getProcessForm();
-        InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) form).getGroupInfo();
-        Assert.assertEquals(1, curGroupRequest.getExtList().size());
-    }
-
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
-        groupInfo.setZookeeperEnabled(0);
+        groupInfo.setEnableZookeeper(0);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
@@ -161,20 +134,19 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         form.setGroupOperateType(GroupOperateType.SUSPEND);
         taskListenerFactory.acceptPlugin(new MockPlugin());
 
-        WorkflowContext context = workflowEngine.processService()
-                .start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
-        Assert.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
+        Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
         WorkflowProcess process = context.getProcess();
         WorkflowTask task = process.getTaskByName("stopSort");
-        Assert.assertTrue(task instanceof ServiceTask);
-        Assert.assertEquals(2, task.getNameToListenerMap().size());
+        Assertions.assertTrue(task instanceof ServiceTask);
+        Assertions.assertEquals(2, task.getNameToListenerMap().size());
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assert.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
+        Assertions.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
         ProcessForm currentProcessForm = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) currentProcessForm).getGroupInfo();
-        Assert.assertEquals(1, curGroupRequest.getExtList().size());
+        Assertions.assertEquals(1, curGroupRequest.getExtList().size());
     }
 
 }

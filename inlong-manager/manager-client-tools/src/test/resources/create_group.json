@@ -1,0 +1,94 @@
+{
+  "groupInfo": {
+    "mqType": "PULSAR",
+    "inlongGroupId": "test_group",
+    "name": "test_name",
+    "inCharges": "admin",
+    "queueModule": "serial",
+    "writeQuorum": 1,
+    "ackQuorum": 1,
+    "ttl": 24,
+    "ttlUnit": "hours",
+    "retentionTime": 72,
+    "retentionTimeUnit": "hours",
+    "retentionSize": -1,
+    "retentionSizeUnit": "MB",
+    "inlongClusterTag": "default_cluster",
+    "sortConf": {
+      "sortType": "flink",
+      "serviceUrl": "127.0.0.1"
+    }
+  },
+  "streamInfo": {
+    "dataType": "CSV",
+    "name": "stream_name",
+    "dailyRecords": 10,
+    "dailyStorage": 10,
+    "peakRecords": 10,
+    "maxLength": 10,
+    "inlongGroupId": "test_group",
+    "inlongStreamId": "test_stream",
+    "fieldList": [
+      {
+        "fieldName": "id",
+        "fieldType": "int",
+        "inlongGroupId": "test_group",
+        "inlongStreamId": "test_stream",
+        "isPredefinedField": 0
+      }
+    ]
+  },
+  "streamSource": {
+    "inlongStreamId": "test_stream",
+    "sourceName": "source_name",
+    "hostname": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "123456",
+    "historyFilename": "/data/inlong-agent/.history",
+    "serverTimezone": "UTC",
+    "intervalMs": 1000,
+    "allMigration": false,
+    "databaseWhiteList": "etl",
+    "tableWhiteList": "person",
+    "inlongGroupId": "test_group",
+    "sourceType": "BINLOG",
+    "specificOffsetFile": "mysql-bin.000001",
+    "specificOffsetPos": 6972,
+    "snapshotMode": "schema_only_recovery"
+  },
+  "streamSink": {
+    "inlongStreamId": "test_stream",
+    "sinkName": "ck",
+    "dbName": "default",
+    "tableName": "person13",
+    "enableCreateResource": 1,
+    "username": "test",
+    "password": "test",
+    "jdbcUrl": "jdbc:clickhouse://127.0.0.1:8123",
+    "flushInterval": 1,
+    "flushRecord": 1000,
+    "retryTimes": 3,
+    "isDistributed": 0,
+    "engine": "Log",
+    "sinkFieldList": [
+      {
+        "sourceFieldName": "id",
+        "sourceFieldType": "int",
+        "fieldName": "id",
+        "fieldType": "Int32"
+      }
+    ],
+    "sinkType": "CLICKHOUSE",
+    "inlongGroupId": "test_group"
+  },
+  "streamFieldList": [
+    {
+      "fieldName": "id",
+      "fieldType": "int",
+      "inlongGroupId": "test_group",
+      "inlongStreamId": "test_stream",
+      "isPredefinedField": 0
+    }
+  ]
+}

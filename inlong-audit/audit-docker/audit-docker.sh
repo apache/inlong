@@ -33,7 +33,7 @@ if [[ "${MQ_TYPE}" == "pulsar" ]]; then
   sed -i "s/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = .*$/agent1.sinks.pulsar-sink-msg1.pulsar_server_url = pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.pulsar-sink-msg2.pulsar_server_url = .*$/agent1.sinks.pulsar-sink-msg2.pulsar_server_url = pulsar:\/\/${PULSAR_BROKER_LIST}/g" "${proxy_conf_file}"
 fi
-if [[ "${MQ_TYPE}" == "tube" ]]; then
+if [[ "${MQ_TYPE}" == "tubemq" ]]; then
   sed -i "s/audit.tube.masterlist=.*$/audit.tube.masterlist=${TUBE_MASTER_LIST}/g" "${store_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg1.master-host-port-list = .*$/agent1.sinks.tube-sink-msg1.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
   sed -i "s/agent1.sinks.tube-sink-msg2.master-host-port-list = .*$/agent1.sinks.tube-sink-msg2.master-host-port-list = ${TUBE_MASTER_LIST}/g" "${proxy_conf_file}"
@@ -52,9 +52,16 @@ if [[ "${JDBC_URL}" =~ (.+):([0-9]+) ]]; then
   fi
 fi
 
-# start
-bash +x ${file_path}/bin/proxy-start.sh
-bash +x ${file_path}/bin/store-start.sh
+# start proxy
+cd "${file_path}/"
+if [[ "${MQ_TYPE}" == "pulsar" ]]; then
+  bash +x ./bin/proxy-start.sh pulsar
+fi
+if [[ "${MQ_TYPE}" == "tubemq" ]]; then
+  bash +x ./bin/proxy-start.sh tube
+fi
+# start store
+bash +x ./bin/store-start.sh
 sleep 3
 # keep alive
-tail -F ${file_path}/logs/info.log
+tail -F ./logs/info.log

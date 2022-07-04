@@ -353,120 +353,138 @@
  Source  : checkstyle 8.44 (Modified from src/main/resources/google_checks.xml)
  License : https://github.com/checkstyle/checkstyle/blob/master/LICENSE.apache20
 
-1.3.5 inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlSnapshotSplit.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/reader/MySqlSourceReaderContext.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/DeserializationRuntimeConverterFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/schema/MySqlTypeUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/StatementUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/schema/MySqlSchema.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/MySqlDeserializationConverterFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/DeserializationRuntimeConverter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/connection/JdbcConnectionFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/FinishedSnapshotSplitsReportEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/MySqlSource.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/state/HybridPendingSplitsState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/connection/ConnectionPoolId.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/JsonDebeziumDeserializationSchema.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/connection/ConnectionPools.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlRecords.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/reader/SnapshotSplitReader.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/enumerator/MySqlSourceEnumerator.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/schema/MySqlTableDefinition.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/BinlogSplitMetaRequestEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/Validator.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/FlinkOffsetBackingStore.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/task/context/StatefulTaskContext.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/DebeziumUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlSplit.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/MySqlHybridSplitAssigner.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/config/MySqlSourceConfig.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/MySqlReadableMetadata.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/MySqlTableSource.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/reader/MySqlSourceReader.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/config/MySqlSourceOptions.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/SchemaRecord.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlBinlogSplit.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlSnapshotSplitState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/ChunkUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/LatestFinishedSplitsSizeRequestEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/dispatcher/EventDispatcherImpl.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/reader/BinlogSplitReader.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/FlinkDatabaseSchemaHistory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/utils/TemporalConversions.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/task/MySqlSnapshotSplitReadTask.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/RowDataDebeziumDeserializeSchema.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/offset/BinlogOffsetSerializer.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/ChunkRange.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/TableDiscoveryUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/RecordUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/metrics/MySqlSourceReaderMetrics.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/state/PendingSplitsStateSerializer.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/state/BinlogPendingSplitsState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/DebeziumSourceFunction.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/reader/MySqlSplitReader.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/utils/DatabaseHistoryUtil.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/task/context/MySqlErrorHandler.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/MySqlBinlogSplitAssigner.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/AppendMetadataCollector.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/SerializerUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/MySqlSource.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/AssignerStatus.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/DebeziumDeserializationSchema.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/state/SnapshotPendingSplitsState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/MySqlSnapshotSplitAssigner.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/StringDebeziumDeserializationSchema.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/FlinkDatabaseHistory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/ChunkSplitter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/FinishedSnapshotSplitsAckEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/reader/MySqlRecordEmitter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/offset/BinlogOffset.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/StartupMode.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/MySqlTableInlongSourceFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/OldFieldMetadataConverter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/utils/ObjectUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/BinlogSplitMetaEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/state/PendingSplitsState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/config/MySqlSourceConfigFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlSplitState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/SuspendBinlogReaderEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/FinishedSnapshotSplitsRequestEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlSplitSerializer.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/StartupOptions.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/table/JdbcUrlUtils.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/config/ServerIdRange.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/EmbeddedFlinkDatabaseHistory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/MySqlBinlogSplitState.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/MySqlValidator.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/WakeupReaderEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/Handover.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/reader/DebeziumReader.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/dispatcher/SignalEventDispatcher.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/assigners/MySqlSplitAssigner.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/SeekBinlogToTimestampFilter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/task/MySqlBinlogSplitReadTask.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/LatestFinishedSplitsSizeEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/connection/PooledDataSourceFactory.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/MetadataConverter.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/connection/JdbcConnectionPools.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/MySqlSourceBuilder.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/events/SuspendBinlogReaderAckEvent.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/table/DebeziumOptions.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/debezium/task/context/MySqlTaskContextImpl.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/schema/MySqlFieldDefinition.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/mysql/source/split/FinishedSnapshotSplitInfo.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/DebeziumOffset.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/DebeziumChangeFetcher.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/DebeziumChangeConsumer.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/internal/DebeziumOffsetSerializer.java
-      inlong-sort/sort-single-tenant/src/main/java/org/apache/inlong/sort/singletenant/flink/cdc/debezium/history/FlinkJsonTableChangeSerializer.java
+1.3.5 inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlSnapshotSplit.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/reader/MySqlSourceReaderContext.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/DeserializationRuntimeConverterFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/schema/MySqlTypeUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/StatementUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/schema/MySqlSchema.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/MySqlDeserializationConverterFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/DeserializationRuntimeConverter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/connection/JdbcConnectionFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/FinishedSnapshotSplitsReportEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/MySqlSource.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/state/HybridPendingSplitsState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/connection/ConnectionPoolId.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/JsonDebeziumDeserializationSchema.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/connection/ConnectionPools.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlRecords.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/reader/SnapshotSplitReader.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/enumerator/MySqlSourceEnumerator.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/schema/MySqlTableDefinition.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/BinlogSplitMetaRequestEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/Validator.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/FlinkOffsetBackingStore.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/task/context/StatefulTaskContext.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/DebeziumUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlSplit.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/MySqlHybridSplitAssigner.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/config/MySqlSourceConfig.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/MySqlReadableMetadata.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/MySqlTableSource.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/reader/MySqlSourceReader.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/config/MySqlSourceOptions.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/SchemaRecord.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlBinlogSplit.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlSnapshotSplitState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/ChunkUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/LatestFinishedSplitsSizeRequestEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/dispatcher/EventDispatcherImpl.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/reader/BinlogSplitReader.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/FlinkDatabaseSchemaHistory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/utils/TemporalConversions.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/task/MySqlSnapshotSplitReadTask.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/RowDataDebeziumDeserializeSchema.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/offset/BinlogOffsetSerializer.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/ChunkRange.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/TableDiscoveryUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/RecordUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/metrics/MySqlSourceReaderMetrics.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/state/PendingSplitsStateSerializer.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/state/BinlogPendingSplitsState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/DebeziumSourceFunction.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/reader/MySqlSplitReader.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/utils/DatabaseHistoryUtil.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/task/context/MySqlErrorHandler.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/MySqlBinlogSplitAssigner.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/AppendMetadataCollector.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/SerializerUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/MySqlSource.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/AssignerStatus.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/DebeziumDeserializationSchema.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/state/SnapshotPendingSplitsState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/MySqlSnapshotSplitAssigner.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/StringDebeziumDeserializationSchema.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/FlinkDatabaseHistory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/ChunkSplitter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/FinishedSnapshotSplitsAckEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/reader/MySqlRecordEmitter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/offset/BinlogOffset.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/StartupMode.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/MySqlTableInlongSourceFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/OldFieldMetadataConverter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/utils/ObjectUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/BinlogSplitMetaEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/state/PendingSplitsState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/config/MySqlSourceConfigFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlSplitState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/SuspendBinlogReaderEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/FinishedSnapshotSplitsRequestEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlSplitSerializer.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/StartupOptions.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/table/JdbcUrlUtils.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/config/ServerIdRange.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/EmbeddedFlinkDatabaseHistory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/MySqlBinlogSplitState.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/MySqlValidator.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/WakeupReaderEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/Handover.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/reader/DebeziumReader.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/dispatcher/SignalEventDispatcher.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/assigners/MySqlSplitAssigner.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/SeekBinlogToTimestampFilter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/task/MySqlBinlogSplitReadTask.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/LatestFinishedSplitsSizeEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/connection/PooledDataSourceFactory.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/MetadataConverter.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/connection/JdbcConnectionPools.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/MySqlSourceBuilder.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/events/SuspendBinlogReaderAckEvent.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/table/DebeziumOptions.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/debezium/task/context/MySqlTaskContextImpl.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/schema/MySqlFieldDefinition.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/mysql/source/split/FinishedSnapshotSplitInfo.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumOffset.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumChangeFetcher.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumChangeConsumer.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/internal/DebeziumOffsetSerializer.java
+      inlong-sort/sort-connectors/sort-mysql-cdc/src/main/java/org/apache/inlong/sort/cdc/debezium/history/FlinkJsonTableChangeSerializer.java
  Source  : flink-cdc-connectors 2.0.1 (Please note that the software have been modified.)
  License : https://github.com/ververica/flink-cdc-connectors/blob/master/LICENSE
+ 
+1.3.6 inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveValidator.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveTableSink.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveTableMetaStoreFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveRowPartitionComputer.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveRowDataPartitionComputer.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HiveOptions.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/HadoopFileSystemFactory.java
+      inlong-sort/sort-connectors/sort-hive/src/main/java/org/apache/inlong/sort/hive/table/HiveTableInlongFactory.java
+ Source  : flink-connector-hive 1.13.5 (Please note that the software have been modified.)
+ License : https://github.com/apache/flink/blob/master/LICENSE
+
+1.3.7 inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/DynamicPulsarSerializationSchema.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarDynamicTableFactory.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/PulsarDynamicTableSink.java
+      inlong-sort/sort-connectors/sort-pulsar/src/main/java/org/apache/inlong/sort/pulsar/table/UpsertPulsarDynamicTableFactory.java
+ Source  : pulsar-flink-connector_2.11 1.13.6.1-rc9 (Please note that the software have been modified.)
+ License : https://github.com/streamnative/pulsar-flink/blob/master/LICENSE
 
 
 =======================================================================
-Apache InLong(Incubating) Subcomponents:
+Apache InLong Subcomponents:
 
-The compiled Apache InLong(Incubating) distribution includes the following
+The compiled Apache InLong distribution includes the following
 sources/binaries. The use of these sources/binaries is subject to the
 terms and conditions of their respective licenses.
 
@@ -478,7 +496,7 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  net.minidev:accessors-smart:1.2 - ASM Based Accessors Helper Used By JSON Smart (https://urielch.github.io), (Apache License, Version 2.0)
+  net.minidev:accessors-smart:1.2 - ASM Based Accessors Helper Used By JSON Smart (https://github.com/netplex/json-smart-v2), (Apache License, Version 2.0)
   org.elasticsearch.plugin:aggs-matrix-stats-client:6.8.23 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   io.airlift:aircompressor:0.10 - aircompressor (https://github.com/airlift/aircompressor/tree/0.10), (Apache License 2.0)
   org.apache.directory.server:apacheds-i18n:2.0.0-M15 - ApacheDS I18n (https://directory.apache.org/apacheds/), (The Apache Software License, Version 2.0)
@@ -488,8 +506,9 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.arrow:arrow-format:0.8.0 - Arrow Format (https://arrow.apache.org/), (Apache License, Version 2.0)
   org.apache.arrow:arrow-memory:0.8.0 - Arrow Memory (https://arrow.apache.org/), (Apache License, Version 2.0)
   org.apache.arrow:arrow-vector:0.8.0 - Arrow Vectors (https://arrow.apache.org/), (Apache License, Version 2.0)
-  org.apache.avro:avro:1.11.0 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
-  org.apache.avro:avro-ipc:1.11.0 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.yetus:audience-annotations:0.5.0 - Apache Yetus - Audience Annotations (https://yetus.apache.org/audience-annotations), (Apache License, Version 2.0)
+  org.apache.avro:avro:1.10.1 - Apache Avro (https://avro.apache.org), (The Apache Software License, Version 2.0)
+  org.apache.avro:avro-ipc:1.10.1 - Apache Avro IPC (https://avro.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:bouncy-castle-bc:2.8.1 - Apache Pulsar :: Bouncy Castle :: BC (https://github.com/apache/pulsar/tree/master/bouncy-castle/bc), (Apache License, Version 2.0)
   commons-beanutils:commons-beanutils:1.9.4 - Apache Commons BeanUtils (https://commons.apache.org/proper/commons-beanutils/), (Apache License, Version 2.0)
   commons-cli:commons-cli:1.4 - Apache Commons CLI (http://commons.apache.org/proper/commons-cli), (The Apache Software License, Version 2.0)
@@ -500,7 +519,6 @@ The text of each license is the standard Apache 2.0 license.
   commons-daemon:commons-daemon:1.0.13 - Commons Daemon (https://commons.apache.org/proper/commons-daemon/), (The Apache Software License, Version 2.0)
   commons-dbcp:commons-dbcp:1.4 - Commons DBCP (https://commons.apache.org/proper/commons-dbcp/), (The Apache Software License, Version 2.0)
   commons-digester:commons-digester:1.8 - Digester (https://commons.apache.org/proper/commons-digester/), (The Apache Software License, Version 2.0)
-  commons-httpclient:commons-httpclient:3.1 - HttpClient (https://hc.apache.org/httpclient-legacy/), (Apache License)
   commons-io:commons-io:2.11.0 - Apache Commons IO (https://commons.apache.org/proper/commons-io/), (The Apache Software License, Version 2.0)
   commons-lang:commons-lang:2.6 - Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
   org.apache.commons:commons-lang3:3.11 - Apache Commons Lang (https://commons.apache.org/proper/commons-lang), (The Apache Software License, Version 2.0)
@@ -552,12 +570,12 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.hive:hive-serde:3.1.2 - Hive Serde (https://github.com/apache/hive/tree/release-3.1.2-rc0/serde)
   org.apache.hive:hive-service:3.1.2 - Hive Service (https://github.com/apache/hive/tree/release-3.1.2-rc0/service)
   org.apache.hive:hive-service-rpc:3.1.2 - Hive Service RPC (https://github.com/apache/hive/tree/release-3.1.2-rc0/service-rpc)
-  org.apache.hive:hive-shims:3.1.2 - Hive Shims (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims)
-  org.apache.hive:hive-storage-api:2.7.0 - Hive Storage API (https://github.com/apache/hive/tree/rel/storage-release-2.7.0/storage-api)
-  org.apache.hive:hive-upgrade-acid:3.1.2 - Hive Upgrade Acid (https://github.com/apache/hive/tree/release-3.1.2-rc0/upgrade-acid/)
   org.apache.hive.shims:hive-shims-0.23:3.1.2 - Hive Shims 0.23 (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/0.23)
+  org.apache.hive:hive-shims:3.1.2 - Hive Shims (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims)
   org.apache.hive.shims:hive-shims-common:3.1.2 - Hive Shims Common (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/common)
   org.apache.hive.shims:hive-shims-scheduler:3.1.2 - Hive Shims Scheduler (https://github.com/apache/hive/tree/release-3.1.2-rc0/shims/scheduler)
+  org.apache.hive:hive-storage-api:2.7.0 - Hive Storage API (https://github.com/apache/hive/tree/rel/storage-release-2.7.0/storage-api)
+  org.apache.hive:hive-upgrade-acid:3.1.2 - Hive Upgrade Acid (https://github.com/apache/hive/tree/release-3.1.2-rc0/upgrade-acid/)
   org.apache.htrace:htrace-core4:4.1.0-incubating - htrace-core4 (http://incubator.apache.org/projects/htrace.html), (The Apache Software License, Version 2.0)
   org.apache.httpcomponents:httpasyncclient:4.1.2 - Apache HttpAsyncClient (http://hc.apache.org/httpcomponents-asyncclient), (Apache License, Version 2.0)
   org.apache.httpcomponents:httpclient:4.5.13 - Apache HttpClient (http://hc.apache.org/httpcomponents-client), (Apache License, Version 2.0)
@@ -620,8 +638,6 @@ The text of each license is the standard Apache 2.0 license.
   io.prometheus:simpleclient_tracer_otel_agent:0.14.1 - Prometheus Java Span Context Supplier - OpenTelemetry Agent (https://github.com/prometheus/client_java/tree/parent-0.14.1/simpleclient_tracer/simpleclient_tracer_otel_agent), (The Apache Software License, Version 2.0)
   org.yaml:snakeyaml:1.17 - SnakeYAML (https://bitbucket.org/snakeyaml/snakeyaml/src/v1.17/), (Apache License, Version 2.0)
   org.xerial.snappy:snappy-java:1.1.8.4 - snappy-java (https://github.com/xerial/snappy-java), (The Apache Software License, Version 2.0)
-  org.apache.taglibs:taglibs-standard-impl:1.2.5 - Apache Standard Taglib Implementation (http://tomcat.apache.org/taglibs/standard-1.2.5/taglibs-standard-impl), (The Apache Software License, Version 2.0)
-  org.apache.taglibs:taglibs-standard-spec:1.2.5 - Apache Standard Taglib Specification API (http://tomcat.apache.org/taglibs/standard-1.2.5/taglibs-standard-spec), (The Apache Software License, Version 2.0)
   com.tdunning:t-digest:3.2 - T-Digest (https://github.com/tdunning/t-digest), (The Apache Software License, Version 2.0)
   com.tencentcloudapi.cls:tencentcloud-cls-sdk-java:1.0.5 - tencentcloud-cls-sdk-java (https://github.com/TencentCloud/tencentcloud-cls-sdk-java/tree/v1.0.5), (Apache License, Version 2.0)
   javax.validation:validation-api:1.1.0.Final - Bean Validation API (http://beanvalidation.org), (The Apache Software License, Version 2.0)
@@ -631,6 +647,7 @@ The text of each license is the standard Apache 2.0 license.
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
+  ru.yandex.clickhouse:clickhouse-jdbc:0.3.1 - clickhouse-jdbc (https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-jdbc), (The Apache Software License, Version 2.0)
 
   
 ========================================================================
@@ -642,8 +659,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.apache.ant:ant:1.9.1 - Apache Ant Core (http://ant.apache.org/), (Apache License, Version 2.0)
   org.apache.ant:ant-launcher:1.9.1 - Apache Ant Launcher (http://ant.apache.org/), (Apache License, Version 2.0)
-  org.eclipse.jetty:apache-jsp:9.3.20.v20170531 - Jetty :: Apache JSP Implementation (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/apache-jsp), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:apache-jstl:9.3.20.v20170531 - Apache :: JSTL module (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/apache-jstl), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.apache.commons:commons-math3:3.1.1 - Commons Math (https://commons.apache.org/proper/commons-math/), (The Apache Software License, Version 2.0)
   com.github.spullara.mustache.java:compiler:0.9.3 - compiler (https://github.com/spullara/mustache.java/tree/mustache.java-0.9.3) (Apache License 2.0)
   org.apache.hadoop:hadoop-annotations:2.10.1 - Apache Hadoop Annotations (https://github.com/apache/hadoop/tree/branch-2.10.1/hadoop-common-project/hadoop-annotations), (Apache License, Version 2.0)
@@ -670,17 +685,11 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.mortbay.jetty:jetty:6.1.26 - Jetty Server (http://www.eclipse.org/jetty/jetty-parent/project/modules/jetty), (Apache Software License - Version 2.0;  EPL 1.0)
   org.mortbay.jetty:jetty-sslengine:6.1.26 - Jetty SSLEngine (http://jetty.mortbay.org), (Apache License Version 2)
   org.mortbay.jetty:jetty-util:6.1.26 - Jetty Utilities (http://www.eclipse.org/jetty/jetty-parent/project/jetty-util), (Apache Software License - Version 2.0;  EPL 1.0)
-  org.eclipse.jetty:jetty-annotations:9.3.20.v20170531 - Jetty :: Servlet Annotations (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-annotations), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-client:9.3.20.v20170531 - Jetty :: Asynchronous HTTP Client (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-client), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-http:9.4.44.v20210927 - Jetty :: Http Utility (https://eclipse.org/jetty/jetty-http), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-io:9.4.44.v20210927 - Jetty :: IO Utility (http://www.eclipse.org/jetty), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-jaas:9.3.20.v20170531 - Jetty :: JAAS (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-jaas), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-jmx:9.4.6.v20170531 - Jetty :: JMX Management (https://github.com/eclipse/jetty.project/tree/jetty-9.4.6.v20170531/jetty-jmx), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-jndi:9.3.20.v20170531 - Jetty :: JNDI Naming (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-jndi), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-plus:9.3.20.v20170531 - Jetty :: Plus (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-plus), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-rewrite:9.3.20.v20170531 - Jetty :: Rewrite Handler (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-rewrite), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty:jetty-runner:9.3.20.v20170531 - Jetty :: Runner (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-runner), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.toolchain:jetty-schemas:3.1 - Jetty :: Schemas (https://github.com/eclipse/jetty.toolchain/tree/jetty-schemas-3.1), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-security:9.4.44.v20210927 - Jetty :: Security (https://eclipse.org/jetty/jetty-security), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-server:9.4.44.v20210927 - - Jetty :: Server Core (https://eclipse.org/jetty/jetty-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
   org.eclipse.jetty:jetty-servlet:9.4.44.v20210927 - Jetty :: Servlet Handling (https://eclipse.org/jetty/jetty-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
@@ -711,11 +720,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   org.apache.lucene:lucene-suggest:7.7.3 - Lucene Suggest (http://lucene.apache.org), (Apache 2)
   org.apache.parquet:parquet-hadoop-bundle:1.10.0 - Apache Parquet Hadoop Bundle (https://parquet.apache.org), (The Apache Software License, Version 2.0)
   org.apache.pulsar:pulsar-client:2.8.1 - Pulsar Client Java (https://github.com/apache/pulsar/tree/v2.8.1), (Apache License, Version 2.0)
-  org.eclipse.jetty.websocket:websocket-api:9.3.20.v20170531 - Jetty :: Websocket :: API (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-api), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-client:9.3.20.v20170531 - Jetty :: Websocket :: Client (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-client), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-common:9.3.20.v20170531 - Jetty :: Websocket :: Common (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-common), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-server:9.3.20.v20170531 - Jetty :: Websocket :: Server (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-server), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
-  org.eclipse.jetty.websocket:websocket-servlet:9.3.20.v20170531 - Jetty :: Websocket :: Servlet Interface (https://github.com/eclipse/jetty.project/tree/jetty-9.3.20.v20170531/jetty-websocket/websocket-servlet), (Apache Software License - Version 2.0;  Eclipse Public License - Version 1.0)
 
 
 ========================================================================
@@ -726,9 +730,7 @@ The following components are provided under BSD license. See project link for de
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
   asm:asm:3.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_3_1), (BSD)
-  org.ow2.asm:asm:5.0.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
-  org.ow2.asm:asm-commons:5.0.1 - ASM Commons (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
-  org.ow2.asm:asm-tree:5.0.1 - ASM Tree (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_1), (BSD)
+  org.ow2.asm:asm:5.0.4 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_4), (BSD)
   dnsjava:dnsjava:2.1.7 - dnsjava (https://github.com/dnsjava/dnsjava/tree/v2.1.7), (BSD 2-Clause license)
   javolution:javolution:5.5.1 - Javolution (http://javolution.org), (BSD License)
   jline:jline:2.12 - JLine (https://jline.github.io), (The BSD License)
@@ -779,6 +781,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   com.sun.jersey:jersey-server:1.9 - jersey-server (https://github.com/javaee/jersey-1.x/tree/post-1.9/jersey-server), (CDDL 1.1;  GPL2 w/ CPE)
   com.sun.jersey.contribs:jersey-guice:1.9 - jersey-guice (https://github.com/javaee/jersey-1.x/tree/post-1.9/contribs/jersey-guice), (CDDL 1.1;  GPL2 w/ CPE)
   com.sun.jersey:jersey-servlet:1.19 - jersey-servlet (https://jersey.java.net/jersey-servlet/), (CDDL 1.1;  GPL2 w/ CPE)
+  javax.servlet.jsp:jsp-api:2.1 - jsp-api (https://github.com/javaee/javaee-jsp-api/tree/jsp-api-2.2), (CDDL 1.1, GPL2.0)
   javax.servlet:servlet-api:2.5 - servlet-api (https://mvnrepository.com/artifact/javax.servlet/servlet-api/2.5), (CDDL v1.0)
 
   
@@ -792,7 +795,7 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
   aopalliance:aopalliance:1.0 - - AOP alliance (http://aopalliance.sourceforge.net), (Public Domain)
   org.hdrhistogram:HdrHistogram:2.1.9 - HdrHistogram (http://hdrhistogram.github.io/HdrHistogram/), (Public Domain, per Creative Commons CC0)
   net.jcip:jcip-annotations:1.0 - "Java Concurrency in Practice" book annotations (http://jcip.net/), (Public Domain)
-  org.tukaani:xz:1.9 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
+  org.tukaani:xz:1.8 - XZ for Java (http://tukaani.org/xz/java.html), (Public Domain)
 
 
 ========================================================================
@@ -812,7 +815,6 @@ EPL licenses
 The following components are provided under the EPL License. See project link for details.
 The text of each license is also included at licenses/LICENSE-[project].txt.
 
-  org.eclipse.jdt.core.compiler:ecj:4.4.2 - Eclipse ECJ (http://www.eclipse.org/jdt/), (Eclipse Public License v1.0)
   ch.qos.logback:logback-classic:1.2.10 - Logback Classic Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
   ch.qos.logback:logback-core:1.2.10 - Logback Core Module (https://github.com/qos-ch/logback/tree/v_1.2.10), (Eclipse Public License - v 1.0, GNU Lesser General Public License)
 

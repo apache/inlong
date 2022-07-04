@@ -29,4 +29,5 @@ public class DeleteBlackGroupReq extends BaseReq {
     private String topicName;
     private String confModAuthToken;
     private String groupName;
+    private String modifyUser;
 }

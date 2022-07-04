@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.plugin.flink;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.runtime.rest.messages.job.JobDetailsInfo;
@@ -26,12 +27,18 @@ import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
 import org.apache.inlong.manager.plugin.flink.enums.TaskCommitType;
 import org.apache.inlong.manager.plugin.util.FlinkUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.api.common.JobStatus.RUNNING;
-import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 
 /**
  * Flink task operation, such restart or stop flink job.
@@ -39,16 +46,61 @@ import static org.apache.inlong.manager.plugin.util.FlinkUtils.findFiles;
 @Slf4j
 public class FlinkOperation {
 
+    private static final String CONFIG_FILE = "application.properties";
+    private static final String CONNECTOR_DIR_KEY = "sort.connector.dir";
     private static final String JOB_TERMINATED_MSG = "the job not found by id %s, "
             + "or task already terminated or savepoint path is null";
     private static final String INLONG_MANAGER = "inlong-manager";
     private static final String INLONG_SORT = "inlong-sort";
-    private static final String SORT_JAR_PATTERN = "^sort-single-tenant.*jar$";
-
+    private static final String SORT_JAR_PATTERN = "^sort-dist.*jar$";
+    private static Properties properties;
     private final FlinkService flinkService;
 
     public FlinkOperation(FlinkService flinkService) {
         this.flinkService = flinkService;
+    }
+
+    /**
+     * Get sort connector directory
+     */
+    private static String getConnectorDir(String parent) throws IOException {
+        if (properties == null) {
+            properties = new Properties();
+            String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
+            try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+                properties.load(inputStream);
+            }
+        }
+        return properties.getProperty(CONNECTOR_DIR_KEY, Paths.get(parent, INLONG_SORT, "connectors").toString());
+    }
+
+    /**
+     * Get Sort connector jar patterns from the Flink info.
+     */
+    private static String getConnectorJarPattern(FlinkInfo flinkInfo) {
+        if (StringUtils.isNotEmpty(flinkInfo.getSourceType()) && StringUtils.isNotEmpty(flinkInfo.getSinkType())) {
+            return String.format("^sort-connector-(?i)(%s|%s).*jar$", flinkInfo.getSourceType(),
+                    flinkInfo.getSinkType());
+        } else {
+            return "^sort-connector-.*jar$";
+        }
+    }
+
+    /**
+     * Restart the Flink job.
+     */
+    public void restart(FlinkInfo flinkInfo) throws Exception {
+        String jobId = flinkInfo.getJobId();
+        boolean terminated = isNullOrTerminated(jobId);
+        if (terminated) {
+            String message = String.format("restart job failed, as " + JOB_TERMINATED_MSG, jobId);
+            log.error(message);
+            throw new Exception(message);
+        }
+
+        Future<?> future = TaskRunService.submit(
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.RESTART.getCode()));
+        future.get();
     }
 
     /**
@@ -105,9 +157,20 @@ public class FlinkOperation {
             throw new Exception(message);
         }
 
-        String jarPath = findFiles(basePath, SORT_JAR_PATTERN);
+        String jarPath = FlinkUtils.findFile(basePath, SORT_JAR_PATTERN);
         flinkInfo.setLocalJarPath(jarPath);
         log.info("get sort jar path success, path: {}", jarPath);
+
+        String connectorDir = getConnectorDir(startPath);
+        List<String> connectorPaths = FlinkUtils.listFiles(connectorDir, getConnectorJarPattern(flinkInfo), -1);
+        if (CollectionUtils.isEmpty(connectorPaths)) {
+            String message = String.format("no sort connectors found in %s", connectorDir);
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+
+        flinkInfo.setConnectorJarPaths(connectorPaths);
+        log.info("get sort connector paths success, paths: {}", connectorPaths);
 
         if (FlinkUtils.writeConfigToFile(path, flinkInfo.getJobName(), dataflow)) {
             flinkInfo.setLocalConfPath(path + File.separator + flinkInfo.getJobName());
@@ -116,23 +179,6 @@ public class FlinkOperation {
             log.error(message + ", dataflow: {}", dataflow);
             throw new Exception(message);
         }
-    }
-
-    /**
-     * Restart the Flink job.
-     */
-    public void restart(FlinkInfo flinkInfo) throws Exception {
-        String jobId = flinkInfo.getJobId();
-        boolean terminated = isNullOrTerminated(jobId);
-        if (terminated) {
-            String message = String.format("restart job failed, as " + JOB_TERMINATED_MSG, jobId);
-            log.error(message);
-            throw new Exception(message);
-        }
-
-        Future<?> future = TaskRunService.submit(new IntegrationTaskRunner(flinkService, flinkInfo,
-                TaskCommitType.RESTART.getCode()));
-        future.get();
     }
 
     /**
@@ -148,11 +194,13 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.STOP.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.STOP.getCode()));
         future.get();
     }
 
+    /**
+     * Delete the Flink job
+     */
     public void delete(FlinkInfo flinkInfo) throws Exception {
         String jobId = flinkInfo.getJobId();
         JobDetailsInfo jobDetailsInfo = flinkService.getJobDetail(jobId);
@@ -168,11 +216,13 @@ public class FlinkOperation {
         }
 
         Future<?> future = TaskRunService.submit(
-                new IntegrationTaskRunner(flinkService, flinkInfo,
-                        TaskCommitType.DELETE.getCode()));
+                new IntegrationTaskRunner(flinkService, flinkInfo, TaskCommitType.DELETE.getCode()));
         future.get();
     }
 
+    /**
+     * Status of Flink job.
+     */
     public void pollJobStatus(FlinkInfo flinkInfo) throws Exception {
         if (flinkInfo.isException()) {
             throw new BusinessException("startup failed: " + flinkInfo.getExceptionMsg());
@@ -217,7 +267,7 @@ public class FlinkOperation {
         boolean terminated = jobDetailsInfo == null || jobDetailsInfo.getJobStatus() == null;
         if (terminated) {
             log.warn("job detail or job status was null for [{}]", jobId);
-            return terminated;
+            return true;
         }
 
         terminated = jobDetailsInfo.getJobStatus().isTerminalState();

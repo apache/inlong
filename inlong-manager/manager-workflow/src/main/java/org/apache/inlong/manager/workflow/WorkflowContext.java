@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.workflow;
 
-import com.google.common.collect.Lists;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.definition.Element;
@@ -37,7 +36,7 @@ import java.util.List;
 @Slf4j
 public class WorkflowContext {
 
-    private String applicant;
+    private String operator;
 
     private WorkflowProcess process;
 
@@ -47,16 +46,14 @@ public class WorkflowContext {
 
     private WorkflowProcessEntity processEntity;
 
-    private List<WorkflowTaskEntity> newTaskList = Lists.newArrayList();
-
     private ActionContext actionContext;
 
-    public String getApplicant() {
-        return applicant;
+    public String getOperator() {
+        return operator;
     }
 
-    public WorkflowContext setApplicant(String applicant) {
-        this.applicant = applicant;
+    public WorkflowContext setOperator(String operator) {
+        this.operator = operator;
         return this;
     }
 
@@ -103,10 +100,6 @@ public class WorkflowContext {
     public WorkflowContext setActionContext(ActionContext actionContext) {
         this.actionContext = actionContext;
         return this;
-    }
-
-    public List<WorkflowTaskEntity> getNewTaskList() {
-        return newTaskList;
     }
 
     public static class ActionContext {

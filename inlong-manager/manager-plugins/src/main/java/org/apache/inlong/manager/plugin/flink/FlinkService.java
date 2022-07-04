@@ -40,13 +40,17 @@ import org.apache.inlong.manager.plugin.flink.enums.Constants;
 import org.apache.inlong.manager.plugin.util.FlinkConfiguration;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Flink service, such as save or get flink config info, etc.
@@ -61,6 +65,9 @@ public class FlinkService {
     private final String savepointDirectory;
     private final Configuration configuration;
 
+    /**
+     * Constructor of FlinkService.
+     */
     public FlinkService(String endpoint) throws Exception {
         FlinkConfiguration flinkConfiguration = new FlinkConfiguration();
         flinkConfig = flinkConfiguration.getFlinkConfig();
@@ -188,13 +195,22 @@ public class FlinkService {
      */
     private String submitJobBySavepoint(FlinkInfo flinkInfo, SavepointRestoreSettings settings) throws Exception {
         String localJarPath = flinkInfo.getLocalJarPath();
-        File jarFile = new File(localJarPath);
-        String[] programArgs = genProgramArgs(flinkInfo, flinkConfig);
+        final File jarFile = new File(localJarPath);
+        final String[] programArgs = genProgramArgsV2(flinkInfo, flinkConfig);
+
+        List<URL> classPaths = flinkInfo.getConnectorJarPaths().stream().map(p -> {
+            try {
+                return new File(p).toURI().toURL();
+            } catch (MalformedURLException e) {
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         PackagedProgram program = PackagedProgram.newBuilder()
                 .setConfiguration(configuration)
                 .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
                 .setJarFile(jarFile)
+                .setUserClassPaths(classPaths)
                 .setArguments(programArgs)
                 .setSavepointRestoreSettings(settings).build();
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, configuration, parallelism, false);
@@ -237,7 +253,8 @@ public class FlinkService {
     /**
      * Build the program of the Flink job.
      */
-    private String[] genProgramArgs(FlinkInfo flinkInfo,FlinkConfig flinkConfig) {
+    @Deprecated
+    private String[] genProgramArgs(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
         List<String> list = new ArrayList<>();
         list.add("-cluster-id");
         list.add(flinkInfo.getJobName());
@@ -256,6 +273,17 @@ public class FlinkService {
             list.add("-job.orderly.output");
             list.add(String.valueOf(inlongStreamInfo.getSyncSend()));
         }
+        return list.toArray(new String[0]);
+    }
+
+    private String[] genProgramArgsV2(FlinkInfo flinkInfo, FlinkConfig flinkConfig) {
+        List<String> list = new ArrayList<>();
+        list.add("-cluster-id");
+        list.add(flinkInfo.getJobName());
+        list.add("-group.info.file");
+        list.add(flinkInfo.getLocalConfPath());
+        list.add("-checkpoint.interval");
+        list.add("60000");
         return list.toArray(new String[0]);
     }
 

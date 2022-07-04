@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
@@ -50,7 +50,7 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
     private GroupUpdateFailedListener groupUpdateFailedListener;
 
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -75,7 +75,7 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         stopDataSourceTask.setName("stopSource");
         stopDataSourceTask.setDisplayName("Group-StopSource");
         stopDataSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopDataSourceTask.addListenerProvider(serviceTaskListenerFactory);
+        stopDataSourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(stopDataSourceTask);
 
         //stop sort
@@ -83,7 +83,7 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         stopSortTask.setName("stopSort");
         stopSortTask.setDisplayName("Group-StopSort");
         stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(serviceTaskListenerFactory);
+        stopSortTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

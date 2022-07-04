@@ -26,7 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sdk.commons.protocol.InlongId;
 import org.apache.inlong.sdk.dataproxy.pb.config.pojo.InlongStreamConfig;

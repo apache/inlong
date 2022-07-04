@@ -20,8 +20,8 @@ package org.apache.inlong.sort.protocol.transformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonSubTypes;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.inlong.sort.protocol.BuiltInFieldInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.MetaFieldInfo;
 import org.apache.inlong.sort.protocol.transformation.function.CascadeFunctionWrapper;
 import org.apache.inlong.sort.protocol.transformation.function.HopEndFunction;
 import org.apache.inlong.sort.protocol.transformation.function.HopFunction;
@@ -61,8 +61,8 @@ import org.apache.inlong.sort.protocol.transformation.operator.OrOperator;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FieldInfo.class, name = "base"),
-        @JsonSubTypes.Type(value = BuiltInFieldInfo.class, name = "builtin"),
+        @JsonSubTypes.Type(value = FieldInfo.class, name = "field"),
+        @JsonSubTypes.Type(value = MetaFieldInfo.class, name = "metaField"),
         @JsonSubTypes.Type(value = ConstantParam.class, name = "constant"),
         @JsonSubTypes.Type(value = TimeUnitConstantParam.class, name = "timeUnitConstant"),
         @JsonSubTypes.Type(value = StringConstantParam.class, name = "stringConstant"),

@@ -37,8 +37,4 @@ public class MockRestartSourceListener implements DataSourceOperateListener {
         return ListenerResult.success("Mock restart source success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

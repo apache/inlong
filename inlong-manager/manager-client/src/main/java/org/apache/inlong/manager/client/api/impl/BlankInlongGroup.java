@@ -18,22 +18,22 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.SortBaseConf;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
 /**
- * Check inlong group if is exist.
+ * Check inlong group if is exists.
  */
 public class BlankInlongGroup implements InlongGroup {
 
     @Override
-    public InlongStreamBuilder createStream(InlongStreamConf streamConf) throws Exception {
+    public InlongStreamBuilder createStream(InlongStreamInfo streamInfo) {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
@@ -48,17 +48,17 @@ public class BlankInlongGroup implements InlongGroup {
     }
 
     @Override
-    public void update(InlongGroupConf conf) throws Exception {
+    public void update(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public void update(SortBaseConf sortBaseConf) throws Exception {
+    public void update(BaseSortConf sortConf) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
     @Override
-    public InlongGroupContext reInitOnUpdate(InlongGroupConf conf) throws Exception {
+    public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 
@@ -94,6 +94,11 @@ public class BlankInlongGroup implements InlongGroup {
 
     @Override
     public List<InlongStream> listStreams() throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 }

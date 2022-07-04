@@ -25,7 +25,9 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -71,8 +73,13 @@ public class NodeServiceImpl implements NodeService {
     private final CloseableHttpClient httpclient = HttpClients.createDefault();
     private final Gson gson = new Gson();
 
-    @Value("${manager.max.configurable.broker.size:50}")
+    @Value("${manager.max.configurable.broker.size:1}")
     private int maxConfigurableBrokerSize;
+
+    @Value("${manager.max.retry.adding.topic:10}")
+    private int maxRetryAddingTopic;
+
+    private final TopicBackendWorker worker;
 
     @Autowired
     private MasterRepository masterRepository;
@@ -82,6 +89,10 @@ public class NodeServiceImpl implements NodeService {
 
     @Autowired
     private MasterService masterService;
+
+    public NodeServiceImpl(TopicBackendWorker worker) {
+        this.worker = worker;
+    }
 
     /**
      * request node status via http.
@@ -279,6 +290,95 @@ public class NodeServiceImpl implements NodeService {
             }
             begin = end;
         } while (end < needReloadList.size());
+    }
+
+    /**
+     * handle result, if success, complete it,
+     * if not success, add back to queue without exceeding max retry,
+     * otherwise complete it with exception.
+     *
+     * @param isSuccess
+     * @param topics
+     * @param pendingTopic
+     */
+    private void handleAddingResult(boolean isSuccess, Set<String> topics,
+            Map<String, TopicFuture> pendingTopic) {
+        for (String topic : topics) {
+            TopicFuture future = pendingTopic.get(topic);
+            if (future != null) {
+                if (isSuccess) {
+                    future.complete();
+                } else {
+                    future.increaseRetryTime();
+                    if (future.getRetryTime() > maxRetryAddingTopic) {
+                        future.completeExceptional();
+                    } else {
+                        // add back to queue.
+                        worker.addTopicFuture(future);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Adding topic is an async operation, so this method should
+     * 1. check whether pendingTopic contains topic that has failed/succeeded to be added.
+     * 2. async add topic to tubemq cluster
+     *
+     * @param brokerInfoList - broker list
+     * @param pendingTopic - topicMap
+     */
+    private void handleAddingTopic(MasterEntry masterEntry,
+            TubeHttpBrokerInfoList brokerInfoList,
+            Map<String, TopicFuture> pendingTopic) {
+        // 1. check tubemq cluster by topic name, remove pending topic if has added.
+        Set<String> brandNewTopics = new HashSet<>();
+        for (String topic : pendingTopic.keySet()) {
+            TubeHttpTopicInfoList topicInfoList = topicService.requestTopicConfigInfo(masterEntry, topic);
+            if (topicInfoList != null) {
+                // get broker list by topic request
+                List<Integer> topicBrokerList = topicInfoList.getTopicBrokerIdList();
+                if (topicBrokerList.isEmpty()) {
+                    brandNewTopics.add(topic);
+                } else {
+                    // remove brokers which have been added.
+                    List<Integer> configurableBrokerIdList =
+                            brokerInfoList.getConfigurableBrokerIdList();
+                    configurableBrokerIdList.removeAll(topicBrokerList);
+                    // add topic to satisfy max broker number.
+                    Set<String> singleTopic = new HashSet<>();
+                    singleTopic.add(topic);
+                    int maxBrokers = Math.min(maxConfigurableBrokerSize, configurableBrokerIdList.size());
+                    boolean isSuccess = configBrokersForTopics(masterEntry, singleTopic,
+                            configurableBrokerIdList, maxBrokers);
+                    handleAddingResult(isSuccess, singleTopic, pendingTopic);
+                }
+            }
+        }
+        // 2. add new topics to cluster
+        List<Integer> configurableBrokerIdList = brokerInfoList.getConfigurableBrokerIdList();
+        int maxBrokers = Math.min(maxConfigurableBrokerSize, configurableBrokerIdList.size());
+        boolean isSuccess = configBrokersForTopics(masterEntry, brandNewTopics,
+                configurableBrokerIdList, maxBrokers);
+        handleAddingResult(isSuccess, brandNewTopics, pendingTopic);
+    }
+
+    @Override
+    public void updateBrokerStatus(int clusterId, Map<String, TopicFuture> pendingTopic) {
+        MasterEntry masterEntry = masterRepository.findMasterEntryByClusterIdEquals(clusterId);
+        if (masterEntry != null) {
+            try {
+                TubeHttpBrokerInfoList brokerInfoList = requestBrokerStatus(masterEntry);
+                if (brokerInfoList != null) {
+                    handleAddingTopic(masterEntry, brokerInfoList, pendingTopic);
+                }
+            } catch (Exception ex) {
+                log.error("exception caught while requesting broker status", ex);
+            }
+        } else {
+            log.error("cannot get master ip by clusterId {}, please check it", clusterId);
+        }
     }
 
     @Override

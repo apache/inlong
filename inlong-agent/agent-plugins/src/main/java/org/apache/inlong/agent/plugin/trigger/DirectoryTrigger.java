@@ -24,6 +24,7 @@ import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.JobConstants;
 import org.apache.inlong.agent.plugin.Trigger;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,8 +201,9 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
                         watchKeys.addAll(tmpWatchers);
                         watchKeys.removeAll(tmpDeletedWatchers);
                     });
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };
@@ -270,6 +272,7 @@ public class DirectoryTrigger extends AbstractDaemon implements Trigger {
         interval = profile.getInt(
                 AgentConstants.TRIGGER_CHECK_INTERVAL, AgentConstants.DEFAULT_TRIGGER_CHECK_INTERVAL);
         this.profile = profile;
+
         if (this.profile.hasKey(JobConstants.JOB_DIR_FILTER_PATTERN)) {
             String pathPattern = this.profile.get(JobConstants.JOB_DIR_FILTER_PATTERN);
             String timeOffset = this.profile.get(JobConstants.JOB_FILE_TIME_OFFSET, "");

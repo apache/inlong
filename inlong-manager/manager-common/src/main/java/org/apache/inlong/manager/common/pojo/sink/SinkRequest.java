@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Map;
 
@@ -36,22 +36,23 @@ import java.util.Map;
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
 public class SinkRequest {
 
+    @ApiModelProperty("Sink id")
     private Integer id;
 
+    @NotBlank(message = "inlongGroupId cannot be null")
     @ApiModelProperty("Inlong group id")
-    @NotNull
     private String inlongGroupId;
 
+    @NotBlank(message = "inlongStreamId cannot be null")
     @ApiModelProperty("Inlong stream id")
-    @NotNull
     private String inlongStreamId;
 
+    @NotBlank(message = "sinkType cannot be null")
     @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
-    @NotNull
     private String sinkType;
 
-    @ApiModelProperty("Sink name, unique in one stream.")
-    @NotNull
+    @NotBlank(message = "sinkName cannot be null")
+    @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 
     @ApiModelProperty("Sink description")
@@ -69,12 +70,13 @@ public class SinkRequest {
     @ApiModelProperty("Sort consumer group")
     private String sortConsumerGroup;
 
-    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1")
+    @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. Default is 1")
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Sink field list")
-    private List<SinkFieldRequest> fieldList;
+    private List<SinkField> sinkFieldList;
 
-    @ApiModelProperty("Properties for sink")
+    @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = Maps.newHashMap();
+
 }

@@ -22,7 +22,8 @@ import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.junit.Assert;
+import org.apache.inlong.manager.service.group.InlongGroupServiceTest;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -30,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class ConsumptionServiceTest extends ServiceBaseTest {
 
-    String inlongGroup = "group_for_consumption_test";
+    String inlongGroupId = "group_for_consumption_test";
     String consumerGroup = "test_consumer_group";
     String operator = "admin";
 
@@ -39,17 +40,17 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     @Autowired
     private InlongGroupServiceTest groupServiceTest;
 
-    private Integer saveConsumption(String inlongGroup, String consumerGroup, String operator) {
+    private Integer saveConsumption(String inlongGroupId, String consumerGroup, String operator) {
         ConsumptionInfo consumptionInfo = new ConsumptionInfo();
-        consumptionInfo.setTopic(inlongGroup);
-        consumptionInfo.setConsumerGroupName(consumerGroup);
-        consumptionInfo.setInlongGroupId("b_" + inlongGroup);
-        consumptionInfo.setMiddlewareType(MQType.PULSAR.getType());
+        consumptionInfo.setTopic(inlongGroupId);
+        consumptionInfo.setConsumerGroup(consumerGroup);
+        consumptionInfo.setInlongGroupId(inlongGroupId);
+        consumptionInfo.setMqType(MQType.PULSAR.getType());
         consumptionInfo.setCreator(operator);
         consumptionInfo.setInCharges("admin");
 
         ConsumptionPulsarInfo pulsarInfo = new ConsumptionPulsarInfo();
-        pulsarInfo.setMiddlewareType(MQType.PULSAR.getType());
+        pulsarInfo.setMqType(MQType.PULSAR.getType());
         pulsarInfo.setIsDlq(1);
         pulsarInfo.setDeadLetterTopic("test_dlq");
         pulsarInfo.setIsRlq(0);
@@ -62,10 +63,10 @@ public class ConsumptionServiceTest extends ServiceBaseTest {
     // Online test will be BusinessException: Inlong group does not exist/no operation authority
     // @Test
     public void testSaveAndDelete() {
-        groupServiceTest.saveGroup(inlongGroup, operator);
-        Integer id = this.saveConsumption(inlongGroup, consumerGroup, operator);
-        Assert.assertNotNull(id);
+        groupServiceTest.saveGroup(inlongGroupId, operator);
+        Integer id = this.saveConsumption(inlongGroupId, consumerGroup, operator);
+        Assertions.assertNotNull(id);
         boolean result = consumptionService.delete(id, operator);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 }

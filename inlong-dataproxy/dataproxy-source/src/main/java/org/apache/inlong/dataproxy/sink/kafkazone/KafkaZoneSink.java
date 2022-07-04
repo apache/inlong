@@ -17,13 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.kafkazone;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -34,8 +27,16 @@ import org.apache.flume.sink.AbstractSink;
 import org.apache.inlong.dataproxy.dispatch.DispatchManager;
 import org.apache.inlong.dataproxy.dispatch.DispatchProfile;
 import org.apache.inlong.sdk.commons.protocol.ProxyEvent;
+import org.apache.inlong.sdk.commons.protocol.ProxyPackEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * KafkaZoneSink
@@ -133,15 +134,22 @@ public class KafkaZoneSink extends AbstractSink implements Configurable {
                 tx.commit();
                 return Status.BACKOFF;
             }
-            if (!(event instanceof ProxyEvent)) {
+            // ProxyEvent
+            if (event instanceof ProxyEvent) {
+                ProxyEvent proxyEvent = (ProxyEvent) event;
+                this.dispatchManager.addEvent(proxyEvent);
                 tx.commit();
-                this.context.addSendFailMetric();
                 return Status.READY;
             }
-            //
-            ProxyEvent proxyEvent = (ProxyEvent) event;
-            this.dispatchManager.addEvent(proxyEvent);
+            // ProxyPackEvent
+            if (event instanceof ProxyPackEvent) {
+                ProxyPackEvent packEvent = (ProxyPackEvent) event;
+                this.dispatchManager.addPackEvent(packEvent);
+                tx.commit();
+                return Status.READY;
+            }
             tx.commit();
+            this.context.addSendFailMetric();
             return Status.READY;
         } catch (Throwable t) {
             LOG.error("Process event failed!" + this.getName(), t);

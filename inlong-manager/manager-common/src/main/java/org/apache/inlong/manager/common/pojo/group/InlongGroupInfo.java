@@ -18,15 +18,18 @@
 package org.apache.inlong.manager.common.pojo.group;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -34,56 +37,47 @@ import java.util.List;
  * Inlong group info
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info")
-public class InlongGroupInfo {
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
+public abstract class InlongGroupInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Inlong group id", required = true)
+    @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Inlong group name", required = true)
+    @ApiModelProperty(value = "Inlong group name")
     private String name;
-
-    @ApiModelProperty(value = "Chinese display name")
-    private String cnName;
 
     @ApiModelProperty(value = "Inlong group description")
     private String description;
 
-    @NotNull(message = "middlewareType cannot be null")
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
+    @Deprecated
+    @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @ApiModelProperty(value = "Queue model of Pulsar, parallel: multiple partitions, high throughput, out-of-order "
-            + "messages; serial: single partition, low throughput, and orderly messages")
-    private String queueModule;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
-    @ApiModelProperty(value = "The number of partitions of Pulsar Topic, 1-20")
-    private Integer topicPartitionNum;
+    @ApiModelProperty(value = "MQ resource",
+            notes = "in inlong group, Tube corresponds to Topic, Pulsar corresponds to Namespace")
+    private String mqResource;
 
-    @ApiModelProperty(value = "MQ resource object, in inlong group",
-            notes = "Tube corresponds to Topic, Pulsar corresponds to Namespace")
-    private String mqResourceObj;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableZookeeper = 0;
 
-    @ApiModelProperty(value = "Tube master URL")
-    private String tubeMaster;
+    @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    private Integer enableCreateResource;
 
-    @ApiModelProperty(value = "Pulsar admin URL")
-    private String pulsarAdminUrl;
+    @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
+    private Integer lightweight;
 
-    @ApiModelProperty(value = "Pulsar service URL")
-    private String pulsarServiceUrl;
-
-    @ApiModelProperty(value = "Need zookeeper support, 0 false 1 true")
-    private Integer zookeeperEnabled;
-
-    @ApiModelProperty(value = "Data type name")
-    private String schemaName;
+    @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
+    private String inlongClusterTag;
 
     @ApiModelProperty(value = "Number of access items per day, unit: 10,000 items per day")
     private Integer dailyRecords;
@@ -115,23 +109,16 @@ public class InlongGroupInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "Temporary view, string in JSON format")
-    private String tempView;
-
-    @ApiModelProperty(value = "data proxy cluster id")
-    private Integer proxyClusterId;
-
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
 
-    @ApiModelProperty(value = "The extension info for MQ")
-    private InlongGroupMqExtBase mqExtInfo;
+    @JsonIgnore
+    @ApiModelProperty("Authentication info, will transfer into extList")
+    private Authentication authentication;
 
-    public InlongGroupRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, InlongGroupRequest::new);
-    }
+    @ApiModelProperty("Sort configuration, will transfer into extList")
+    private BaseSortConf sortConf;
 
-    public InlongGroupResponse genResponse() {
-        return CommonBeanUtils.copyProperties(this, InlongGroupResponse::new);
-    }
+    public abstract InlongGroupRequest genRequest();
+
 }

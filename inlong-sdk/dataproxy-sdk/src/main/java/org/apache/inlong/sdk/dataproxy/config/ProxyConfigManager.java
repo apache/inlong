@@ -588,8 +588,8 @@ public class ProxyConfigManager extends Thread {
         Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
         proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
-        if (localProxyAddrJson.has("cluster_id")) {
-            proxyEntry.setClusterId(localProxyAddrJson.get("cluster_id").getAsString());
+        if (localProxyAddrJson.has("clusterId")) {
+            proxyEntry.setClusterId(localProxyAddrJson.get("clusterId").getAsString());
         }
         return proxyEntry;
     }
@@ -666,7 +666,7 @@ public class ProxyConfigManager extends Thread {
 
     public ProxyConfigEntry requestProxyList(String url) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("netTag", clientConfig.getNetTag()));
+        params.add(new BasicNameValuePair("extTag", clientConfig.getNetTag()));
         params.add(new BasicNameValuePair("ip", this.localIP));
         logger.info("Begin to get configure from manager {}, param is {}", url, params);
 
@@ -698,10 +698,13 @@ public class ProxyConfigManager extends Thread {
         Map<String, Integer> streamIdMap = getStreamIdMap(jsonRes);
         proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
-        if (jsonRes.has("cluster_id")) {
-            proxyEntry.setClusterId(jsonRes.get("cluster_id").getAsString());
+        if (jsonRes.has("data")) {
+            JsonArray data = jsonRes.getAsJsonArray("data");
+            if (data != null) {
+                String id = data.get(0).getAsJsonObject().get("id").getAsString();
+                proxyEntry.setClusterId(id);
+            }
         }
-
         return proxyEntry;
     }
 

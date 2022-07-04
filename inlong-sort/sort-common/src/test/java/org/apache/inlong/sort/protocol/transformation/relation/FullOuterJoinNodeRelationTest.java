@@ -35,12 +35,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Tests for {@link FullOuterJoinRelationShip}
+ * Tests for {@link FullOuterJoinRelation}
  */
-public class FullOuterJoinNodeRelationTest extends SerializeBaseTest<FullOuterJoinRelationShip> {
+public class FullOuterJoinNodeRelationTest extends SerializeBaseTest<FullOuterJoinRelation> {
 
     @Override
-    public FullOuterJoinRelationShip getTestObject() {
+    public FullOuterJoinRelation getTestObject() {
         Map<String, List<FilterFunction>> joinConditionMap = new TreeMap<>();
         joinConditionMap.put("2", Arrays.asList(
                 new SingleValueFilterFunction(EmptyOperator.getInstance(),
@@ -58,7 +58,7 @@ public class FullOuterJoinNodeRelationTest extends SerializeBaseTest<FullOuterJo
                 new SingleValueFilterFunction(AndOperator.getInstance(),
                         new FieldInfo("name", "3", new StringFormatInfo()),
                         NotEqualOperator.getInstance(), new ConstantParam("test"))));
-        return new FullOuterJoinRelationShip(Arrays.asList("1", "2", "3"),
+        return new FullOuterJoinRelation(Arrays.asList("1", "2", "3"),
                 Collections.singletonList("4"), joinConditionMap);
     }
 }

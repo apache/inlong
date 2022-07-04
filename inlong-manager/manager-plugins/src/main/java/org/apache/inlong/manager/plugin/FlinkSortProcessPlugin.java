@@ -19,13 +19,21 @@ package org.apache.inlong.manager.plugin;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.plugin.eventselect.DeleteProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.DeleteStreamSelector;
 import org.apache.inlong.manager.plugin.eventselect.RestartProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.RestartStreamSelector;
 import org.apache.inlong.manager.plugin.eventselect.StartupProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.StartupStreamSelector;
 import org.apache.inlong.manager.plugin.eventselect.SuspendProcessSelector;
+import org.apache.inlong.manager.plugin.eventselect.SuspendStreamSelector;
 import org.apache.inlong.manager.plugin.listener.DeleteSortListener;
+import org.apache.inlong.manager.plugin.listener.DeleteStreamListener;
 import org.apache.inlong.manager.plugin.listener.RestartSortListener;
+import org.apache.inlong.manager.plugin.listener.RestartStreamListener;
 import org.apache.inlong.manager.plugin.listener.StartupSortListener;
+import org.apache.inlong.manager.plugin.listener.StartupStreamListener;
 import org.apache.inlong.manager.plugin.listener.SuspendSortListener;
+import org.apache.inlong.manager.plugin.listener.SuspendStreamListener;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
@@ -52,6 +60,10 @@ public class FlinkSortProcessPlugin implements ProcessPlugin {
         listeners.put(new RestartSortListener(), new RestartProcessSelector());
         listeners.put(new SuspendSortListener(), new SuspendProcessSelector());
         listeners.put(new StartupSortListener(), new StartupProcessSelector());
+        listeners.put(new DeleteStreamListener(), new DeleteStreamSelector());
+        listeners.put(new RestartStreamListener(), new RestartStreamSelector());
+        listeners.put(new SuspendStreamListener(), new SuspendStreamSelector());
+        listeners.put(new StartupStreamListener(), new StartupStreamSelector());
         return listeners;
     }
 }

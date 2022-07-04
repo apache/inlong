@@ -84,7 +84,7 @@ export const getColumns = ({ onDelete, openModal }) => {
     },
     {
       title: i18n.t('pages.AccessDashboard.config.Name'),
-      dataIndex: 'cnName',
+      dataIndex: 'name',
     },
     {
       title: i18n.t('pages.AccessDashboard.config.InCharges'),

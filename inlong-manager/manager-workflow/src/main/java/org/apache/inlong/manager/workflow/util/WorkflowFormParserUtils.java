@@ -18,14 +18,14 @@
 package org.apache.inlong.manager.workflow.util;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.FormParseException;
-import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
@@ -39,8 +39,8 @@ public class WorkflowFormParserUtils {
     /**
      * Parse the task form in JSON string format into a WorkflowTask instance
      */
-    public static <T extends TaskForm> T parseTaskForm(WorkflowTaskEntity workflowTaskEntity, WorkflowProcess process)
-            throws FormParseException {
+    public static <T extends TaskForm> T parseTaskForm(ObjectMapper objectMapper,
+            WorkflowTaskEntity workflowTaskEntity, WorkflowProcess process) throws FormParseException {
         Preconditions.checkNotNull(workflowTaskEntity, "workflowTaskEntity cannot be null");
         Preconditions.checkNotNull(process, "process cannot be null");
 
@@ -54,10 +54,10 @@ public class WorkflowFormParserUtils {
 
         UserTask userTask = (UserTask) task;
         try {
-            JavaType javaType = JsonUtils.OBJECT_MAPPER.constructType(userTask.getFormClass());
-            return JsonUtils.parse(workflowTaskEntity.getFormData(), javaType);
+            JavaType javaType = objectMapper.constructType(userTask.getFormClass());
+            return objectMapper.readValue(workflowTaskEntity.getFormData(), javaType);
         } catch (Exception e) {
-            log.error("task form parse failed, form is: {}", workflowTaskEntity.getFormData(), e);
+            log.error("task parsed failed for form {}", workflowTaskEntity.getFormData(), e);
             throw new FormParseException("task form parse failed");
         }
     }
@@ -65,8 +65,8 @@ public class WorkflowFormParserUtils {
     /**
      * Parse the process form in JSON string format into a WorkflowProcess instance
      */
-    public static <T extends ProcessForm> T parseProcessForm(String form, WorkflowProcess process)
-            throws FormParseException {
+    public static <T extends ProcessForm> T parseProcessForm(ObjectMapper objectMapper, String form,
+            WorkflowProcess process) throws FormParseException {
         Preconditions.checkNotNull(process, "process cannot be null");
 
         if (StringUtils.isEmpty(form)) {
@@ -74,8 +74,8 @@ public class WorkflowFormParserUtils {
         }
 
         try {
-            JavaType javaType = JsonUtils.OBJECT_MAPPER.constructType(process.getFormClass());
-            return JsonUtils.parse(form, javaType);
+            JavaType javaType = objectMapper.constructType(process.getFormClass());
+            return objectMapper.readValue(form, javaType);
         } catch (Exception e) {
             log.error("process form parse failed, form is: {}", form, e);
             throw new FormParseException("process form parse failed");

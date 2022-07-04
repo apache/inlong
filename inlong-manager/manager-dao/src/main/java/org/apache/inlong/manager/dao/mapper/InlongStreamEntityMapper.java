@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.springframework.stereotype.Repository;
 
@@ -28,15 +28,9 @@ import java.util.List;
 @Repository
 public interface InlongStreamEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(InlongStreamEntity record);
 
     int insertSelective(InlongStreamEntity record);
-
-    InlongStreamEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKey(InlongStreamEntity record);
 
     InlongStreamEntity selectByIdentifier(@Param("groupId") String groupId, @Param("streamId") String streamId);
 
@@ -50,18 +44,13 @@ public interface InlongStreamEntityMapper {
      */
     List<InlongStreamEntity> selectByCondition(@Param("request") InlongStreamPageRequest request);
 
+    List<InlongStreamBriefInfo> selectBriefList(@Param("groupId") String groupId);
+
     List<InlongStreamEntity> selectByGroupId(@Param("groupId") String groupId);
 
     int selectCountByGroupId(@Param("groupId") String groupId);
 
-    List<InlongStreamTopicResponse> selectTopicList(@Param("groupId") String groupId);
-
-    /**
-     * Physically delete all inlong streams of the specified inlong group id
-     *
-     * @return rows deleted
-     */
-    int deleteAllByGroupId(@Param("groupId") String groupId);
+    int updateByPrimaryKey(InlongStreamEntity record);
 
     int updateByIdentifierSelective(InlongStreamEntity streamEntity);
 
@@ -72,5 +61,14 @@ public interface InlongStreamEntityMapper {
      * Logic delete dlq or rlq topic by bid
      */
     void logicDeleteDlqOrRlq(String groupId, String streamId, String operator);
+
+    int deleteByPrimaryKey(Integer id);
+
+    /**
+     * Physically delete all inlong streams of the specified inlong group id
+     *
+     * @return rows deleted
+     */
+    int deleteAllByGroupId(@Param("groupId") String groupId);
 
 }

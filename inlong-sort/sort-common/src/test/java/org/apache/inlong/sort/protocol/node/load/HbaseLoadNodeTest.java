@@ -21,17 +21,20 @@ package org.apache.inlong.sort.protocol.node.load;
 import org.apache.inlong.sort.SerializeBaseTest;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 
 import java.util.Arrays;
 
+/**
+ * Test for {@link HbaseLoadNode}
+ */
 public class HbaseLoadNodeTest extends SerializeBaseTest<HbaseLoadNode> {
 
     @Override
     public HbaseLoadNode getTestObject() {
         return new HbaseLoadNode("2", "test_hbase",
                 Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo())),
-                Arrays.asList(new FieldRelationShip(new FieldInfo("id", new StringFormatInfo()),
+                Arrays.asList(new FieldRelation(new FieldInfo("id", new StringFormatInfo()),
                         new FieldInfo("cf:id", new StringFormatInfo()))), null, null, 1, null, "mytable", "default",
                 "localhost:2181", "MD5(`id`)", null, null, null, null);
     }

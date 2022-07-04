@@ -31,9 +31,14 @@ import java.util.List;
  * A class to define operation to split fields according to SplitRule defined.
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Builder
+@EqualsAndHashCode(callSuper = true)
 public class SplitterDefinition extends TransformDefinition {
+
+    /**
+     * Split rules for transform;
+     */
+    private List<SplitRule> splitRules;
 
     public SplitterDefinition(List<SplitRule> splitRules) {
         this.transformType = TransformType.SPLITTER;
@@ -42,31 +47,26 @@ public class SplitterDefinition extends TransformDefinition {
 
     /**
      * SplitterRule is aim to define a splitter action below:
-     * SourceField will be splitted to targetFields by seperator
+     * SourceField will be split to targetFields by separator
      */
     @Data
     @AllArgsConstructor
     public static class SplitRule {
 
         /**
-         * Field to split;
+         * Field to split
          */
         private StreamField sourceField;
 
         /**
-         * String seperator to split sourceField;
+         * String separator to split sourceField
          */
-        private String seperator;
+        private String separator;
 
         /**
-         * Fields generated when sourceField is splitted
+         * Fields generated when sourceField is split.
          * Use sourceName_0, sourceName_1, sourceName_2 if not set
          */
         private List<String> targetFields;
     }
-
-    /**
-     * Split rules for transform;
-     */
-    private List<SplitRule> splitRules;
 }

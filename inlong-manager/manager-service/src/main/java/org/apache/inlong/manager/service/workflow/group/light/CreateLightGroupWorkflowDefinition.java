@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.workflow.group.light;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.LightGroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.ServiceTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.light.LightGroupFailedListener;
@@ -47,7 +47,7 @@ public class CreateLightGroupWorkflowDefinition implements WorkflowDefinition {
     @Autowired
     private LightGroupFailedListener lightGroupFailedListener;
     @Autowired
-    private ServiceTaskListenerFactory serviceTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
@@ -73,7 +73,7 @@ public class CreateLightGroupWorkflowDefinition implements WorkflowDefinition {
         initSortResourceTask.setName("initSort");
         initSortResourceTask.setDisplayName("Group-InitSort");
         initSortResourceTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortResourceTask.addListenerProvider(serviceTaskListenerFactory);
+        initSortResourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSortResourceTask);
 
         // End node

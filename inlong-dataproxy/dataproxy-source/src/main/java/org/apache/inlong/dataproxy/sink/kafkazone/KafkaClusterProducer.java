@@ -17,13 +17,6 @@
 
 package org.apache.inlong.dataproxy.sink.kafkazone;
 
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
-import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.flume.Context;
 import org.apache.flume.lifecycle.LifecycleAware;
 import org.apache.flume.lifecycle.LifecycleState;
@@ -39,6 +32,13 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_CACHE_VERSION_1;
+import static org.apache.inlong.sdk.commons.protocol.EventConstants.HEADER_KEY_VERSION;
 
 /**
  * KafkaClusterProducer
@@ -128,8 +128,7 @@ public class KafkaClusterProducer implements LifecycleAware {
             }
             // create producer failed
             if (producer == null) {
-                sinkContext.getDispatchQueue().offer(event);
-                sinkContext.addSendResultMetric(event, topic, false, 0);
+                sinkContext.processSendFail(event, topic, 0);
                 return false;
             }
             // headers
@@ -154,10 +153,14 @@ public class KafkaClusterProducer implements LifecycleAware {
                     if (ex != null) {
                         LOG.error("Send fail:{}", ex.getMessage());
                         LOG.error(ex.getMessage(), ex);
-                        sinkContext.getDispatchQueue().offer(event);
-                        sinkContext.addSendResultMetric(event, topic, false, sendTime);
+                        if (event.isResend()) {
+                            sinkContext.processSendFail(event, topic, sendTime);
+                        } else {
+                            event.fail();
+                        }
                     } else {
                         sinkContext.addSendResultMetric(event, topic, true, sendTime);
+                        event.ack();
                     }
                 }
             };
@@ -165,8 +168,7 @@ public class KafkaClusterProducer implements LifecycleAware {
             return true;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            sinkContext.getDispatchQueue().offer(event);
-            sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
+            sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
     }

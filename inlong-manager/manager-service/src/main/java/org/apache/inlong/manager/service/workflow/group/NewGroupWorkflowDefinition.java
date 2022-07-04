@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.InlongGroupApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
@@ -81,13 +81,13 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
         // System administrator approval
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName("ut_admin");
-        adminUserTask.setDisplayName("System Administrator");
+        adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
         adminUserTask.addListener(groupAfterApprovedListener);
         process.addTask(adminUserTask);
 
-        // Configuration order relationship
+        // Configuration order relation
         startEvent.addNext(adminUserTask);
         // If you need another approval process, you can add it here
         adminUserTask.addNext(endEvent);

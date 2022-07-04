@@ -33,6 +33,7 @@ public enum ErrorCodeEnum {
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
+    GROUP_INFO_INCORRECT(1003, "Group info was incorrect"),
     GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group information"),
     GROUP_PERMISSION_DENIED(1004, "No access to this inlong group"),
     GROUP_HAS_STREAM(1005, "There are some valid inlong stream for this inlong group"),
@@ -40,7 +41,7 @@ public enum ErrorCodeEnum {
     GROUP_DELETE_NOT_ALLOWED(1007, "The current inlong group status does not support deletion"),
     GROUP_ID_UPDATE_NOT_ALLOWED(1008, "The current inlong group status does not support modifying the group id"),
     GROUP_MIDDLEWARE_UPDATE_NOT_ALLOWED(1011,
-            "The current inlong group status does not support modifying the middleware type"),
+            "The current inlong group status does not support modifying the MQ type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
@@ -48,9 +49,11 @@ public enum ErrorCodeEnum {
     OPT_NOT_ALLOWED_BY_STATUS(1021,
             "The current inlong group status does not allow adding/modifying/deleting related info"),
 
-    MIDDLEWARE_TYPE_NOT_SUPPORTED(1021, "MIDDLEWARE_TYPE_NOT_SUPPORTED"),
+    MQ_TYPE_NOT_SUPPORTED(1022, "MQ type '%s' not supported"),
+    MQ_TYPE_NOT_SAME(1023, "Expected MQ type is '%s', but found '%s'"),
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
+    CLUSTER_TYPE_NOT_SUPPORTED(1102, "Cluster type '%s' not supported"),
 
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
@@ -100,7 +103,7 @@ public enum ErrorCodeEnum {
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
-    CONSUMER_GROUP_NAME_DUPLICATED(2600, "The consumer group already exists in the cluster"),
+    CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
     CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
     TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
     PULSAR_GROUP_CREATE_FAILED(2603, "Create Pulsar consumer group failed"),
@@ -110,8 +113,6 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
 
-    COMMON_FILE_DOWNLOAD_FAIL(6001, "File download failed"),
-    COMMON_FILE_UPLOAD_FAIL(6002, "File upload failed"),
     ;
 
     private final int code;

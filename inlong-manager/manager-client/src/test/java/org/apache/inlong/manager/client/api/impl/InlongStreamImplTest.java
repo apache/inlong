@@ -17,15 +17,15 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.sink.ClickHouseSink;
-import org.apache.inlong.manager.client.api.sink.HiveSink;
-import org.apache.inlong.manager.client.api.sink.KafkaSink;
-import org.apache.inlong.manager.client.api.source.KafkaSource;
-import org.apache.inlong.manager.client.api.source.MySQLBinlogSource;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
-import org.apache.inlong.manager.client.api.util.GsonUtil;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
@@ -33,12 +33,12 @@ import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.F
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition.JoinMode;
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
-import org.assertj.core.util.Lists;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.inlong.manager.common.util.JsonUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test class for creat inlong stream.
+ * Unit test for {@link InlongStreamImpl}
  */
 public class InlongStreamImplTest {
 
@@ -48,27 +48,31 @@ public class InlongStreamImplTest {
         // add stream source
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName("A");
-        MySQLBinlogSource mySQLBinlogSource = new MySQLBinlogSource();
-        mySQLBinlogSource.setSourceName("B");
+        MySQLBinlogSource binlogSourceRequest = new MySQLBinlogSource();
+        binlogSourceRequest.setSourceName("B");
         inlongStream.addSource(kafkaSource);
-        inlongStream.addSource(mySQLBinlogSource);
+        inlongStream.addSource(binlogSourceRequest);
         // add stream sink
         ClickHouseSink clickHouseSink = new ClickHouseSink();
         clickHouseSink.setSinkName("E");
+        inlongStream.addSink(clickHouseSink);
+
         HiveSink hiveSink = new HiveSink();
         hiveSink.setSinkName("F");
+        inlongStream.addSink(hiveSink);
+
         KafkaSink kafkaSink1 = new KafkaSink();
         kafkaSink1.setSinkName("I");
+        inlongStream.addSink(kafkaSink1);
+
         KafkaSink kafkaSink2 = new KafkaSink();
         kafkaSink2.setSinkName("M");
-        inlongStream.addSink(clickHouseSink);
-        inlongStream.addSink(hiveSink);
-        inlongStream.addSink(kafkaSink1);
         inlongStream.addSink(kafkaSink2);
+
         // add stream transform
         StreamTransform multiDependencyTransform = new MultiDependencyTransform(
                 "C",
-                new JoinerDefinition(kafkaSource, mySQLBinlogSource, Lists.newArrayList(), Lists.newArrayList(),
+                new JoinerDefinition(kafkaSource, binlogSourceRequest, Lists.newArrayList(), Lists.newArrayList(),
                         JoinMode.INNER_JOIN),
                 "A", "B");
         StreamTransform singleDependencyTransform1 = new SingleDependencyTransform(
@@ -82,8 +86,8 @@ public class InlongStreamImplTest {
         inlongStream.addTransform(singleDependencyTransform1);
         inlongStream.addTransform(singleDependencyTransform2);
         StreamPipeline streamPipeline = inlongStream.createPipeline();
-        String pipelineView = GsonUtil.toJson(streamPipeline);
-        Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
-        Assert.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
+        String pipelineView = JsonUtils.toJsonString(streamPipeline);
+        Assertions.assertTrue(pipelineView.contains("{\"inputNodes\":[\"C\"],\"outputNodes\":[\"D\",\"G\"]"));
+        Assertions.assertTrue(pipelineView.contains("{\"inputNodes\":[\"D\"],\"outputNodes\":[\"E\",\"F\"]}"));
     }
 }

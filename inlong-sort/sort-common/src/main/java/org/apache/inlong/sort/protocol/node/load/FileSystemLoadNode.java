@@ -26,9 +26,8 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonPro
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.node.LoadNode;
-import org.apache.inlong.sort.protocol.transformation.FieldRelationShip;
+import org.apache.inlong.sort.protocol.transformation.FieldRelation;
 import org.apache.inlong.sort.protocol.transformation.FilterFunction;
-import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,30 +61,30 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
     @JsonProperty("partitionFields")
     private List<FieldInfo> partitionFields;
 
-    @JsonProperty("watermarkField")
-    private WatermarkField watermarkField;
+    @JsonProperty("tempTableName")
+    private String tempTableName;
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("serverTimeZone")
+    private String serverTimeZone;
 
     @JsonCreator
     public FileSystemLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("fields") List<FieldInfo> fields,
-            @JsonProperty("fieldRelationShips") List<FieldRelationShip> fieldRelationShips,
+            @JsonProperty("fieldRelations") List<FieldRelation> fieldRelations,
             @JsonProperty("filters") List<FilterFunction> filters,
             @Nonnull @JsonProperty("path") String path,
             @Nonnull @JsonProperty("format") String format,
             @Nullable @JsonProperty("sinkParallelism") Integer sinkParallelism,
             @JsonProperty("properties") Map<String, String> properties,
             @JsonProperty("parFields") List<FieldInfo> partitionFields,
-            @JsonProperty("watermarkField") WatermarkField watermarkField) {
-        super(id, name, fields, fieldRelationShips, filters, null, sinkParallelism, properties);
+            @JsonProperty("serverTimeZone") String serverTimeZone) {
+        super(id, name, fields, fieldRelations, filters, null, sinkParallelism, properties);
         this.format = Preconditions.checkNotNull(format, "format type is null");
         this.path = Preconditions.checkNotNull(path, "path is null");
         this.partitionFields = partitionFields;
-        this.watermarkField = watermarkField;
-        this.name = name;
+        this.tempTableName = name;
+        this.serverTimeZone = serverTimeZone;
     }
 
     @Override
@@ -112,12 +111,15 @@ public class FileSystemLoadNode extends LoadNode implements Serializable {
         if (!map.containsKey(rollingPolicyFileSize)) {
             map.put(rollingPolicyFileSize, "128MB");
         }
+        if (null != serverTimeZone && !map.containsKey(waterMarkZone)) {
+            map.put(waterMarkZone, serverTimeZone);
+        }
         return map;
     }
 
     @Override
     public String genTableName() {
-        return "node_" + super.getId() + "_" + name;
+        return "node_" + super.getId() + "_" + tempTableName;
     }
 
 }

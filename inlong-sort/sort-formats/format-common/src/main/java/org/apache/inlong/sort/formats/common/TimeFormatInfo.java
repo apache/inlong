@@ -18,17 +18,18 @@
 
 package org.apache.inlong.sort.formats.common;
 
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 
 import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_ISO_8601;
 import static org.apache.inlong.sort.formats.common.Constants.DATE_AND_TIME_STANDARD_SQL;
@@ -41,21 +42,23 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     private static final long serialVersionUID = 1L;
 
     private static final String FIELD_FORMAT = "format";
-
+    // to support avro format, precision must be less than 3
+    private static final int DEFAULT_PRECISION_FOR_TIMESTAMP = 2;
     @JsonProperty(FIELD_FORMAT)
     @Nonnull
     private final String format;
-
     @JsonIgnore
     @Nullable
     private final SimpleDateFormat simpleDateFormat;
+    @JsonProperty("precision")
+    private int precision;
 
     @JsonCreator
     public TimeFormatInfo(
-            @JsonProperty(FIELD_FORMAT) @Nonnull String format
-    ) {
+            @JsonProperty(FIELD_FORMAT) @Nonnull String format,
+            @JsonProperty("precision") int precision) {
         this.format = format;
-
+        this.precision = precision;
         if (!format.equals("MICROS")
                 && !format.equals("MILLIS")
                 && !format.equals("SECONDS")
@@ -67,8 +70,12 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
         }
     }
 
+    public TimeFormatInfo(@JsonProperty(FIELD_FORMAT) @Nonnull String format) {
+        this(format, DEFAULT_PRECISION_FOR_TIMESTAMP);
+    }
+
     public TimeFormatInfo() {
-        this("HH:mm:ss");
+        this("HH:mm:ss", DEFAULT_PRECISION_FOR_TIMESTAMP);
     }
 
     @Nonnull
@@ -158,5 +165,13 @@ public class TimeFormatInfo implements BasicFormatInfo<Time> {
     @Override
     public String toString() {
         return "TimeFormatInfo{" + "format='" + format + '\'' + '}';
+    }
+
+    public int getPrecision() {
+        return precision;
+    }
+
+    public void setPrecision(int precision) {
+        this.precision = precision;
     }
 }

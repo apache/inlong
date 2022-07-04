@@ -18,6 +18,13 @@ Copyright 2010-2019 The Apache Software Foundation
 Apache Pulsar
 Copyright 2017-2019 The Apache Software Foundation
 
+flink-cdc-connectors
+Copyright 2022 Ververica Inc.
+Apache Flink, Flink®, Apache®, the squirrel logo, and the Apache feather logo are either registered trademarks or trademarks of The Apache Software Foundation.
+
+Apache Flink
+Copyright 2014-2021 The Apache Software Foundation
+
 
 
 ========================================================================
@@ -939,6 +946,8 @@ HK2 API module NOTICE
 ServiceLocator Default Implementation NOTICE
 ------------------------------------------------------
 HK2 Implementation Utilities NOTICE
+------------------------------------------------------
+Jackson module: JAXB Annotations NOTICE
 ------------------------------------------------------
 Jakarta Annotations API NOTICE
 ------------------------------------------------------

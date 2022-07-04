@@ -19,15 +19,11 @@ package org.apache.inlong.manager.common.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.apache.inlong.manager.common.enums.DataFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.enums.TransformType;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
-import org.apache.inlong.manager.common.pojo.stream.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
@@ -35,8 +31,6 @@ import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
 import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.replacer.StringReplacerDefinition;
 import org.apache.inlong.manager.common.pojo.transform.splitter.SplitterDefinition;
-
-import java.util.List;
 
 /**
  * Utils of stream parse.
@@ -52,29 +46,29 @@ public class StreamParseUtils {
     public static final String TRANSFORM_TYPE = "transformType";
     public static final String TRANSFORM_NAME = "transformName";
 
-    private static Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
 
     public static TransformDefinition parseTransformDefinition(String transformDefinition,
             TransformType transformType) {
         switch (transformType) {
             case FILTER:
-                return gson.fromJson(transformDefinition, FilterDefinition.class);
+                return GSON.fromJson(transformDefinition, FilterDefinition.class);
             case JOINER:
                 return parseJoinerDefinition(transformDefinition);
             case SPLITTER:
-                return gson.fromJson(transformDefinition, SplitterDefinition.class);
+                return GSON.fromJson(transformDefinition, SplitterDefinition.class);
             case DE_DUPLICATION:
-                return gson.fromJson(transformDefinition, DeDuplicationDefinition.class);
+                return GSON.fromJson(transformDefinition, DeDuplicationDefinition.class);
             case STRING_REPLACER:
-                return gson.fromJson(transformDefinition, StringReplacerDefinition.class);
+                return GSON.fromJson(transformDefinition, StringReplacerDefinition.class);
             default:
                 throw new IllegalArgumentException(String.format("Unsupported transformType for %s", transformType));
         }
     }
 
     public static JoinerDefinition parseJoinerDefinition(String transformDefinition) {
-        JoinerDefinition joinerDefinition = gson.fromJson(transformDefinition, JoinerDefinition.class);
-        JsonObject joinerJson = gson.fromJson(transformDefinition, JsonObject.class);
+        JoinerDefinition joinerDefinition = GSON.fromJson(transformDefinition, JoinerDefinition.class);
+        JsonObject joinerJson = GSON.fromJson(transformDefinition, JsonObject.class);
         JsonObject leftNode = joinerJson.getAsJsonObject(LEFT_NODE);
         StreamNode leftStreamNode = parseNode(leftNode);
         joinerDefinition.setLeftNode(leftStreamNode);
@@ -88,40 +82,12 @@ public class StreamParseUtils {
         if (jsonObject.has(SOURCE_TYPE)) {
             String sourceName = jsonObject.get(SOURCE_NAME).getAsString();
             StreamSource source = new StreamSource() {
-                @Override
-                public SourceType getSourceType() {
-                    return null;
-                }
-
-                @Override
-                public SyncType getSyncType() {
-                    return null;
-                }
-
-                @Override
-                public DataFormat getDataFormat() {
-                    return null;
-                }
             };
             source.setSourceName(sourceName);
             return source;
         } else if (jsonObject.has(SINK_TYPE)) {
             String sinkName = jsonObject.get(SINK_NAME).getAsString();
             StreamSink sink = new StreamSink() {
-                @Override
-                public SinkType getSinkType() {
-                    return null;
-                }
-
-                @Override
-                public List<SinkField> getSinkFields() {
-                    return null;
-                }
-
-                @Override
-                public DataFormat getDataFormat() {
-                    return null;
-                }
             };
             sink.setSinkName(sinkName);
             return sink;
@@ -141,7 +107,7 @@ public class StreamParseUtils {
     public static StreamPipeline parseStreamPipeline(String tempView, String inlongStreamId) {
         Preconditions.checkNotEmpty(tempView,
                 String.format(" should not be null for streamId=%s", inlongStreamId));
-        return gson.fromJson(tempView, StreamPipeline.class);
+        return GSON.fromJson(tempView, StreamPipeline.class);
     }
 
 }

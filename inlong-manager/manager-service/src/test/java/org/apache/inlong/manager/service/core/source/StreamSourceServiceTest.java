@@ -18,26 +18,21 @@
 package org.apache.inlong.manager.service.core.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.binlog.BinlogSourceResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Stream source service test
  */
 public class StreamSourceServiceTest extends ServiceBaseTest {
-
-    private final String globalGroupId = "b_group1";
-    private final String globalStreamId = "stream1";
-    private final String globalOperator = "admin";
-    private final String sourceName = "default";
 
     @Autowired
     private StreamSourceService sourceService;
@@ -48,48 +43,49 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
      * Save source info.
      */
     public Integer saveSource() {
-        streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
+        streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        BinlogSourceRequest sourceInfo = new BinlogSourceRequest();
-        sourceInfo.setInlongGroupId(globalGroupId);
-        sourceInfo.setInlongStreamId(globalStreamId);
+        MySQLBinlogSourceRequest sourceInfo = new MySQLBinlogSourceRequest();
+        sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
+        sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
+        String sourceName = "stream_source_service_test";
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
-        return sourceService.save(sourceInfo, globalOperator);
+        return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
     @Test
     public void testSaveAndDelete() {
         Integer id = this.saveSource();
-        Assert.assertNotNull(id);
+        Assertions.assertNotNull(id);
 
-        boolean result = sourceService.delete(id, globalOperator);
-        Assert.assertTrue(result);
+        boolean result = sourceService.delete(id, GLOBAL_OPERATOR);
+        Assertions.assertTrue(result);
     }
 
     @Test
     public void testListByIdentifier() {
         Integer id = this.saveSource();
 
-        SourceResponse source = sourceService.get(id);
-        Assert.assertEquals(globalGroupId, source.getInlongGroupId());
+        StreamSource source = sourceService.get(id);
+        Assertions.assertEquals(GLOBAL_GROUP_ID, source.getInlongGroupId());
 
-        sourceService.delete(id, globalOperator);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
     @Test
     public void testGetAndUpdate() {
         Integer id = this.saveSource();
-        SourceResponse response = sourceService.get(id);
-        Assert.assertEquals(globalGroupId, response.getInlongGroupId());
+        StreamSource response = sourceService.get(id);
+        Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        BinlogSourceResponse binlogResponse = (BinlogSourceResponse) response;
+        MySQLBinlogSource binlogResponse = (MySQLBinlogSource) response;
+        MySQLBinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse,
+                MySQLBinlogSourceRequest::new);
+        boolean result = sourceService.update(request, GLOBAL_OPERATOR);
+        Assertions.assertTrue(result);
 
-        BinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse, BinlogSourceRequest::new);
-        boolean result = sourceService.update(request, globalOperator);
-        Assert.assertTrue(result);
-
-        sourceService.delete(id, globalOperator);
+        sourceService.delete(id, GLOBAL_OPERATOR);
     }
 
 }

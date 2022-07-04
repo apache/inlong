@@ -26,7 +26,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong</artifactId>
-        <version>1.2.0-incubating-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
     <artifactId>inlong-sort</artifactId>
 
@@ -36,29 +36,51 @@
     <modules>
         <module>sort-api</module>
         <module>sort-common</module>
+        <module>sort-formats</module>
+        <module>sort-connectors</module>
         <module>sort-core</module>
         <module>sort-dist</module>
-        <module>sort-formats</module>
-        <module>sort-single-tenant</module>
-        <module>sort-connectors</module>
+        <module>sort-end-to-end-tests</module>
     </modules>
+    <properties>
+        <debezium.version>1.5.4.Final</debezium.version>
+        <kafka.clients.version>2.7.0</kafka.clients.version>
+        <rat.basedir>${basedir}</rat.basedir>
+        <hbase.version>2.2.3</hbase.version>
+        <dlc.hive.version>2.3.7</dlc.hive.version>
+        <iceberg.hive.version>2.3.7</iceberg.hive.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-api</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-embedded</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-core</artifactId>
+                <version>${debezium.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.clients.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -84,6 +106,33 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${plugin.shade.version}</version>
+                    <executions>
+                        <execution>
+                            <id>shade-flink</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <shadeTestJar>false</shadeTestJar>
+                                <createDependencyReducedPom>true</createDependencyReducedPom>
+                                <dependencyReducedPomLocation>${project.basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                                <createSourcesJar>true</createSourcesJar>
+                                <transformers>
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                </transformers>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -92,7 +141,7 @@
                 <configuration>
                     <!-- Enforce single fork execution due to heavy mini cluster use in the tests -->
                     <forkCount>1</forkCount>
-                    <argLine>-Xms256m -Xmx1024m -Dlog4j.configuration=${log4j.configuration}
+                    <argLine>-Xms256m -Xmx1024m -Dlog4j.configurationFile=${log4j.configurationfile}
                         -Dmvn.forkNumber=${surefire.forkNumber} -XX:-UseGCOverheadLimit
                     </argLine>
                 </configuration>

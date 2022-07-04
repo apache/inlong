@@ -27,6 +27,7 @@ import org.apache.inlong.agent.db.JobProfileDb;
 import org.apache.inlong.agent.db.StateSearchKey;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,6 +122,8 @@ public class JobManager extends AbstractDaemon {
         } catch (Exception rje) {
             LOGGER.debug("reject job {}", job.getJobInstanceId(), rje);
             pendingJobs.putIfAbsent(job.getJobInstanceId(), job);
+        } catch (Throwable t) {
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
         }
     }
 
@@ -233,8 +236,9 @@ public class JobManager extends AbstractDaemon {
                         }
                     }
                     TimeUnit.SECONDS.sleep(monitorInterval);
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };
@@ -253,8 +257,9 @@ public class JobManager extends AbstractDaemon {
                 }
                 try {
                     TimeUnit.SECONDS.sleep(jobDbCacheCheckInterval);
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("sleep error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };

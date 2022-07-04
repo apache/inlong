@@ -28,6 +28,7 @@ import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.message.PackProxyMessage;
 import org.apache.inlong.agent.utils.AgentUtils;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +121,8 @@ public class ProxySink extends AbstractSink {
             }
         } catch (Exception e) {
             LOGGER.error("write message to Proxy sink error", e);
+        } catch (Throwable t) {
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
         }
     }
 
@@ -170,6 +173,8 @@ public class ProxySink extends AbstractSink {
                     AgentUtils.silenceSleepInMs(batchFlushInterval);
                 } catch (Exception ex) {
                     LOGGER.error("error caught", ex);
+                } catch (Throwable t) {
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), t);
                 }
             }
         };
@@ -196,8 +201,9 @@ public class ProxySink extends AbstractSink {
         senderManager = new SenderManager(jobConf, inlongGroupId, sourceName);
         try {
             senderManager.addMessageSender();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             LOGGER.error("error while init sender for group id {}", inlongGroupId);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
             throw new IllegalStateException(ex);
         }
     }

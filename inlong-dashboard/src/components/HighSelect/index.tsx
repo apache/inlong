@@ -24,14 +24,15 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Select, Space, Input } from 'antd';
 import type { SelectProps, OptionProps } from 'antd/es/select';
 import { useRequest } from '@/hooks';
+import debounce from 'lodash/debounce';
 
 // example options: {
-//   requestService: '/basic/schema/listAll',
+//   requestService: '/group/listAll',
 //   requestParams: {
 //     formatResult: result =>
 //       result.map(item => ({
 //         label: item.name,
-//         value: item.name,
+//         value: item.value,
 //       })),
 //   },
 //   requestAuto: false // Whether to automatically initiate a request when the component is mounted, by default when the drop-down box is expanded
@@ -40,9 +41,10 @@ export interface HighSelectProps extends Omit<SelectProps<any>, 'options'> {
   options?:
     | OptionProps
     | {
-        requestService?: unknown;
+        requestService: unknown;
         requestParams?: unknown;
         requestAuto?: boolean;
+        requestTrigger?: 'onOpen' | 'onSearch'[];
       };
   asyncValueLabel?: string;
   useInput?: boolean;
@@ -65,6 +67,10 @@ const HighSelect: React.FC<HighSelectProps> = ({
     ...options?.requestParams,
   });
 
+  const debounceGetList = debounce(value => {
+    getList(value);
+  }, 300);
+
   const optionList = useMemo(() => {
     const output = Array.isArray(options) ? options : list;
 
@@ -86,8 +92,21 @@ const HighSelect: React.FC<HighSelectProps> = ({
     return <Select {...rest} />;
   }
 
+  const onSearch = value => {
+    if (options?.requestService && options?.requestTrigger?.includes('onSearch')) {
+      debounceGetList(value);
+    }
+    if (rest.onSearch) {
+      rest.onSearch(value);
+    }
+  };
+
   const onDropdownVisibleChange = (open: boolean) => {
-    if (open) {
+    if (
+      open &&
+      options?.requestService &&
+      (!options?.requestTrigger || options?.requestTrigger?.includes('onOpen'))
+    ) {
       getList();
     }
     if (rest.onDropdownVisibleChange) {
@@ -121,8 +140,11 @@ const HighSelect: React.FC<HighSelectProps> = ({
 
   const SelectComponent = (
     <Select
-      showSearch={optionList.length > 5}
+      showSearch={
+        options?.requestTrigger?.includes('onSearch') ? rest.showSearch : optionList.length > 5
+      }
       {...rest}
+      onSearch={options?.requestTrigger?.includes('onSearch') ? onSearch : rest.onSearch}
       onDropdownVisibleChange={onDropdownVisibleChange}
       onChange={onSelectChange}
       value={

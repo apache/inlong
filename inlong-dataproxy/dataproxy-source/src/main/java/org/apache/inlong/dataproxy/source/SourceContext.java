@@ -19,7 +19,7 @@ package org.apache.inlong.dataproxy.source;
 
 import com.google.common.base.Preconditions;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.flume.source.AbstractSource;
 import org.apache.inlong.common.metric.MetricRegister;

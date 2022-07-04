@@ -17,6 +17,7 @@
 
 package org.apache.inlong.agent.plugin.sources.snapshot;
 
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +77,9 @@ public class BinlogSnapshotBase implements SnapshotBase {
             offset = outputStream.toByteArray();
             inputStream.close();
             outputStream.close();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             log.error("load binlog offset error", ex);
+            ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
         }
     }
 
@@ -90,8 +92,10 @@ public class BinlogSnapshotBase implements SnapshotBase {
             offset = bytes;
             try (OutputStream output = new FileOutputStream(file)) {
                 output.write(bytes);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error("save offset to file error", e);
+                ThreadUtils.threadThrowableHandler(Thread.currentThread(), e);
+
             }
         }
     }

@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.client.api.InlongGroupContext.InlongGroupStatus;
+import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -27,16 +28,16 @@ import java.util.Map;
  * An interface to manipulate Inlong Cluster
  * <p/>
  * Example:
- * <p/>
  *
  * <pre>
  * <code>
+ *
  * ClientConfiguration configuration = ..
  * InlongClient client = InlongClient.create(${serviceUrl}, configuration);
- * InlongGroupConf groupConf = ..
- * InlongGroup group = client.createGroup(groupConf);
- * InlongStreamConf streamConf = ..
- * InlongStreamBuilder builder = group.createStream(streamConf);
+ * InlongGroupInfo groupInfo = ..
+ * InlongGroup group = client.createGroup(groupInfo);
+ * InlongStreamInfo streamInfo = ..
+ * InlongStreamBuilder builder = group.createStream(streamInfo);
  * StreamSource source = ..
  * StreamSink sink = ..
  * List StreamField fields = ..
@@ -59,13 +60,13 @@ public interface InlongClient {
     }
 
     /**
-     * Create stream group by conf
+     * Create inlong group by the given group info
      *
-     * @param groupConf the group conf
+     * @param groupInfo the group info
      * @return the inlong group
      * @throws Exception the exception
      */
-    InlongGroup forGroup(InlongGroupConf groupConf) throws Exception;
+    InlongGroup forGroup(InlongGroupInfo groupInfo) throws Exception;
 
     /**
      * List group list.
@@ -76,13 +77,13 @@ public interface InlongClient {
     List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) throws Exception;
 
     /**
-     * List group state
+     * List group status
      *
-     * @param groupNames inlong group name list
+     * @param groupIds inlong group id list
      * @return map of inlong group status list
      * @throws Exception the exception
      */
-    Map<String, InlongGroupStatus> listGroupState(List<String> groupNames) throws Exception;
+    Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) throws Exception;
 
     /**
      * Gets group.

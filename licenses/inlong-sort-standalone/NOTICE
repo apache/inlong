@@ -17,6 +17,13 @@ Copyright 2010-2019 The Apache Software Foundation
 Apache Pulsar
 Copyright 2017-2019 The Apache Software Foundation
 
+flink-cdc-connectors
+Copyright 2022 Ververica Inc.
+Apache Flink, Flink®, Apache®, the squirrel logo, and the Apache feather logo are either registered trademarks or trademarks of The Apache Software Foundation.
+
+Apache Flink
+Copyright 2014-2021 The Apache Software Foundation
+
 
 
 ========================================================================
@@ -120,6 +127,19 @@ Arrow Vectors NOTICE
 
 Arrow Vectors
 Copyright 2017 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+
+
+========================================================================
+
+Apache Yetus - Audience Annotations NOTICE
+========================================================================
+
+Apache Yetus - Audience Annotations
+Copyright 2015-2017 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
@@ -294,19 +314,6 @@ Digester NOTICE
 
 Apache Jakarta Commons Digester
 Copyright 2001-2006 The Apache Software Foundation
-
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-HttpClient NOTICE
-========================================================================
-
-Apache Jakarta HttpClient
-Copyright 1999-2007 The Apache Software Foundation
 
 This product includes software developed by
 The Apache Software Foundation (http://www.apache.org/).
@@ -1362,32 +1369,6 @@ http://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
 
 ========================================================================
 
-Apache Standard Taglib Implementation NOTICE
-========================================================================
-
-Apache Standard Taglib Implementation
-Copyright 2001-2015 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
-Apache Standard Taglib Specification API NOTICE
-========================================================================
-
-Apache Standard Taglib Specification API
-Copyright 2001-2015 The Apache Software Foundation
-
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
-
-
-
-========================================================================
-
 T-Digest NOTICE
 ========================================================================
 
@@ -1505,10 +1486,6 @@ https://github.com/airlift/airlift/blob/master/LICENSE
 
 aircompressor NOTICE
 ------------------------------------------------------
-Jetty :: Apache JSP Implementation NOTICE
-------------------------------------------------------
-Apache :: JSTL module NOTICE
-------------------------------------------------------
 Commons Math3 NOTICE
 ------------------------------------------------------
 Apache Derby Database Engine and Embedded JDBC Driver NOTICE
@@ -1539,25 +1516,15 @@ Apache Hadoop YARN Web Proxy NOTICE
 ------------------------------------------------------
 javax.ws.rs-api NOTICE
 ------------------------------------------------------
-Jetty :: Servlet Annotations NOTICE
-------------------------------------------------------
 Jetty :: Asynchronous HTTP Client NOTICE
 ------------------------------------------------------
 Jetty :: Http Utility NOTICE
 ------------------------------------------------------
 Jetty :: IO Utility NOTICE
 ------------------------------------------------------
-Jetty :: JAAS NOTICE
-------------------------------------------------------
 Jetty :: JMX Management NOTICE
 ------------------------------------------------------
-Jetty :: JNDI Naming NOTICE
-------------------------------------------------------
-Jetty :: Plus NOTICE
-------------------------------------------------------
 Jetty :: Rewrite Handler NOTICE
-------------------------------------------------------
-Jetty :: Runner NOTICE
 ------------------------------------------------------
 Jetty :: Security NOTICE
 ------------------------------------------------------
@@ -1626,16 +1593,6 @@ Netty/Transport/Native/Epoll NOTICE
 Netty/Transport/Native/Unix/Common NOTICE
 ------------------------------------------------------
 Netty/TomcatNative [OpenSSL - Classes] NOTICE
-------------------------------------------------------
-Jetty :: Websocket :: API NOTICE
-------------------------------------------------------
-Jetty :: Websocket :: Client NOTICE
-------------------------------------------------------
-Jetty :: Websocket :: Common NOTICE
-------------------------------------------------------
-Jetty :: Websocket :: Server NOTICE
-------------------------------------------------------
-Jetty :: Websocket :: Servlet Interface NOTICE
 ========================================================================
 
 The NOTICE content is too long  and is included at notices/NOTICE-[project].txt

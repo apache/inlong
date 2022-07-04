@@ -27,11 +27,13 @@ import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.core.impl.WorkflowEventNotifier;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -42,19 +44,15 @@ import java.util.List;
  * End event handler
  */
 @Slf4j
+@Service
 public class EndEventProcessor implements ElementProcessor<EndEvent> {
 
-    private final WorkflowProcessEntityMapper processEntityMapper;
-    private final WorkflowTaskEntityMapper taskEntityMapper;
-    private final ProcessEventNotifier processEventNotifier;
-
-    public EndEventProcessor(WorkflowProcessEntityMapper processEntityMapper,
-            WorkflowTaskEntityMapper taskEntityMapper,
-            WorkflowEventNotifier eventNotifier) {
-        this.processEntityMapper = processEntityMapper;
-        this.taskEntityMapper = taskEntityMapper;
-        this.processEventNotifier = eventNotifier.getProcessEventNotifier();
-    }
+    @Autowired
+    private ProcessEventNotifier processEventNotifier;
+    @Autowired
+    private WorkflowTaskEntityMapper taskEntityMapper;
+    @Autowired
+    private WorkflowProcessEntityMapper processEntityMapper;
 
     @Override
     public Class<EndEvent> watch() {
@@ -62,8 +60,9 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
     }
 
     @Override
-    public void create(EndEvent element, WorkflowContext context) {
+    public boolean create(EndEvent element, WorkflowContext context) {
         //do nothing
+        return true;
     }
 
     @Override
@@ -84,9 +83,9 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
         processEntity.setStatus(getProcessStatus(actionContext.getAction()).name());
         processEntity.setEndTime(new Date());
         processEntityMapper.update(processEntity);
-        processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
+        ListenerResult listenerResult = processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
 
-        return true;
+        return listenerResult.isSuccess();
     }
 
     @Override

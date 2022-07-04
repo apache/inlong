@@ -35,17 +35,14 @@ public class InlongStreamListResponse {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Inlong stream id")
-    private String inlongStreamId;
-
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
+    @ApiModelProperty(value = "Inlong stream id")
+    private String inlongStreamId;
+
     @ApiModelProperty(value = "Inlong stream name")
     private String name;
-
-    @ApiModelProperty(value = "Source type, FILE/DB/AUTO_PUSH")
-    private String dataSourceType;
 
     @ApiModelProperty(value = "Data type, TEXT, KEY-VALUE, PB, BON")
     private String dataType;

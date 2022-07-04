@@ -18,22 +18,10 @@
 
 package org.apache.inlong.sdk.dataproxy.codec;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.security.SecureRandom;
-import java.util.Iterator;
-
-import java.util.List;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
@@ -42,7 +30,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_AUTH;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+
 public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
+
     private static final Logger logger = LoggerFactory
             .getLogger(ProtocolEncoder.class);
 
@@ -119,7 +120,7 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
     }
 
     private ByteBuf constructBody(byte[] body, EncodeObject object,
-        int totalLength, int cnt) throws UnsupportedEncodingException {
+            int totalLength, int cnt) throws UnsupportedEncodingException {
         ByteBuf buf = null;
         if (body != null) {
             if (object.isCompress()) {
@@ -134,9 +135,9 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                     }
                     EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
                     endAttr = endAttr + "_userName=" + object.getUserName()
-                        + "&_encyVersion=" + encryptInfo.getVersion()
-                        + "&_encyDesKey=" + encryptInfo.getRsaEncryptedKey();
-                    body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
+                            + "&_encyVersion=" + encryptInfo.getVersion()
+                            + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                    body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                 }
             }
             if (!object.isGroupIdTransfer()) {
@@ -287,8 +288,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
                         msgAttrs = msgAttrs + "_userName=" + object.getUserName()
                                 + "&_encyVersion=" + encryptInfo.getVersion()
-                                + "&_encyDesKey=" + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
+                                + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {
@@ -377,8 +378,8 @@ public class ProtocolEncoder extends MessageToMessageEncoder<EncodeObject> {
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
                         msgAttrs = msgAttrs + "_userName=" + object.getUserName()
                                 + "&_encyVersion=" + encryptInfo.getVersion()
-                                + "&_encyDesKey=" + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
+                                + "&_encyAesKey=" + encryptInfo.getRsaEncryptedKey();
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (Utils.isNotBlank(object.getMsgUUID())) {

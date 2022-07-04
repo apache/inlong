@@ -20,8 +20,8 @@ package org.apache.inlong.manager.plugin.eventselect;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventSelector;
 
@@ -37,15 +37,15 @@ public class RestartProcessSelector implements EventSelector {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add restartProcess listener as the form was not GroupResourceProcessForm for groupId [{}]",
+            log.info("not add restartProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
                     groupId);
             return false;
         }
 
-        GroupResourceProcessForm updateProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = updateProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        boolean flag = groupProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
         if (!flag) {
-            log.info("not add restartProcess listener as the operate was not RESTART for groupId [{}]", groupId);
+            log.info("\"not add restartProcess listener, as the operate was not RESTART for groupId [{}]", groupId);
             return false;
         }
 

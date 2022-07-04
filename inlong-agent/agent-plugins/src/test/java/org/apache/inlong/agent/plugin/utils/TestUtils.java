@@ -17,8 +17,11 @@
 
 package org.apache.inlong.agent.plugin.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.inlong.common.metric.MetricRegister;
 import org.powermock.api.mockito.PowerMockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.nio.file.Files;
@@ -31,6 +34,9 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 
 public class TestUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
+    private static final String RECORD = "This is the test line for file\n";
 
     public static String getTestTriggerProfile() {
         return "{\n"
@@ -86,5 +92,22 @@ public class TestUtils {
     public static void mockMetricRegister() throws Exception {
         PowerMockito.mockStatic(MetricRegister.class);
         PowerMockito.doNothing().when(MetricRegister.class, "register", any());
+    }
+
+    public static void createFile(String fileName) throws Exception {
+        FileWriter writer = new FileWriter(fileName);
+        for (int i = 0; i < 1; i++) {
+            writer.write(RECORD);
+        }
+        writer.flush();
+        writer.close();
+    }
+
+    public static void deleteFile(String fileName) throws Exception {
+        try {
+            FileUtils.delete(Paths.get(fileName).toFile());
+        } catch (Exception ignored) {
+            LOGGER.warn("deleteFile error ", ignored);
+        }
     }
 }

@@ -17,54 +17,32 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * DataProxy config
+ * Data proxy config, includes mq clusters and topic list.
  */
 public class DataProxyConfig {
 
-    private String topic;
-    private String m;
-    private String inlongGroupId;
+    private List<MQClusterInfo> mqClusterList = new ArrayList<>();
 
-    public DataProxyConfig() {
+    private List<DataProxyTopicInfo> topicList = new ArrayList<>();
+
+    public List<MQClusterInfo> getMqClusterList() {
+        return mqClusterList;
     }
 
-    public DataProxyConfig(String topic, String m, String inlongGroupId) {
-        this.topic = topic;
-        this.m = m;
-        this.inlongGroupId = inlongGroupId;
+    public void setMqClusterList(List<MQClusterInfo> mqClusterList) {
+        this.mqClusterList = mqClusterList;
     }
 
-    @Override
-    public String toString() {
-        return "DataProxyConfig{topic='" + topic + '\''
-                + ", m='" + m + '\''
-                + ", inlongGroupId='" + inlongGroupId + '\''
-                + '}';
+    public List<DataProxyTopicInfo> getTopicList() {
+        return topicList;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getM() {
-        return m;
-    }
-
-    public void setM(String m) {
-        this.m = m;
-    }
-
-    public String getInlongGroupId() {
-        return inlongGroupId;
-    }
-
-    public void setInlongGroupId(String inlongGroupId) {
-        this.inlongGroupId = inlongGroupId;
+    public void setTopicList(List<DataProxyTopicInfo> topicList) {
+        this.topicList = topicList;
     }
 
 }

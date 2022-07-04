@@ -17,8 +17,8 @@
     specific language governing permissions and limitations
     under the License.
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
@@ -30,7 +30,7 @@
 
     <groupId>org.apache.inlong</groupId>
     <artifactId>inlong</artifactId>
-    <version>1.2.0-incubating-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
@@ -40,7 +40,7 @@
         to
         facilitate the construction of streaming-based data analysis, modeling, and applications.
     </description>
-    <url>https://github.com/apache/incubator-inlong</url>
+    <url>https://github.com/apache/inlong</url>
 
     <organization>
         <name>Apache Software Foundation</name>
@@ -50,7 +50,7 @@
 
     <developers>
         <developer>
-            <organization>Apache InLong(incubating) developers</organization>
+            <organization>Apache InLong developers</organization>
             <organizationUrl>https://inlong.apache.org/</organizationUrl>
         </developer>
     </developers>
@@ -64,20 +64,20 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/apache/incubator-inlong</url>
-        <connection>scm:git:https://github.com/apache/incubator-inlong.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:apache/incubator-inlong.git
+        <url>https://github.com/apache/inlong</url>
+        <connection>scm:git:https://github.com/apache/inlong.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:apache/inlong.git
         </developerConnection>
     </scm>
 
     <ciManagement>
         <system>GitHub Actions</system>
-        <url>https://github.com/apache/incubator-inlong/actions</url>
+        <url>https://github.com/apache/inlong/actions</url>
     </ciManagement>
 
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/apache/incubator-inlong/issues</url>
+        <url>https://github.com/apache/inlong/issues</url>
     </issueManagement>
 
     <mailingLists>
@@ -110,14 +110,16 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <plugin.compile.version>3.8.1</plugin.compile.version>
         <plugin.assembly.version>3.2.0</plugin.assembly.version>
-        <plugin.surefire.version>2.22.2</plugin.surefire.version>
-        <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
+        <plugin.surefire.version>3.0.0-M7</plugin.surefire.version>
+        <plugin.failsafe.version>3.0.0-M7</plugin.failsafe.version>
+        <plugin.shade.version>3.2.4</plugin.shade.version>
         <plugin.maven.source>3.0.1</plugin.maven.source>
         <exec.maven.version>1.6.0</exec.maven.version>
         <build.helper.maven.version>3.0.0</build.helper.maven.version>
 
         <checkstyle.version>6.19</checkstyle.version>
         <dockerfile.maven.version>1.4.13</dockerfile.maven.version>
+        <testcontainers.version>1.17.2</testcontainers.version>
         <docker.organization>inlong</docker.organization>
 
         <netty.version>4.1.72.Final</netty.version>
@@ -128,9 +130,10 @@
         <httpcore.version>4.4.14</httpcore.version>
         <httpclient.version>4.5.13</httpclient.version>
         <okhttp.version>3.14.9</okhttp.version>
+        <retrofit.version>2.9.0</retrofit.version>
 
         <spring.boot.version>2.6.6</spring.boot.version>
-        <spring.version>5.3.19</spring.version>
+        <spring.version>5.3.20</spring.version>
         <spring.autoconfigure.version>2.4.3</spring.autoconfigure.version>
         <spring.plugin.version>2.6.6</spring.plugin.version>
         <spring.fox.version>3.0.0</spring.fox.version>
@@ -143,6 +146,9 @@
         <rocksdb.version>6.14.6</rocksdb.version>
         <hadoop.version>2.10.1</hadoop.version>
         <postgresql.version>42.3.4</postgresql.version>
+        <oracle.jdbc.version>19.3.0.0</oracle.jdbc.version>
+        <mysql.jdbc.version>8.0.21</mysql.jdbc.version>
+        <sqlserver.jdbc.version>7.2.2.jre8</sqlserver.jdbc.version>
         <mybatis.starter.version>2.1.3</mybatis.starter.version>
         <mybatis.version>3.5.9</mybatis.version>
         <druid.version>1.2.6</druid.version>
@@ -163,11 +169,10 @@
         <commons.dbutils.version>1.7</commons.dbutils.version>
         <commons.codec.version>1.15</commons.codec.version>
         <commons.lang3.version>3.11</commons.lang3.version>
-        <commons.lang.version>2.6</commons.lang.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <commons.collections4.version>4.3</commons.collections4.version>
 
-        <guava.version>19.0</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <lombok.version>1.18.22</lombok.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <opencsv.version>5.4</opencsv.version>
@@ -175,11 +180,13 @@
         <gson.version>2.8.6</gson.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson.databind.version>2.13.2.2</jackson.databind.version>
-        <fastjson.version>1.2.79</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
 
         <clickhouse-jdbc.version>0.3.1</clickhouse-jdbc.version>
         <hive.version>3.1.2</hive.version>
+        <thrift.version>0.9.3</thrift.version>
         <flume.version>1.9.0</flume.version>
+        <hbase.version>2.4.12</hbase.version>
 
         <velocity.tools.generic.version>3.1</velocity.tools.generic.version>
         <velocity.engine.core.version>2.3</velocity.engine.core.version>
@@ -191,20 +198,26 @@
         <pulsar.version>2.8.1</pulsar.version>
         <pulsar.testcontainers.version>1.15.3</pulsar.testcontainers.version>
         <kafka.version>2.4.1</kafka.version>
-        <iceberg.flink.version>0.12.1</iceberg.flink.version>
+        <iceberg.flink.version>0.13.1</iceberg.flink.version>
+        <iceberg.version>0.13.1</iceberg.version>
         <flink.version>1.13.5</flink.version>
-        <flink.connector.mysql.cdc.version>2.0.2</flink.connector.mysql.cdc.version>
+        <flink.connector.mysql.cdc.version>2.2.1</flink.connector.mysql.cdc.version>
         <flink.scala.binary.version>2.11</flink.scala.binary.version>
         <flink.jackson.version>2.12.1-13.0</flink.jackson.version>
-        <flink.connector.postgres.cdc.version>2.0.2</flink.connector.postgres.cdc.version>
-
+        <flink.connector.postgres.cdc.version>2.2.1</flink.connector.postgres.cdc.version>
+        <flink.connector.sqlserver.cdc.version>2.2.1</flink.connector.sqlserver.cdc.version>
+        <flink.pulsar.version>1.13.6.1-rc9</flink.pulsar.version>
+        <flink.protobuf.version>2.7.6</flink.protobuf.version>
+        <flink.connector.mongodb.cdc.version>2.2.1</flink.connector.mongodb.cdc.version>
+        <flink.connector.oracle.cdc.version>2.2.1</flink.connector.oracle.cdc.version>
         <qcloud.flink.cos.fs.hadoop.version>1.10.0-0.1.10</qcloud.flink.cos.fs.hadoop.version>
         <qcloud.chdfs.version>2.5</qcloud.chdfs.version>
 
         <curator.version>2.12.0</curator.version>
 
-        <avro.version>1.11.0</avro.version>
+        <avro.version>1.10.1</avro.version>
         <orc.core.version>1.6.7</orc.core.version>
+        <parquet.version>1.12.2</parquet.version>
         <oro.version>2.0.8</oro.version>
         <akka.version>2.5.21</akka.version>
         <antlr.verison>4.0.4</antlr.verison>
@@ -214,10 +227,12 @@
         <slf4j.version>1.7.36</slf4j.version>
 
         <junit.version>4.13.2</junit.version>
+        <jupiter.version>5.8.2</jupiter.version>
         <awaitility.version>4.0.3</awaitility.version>
         <mockito.version>3.12.4</mockito.version>
         <powermock.version>2.0.9</powermock.version>
         <assertj.version>3.4.1</assertj.version>
+        <wiremock.version>2.33.2</wiremock.version>
 
         <jakarta.version>2.0.2</jakarta.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -225,8 +240,14 @@
         <jcommander.version>1.78</jcommander.version>
         <je.version>7.3.7</je.version>
         <tencentcloud.cls.version>1.0.5</tencentcloud.cls.version>
+        <tencentcloud.api.version>3.1.439</tencentcloud.api.version>
+        <cos.hadoop.version>2.7.5-5.9.3</cos.hadoop.version>
+        <cos.bundle.version>5.6.35</cos.bundle.version>
+        <dlc.client.version>1.0</dlc.client.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
+
+        <kafka.clients.version>3.0.0</kafka.clients.version>
     </properties>
 
     <dependencyManagement>
@@ -287,6 +308,12 @@
                         <artifactId>spotbugs-annotations</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-mongodb-cdc</artifactId>
+                <version>${flink.connector.mongodb.cdc.version}</version>
             </dependency>
 
             <!-- hive -->
@@ -381,6 +408,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libfb303</artifactId>
+                <version>${thrift.version}</version>
+            </dependency>
 
             <!-- hadoop -->
             <dependency>
@@ -457,12 +489,24 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-mapreduce-client-core</artifactId>
+                <version>${hadoop.version}</version>
+            </dependency>
 
             <!-- clickhouse -->
             <dependency>
                 <groupId>ru.yandex.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${clickhouse-jdbc.version}</version>
+            </dependency>
+
+            <!-- hbase -->
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
             </dependency>
 
             <!-- db -->
@@ -490,6 +534,25 @@
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>${sqlserver.jdbc.version}</version>
+            </dependency>
+            <!--ojdbc8 is FUTC license, we use it test only-->
+            <dependency>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>${oracle.jdbc.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- mysql-connector-java is LGPL license, we use it test only -->
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.jdbc.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -578,7 +641,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.boot.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -595,12 +657,6 @@
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring.boot.version}</version>
                 <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-test</artifactId>
-                <version>${spring.boot.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -632,12 +688,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
                 <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- spring fox -->
@@ -766,7 +816,11 @@
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-jackson</artifactId>
+                <version>${retrofit.version}</version>
+            </dependency>
             <!-- elastic search -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
@@ -915,6 +969,21 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-avro</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-parquet_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
+                <artifactId>flink-sql-orc_${scala.binary.version}</artifactId>
+                <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.flink</groupId>
                 <artifactId>flink-shaded-jackson</artifactId>
                 <version>${flink.jackson.version}</version>
             </dependency>
@@ -936,20 +1005,9 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.iceberg</groupId>
-                <artifactId>iceberg-flink</artifactId>
+                <artifactId>iceberg-flink-runtime-1.13</artifactId>
                 <version>${iceberg.flink.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.avro</groupId>
-                        <artifactId>avro</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.iceberg</groupId>
-                        <artifactId>iceberg-hive-metastore</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
-
             <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-table-planner-blink_${flink.scala.binary.version}</artifactId>
@@ -960,6 +1018,13 @@
                 <groupId>com.ververica</groupId>
                 <artifactId>flink-connector-mysql-cdc</artifactId>
                 <version>${flink.connector.mysql.cdc.version}</version>
+                <!-- mysql-connector-java is LGPL license and needs to be excluded -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -969,9 +1034,44 @@
             </dependency>
 
             <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-oracle-cdc</artifactId>
+                <version>${flink.connector.oracle.cdc.version}</version>
+                <!-- ojdbc8 is FUTC license and needs to be excluded -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.oracle.ojdbc</groupId>
+                        <artifactId>ojdbc8</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ververica</groupId>
+                <artifactId>flink-connector-sqlserver-cdc</artifactId>
+                <version>${flink.connector.sqlserver.cdc.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-jdbc_${flink.scala.binary.version}</artifactId>
                 <version>${flink.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.streamnative.connectors</groupId>
+                <artifactId>pulsar-flink-connector_${scala.binary.version}</artifactId>
+                <version>${flink.pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.streamnative.connectors</groupId>
+                <artifactId>pulsar-flink-connector-origin</artifactId>
+                <version>${flink.pulsar.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.streamnative.connectors</groupId>
+                <artifactId>flink-protobuf</artifactId>
+                <version>${flink.protobuf.version}</version>
             </dependency>
 
             <dependency>
@@ -979,6 +1079,23 @@
                 <artifactId>flink-test-utils-junit</artifactId>
                 <version>${flink.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- iceberg -->
+            <dependency>
+                <groupId>org.apache.iceberg</groupId>
+                <artifactId>iceberg-api</artifactId>
+                <version>${iceberg.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.iceberg</groupId>
+                <artifactId>iceberg-hive-metastore</artifactId>
+                <version>${iceberg.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.iceberg</groupId>
+                <artifactId>iceberg-core</artifactId>
+                <version>${iceberg.version}</version>
             </dependency>
 
             <!-- qcloud -->
@@ -1046,6 +1163,11 @@
                 <artifactId>orc-core</artifactId>
                 <version>${orc.core.version}</version>
                 <classifier>nohive</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.parquet</groupId>
+                <artifactId>parquet-hadoop</artifactId>
+                <version>${parquet.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
@@ -1139,11 +1261,6 @@
             </dependency>
 
             <!-- common / lang-->
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>${commons.lang.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -1288,6 +1405,18 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${jupiter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8</artifactId>
+                <version>${wiremock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>${powermock.version}</version>
@@ -1322,6 +1451,30 @@
                 <groupId>org.awaitility</groupId>
                 <scope>test</scope>
                 <version>${awaitility.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>kafka</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -1365,6 +1518,26 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>com.tencentcloudapi</groupId>
+                <artifactId>tencentcloud-sdk-java</artifactId>
+                <version>${tencentcloud.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud.cos</groupId>
+                <artifactId>hadoop-cos</artifactId>
+                <version>${cos.hadoop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>cos_api-bundle</artifactId>
+                <version>${cos.bundle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.qcloud</groupId>
+                <artifactId>dlc-data-catalog-metastore-client</artifactId>
+                <version>${dlc.client.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1380,6 +1553,11 @@
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${plugin.maven.source}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -1468,7 +1646,6 @@
                         <!-- Generated content -->
                         <exclude>LICENSE</exclude>
                         <exclude>NOTICE</exclude>
-                        <exclude>DISCLAIMER</exclude>
                         <exclude>codestyle/checkstyle.xml</exclude>
 
                         <!-- Documents -->
@@ -1517,6 +1694,8 @@
                         <exclude>
                             **/manager-service/src/test/resources/plugins/manager-plugin-examples.jar
                         </exclude>
+                        <!-- Test case: flink sql comments statement support limit for end2end test cases -->
+                        <exclude>**/resources/flinkSql/**</exclude>
 
                         <!-- Referenced 3rd codes -->
                         <exclude>**/resources/assets/lib/**</exclude>

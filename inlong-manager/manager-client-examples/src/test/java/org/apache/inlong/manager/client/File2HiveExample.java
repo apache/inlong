@@ -18,56 +18,29 @@
 package org.apache.inlong.manager.client;
 
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
-import org.apache.inlong.manager.client.api.DataSeparator;
-import org.apache.inlong.manager.client.api.FlinkSortBaseConf;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
-import org.apache.inlong.manager.client.api.InlongGroupConf;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
-import org.apache.inlong.manager.client.api.InlongStreamConf;
-import org.apache.inlong.manager.client.api.PulsarBaseConf;
-import org.apache.inlong.manager.common.pojo.stream.SinkField;
-import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.client.api.auth.DefaultAuthentication;
-import org.apache.inlong.manager.client.api.sink.HiveSink;
-import org.apache.inlong.manager.client.api.source.AgentFileSource;
 import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.FileFormat;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.shiro.util.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Test class for file to hive.
  */
-public class File2HiveExample {
-
-    // Manager web url
-    public static String SERVICE_URL = "127.0.0.1:8083";
-    // Inlong user && passwd
-    public static DefaultAuthentication INLONG_AUTH = new DefaultAuthentication("admin", "inlong");
-    // Inlong group name
-    public static String GROUP_NAME = "{group.name}";
-    // Inlong stream name
-    public static String STREAM_NAME = "{stream.name}";
-    // Flink cluster url
-    public static String FLINK_URL = "{flink.cluster.url}";
-    // Pulsar cluster admin url
-    public static String PULSAR_ADMIN_URL = "{pulsar.admin.url}";
-    // Pulsar cluster service url
-    public static String PULSAR_SERVICE_URL = "{pulsar.service.url}";
-    // Pulsar tenant
-    public static String tenant = "{pulsar.tenant}";
-    // Pulsar topic
-    public static String topic = "{pulsar.topic}";
+@Slf4j
+@Disabled
+public class File2HiveExample extends BaseExample {
 
     @Test
     public void testCreateGroupForHive() {
@@ -76,13 +49,13 @@ public class File2HiveExample {
         configuration.setReadTimeout(10);
         configuration.setConnectTimeout(10);
         configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(INLONG_AUTH);
-        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        InlongGroupConf groupConf = createGroupConf();
+        configuration.setAuthentication(super.getInlongAuth());
+        InlongClient inlongClient = InlongClient.create(super.getServiceUrl(), configuration);
+
+        InlongGroupInfo groupInfo = super.createGroupInfo();
         try {
-            InlongGroup group = inlongClient.forGroup(groupConf);
-            InlongStreamConf streamConf = createStreamConf();
-            InlongStreamBuilder streamBuilder = group.createStream(streamConf);
+            InlongGroup group = inlongClient.forGroup(groupInfo);
+            InlongStreamBuilder streamBuilder = group.createStream(createStreamInfo());
             streamBuilder.fields(createStreamFields());
             streamBuilder.source(createAgentFileSource());
             streamBuilder.sink(createHiveSink());
@@ -102,11 +75,11 @@ public class File2HiveExample {
         configuration.setReadTimeout(10);
         configuration.setConnectTimeout(10);
         configuration.setTimeUnit(TimeUnit.SECONDS);
-        configuration.setAuthentication(INLONG_AUTH);
-        InlongClient inlongClient = InlongClient.create(SERVICE_URL, configuration);
-        InlongGroupConf groupConf = createGroupConf();
+        configuration.setAuthentication(super.getInlongAuth());
+        InlongClient inlongClient = InlongClient.create(super.getServiceUrl(), configuration);
+        InlongGroupInfo groupInfo = createGroupInfo();
         try {
-            InlongGroup group = inlongClient.forGroup(groupConf);
+            InlongGroup group = inlongClient.forGroup(groupInfo);
             InlongGroupContext groupContext = group.delete();
             Assert.notNull(groupContext);
         } catch (Exception e) {
@@ -114,79 +87,19 @@ public class File2HiveExample {
         }
     }
 
-    private InlongGroupConf createGroupConf() {
-        InlongGroupConf inlongGroupConf = new InlongGroupConf();
-        inlongGroupConf.setGroupName(GROUP_NAME);
-        inlongGroupConf.setDescription(GROUP_NAME);
-        inlongGroupConf.setProxyClusterId(1);
-        //pulsar conf
-        PulsarBaseConf pulsarBaseConf = new PulsarBaseConf();
-        inlongGroupConf.setMqBaseConf(pulsarBaseConf);
-        pulsarBaseConf.setPulsarServiceUrl(PULSAR_SERVICE_URL);
-        pulsarBaseConf.setPulsarAdminUrl(PULSAR_ADMIN_URL);
-        pulsarBaseConf.setNamespace("public");
-        pulsarBaseConf.setEnableCreateResource(false);
-        pulsarBaseConf.setTenant(tenant);
-
-        //flink conf
-        FlinkSortBaseConf sortBaseConf = new FlinkSortBaseConf();
-        inlongGroupConf.setSortBaseConf(sortBaseConf);
-        sortBaseConf.setServiceUrl(FLINK_URL);
-        Map<String, String> map = new HashMap<>(16);
-        sortBaseConf.setProperties(map);
-        //enable zk
-        inlongGroupConf.setZookeeperEnabled(false);
-        inlongGroupConf.setDailyRecords(10000000L);
-        inlongGroupConf.setPeakRecords(100000L);
-        inlongGroupConf.setMaxLength(10000);
-        return inlongGroupConf;
-    }
-
-    private InlongStreamConf createStreamConf() {
-        InlongStreamConf streamConf = new InlongStreamConf();
-        streamConf.setName(STREAM_NAME);
-        streamConf.setDescription(STREAM_NAME);
-        streamConf.setCharset(StandardCharsets.UTF_8);
-        streamConf.setDataSeparator(DataSeparator.VERTICAL_BAR);
-        // true if you need strictly order for data
-        streamConf.setStrictlyOrdered(true);
-        streamConf.setTopic(topic);
-        return streamConf;
-    }
-
-    private AgentFileSource createAgentFileSource() {
-        AgentFileSource agentFileSource = new AgentFileSource();
-        agentFileSource.setAgentIp("{agent.ip}");
-        agentFileSource.setPattern("/a/b/*.txt");
-        agentFileSource.setTimeOffset("-1h");
-        return agentFileSource;
-    }
-
-    private HiveSink createHiveSink() {
-        HiveSink hiveSink = new HiveSink();
-        hiveSink.setDbName("{db.name}");
-        hiveSink.setJdbcUrl("jdbc:hive2://{ip:port}");
-        hiveSink.setAuthentication(new DefaultAuthentication("hive", "hive"));
-        hiveSink.setCharset(StandardCharsets.UTF_8);
-        hiveSink.setFileFormat(FileFormat.TextFile);
-        hiveSink.setDataSeparator(DataSeparator.VERTICAL_BAR);
-        hiveSink.setDataPath("hdfs://{ip:port}/usr/hive/warehouse/{db.name}");
-
-        List<SinkField> fields = new ArrayList<>();
-        SinkField field1 = new SinkField(0, FieldType.INT, "age", FieldType.INT, "age");
-        SinkField field2 = new SinkField(1, FieldType.STRING, "name", FieldType.STRING, "name");
-        fields.add(field1);
-        fields.add(field2);
-        hiveSink.setSinkFields(fields);
-        hiveSink.setTableName("{table.name}");
-        hiveSink.setSinkName("{hive.sink.name}");
-        return hiveSink;
+    private FileSource createAgentFileSource() {
+        FileSource fileSource = new FileSource();
+        fileSource.setSourceName("{source.name}");
+        fileSource.setAgentIp("{agent.ip}");
+        fileSource.setPattern("/a/b/*.txt");
+        fileSource.setTimeOffset("-1h");
+        return fileSource;
     }
 
     private List<StreamField> createStreamFields() {
         List<StreamField> streamFieldList = Lists.newArrayList();
-        streamFieldList.add(new StreamField(0, FieldType.STRING, "name", null, null));
-        streamFieldList.add(new StreamField(1, FieldType.INT, "age", null, null));
+        streamFieldList.add(new StreamField(0, FieldType.STRING.toString(), "name", null, null));
+        streamFieldList.add(new StreamField(1, FieldType.INT.toString(), "age", null, null));
         return streamFieldList;
     }
 }

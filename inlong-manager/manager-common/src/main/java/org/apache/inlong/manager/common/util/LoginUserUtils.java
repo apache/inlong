@@ -36,7 +36,7 @@ public class LoginUserUtils {
     }
 
     public static void setUserLoginInfo(UserDetail userDetail) {
-        log.debug("user login: {}", userDetail.getUserName());
+        log.debug("user login: {}", userDetail.getUsername());
         LOGIN_USER_DETAIL_TL.set(userDetail);
     }
 

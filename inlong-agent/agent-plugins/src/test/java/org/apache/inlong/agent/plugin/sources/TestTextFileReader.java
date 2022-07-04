@@ -57,7 +57,8 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.management.*", "javax.script.*"})
+@PowerMockIgnore({"javax.management.*", "javax.script.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*",
+        "org.w3c.*"})
 @PrepareForTest({MetricRegister.class})
 public class TestTextFileReader {
 
@@ -79,7 +80,7 @@ public class TestTextFileReader {
     @Test
     public void testStreamClose() throws Exception {
         Path uri = Paths.get(Objects.requireNonNull(
-                getClass().getClassLoader().getResource("log4j.properties")).toURI());
+                getClass().getClassLoader().getResource("agent.properties")).toURI());
         Stream<String> stream = null;
         BufferedReader reader = null;
         try {

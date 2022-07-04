@@ -26,10 +26,10 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.mysql.component }}
 spec:
+  storageClassName: {{ .Values.volumes.storageClassName | quote }}
   accessModes: [ "ReadWriteOnce" ]
   resources:
     requests:
-      storageClassName: {{ .Values.volumes.storageClassName | quote }}
       storage: {{ .Values.mysql.volumes.size | quote }}
 {{- end }}
 {{- end }}

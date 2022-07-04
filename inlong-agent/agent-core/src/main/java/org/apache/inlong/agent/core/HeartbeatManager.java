@@ -17,13 +17,14 @@
 
 package org.apache.inlong.agent.core;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.common.AbstractDaemon;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.job.JobWrapper;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.HttpManager;
+import org.apache.inlong.agent.utils.ThreadUtils;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotMessage;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.slf4j.Logger;
@@ -138,8 +139,9 @@ public class HeartbeatManager extends AbstractDaemon {
                     int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
                             DEFAULT_AGENT_HEARTBEAT_INTERVAL);
                     TimeUnit.SECONDS.sleep(heartbeatInterval);
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
+                    ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
                 }
             }
         };

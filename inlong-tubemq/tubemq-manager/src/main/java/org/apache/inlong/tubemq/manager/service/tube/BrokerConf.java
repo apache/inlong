@@ -40,6 +40,11 @@ public class BrokerConf {
     private Integer memCacheFlushIntegervl;
     private String deletePolicy;
 
+    /**
+     * broker configuration info
+     *
+     * @param other broker info
+     */
     public BrokerConf(BrokerConf other) {
         this.brokerIp = other.brokerIp;
         this.brokerPort = other.brokerPort;

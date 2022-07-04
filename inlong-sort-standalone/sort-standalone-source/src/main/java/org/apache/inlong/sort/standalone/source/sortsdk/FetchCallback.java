@@ -18,9 +18,7 @@
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
 import com.google.common.base.Preconditions;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+
 import org.apache.flume.channel.ChannelProcessor;
 import org.apache.inlong.sdk.sort.api.ReadCallback;
 import org.apache.inlong.sdk.sort.api.SortClient;
@@ -28,20 +26,17 @@ import org.apache.inlong.sdk.sort.entity.InLongMessage;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
 import org.apache.inlong.sort.standalone.channel.CacheMessageRecord;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * Implementation of {@link ReadCallback}.
- *
- * TODO: Sort sdk should deliver one object which is held by {@link ProfileEvent} and used to ack upstream data store
- * The code should be like :
- *
- * public void onFinished(final MessageRecord messageRecord, ACKer acker) {
- * doSomething();
- * final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), acker);
- * channelProcessor.processEvent(profileEvent);
- * }
  *
  * The ACKer will be used to <b>ACK</b> upstream after that the downstream <b>ACKed</b> sort-standalone.
  * This process seems like <b>transaction</b> of the whole sort-standalone, and which
@@ -53,7 +48,7 @@ public class FetchCallback implements ReadCallback {
     private static final Logger LOG = LoggerFactory.getLogger(FetchCallback.class);
 
     // SortId of fetch message.
-    private final String sortId;
+    private final String sortTaskName;
 
     // ChannelProcessor that put message in specific channel.
     private final ChannelProcessor channelProcessor;
@@ -68,15 +63,15 @@ public class FetchCallback implements ReadCallback {
      * Private constructor of {@link FetchCallback}.
      * <p> The construction of FetchCallback should be initiated by {@link FetchCallback.Factory}.</p>
      *
-     * @param sortId SortId of fetch message.
+     * @param sortTaskName SortId of fetch message.
      * @param channelProcessor ChannelProcessor that message put in.
      * @param context The context to report fetch results.
      */
     private FetchCallback(
-            final String sortId,
+            final String sortTaskName,
             final ChannelProcessor channelProcessor,
             final SortSdkSourceContext context) {
-        this.sortId = sortId;
+        this.sortTaskName = sortTaskName;
         this.channelProcessor = channelProcessor;
         this.context = context;
     }
@@ -103,25 +98,19 @@ public class FetchCallback implements ReadCallback {
     public void onFinished(final MessageRecord messageRecord) {
         try {
             Preconditions.checkState(messageRecord != null, "Fetched msg is null.");
-            CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client);
+            CacheMessageRecord cacheRecord = new CacheMessageRecord(messageRecord, client,
+                    CommonPropertiesHolder.getAckPolicy());
             for (InLongMessage inLongMessage : messageRecord.getMsgs()) {
-                //TODO fix here
-                final SubscribeFetchResult result = SubscribeFetchResult.Factory
-                        .create(sortId, messageRecord.getMsgKey(), messageRecord.getOffset(),
-                                inLongMessage.getParams(), messageRecord.getRecTime(),
-                                inLongMessage.getBody());
-                final ProfileEvent profileEvent = new ProfileEvent(result.getBody(), result.getHeaders(), 
-                        cacheRecord);
+                final ProfileEvent profileEvent = new ProfileEvent(inLongMessage, cacheRecord);
                 channelProcessor.processEvent(profileEvent);
-                context.reportToMetric(profileEvent, sortId, "-", SortSdkSourceContext.FetchResult.SUCCESS);
+                context.reportToMetric(profileEvent, sortTaskName, "-", SortSdkSourceContext.FetchResult.SUCCESS);
             }
-
-//            client.ack(messageRecord.getMsgKey(), messageRecord.getOffset());
         } catch (NullPointerException npe) {
-            LOG.error("Got a null pointer exception for sortId " + sortId, npe);
-            context.reportToMetric(null, sortId, "-", SortSdkSourceContext.FetchResult.FAILURE);
+            LOG.error("Got a null pointer exception for sort task " + sortTaskName, npe);
+            context.reportToMetric(null, sortTaskName, "-", SortSdkSourceContext.FetchResult.FAILURE);
         } catch (Exception e) {
-            LOG.error("Ack failed for sortId " + sortId, e);
+            LOG.error("Got exception of sort task " + sortTaskName, e);
+            context.reportToMetric(null, sortTaskName, "-", SortSdkSourceContext.FetchResult.FAILURE);
         }
     }
 

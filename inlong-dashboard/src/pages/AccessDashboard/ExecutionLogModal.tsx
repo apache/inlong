@@ -87,6 +87,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, ...modalProps }) => {
   useUpdateEffect(() => {
     if (modalProps.visible) {
       getData();
+    }
+  }, [options]);
+
+  useUpdateEffect(() => {
+    if (modalProps.visible) {
+      getData();
     } else {
       setOptions(prev => ({
         ...prev,

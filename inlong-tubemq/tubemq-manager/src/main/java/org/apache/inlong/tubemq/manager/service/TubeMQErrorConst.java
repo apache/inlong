@@ -24,4 +24,5 @@ public class TubeMQErrorConst {
     public static final String MYSQL_ERROR = "mysql error";
     public static final String NO_SUCH_CLUSTER = "no such cluster";
     public static final String NO_SUCH_METHOD = "no such method";
+    public static final String NO_SUCH_GROUP = "no such group";
 }

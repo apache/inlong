@@ -108,6 +108,9 @@ public class InLongMsgUtils {
         }
     }
 
+    /**
+     * Parse head of message.
+     */
     public static InLongMsgHead parseHead(String attr) {
         Map<String, String> attributes = parseAttr(attr);
 

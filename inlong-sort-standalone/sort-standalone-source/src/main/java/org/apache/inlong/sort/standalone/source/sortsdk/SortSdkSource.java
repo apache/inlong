@@ -17,7 +17,7 @@
 
 package org.apache.inlong.sort.standalone.source.sortsdk;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
@@ -151,23 +151,23 @@ public final class SortSdkSource extends AbstractSource
     }
 
     /**
-     * Create one {@link SortClient} with specific sort id.
+     * Create one {@link SortClient} with specific sort task.
      *
      * <p>
      * In current version, the {@link FetchCallback} will hold the client to ACK. For more details see
      * {@link FetchCallback#onFinished}
      * </p>
      *
-     * @param  sortId Sort in of new client.
+     * @param  sortTaskName Sort in of new client.
      * @return        New sort client.
      */
-    private SortClient newClient(final String sortId) {
-        LOG.info("Start to new sort client for id: {}", sortId);
+    private SortClient newClient(final String sortTaskName) {
+        LOG.info("Start to new sort client for task: {}", sortTaskName);
         try {
-            final SortClientConfig clientConfig = new SortClientConfig(sortId, this.sortClusterName,
+            final SortClientConfig clientConfig = new SortClientConfig(sortTaskName, this.sortClusterName,
                     new DefaultTopicChangeListener(),
                     SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
-            final FetchCallback callback = FetchCallback.Factory.create(sortId, getChannelProcessor(), context);
+            final FetchCallback callback = FetchCallback.Factory.create(sortTaskName, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
 
             // create SortClient
@@ -211,9 +211,9 @@ public final class SortSdkSource extends AbstractSource
             callback.setClient(client);
             return client;
         } catch (UnknownHostException ex) {
-            LOG.error("Got one UnknownHostException when init client of id:{}", sortId, ex);
+            LOG.error("Got one UnknownHostException when init client of id:{}", sortTaskName, ex);
         } catch (Throwable th) {
-            LOG.error("Got one throwable when init client of id:{}", sortId, th);
+            LOG.error("Got one throwable when init client of id:{}", sortTaskName, th);
         }
         return null;
     }

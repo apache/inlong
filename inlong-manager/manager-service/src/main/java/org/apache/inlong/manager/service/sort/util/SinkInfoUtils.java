@@ -17,40 +17,6 @@
 
 package org.apache.inlong.manager.service.sort.util;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.FieldType;
-import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkFieldBase;
-import org.apache.inlong.manager.common.pojo.sink.SinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkResponse;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceResponse;
-import org.apache.inlong.sort.protocol.FieldInfo;
-import org.apache.inlong.sort.protocol.serialization.SerializationInfo;
-import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo;
-import org.apache.inlong.sort.protocol.sink.ClickHouseSinkInfo.PartitionStrategy;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFieldPartitionInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveFileFormat;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HivePartitionInfo;
-import org.apache.inlong.sort.protocol.sink.HiveSinkInfo.HiveTimePartitionInfo;
-import org.apache.inlong.sort.protocol.sink.IcebergSinkInfo;
-import org.apache.inlong.sort.protocol.sink.KafkaSinkInfo;
-import org.apache.inlong.sort.protocol.sink.SinkInfo;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 /**
  * Utils for create sink info, such as kafka sink, clickhouse sink, etc.
  */
@@ -60,86 +26,95 @@ public class SinkInfoUtils {
     private static final String TIME_FORMAT = "HHmmss";
     private static final String DATA_TIME_FORMAT = "yyyyMMddHHmmss";
 
-    /**
+    /*
      * Create sink info for DataFlowInfo.
      */
-    public static SinkInfo createSinkInfo(SourceResponse sourceResponse, SinkResponse sinkResponse,
+    /*public static SinkInfo createSinkInfo(StreamSource streamSource, StreamSink streamSink,
             List<FieldInfo> sinkFields) {
-        String sinkType = sinkResponse.getSinkType();
+        String sinkType = streamSink.getSinkType();
         SinkInfo sinkInfo;
-        if (SinkType.forType(sinkType) == SinkType.HIVE) {
-            sinkInfo = createHiveSinkInfo((HiveSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.forType(sinkType) == SinkType.KAFKA) {
-            sinkInfo = createKafkaSinkInfo(sourceResponse, (KafkaSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.SINK_ICEBERG.equals(sinkType)) {
-            sinkInfo = createIcebergSinkInfo((IcebergSinkResponse) sinkResponse, sinkFields);
-        } else if (SinkType.forType(sinkType) == SinkType.CLICKHOUSE) {
-            sinkInfo = createClickhouseSinkInfo((ClickHouseSinkResponse) sinkResponse, sinkFields);
-        } else {
-            throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
+        switch (SinkType.forType(sinkType)) {
+            case HIVE:
+                sinkInfo = createHiveSinkInfo((HiveSink) streamSink, sinkFields);
+                break;
+            case KAFKA:
+                sinkInfo = createKafkaSinkInfo(streamSource, (KafkaSink) streamSink, sinkFields);
+                break;
+            case ICEBERG:
+                sinkInfo = createIcebergSinkInfo((IcebergSink) streamSink, sinkFields);
+                break;
+            case CLICKHOUSE:
+                sinkInfo = createClickhouseSinkInfo((ClickHouseSink) streamSink, sinkFields);
+                break;
+            case HBASE:
+                sinkInfo = createHbaseSinkInfo((HBaseSink) streamSink, sinkFields);
+                break;
+            case ELASTICSEARCH:
+                sinkInfo = createEsSinkInfo((ElasticsearchSink) streamSink, sinkFields);
+                break;
+            default:
+                throw new BusinessException(String.format("Unsupported SinkType {%s}", sinkType));
         }
         return sinkInfo;
-    }
+    }*/
 
-    private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSinkResponse sinkResponse,
-            List<FieldInfo> sinkFields) {
-        if (StringUtils.isEmpty(sinkResponse.getJdbcUrl())) {
-            throw new BusinessException(String.format("ClickHouse={%s} server url cannot be empty", sinkResponse));
-        } else if (CollectionUtils.isEmpty(sinkResponse.getFieldList())) {
-            throw new BusinessException(String.format("ClickHouse={%s} fields cannot be empty", sinkResponse));
-        } else if (StringUtils.isEmpty(sinkResponse.getTableName())) {
-            throw new BusinessException(String.format("ClickHouse={%s} table name cannot be empty", sinkResponse));
-        } else if (StringUtils.isEmpty(sinkResponse.getDbName())) {
-            throw new BusinessException(String.format("ClickHouse={%s} database name cannot be empty", sinkResponse));
+    /*private static ClickHouseSinkInfo createClickhouseSinkInfo(ClickHouseSink ckSink, List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(ckSink.getJdbcUrl())) {
+            throw new BusinessException(String.format("ClickHouse={%s} jdbc url cannot be empty", ckSink));
+        } else if (CollectionUtils.isEmpty(ckSink.getFieldList())) {
+            throw new BusinessException(String.format("ClickHouse={%s} fields cannot be empty", ckSink));
+        } else if (StringUtils.isEmpty(ckSink.getTableName())) {
+            throw new BusinessException(String.format("ClickHouse={%s} table name cannot be empty", ckSink));
+        } else if (StringUtils.isEmpty(ckSink.getDbName())) {
+            throw new BusinessException(String.format("ClickHouse={%s} database name cannot be empty", ckSink));
         }
 
-        Integer isDistributed = sinkResponse.getIsDistributed();
+        Integer isDistributed = ckSink.getIsDistributed();
         if (isDistributed == null) {
-            throw new BusinessException(String.format("ClickHouse={%s} isDistributed cannot be null", sinkResponse));
+            throw new BusinessException(String.format("ClickHouse={%s} isDistributed cannot be null", ckSink));
         }
 
         // Default partition strategy is RANDOM
         ClickHouseSinkInfo.PartitionStrategy partitionStrategy = PartitionStrategy.RANDOM;
         boolean distributedTable = isDistributed == 1;
         if (distributedTable) {
-            if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+            if (PartitionStrategy.BALANCE.name().equalsIgnoreCase(ckSink.getPartitionStrategy())) {
                 partitionStrategy = PartitionStrategy.BALANCE;
-            } else if (PartitionStrategy.HASH.name().equalsIgnoreCase(sinkResponse.getPartitionStrategy())) {
+            } else if (PartitionStrategy.HASH.name().equalsIgnoreCase(ckSink.getPartitionStrategy())) {
                 partitionStrategy = PartitionStrategy.HASH;
             }
         }
 
         // TODO Add keyFieldNames instead of `new String[0]`
-        return new ClickHouseSinkInfo(sinkResponse.getJdbcUrl(), sinkResponse.getDbName(),
-                sinkResponse.getTableName(), sinkResponse.getUsername(), sinkResponse.getPassword(),
-                distributedTable, partitionStrategy, sinkResponse.getPartitionFields(),
+        return new ClickHouseSinkInfo(ckSink.getJdbcUrl(), ckSink.getDbName(),
+                ckSink.getTableName(), ckSink.getUsername(), ckSink.getPassword(),
+                distributedTable, partitionStrategy, ckSink.getPartitionFields(),
                 sinkFields.toArray(new FieldInfo[0]), new String[0],
-                sinkResponse.getFlushInterval(), sinkResponse.getFlushRecord(),
-                sinkResponse.getRetryTimes());
-    }
+                ckSink.getFlushInterval(), ckSink.getFlushRecord(),
+                ckSink.getRetryTimes());
+    }*/
 
-    // TODO Need set more configs for IcebergSinkInfo
-    private static IcebergSinkInfo createIcebergSinkInfo(IcebergSinkResponse sinkResponse, List<FieldInfo> sinkFields) {
-        if (StringUtils.isEmpty(sinkResponse.getDataPath())) {
-            throw new BusinessException(String.format("Iceberg={%s} data path cannot be empty", sinkResponse));
+    /*// TODO Need set more configs for IcebergSinkInfo
+    private static IcebergSinkInfo createIcebergSinkInfo(IcebergSink icebergSink, List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(icebergSink.getDataPath())) {
+            throw new BusinessException(String.format("Iceberg={%s} data path cannot be empty", icebergSink));
         }
 
-        return new IcebergSinkInfo(sinkFields.toArray(new FieldInfo[0]), sinkResponse.getDataPath());
-    }
+        return new IcebergSinkInfo(sinkFields.toArray(new FieldInfo[0]), icebergSink.getDataPath());
+    }*/
 
-    private static KafkaSinkInfo createKafkaSinkInfo(SourceResponse sourceResponse, KafkaSinkResponse sinkResponse,
+    /*private static KafkaSinkInfo createKafkaSinkInfo(StreamSource streamSource, KafkaSink kafkaSink,
             List<FieldInfo> sinkFields) {
-        String addressUrl = sinkResponse.getBootstrapServers();
-        String topicName = sinkResponse.getTopicName();
-        SerializationInfo serializationInfo = SerializationUtils.createSerialInfo(sourceResponse,
-                sinkResponse);
+        String addressUrl = kafkaSink.getBootstrapServers();
+        String topicName = kafkaSink.getTopicName();
+        SerializationInfo serializationInfo = SerializationUtils.createSerialInfo(streamSource, kafkaSink);
         return new KafkaSinkInfo(sinkFields.toArray(new FieldInfo[0]), addressUrl, topicName, serializationInfo);
-    }
+    }*/
 
-    /**
+    /*
      * Create Hive sink info.
      */
-    private static HiveSinkInfo createHiveSinkInfo(HiveSinkResponse hiveInfo, List<FieldInfo> sinkFields) {
+    /*private static HiveSinkInfo createHiveSinkInfo(HiveSink hiveInfo, List<FieldInfo> sinkFields) {
         if (hiveInfo.getJdbcUrl() == null) {
             throw new BusinessException(String.format("HiveSink={%s} server url cannot be empty", hiveInfo));
         }
@@ -196,13 +171,12 @@ public class SinkInfoUtils {
         return new HiveSinkInfo(sinkFields.toArray(new FieldInfo[0]), hiveInfo.getJdbcUrl(),
                 hiveInfo.getDbName(), hiveInfo.getTableName(), hiveInfo.getUsername(), hiveInfo.getPassword(),
                 dataPath, partitionList.toArray(new HiveSinkInfo.HivePartitionInfo[0]), fileFormat);
-    }
+    }*/
 
-    /**
+    /*
      * Check the validation of Hive partition field.
      */
-    public static void checkPartitionField(List<? extends SinkFieldBase> fieldList,
-            List<HivePartitionField> partitionList) {
+    /*public static void checkPartitionField(List<SinkField> fieldList, List<HivePartitionField> partitionList) {
         if (CollectionUtils.isEmpty(partitionList)) {
             return;
         }
@@ -211,7 +185,7 @@ public class SinkInfoUtils {
             throw new BusinessException(ErrorCodeEnum.SINK_FIELD_LIST_IS_EMPTY);
         }
 
-        Map<String, SinkFieldBase> sinkFieldMap = new HashMap<>(fieldList.size());
+        Map<String, SinkField> sinkFieldMap = new HashMap<>(fieldList.size());
         fieldList.forEach(field -> sinkFieldMap.put(field.getFieldName(), field));
 
         for (HivePartitionField partitionField : partitionList) {
@@ -220,7 +194,7 @@ public class SinkInfoUtils {
                 throw new BusinessException(ErrorCodeEnum.PARTITION_FIELD_NAME_IS_EMPTY);
             }
 
-            SinkFieldBase sinkField = sinkFieldMap.get(fieldName);
+            SinkField sinkField = sinkFieldMap.get(fieldName);
             if (sinkField == null) {
                 throw new BusinessException(
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NOT_FOUND.getMessage(), fieldName));
@@ -231,6 +205,42 @@ public class SinkInfoUtils {
                         String.format(ErrorCodeEnum.PARTITION_FIELD_NO_SOURCE_FIELD.getMessage(), fieldName));
             }
         }
-    }
+    }*/
+
+    /*
+     * Creat HBase sink info.
+     */
+    /*private static HbaseSinkInfo createHbaseSinkInfo(HBaseSink hbaseSink, List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(hbaseSink.getZkQuorum())) {
+            throw new BusinessException(String.format("HBase={%s} zookeeper quorum url cannot be empty", hbaseSink));
+        } else if (StringUtils.isEmpty(hbaseSink.getZkNodeParent())) {
+            throw new BusinessException(String.format("HBase={%s} zookeeper node cannot be empty", hbaseSink));
+        } else if (StringUtils.isEmpty(hbaseSink.getTableName())) {
+            throw new BusinessException(String.format("HBase={%s} table name cannot be empty", hbaseSink));
+        }
+
+        return new HbaseSinkInfo(sinkFields.toArray(new FieldInfo[0]), hbaseSink.getZkQuorum(),
+                hbaseSink.getZkNodeParent(), hbaseSink.getNamespace(), hbaseSink.getTableName(),
+                hbaseSink.getBufferFlushMaxSize(), hbaseSink.getBufferFlushMaxSize(),
+                hbaseSink.getBufferFlushInterval());
+
+    }*/
+
+    /*
+     * Creat Elasticsearch sink info.
+     */
+    /*private static ElasticsearchSinkInfo createEsSinkInfo(ElasticsearchSink esSink, List<FieldInfo> sinkFields) {
+        if (StringUtils.isEmpty(esSink.getHost())) {
+            throw new BusinessException(String.format("es={%s} host cannot be empty", esSink));
+        } else if (StringUtils.isEmpty(esSink.getIndexName())) {
+            throw new BusinessException(String.format("es={%s} indexName cannot be empty", esSink));
+        }
+
+        return new ElasticsearchSinkInfo(esSink.getHost(), esSink.getPort(),
+                esSink.getIndexName(), esSink.getUsername(), esSink.getPassword(),
+                sinkFields.toArray(new FieldInfo[0]), new String[0],
+                esSink.getFlushInterval(), esSink.getFlushRecord(),
+                esSink.getRetryTimes());
+    }*/
 
 }

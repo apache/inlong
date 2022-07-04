@@ -22,9 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.ConsumptionApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
@@ -99,13 +99,13 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         // System administrator approval
         UserTask adminUserTask = new UserTask();
         adminUserTask.setName(UT_ADMINT_NAME);
-        adminUserTask.setDisplayName("System Administrator");
+        adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(ConsumptionApproveForm.class);
         adminUserTask.setApproverAssign(this::adminUserTaskApprover);
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
-        // Set order relationship
+        // Set order relation
         startEvent.addNext(groupOwnerUserTask);
         groupOwnerUserTask.addNext(adminUserTask);
         adminUserTask.addNext(endEvent);

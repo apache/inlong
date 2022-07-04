@@ -20,8 +20,10 @@ package org.apache.inlong.manager.common.pojo.cluster;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Inlong cluster node request
@@ -30,20 +32,23 @@ import javax.validation.constraints.NotBlank;
 @ApiModel("Cluster node request")
 public class ClusterNodeRequest {
 
+    @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank
+    @NotNull(message = "parentId cannot be null")
     @ApiModelProperty(value = "ID of the parent cluster")
     private Integer parentId;
 
-    @NotBlank
+    @NotBlank(message = "type cannot be blank")
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
+    @NotBlank(message = "ip cannot be blank")
     @ApiModelProperty(value = "Cluster IP")
     private String ip;
 
+    @NotNull(message = "port cannot be null")
     @ApiModelProperty(value = "Cluster port")
     private Integer port;
 

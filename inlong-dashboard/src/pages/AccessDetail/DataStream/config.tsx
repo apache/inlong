@@ -33,7 +33,7 @@ export const getFilterFormContent = (defaultValues = {} as any) => [
 export const genExtraContent = ({
   editingId,
   record,
-  middlewareType,
+  mqType,
   onSave,
   onCancel,
   onEdit,
@@ -66,13 +66,7 @@ export const genExtraContent = ({
       ];
 };
 
-export const genFormContent = (
-  editingId,
-  currentValues,
-  inlongGroupId,
-  readonly,
-  middlewareType,
-) => {
+export const genFormContent = (editingId, currentValues, inlongGroupId, readonly, mqType) => {
   const extraParams = {
     inlongGroupId,
     useDataSourcesActionRequest: !!currentValues?.id,
@@ -95,8 +89,8 @@ export const genFormContent = (
         {
           label: 'Topic Name',
           type: 'text',
-          name: 'mqResourceObj',
-          visible: middlewareType === 'PULSAR' && editingId !== true,
+          name: 'mqResource',
+          visible: mqType === 'PULSAR' && editingId !== true,
         },
         'name',
         'description',
@@ -117,7 +111,7 @@ export const genFormContent = (
               {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
             </Divider>
           ),
-          visible: middlewareType === 'PULSAR',
+          visible: mqType === 'PULSAR',
         },
       ],
       currentValues,
@@ -126,7 +120,7 @@ export const genFormContent = (
     ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
       item => ({
         ...item,
-        visible: middlewareType === 'PULSAR',
+        visible: mqType === 'PULSAR',
       }),
     ),
     // ...genDataFields(

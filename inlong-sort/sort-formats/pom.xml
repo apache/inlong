@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sort</artifactId>
-        <version>1.2.0-incubating-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -62,7 +62,7 @@
     <properties>
         <flink.forkCount>1C</flink.forkCount>
         <flink.reuseForks>true</flink.reuseForks>
-        <log4j.configuration>log4j-test.properties</log4j.configuration>
+        <log4j.configurationfile>log4j2-test.properties</log4j.configurationfile>
     </properties>
 
     <!-- override these root dependencies as 'provided', so they don't end up
@@ -123,18 +123,12 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
         <!--flink dependency-->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
             <version>${flink.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -177,12 +171,6 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.surefire.version}</version>
                 <configuration>
@@ -190,7 +178,7 @@
                     <reuseForks>${flink.reuseForks}</reuseForks>
                     <systemPropertyVariables>
                         <forkNumber>0${surefire.forkNumber}</forkNumber>
-                        <log4j.configuration>${log4j.configuration}</log4j.configuration>
+                        <log4j.configurationFile>${log4j.configurationfile}</log4j.configurationFile>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>

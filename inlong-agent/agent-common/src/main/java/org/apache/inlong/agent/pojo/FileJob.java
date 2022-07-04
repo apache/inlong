@@ -29,6 +29,7 @@ public class FileJob  {
     private int id;
     private String timeOffset;
     private String addictiveString;
+    private String collectType;
 
     @Data
     public static class Dir {
@@ -59,6 +60,8 @@ public class FileJob  {
         private String timeOffset;
         //For example: a=b&c=b&e=f
         private String additionalAttr;
+
+        private String collectType;
     }
 
 }

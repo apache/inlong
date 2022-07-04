@@ -38,5 +38,5 @@ public interface UserRoleEntityMapper {
 
     int updateByPrimaryKey(UserRoleEntity record);
 
-    List<UserRoleEntity> listByUserName(String userName);
+    List<UserRoleEntity> listByUsername(String username);
 }

@@ -18,19 +18,22 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.common.pojo.dataproxy.PulsarClusterInfo;
-import org.apache.inlong.manager.common.beans.ClusterBean;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupPulsarEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupPulsarEntityMapper;
-import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.service.CommonOperateService;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.mq.util.PulsarOperator;
 import org.apache.inlong.manager.service.mq.util.PulsarUtils;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -46,21 +49,17 @@ import java.util.List;
  * Create Pulsar tenant, namespace and topic
  */
 @Slf4j
-@Component()
+@Component
 public class CreatePulsarResourceTaskListener implements QueueOperateListener {
 
     @Autowired
-    PulsarOptService pulsarOptService;
-    @Autowired
-    private ClusterBean clusterBean;
-    @Autowired
-    private CommonOperateService commonOperateService;
-    @Autowired
     private InlongGroupService groupService;
     @Autowired
-    private InlongGroupPulsarEntityMapper groupPulsarMapper;
+    private InlongStreamService streamService;
     @Autowired
-    private InlongStreamEntityMapper streamMapper;
+    private InlongClusterService clusterService;
+    @Autowired
+    private PulsarOperator pulsarOperator;
 
     @Override
     public TaskEvent event() {
@@ -77,15 +76,12 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
         if (groupInfo == null) {
             throw new WorkflowListenerException("inlong group or pulsar cluster not found for groupId=" + groupId);
         }
-        PulsarClusterInfo globalCluster = commonOperateService.getPulsarClusterInfo(groupInfo.getMiddlewareType());
-        try (PulsarAdmin globalPulsarAdmin = PulsarUtils.getPulsarAdmin(globalCluster)) {
-            List<String> pulsarClusters = PulsarUtils.getPulsarClusters(globalPulsarAdmin);
-            for (String cluster : pulsarClusters) {
-                String serviceUrl = PulsarUtils.getServiceUrl(globalPulsarAdmin, cluster);
-                PulsarClusterInfo pulsarClusterInfo = PulsarClusterInfo.builder()
-                        .token(globalCluster.getToken()).adminUrl(serviceUrl).build();
-                this.createPulsarProcess(groupInfo, pulsarClusterInfo);
-            }
+
+        try {
+            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+            ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
+                    ClusterType.PULSAR);
+            this.createPulsarProcess(pulsarInfo, (PulsarClusterInfo) clusterInfo);
         } catch (Exception e) {
             log.error("create pulsar resource error for groupId={}", groupId, e);
             throw new WorkflowListenerException("create pulsar resource error for groupId=" + groupId);
@@ -98,42 +94,38 @@ public class CreatePulsarResourceTaskListener implements QueueOperateListener {
     /**
      * Create Pulsar tenant, namespace and topic
      */
-    private void createPulsarProcess(InlongGroupInfo groupInfo, PulsarClusterInfo pulsarClusterInfo) throws Exception {
-        String groupId = groupInfo.getInlongGroupId();
-        log.info("begin to create pulsar resource for groupId={} in cluster={}", groupId, pulsarClusterInfo);
+    private void createPulsarProcess(InlongPulsarInfo pulsarInfo, PulsarClusterInfo pulsarCluster) throws Exception {
+        String groupId = pulsarInfo.getInlongGroupId();
+        log.info("begin to create pulsar resource for groupId={} in cluster={}", groupId, pulsarCluster);
 
-        String namespace = groupInfo.getMqResourceObj();
+        String namespace = pulsarInfo.getMqResource();
         Preconditions.checkNotNull(namespace, "pulsar namespace cannot be empty for groupId=" + groupId);
-        String queueModule = groupInfo.getQueueModule();
+        String queueModule = pulsarInfo.getQueueModule();
         Preconditions.checkNotNull(queueModule, "queue module cannot be empty for groupId=" + groupId);
 
-        String tenant = clusterBean.getDefaultTenant();
-        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarClusterInfo)) {
+        try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             // create pulsar tenant
-            pulsarOptService.createTenant(pulsarAdmin, tenant);
+            String tenant = pulsarCluster.getTenant();
+            if (StringUtils.isEmpty(tenant)) {
+                tenant = InlongConstants.DEFAULT_PULSAR_TENANT;
+            }
+            pulsarOperator.createTenant(pulsarAdmin, tenant);
 
             // create pulsar namespace
-            InlongGroupPulsarEntity entity = groupPulsarMapper.selectByGroupId(groupId);
-            pulsarOptService.createNamespace(pulsarAdmin, entity, tenant, namespace);
+            pulsarOperator.createNamespace(pulsarAdmin, pulsarInfo, tenant, namespace);
 
             // create pulsar topic
-            Integer partitionNum = groupInfo.getTopicPartitionNum();
-            List<InlongStreamTopicResponse> streamTopicList = streamMapper.selectTopicList(groupId);
+            Integer partitionNum = pulsarInfo.getPartitionNum();
+            List<InlongStreamBriefInfo> streamTopicList = streamService.getTopicList(groupId);
             PulsarTopicBean topicBean = PulsarTopicBean.builder()
                     .tenant(tenant).namespace(namespace).numPartitions(partitionNum).queueModule(queueModule).build();
 
-            for (InlongStreamTopicResponse topicVO : streamTopicList) {
-                topicBean.setTopicName(topicVO.getMqResourceObj());
-                pulsarOptService.createTopic(pulsarAdmin, topicBean);
+            for (InlongStreamBriefInfo streamInfo : streamTopicList) {
+                topicBean.setTopicName(streamInfo.getMqResource());
+                pulsarOperator.createTopic(pulsarAdmin, topicBean);
             }
         }
-        log.info("finish to create pulsar resource for groupId={}, service http url={}", groupId,
-                pulsarClusterInfo.getAdminUrl());
-    }
-
-    @Override
-    public boolean async() {
-        return false;
+        log.info("finish to create pulsar resource for groupId={}, cluster={}", groupId, pulsarCluster);
     }
 
 }

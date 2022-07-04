@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Paging query request for Source
@@ -33,7 +33,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Paging query request for Source")
 public class SourcePageRequest extends PageRequest {
 
-    @NotNull
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 

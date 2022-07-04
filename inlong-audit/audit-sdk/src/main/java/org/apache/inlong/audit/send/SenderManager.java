@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SenderManager {
     private static final Logger logger = LoggerFactory.getLogger(SenderManager.class);
-    public static final int DEFAULT_SEND_THREADNUM = 2;
     public static final Long MAX_REQUEST_ID = 1000000000L;
     private static final int SEND_INTERVAL_MS = 20;
     public static final int ALL_CONNECT_CHANNEL = -1;
@@ -80,8 +79,7 @@ public class SenderManager {
         try {
             this.auditConfig = config;
             this.maxConnectChannels = maxConnectChannels;
-            SenderHandler clientHandler = new SenderHandler(this);
-            this.sender = new SenderGroup(DEFAULT_SEND_THREADNUM, clientHandler);
+            this.sender = new SenderGroup(this);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
         }
@@ -154,7 +152,7 @@ public class SenderManager {
             logger.warn("send data is empty!");
             return;
         }
-        ByteBuf dataBuf =  ByteBufAllocator.DEFAULT.buffer(data.length);
+        ByteBuf dataBuf = ByteBufAllocator.DEFAULT.buffer(data.length);
         dataBuf.writeBytes(data);
         SenderResult result = this.sender.send(dataBuf);
         if (!result.result) {

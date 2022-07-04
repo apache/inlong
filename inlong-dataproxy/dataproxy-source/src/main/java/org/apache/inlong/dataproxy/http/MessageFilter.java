@@ -17,12 +17,12 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.GROUP_ID;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.DATA_TIME;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.STREAM_ID;
-import static org.apache.inlong.dataproxy.http.HttpSourceConstants.BODY;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flume.ChannelException;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -31,19 +31,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
-import org.apache.flume.ChannelException;
-import org.apache.inlong.common.monitor.LogCounter;
+import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class MessageFilter
-        implements Filter {
+public class MessageFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageFilter.class);
-    private static final LogCounter logCounter = new LogCounter(10,
-            100000, 60 * 1000);
 
     private final int maxMsgLength;
 
@@ -56,8 +48,7 @@ public class MessageFilter
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
@@ -76,10 +67,10 @@ public class MessageFilter
         }
 
         String invalidKey = null;
-        String groupId = req.getParameter(GROUP_ID);
-        String streamId = req.getParameter(STREAM_ID);
-        String dt = req.getParameter(DATA_TIME);
-        String body = req.getParameter(BODY);
+        String groupId = req.getParameter(AttributeConstants.GROUP_ID);
+        String streamId = req.getParameter(AttributeConstants.STREAM_ID);
+        String dt = req.getParameter(AttributeConstants.DATA_TIME);
+        String body = req.getParameter(AttributeConstants.BODY);
 
         if (StringUtils.isEmpty(groupId)) {
             invalidKey = "groupId";
@@ -92,7 +83,6 @@ public class MessageFilter
         }
 
         try {
-
             if (invalidKey != null) {
                 LOG.warn("Received bad request from client. " + invalidKey + " is empty.");
                 code = StatusCode.ILLEGAL_ARGUMENT;
@@ -129,7 +119,7 @@ public class MessageFilter
     private String getResultContent(int code, String message, String callback) {
         StringBuilder builder = new StringBuilder();
         if (StringUtils.isNotEmpty(callback)) {
-            builder.append(callback + "(");
+            builder.append(callback).append("(");
         }
         builder.append("{\"code\":\"");
         builder.append(code);
@@ -142,4 +132,5 @@ public class MessageFilter
 
         return builder.toString();
     }
+
 }

@@ -20,7 +20,10 @@ package org.apache.inlong.manager.common.pojo.group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 
 import java.util.Date;
@@ -30,7 +33,10 @@ import java.util.List;
  * Inlong group list
  */
 @Data
-@ApiModel("Inlong group List")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong group list")
 public class InlongGroupListResponse {
 
     @ApiModelProperty(value = "Primary key")
@@ -41,9 +47,6 @@ public class InlongGroupListResponse {
 
     @ApiModelProperty(value = "Inlong group name")
     private String name;
-
-    @ApiModelProperty(value = "Chinese display name")
-    private String cnName;
 
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
@@ -57,7 +60,7 @@ public class InlongGroupListResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "StreamSources in group")
-    private List<SourceListResponse> sourceListResponses;
+    @ApiModelProperty(value = "Stream sources in the inlong group")
+    private List<SourceListResponse> sourceResponses;
 
 }

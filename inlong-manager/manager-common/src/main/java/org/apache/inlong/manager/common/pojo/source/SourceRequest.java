@@ -22,9 +22,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamFieldInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -37,30 +37,37 @@ public class SourceRequest {
 
     private Integer id;
 
-    @NotNull
+    @NotBlank(message = "inlongGroupId cannot be null")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull
+    @NotBlank(message = "inlongStreamId cannot be null")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
+    @NotBlank(message = "sourceType cannot be null")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
-    @NotNull
+    @NotBlank(message = "sourceName cannot be null")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
+
+    @ApiModelProperty("Ip of the agent running the task")
+    private String agentIp;
 
     @ApiModelProperty("Mac uuid of the agent running the task")
     private String uuid;
 
-    @ApiModelProperty("Data node name")
-    private String dataNodeName;
-
+    @Deprecated
     @ApiModelProperty("Id of the cluster that collected this source")
     private Integer clusterId;
+
+    @ApiModelProperty("Inlong cluster name")
+    private String inlongClusterName;
+
+    @ApiModelProperty("Data node name")
+    private String dataNodeName;
 
     @ApiModelProperty("Serialization type, support: csv, json, canal, avro, etc")
     private String serializationType;
@@ -72,6 +79,6 @@ public class SourceRequest {
     private Integer version;
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
-    private List<InlongStreamFieldInfo> fieldList;
+    private List<StreamField> fieldList;
 
 }

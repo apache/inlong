@@ -17,12 +17,11 @@
 
 package org.apache.inlong.sdk.commons.protocol;
 
-import java.util.Map;
-
 import org.apache.inlong.sdk.commons.protocol.ProxySdk.MessageObj;
 
+import java.util.Map;
+
 /**
- * 
  * ProxyEvent
  */
 public class ProxyEvent extends SdkEvent {

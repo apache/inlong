@@ -49,6 +49,8 @@ public class StreamTransformFieldEntity implements Serializable {
 
     private Integer isMetaField;
 
+    private String metaFieldName;
+
     private String fieldFormat;
 
     private Integer rankNum;

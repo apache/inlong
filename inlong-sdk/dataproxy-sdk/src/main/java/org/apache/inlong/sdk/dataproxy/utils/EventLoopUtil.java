@@ -43,6 +43,9 @@ public class EventLoopUtil {
     public EventLoopUtil() {
     }
 
+    /**
+     * Create loop of event about group.
+     */
     public static EventLoopGroup newEventLoopGroup(int nThreads, boolean enableBusyWait, ThreadFactory threadFactory) {
         if (!Epoll.isAvailable()) {
             return new NioEventLoopGroup(nThreads, threadFactory);
@@ -58,21 +61,33 @@ public class EventLoopUtil {
         }
     }
 
+    /**
+     * Get class of socket's channel about client.
+     */
     public static Class<? extends SocketChannel> getClientSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollSocketChannel.class : NioSocketChannel.class;
     }
 
+    /**
+     * Get class of socket's channel about server.
+     */
     public static Class<? extends ServerSocketChannel> getServerSocketChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollServerSocketChannel.class : NioServerSocketChannel.class;
     }
 
+    /**
+     * Get class of datagram's channel.
+     */
     public static Class<? extends DatagramChannel> getDatagramChannelClass(EventLoopGroup eventLoopGroup) {
         return eventLoopGroup instanceof EpollEventLoopGroup
                 ? EpollDatagramChannel.class : NioDatagramChannel.class;
     }
 
+    /**
+     * Epoll mode.
+     */
     public static void enableTriggeredMode(ServerBootstrap bootstrap) {
         if (Epoll.isAvailable()) {
             bootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
@@ -80,10 +95,16 @@ public class EventLoopUtil {
 
     }
 
+    /**
+     * Gracefully close the thread pool.
+     */
     public static CompletableFuture<Void> shutdownGracefully(EventLoopGroup eventLoopGroup) {
         return toCompletableFutureVoid(eventLoopGroup.shutdownGracefully());
     }
 
+    /**
+     * Convert to CompletableFuture.
+     */
     public static CompletableFuture<Void> toCompletableFutureVoid(Future<?> future) {
         Objects.requireNonNull(future, "future cannot be null");
 

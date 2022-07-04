@@ -19,7 +19,7 @@ package org.apache.inlong.audit.sink;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -305,6 +305,9 @@ public class TubeSink extends AbstractSink implements Configurable {
 
     }
 
+    /**
+     * Send message of success.
+     */
     public void handleMessageSendSuccess(EventStat es) {
         //Statistics tube performance
         totalTubeSuccSendCnt.incrementAndGet();

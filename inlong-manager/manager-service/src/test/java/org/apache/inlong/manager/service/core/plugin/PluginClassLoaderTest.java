@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginDefinition;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -38,25 +38,24 @@ public class PluginClassLoaderTest {
 
         String path = this.getClass().getClassLoader().getResource("").getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
-                Thread.currentThread()
-                        .getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
-        Assert.assertEquals(1, pluginDefinitionMap.size());
+        Assertions.assertEquals(1, pluginDefinitionMap.size());
         PluginDefinition pluginDefinition = Lists.newArrayList(pluginDefinitionMap.values()).get(0);
-        Assert.assertNotNull(pluginDefinition);
+        Assertions.assertNotNull(pluginDefinition);
         String pluginClass = pluginDefinition.getPluginClass();
-        Assert.assertTrue(StringUtils.isNotEmpty(pluginClass));
+        Assertions.assertTrue(StringUtils.isNotEmpty(pluginClass));
         try {
             Class cls = pluginClassLoader.loadClass(pluginClass);
             Plugin plugin = (Plugin) cls.getDeclaredConstructor().newInstance();
-            Assert.assertTrue(plugin instanceof ProcessPlugin);
+            Assertions.assertTrue(plugin instanceof ProcessPlugin);
         } catch (ClassNotFoundException
                 | NoSuchMethodException
                 | InstantiationException
                 | IllegalAccessException
                 | InvocationTargetException e) {
-            Assert.assertTrue(e instanceof ClassNotFoundException);
-            Assert.fail();
+            Assertions.assertTrue(e instanceof ClassNotFoundException);
+            Assertions.fail();
         }
     }
 

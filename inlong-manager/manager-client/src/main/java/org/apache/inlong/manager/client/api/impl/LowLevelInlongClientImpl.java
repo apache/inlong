@@ -25,7 +25,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.LowLevelInlongClient;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
-import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.util.HttpUtils;
@@ -43,6 +43,9 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     @Getter
     private final ClientConfiguration configuration;
 
+    /**
+     * Constructor of LowLevelInlongClientImpl.
+     */
     public LowLevelInlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
                 .split(serviceUrl);
@@ -68,7 +71,13 @@ public class LowLevelInlongClientImpl implements LowLevelInlongClient {
     }
 
     @Override
-    public Response<PageInfo<InlongGroupListResponse>> listGroup(InlongGroupPageRequest request) throws Exception {
+    public Integer saveCluster(ClusterRequest request) throws Exception {
+        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
+        return managerClient.saveCluster(request);
+    }
+
+    @Override
+    public PageInfo<InlongGroupListResponse> listGroup(InlongGroupPageRequest request) throws Exception {
         InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         return managerClient.listGroups(request);
     }

@@ -18,22 +18,19 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamTopicResponse;
-import org.apache.inlong.manager.common.pojo.stream.StreamBriefResponse;
 
 import java.util.List;
 
 /**
  * Inlong stream service layer interface
  *
- * @apiNote It is associated with various DataSources, the upstream is StreamSource, and the downstream is
+ * @apiNote It is associated with various sources, the upstream is StreamSource, and the downstream is
  *         StreamSink
  */
 public interface InlongStreamService {
@@ -115,27 +112,7 @@ public interface InlongStreamService {
      * @param groupId Inlong group id
      * @return Summary list of inlong stream
      */
-    List<StreamBriefResponse> getBriefList(String groupId);
-
-    /**
-     * Save all information related to the inlong stream, its data source, and stream sink
-     *
-     * @param fullStreamRequest All information on the page
-     * @param operator Edit person's name
-     * @return Whether the save was successful
-     */
-    boolean saveAll(FullStreamRequest fullStreamRequest, String operator);
-
-    /**
-     * Save inlong streams, their data sources, and all information related to stream sink in batches
-     *
-     * @param fullStreamRequestList List of inlong stream page information
-     * @param operator Edit person's name
-     * @return Whether the save was successful
-     * @apiNote This interface is only used when creating a new inlong group. To ensure data consistency,
-     *         all associated data needs to be physically deleted, and then added
-     */
-    boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator);
+    List<InlongStreamBriefInfo> getBriefList(String groupId);
 
     /**
      * Paging query all data of the inlong stream page under the specified groupId
@@ -143,7 +120,7 @@ public interface InlongStreamService {
      * @param request Query
      * @return Paging list of all data on the inlong stream page
      */
-    PageInfo<FullStreamResponse> listAllWithGroupId(InlongStreamPageRequest request);
+    PageInfo<InlongStreamInfo> listAllWithGroupId(InlongStreamPageRequest request);
 
     /**
      * According to the group id, query the number of valid inlong streams belonging to this service
@@ -156,7 +133,7 @@ public interface InlongStreamService {
     /**
      * According to the inlong group id, query the Topic list
      */
-    List<InlongStreamTopicResponse> getTopicList(String groupId);
+    List<InlongStreamBriefInfo> getTopicList(String groupId);
 
     /**
      * Save the information modified when the approval is passed

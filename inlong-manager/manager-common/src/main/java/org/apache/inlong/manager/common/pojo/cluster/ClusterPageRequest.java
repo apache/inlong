@@ -19,35 +19,54 @@ package org.apache.inlong.manager.common.pojo.cluster;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+import java.util.List;
+
 /**
- * Cluster paging query conditions
+ * Inlong cluster paging query conditions
  */
-@Deprecated
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster paging query conditions")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong cluster paging query request")
 public class ClusterPageRequest extends PageRequest {
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP")
-    private String ip;
+    @ApiModelProperty(value = "Cluster type list")
+    private List<String> typeList;
 
-    @ApiModelProperty(value = "Keyword, name, description, etc.")
+    @ApiModelProperty(value = "Cluster name")
+    private String name;
+
+    @ApiModelProperty(value = "Parent cluster ID, used for cluster node")
+    private Integer parentId;
+
+    @ApiModelProperty(value = "Keywords, name, url, cluster tag, etc.")
     private String keyword;
+
+    @ApiModelProperty(value = "Cluster tag")
+    private String clusterTag;
+
+    @ApiModelProperty(value = "Extend tag")
+    private String extTag;
+
+    @ApiModelProperty(value = "The inlong cluster tag list")
+    private List<String> clusterTagList;
 
     @ApiModelProperty(value = "Status")
     private Integer status;
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-
-    @ApiModelProperty(value = "Set name of MQ cluster", hidden = true)
-    private String mqSetName;
 
 }

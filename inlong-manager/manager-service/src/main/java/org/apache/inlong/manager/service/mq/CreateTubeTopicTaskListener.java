@@ -18,19 +18,20 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.tubemq.AddTubeMqTopicRequest;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.mq.util.TubeMQOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 
 /**
  * Create a listener for MQ resource tasks
@@ -40,9 +41,9 @@ import java.util.Collections;
 public class CreateTubeTopicTaskListener implements QueueOperateListener {
 
     @Autowired
-    private TubeMqOptService tubeMqOptService;
+    private InlongClusterService clusterService;
     @Autowired
-    private InlongGroupService groupService;
+    private TubeMQOperator tubeMQOperator;
 
     @Override
     public TaskEvent event() {
@@ -52,30 +53,19 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-
         log.info("begin create tube topic for groupId={}", form.getInlongGroupId());
+
         String groupId = form.getInlongGroupId();
-
         try {
-            InlongGroupInfo groupInfo = groupService.get(groupId);
-            String topicName = groupInfo.getMqResourceObj();
-            AddTubeMqTopicRequest request = new AddTubeMqTopicRequest();
-            request.setUser("inlong-manager");
-            AddTubeMqTopicRequest.AddTopicTasksBean tasksBean = new AddTubeMqTopicRequest.AddTopicTasksBean();
-            tasksBean.setTopicName(topicName);
-            request.setAddTopicTasks(Collections.singletonList(tasksBean));
-            tubeMqOptService.createNewTopic(request);
-
+            InlongGroupInfo groupInfo = form.getGroupInfo();
+            String clusterTag = groupInfo.getInlongClusterTag();
+            ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.TUBE);
+            tubeMQOperator.createTopic((TubeClusterInfo) clusterInfo, groupInfo.getMqResource(), context.getOperator());
             log.info("finish to create tube topic for groupId={}", groupId);
         } catch (Exception e) {
             log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
         }
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

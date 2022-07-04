@@ -20,8 +20,8 @@ package org.apache.inlong.sdk.dataproxy.network;
 
 import io.netty.channel.Channel;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.FileCallback;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
@@ -71,6 +71,9 @@ public class Sender {
         this(configure, null);
     }
 
+    /**
+     * Constructor of sender takes two arguments {@link ProxyClientConfig} and {@link ThreadFactory}
+     */
     public Sender(ProxyClientConfig configure, ThreadFactory selfDefineFactory) throws Exception {
         this.configure = configure;
         this.asyncCallbackMaxSize = configure.getTotalAsyncCallbackSize();
@@ -507,7 +510,9 @@ public class Sender {
         return !needEqual;
     }
 
-    /* Following methods used by asynchronously message sending. */
+    /**
+     * Following methods used by asynchronously message sending.
+     */
     public void asyncSendMessage(EncodeObject encodeObject, SendMessageCallback callback, String msgUUID,
             long timeout, TimeUnit timeUnit) throws ProxysdkException {
         metricWorker.recordNumByKey(encodeObject.getMessageId(), encodeObject.getGroupId(),

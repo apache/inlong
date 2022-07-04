@@ -19,7 +19,10 @@ package org.apache.inlong.manager.service.resource.es;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
+
+import lombok.Data;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -36,6 +39,7 @@ import org.springframework.stereotype.Component;
 /**
  * Elasticsearch config information, including host, port, etc.
  */
+@Data
 @Component
 public class ElasticsearchConfig {
 
@@ -46,7 +50,7 @@ public class ElasticsearchConfig {
     @Value("${es.auth.enable}")
     private Boolean authEnable = false;
     @Value("${es.auth.user}")
-    private String user;
+    private String username;
     @Value("${es.auth.password}")
     private String password;
 
@@ -95,7 +99,7 @@ public class ElasticsearchConfig {
             logger.info("set es auth of enable={}", authEnable);
             if (authEnable) {
                 final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+                credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
                 builder.setHttpClientConfigCallback(
                         httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 
@@ -104,4 +108,5 @@ public class ElasticsearchConfig {
             logger.error("set es auth error ", e);
         }
     }
+
 }

@@ -191,4 +191,7 @@ public class AgentConstants {
     public static final String JOB_VERSION = "job.version";
     public static final Integer DEFAULT_JOB_VERSION = 1;
 
+    public static final String AGENT_ENABLE_OOM_EXIT = "agent.enable.oom.exit";
+    public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
+
 }
