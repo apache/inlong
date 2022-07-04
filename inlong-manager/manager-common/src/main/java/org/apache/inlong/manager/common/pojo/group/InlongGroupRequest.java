@@ -125,8 +125,9 @@ public class InlongGroupRequest {
             throw new BusinessException("characters for inlongGroupId must be more than 4 and less than 200");
         }
 
-        if (!SmallTools.isLetterOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId must contains only lower letters, digits, `-` or `_`");
+        if (!SmallTools.isLowerOrNum(inlongGroupId)) {
+            throw new BusinessException("inlongGroupId must starts with a lowercase letter "
+                    + "and contains only lowercase letters, digits, `-` or `_`");
         }
 
         if (StringUtils.isBlank(mqType)) {
