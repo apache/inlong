@@ -150,7 +150,14 @@ public class FlinkOperation {
     }
 
     /**
-     * Check if nodeIds equal.
+     * Check whether there are duplicate NodeIds in different relations.
+     * JSON data in the dataflow, the order of the nodes in the actual dataflow is reversed.
+     * such as dataflow A -> B -> C, resulting topological relationship is [[B, C], [A, B]],
+     * the input B in the first node [B, C] is the output B in the second node [A, B].
+     * The input of the first node is the output of the second node.
+     * First add the input and output of the first relation (where the output node is the last node in the dataflow),
+     * then start from the first relation, and traverse the input nodes in different relations in turn to see
+     * if there are duplicates
      */
     private void checkNodeIds(String dataflow) throws Exception {
         JsonNode relations = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
@@ -184,9 +191,6 @@ public class FlinkOperation {
             nodeIdsPairList.add(Pair.of(inputIds, outputIds));
         }
 
-        // Determine whether there are duplicate NodeIds in different relations, allNodeIds contains all nodeIds
-        // such as dataflow A -> B -> C, resulting topological relationship is [[B,C],[A,B]]
-        // The output of the next node is the input of the previous node
         if (nodeIdsPairList.size() > 1) {
             List<String> allNodeIds = new ArrayList<>(nodeIdsPairList.get(0).getLeft());
             allNodeIds.addAll(nodeIdsPairList.get(0).getRight());
