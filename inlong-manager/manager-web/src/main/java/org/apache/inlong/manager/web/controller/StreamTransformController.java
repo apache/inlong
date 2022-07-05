@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
@@ -76,11 +77,9 @@ public class StreamTransformController {
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Delete stream transform")
-    public Response<Boolean> delete(@RequestParam("inlongGroupId") String groupId,
-            @RequestParam("inlongStreamId") String streamId,
-            @RequestParam("transformName") String transformName) {
+    public Response<Boolean> delete(@Validated DeleteTransformRequest request) {
         String operator = LoginUserUtils.getLoginUserDetail().getUsername();
-        return Response.success(streamTransformService.delete(groupId, streamId, transformName, operator));
+        return Response.success(streamTransformService.delete(request, operator));
     }
 
 }
