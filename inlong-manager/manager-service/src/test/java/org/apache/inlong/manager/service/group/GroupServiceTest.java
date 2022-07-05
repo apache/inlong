@@ -26,6 +26,9 @@ import org.junit.jupiter.api.Test;
 import javax.annotation.Resource;
 import javax.validation.ConstraintViolationException;
 
+/**
+ * Test for {@link InlongGroupService}
+ */
 class GroupServiceTest extends ServiceBaseTest {
 
     @Resource
@@ -33,13 +36,21 @@ class GroupServiceTest extends ServiceBaseTest {
 
     @Test
     void testGroupUpdateFailByValid() {
-        Assertions.assertThrows(ConstraintViolationException.class,
+        ConstraintViolationException exception = Assertions.assertThrows(
+                ConstraintViolationException.class,
                 () -> groupService.update(new InlongTubeRequest(), ""));
+
+        Assertions.assertTrue(exception.getMessage().contains("inCharges: inCharges must not be blank"));
+        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId: inlongGroupId must not be blank"));
     }
 
     @Test
     void testUpdateAfterApproveFailByValid() {
-        Assertions.assertThrows(ConstraintViolationException.class,
+        ConstraintViolationException exception = Assertions.assertThrows(ConstraintViolationException.class,
                 () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), ""));
+
+        Assertions.assertTrue(exception.getMessage().contains("mqType: mqType must not be blank"));
+        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId: inlongGroupId must not be blank"));
+
     }
 }
