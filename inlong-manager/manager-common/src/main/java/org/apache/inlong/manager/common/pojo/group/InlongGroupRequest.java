@@ -45,6 +45,7 @@ import java.util.List;
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
 public class InlongGroupRequest {
 
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
