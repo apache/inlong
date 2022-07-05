@@ -646,9 +646,8 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        RuntimeException exception = Assertions.assertThrows(IllegalStateException.class,
+        RuntimeException exception = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> innerInlongManagerClient.listSinks("", "11"));
-
         Assertions.assertTrue(exception.getMessage().contains("groupId should not empty"));
     }
 

@@ -21,11 +21,10 @@ import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
 
@@ -45,13 +44,13 @@ public class InnerGroupContext {
     private NewGroupProcessForm initMsg;
 
     public String getGroupId() {
-        AssertUtils.notNull(groupInfo, "InlongGroupRequest is not init");
+        Preconditions.checkNotNull(groupInfo, "inlong group info was not init");
         return groupInfo.getInlongGroupId();
     }
 
     public void setStreamContext(InnerStreamContext streamContext) {
-        AssertUtils.isTrue(streamContext != null && streamContext.getStreamInfo() != null,
-                "StreamContext should not be null");
+        Preconditions.checkTrue(streamContext != null && streamContext.getStreamInfo() != null,
+                "stream context cannot be null");
         if (MapUtils.isEmpty(streamContextMap)) {
             streamContextMap = Maps.newHashMap();
         }
@@ -59,18 +58,11 @@ public class InnerGroupContext {
     }
 
     public void setStream(InlongStream stream) {
-        AssertUtils.isTrue(stream != null, "Stream should not be null");
+        Preconditions.checkTrue(stream != null, "stream cannot be null");
         if (MapUtils.isEmpty(streamMap)) {
             streamMap = Maps.newHashMap();
         }
         streamMap.put(stream.getInlongStreamId(), stream);
     }
 
-    public InlongStream getStream(String streamId) {
-        AssertUtils.isTrue(StringUtils.isNotEmpty(streamId), "Stream streamId should not be null");
-        if (MapUtils.isNotEmpty(streamMap)) {
-            return streamMap.get(streamId);
-        }
-        return null;
-    }
 }

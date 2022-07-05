@@ -30,10 +30,11 @@ import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.DateUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
+import org.apache.inlong.manager.common.util.MD5Utils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.RSAUtils;
-import org.apache.inlong.manager.common.util.SmallTools;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
@@ -46,8 +47,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.inlong.manager.common.util.SmallTools.getOverDueDate;
 
 /**
  * User service layer implementation
@@ -76,7 +75,7 @@ public class UserServiceImpl implements UserService {
         UserInfo result = new UserInfo();
         result.setId(entity.getId());
         result.setUsername(entity.getName());
-        result.setValidDays(SmallTools.getValidDays(entity.getCreateTime(), entity.getDueDate()));
+        result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
 
         try {
@@ -105,8 +104,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity entity = new UserEntity();
         entity.setAccountType(userInfo.getType());
-        entity.setPassword(SmallTools.passwordMd5(userInfo.getPassword()));
-        entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
+        entity.setPassword(MD5Utils.encrypt(userInfo.getPassword()));
+        entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
         try {
@@ -145,8 +144,8 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
 
-        // update password by updatePassword()
-        entity.setDueDate(getOverDueDate(userInfo.getValidDays()));
+        // update password
+        entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
         entity.setAccountType(userInfo.getType());
         entity.setName(userInfo.getUsername());
 
@@ -161,9 +160,9 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(entity, "User [" + username + "] not exists");
 
         String oldPassword = request.getOldPassword();
-        String oldPasswordMd = SmallTools.passwordMd5(oldPassword);
+        String oldPasswordMd = MD5Utils.encrypt(oldPassword);
         Preconditions.checkTrue(oldPasswordMd.equals(entity.getPassword()), "Old password is wrong");
-        String newPasswordMd5 = SmallTools.passwordMd5(request.getNewPassword());
+        String newPasswordMd5 = MD5Utils.encrypt(request.getNewPassword());
         entity.setPassword(newPasswordMd5);
 
         log.debug("success to update user password, username={}", username);
