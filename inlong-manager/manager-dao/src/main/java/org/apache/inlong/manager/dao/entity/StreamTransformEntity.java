@@ -29,32 +29,20 @@ import java.util.Date;
 public class StreamTransformEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private int id;
-
+    private Integer id;
     private String inlongGroupId;
-
     private String inlongStreamId;
-
     private String transformName;
-
     private String transformType;
-
     private String preNodeNames;
-
     private String postNodeNames;
-
     private String transformDefinition;
 
     private Integer version;
-
     private Integer isDeleted;
-
     private String creator;
-
     private String modifier;
-
     private Date createTime;
-
     private Date modifyTime;
+
 }
