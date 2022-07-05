@@ -19,6 +19,9 @@ package org.apache.inlong.manager.plugin.flink.enums;
 
 import lombok.Getter;
 
+/**
+ * Connectors corresponding to different datasource types in inlong-sort
+ */
 @Getter
 public enum ConnectorJarType {
 
