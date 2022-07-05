@@ -184,7 +184,7 @@ public class Elasticsearch6DynamicSinkITCase {
                         + "PRIMARY KEY (a, g) NOT ENFORCED\n"
                         + ")\n"
                         + "WITH (\n"
-                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6")
+                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6-inlong")
                         + String.format(
                                 "'%s'='%s',\n", ElasticsearchOptions.INDEX_OPTION.key(), index)
                         + String.format(
@@ -250,7 +250,7 @@ public class Elasticsearch6DynamicSinkITCase {
                         + "g TIMESTAMP NOT NULL\n"
                         + ")\n"
                         + "WITH (\n"
-                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6")
+                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6-inlong")
                         + String.format(
                                 "'%s'='%s',\n", ElasticsearchOptions.INDEX_OPTION.key(), index)
                         + String.format(
@@ -346,7 +346,7 @@ public class Elasticsearch6DynamicSinkITCase {
                         + "PRIMARY KEY (a) NOT ENFORCED\n"
                         + ")\n"
                         + "WITH (\n"
-                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6")
+                        + String.format("'%s'='%s',\n", "connector", "elasticsearch-6-inlong")
                         + String.format(
                                 "'%s'='%s',\n", ElasticsearchOptions.INDEX_OPTION.key(), index)
                         + String.format(

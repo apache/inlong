@@ -28,7 +28,7 @@ import org.apache.http.HttpHost;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.apache.flink.streaming.connectors.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 
 /** Elasticsearch 7 specific configuration. */
 @Internal

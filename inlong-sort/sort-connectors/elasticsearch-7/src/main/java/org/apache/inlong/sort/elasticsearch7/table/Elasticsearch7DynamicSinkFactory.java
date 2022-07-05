@@ -158,7 +158,7 @@ public class Elasticsearch7DynamicSinkFactory implements DynamicTableSinkFactory
 
     @Override
     public String factoryIdentifier() {
-        return "elasticsearch-7";
+        return "elasticsearch-7-inlong";
     }
 
     @Override

@@ -104,9 +104,9 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "elasticsearch-7");
+        options.put("connector", "elasticsearch-7-inlong");
         if (version == 6) {
-            options.put("connector", "elasticsearch-6");
+            options.put("connector", "elasticsearch-6-inlong");
             options.put("document-type", documentType);
         }
         options.put("hosts", hosts);

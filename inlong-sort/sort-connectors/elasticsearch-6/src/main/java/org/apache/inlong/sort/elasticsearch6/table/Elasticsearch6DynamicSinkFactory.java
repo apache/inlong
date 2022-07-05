@@ -158,7 +158,7 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
 
     @Override
     public String factoryIdentifier() {
-        return "elasticsearch-6";
+        return "elasticsearch-6-inlong";
     }
 
     @Override

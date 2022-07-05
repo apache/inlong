@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-org.apache.inlong.sort.kafka.table.Elasticsearch7DynamicSinkFactory
+org.apache.inlong.sort.elasticsearch7.table.Elasticsearch7DynamicSinkFactory
