@@ -45,7 +45,7 @@ public class InlongStreamRequest {
     @NotBlank(message = "inlongStreamId cannot be blank")
     @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
-            message = "inlongStreamId only supports lowercase letters, numbers, '_', or '_'")
+            message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 

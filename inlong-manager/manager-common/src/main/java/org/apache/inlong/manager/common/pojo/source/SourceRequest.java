@@ -58,7 +58,7 @@ public class SourceRequest {
     @NotBlank(message = "sourceName cannot be blank")
     @Length(min = 1, max = 100, message = "sourceName length must be between 1 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
-            message = "sourceName only supports lowercase letters, numbers, '_', or '_'")
+            message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 

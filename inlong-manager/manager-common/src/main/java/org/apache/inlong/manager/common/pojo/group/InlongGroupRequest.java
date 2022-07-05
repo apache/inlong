@@ -48,7 +48,7 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "Inlong group id", required = true)
     @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
-            message = "inlongGroupId only supports lowercase letters, numbers, '_', or '_'")
+            message = "inlongGroupId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -125,7 +125,7 @@ public class InlongGroupRequest {
         }
 
         if (!SmallTools.isLowerOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId only supports lowercase letters, numbers, '_', or '_'");
+            throw new BusinessException("inlongGroupId only supports lowercase letters, numbers, '-', or '_'");
         }
 
         if (StringUtils.isBlank(mqType)) {

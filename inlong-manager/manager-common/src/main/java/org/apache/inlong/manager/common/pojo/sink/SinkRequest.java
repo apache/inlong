@@ -59,7 +59,7 @@ public class SinkRequest {
     @NotBlank(message = "sinkName cannot be blank")
     @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
     @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
-            message = "sinkName only supports lowercase letters, numbers, '_', or '_'")
+            message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 
