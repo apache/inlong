@@ -82,6 +82,15 @@ public class ClickHouseSink extends StreamSink {
     @ApiModelProperty("ClickHouse table engine")
     private String engine;
 
+    @ApiModelProperty("Table partition information")
+    private String partitionBy;
+
+    @ApiModelProperty("Table order information")
+    private String orderBy;
+
+    @ApiModelProperty("Table primary key")
+    private String primaryKey;
+
     public ClickHouseSink() {
         this.setSinkType(SinkType.SINK_CLICKHOUSE);
     }
