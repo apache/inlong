@@ -15,33 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.manager.common.pojo.transform;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotBlank;
 
 /**
- * Stream source field entity, including field name, field value, etc.
+ * Delete request of transform
  */
 @Data
-public class StreamSourceFieldEntity implements Serializable {
+@ApiModel("Delete request of stream transform")
+public class DeleteTransformRequest {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
+    @NotBlank(message = "inlongGroupId cannot be blank")
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
+
+    @NotBlank(message = "inlongStreamId cannot be blank")
+    @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
-    private Integer sourceId;
-    private String sourceType;
-    private String fieldName;
-    private String fieldType;
-    private String fieldComment;
-    private String fieldValue;
-    private String preExpression;
-    private Integer isMetaField;
-    private String metaFieldName;
-    private String fieldFormat;
-    private Integer rankNum;
-    private Integer isDeleted;
+
+    @NotBlank(message = "transformName cannot be blank")
+    @ApiModelProperty("Transform name, unique in one stream")
+    private String transformName;
 
 }
+

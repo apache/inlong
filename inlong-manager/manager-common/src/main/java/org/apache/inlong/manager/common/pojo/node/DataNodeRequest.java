@@ -42,11 +42,11 @@ public class DataNodeRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank
-    @ApiModelProperty(value = "Node  name")
+    @NotBlank(message = "node name cannot be blank")
+    @ApiModelProperty(value = "Node name")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "node type cannot be blank")
     @ApiModelProperty(value = "Node type, including MYSQL, HIVE, KAFKA, ES, etc.")
     private String type;
 
@@ -56,13 +56,13 @@ public class DataNodeRequest {
     @ApiModelProperty(value = "Node username")
     private String username;
 
-    @ApiModelProperty(value = "Node token")
+    @ApiModelProperty(value = "Node token if needed")
     private String token;
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
-    @NotBlank
+    @NotBlank(message = "inCharges cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
     private String inCharges;
 
