@@ -58,16 +58,16 @@ cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
 cp ${tubemq_manager_tarball} ${tubemq_manager_dockerfile_path}/target/${tubemq_manager_tarball_name}
 
-docker build -t inlong/manager:${tag} inlong-manager/manager-docker/ --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
-docker build -t inlong/dataproxy:${tag} inlong-dataproxy/dataproxy-docker/ --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
-docker build -t inlong/audit:${tag} inlong-audit/audit-docker/ --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
+docker build -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
+docker build -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
+docker build -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
 docker build -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
-docker build -t inlong/dashboard:${tag} inlong-dashboard/ --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
-docker build -t inlong/agent:${tag} inlong-agent/agent-docker/ --build-arg AGENT_TARBALL=${AGENT_TARBALL}
+docker build -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
+docker build -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
 
-docker tag inlong/manager:${tag} inlong/manager:latest-aarch64
-docker tag inlong/dataproxy:${tag} inlong/dataproxy:latest-aarch64
-docker tag inlong/audit:${tag} inlong/audit:latest-aarch64
-docker tag inlong/tubemq-manager:${tag} inlong/tubemq-manager:latest-aarch64
-docker tag inlong/dashboard:${tag} inlong/dashboard:latest-aarch64
-docker tag inlong/agent:${tag} inlong/agent:latest-aarch64
+docker tag inlong/manager:${tag}         inlong/manager:latest-aarch64
+docker tag inlong/dataproxy:${tag}       inlong/dataproxy:latest-aarch64
+docker tag inlong/audit:${tag}           inlong/audit:latest-aarch64
+docker tag inlong/tubemq-manager:${tag}  inlong/tubemq-manager:latest-aarch64
+docker tag inlong/dashboard:${tag}       inlong/dashboard:latest-aarch64
+docker tag inlong/agent:${tag}           inlong/agent:latest-aarch64

@@ -48,34 +48,25 @@ buildImage() {
 initTagImageForx86() {
   SRC_POSTFIX=""
   DES_POSTFIX="-x86"
-  docker tag inlong/manager:latest${SRC_POSTFIX}      inlong/manager:latest${DES_POSTFIX}
+  docker tag inlong/manager:latest${SRC_POSTFIX}         inlong/manager:latest${DES_POSTFIX}
   docker tag inlong/agent:latest${SRC_POSTFIX}           inlong/agent:latest${DES_POSTFIX}
   docker tag inlong/dataproxy:latest${SRC_POSTFIX}       inlong/dataproxy:latest${DES_POSTFIX}
   docker tag inlong/tubemq-manager:latest${SRC_POSTFIX}  inlong/tubemq-manager:latest${DES_POSTFIX}
   docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      inlong/tubemq-all:latest${DES_POSTFIX}
   docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    inlong/tubemq-build:latest${DES_POSTFIX}
-  docker tag inlong/dashboard:latest${SRC_POSTFIX}         inlong/dashboard:latest${DES_POSTFIX}
+  docker tag inlong/dashboard:latest${SRC_POSTFIX}       inlong/dashboard:latest${DES_POSTFIX}
   docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      inlong/tubemq-cpp:latest${DES_POSTFIX}
-  docker tag inlong/audit:latest${SRC_POSTFIX}      inlong/audit:latest${DES_POSTFIX}
+  docker tag inlong/audit:latest${SRC_POSTFIX}           inlong/audit:latest${DES_POSTFIX}
 
-  docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/manager:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/agent:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/dataproxy:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}  \
-    inlong/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/dashboard:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX} \
-    inlong/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}  \
-    inlong/audit:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX}         inlong/manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX}           inlong/agent:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX}       inlong/dataproxy:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}  inlong/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    inlong/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}       inlong/dashboard:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      inlong/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}           inlong/audit:${MVN_VERSION}${DES_POSTFIX}
 }
 
 tagImage() {
@@ -95,34 +86,25 @@ tagImage() {
     DES_POSTFIX="-x86"
   fi
 
-  docker tag inlong/manager:latest${SRC_POSTFIX}      ${docker_registry_org}/manager:latest${DES_POSTFIX}
+  docker tag inlong/manager:latest${SRC_POSTFIX}         ${docker_registry_org}/manager:latest${DES_POSTFIX}
   docker tag inlong/agent:latest${SRC_POSTFIX}           ${docker_registry_org}/agent:latest${DES_POSTFIX}
   docker tag inlong/dataproxy:latest${SRC_POSTFIX}       ${docker_registry_org}/dataproxy:latest${DES_POSTFIX}
   docker tag inlong/tubemq-manager:latest${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:latest${DES_POSTFIX}
   docker tag inlong/tubemq-all:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:latest${DES_POSTFIX}
   docker tag inlong/tubemq-build:latest${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:latest${DES_POSTFIX}
-  docker tag inlong/dashboard:latest${SRC_POSTFIX}         ${docker_registry_org}/dashboard:latest${DES_POSTFIX}
+  docker tag inlong/dashboard:latest${SRC_POSTFIX}       ${docker_registry_org}/dashboard:latest${DES_POSTFIX}
   docker tag inlong/tubemq-cpp:latest${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:latest${DES_POSTFIX}
-  docker tag inlong/audit:latest${SRC_POSTFIX}      ${docker_registry_org}/audit:latest${DES_POSTFIX}
+  docker tag inlong/audit:latest${SRC_POSTFIX}           ${docker_registry_org}/audit:latest${DES_POSTFIX}
 
-  docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/manager:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/agent:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/dataproxy:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}  \
-    ${docker_registry_org}/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/dashboard:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX} \
-    ${docker_registry_org}/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
-  docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}  \
-    ${docker_registry_org}/audit:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/manager:${MVN_VERSION}${SRC_POSTFIX}         ${docker_registry_org}/manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/agent:${MVN_VERSION}${SRC_POSTFIX}           ${docker_registry_org}/agent:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dataproxy:${MVN_VERSION}${SRC_POSTFIX}       ${docker_registry_org}/dataproxy:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-manager:${MVN_VERSION}${SRC_POSTFIX}  ${docker_registry_org}/tubemq-manager:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-all:${MVN_VERSION}${SRC_POSTFIX}      ${docker_registry_org}/tubemq-all:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-build:${MVN_VERSION}${SRC_POSTFIX}    ${docker_registry_org}/tubemq-build:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/dashboard:${MVN_VERSION}${SRC_POSTFIX}       ${docker_registry_org}/dashboard:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/tubemq-cpp:${MVN_VERSION}${SRC_POSTFIX}      ${docker_registry_org}/tubemq-cpp:${MVN_VERSION}${DES_POSTFIX}
+  docker tag inlong/audit:${MVN_VERSION}${SRC_POSTFIX}           ${docker_registry_org}/audit:${MVN_VERSION}${DES_POSTFIX}
   echo "End tagging images"
 }
 
@@ -218,24 +200,15 @@ pushImage() {
 
 pushManifest() {
   echo "Start pushing manifest ..."
-  docker manifest create --insecure --amend inlong/manager:latest \
-    inlong/manager:latest-aarch64 inlong/manager:latest-x86
-  docker manifest create --insecure --amend inlong/agent:latest \
-    inlong/agent:latest-aarch64 inlong/agent:latest-x86
-  docker manifest create --insecure --amend inlong/dataproxy:latest \
-    inlong/dataproxy:latest-aarch64 inlong/dataproxy:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-manager:latest \
-    inlong/tubemq-manager:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:latest \
-    inlong/tubemq-all:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-build:latest \
-    inlong/tubemq-build:latest-x86
-  docker manifest create --insecure --amend inlong/dashboard:latest \
-    inlong/dashboard:latest-aarch64 inlong/dashboard:latest-x86
-  docker manifest create --insecure --amend inlong/tubemq-cpp:latest \
-    inlong/tubemq-cpp:latest-x86
-  docker manifest create --insecure --amend inlong/audit:latest \
-    inlong/audit:latest-aarch64 inlong/audit:latest-x86
+  docker manifest create --insecure --amend inlong/manager:latest        inlong/manager:latest-aarch64    inlong/manager:latest-x86
+  docker manifest create --insecure --amend inlong/agent:latest          inlong/agent:latest-aarch64      inlong/agent:latest-x86
+  docker manifest create --insecure --amend inlong/dataproxy:latest      inlong/dataproxy:latest-aarch64  inlong/dataproxy:latest-x86
+  docker manifest create --insecure --amend inlong/dashboard:latest      inlong/dashboard:latest-aarch64  inlong/dashboard:latest-x86
+  docker manifest create --insecure --amend inlong/audit:latest          inlong/audit:latest-aarch64      inlong/audit:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-cpp:latest     inlong/tubemq-cpp:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-manager:latest inlong/tubemq-manager:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:latest     inlong/tubemq-all:latest-x86
+  docker manifest create --insecure --amend inlong/tubemq-build:latest   inlong/tubemq-build:latest-x86
 
   docker manifest push inlong/manager:latest
   docker manifest push inlong/agent:latest
@@ -247,24 +220,15 @@ pushManifest() {
   docker manifest push inlong/tubemq-cpp:latest
   docker manifest push inlong/audit:latest
 
-  docker manifest create --insecure --amend inlong/manager:${MVN_VERSION} \
-    inlong/manager:${MVN_VERSION}-aarch64 inlong/manager:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/agent:${MVN_VERSION} \
-    inlong/agent:${MVN_VERSION}-aarch64 inlong/agent:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/dataproxy:${MVN_VERSION} \
-    inlong/dataproxy:${MVN_VERSION}-aarch64 inlong/dataproxy:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} \
-    inlong/tubemq-manager:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION} \
-    inlong/tubemq-all:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-build:${MVN_VERSION} \
-    inlong/tubemq-build:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION} \
-    inlong/dashboard:${MVN_VERSION}-aarch64 inlong/dashboard:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/tubemq-cpp:${MVN_VERSION} \
-    inlong/tubemq-cpp:${MVN_VERSION}-x86
-  docker manifest create --insecure --amend inlong/audit:${MVN_VERSION} \
-    inlong/audit:${MVN_VERSION}-aarch64 inlong/audit:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/manager:${MVN_VERSION}        inlong/manager:${MVN_VERSION}-aarch64    inlong/manager:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/agent:${MVN_VERSION}          inlong/agent:${MVN_VERSION}-aarch64      inlong/agent:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/dataproxy:${MVN_VERSION}      inlong/dataproxy:${MVN_VERSION}-aarch64  inlong/dataproxy:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION}      inlong/dashboard:${MVN_VERSION}-aarch64  inlong/dashboard:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/audit:${MVN_VERSION}          inlong/audit:${MVN_VERSION}-aarch64      inlong/audit:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} inlong/tubemq-manager:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION}     inlong/tubemq-all:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-build:${MVN_VERSION}   inlong/tubemq-build:${MVN_VERSION}-x86
+  docker manifest create --insecure --amend inlong/tubemq-cpp:${MVN_VERSION}     inlong/tubemq-cpp:${MVN_VERSION}-x86
 
   docker manifest push inlong/manager:${MVN_VERSION}
   docker manifest push inlong/agent:${MVN_VERSION}
