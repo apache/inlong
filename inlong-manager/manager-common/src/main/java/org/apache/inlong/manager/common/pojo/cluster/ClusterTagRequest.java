@@ -32,7 +32,7 @@ import javax.validation.constraints.NotNull;
 @ApiModel("Cluster tag request")
 public class ClusterTagRequest {
 
-    @NotNull(groups = UpdateValidation.class)
+    @NotNull(groups = UpdateValidation.class, message = "id must not be null")
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 

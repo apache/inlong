@@ -32,6 +32,10 @@ import java.util.Set;
 @UtilityClass
 public class ValidationUtils {
 
+    /**
+     * Validate objects using Javax annotations such as @NotBlank, @NotNull, etc., mainly used in the Service layer
+     * The function is the same as the parameter validation of the controller layer
+     */
     public static void validate(Validator validator, Object object, Class<?>... groups) {
         Set<ConstraintViolation<Object>> constraintViolations = validator.validate(object, groups);
         if (CollectionUtils.isNotEmpty(constraintViolations)) {
