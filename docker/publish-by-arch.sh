@@ -30,8 +30,7 @@ SRC_POSTFIX=""
 DES_POSTFIX="-x86"
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
-MVN_VERSION=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' ${SHELL_FOLDER}/../pom.xml`
-echo "$MVN_VERSION"
+MVN_VERSION=$(python ${SHELL_FOLDER}/get-project-version.py)
 
 buildImage() {
   echo "Start building images"
