@@ -79,6 +79,7 @@ const Comp: React.FC = () => {
     ({ id }) => {
       Modal.confirm({
         title: i18n.t('basic.DeleteConfirm'),
+        content: i18n.t('pages.ClusterTags.DelConfirm'),
         onOk: async () => {
           await request({
             url: `/cluster/tag/delete/${id}`,
