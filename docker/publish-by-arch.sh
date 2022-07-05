@@ -36,6 +36,7 @@ MVN_VERSION=$(python ./get-project-version.py)
 buildImage() {
   echo "Start building images"
   if [ $ARCH = "$ARCH_AARCH64" ]; then
+    mvn clean install -DskipTests
     sh build-arm-docker-images.sh
   else
     cd "${SHELL_FOLDER}"

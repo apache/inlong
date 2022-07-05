@@ -22,7 +22,6 @@ SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 
 cd ${SHELL_FOLDER}
 cd ..
-mvn clean install -DskipTests
 
 version=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' pom.xml`
 tag=${version}-aarch64
