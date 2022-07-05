@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.pojo.sortstandalone;
 import lombok.Data;
 
 @Data
-public class SortSinkParamsInfo {
+public class SortSinkInfo {
     private static final long serialVersionUID = 1L;
     String name;
     String type;

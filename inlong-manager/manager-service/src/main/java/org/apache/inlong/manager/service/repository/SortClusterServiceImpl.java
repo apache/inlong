@@ -23,8 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
-import org.apache.inlong.manager.common.pojo.sortstandalone.SortIdParamsInfo;
-import org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkParamsInfo;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo;
 import org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo;
 import org.apache.inlong.manager.dao.mapper.DataNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
@@ -32,7 +32,7 @@ import org.apache.inlong.manager.service.core.SortClusterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Use to cache the sort cluster config and reduce the number of query to database.
  */
-@Repository
+@Service
 public class SortClusterServiceImpl implements SortClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortClusterServiceImpl.class);
@@ -173,18 +173,18 @@ public class SortClusterServiceImpl implements SortClusterService {
                         .collect(Collectors.groupingBy(SortTaskInfo::getSortClusterName));
 
         // get all id params and group by task
-        List<SortIdParamsInfo> idParams = streamSinkEntityMapper.selectAllIdParams();
-        Map<String, List<SortIdParamsInfo>> taskIdParamMap =
+        List<SortIdInfo> idParams = streamSinkEntityMapper.selectAllIdParams();
+        Map<String, List<SortIdInfo>> taskIdParamMap =
                 idParams.stream()
                         .filter(dto -> dto.getSortTaskName() != null)
-                        .collect(Collectors.groupingBy(SortIdParamsInfo::getSortTaskName));
+                        .collect(Collectors.groupingBy(SortIdInfo::getSortTaskName));
 
         // get all sink params and group by data node name
-        List<SortSinkParamsInfo> sinkParams = dataNodeEntityMapper.selectAllSinkParams();
-        Map<String, SortSinkParamsInfo> taskSinkParamMap =
+        List<SortSinkInfo> sinkParams = dataNodeEntityMapper.selectAllSinkParams();
+        Map<String, SortSinkInfo> taskSinkParamMap =
                 sinkParams.stream()
                         .filter(dto -> dto.getName() != null)
-                        .collect(Collectors.toMap(SortSinkParamsInfo::getName, param -> param));
+                        .collect(Collectors.toMap(SortSinkInfo::getName, param -> param));
 
         // update config of each cluster
         Map<String, SortClusterConfig> newConfigMap = new ConcurrentHashMap<>();
@@ -223,15 +223,15 @@ public class SortClusterServiceImpl implements SortClusterService {
     private SortClusterConfig getConfigByClusterName(
             String clusterName,
             List<SortTaskInfo> tasks,
-            Map<String, List<SortIdParamsInfo>> taskIdParamMap,
-            Map<String, SortSinkParamsInfo> taskSinkParamMap) {
+            Map<String, List<SortIdInfo>> taskIdParamMap,
+            Map<String, SortSinkInfo> taskSinkParamMap) {
 
         List<SortTaskConfig> taskConfigs = tasks.stream()
                 .map(task -> {
                     String taskName = task.getSortTaskName();
                     String type = task.getSinkType();
-                    List<SortIdParamsInfo> idParams = taskIdParamMap.get(taskName);
-                    SortSinkParamsInfo sinkParams = taskSinkParamMap.get(task.getDataNodeName());
+                    List<SortIdInfo> idParams = taskIdParamMap.get(taskName);
+                    SortSinkInfo sinkParams = taskSinkParamMap.get(task.getDataNodeName());
                     return this.getTaskConfig(taskName, type, idParams, sinkParams);
                 })
                 .collect(Collectors.toList());
@@ -257,8 +257,8 @@ public class SortClusterServiceImpl implements SortClusterService {
     private SortTaskConfig getTaskConfig(
             String taskName,
             String type,
-            List<SortIdParamsInfo> idParams,
-            SortSinkParamsInfo sinkParams) {
+            List<SortIdInfo> idParams,
+            SortSinkInfo sinkParams) {
 
         Optional.ofNullable(idParams)
                 .orElseThrow(() -> new IllegalStateException(("There is no any id params of task " + taskName)));
@@ -285,7 +285,7 @@ public class SortClusterServiceImpl implements SortClusterService {
      * @param rowIdParams IdParams in json format.
      * @return List of IdParams.
      */
-    private List<Map<String, String>> parseIdParams(List<SortIdParamsInfo> rowIdParams) {
+    private List<Map<String, String>> parseIdParams(List<SortIdInfo> rowIdParams) {
         return rowIdParams.stream()
                 .map(row -> {
                     Map<String, String> param = gson.fromJson(row.getExtParams(), HashMap.class);
@@ -302,7 +302,7 @@ public class SortClusterServiceImpl implements SortClusterService {
      * @param rowSinkParams Sink params in json format.
      * @return Sink params.
      */
-    private Map<String, String> parseSinkParams(SortSinkParamsInfo rowSinkParams) {
+    private Map<String, String> parseSinkParams(SortSinkInfo rowSinkParams) {
         return gson.fromJson(rowSinkParams.getExtParams(), HashMap.class);
     }
 

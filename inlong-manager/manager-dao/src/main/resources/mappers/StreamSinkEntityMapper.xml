@@ -50,7 +50,7 @@
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
     </resultMap>
-    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdParamsInfo">
+    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo">
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>

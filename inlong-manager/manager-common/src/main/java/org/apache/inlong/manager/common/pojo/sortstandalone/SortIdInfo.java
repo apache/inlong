@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.pojo.sortstandalone;
 import lombok.Data;
 
 @Data
-public class SortIdParamsInfo {
+public class SortIdInfo {
     private static final long serialVersionUID = 1L;
     String sortTaskName;
     String inlongGroupId;
