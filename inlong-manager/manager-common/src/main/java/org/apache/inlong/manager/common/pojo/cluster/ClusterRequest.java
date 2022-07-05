@@ -44,18 +44,18 @@ public class ClusterRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank
+    @NotBlank(message = "cluster name cannot be blank")
     @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "cluster type cannot be blank")
     @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
     @ApiModelProperty(value = "Cluster url")
     private String url;
 
-    @NotBlank
+    @NotBlank(message = "clusterTags cannot be blank")
     @ApiModelProperty(value = "Cluster tags, separated by commas")
     private String clusterTags;
 

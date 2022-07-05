@@ -46,10 +46,9 @@ import java.util.List;
 public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
-    @Length(min = 4, max = 200)
-    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
-            message = "inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`")
+    @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
+            message = "inlongGroupId only supports lowercase letters, numbers, '_', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -121,13 +120,12 @@ public class InlongGroupRequest {
             throw new BusinessException("inlongGroupId cannot be null");
         }
 
-        if (inlongGroupId.length() < 4 || inlongGroupId.length() > 200) {
-            throw new BusinessException("characters for inlongGroupId must be more than 4 and less than 200");
+        if (inlongGroupId.length() < 4 || inlongGroupId.length() > 100) {
+            throw new BusinessException("characters for inlongGroupId must be more than 4 and less than 100");
         }
 
         if (!SmallTools.isLowerOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`");
+            throw new BusinessException("inlongGroupId only supports lowercase letters, numbers, '_', or '_'");
         }
 
         if (StringUtils.isBlank(mqType)) {

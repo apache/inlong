@@ -20,9 +20,13 @@ package org.apache.inlong.manager.common.pojo.transform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
@@ -32,7 +36,9 @@ import java.util.List;
 @ApiModel("Request of stream transform")
 public class TransformRequest {
 
-    private int id;
+    @NotNull(groups = UpdateValidation.class)
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
@@ -43,6 +49,9 @@ public class TransformRequest {
     private String inlongStreamId;
 
     @NotBlank(message = "transformName cannot be blank")
+    @Length(min = 1, max = 100, message = "transformName length must be between 1 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+            message = "transformName only supports lowercase letters, numbers, '_', or '_'")
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
 
