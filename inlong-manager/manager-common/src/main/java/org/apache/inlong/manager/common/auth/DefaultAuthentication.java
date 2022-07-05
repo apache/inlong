@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.auth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
 
@@ -31,7 +31,6 @@ import java.util.Map;
 public class DefaultAuthentication implements Authentication {
 
     public static final String USERNAME = "username";
-
     public static final String PASSWORD = "password";
 
     @Getter
@@ -52,7 +51,7 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtils.notEmpty(properties, "Properties should not be empty when init DefaultAuthentication");
+        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init DefaultAuthentication");
         this.username = properties.get(USERNAME);
         this.password = properties.get(PASSWORD);
     }

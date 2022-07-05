@@ -20,11 +20,13 @@ package org.apache.inlong.manager.common.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class SmallToolsTest {
+public class MD5UtilsTest {
 
     @Test
     public void testIsLetterOrPattern() {
-        String testGroupId = "test14DisableZkFor";
-        Assertions.assertFalse(SmallTools.isLowerOrNum(testGroupId));
+        String str1 = "test_str";
+        String str2 = "test_str";
+        Assertions.assertEquals(MD5Utils.encrypt(str1), MD5Utils.encrypt(str2));
     }
+
 }

@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
@@ -61,8 +62,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong group info")
-    public Response<String> save(@RequestBody InlongGroupRequest groupRequest) {
-        groupRequest.checkParams();
+    public Response<String> save(@Validated @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.save(groupRequest, operator));
     }
@@ -85,8 +85,7 @@ public class InlongGroupController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong group info")
-    public Response<String> update(@RequestBody InlongGroupRequest groupRequest) {
-        groupRequest.checkParams();
+    public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
         String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.update(groupRequest, operator));
     }
