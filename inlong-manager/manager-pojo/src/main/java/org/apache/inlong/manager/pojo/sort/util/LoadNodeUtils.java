@@ -281,7 +281,11 @@ public class LoadNodeUtils {
                 ckSink.getTableName(),
                 ckSink.getJdbcUrl() + "/" + ckSink.getDbName(),
                 ckSink.getUsername(),
-                ckSink.getPassword()
+                ckSink.getPassword(),
+                ckSink.getEngine(),
+                ckSink.getPartitionBy(),
+                ckSink.getOrderBy(),
+                ckSink.getPrimaryKey()
         );
     }
 

@@ -61,6 +61,18 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
     @Nonnull
     private String password;
 
+    @JsonProperty("engine")
+    private String engine;
+
+    @JsonProperty("partitionBy")
+    private String partitionBy;
+
+    @JsonProperty("orderBy")
+    private String orderBy;
+
+    @JsonProperty("primaryKey")
+    private String primaryKey;
+
     @JsonCreator
     public ClickHouseLoadNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -73,12 +85,21 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
             @Nonnull @JsonProperty("tableName") String tableName,
             @Nonnull @JsonProperty("url") String url,
             @Nonnull @JsonProperty("userName") String userName,
-            @Nonnull @JsonProperty("passWord") String password) {
+            @Nonnull @JsonProperty("passWord") String password,
+            @JsonProperty("engine") String engine,
+            @JsonProperty("partitionBy") String partitionBy,
+            @JsonProperty("orderBy") String orderBy,
+            @JsonProperty("primaryKey") String primaryKey
+    ) {
         super(id, name, fields, fieldRelations, filters, filterStrategy, sinkParallelism, properties);
         this.tableName = Preconditions.checkNotNull(tableName, "table name is null");
         this.url = Preconditions.checkNotNull(url, "url is null");
         this.userName = Preconditions.checkNotNull(userName, "userName is null");
         this.password = Preconditions.checkNotNull(password, "password is null");
+        this.engine = engine;
+        this.partitionBy = partitionBy;
+        this.orderBy = orderBy;
+        this.primaryKey = primaryKey;
     }
 
     @Override
@@ -100,7 +121,7 @@ public class ClickHouseLoadNode extends LoadNode implements Serializable {
 
     @Override
     public String getPrimaryKey() {
-        return super.getPrimaryKey();
+        return primaryKey;
     }
 
     @Override
