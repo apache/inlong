@@ -23,9 +23,9 @@ import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.manager.service.core.SortClusterService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortService;
-import org.apache.inlong.manager.service.repository.SortConfigRepository;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,12 +50,12 @@ public class SortServiceImpl implements SortService {
 
     @Autowired private SortSourceService sortSourceService;
 
-    @Autowired private SortConfigRepository sortConfigRepository;
+    @Autowired private SortClusterService sortClusterService;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
 
-        return sortConfigRepository.getClusterConfig(clusterName, md5);
+        return sortClusterService.getClusterConfig(clusterName, md5);
     }
 
     @Override

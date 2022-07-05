@@ -20,11 +20,14 @@ package org.apache.inlong.manager.common.pojo.sortstandalone;
 import lombok.Data;
 
 @Data
-public class SortTaskDTO {
+public class SortIdParamsInfo {
     private static final long serialVersionUID = 1L;
-    String sortClusterName;
     String sortTaskName;
-    String sortConsumerGroup;
-    String sinkType;
-    String dataNodeName;
+    String inlongGroupId;
+    String inlongStreamId;
+    String extParams;
+
+    public String getUid() {
+        return inlongGroupId.concat(inlongStreamId);
+    }
 }

@@ -43,14 +43,14 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
-    <resultMap id="SortTaskDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskDTO">
+    <resultMap id="SortTaskDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo">
         <result column="inlong_cluster_name" jdbcType="VARCHAR" property="sortClusterName"/>
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="sort_consumer_group" jdbcType="VARCHAR" property="sortConsumerGroup"/>
         <result column="sink_type" jdbcType="VARCHAR" property="sinkType"/>
         <result column="data_node_name" jdbcType="VARCHAR" property="dataNodeName"/>
     </resultMap>
-    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdParamsDTO">
+    <resultMap id="SortIdParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdParamsInfo">
         <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
         <result column="inlong_group_id" jdbcType="VARCHAR" property="inlongGroupId"/>
         <result column="inlong_stream_id" jdbcType="VARCHAR" property="inlongStreamId"/>
