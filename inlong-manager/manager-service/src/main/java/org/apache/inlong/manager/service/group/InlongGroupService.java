@@ -123,7 +123,7 @@ public interface InlongGroupService {
      * @return whether succeed
      */
     boolean updateAfterApprove(
-            @Valid @NotNull(message = "inlongGroupId must not be null") InlongGroupApproveRequest approveInfo,
+            @Valid @NotNull(message = "approveInfo must not be null") InlongGroupApproveRequest approveInfo,
             String operator);
 
     /**
