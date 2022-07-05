@@ -96,7 +96,6 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       'id',
       'inlongGroupId',
       'inlongStreamId',
-      'dataSourceBasicId',
       'dataSourceType',
       'havePredefinedFields',
     ]);
@@ -235,7 +234,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
     <>
       <div className={styles.topFilterContainer}>
         <FormGenerator layout="inline" content={getFilterFormContent()} onFilter={onFilter} />
-        <div ref={topRightRef}></div>
+        <div ref={topRightRef} />
       </div>
 
       <Form

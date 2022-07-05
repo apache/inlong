@@ -62,7 +62,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -70,8 +70,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         Response<String> response = getResBody(mvcResult, String.class);
         Assertions.assertFalse(response.isSuccess());
-        Assertions.assertEquals("Username or password was incorrect, or the account has expired",
-                response.getErrMsg());
+        Assertions.assertTrue(response.getErrMsg().contains("incorrect"));
     }
 
     @Test
@@ -86,7 +85,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -109,7 +108,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -117,7 +116,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         Response<Boolean> resBody = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(resBody.isSuccess());
-        Assertions.assertEquals("User [admin] already exists", resBody.getErrMsg());
+        Assertions.assertTrue(resBody.getErrMsg().contains("already exists"));
     }
 
     @Test
@@ -126,7 +125,7 @@ class AnnoControllerTest extends WebBaseTest {
 
         MvcResult mvcResult = mockMvc.perform(
                         get("/anno/logout")
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
@@ -150,7 +149,7 @@ class AnnoControllerTest extends WebBaseTest {
         MvcResult mvcResult = mockMvc.perform(
                         post("/anno/doRegister")
                                 .content(JsonUtils.toJsonString(userInfo))
-                                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())

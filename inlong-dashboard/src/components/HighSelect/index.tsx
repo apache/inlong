@@ -27,12 +27,12 @@ import { useRequest } from '@/hooks';
 import debounce from 'lodash/debounce';
 
 // example options: {
-//   requestService: '/basic/schema/listAll',
+//   requestService: '/group/listAll',
 //   requestParams: {
 //     formatResult: result =>
 //       result.map(item => ({
 //         label: item.name,
-//         value: item.name,
+//         value: item.value,
 //       })),
 //   },
 //   requestAuto: false // Whether to automatically initiate a request when the component is mounted, by default when the drop-down box is expanded

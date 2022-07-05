@@ -26,8 +26,6 @@ import java.util.List;
 @Repository
 public interface StreamTransformEntityMapper {
 
-    int deleteById(Integer id);
-
     int insert(StreamTransformEntity record);
 
     int insertSelective(StreamTransformEntity record);
@@ -37,7 +35,10 @@ public interface StreamTransformEntityMapper {
     List<StreamTransformEntity> selectByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId,
             @Param("transformName") String transformName);
 
+    int updateById(StreamTransformEntity record);
+
     int updateByIdSelective(StreamTransformEntity record);
 
-    int updateById(StreamTransformEntity record);
+    int deleteById(Integer id);
+
 }

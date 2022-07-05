@@ -13,57 +13,49 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.manager.common.pojo.node;
+package org.apache.inlong.manager.common.pojo.cluster.tube;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
- * Data node request
+ * Tube cluster info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Data node  request")
-public class DataNodeRequest {
+@ApiModel("Tube cluster info")
+public class TubeClusterDTO {
 
-    @NotNull(groups = UpdateValidation.class)
-    @ApiModelProperty(value = "Primary key")
-    private Integer id;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @NotBlank
-    @ApiModelProperty(value = "Node  name")
-    private String name;
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080")
+    private String masterWebUrl;
 
-    @NotBlank
-    @ApiModelProperty(value = "Node type, including MYSQL, HIVE, KAFKA, ES, etc.")
-    private String type;
-
-    @ApiModelProperty(value = "Node url")
-    private String url;
-
-    @ApiModelProperty(value = "Node username")
-    private String username;
-
-    @ApiModelProperty(value = "Node token")
-    private String token;
-
-    @ApiModelProperty(value = "Extended params")
-    private String extParams;
-
-    @NotBlank
-    @ApiModelProperty(value = "Name of responsible person, separated by commas", required = true)
-    private String inCharges;
+    /**
+     * Get the dto instance from the JSON string.
+     */
+    public static TubeClusterDTO getFromJson(@NotNull String extParams) {
+        try {
+            OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return OBJECT_MAPPER.readValue(extParams, TubeClusterDTO.class);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+        }
+    }
 
 }

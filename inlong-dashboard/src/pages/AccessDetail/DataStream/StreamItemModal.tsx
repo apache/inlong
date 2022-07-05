@@ -94,14 +94,12 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
   const [form] = useForm();
   const onOk = async () => {
     const values = {
-      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'dataSourceBasicId'], record),
+      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId'], record),
       ...(await form.validateFields()),
     };
 
     const data = valuesToData(values ? [values] : [], inlongGroupId);
-    const submitData = data.map(item =>
-      pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
-    );
+    const submitData = data.map(item => pickObject(['streamInfo'], item));
     await request({
       url: '/stream/update',
       method: 'POST',

@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -37,19 +37,19 @@ public class SourceRequest {
 
     private Integer id;
 
-    @NotNull(message = "inlongGroupId cannot be null")
+    @NotBlank(message = "inlongGroupId cannot be null")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull(message = "inlongStreamId cannot be null")
+    @NotBlank(message = "inlongStreamId cannot be null")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull(message = "sourceType cannot be null")
+    @NotBlank(message = "sourceType cannot be null")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
-    @NotNull(message = "sourceName cannot be null")
+    @NotBlank(message = "sourceName cannot be null")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 

@@ -17,18 +17,36 @@
  * under the License.
  */
 
+import i18n from '@/i18n';
 import type { ClsConfigItemType } from './types';
 
 export const TubeMQ: ClsConfigItemType[] = [
   {
     type: 'input',
-    label: 'MasterUrl',
+    label: 'RPC URL',
     name: 'url',
     rules: [{ required: true }],
+    tooltip: i18n.t('pages.Clusters.Tube.MasterRpcUrlHelper'),
+    props: {
+      placeholder: '127.0.0.1:8715,127.0.1.2:8715',
+    },
+  },
+  {
+    type: 'input',
+    label: 'Web URL',
+    name: 'masterWebUrl',
+    rules: [{ required: true }],
+    tooltip: i18n.t('pages.Clusters.Tube.MasterWebUrlHelper'),
+    props: {
+      placeholder: 'http://127.0.0.1:8080',
+    },
   },
   {
     type: 'input',
     label: 'Token',
     name: 'token',
+    props: {
+      placeholder: 'Required if the cluster is configured with Token',
+    },
   },
 ];

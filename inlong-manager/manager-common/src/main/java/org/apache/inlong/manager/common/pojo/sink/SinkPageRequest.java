@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Paging query request for Sink
@@ -34,7 +34,7 @@ import javax.validation.constraints.NotNull;
 public class SinkPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)
-    @NotNull(message = "inlongGroupId cannot be null")
+    @NotBlank(message = "inlongGroupId cannot be null")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong stream id")

@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -49,7 +48,7 @@ public class ConsumptionInfo {
     private String consumerGroup;
 
     @ApiModelProperty(value = "consumption in charge")
-    @NotNull(message = "inCharges cannot be null")
+    @NotBlank(message = "inCharges cannot be null")
     private String inCharges;
 
     @ApiModelProperty(value = "consumption target inlong group id")
