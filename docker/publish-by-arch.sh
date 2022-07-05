@@ -30,17 +30,17 @@ SRC_POSTFIX=""
 DES_POSTFIX="-x86"
 
 SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
-
-MVN_VERSION=$(python ./get-project-version.py)
+MVN_VERSION=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' ${SHELL_FOLDER}/../pom.xml`
+echo "$MVN_VERSION"
 
 buildImage() {
   echo "Start building images"
+  cd "${SHELL_FOLDER}"
+  cd ..
   if [ $ARCH = "$ARCH_AARCH64" ]; then
     mvn clean install -DskipTests
-    sh build-arm-docker-images.sh
+    sh ./docker/build-arm-docker-images.sh
   else
-    cd "${SHELL_FOLDER}"
-    cd ..
     mvn clean install -DskipTests -Pdocker
   fi
   echo "End building images"
