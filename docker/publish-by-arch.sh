@@ -159,14 +159,37 @@ publishImages() {
   pushImage ${docker_registry_org}
 }
 
+pushDefaultImage() {
+  docker push inlong/manager:latest
+  docker push inlong/agent:latest
+  docker push inlong/dataproxy:latest
+  docker push inlong/tubemq-manager:latest
+  docker push inlong/tubemq-all:latest
+  docker push inlong/tubemq-build:latest
+  docker push inlong/dashboard:latest
+  docker push inlong/tubemq-cpp:latest
+  docker push inlong/audit:latest
+
+  docker push inlong/manager:${MVN_VERSION}
+  docker push inlong/agent:${MVN_VERSION}
+  docker push inlong/dataproxy:${MVN_VERSION}
+  docker push inlong/tubemq-manager:${MVN_VERSION}
+  docker push inlong/tubemq-all:${MVN_VERSION}
+  docker push inlong/tubemq-build:${MVN_VERSION}
+  docker push inlong/dashboard:${MVN_VERSION}
+  docker push inlong/tubemq-cpp:${MVN_VERSION}
+  docker push inlong/audit:${MVN_VERSION}
+}
+
 pushImage() {
   echo "Start pushing images"
   docker_registry_org=$1
 
+  SRC_POSTFIX=""
   if [ "$ARCH" = "$ARCH_AARCH64" ]; then
     SRC_POSTFIX="-aarch64"
-    DES_POSTFIX="-arm64"
   elif [ "$NEED_TAG" = true ]; then
+    pushDefaultImage
     SRC_POSTFIX="-x86"
   fi
 
@@ -196,42 +219,42 @@ pushImage() {
 pushManifest() {
   echo "Start pushing manifest ..."
   docker manifest create --insecure --amend inlong/manager:latest \
-    inlong/manager:latest-arm64 inlong/manager:latest-x86
+    inlong/manager:latest-aarch64 inlong/manager:latest-x86
   docker manifest create --insecure --amend inlong/agent:latest \
-    inlong/agent:latest-arm64 inlong/agent:latest-x86
+    inlong/agent:latest-aarch64 inlong/agent:latest-x86
   docker manifest create --insecure --amend inlong/dataproxy:latest \
-    inlong/dataproxy:latest-arm64 inlong/dataproxy:latest-x86
+    inlong/dataproxy:latest-aarch64 inlong/dataproxy:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-manager:latest \
-    inlong/tubemq-manager:latest-arm64 inlong/tubemq-manager:latest-x86
+    inlong/tubemq-manager:latest-aarch64 inlong/tubemq-manager:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-all:latest \
-    inlong/tubemq-all:latest-arm64 inlong/tubemq-all:latest-x86
+    inlong/tubemq-all:latest-aarch64 inlong/tubemq-all:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-build:latest \
-    inlong/tubemq-build:latest-arm64 inlong/tubemq-build:latest-x86
+    inlong/tubemq-build:latest-aarch64 inlong/tubemq-build:latest-x86
   docker manifest create --insecure --amend inlong/dashboard:latest \
-    inlong/dashboard:latest-arm64 inlong/dashboard:latest-x86
+    inlong/dashboard:latest-aarch64 inlong/dashboard:latest-x86
   docker manifest create --insecure --amend inlong/tubemq-cpp:latest \
-    inlong/tubemq-cpp:latest-arm64 inlong/tubemq-cpp:latest-x86
+    inlong/tubemq-cpp:latest-aarch64 inlong/tubemq-cpp:latest-x86
   docker manifest create --insecure --amend inlong/audit:latest \
-    inlong/audit:latest-arm64 inlong/audit:latest-x86
+    inlong/audit:latest-aarch64 inlong/audit:latest-x86
 
   docker manifest create --insecure --amend inlong/manager:${MVN_VERSION} \
-    inlong/manager:${MVN_VERSION}-arm64 inlong/manager:${MVN_VERSION}-x86
+    inlong/manager:${MVN_VERSION}-aarch64 inlong/manager:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/agent:${MVN_VERSION} \
-    inlong/agent:${MVN_VERSION}-arm64 inlong/agent:${MVN_VERSION}-x86
+    inlong/agent:${MVN_VERSION}-aarch64 inlong/agent:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/dataproxy:${MVN_VERSION} \
-    inlong/dataproxy:${MVN_VERSION}-arm64 inlong/dataproxy:${MVN_VERSION}-x86
+    inlong/dataproxy:${MVN_VERSION}-aarch64 inlong/dataproxy:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-manager:${MVN_VERSION} \
-    inlong/tubemq-manager:${MVN_VERSION}-arm64 inlong/tubemq-manager:${MVN_VERSION}-x86
+    inlong/tubemq-manager:${MVN_VERSION}-aarch64 inlong/tubemq-manager:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-all:${MVN_VERSION} \
-    inlong/tubemq-all:${MVN_VERSION}-arm64 inlong/tubemq-all:${MVN_VERSION}-x86
+    inlong/tubemq-all:${MVN_VERSION}-aarch64 inlong/tubemq-all:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-build:${MVN_VERSION} \
-    inlong/tubemq-build:${MVN_VERSION}-arm64 inlong/tubemq-build:${MVN_VERSION}-x86
+    inlong/tubemq-build:${MVN_VERSION}-aarch64 inlong/tubemq-build:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/dashboard:${MVN_VERSION} \
-    inlong/dashboard:${MVN_VERSION}-arm64 inlong/dashboard:${MVN_VERSION}-x86
+    inlong/dashboard:${MVN_VERSION}-aarch64 inlong/dashboard:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/tubemq-cpp:${MVN_VERSION} \
-    inlong/tubemq-cpp:${MVN_VERSION}-arm64 inlong/tubemq-cpp:${MVN_VERSION}-x86
+    inlong/tubemq-cpp:${MVN_VERSION}-aarch64 inlong/tubemq-cpp:${MVN_VERSION}-x86
   docker manifest create --insecure --amend inlong/audit:${MVN_VERSION} \
-    inlong/audit:${MVN_VERSION}-arm64 inlong/audit:${MVN_VERSION}-x86
+    inlong/audit:${MVN_VERSION}-aarch64 inlong/audit:${MVN_VERSION}-x86
   echo "End pushing manifest"
 }
 
@@ -239,11 +262,11 @@ help() {
   cat <<EOF
 Usage: ./publish-by-arch.sh [option]
 Options:
-  -b/--build        Add build operation before publish. Build docker images by arch.
-  -t/--tag          Add tag operation before publish. Add arch after version.
-  -p/--publish      Publish images according to docker registry information.
-  -m/--manifest     Push manifest. This option doesn't need arch.
-  -h/--help         Show help information.
+  -b, --build        Add build operation before publish. Build docker images by arch.
+  -t, --tag          Add tag operation before publish. Add arch after version.
+  -p, --publish      Publish images according to docker registry information.
+  -m, --manifest     Push manifest. This option doesn't need arch.
+  -h, --help         Show help information.
 Example:
   Use "./publish-by-arch.sh -b" to publish arm images after build operation.
   Use "./publish-by-arch.sh -t" to publish amd images after tag already x86 images as x86.
