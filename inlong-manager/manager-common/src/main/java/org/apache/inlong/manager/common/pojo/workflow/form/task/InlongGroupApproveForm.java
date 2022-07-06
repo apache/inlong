@@ -15,33 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
+import org.apache.inlong.manager.common.util.Preconditions;
+
+import java.util.List;
 
 /**
- * Form of create inlong stream resource
+ * The approval form of the inlong group
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class StreamResourceProcessForm extends BaseProcessForm {
+public class InlongGroupApproveForm extends BaseTaskForm {
 
-    public static final String FORM_NAME = "StreamResourceProcessForm";
+    public static final String FORM_NAME = "InlongGroupApproveForm";
 
-    private InlongGroupInfo groupInfo;
+    @ApiModelProperty(value = "Inlong group approve info", required = true)
+    private InlongGroupApproveRequest groupApproveInfo;
 
-    private InlongStreamInfo streamInfo;
-
-    private GroupOperateType groupOperateType = GroupOperateType.INIT;
+    @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
+    private List<InlongStreamApproveRequest> streamApproveInfoList;
 
     @Override
     public void validate() throws FormValidateException {
-
+        Preconditions.checkNotNull(groupApproveInfo, "inlong group approve info is empty");
     }
 
     @Override
@@ -49,8 +52,4 @@ public class StreamResourceProcessForm extends BaseProcessForm {
         return FORM_NAME;
     }
 
-    @Override
-    public String getInlongGroupId() {
-        return groupInfo.getInlongGroupId();
-    }
 }

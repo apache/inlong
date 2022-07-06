@@ -15,46 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.task;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
-import java.util.List;
-
 /**
- * Form of create lightweight inlong group resource
+ * The approval form of the consumption
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class LightGroupResourceProcessForm extends BaseProcessForm {
+@EqualsAndHashCode(callSuper = true)
+public class ConsumptionApproveForm extends BaseTaskForm {
 
-    public static final String FORM_NAME = "LightGroupResourceProcessForm";
+    public static final String FORM_NAME = "ConsumptionApproveForm";
 
-    private InlongGroupInfo groupInfo;
-
-    private List<InlongStreamInfo> streamInfos;
-
-    private GroupOperateType groupOperateType = GroupOperateType.INIT;
+    @ApiModelProperty("Consumer group")
+    private String consumerGroup;
 
     @Override
     public void validate() throws FormValidateException {
-        Preconditions.checkNotNull(groupInfo, ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        Preconditions.checkNotEmpty(consumerGroup, "Consumer group cannot be empty");
     }
 
     @Override
     public String getFormName() {
         return FORM_NAME;
-    }
-
-    @Override
-    public String getInlongGroupId() {
-        return groupInfo.getInlongGroupId();
     }
 }

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.workflow.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
@@ -26,17 +27,16 @@ import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.WorkflowContext.ActionContext;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Workflow bean copy utils
@@ -151,9 +151,10 @@ public class WorkflowBeanUtils {
         }
         WorkflowResult workflowResult = new WorkflowResult();
         workflowResult.setProcessInfo(WorkflowBeanUtils.fromProcessEntity(context.getProcessEntity()));
-        List<TaskResponse> taskList = context.getNewTaskList().stream().map(WorkflowBeanUtils::fromTaskEntity)
-                .collect(Collectors.toList());
-        workflowResult.setNewTasks(taskList);
+        if (context.getActionContext() != null) {
+            ActionContext newAction = context.getActionContext();
+            workflowResult.setNewTasks(Lists.newArrayList(WorkflowBeanUtils.fromTaskEntity(newAction.getTaskEntity())));
+        }
         return workflowResult;
     }
 

@@ -35,6 +35,7 @@ import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.node.extract.KafkaExtractNode;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
+import org.apache.inlong.sort.protocol.node.load.HbaseLoadNode;
 import org.apache.inlong.sort.protocol.node.load.KafkaLoadNode;
 import org.apache.inlong.sort.protocol.node.transform.TransformNode;
 import org.apache.inlong.sort.protocol.transformation.FieldRelation;
@@ -134,6 +135,52 @@ public class DataTypeConvertSqlParseTest extends AbstractTestBase {
                         buildNodeRelation(Collections.singletonList(inputNode),
                                 Collections.singletonList(transformNode)),
                         buildNodeRelation(Collections.singletonList(transformNode),
+                                Collections.singletonList(outputNode))));
+        GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
+        FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);
+        ParseResult result = parser.parse();
+        Assert.assertTrue(result.tryExecute());
+    }
+
+    /**
+     * build hbase load node
+     *
+     * @return hbase load node
+     */
+    private HbaseLoadNode buildHbaseLoadNode() {
+        return new HbaseLoadNode("2", "test_hbase",
+                Arrays.asList(new FieldInfo("cf:id", new StringFormatInfo()), new FieldInfo("cf:age",
+                        new StringFormatInfo())),
+                Arrays.asList(new FieldRelation(new FieldInfo("id", new LongFormatInfo()),
+                                new FieldInfo("cf:id", new StringFormatInfo())),
+                        new FieldRelation(new FieldInfo("age", new IntFormatInfo()),
+                                new FieldInfo("cf:age", new StringFormatInfo()))), null, null, 1, null, "mytable",
+                "default",
+                "localhost:2181", "MD5(CAST(`id` as String))", null, null, null, null);
+    }
+
+    /**
+     * Test data type convert implicitly for sinking data into HBase
+     *
+     * @throws Exception The exception may throws when executing
+     */
+    @Test
+    public void testHBaseDataTypeConvertSqlParse() throws Exception {
+        EnvironmentSettings settings = EnvironmentSettings
+                .newInstance()
+                .useBlinkPlanner()
+                .inStreamingMode()
+                .build();
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        env.enableCheckpointing(10000);
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        Node inputNode = buildKafkaExtractNode();
+        Node outputNode = buildHbaseLoadNode();
+        StreamInfo streamInfo = new StreamInfo("1",
+                Arrays.asList(inputNode, outputNode),
+                Arrays.asList(
+                        buildNodeRelation(Collections.singletonList(inputNode),
                                 Collections.singletonList(outputNode))));
         GroupInfo groupInfo = new GroupInfo("1", Collections.singletonList(streamInfo));
         FlinkSqlParser parser = FlinkSqlParser.getInstance(tableEnv, groupInfo);

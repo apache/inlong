@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -43,7 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/source")
-@Api(tags = "Stream source config")
+@Api(tags = "Stream-Source-API")
 public class StreamSourceController {
 
     @Autowired
@@ -57,22 +58,22 @@ public class StreamSourceController {
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "Query stream source")
+    @ApiOperation(value = "Get stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSource> get(@PathVariable Integer id) {
         return Response.success(sourceService.get(id));
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    @ApiOperation(value = "Query stream source list")
+    @ApiOperation(value = "Get stream source list by paginating")
     public Response<PageInfo<? extends SourceListResponse>> listByCondition(SourcePageRequest request) {
         return Response.success(sourceService.listByCondition(request));
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Modify stream source")
-    public Response<Boolean> update(@Validated @RequestBody SourceRequest request) {
+    @ApiOperation(value = "Update stream source")
+    public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
         return Response.success(sourceService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 

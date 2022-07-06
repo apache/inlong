@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +57,9 @@ import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -78,6 +77,8 @@ import static org.apache.inlong.manager.client.api.impl.InlongGroupImpl.MQ_FIELD
  */
 @Slf4j
 public class InnerInlongManagerClient {
+
+    private static final String REQUEST_FAILED_MSG = "Request to Inlong %s failed: %s";
 
     protected final String host;
     protected final int port;
@@ -97,9 +98,9 @@ public class InnerInlongManagerClient {
         this.port = configuration.getBindPort();
 
         Authentication authentication = configuration.getAuthentication();
-        AssertUtils.notNull(authentication, "Inlong should be authenticated");
-        AssertUtils.isTrue(authentication instanceof DefaultAuthentication,
-                "Inlong only support default authentication");
+        Preconditions.checkNotNull(authentication, "inlong should be authenticated");
+        Preconditions.checkTrue(authentication instanceof DefaultAuthentication,
+                "inlong only support default authentication");
         DefaultAuthentication defaultAuthentication = (DefaultAuthentication) authentication;
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -133,9 +134,9 @@ public class InnerInlongManagerClient {
      * @return clusterIndex
      */
     public Integer saveCluster(ClusterRequest request) {
-        AssertUtils.notEmpty(request.getName(), "cluster name should not be empty");
-        AssertUtils.notEmpty(request.getType(), "cluster type should not be empty");
-        AssertUtils.notEmpty(request.getClusterTags(), "cluster tags should not be empty");
+        Preconditions.checkNotEmpty(request.getName(), "cluster name should not be empty");
+        Preconditions.checkNotEmpty(request.getType(), "cluster type should not be empty");
+        Preconditions.checkNotEmpty(request.getClusterTags(), "cluster tags should not be empty");
         Response<Integer> clusterIndexResponse = executeHttpCall(inlongClusterApi.save(request));
         assertRespSuccess(clusterIndexResponse);
         return clusterIndexResponse.getData();
@@ -158,7 +159,7 @@ public class InnerInlongManagerClient {
      * Check whether a group exists based on the group ID.
      */
     public Boolean isGroupExists(String inlongGroupId) {
-        AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
         Response<Boolean> response = executeHttpCall(inlongGroupApi.isGroupExists(inlongGroupId));
         assertRespSuccess(response);
@@ -170,7 +171,7 @@ public class InnerInlongManagerClient {
      */
     @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
-        AssertUtils.notEmpty(inlongGroupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(inlongGroupId, "InlongGroupId should not be empty");
 
         Response<Object> responseBody = executeHttpCall(inlongGroupApi.getGroupInfo(inlongGroupId));
         if (responseBody.isSuccess()) {
@@ -180,9 +181,7 @@ public class InnerInlongManagerClient {
             if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
                 groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
             }
-            InlongGroupInfo inlongGroupInfo = JsonUtils.parseObject(
-                    groupInfoJson.toString(), InlongGroupInfo.class);
-            return inlongGroupInfo;
+            return JsonUtils.parseObject(groupInfoJson.toString(), InlongGroupInfo.class);
         }
 
         if (responseBody.getErrMsg().contains("not exist")) {
@@ -269,8 +268,8 @@ public class InnerInlongManagerClient {
     public Boolean isStreamExists(InlongStreamInfo streamInfo) {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        AssertUtils.notEmpty(groupId, "InlongGroupId should not be empty");
-        AssertUtils.notEmpty(streamId, "InlongStreamId should not be empty");
+        Preconditions.checkNotEmpty(groupId, "InlongGroupId should not be empty");
+        Preconditions.checkNotEmpty(streamId, "InlongStreamId should not be empty");
 
         Response<Boolean> response = executeHttpCall(inlongStreamApi.isStreamExists(groupId, streamId));
         assertRespSuccess(response);
@@ -357,7 +356,7 @@ public class InnerInlongManagerClient {
      * Delete data source information by id.
      */
     public boolean deleteSource(int id) {
-        AssertUtils.isTrue(id > 0, "sourceId is illegal");
+        Preconditions.checkTrue(id > 0, "sourceId is illegal");
         Response<Boolean> response = executeHttpCall(streamSourceApi.deleteSource(id));
         assertRespSuccess(response);
         return response.getData();
@@ -399,9 +398,9 @@ public class InnerInlongManagerClient {
      * Delete conversion function information.
      */
     public boolean deleteTransform(TransformRequest transformRequest) {
-        AssertUtils.notEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
-        AssertUtils.notEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
-        AssertUtils.notEmpty(transformRequest.getTransformName(), "transformName should not be null");
+        Preconditions.checkNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
+        Preconditions.checkNotEmpty(transformRequest.getInlongStreamId(), "inlongStreamId should not be null");
+        Preconditions.checkNotEmpty(transformRequest.getTransformName(), "transformName should not be null");
 
         Response<Boolean> response = executeHttpCall(
                 streamTransformApi.deleteTransform(transformRequest.getInlongGroupId(),
@@ -420,7 +419,7 @@ public class InnerInlongManagerClient {
      * Delete information of data sink by ID.
      */
     public boolean deleteSink(int id) {
-        AssertUtils.isTrue(id > 0, "sinkId is illegal");
+        Preconditions.checkTrue(id > 0, "sinkId is illegal");
         Response<Boolean> response = executeHttpCall(streamSinkApi.deleteSink(id));
         assertRespSuccess(response);
         return response.getData();
@@ -556,17 +555,17 @@ public class InnerInlongManagerClient {
         String url = request.url().encodedPath();
         try {
             retrofit2.Response<T> response = call.execute();
-            Preconditions.checkState(response.isSuccessful(),
-                    "Request to Inlong %s failed: %s", url, response.message());
+            Preconditions.checkTrue(response.isSuccessful(),
+                    String.format(REQUEST_FAILED_MSG, url, response.message()));
             return response.body();
         } catch (IOException e) {
-            log.error(String.format("Request to Inlong %s failed: %s", url, e.getMessage()), e);
-            throw new RuntimeException(String.format("Request to Inlong %s failed: %s", url, e.getMessage()), e);
+            log.error(String.format(REQUEST_FAILED_MSG, url, e.getMessage()), e);
+            throw new RuntimeException(String.format(REQUEST_FAILED_MSG, url, e.getMessage()), e);
         }
     }
 
     private void assertRespSuccess(Response<?> response) {
-        Preconditions.checkState(response.isSuccess(), "Inlong request failed: %s", response.getErrMsg());
+        Preconditions.checkTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
     }
 
 }

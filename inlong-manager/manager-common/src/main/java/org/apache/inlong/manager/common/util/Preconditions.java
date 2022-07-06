@@ -90,6 +90,16 @@ public class Preconditions {
         checkTrue(map != null && !map.isEmpty(), errMsg);
     }
 
+    public static void checkNotNullElements(Object[] array, String errMsg) {
+        if (array != null) {
+            for (Object o : array) {
+                if (o == null) {
+                    throw new IllegalArgumentException(errMsg);
+                }
+            }
+        }
+    }
+
     public static void checkFalse(boolean condition, String errMsg) {
         checkTrue(!condition, errMsg);
     }

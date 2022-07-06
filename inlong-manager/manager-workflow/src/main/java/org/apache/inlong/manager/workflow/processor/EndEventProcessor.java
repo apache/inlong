@@ -29,6 +29,7 @@ import org.apache.inlong.manager.workflow.WorkflowAction;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.Element;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,8 +60,9 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
     }
 
     @Override
-    public void create(EndEvent element, WorkflowContext context) {
+    public boolean create(EndEvent element, WorkflowContext context) {
         //do nothing
+        return true;
     }
 
     @Override
@@ -81,9 +83,9 @@ public class EndEventProcessor implements ElementProcessor<EndEvent> {
         processEntity.setStatus(getProcessStatus(actionContext.getAction()).name());
         processEntity.setEndTime(new Date());
         processEntityMapper.update(processEntity);
-        processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
+        ListenerResult listenerResult = processEventNotifier.notify(mapToEvent(actionContext.getAction()), context);
 
-        return true;
+        return listenerResult.isSuccess();
     }
 
     @Override

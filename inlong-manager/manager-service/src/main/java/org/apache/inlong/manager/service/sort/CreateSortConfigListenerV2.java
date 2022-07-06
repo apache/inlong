@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +39,7 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -80,8 +81,9 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return TaskEvent.COMPLETE;
     }
 
+    @SneakyThrows
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) {
         log.info("Create sort config V2 for groupId={}", context.getProcessForm().getInlongGroupId());
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         GroupOperateType groupOperateType = form.getGroupOperateType();
@@ -208,8 +210,4 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         groupInfo.getExtList().add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

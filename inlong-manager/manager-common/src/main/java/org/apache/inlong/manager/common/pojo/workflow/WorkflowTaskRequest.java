@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.pojo.workflow;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.workflow.form.BaseTaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.BaseTaskForm;
 
 import java.util.List;
 

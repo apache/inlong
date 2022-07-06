@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.auth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
 
@@ -52,7 +52,7 @@ public class SecretAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtils.notEmpty(properties, "Properties should not be empty when init SecretAuthentication");
+        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init SecretAuthentication");
         this.secretId = properties.get(SECRET_ID);
         this.secretKey = properties.get(SECRET_KEY);
     }

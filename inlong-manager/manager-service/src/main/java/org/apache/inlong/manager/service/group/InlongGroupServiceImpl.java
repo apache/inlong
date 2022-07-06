@@ -127,7 +127,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public String save(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to save inlong group={} by user={}", request, operator);
         Preconditions.checkNotNull(request, "inlong group request cannot be empty");
-        request.checkParams();
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);

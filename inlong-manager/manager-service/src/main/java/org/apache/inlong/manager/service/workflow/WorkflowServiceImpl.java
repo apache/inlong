@@ -23,7 +23,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.TaskStatus;
-import org.apache.inlong.manager.common.exceptions.WorkflowNoRollbackException;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
@@ -36,8 +35,8 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskExecuteLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
@@ -56,7 +55,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -85,42 +83,42 @@ public class WorkflowServiceImpl implements WorkflowService {
     private ObjectMapper objectMapper;
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
-    public WorkflowResult start(ProcessName process, String applicant, ProcessForm form) {
-        WorkflowContext context = processService.start(process.name(), applicant, form);
+    public WorkflowResult start(ProcessName process, String operator, ProcessForm form) {
+        WorkflowContext context = processService.start(process.name(), operator, form);
         return WorkflowBeanUtils.result(context);
     }
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
+    public WorkflowResult continueProcess(Integer processId, String operator, String remark) {
+        WorkflowContext context = processService.continueProcess(processId, operator, remark);
+        return WorkflowBeanUtils.result(context);
+    }
+
+    @Override
     public WorkflowResult cancel(Integer processId, String operator, String remark) {
         WorkflowContext context = processService.cancel(processId, operator, remark);
         return WorkflowBeanUtils.result(context);
     }
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
     public WorkflowResult approve(Integer taskId, String remark, TaskForm form, String operator) {
         WorkflowContext context = taskService.approve(taskId, remark, form, operator);
         return WorkflowBeanUtils.result(context);
     }
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
     public WorkflowResult reject(Integer taskId, String remark, String operator) {
         WorkflowContext context = taskService.reject(taskId, remark, operator);
         return WorkflowBeanUtils.result(context);
     }
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
     public WorkflowResult transfer(Integer taskId, String remark, List<String> to, String operator) {
         WorkflowContext context = taskService.transfer(taskId, remark, to, operator);
         return WorkflowBeanUtils.result(context);
     }
 
     @Override
-    @Transactional(noRollbackFor = WorkflowNoRollbackException.class, rollbackFor = Exception.class)
     public WorkflowResult complete(Integer taskId, String remark, String operator) {
         WorkflowContext context = taskService.complete(taskId, remark, operator);
         return WorkflowBeanUtils.result(context);
@@ -232,24 +230,6 @@ public class WorkflowServiceImpl implements WorkflowService {
         LOGGER.info("success to page list task execute logs for " + query);
         pageInfo.setTotal(entityPage.getTotal());
         return pageInfo;
-    }
-
-    private List<TaskExecutorLog> getTaskExecutorLogs(Integer processId, String taskType) {
-        TaskQuery taskQuery = new TaskQuery();
-        taskQuery.setProcessId(processId);
-        taskQuery.setType(taskType);
-        return queryService.listTaskEntity(taskQuery)
-                .stream()
-                .map(TaskExecutorLog::buildFromTaskInst)
-                .collect(Collectors.toList());
-    }
-
-    private List<ListenerExecutorLog> getListenerExecutorLogs(TaskExecutorLog executorLog) {
-        EventLogQuery query = EventLogQuery.builder().taskId(executorLog.getTaskId()).build();
-        return queryService.listEventLog(query)
-                .stream()
-                .map(ListenerExecutorLog::fromEventLog)
-                .collect(Collectors.toList());
     }
 
     private Consumer<ProcessResponse> addCurrentTask(TaskQuery query) {

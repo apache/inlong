@@ -15,51 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.workflow.form;
+package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
 import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Form of create inlong group resource
+ * New inlong group process form
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class GroupResourceProcessForm extends BaseProcessForm {
+public class NewGroupProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "GroupResourceProcessForm";
+    public static final String FORM_NAME = "NewGroupProcessForm";
 
+    @ApiModelProperty(value = "Inlong group info", required = true)
     private InlongGroupInfo groupInfo;
 
-    @Getter
-    @Setter
-    private GroupOperateType groupOperateType = GroupOperateType.INIT;
-
-    @Deprecated
-    private String streamId;
-
-    private List<InlongStreamInfo> streamInfos;
-
-    public InlongGroupInfo getGroupInfo() {
-        return groupInfo;
-    }
-
-    public void setGroupInfo(InlongGroupInfo groupInfo) {
-        this.groupInfo = groupInfo;
-    }
+    @ApiModelProperty(value = "All inlong stream info under the inlong group, including the sink info")
+    private List<InlongStreamBriefInfo> streamInfoList;
 
     @Override
     public void validate() throws FormValidateException {
+        Preconditions.checkNotNull(groupInfo, "inlong group info is empty");
     }
 
     @Override
@@ -72,21 +59,10 @@ public class GroupResourceProcessForm extends BaseProcessForm {
         return groupInfo.getInlongGroupId();
     }
 
-    @Deprecated
-    public String getInlongStreamId() {
-        return streamId;
-    }
-
-    @Deprecated
-    public void setInlongStreamId(String streamId) {
-        this.streamId = streamId;
-    }
-
     @Override
     public Map<String, Object> showInList() {
         Map<String, Object> show = Maps.newHashMap();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
-        show.put("groupOperateType", this.groupOperateType);
         return show;
     }
 }

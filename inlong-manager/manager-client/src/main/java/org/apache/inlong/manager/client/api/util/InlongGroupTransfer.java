@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf.SortType;
 import org.apache.inlong.manager.common.pojo.sort.FlinkSortConf;
 import org.apache.inlong.manager.common.pojo.sort.UserDefinedSortConf;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,16 +48,17 @@ public class InlongGroupTransfer {
      * Create inlong group info from group config.
      */
     public static InlongGroupInfo createGroupInfo(InlongGroupInfo groupInfo, BaseSortConf sortConf) {
-        AssertUtils.notNull(groupInfo, "Inlong group info cannot be null");
-        AssertUtils.hasLength(groupInfo.getInlongGroupId(), "groupId cannot be empty");
+        Preconditions.checkNotNull(groupInfo, "Inlong group info cannot be null");
+        String groupId = groupInfo.getInlongGroupId();
+        Preconditions.checkNotEmpty(groupId, "groupId cannot be empty");
         groupInfo.setExtList(Lists.newArrayList());
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (groupInfo.getAuthentication() != null) {
             Authentication authentication = groupInfo.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            AssertUtils.isTrue(authType == AuthType.TOKEN,
-                    String.format("Unsupported authentication:%s for pulsar", authType.name()));
+            Preconditions.checkTrue(authType == AuthType.TOKEN,
+                    String.format("Unsupported authentication %s for Pulsar", authType.name()));
             TokenAuthentication tokenAuthentication = (TokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
             authTypeExt.setKeyName(InlongConstants.PULSAR_AUTHENTICATION_TYPE);
@@ -73,7 +74,7 @@ public class InlongGroupTransfer {
         }
 
         if (sortConf == null) {
-            throw new IllegalArgumentException("sort config cannot be empty for group=" + groupInfo.getInlongGroupId());
+            throw new IllegalArgumentException("sort config cannot be empty for group=" + groupId);
         }
         // set the sort config into ext list
         SortType sortType = sortConf.getType();
@@ -105,8 +106,8 @@ public class InlongGroupTransfer {
         if (flinkSortConf.getAuthentication() != null) {
             Authentication authentication = flinkSortConf.getAuthentication();
             AuthType authType = authentication.getAuthType();
-            AssertUtils.isTrue(authType == AuthType.SECRET_AND_TOKEN,
-                    String.format("Unsupported authentication:%s for flink", authType.name()));
+            Preconditions.checkTrue(authType == AuthType.SECRET_AND_TOKEN,
+                    String.format("Unsupported authentication %s for Flink", authType.name()));
             final SecretTokenAuthentication secretTokenAuthentication = (SecretTokenAuthentication) authentication;
             InlongGroupExtInfo authTypeExt = new InlongGroupExtInfo();
             authTypeExt.setKeyName(InlongConstants.SORT_AUTHENTICATION_TYPE);

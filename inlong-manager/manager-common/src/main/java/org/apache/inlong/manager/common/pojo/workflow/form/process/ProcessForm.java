@@ -15,42 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.inlong.manager.common.pojo.workflow.form.Form;
+
+import java.util.Map;
 
 /**
- * Event Listener Manager
+ * WorkflowProcess main form
  */
-public interface EventListenerManager<E extends WorkflowEvent, T extends EventListener<E>> {
+public interface ProcessForm extends Form {
 
     /**
-     * Register the listener
-     */
-    void register(T listener);
-
-    /**
-     * Get all asynchronous listeners according to event type
+     * Get inlong group id.
      *
-     * @param event event
-     * @return asynchronous listeners
+     * @return inlong group id.
      */
-    List<T> asyncListeners(E event);
+    @JsonIgnore
+    String getInlongGroupId();
 
     /**
-     * Get all the synchronous listeners according to the event type
-     *
-     * @param event event
-     * @return Sync listeners
+     * Get form title.
      */
-    List<T> syncListeners(E event);
+    @JsonIgnore
+    default String getTitle() {
+        return null;
+    }
 
     /**
-     * Obtain the listener according to the listener name
-     *
-     * @param listenerName The name of the listener
-     * @return Listener
+     * Field data displayed in the process list.
      */
-    T listener(String listenerName);
+    default Map<String, Object> showInList() {
+        return null;
+    }
 
 }

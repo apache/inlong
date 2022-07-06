@@ -44,6 +44,6 @@ public enum ProcessStatus {
     /**
      * Terminated
      */
-    TERMINATED
+    TERMINATED;
 
 }

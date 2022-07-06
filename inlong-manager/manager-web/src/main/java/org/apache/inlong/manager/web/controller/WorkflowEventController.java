@@ -63,6 +63,7 @@ public class WorkflowEventController {
         return Response.success(workflowEventService.list(query));
     }
 
+    @Deprecated
     @PostMapping("executeEventListener/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Execute the listener based on the log ID")
@@ -72,6 +73,7 @@ public class WorkflowEventController {
         return Response.success();
     }
 
+    @Deprecated
     @PostMapping("executeProcessEventListener")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener according to the process ID")
@@ -85,6 +87,7 @@ public class WorkflowEventController {
         return Response.success();
     }
 
+    @Deprecated
     @PostMapping("executeTaskEventListener")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener based on the task ID")
@@ -97,6 +100,7 @@ public class WorkflowEventController {
         return Response.success();
     }
 
+    @Deprecated
     @PostMapping("triggerProcessEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the process event based on the process ID")
@@ -107,6 +111,7 @@ public class WorkflowEventController {
         return Response.success();
     }
 
+    @Deprecated
     @PostMapping("triggerTaskEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the task event based on the task ID")

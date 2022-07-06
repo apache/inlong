@@ -66,9 +66,6 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
             return result;
         } catch (Exception e) {
             log.error("execute listener " + workflowEventLogEntity + " error: ", e);
-            if (!async()) {
-                throw new WorkflowListenerException(e);
-            }
             return ListenerResult.fail(e);
         }
     }
@@ -87,20 +84,12 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
             logEntity.setStatus(EventStatus.FAILED.getStatus());
             logEntity.setException(e.getMessage());
             log.error("execute listener " + logEntity + " error: ", e);
-            if (!async()) {
-                throw new WorkflowListenerException(e.getMessage());
-            }
             result = ListenerResult.fail(e);
         } finally {
             logEntity.setEndTime(new Date());
             eventLogMapper.insert(logEntity);
         }
         return result;
-    }
-
-    @Override
-    public boolean async() {
-        return eventListener.async();
     }
 
     /**
@@ -122,7 +111,7 @@ public abstract class LogableEventListener<EventType extends WorkflowEvent> impl
         logEntity.setEvent(event().name());
         logEntity.setListener(eventListener.name());
         logEntity.setStatus(EventStatus.EXECUTING.getStatus());
-        logEntity.setAsync(async() ? 1 : 0);
+        logEntity.setAsync(0);
         logEntity.setIp(NetworkUtils.getLocalIp());
         logEntity.setStartTime(new Date());
 

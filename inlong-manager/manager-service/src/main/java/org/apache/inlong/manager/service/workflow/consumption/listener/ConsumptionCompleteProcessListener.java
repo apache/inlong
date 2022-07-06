@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -170,11 +170,6 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
             log.error("failed to create tube consumer group: ", e);
             throw new WorkflowListenerException("failed to create tube consumer group: " + e.getMessage());
         }
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

@@ -42,9 +42,9 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.NewGroupProcessForm;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
@@ -77,7 +77,7 @@ public class InlongGroupImpl implements InlongGroup {
             this.groupContext.setGroupInfo(groupInfo);
         } else {
             BaseSortConf sortConf = groupInfo.getSortConf();
-            groupInfo = InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
+            InlongGroupTransfer.createGroupInfo(groupInfo, sortConf);
             String groupId = managerClient.createGroup(groupInfo.genRequest());
             groupInfo.setInlongGroupId(groupId);
         }
@@ -98,19 +98,19 @@ public class InlongGroupImpl implements InlongGroup {
         InlongGroupInfo groupInfo = this.groupContext.getGroupInfo();
         WorkflowResult initWorkflowResult = managerClient.initInlongGroup(groupInfo.genRequest());
         List<TaskResponse> taskViews = initWorkflowResult.getNewTasks();
-        AssertUtils.notEmpty(taskViews, "Init business info failed");
+        Preconditions.checkNotEmpty(taskViews, "init inlong group info failed");
         TaskResponse taskView = taskViews.get(0);
         final int taskId = taskView.getId();
         ProcessResponse processView = initWorkflowResult.getProcessInfo();
-        AssertUtils.isTrue(ProcessStatus.PROCESSING == processView.getStatus(),
-                String.format("Process status : %s is not corrected, should be PROCESSING",
-                        processView.getStatus()));
+        Preconditions.checkTrue(ProcessStatus.PROCESSING == processView.getStatus(),
+                String.format("process status %s is not corrected, should be PROCESSING", processView.getStatus()));
 
         // init must be NewGroupProcessForm
         // compile with old cluster
-        JSONObject formDataJson =
-                JsonUtils.parseObject(JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
-                        JSONObject.class);
+        JSONObject formDataJson = JsonUtils.parseObject(
+                JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
+                JSONObject.class);
+        assert formDataJson != null;
         if (formDataJson.has(GROUP_FIELD)) {
             JSONObject groupInfoJson = formDataJson.getJSONObject(GROUP_FIELD);
             if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
@@ -120,13 +120,12 @@ public class InlongGroupImpl implements InlongGroup {
         String formDataNew = formDataJson.toString();
         NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
                 formDataNew, NewGroupProcessForm.class);
-        AssertUtils.notNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
-
+        Preconditions.checkNotNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
         groupContext.setInitMsg(newGroupProcessForm);
         WorkflowResult startWorkflowResult = managerClient.startInlongGroup(taskId, newGroupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
-        AssertUtils.isTrue(ProcessStatus.COMPLETED == processView.getStatus(),
-                String.format("inlong group status %s is incorrected, should be COMPLETED", processView.getStatus()));
+        Preconditions.checkTrue(ProcessStatus.COMPLETED == processView.getStatus(),
+                String.format("inlong group status %s is incorrect, should be COMPLETED", processView.getStatus()));
         return generateSnapshot();
     }
 
@@ -137,19 +136,19 @@ public class InlongGroupImpl implements InlongGroup {
         }
 
         final String groupId = originGroupInfo.getInlongGroupId();
-        AssertUtils.isTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
+        Preconditions.checkTrue(groupId != null && groupId.equals(this.groupInfo.getInlongGroupId()),
                 "groupId must be same");
 
         InlongGroupInfo existGroupInfo = managerClient.getGroupInfo(groupId);
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(existGroupInfo.getStatus());
-        AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
-                "Inlong Group is in init status, should not be updated");
+        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
+                "inlong group is in init status, should not be updated");
 
         InlongGroupInfo groupInfo = InlongGroupTransfer.createGroupInfo(originGroupInfo, sortConf);
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
-        AssertUtils.isNull(errMsg, errMsg);
+        Preconditions.checkNull(errMsg, errMsg);
 
         this.groupContext.setGroupInfo(groupInfo);
         this.groupInfo = groupInfo;
@@ -157,28 +156,26 @@ public class InlongGroupImpl implements InlongGroup {
 
     @Override
     public void update(BaseSortConf sortConf) throws Exception {
-        AssertUtils.notNull(sortConf, "SortConf should not be empty");
+        Preconditions.checkNotNull(sortConf, "sort conf cannot be null");
 
         final String groupId = this.groupInfo.getInlongGroupId();
         InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
 
         SimpleGroupStatus status = SimpleGroupStatus.parseStatusByCode(groupInfo.getStatus());
-        AssertUtils.isTrue(status != SimpleGroupStatus.INITIALIZING,
-                "Inlong Group is in init status, should not be updated");
+        Preconditions.checkTrue(status != SimpleGroupStatus.INITIALIZING,
+                "inlong group is in init status, should not be updated");
 
         groupInfo = InlongGroupTransfer.createGroupInfo(this.groupInfo, sortConf);
-
         InlongGroupRequest groupRequest = groupInfo.genRequest();
         Pair<String, String> idAndErr = managerClient.updateGroup(groupRequest);
         String errMsg = idAndErr.getValue();
-        AssertUtils.isNull(errMsg, errMsg);
+        Preconditions.checkNull(errMsg, errMsg);
         this.groupContext.setGroupInfo(groupInfo);
     }
 
     @Override
     public InlongGroupContext reInitOnUpdate(InlongGroupInfo originGroupInfo, BaseSortConf sortConf) throws Exception {
         this.update(originGroupInfo, sortConf);
-
         String inlongGroupId = this.groupContext.getGroupInfo().getInlongGroupId();
         InlongGroupInfo newGroupInfo = managerClient.getGroupIfExists(inlongGroupId);
         if (newGroupInfo != null) {
@@ -201,7 +198,7 @@ public class InlongGroupImpl implements InlongGroup {
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
-        AssertUtils.isNull(errMsg, errMsg);
+        Preconditions.checkNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, SimpleGroupStatus.STOPPED, async);
         return generateSnapshot();
     }
@@ -217,7 +214,7 @@ public class InlongGroupImpl implements InlongGroup {
         Pair<String, String> idAndErr = managerClient.updateGroup(groupInfo.genRequest());
         final String errMsg = idAndErr.getValue();
         final String groupId = idAndErr.getKey();
-        AssertUtils.isNull(errMsg, errMsg);
+        Preconditions.checkNull(errMsg, errMsg);
         managerClient.operateInlongGroup(groupId, SimpleGroupStatus.STARTED, async);
         return generateSnapshot();
     }

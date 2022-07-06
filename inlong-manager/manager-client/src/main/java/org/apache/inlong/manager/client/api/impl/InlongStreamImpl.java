@@ -38,8 +38,8 @@ import org.apache.inlong.manager.common.pojo.stream.StreamPipeline;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
-import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
@@ -138,10 +138,10 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addSource(StreamSource source) {
-        AssertUtils.notNull(source.getSourceName(), "Source name should not be empty");
+        Preconditions.checkNotNull(source.getSourceName(), "source name cannot be null");
         String sourceName = source.getSourceName();
         if (streamSources.get(sourceName) != null) {
-            throw new IllegalArgumentException(String.format("StreamSource=%s has already be set", source));
+            throw new IllegalArgumentException(String.format("source name=%s has already be set", source));
         }
         streamSources.put(sourceName, source);
         return this;
@@ -149,10 +149,10 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addSink(StreamSink streamSink) {
-        AssertUtils.notNull(streamSink.getSinkName(), "Sink name should not be empty");
+        Preconditions.checkNotNull(streamSink.getSinkName(), "sink name cannot be null");
         String sinkName = streamSink.getSinkName();
         if (streamSinks.get(sinkName) != null) {
-            throw new IllegalArgumentException(String.format("StreamSink=%s has already be set", streamSink));
+            throw new IllegalArgumentException(String.format("sink name=%s has already be set", streamSink));
         }
         streamSinks.put(sinkName, streamSink);
         return this;
@@ -160,10 +160,10 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream addTransform(StreamTransform transform) {
-        AssertUtils.notNull(transform.getTransformName(), "Transform name should not be empty");
+        Preconditions.checkNotNull(transform.getTransformName(), "transform name should not be empty");
         String transformName = transform.getTransformName();
         if (streamTransforms.get(transformName) != null) {
-            throw new IllegalArgumentException(String.format("TransformName=%s has already be set", transform));
+            throw new IllegalArgumentException(String.format("transform name=%s has already be set", transform));
         }
         streamTransforms.put(transformName, transform);
         return this;
@@ -189,21 +189,21 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream updateSource(StreamSource source) {
-        AssertUtils.notNull(source.getSourceName(), "Source name should not be empty");
+        Preconditions.checkNotNull(source.getSourceName(), "source name cannot be null");
         streamSources.put(source.getSourceName(), source);
         return this;
     }
 
     @Override
     public InlongStream updateSink(StreamSink streamSink) {
-        AssertUtils.notNull(streamSink.getSinkName(), "Sink name should not be empty");
+        Preconditions.checkNotNull(streamSink.getSinkName(), "sink name cannot be null");
         streamSinks.put(streamSink.getSinkName(), streamSink);
         return this;
     }
 
     @Override
     public InlongStream updateTransform(StreamTransform transform) {
-        AssertUtils.notNull(transform.getTransformName(), "Transform name should not be empty");
+        Preconditions.checkNotNull(transform.getTransformName(), "transform name cannot be null");
         streamTransforms.put(transform.getTransformName(), transform);
         return this;
     }
@@ -285,7 +285,7 @@ public class InlongStreamImpl implements InlongStream {
         InlongStreamInfo streamInfo = managerClient.getStreamInfo(inlongGroupId, inlongStreamId);
         if (streamInfo == null) {
             throw new IllegalArgumentException(
-                    String.format("Stream is not exists for group=%s and stream=%s", inlongGroupId, inlongStreamId));
+                    String.format("Stream not exists for group=%s and stream=%s", inlongGroupId, inlongStreamId));
         }
 
         streamInfo.setFieldList(this.streamFields);

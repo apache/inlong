@@ -20,7 +20,7 @@ package org.apache.inlong.manager.client.api.transform;
 import io.swagger.annotations.ApiModel;
 import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
 import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 
@@ -39,11 +39,11 @@ public class MultiDependencyTransform extends StreamTransform {
      *         if pre streamNode is streamTransform, preNode is transformName
      */
     public MultiDependencyTransform(String transformName, TransformDefinition transformDefinition, String... preNodes) {
-        AssertUtils.notNull(transformDefinition, "TransformDefinition should not be null");
+        Preconditions.checkNotNull(transformDefinition, "transform definition cannot be null");
         this.transformDefinition = transformDefinition;
-        AssertUtils.notNull(transformName, "TransformName should not be empty");
+        Preconditions.checkNotNull(transformName, "transform name cannot be empty");
         this.transformName = transformName;
-        AssertUtils.noNullElements(preNodes, "Pre streamNode should not be null");
+        Preconditions.checkNotNullElements(preNodes, "pre nodes cannot be null");
         for (String preNode : preNodes) {
             this.addPre(preNode);
         }

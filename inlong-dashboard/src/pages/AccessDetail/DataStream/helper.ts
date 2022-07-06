@@ -90,19 +90,7 @@ export const valuesToData = (values, inlongGroupId) => {
 // Convert interface data to form data
 export const dataToValues = data => {
   const array = data.map(item => {
-    const { sourceInfo, sinkInfo, streamInfo } = item;
-    let output = {
-      dataSourceType: sourceInfo[0]?.sourceType || 'AUTO_PUSH',
-      dataSourcesConfig: sourceInfo,
-    } as any;
-
-    sinkInfo.forEach(({ sinkType, ...item }) => {
-      if (!output[`streamSink${sinkType}`]) output[`streamSink${sinkType}`] = [];
-      output[`streamSink${sinkType}`].push(item);
-    });
-    output.streamSink = sinkInfo.map(item => item.sinkType);
-
-    const fieldList = streamInfo.fieldList?.reduce(
+    const fieldList = item?.fieldList?.reduce(
       (acc, cur) => {
         cur.isPredefinedField ? acc.predefinedFields.push(cur) : acc.rowTypeFields.push(cur);
         return acc;
@@ -113,11 +101,10 @@ export const dataToValues = data => {
       },
     );
 
-    output = {
+    const output = {
       hasHigher: false,
-      ...output,
+      ...item,
       ...fieldList,
-      ...streamInfo,
     };
 
     return output;

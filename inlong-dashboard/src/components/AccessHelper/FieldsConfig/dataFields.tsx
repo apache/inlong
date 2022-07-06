@@ -63,7 +63,7 @@ export default (
       rules: [
         { required: true },
         {
-          pattern: /^[0-9a-z_\-]+$/,
+          pattern: /^[0-9a-z_-]+$/,
           message: i18n.t('components.AccessHelper.FieldsConfig.dataFields.InlongStreamIdRules'),
         },
       ],
