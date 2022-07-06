@@ -62,24 +62,4 @@ public abstract class AbstractSink implements Sink {
         inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
     }
 
-//    /**
-//     * init sinkMetric
-//     *
-//     * @param tagName metric tagName
-//     */
-//    protected void intMetric(String tagName) {
-//        String label = Joiner.on(",").join(tagName, index.getAndIncrement());
-//        if (ConfigUtil.isPrometheusEnabled()) {
-//            sinkMetric = new SinkPrometheusMetric(label);
-//        } else {
-//            sinkMetric = new SinkJmxMetric(label);
-//        }
-//        label = Joiner.on(",").join(tagName, inlongGroupId, inlongStreamId);
-//        if (ConfigUtil.isPrometheusEnabled()) {
-//            streamMetric = new SinkPrometheusMetric(label);
-//        } else {
-//            streamMetric = new SinkJmxMetric(label);
-//        }
-//    }
-
 }

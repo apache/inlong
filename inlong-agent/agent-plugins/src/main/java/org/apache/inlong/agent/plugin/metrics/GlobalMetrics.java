@@ -28,7 +28,7 @@ public class GlobalMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalMetrics.class);
 
-    // key: groupId_streadmId
+    // key: groupId_streamId
     private static final ConcurrentHashMap<String, PluginMetric> pluginMetrics = new ConcurrentHashMap<>();
     // key: sourceType_groupId_streamId
     private static final ConcurrentHashMap<String, SourceMetric> sourceMetrics = new ConcurrentHashMap<>();
