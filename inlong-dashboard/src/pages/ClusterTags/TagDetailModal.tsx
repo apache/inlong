@@ -85,6 +85,7 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
         label: i18n.t('pages.ClusterTags.Name'),
         name: 'clusterTag',
         rules: [{ required: true }],
+        tooltip: i18n.t('pages.ClusterTags.NameEditHelp'),
       },
       {
         type: <StaffSelect mode="multiple" currentUserClosable={false} />,
