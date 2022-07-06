@@ -166,7 +166,17 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
         } else {
-            entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+            switch (SourceStatus.forCode(entity.getStatus())) {
+                case SOURCE_NORMAL:
+                    entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+                    break;
+                case SOURCE_FAILED:
+                    entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+                    break;
+                default:
+                    // others leave it be
+                    break;
+            }
         }
 
         sourceMapper.updateByPrimaryKeySelective(entity);
