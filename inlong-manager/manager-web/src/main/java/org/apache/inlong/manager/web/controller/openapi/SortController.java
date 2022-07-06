@@ -32,14 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
  * Sort controller.
  */
 @RestController
-@RequestMapping("/openapi/sort")
-@Api(tags = "Sort Config")
+@RequestMapping("/openapi")
+@Api(tags = "Open-Sort-API")
 public class SortController {
 
     @Autowired
     private SortService sortService;
 
-    @GetMapping("/getClusterConfig")
+    @GetMapping("/sort/getClusterConfig")
     @ApiOperation(value = "get sort cluster config")
     public SortClusterResponse getSortClusterConfig(
             @RequestParam String clusterName,
@@ -47,7 +47,7 @@ public class SortController {
         return sortService.getClusterConfig(clusterName, md5);
     }
 
-    @GetMapping("/getSortSource")
+    @GetMapping("/sort/getSortSource")
     @ApiOperation(value = "get sort sdk config")
     public SortSourceConfigResponse getSortSourceConfig(
             @RequestParam String clusterName,

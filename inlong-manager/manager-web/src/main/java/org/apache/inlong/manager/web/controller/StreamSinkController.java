@@ -43,41 +43,40 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream sink control layer
  */
 @RestController
-@RequestMapping("/sink")
 @Api(tags = "Stream-Sink-API")
 public class StreamSinkController {
 
     @Autowired
     private StreamSinkService sinkService;
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/sink/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream sink")
     public Response<Integer> save(@Validated @RequestBody SinkRequest request) {
         return Response.success(sinkService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/sink/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSink> get(@PathVariable Integer id) {
         return Response.success(sinkService.get(id));
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream sink list by paginating")
     public Response<PageInfo<? extends SinkListResponse>> listByCondition(SinkPageRequest request) {
         return Response.success(sinkService.listByCondition(request));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/sink/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream sink")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SinkRequest request) {
         return Response.success(sinkService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/sink/delete/{id}", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete stream sink")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)

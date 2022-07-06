@@ -43,41 +43,40 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream source control layer
  */
 @RestController
-@RequestMapping("/source")
 @Api(tags = "Stream-Source-API")
 public class StreamSourceController {
 
     @Autowired
     StreamSourceService sourceService;
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/source/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream source")
     public Response<Integer> save(@Validated @RequestBody SourceRequest request) {
         return Response.success(sourceService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/source/get/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)
     public Response<StreamSource> get(@PathVariable Integer id) {
         return Response.success(sourceService.get(id));
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/source/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream source list by paginating")
     public Response<PageInfo<? extends SourceListResponse>> listByCondition(SourcePageRequest request) {
         return Response.success(sourceService.listByCondition(request));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/source/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream source")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody SourceRequest request) {
         return Response.success(sourceService.update(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/source/delete/{id}", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete stream source")
     @ApiImplicitParam(name = "id", dataTypeClass = Integer.class, required = true)

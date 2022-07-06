@@ -33,18 +33,17 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream config log controller.
  */
 @RestController
-@RequestMapping("/stream/config/log")
-@Api(tags = "Stream Config log")
+@Api(tags = "Stream-Config-Log-API")
 public class StreamConfigLogWebController {
 
     @Autowired
     private StreamConfigLogService streamConfigLogService;
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/stream/config/log/list", method = RequestMethod.GET)
     @ApiOperation(value = "Paging query inlong stream config log")
     public Response<PageInfo<InlongStreamConfigLogListResponse>> listByCondition(
             InlongStreamConfigLogPageRequest request) {
         return Response.success(streamConfigLogService.listByCondition(request));
     }
-    
+
 }

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.web.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
@@ -35,27 +34,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Workflow-Approver controller
  */
 @Slf4j
 @RestController
-@RequestMapping("/workflow/approver")
-@Api(tags = {"Workflow Approver"})
+@Api(tags = "Workflow-Approver-API")
 public class WorkflowApproverController {
 
     @Autowired
     private WorkflowApproverService workflowApproverService;
 
-    @GetMapping("list")
+    @GetMapping("/workflow/approver/list")
     public Response<List<WorkflowApprover>> list(WorkflowApproverQuery query) {
         return Response.success(this.workflowApproverService.list(query));
     }
 
-    @PostMapping("add")
+    @PostMapping("/workflow/approver/add")
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Add approver configuration")
     public Response<Object> add(@RequestBody WorkflowApprover config) {
@@ -63,7 +62,7 @@ public class WorkflowApproverController {
         return Response.success();
     }
 
-    @PostMapping("update/{id}")
+    @PostMapping("/workflow/approver/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver configuration")
     public Response<Object> update(@RequestBody WorkflowApprover config) {
@@ -71,7 +70,7 @@ public class WorkflowApproverController {
         return Response.success();
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/workflow/approver/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete approver configuration")
     @ApiParam(value = "Configuration item ID", required = true)
@@ -79,4 +78,5 @@ public class WorkflowApproverController {
         this.workflowApproverService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success();
     }
+
 }

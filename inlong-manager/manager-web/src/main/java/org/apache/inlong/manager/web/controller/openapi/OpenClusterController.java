@@ -37,21 +37,21 @@ import org.springframework.web.bind.annotation.RestController;
  * Cluster controller
  */
 @RestController
-@RequestMapping("/openapi/cluster")
+@RequestMapping("/openapi")
 @Api(tags = "Open-Cluster-API")
 public class OpenClusterController {
 
     @Autowired
     private InlongClusterService clusterService;
 
-    @GetMapping(value = "/get/{id}")
+    @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         return Response.success(clusterService.get(id));
     }
 
-    @PostMapping(value = "/list")
+    @PostMapping(value = "/cluster/list")
     @ApiOperation(value = "Get clusters by paginating")
     public Response<PageInfo<ClusterInfo>> list(@RequestBody ClusterPageRequest request) {
         return Response.success(clusterService.list(request));

@@ -33,14 +33,14 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong stream config controller.
  */
 @RestController
-@RequestMapping("/openapi/stream")
-@Api(tags = "Stream Config")
+@RequestMapping("/openapi")
+@Api(tags = "Open-Stream-Config-API")
 public class StreamConfigLogController {
 
     @Autowired
     private StreamConfigLogService streamConfigLogService;
 
-    @PostMapping(value = "/log/reportConfigLogStatus",
+    @PostMapping(value = "/stream/log/reportConfigLogStatus",
             produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "stream config log status")
     public Response<String> reportStreamConfigLogStatus(@RequestBody

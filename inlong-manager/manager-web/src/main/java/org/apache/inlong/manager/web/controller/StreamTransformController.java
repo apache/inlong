@@ -19,7 +19,6 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
@@ -43,15 +42,13 @@ import java.util.List;
  * Stream transform control layer
  */
 @RestController
-@RequestMapping("/transform")
 @Api(tags = "Stream-Transform-API")
-@Slf4j
 public class StreamTransformController {
 
     @Autowired
     protected StreamTransformService streamTransformService;
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/transform/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save stream transform")
     public Response<Integer> save(@Validated @RequestBody TransformRequest request) {
@@ -59,14 +56,14 @@ public class StreamTransformController {
                 streamTransformService.save(request, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @RequestMapping(value = "/transform/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream transform list")
     public Response<List<TransformResponse>> list(@RequestParam("inlongGroupId") String groupId,
             @RequestParam("inlongStreamId") String streamId) {
         return Response.success(streamTransformService.listTransform(groupId, streamId));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/transform/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update stream transform")
     public Response<Boolean> update(@Validated(UpdateValidation.class) @RequestBody TransformRequest request) {
@@ -74,7 +71,7 @@ public class StreamTransformController {
         return Response.success(streamTransformService.update(request, operator));
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/transform/delete", method = RequestMethod.DELETE)
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Delete stream transform")
     public Response<Boolean> delete(@Validated DeleteTransformRequest request) {
