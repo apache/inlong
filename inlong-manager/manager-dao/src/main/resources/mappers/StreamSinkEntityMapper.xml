@@ -457,5 +457,28 @@
             modify_time     = now()
         where id = #{id,jdbcType=INTEGER}
     </update>
+    <select id="selectAllTasks" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo">
+        select inlong_cluster_name as sortClusterName,
+               sort_task_name,
+               sort_consumer_group,
+               sink_type,
+               data_node_name
+        from stream_sink
+        <where>
+            is_deleted = 0
+        </where>
+        group by
+        inlong_cluster_name, sort_task_name, sort_consumer_group, sink_type, data_node_name
+    </select>
+    <select id="selectAllIdParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo">
+        select sort_task_name,
+               inlong_group_id,
+               inlong_stream_id,
+               ext_params
+        from stream_sink
+        <where>
+            is_deleted = 0
+        </where>
+    </select>
 
 </mapper>
