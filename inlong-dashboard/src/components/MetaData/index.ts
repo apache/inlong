@@ -24,7 +24,7 @@ import { StorageClickhouse } from './StorageClickhouse';
 import { StorageKafka } from './StorageKafka';
 import { StorageIceberg } from './StorageIceberg';
 import { StorageEs } from './StorageEs';
-import { StorageGreenplum } from './StorageGreenplum';
+import { SinkGreenplum } from './SinkGreenplum';
 
 export interface StoragesType {
   label: string;
@@ -70,6 +70,6 @@ export const Storages: StoragesType[] = [
   {
     label: 'Greenplum',
     value: 'GREENPLUM',
-    ...StorageGreenplum,
+    ...SinkGreenplum,
   },
 ];
