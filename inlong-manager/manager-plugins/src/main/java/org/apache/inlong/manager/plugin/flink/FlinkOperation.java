@@ -151,13 +151,34 @@ public class FlinkOperation {
 
     /**
      * Check whether there are duplicate NodeIds in different relations.
-     * JSON data in the dataflow, the order of the nodes in the actual dataflow is reversed.
-     * such as dataflow A -> B -> C, resulting topological relationship is [[B, C], [A, B]],
-     * the input B in the first node [B, C] is the output B in the second node [A, B].
-     * The input of the first node is the output of the second node.
-     * First add the input and output of the first relation (where the output node is the last node in the dataflow),
-     * then start from the first relation, and traverse the input nodes in different relations in turn to see
-     * if there are duplicates
+     * <p/>
+     * The JSON data in the dataflow is in the reverse order of the nodes in the actual dataflow.
+     * For example, data flow A -> B -> C, the generated topological relationship is [[B,C],[A,B]],
+     * then the input node B in the first relation [B,C] is the second output node B in relation [A,B].
+     * <p/>
+     * The example of dataflow:
+     * <blockquote><pre>
+     * {
+     *     "groupId": "test_group",
+     *     "streams": [
+     *         {
+     *             "streamId": "test_stream",
+     *             "relations": [
+     *                 {
+     *                     "type": "baseRelation",
+     *                     "inputs": [ "node_3" ],
+     *                     "outputs": [ "node_4" ]
+     *                 },
+     *                 {
+     *                     "type": "innerJoin",
+     *                     "inputs": [ "node_1", "node_2" ],
+     *                     "outputs": [ "node_3"  ]
+     *                 }
+     *             ]
+     *         }
+     *     ]
+     * }
+     * </pre></blockquote>
      */
     private void checkNodeIds(String dataflow) throws Exception {
         JsonNode relations = JsonUtils.parseTree(dataflow).get(InlongConstants.STREAMS)
