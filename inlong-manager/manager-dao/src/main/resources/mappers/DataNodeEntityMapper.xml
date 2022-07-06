@@ -36,12 +36,6 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
     </resultMap>
-    <resultMap id="SortSinkParamsDTO" type="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
-        <result column="sort_task_name" jdbcType="VARCHAR" property="sortTaskName"/>
-        <result column="name" jdbcType="VARCHAR" property="name"/>
-        <result column="type" jdbcType="VARCHAR" property="type"/>
-        <result column="ext_params" jdbcType="VARCHAR" property="extParams"/>
-    </resultMap>
     <sql id="Base_Column_List">
         id, name, type, url, username, token, ext_params, in_charges, status, is_deleted,
         creator, modifier, create_time, modify_time
@@ -170,9 +164,10 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAllSinkParams" resultMap="SortSinkParamsDTO">
-        select
-        name, type, ext_params
+    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
+        select name,
+               type,
+               ext_params
         from data_node
         <where>
             is_deleted = 0

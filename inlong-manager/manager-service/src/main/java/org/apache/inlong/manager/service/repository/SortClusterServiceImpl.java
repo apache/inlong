@@ -103,13 +103,6 @@ public class SortClusterServiceImpl implements SortClusterService {
         LOGGER.debug("end to reload config");
     }
 
-    /**
-     * Get the cluster config response by specific cluster name.
-     *
-     * @param clusterName Cluster name.
-     * @param md5 Last md5.
-     * @return Corresponding response.
-     */
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
         // check if cluster name is valid or not.
