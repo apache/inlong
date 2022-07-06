@@ -41,7 +41,7 @@ class GroupServiceTest extends ServiceBaseTest {
                 () -> groupService.update(new InlongTubeRequest(), ""));
 
         Assertions.assertTrue(exception.getMessage().contains("inCharges: inCharges must not be blank"));
-        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId: inlongGroupId must not be blank"));
+        Assertions.assertTrue(exception.getMessage().contains("inlongGroupId: inlongGroupId cannot be blank"));
     }
 
     @Test
