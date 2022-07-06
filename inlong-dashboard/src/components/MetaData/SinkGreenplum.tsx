@@ -1,20 +1,18 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 import React from 'react';
@@ -155,48 +153,6 @@ const getForm: GetStorageFormFieldsType = (
       ),
       name: 'sinkFieldList',
     },
-    {
-      name: 'partitionFieldList',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldList'),
-      type: EditableTable,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.Hive.PartitionFieldListHelp'),
-      props: {
-        size: 'small',
-        required: false,
-        columns: [
-          {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName'),
-            dataIndex: 'fieldName',
-            rules: [{ required: true }],
-          },
-          {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType'),
-            dataIndex: 'fieldType',
-            type: 'select',
-            initialValue: 'string',
-            props: {
-              options: ['string', 'timestamp'].map(item => ({
-                label: item,
-                value: item,
-              })),
-            },
-          },
-          {
-            title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
-            dataIndex: 'fieldFormat',
-            type: 'autocomplete',
-            props: {
-              options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
-                label: item,
-                value: item,
-              })),
-            },
-            rules: [{ required: true }],
-            visible: (text, record) => record.fieldType === 'timestamp',
-          },
-        ],
-      },
-    },
   ];
 
   return type === 'col'
@@ -208,14 +164,14 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
   return [
     ...sourceDataFields,
     {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldName')}`,
+      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldName')}`,
       dataIndex: 'fieldName',
       initialValue: '',
       rules: [
         { required: true },
         {
           pattern: /^[a-z][0-9a-z_]*$/,
-          message: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldNameRule'),
+          message: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldNameRule'),
         },
       ],
       props: (text, record, idx, isNew) => ({
@@ -223,10 +179,11 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: `HIVE${i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldType')}`,
+      title: `GREENPLUM${i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldType')}`,
       dataIndex: 'fieldType',
       initialValue: greenplumFieldTypes[0].value,
       type: 'select',
+      width: '115px',
       props: (text, record, idx, isNew) => ({
         options: greenplumFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
@@ -234,7 +191,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       rules: [{ required: true }],
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.IsMetaField'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.IsMetaField'),
       dataIndex: 'isMetaField',
       initialValue: 0,
       type: 'select',
@@ -252,7 +209,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       }),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldFormat'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldFormat'),
       dataIndex: 'fieldFormat',
       initialValue: 0,
       type: 'autocomplete',
@@ -266,7 +223,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
     },
     {
-      title: i18n.t('components.AccessHelper.StorageMetaData.Hive.FieldDescription'),
+      title: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.FieldDescription'),
       dataIndex: 'fieldComment',
       initialValue: '',
     },
@@ -275,7 +232,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const StorageGreenplum = {
+export const SinkGreenplum = {
   getForm,
   getFieldListColumns,
   tableColumns,
