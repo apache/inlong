@@ -22,6 +22,7 @@ import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.source.AbstractSource;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
 import org.apache.inlong.sdk.commons.admin.AdminServiceRegister;
 import org.apache.inlong.sdk.sort.api.QueryConsumeConfig;
 import org.apache.inlong.sdk.sort.api.SortClient;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +71,8 @@ public final class SortSdkSource extends AbstractSource
 
     // Log of {@link SortSdkSource}.
     private static final Logger LOG = LoggerFactory.getLogger(SortSdkSource.class);
+
+    public static final String SORT_SDK_PREFIX = "sortsdk.";
 
     // Default pool of {@link ScheduledExecutorService}.
     private static final int CORE_POOL_SIZE = 1;
@@ -169,6 +173,8 @@ public final class SortSdkSource extends AbstractSource
                     SortSdkSource.defaultStrategy, InetAddress.getLocalHost().getHostAddress());
             final FetchCallback callback = FetchCallback.Factory.create(sortTaskName, getChannelProcessor(), context);
             clientConfig.setCallback(callback);
+            Map<String, String> sortSdkParams = this.getSortClientConfigParameters();
+            clientConfig.setParameters(sortSdkParams);
 
             // create SortClient
             String configType = CommonPropertiesHolder
@@ -216,6 +222,23 @@ public final class SortSdkSource extends AbstractSource
             LOG.error("Got one throwable when init client of id:{}", sortTaskName, th);
         }
         return null;
+    }
+
+    /**
+     * getSortClientConfigParameters
+     * @return
+     */
+    private Map<String, String> getSortClientConfigParameters() {
+        Map<String, String> sortSdkParams = CommonPropertiesHolder.getContext().getSubProperties(SORT_SDK_PREFIX);
+        SortTaskConfig taskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
+        if (taskConfig != null) {
+            Map<String, String> sinkParams = taskConfig.getSinkParams();
+            if (sinkParams != null) {
+                Context sinkContext = new Context(sinkParams);
+                sortSdkParams.putAll(sinkContext.getSubProperties(SORT_SDK_PREFIX));
+            }
+        }
+        return sortSdkParams;
     }
 
     /**
