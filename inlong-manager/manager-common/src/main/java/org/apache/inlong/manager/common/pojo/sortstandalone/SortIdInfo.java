@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.pojo.sortstandalone;
 
-import org.apache.inlong.manager.dao.entity.SortClusterConfigEntity;
+import lombok.Data;
 
-import java.util.List;
-
-/**
- * Sort cluster config service.
- */
-public interface SortClusterConfigService {
-
-    /**
-     * Select list of task by cluster name.
-     *
-     * @param clusterName Name of sort cluster.
-     * @return List of tasks, including task name and sink type.
-     */
-    List<SortClusterConfigEntity> selectTasksByClusterName(String clusterName);
+@Data
+public class SortIdInfo {
+    private static final long serialVersionUID = 1L;
+    String sortTaskName;
+    String inlongGroupId;
+    String inlongStreamId;
+    String extParams;
 }

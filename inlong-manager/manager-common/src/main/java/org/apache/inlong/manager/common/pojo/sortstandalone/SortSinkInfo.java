@@ -15,21 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.pojo.sortstandalone;
 
-import java.util.Map;
+import lombok.Data;
 
-/**
- * Sort sink params service.
- */
-public interface SortTaskSinkParamService {
-
-    /**
-     * Select all sink params by task name and sink type.
-     *
-     * @param taskName Name of task;
-     * @param sinkType Type of sink;
-     * @return map of sink params.
-     */
-    Map<String, String> selectByTaskNameAndType(String taskName, String sinkType);
+@Data
+public class SortSinkInfo {
+    private static final long serialVersionUID = 1L;
+    String name;
+    String type;
+    String extParams;
 }

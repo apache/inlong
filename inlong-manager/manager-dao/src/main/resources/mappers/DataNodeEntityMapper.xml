@@ -163,4 +163,14 @@
         from data_node
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
+        select name,
+               type,
+               ext_params
+        from data_node
+        <where>
+            is_deleted = 0
+        </where>
+    </select>
 </mapper>

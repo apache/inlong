@@ -15,21 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.pojo.sortstandalone;
 
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
-/**
- * Sort id params service.
- */
-public interface SortTaskIdParamService {
-
-    /**
-     * Select all id params by task name.
-     *
-     * @param taskName WorkflowTask name.
-     * @return List of all id params.
-     */
-    List<Map<String, String>> selectByTaskName(String taskName);
+@Data
+public class SortTaskInfo {
+    private static final long serialVersionUID = 1L;
+    String sortClusterName;
+    String sortTaskName;
+    String sortConsumerGroup;
+    String sinkType;
+    String dataNodeName;
 }
