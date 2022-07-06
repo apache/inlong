@@ -55,8 +55,23 @@ public class InlongConstants {
     /**
      * Sort config
      */
-
     public static final String DATA_FLOW = "dataFlow";
+
+    public static final String STREAMS = "streams";
+
+    public static final String RELATIONS = "relations";
+
+    public static final String INPUTS = "inputs";
+
+    public static final String OUTPUTS = "outputs";
+
+    public static final String NODES = "nodes";
+
+    public static final String NODE_TYPE = "type";
+
+    public static final String LOAD = "Load";
+
+    public static final String EXTRACT = "Extract";
 
     public static final String SORT_JOB_ID = "sort.job.id";
 
