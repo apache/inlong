@@ -99,13 +99,37 @@ jobs:
           fi
 
       # If only this workflow file is changed, there is no need to publish Docker images.
-      - name: Push Docker images to Docker Hub
+      - name: Push x86 Docker images to Docker Hub
         if: |
           success()
           && steps.check-workflow-diff.outputs.changed_only == 'no'
           && steps.match-branch.outputs.match == 'true'
         working-directory: docker
         run: bash +x publish-by-arch.sh --tag --publish
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      # If only this workflow file is changed, there is no need to publish Docker images.
+      - name: Push aarch64 Docker images to Docker Hub
+        if: |
+          success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-branch.outputs.match == 'true'
+        working-directory: docker
+        run: bash +x publish-by-arch.sh --tag --buildx --publish
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      # If only this workflow file is changed, there is no need to publish Docker images.
+      - name: Push manifest to Docker Hub
+        if: |
+          success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-branch.outputs.match == 'true'
+        working-directory: docker
+        run: bash +x publish-by-arch.sh --manifest
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

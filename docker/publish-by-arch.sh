@@ -25,6 +25,7 @@ NEED_BUILD=false
 NEED_TAG=false
 NEED_PUBLISH=false
 NEED_MANIFEST=false
+USE_BUILDX=""
 
 SRC_POSTFIX=""
 DES_POSTFIX="-x86"
@@ -38,7 +39,7 @@ buildImage() {
   cd ..
   if [ $ARCH = "$ARCH_AARCH64" ]; then
     mvn clean install -DskipTests
-    sh ./docker/build-arm-docker-images.sh
+    sh ./docker/build-arm-docker-images.sh ${USE_BUILDX}
   else
     mvn clean install -DskipTests -Pdocker
   fi
@@ -248,13 +249,15 @@ help() {
 Usage: ./publish-by-arch.sh [option]
 Options:
   -b, --build        Add build operation before publish. Build docker images by arch.
-  -t, --tag          Add tag operation before publish. Add arch after version.
+  -t, --tag          Add tag operation before publish. Add arch after version and add docker registry org.
   -p, --publish      Publish images according to docker registry information.
   -m, --manifest     Push manifest. This option doesn't need arch.
+  -x, --buildx       Use buildx to build arm docker images on x86 environment. This option doesn't need -b.
   -h, --help         Show help information.
 Example:
   Use "./publish-by-arch.sh -b" to publish arm images after build operation.
   Use "./publish-by-arch.sh -t" to publish amd images after tag already x86 images as x86.
+  Use "./publish-by-arch.sh -x -p" to build arm docker images on x86 environment, then publish.
 EOF
 }
 
@@ -268,6 +271,9 @@ do
     NEED_MANIFEST=true
   elif [ "$arg" = "-p" ] || [ "$arg" = "--publish" ]; then
     NEED_PUBLISH=true
+  elif [ "$arg" = "-x" ] || [ "$arg" = "--buildx" ]; then
+    USE_BUILDX="--buildx"
+    ARCH=${ARCH_AARCH64}
   elif [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
     help
     exit 0

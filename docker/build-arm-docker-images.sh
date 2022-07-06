@@ -23,6 +23,42 @@ SHELL_FOLDER=$(cd "$(dirname "$0")";pwd)
 cd ${SHELL_FOLDER}
 cd ..
 
+USE_BUILDX=""
+PLATFROM=""
+
+help() {
+  cat <<EOF
+Usage: ./build-arm-docker-images.sh [option]
+Options:
+  --buildx        Use buildx to build arm docker images.
+  -h, --help      Show help information.
+Example:
+  Use "./build-arm-docker-images.sh" to build arm images on aarch64 environment.
+  Use "./build-arm-docker-images.sh --buildx" to build arm images with buildx.
+EOF
+}
+
+if [ $# -gt 1 ];then
+  echo "Wrong input, please check param."
+  help
+fi
+
+arg=$1
+
+if [ $# = 1 ];then
+  if [ "$arg" = "--buildx" ];then
+    echo ">>>>> Use buildx build aarch64 images"
+    USE_BUILDX="buildx"
+  elif [ "$arg" = "--help" ] || [ "$arg" = "-h" ]; then
+    help
+    exit 0
+  else
+    echo "Wrong input, please check param: ${arg}."
+    help
+    exit 0
+  fi
+fi
+
 version=`awk '/<version>[^<]+<\/version>/{i++}i==2{gsub(/<version>|<\/version>/,"",$1);print $0;exit;}' pom.xml`
 tag=${version}-aarch64
 
@@ -58,12 +94,12 @@ cp ${audit_tarball} ${audit_dockerfile_path}/target/${audit_tarball_name}
 cp ${dataproxy_tarball} ${dataproxy_dockerfile_path}/target/${dataproxy_tarball_name}
 cp ${tubemq_manager_tarball} ${tubemq_manager_dockerfile_path}/target/${tubemq_manager_tarball_name}
 
-docker build -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
-docker build -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
-docker build -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
-docker build -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
-docker build -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
-docker build -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/manager:${tag}        inlong-manager/manager-docker/      --build-arg MANAGER_TARBALL=${MANAGER_TARBALL}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/dataproxy:${tag}      inlong-dataproxy/dataproxy-docker/  --build-arg DATAPROXY_TARBALL=${DATAPROXY_TARBALL}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/audit:${tag}          inlong-audit/audit-docker/          --build-arg AUDIT_TARBALL=${AUDIT_TARBALL}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/tubemq-manager:${tag} inlong-tubemq/tubemq-docker/tubemq-manager/ --build-arg TUBEMQ_MANAGER_TARBALL=${TUBEMQ_MANAGER_TARBALL}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/dashboard:${tag}      inlong-dashboard/                   --build-arg DASHBOARD_FILE=${DASHBOARD_FILE}
+docker ${buildx} build --platform linux/arm64/v8 -t inlong/agent:${tag}          inlong-agent/agent-docker/          --build-arg AGENT_TARBALL=${AGENT_TARBALL}
 
 docker tag inlong/manager:${tag}         inlong/manager:latest-aarch64
 docker tag inlong/dataproxy:${tag}       inlong/dataproxy:latest-aarch64
@@ -71,3 +107,4 @@ docker tag inlong/audit:${tag}           inlong/audit:latest-aarch64
 docker tag inlong/tubemq-manager:${tag}  inlong/tubemq-manager:latest-aarch64
 docker tag inlong/dashboard:${tag}       inlong/dashboard:latest-aarch64
 docker tag inlong/agent:${tag}           inlong/agent:latest-aarch64
+
