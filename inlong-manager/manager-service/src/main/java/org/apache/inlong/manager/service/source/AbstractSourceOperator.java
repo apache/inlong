@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.source;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -160,6 +160,25 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         entity.setVersion(entity.getVersion() + 1);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
+
+        // Re-issue task if necessary
+        entity.setPreviousStatus(entity.getStatus());
+        if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
+            entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+        } else {
+            switch (SourceStatus.forCode(entity.getStatus())) {
+                case SOURCE_NORMAL:
+                    entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+                    break;
+                case SOURCE_FAILED:
+                    entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
+                    break;
+                default:
+                    // others leave it be
+                    break;
+            }
+        }
+
         sourceMapper.updateByPrimaryKeySelective(entity);
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());
