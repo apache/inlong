@@ -51,6 +51,7 @@
         <module>elasticsearch-base</module>
         <module>elasticsearch-6</module>
         <module>elasticsearch-7</module>
+        <module>tubemq</module>
     </modules>
 
     <dependencies>
