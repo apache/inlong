@@ -162,10 +162,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         entity.setModifyTime(new Date());
 
         // Re-issue task if necessary
+        entity.setPreviousStatus(entity.getStatus());
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
-            LOGGER.info("re-issuing source task {}, previous status = {}", entity.getId(), entity.getStatus());
-            entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
+        } else {
+            entity.setStatus(SourceStatus.SOURCE_NEW.getCode());
         }
 
         sourceMapper.updateByPrimaryKeySelective(entity);
