@@ -183,7 +183,6 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
       dataIndex: 'fieldType',
       initialValue: greenplumFieldTypes[0].value,
       type: 'select',
-      width: '115px',
       props: (text, record, idx, isNew) => ({
         options: greenplumFieldTypes,
         disabled: [110, 130].includes(currentValues?.status as number) && !isNew,
@@ -232,7 +231,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
 
 const tableColumns = getForm('col') as ColumnsType;
 
-export const SinkGreenplum = {
+export const StorageGreenplum = {
   getForm,
   getFieldListColumns,
   tableColumns,
