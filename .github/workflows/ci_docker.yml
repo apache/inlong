@@ -126,10 +126,8 @@ jobs:
       - name: Push aarch64 Docker images to Docker Hub
         if: |
           success()
-          && steps.check-workflow-diff.outputs.changed_only == 'no'
-          && steps.match-release-branch.outputs.match == 'true'
         working-directory: docker
-        run: bash +x publish-by-arch.sh --tag --buildx aarch64 --publish
+        run: bash +x publish-by-arch.sh --tag --buildx aarch64
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
