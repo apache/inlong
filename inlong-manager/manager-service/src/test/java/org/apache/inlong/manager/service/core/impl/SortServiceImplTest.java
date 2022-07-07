@@ -66,7 +66,6 @@ public class SortServiceImplTest extends ServiceBaseTest {
     @Autowired
     private SortService sortService;
 
-
     @Test
     @Order(1)
     @Transactional
@@ -234,7 +233,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
         StringBuilder extTag = new StringBuilder();
         extTag.append("zone=").append(TEST_TAG)
                 .append("&producer=true")
-                .append("&consumer=").append(isConsumable? "true":"false");
+                .append("&consumer=").append(isConsumable ? "true" : "false");
         entity.setExtTag(extTag.toString());
         entity.setExtParams("{\"tenant\":\"testTenant\",\"namespace\":\"testNS\",\"serviceUrl\":\"testServiceUrl\","
                 + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
