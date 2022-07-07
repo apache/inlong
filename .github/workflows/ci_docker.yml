@@ -102,6 +102,8 @@ jobs:
       - name: Push x86 Docker images to Docker Hub
         if: |
           success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-branch.outputs.match == 'true'
         working-directory: docker
         run: bash +x publish-by-arch.sh --tag --publish
         env:
@@ -124,6 +126,8 @@ jobs:
       - name: Push aarch64 Docker images to Docker Hub
         if: |
           success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-release-branch.outputs.match == 'true'
         working-directory: docker
         run: bash +x publish-by-arch.sh --tag --buildx aarch64 --publish
         env:
@@ -134,6 +138,8 @@ jobs:
       - name: Push manifest to Docker Hub
         if: |
           success()
+          && steps.check-workflow-diff.outputs.changed_only == 'no'
+          && steps.match-release-branch.outputs.match == 'true'
         working-directory: docker
         run: bash +x publish-by-arch.sh --manifest
         env:
