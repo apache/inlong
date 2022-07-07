@@ -55,6 +55,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
@@ -158,16 +159,41 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     public Boolean updateTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to update cluster tag={}", request);
         Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
-        Preconditions.checkNotNull(request.getClusterTag(), "inlong cluster tag cannot be empty");
+        String newClusterTag = request.getClusterTag();
+        Preconditions.checkNotNull(newClusterTag, "inlong cluster tag cannot be empty");
 
         Integer id = request.getId();
         Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
-        // check cluster tag if exist
-        InlongClusterTagEntity exist = clusterTagMapper.selectByTag(request.getClusterTag());
-        if (exist != null && !Objects.equals(id, exist.getId())) {
-            String errMsg = String.format("inlong cluster tag [%s] already exist", request.getClusterTag());
+        InlongClusterTagEntity exist = clusterTagMapper.selectById(id);
+        if (exist == null) {
+            LOGGER.warn("inlong cluster tag was not exist for id={}", id);
+            return true;
+        }
+        InlongClusterTagEntity tagExist = clusterTagMapper.selectByTag(newClusterTag);
+        if (tagExist != null) {
+            String errMsg = String.format("inlong cluster tag [%s] already exist", newClusterTag);
             LOGGER.error(errMsg);
             throw new BusinessException(errMsg);
+        }
+
+        // check if there are some InlongGroups that uses this tag
+        String oldClusterTag = exist.getClusterTag();
+        this.assertNoInlongGroupExists(oldClusterTag);
+
+        // update the associated cluster tag in inlong_cluster
+        Date now = new Date();
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(newClusterTag, null, null);
+        if (CollectionUtils.isNotEmpty(clusterEntities)) {
+            clusterEntities.forEach(entity -> {
+                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                tagSet.remove(oldClusterTag);
+                tagSet.add(newClusterTag);
+                String updateTags = Joiner.on(",").join(tagSet);
+                entity.setClusterTags(updateTags);
+                entity.setModifier(operator);
+                entity.setModifyTime(now);
+                clusterMapper.updateByIdSelective(entity);
+            });
         }
 
         InlongClusterTagEntity entity = clusterTagMapper.selectById(id);
@@ -186,14 +212,28 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Override
     public Boolean deleteTag(Integer id, String operator) {
         Preconditions.checkNotNull(id, "cluster tag id cannot be empty");
-        InlongClusterTagEntity entity = clusterTagMapper.selectById(id);
-        if (entity == null || entity.getIsDeleted() > InlongConstants.UN_DELETED) {
+        InlongClusterTagEntity exist = clusterTagMapper.selectById(id);
+        if (exist == null || exist.getIsDeleted() > InlongConstants.UN_DELETED) {
             LOGGER.error("inlong cluster tag not found by id={}", id);
             return false;
         }
-        entity.setIsDeleted(entity.getId());
-        entity.setModifier(operator);
-        clusterTagMapper.updateById(entity);
+
+        // check if there are some InlongGroups that uses this tag
+        String clusterTag = exist.getClusterTag();
+        this.assertNoInlongGroupExists(clusterTag);
+
+        // update the associated cluster tag in inlong_cluster
+        Date now = new Date();
+        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(clusterTag, null, null);
+        if (CollectionUtils.isNotEmpty(clusterEntities)) {
+            clusterEntities.forEach(entity -> {
+                this.removeClusterTag(entity, clusterTag, operator, now);
+            });
+        }
+
+        exist.setIsDeleted(exist.getId());
+        exist.setModifier(operator);
+        clusterTagMapper.updateById(exist);
         LOGGER.info("success to delete cluster tag by id={}", id);
         return true;
     }
@@ -304,6 +344,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String clusterTag = request.getClusterTag();
         Preconditions.checkNotNull(clusterTag, "cluster tag cannot be empty");
 
+        Date now = new Date();
         if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
             request.getBindClusters().forEach(id -> {
                 InlongClusterEntity entity = clusterMapper.selectById(id);
@@ -314,6 +355,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 updateEntity.setId(id);
                 updateEntity.setClusterTags(updateTags);
                 updateEntity.setModifier(operator);
+                entity.setModifyTime(now);
                 clusterMapper.updateByIdSelective(updateEntity);
             });
         }
@@ -321,12 +363,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (CollectionUtils.isNotEmpty(request.getUnbindClusters())) {
             request.getUnbindClusters().forEach(id -> {
                 InlongClusterEntity entity = clusterMapper.selectById(id);
-                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
-                tagSet.remove(clusterTag);
-                String updateTags = Joiner.on(",").join(tagSet);
-                entity.setClusterTags(updateTags);
-                entity.setModifier(operator);
-                clusterMapper.updateByIdSelective(entity);
+                this.removeClusterTag(entity, clusterTag, operator, now);
             });
         }
         LOGGER.info("success to bind or unbind cluster tag {} by {}", request, operator);
@@ -627,6 +664,35 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         return configJson;
+    }
+
+    /**
+     * Remove cluster tag from the given cluster entity.
+     */
+    private void removeClusterTag(InlongClusterEntity entity, String clusterTag, String operator, Date modifyTime) {
+        HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+        tagSet.remove(clusterTag);
+        String updateTags = Joiner.on(",").join(tagSet);
+        entity.setClusterTags(updateTags);
+        entity.setModifier(operator);
+        entity.setModifyTime(modifyTime);
+        clusterMapper.updateByIdSelective(entity);
+    }
+
+    /**
+     * Make sure there is no InlongGroup using this tag.
+     */
+    private void assertNoInlongGroupExists(String clusterTag) {
+        List<InlongGroupEntity> groupEntities = groupMapper.selectByClusterTag(clusterTag);
+        if (CollectionUtils.isEmpty(groupEntities)) {
+            return;
+        }
+        List<String> groupIds = groupEntities.stream()
+                .map(InlongGroupEntity::getInlongGroupId)
+                .collect(Collectors.toList());
+        String errMsg = String.format("inlong cluster tag [%s] was used by inlong group %s", clusterTag, groupIds);
+        LOGGER.error(errMsg);
+        throw new BusinessException(errMsg + ", please delete them first");
     }
 
 }

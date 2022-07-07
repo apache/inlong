@@ -65,14 +65,15 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
-            resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
+    <select id="selectByKey" resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
         from inlong_cluster
         <where>
             is_deleted = 0
-            and `type` = #{type, jdbcType=VARCHAR}
+            <if test="type != null and type != ''">
+                and `type` = #{type, jdbcType=VARCHAR}
+            </if>
             <if test="clusterTag != null and clusterTag != ''">
                 and find_in_set(#{clusterTag, jdbcType=VARCHAR}, cluster_tags)
             </if>
