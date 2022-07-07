@@ -50,7 +50,7 @@ public class WorkflowEventController {
 
     @GetMapping("/workflow/event/detail/{id}")
     @ApiOperation(value = "Get event details")
-    @ApiImplicitParam(name = "id", value = "event id", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Event ID", dataTypeClass = Integer.class, required = true)
     public Response<EventLogView> get(@PathVariable Integer id) {
         return Response.success(workflowEventService.get(id));
     }
@@ -64,8 +64,8 @@ public class WorkflowEventController {
     @Deprecated
     @PostMapping("/workflow/event/executeEventListener/{id}")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Execute the listener based on the log ID")
-    @ApiImplicitParam(name = "id", value = "event id", dataTypeClass = Integer.class, required = true)
+    @ApiOperation(value = "Execute the listener based on the event log ID")
+    @ApiImplicitParam(name = "id", value = "Event log ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> executeEventListener(@PathVariable Integer id) {
         workflowEventService.executeEventListener(id);
         return Response.success();
@@ -74,10 +74,10 @@ public class WorkflowEventController {
     @Deprecated
     @PostMapping("/workflow/event/executeProcessEventListener")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Re-execute the specified listener according to the process ID")
+    @ApiOperation(value = "Re-execute the specified listener based on the process ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "processId", value = "process id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
+            @ApiImplicitParam(name = "processId", value = "Process ID", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "listenerName", value = "Listener name", dataTypeClass = String.class)
     })
     public Response<Object> executeProcessEventListener(@RequestParam Integer processId,
             @RequestParam String listenerName) {
@@ -90,8 +90,8 @@ public class WorkflowEventController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener based on the task ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "taskId", value = "task id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
+            @ApiImplicitParam(name = "taskId", value = "Task ID", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "listenerName", value = "Listener name", dataTypeClass = String.class)
     })
     public Response<Object> executeTaskEventListener(Integer taskId, String listenerName) {
         workflowEventService.executeTaskEventListener(taskId, listenerName);

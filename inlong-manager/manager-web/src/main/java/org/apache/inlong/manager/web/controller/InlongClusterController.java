@@ -93,7 +93,7 @@ public class InlongClusterController {
     @DeleteMapping(value = "/cluster/tag/delete/{id}")
     @ApiOperation(value = "Delete cluster tag by id")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Cluster tag ID", dataTypeClass = Integer.class, required = true)
     @RequiresRoles(value = UserRoleCode.ADMIN)
     public Response<Boolean> deleteTag(@PathVariable Integer id) {
         return Response.success(clusterService.deleteTag(id, LoginUserUtils.getLoginUserDetail().getUsername()));
@@ -178,7 +178,7 @@ public class InlongClusterController {
     @RequestMapping(value = "/cluster/node/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete cluster node")
     @OperationLog(operation = OperationType.DELETE)
-    @ApiImplicitParam(name = "id", value = "Cluster node id", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<Boolean> deleteNode(@PathVariable Integer id) {
         return Response.success(clusterService.deleteNode(id, LoginUserUtils.getLoginUserDetail().getUsername()));
     }
