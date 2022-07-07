@@ -32,11 +32,6 @@
     <packaging>jar</packaging>
 
 
-    <properties>
-        <elasticsearch.version>6.8.17</elasticsearch.version>
-    </properties>
-
-
     <dependencies>
 
         <!-- core dependencies -->
@@ -57,7 +52,7 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
-            <version>${elasticsearch.version}</version>
+            <version>${elasticsearch6.version}</version>
             <!--
             FLINK-7133: Excluding all org.ow2.asm from elasticsearch dependencies because
             1. from the POV of client they are optional,

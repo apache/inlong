@@ -49,6 +49,8 @@
         <hbase.version>2.2.3</hbase.version>
         <dlc.hive.version>2.3.7</dlc.hive.version>
         <iceberg.hive.version>2.3.7</iceberg.hive.version>
+        <elasticsearch6.version>6.8.17</elasticsearch6.version>
+        <elasticsearch7.version>7.9.2</elasticsearch7.version>
     </properties>
     <dependencyManagement>
         <dependencies>
