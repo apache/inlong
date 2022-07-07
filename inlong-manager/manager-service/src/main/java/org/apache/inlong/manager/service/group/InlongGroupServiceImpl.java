@@ -55,6 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
  * Inlong group service layer implementation
  */
 @Service
+@Validated
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
@@ -206,7 +208,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to update inlong group={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong group request cannot be empty");
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -350,11 +351,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator) {
         LOGGER.debug("begin to update inlong group after approve={}", approveInfo);
-        Preconditions.checkNotNull(approveInfo, "inlong approve request cannot be empty");
         String groupId = approveInfo.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        String mqType = approveInfo.getMqType();
-        Preconditions.checkNotNull(mqType, "MQ type cannot be empty");
 
         // update status to [GROUP_APPROVE_PASSED]
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);

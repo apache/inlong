@@ -59,7 +59,7 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @NotBlank
+    @NotBlank(message = "mqType must not be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
@@ -97,8 +97,8 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
+    @NotBlank(message = "inCharges must not be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
-    @NotBlank
     private String inCharges;
 
     @ApiModelProperty(value = "Name of followers, separated by commas")
