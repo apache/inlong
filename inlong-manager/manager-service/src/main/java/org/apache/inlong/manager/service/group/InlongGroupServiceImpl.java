@@ -349,24 +349,23 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator) {
-        LOGGER.debug("begin to update inlong group after approve={}", approveInfo);
-        String groupId = approveInfo.getInlongGroupId();
+    public void updateAfterApprove(InlongGroupApproveRequest approveRequest, String operator) {
+        LOGGER.debug("begin to update inlong group after approve={}", approveRequest);
+        String groupId = approveRequest.getInlongGroupId();
 
         // update status to [GROUP_APPROVE_PASSED]
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
 
         // update other info for inlong group after approve
-        if (StringUtils.isNotBlank(approveInfo.getInlongClusterTag())) {
+        if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
             InlongGroupEntity entity = new InlongGroupEntity();
-            entity.setInlongGroupId(approveInfo.getInlongGroupId());
-            entity.setInlongClusterTag(approveInfo.getInlongClusterTag());
+            entity.setInlongGroupId(approveRequest.getInlongGroupId());
+            entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setModifier(operator);
             groupMapper.updateByIdentifierSelective(entity);
         }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
-        return true;
     }
 
     @Override

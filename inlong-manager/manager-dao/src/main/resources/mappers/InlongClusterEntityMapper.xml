@@ -110,7 +110,7 @@
                 and ext_tag = #{extTag, jdbcType=VARCHAR}
             </if>
             <if test="keyword != null and keyword != ''">
-                name like CONCAT('%', #{keyword}, '%')
+                and (name like CONCAT('%', #{keyword}, '%')
                 or cluster_tags like CONCAT('%', #{keyword}, '%')
                 or ext_tag like CONCAT('%', #{keyword}, '%')
                 )

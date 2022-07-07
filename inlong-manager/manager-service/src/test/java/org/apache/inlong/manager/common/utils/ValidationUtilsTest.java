@@ -42,7 +42,7 @@ class ValidationUtilsTest extends ServiceBaseTest {
                 ConstraintViolationException.class,
                 () -> ValidationUtils.validate(validator, new ClusterTagRequest(), UpdateValidation.class));
 
-        Assertions.assertTrue(violationException.getMessage().contains("id: id must not be null"));
+        Assertions.assertTrue(violationException.getMessage().contains("id cannot be null"));
     }
 
     @Test
@@ -51,7 +51,7 @@ class ValidationUtilsTest extends ServiceBaseTest {
                 ConstraintViolationException.class,
                 () -> ValidationUtils.validate(validator, new ClusterTagRequest()));
 
-        Assertions.assertEquals("clusterTag: clusterTag cannot be blank", violationException.getMessage());
+        Assertions.assertTrue(violationException.getMessage().contains("clusterTag cannot be blank"));
     }
 
 }
