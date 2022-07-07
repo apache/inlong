@@ -42,12 +42,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/openapi")
-@Api(tags = "Open-DataProxy-Config")
+@Api(tags = "Open-DataProxy-API")
 public class DataProxyController {
 
     @Autowired
     private InlongClusterService clusterService;
-    
+
     @PostMapping(value = "/dataproxy/getIpList")
     @ApiOperation(value = "Get data proxy ip list by cluster name and tag")
     public Response<List<DataProxyNodeInfo>> getIpList(@RequestBody ClusterPageRequest request) {
