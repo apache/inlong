@@ -23,11 +23,8 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
 import org.apache.inlong.agent.plugin.message.SequentialID;
-import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendMessageCallback;
@@ -79,11 +76,9 @@ public class SenderManager {
     private final int maxSenderRetry;
     private final long retrySleepTime;
     private final String inlongGroupId;
-    private TaskPositionManager taskPositionManager;
     private final int maxSenderPerGroup;
     private final String sourcePath;
-    private final PluginMetric metric;
-
+    private TaskPositionManager taskPositionManager;
     private int ioThreadNum;
     private boolean enableBusyWait;
     private Semaphore semaphore;
@@ -125,12 +120,6 @@ public class SenderManager {
 
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
-
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.metric = new PluginPrometheusMetric(SENDER_MANAGER_TAG_NAME);
-        } else {
-            this.metric = new PluginJmxMetric(SENDER_MANAGER_TAG_NAME);
-        }
     }
 
     /**
@@ -156,13 +145,13 @@ public class SenderManager {
     /**
      * sender
      *
-     * @param groupId group id
+     * @param tagName group id
      * @return DefaultMessageSender
      */
-    private DefaultMessageSender createMessageSender(String groupId) throws Exception {
+    private DefaultMessageSender createMessageSender(String tagName) throws Exception {
 
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, groupId, netTag);
+                localhost, isLocalVisit, managerHost, managerPort, tagName, netTag);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);
@@ -190,50 +179,6 @@ public class SenderManager {
         }
         DefaultMessageSender sender = createMessageSender(inlongGroupId);
         senderList.add(sender);
-    }
-
-    /**
-     * sender callback
-     */
-    private class AgentSenderCallback implements SendMessageCallback {
-
-        private final int retry;
-        private final String groupId;
-        private final List<byte[]> bodyList;
-        private final String streamId;
-        private final long dataTime;
-        private final String jobId;
-
-        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
-                long dataTime) {
-            this.retry = retry;
-            this.groupId = groupId;
-            this.streamId = streamId;
-            this.bodyList = bodyList;
-            this.jobId = jobId;
-            this.dataTime = dataTime;
-        }
-
-        @Override
-        public void onMessageAck(SendResult result) {
-            // if send result is not ok, retry again.
-            if (result == null || !result.equals(SendResult.OK)) {
-                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
-                        + "error {}", groupId, streamId, jobId, dataTime, retry, result);
-                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
-                return;
-            }
-            semaphore.release(bodyList.size());
-            metric.incSendSuccessNum(bodyList.size());
-            if (sourcePath != null) {
-                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
-            }
-        }
-
-        @Override
-        public void onException(Throwable e) {
-            LOGGER.error("exception caught", e);
-        }
     }
 
     /**
@@ -300,6 +245,50 @@ public class SenderManager {
             } catch (Exception ignored) {
                 // ignore it.
             }
+        }
+    }
+
+    /**
+     * sender callback
+     */
+    private class AgentSenderCallback implements SendMessageCallback {
+
+        private final int retry;
+        private final String groupId;
+        private final List<byte[]> bodyList;
+        private final String streamId;
+        private final long dataTime;
+        private final String jobId;
+
+        AgentSenderCallback(String jobId, String groupId, String streamId, List<byte[]> bodyList, int retry,
+                long dataTime) {
+            this.retry = retry;
+            this.groupId = groupId;
+            this.streamId = streamId;
+            this.bodyList = bodyList;
+            this.jobId = jobId;
+            this.dataTime = dataTime;
+        }
+
+        @Override
+        public void onMessageAck(SendResult result) {
+            // if send result is not ok, retry again.
+            if (result == null || !result.equals(SendResult.OK)) {
+                LOGGER.warn("send groupId {}, streamId {}, jobId {}, dataTime {} fail with times {}, "
+                        + "error {}", groupId, streamId, jobId, dataTime, retry, result);
+                sendBatchAsync(jobId, groupId, streamId, bodyList, retry + 1, dataTime);
+                return;
+            }
+            semaphore.release(bodyList.size());
+            GlobalMetrics.incSendSuccessNum(groupId + "_" + streamId, bodyList.size());
+            if (sourcePath != null) {
+                taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
+            }
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            LOGGER.error("exception caught", e);
         }
     }
 

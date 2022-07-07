@@ -19,31 +19,31 @@
 
 package org.apache.inlong.agent.plugin.metrics;
 
-public interface SinkMetrics {
+public interface SourceMetric {
 
     /**
-     *  The tag name of sink metrics.
+     * The tag name of sinksource metrics.
      */
     String getTagName();
 
     /**
-     * Count the sink success message count in agent sink since agent started.
+     * Count the source success message count in agent source since agent started.
      */
-    void incSinkSuccessCount();
+    void incSourceSuccessCount();
 
     /**
-     *  Count of the sink success metric.
+     * Count of the source success metric.
      */
-    long getSinkSuccessCount();
+    long getSourceSuccessCount();
 
     /**
-     * Count the sink failed message count in agent sink since agent started.
+     * Count the source failed message count in agent source since agent started.
      */
-    void incSinkFailCount();
+    void incSourceFailCount();
 
     /**
-     *  Count of the sink failed metric.
+     * Count of the source fail metric.
      */
-    long getSinkFailCount();
+    long getSourceFailCount();
 
 }

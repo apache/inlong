@@ -19,28 +19,28 @@ package org.apache.inlong.agent.plugin.metrics;
 
 import io.prometheus.client.Counter;
 
-public class SourcePrometheusMetrics implements SourceMetrics {
+public class SourcePrometheusMetric implements SourceMetric {
 
+    // agent-source-metrics
     public static final String AGENT_SOURCE_METRICS_PREFIX = "inlong_agent_source_";
-
     public static final String SOURCE_SUCCESS_COUNTER_NAME = "success_count";
     public static final String SOURCE_FAIL_COUNTER_NAME = "fail_count";
 
-    private final String tagName;
-
-    private static final Counter SOURCE_SUCCESS_COUNTER = Counter.build()
+    // agent-source-counters
+    private final Counter sourceSuccessCounter = Counter.build()
             .name(AGENT_SOURCE_METRICS_PREFIX + SOURCE_SUCCESS_COUNTER_NAME)
             .help("The success message count in agent source since agent started.")
             .labelNames("tag")
             .register();
-
-    private static final Counter SOURCE_FAIL_COUNTER = Counter.build()
+    private final Counter sourceFailCounter = Counter.build()
             .name(AGENT_SOURCE_METRICS_PREFIX + SOURCE_FAIL_COUNTER_NAME)
             .help("The failed message count in agent source since agent started.")
             .labelNames("tag")
             .register();
 
-    public SourcePrometheusMetrics(String tagName) {
+    private String tagName;
+
+    public SourcePrometheusMetric(String tagName) {
         this.tagName = tagName;
     }
 
@@ -51,21 +51,21 @@ public class SourcePrometheusMetrics implements SourceMetrics {
 
     @Override
     public void incSourceSuccessCount() {
-        SOURCE_SUCCESS_COUNTER.labels(tagName).inc();
+        sourceSuccessCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSourceSuccessCount() {
-        return (long) SOURCE_SUCCESS_COUNTER.labels(tagName).get();
+        return (long) sourceSuccessCounter.labels(tagName).get();
     }
 
     @Override
     public void incSourceFailCount() {
-        SOURCE_FAIL_COUNTER.labels(tagName).inc();
+        sourceFailCounter.labels(tagName).inc();
     }
 
     @Override
     public long getSourceFailCount() {
-        return (long) SOURCE_FAIL_COUNTER.labels(tagName).get();
+        return (long) sourceFailCounter.labels(tagName).get();
     }
 }
