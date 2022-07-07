@@ -40,9 +40,9 @@ buildImage() {
   cd "${SHELL_FOLDER}"
   cd ..
   if [ "$BUILD_ARCH" = "$ARCH_X86" ] && [ "$ENV_ARCH" = "$ARCH_X86" ]; then
-    mvn clean install -DskipTests -Pdocker
+    mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
   else
-    mvn clean install -DskipTests
+    mvn --batch-mode --update-snapshots -e -V clean package -DskipTests
     sh ./docker/build-docker-images.sh ${USE_BUILDX} ${BUILD_ARCH}
   fi
   echo "End building images"
