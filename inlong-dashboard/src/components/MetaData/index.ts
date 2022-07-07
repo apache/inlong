@@ -25,6 +25,7 @@ import { StorageKafka } from './StorageKafka';
 import { StorageIceberg } from './StorageIceberg';
 import { StorageEs } from './StorageEs';
 import { StorageGreenplum } from './StorageGreenplum';
+import { StorageMySQL } from './StorageMySQL';
 
 export interface StoragesType {
   label: string;
@@ -71,5 +72,10 @@ export const Storages: StoragesType[] = [
     label: 'Greenplum',
     value: 'GREENPLUM',
     ...StorageGreenplum,
+  },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    ...StorageMySQL,
   },
 ];
