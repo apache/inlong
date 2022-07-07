@@ -127,7 +127,7 @@ jobs:
         if: |
           success()
         working-directory: docker
-        run: bash +x publish-by-arch.sh --tag --buildx aarch64
+        run: bash +x build-docker-images.sh --buildx aarch64; bash +x publish-by-arch.sh --tag
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
