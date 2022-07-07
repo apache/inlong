@@ -34,6 +34,7 @@ import org.apache.inlong.manager.service.core.SortSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,7 @@ import java.util.stream.Stream;
  * Implementation of {@link SortSourceService}.
  */
 @Service
+@Lazy
 public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceServiceImpl.class);
@@ -134,7 +136,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             String errMsg = String.format("There is no valid source config of cluster %s, task %s", cluster, task);
             LOGGER.error(errMsg);
             return SortSourceConfigResponse.builder()
-                    .code(RESPONSE_CODE_FAIL)
+                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
                     .msg(errMsg)
                     .build();
         }
@@ -144,6 +146,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_NO_UPDATE)
                     .msg("No update")
+                    .md5(md5)
                     .build();
         }
 

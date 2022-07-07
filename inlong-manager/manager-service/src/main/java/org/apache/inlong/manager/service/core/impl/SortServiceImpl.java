@@ -23,17 +23,23 @@ import org.apache.inlong.manager.service.core.SortClusterService;
 import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
  * Sort service implementation.
  */
 @Service
+@Lazy
 public class SortServiceImpl implements SortService {
 
-    @Autowired private SortSourceService sortSourceService;
+    @Autowired
+    @Lazy
+    private SortSourceService sortSourceService;
 
-    @Autowired private SortClusterService sortClusterService;
+    @Autowired
+    @Lazy
+    private SortClusterService sortClusterService;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {

@@ -32,6 +32,7 @@ import org.apache.inlong.manager.service.core.SortClusterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
  * Use to cache the sort cluster config and reduce the number of query to database.
  */
 @Service
+@Lazy
 public class SortClusterServiceImpl implements SortClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortClusterServiceImpl.class);
