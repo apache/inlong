@@ -55,7 +55,7 @@ docker:
   - 'inlong-manager/manager-docker/**/*'
   - 'inlong-tubemq/tubemq-docker/**/*'
   - 'docker/docker-compose/**/*'
-  - 'docker/build-arm-docker-images.sh'
+  - 'docker/build-docker-images.sh'
   - 'docker/publish-by-arch.sh'
 
 k8s:

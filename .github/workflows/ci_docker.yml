@@ -117,7 +117,7 @@ jobs:
           && steps.check-workflow-diff.outputs.changed_only == 'no'
           && steps.match-branch.outputs.match == 'true'
         working-directory: docker
-        run: bash +x publish-by-arch.sh --tag --buildx --publish
+        run: bash +x publish-by-arch.sh --tag --buildx aarch64 --publish
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

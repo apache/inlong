@@ -18,9 +18,11 @@
 # under the License.
 #
 
-ARCH_X86="x86_64"
+ARCH_X86="x86"
 ARCH_AARCH64="aarch64"
-ARCH=$(uname -m)
+ENV_ARCH=$(uname -m)
+BUILD_ARCH=""
+
 NEED_BUILD=false
 NEED_TAG=false
 NEED_PUBLISH=false
@@ -37,11 +39,11 @@ buildImage() {
   echo "Start building images"
   cd "${SHELL_FOLDER}"
   cd ..
-  if [ $ARCH = "$ARCH_AARCH64" ]; then
-    mvn clean install -DskipTests
-    sh ./docker/build-arm-docker-images.sh ${USE_BUILDX}
-  else
+  if [ "$BUILD_ARCH" = "$ARCH_X86" ] && [ "$ENV_ARCH" = "$ARCH_X86" ]; then
     mvn clean install -DskipTests -Pdocker
+  else
+    mvn clean install -DskipTests
+    sh ./docker/build-docker-images.sh ${USE_BUILDX} ${BUILD_ARCH}
   fi
   echo "End building images"
 }
@@ -78,7 +80,7 @@ tagImage() {
   fi
   echo "Start tagging images"
 
-  if [ $ARCH = "$ARCH_AARCH64" ]; then
+  if [ "$BUILD_ARCH" = "$ARCH_AARCH64" ]; then
     SRC_POSTFIX="-aarch64"
     DES_POSTFIX="-aarch64"
   else
@@ -169,7 +171,7 @@ pushImage() {
   docker_registry_org=$1
 
   SRC_POSTFIX=""
-  if [ "$ARCH" = "$ARCH_AARCH64" ]; then
+  if [ "$BUILD_ARCH" = "$ARCH_AARCH64" ]; then
     SRC_POSTFIX="-aarch64"
   elif [ "$NEED_TAG" = true ]; then
     pushDefaultImage
@@ -244,16 +246,17 @@ pushManifest() {
   echo "End pushing manifest"
 }
 
-help() {
+helpFunc() {
   cat <<EOF
 Usage: ./publish-by-arch.sh [option]
 Options:
-  -b, --build        Add build operation before publish. Build docker images by arch.
-  -t, --tag          Add tag operation before publish. Add arch after version and add docker registry org.
-  -p, --publish      Publish images according to docker registry information.
-  -m, --manifest     Push manifest. This option doesn't need arch.
-  -x, --buildx       Use buildx to build arm docker images on x86 environment. This option doesn't need -b.
-  -h, --help         Show help information.
+  -b, --build           Add build operation before publish. Build docker images by arch.
+  -t, --tag             Add tag operation before publish. Add arch after version and add docker registry org.
+  -p, --publish         Publish images according to docker registry information.
+  -m, --manifest        Push manifest. This option doesn't need arch.
+  -x, --buildx <ARCH>   Use buildx to build docker images for another arch. This option doesn't need -b.
+                        Arch must be provided, as aarch64 or x86.
+  -h, --help            Show help information.
 Example:
   Use "./publish-by-arch.sh -b" to publish arm images after build operation.
   Use "./publish-by-arch.sh -t" to publish amd images after tag already x86 images as x86.
@@ -261,24 +264,31 @@ Example:
 EOF
 }
 
-for arg in "$@"
-do
-  if [ "$arg" = "-b" ] || [ "$arg" = "--build" ]; then
+for (( i=1; i<="$#"; i++)); do
+  if [ "${!i}" = "-b" ] || [ "${!i}" = "--build" ]; then
     NEED_BUILD=true
-  elif [ "$arg" = "-t" ] || [ "$arg" = "--tag" ]; then
+  elif [ "${!i}" = "-t" ] || [ "${!i}" = "--tag" ]; then
     NEED_TAG=true
-  elif [ "$arg" = "-m" ] || [ "$arg" = "--manifest" ]; then
+  elif [ "${!i}" = "-m" ] || [ "${!i}" = "--manifest" ]; then
     NEED_MANIFEST=true
-  elif [ "$arg" = "-p" ] || [ "$arg" = "--publish" ]; then
+  elif [ "${!i}" = "-p" ] || [ "${!i}" = "--publish" ]; then
     NEED_PUBLISH=true
-  elif [ "$arg" = "-x" ] || [ "$arg" = "--buildx" ]; then
+  elif [ "${!i}" = "-x" ] || [ "${!i}" = "--buildx" ]; then
+    NEED_BUILD=true
     USE_BUILDX="--buildx"
-    ARCH=${ARCH_AARCH64}
-  elif [ "$arg" = "-h" ] || [ "$arg" = "--help" ]; then
-    help
+    j=$((i+1))
+    BUILD_ARCH=${!j}
+    if [ "$BUILD_ARCH" != "$ARCH_AARCH64" ] && [ "$BUILD_ARCH" != "$ARCH_X86" ]; then
+      echo "Wrong arch name: ${BUILD_ARCH}. Please input aarch64 or x86."
+      exit 1
+    fi
+    shift
+  elif [ "${!i}" = "-h" ] || [ "${!i}" = "--help" ]; then
+    helpFunc
     exit 0
   else
-    echo "Wrong param: $arg. Please check help information."
+    echo "Wrong param: ${!i}. Please check help information."
+    helpFunc
     exit 1
   fi
 done
