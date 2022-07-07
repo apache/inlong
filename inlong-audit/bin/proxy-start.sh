@@ -35,7 +35,7 @@ error() {
   fi
 }
 
-prepare_file=conf/server.properties
+prepare_file=${base_dir}/conf/server.properties
 if [ ! -f "$prepare_file" ]; then
   touch "$prepare_file"
 fi
