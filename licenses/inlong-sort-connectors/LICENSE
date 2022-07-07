@@ -480,7 +480,6 @@
  Source  : pulsar-flink-connector_2.11 1.13.6.1-rc9 (Please note that the software have been modified.)
  License : https://github.com/streamnative/pulsar-flink/blob/master/LICENSE
 
-
 =======================================================================
 Apache InLong Subcomponents:
 
