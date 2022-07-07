@@ -44,30 +44,4 @@ public abstract class AbstractReader implements Reader {
     public String getInlongGroupId() {
         return inlongGroupId;
     }
-//    /**
-//     * init reader metrics
-//     *
-//     * @param tagName metric tagName
-//     */
-//    protected void intMetric(String tagName) {
-//        String metricsIndexValue = String.valueOf(metricsIndex.getAndIncrement());
-//        String label = Joiner.on(",").join(tagName, metricsIndexValue);
-//        String groupIdKV = PROXY_KEY_GROUP_ID + "=" + inlongGroupId;
-//        String streamIdKV = PROXY_KEY_STREAM_ID + "=" + inlongStreamId;
-//        String metricsIndexKV = KEY_METRICS_INDEX + "=" + metricsIndexValue;
-//        if (ConfigUtil.isPrometheusEnabled()) {
-//            readerMetric = new PluginPrometheusMetric(label);
-//        } else {
-//            label = Joiner.on(",").join(tagName, metricsIndexKV);
-//            readerMetric = new PluginJmxMetric(label);
-//        }
-//        label = Joiner.on(",").join(tagName, inlongGroupId, inlongStreamId);
-//        if (ConfigUtil.isPrometheusEnabled()) {
-//            streamMetric = new PluginPrometheusMetric(label);
-//        } else {
-//            label = Joiner.on(",").join(tagName, groupIdKV, streamIdKV);
-//            streamMetric = new PluginJmxMetric(label);
-//        }
-//    }
-
 }

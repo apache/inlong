@@ -36,47 +36,47 @@ public class GlobalMetrics {
     private static final ConcurrentHashMap<String, SinkMetric> sinkMetrics = new ConcurrentHashMap<>();
 
     private static PluginMetric getPluginMetric(String tagName) {
+        return pluginMetrics.computeIfAbsent(tagName, (key) -> addPluginMetric(tagName));
+    }
+
+    private static PluginMetric addPluginMetric(String tagName) {
         PluginMetric metric;
-        if (pluginMetrics.containsKey(tagName)) {
-            metric = pluginMetrics.get(tagName);
+        if (ConfigUtil.isPrometheusEnabled()) {
+            metric = new PluginPrometheusMetric(tagName);
         } else {
-            if (ConfigUtil.isPrometheusEnabled()) {
-                metric = new PluginPrometheusMetric(tagName);
-            } else {
-                metric = new PluginJmxMetric(tagName);
-            }
-            pluginMetrics.put(tagName, metric);
+            metric = new PluginJmxMetric(tagName);
         }
+        LOGGER.info("add {} pluginMetrics", tagName);
         return metric;
     }
 
     private static SourceMetric getSourceMetric(String tagName) {
+        return sourceMetrics.computeIfAbsent(tagName, (key) -> addSourceMetric(tagName));
+    }
+
+    private static SourceMetric addSourceMetric(String tagName) {
         SourceMetric metric;
-        if (sourceMetrics.containsKey(tagName)) {
-            metric = sourceMetrics.get(tagName);
+        if (ConfigUtil.isPrometheusEnabled()) {
+            metric = new SourcePrometheusMetric(tagName);
         } else {
-            if (ConfigUtil.isPrometheusEnabled()) {
-                metric = new SourcePrometheusMetric(tagName);
-            } else {
-                metric = new SourceJmxMetric(tagName);
-            }
-            sourceMetrics.put(tagName, metric);
+            metric = new SourceJmxMetric(tagName);
         }
+        LOGGER.info("add {} sourceMetric", tagName);
         return metric;
     }
 
     private static SinkMetric getSinkMetric(String tagName) {
+        return sinkMetrics.computeIfAbsent(tagName, (key) -> addSinkMetric(tagName));
+    }
+
+    private static SinkMetric addSinkMetric(String tagName) {
         SinkMetric metric;
-        if (sinkMetrics.containsKey(tagName)) {
-            metric = sinkMetrics.get(tagName);
+        if (ConfigUtil.isPrometheusEnabled()) {
+            metric = new SinkPrometheusMetric(tagName);
         } else {
-            if (ConfigUtil.isPrometheusEnabled()) {
-                metric = new SinkPrometheusMetric(tagName);
-            } else {
-                metric = new SinkJmxMetric(tagName);
-            }
-            sinkMetrics.put(tagName, metric);
+            metric = new SinkJmxMetric(tagName);
         }
+        LOGGER.info("add {} sinkMetric", tagName);
         return metric;
     }
 
