@@ -198,7 +198,7 @@ public class FlinkService {
         final File jarFile = new File(localJarPath);
         final String[] programArgs = genProgramArgsV2(flinkInfo, flinkConfig);
 
-        List<URL> classPaths = flinkInfo.getConnectorJarPaths().stream().map(p -> {
+        List<URL> connectorJars = flinkInfo.getConnectorJarPaths().stream().map(p -> {
             try {
                 return new File(p).toURI().toURL();
             } catch (MalformedURLException e) {
@@ -210,10 +210,11 @@ public class FlinkService {
                 .setConfiguration(configuration)
                 .setEntryPointClassName(Constants.ENTRYPOINT_CLASS)
                 .setJarFile(jarFile)
-                .setUserClassPaths(classPaths)
+                .setUserClassPaths(connectorJars)
                 .setArguments(programArgs)
                 .setSavepointRestoreSettings(settings).build();
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, configuration, parallelism, false);
+        jobGraph.addJars(connectorJars);
 
         RestClusterClient<StandaloneClusterId> client = getFlinkClient();
         CompletableFuture<JobID> result = client.submitJob(jobGraph);
