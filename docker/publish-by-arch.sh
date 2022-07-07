@@ -254,7 +254,7 @@ Options:
   -t, --tag             Add tag operation before publish. Add arch after version and add docker registry org.
   -p, --publish         Publish images according to docker registry information.
   -m, --manifest        Push manifest. This option doesn't need arch.
-  -x, --buildx <ARCH>   Use buildx to build docker images for another arch. This option doesn't need -b.
+  -a, --arch <ARCH>     Use buildx to build docker images for another arch.
                         Arch must be provided, as aarch64 or x86.
   -h, --help            Show help information.
 Example:
@@ -273,8 +273,7 @@ for (( i=1; i<="$#"; i++)); do
     NEED_MANIFEST=true
   elif [ "${!i}" = "-p" ] || [ "${!i}" = "--publish" ]; then
     NEED_PUBLISH=true
-  elif [ "${!i}" = "-x" ] || [ "${!i}" = "--buildx" ]; then
-    NEED_BUILD=true
+  elif [ "${!i}" = "-a" ] || [ "${!i}" = "--arch" ]; then
     USE_BUILDX="--buildx"
     j=$((i+1))
     BUILD_ARCH=${!j}

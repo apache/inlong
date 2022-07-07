@@ -69,7 +69,7 @@ for (( i=1; i<=$#; i++)); do
 done
 
 if [ "$BUILD_ARCH" = "$ARCH_X86" ] && [ "$ENV_ARCH" = "$ARCH_X86" ]; then
-  mvn clean install -DskipTests -Pdocker
+  mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
   exit 0
 fi
 
