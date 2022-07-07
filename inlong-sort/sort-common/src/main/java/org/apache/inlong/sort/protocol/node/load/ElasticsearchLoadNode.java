@@ -68,9 +68,6 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
     @JsonProperty("primaryKey")
     private String primaryKey;
 
-    @JsonProperty("routingFieldName")
-    private String routingFieldName;
-
     @JsonProperty("version")
     private int version;
 
@@ -97,10 +94,12 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         this.index = Preconditions.checkNotNull(index, "index is null");
         this.documentType = documentType;
         this.primaryKey = primaryKey;
-        this.routingFieldName = primaryKey;
         this.version = version;
     }
 
+    /**
+     * if you want to set field routing, set the routing.field-name
+     */
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
@@ -113,7 +112,7 @@ public class ElasticsearchLoadNode extends LoadNode implements Serializable {
         options.put("index", index);
         options.put("password", password);
         options.put("username", username);
-        options.put("routing.field-name", routingFieldName);
+        options.put("routing.field-name", primaryKey);
         return options;
     }
 
