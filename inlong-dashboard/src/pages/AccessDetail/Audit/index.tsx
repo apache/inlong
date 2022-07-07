@@ -24,7 +24,14 @@ import { useRequest } from '@/hooks';
 import { timestampFormat } from '@/utils';
 import Charts from '@/components/Charts';
 import { CommonInterface } from '../common';
-import { getFormContent, toChartData, toTableData, getTableColumns, auditList } from './config';
+import {
+  getFormContent,
+  toChartData,
+  toTableData,
+  getTableColumns,
+  auditList,
+  timeStaticsDimList,
+} from './config';
 
 type Props = CommonInterface;
 
@@ -35,6 +42,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     inlongStreamId: '',
     auditIds: auditList.map(item => item.value),
     dt: +new Date(),
+    timeStaticsDim: timeStaticsDimList[0].value,
   });
 
   const { data: sourceData = [], run } = useRequest(
@@ -64,7 +72,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
           ),
         [],
       )
-      .sort((a, b) => +new Date(a.logTs) - +new Date(b.logTs));
+      .sort((a, b) => {
+        const aT = +new Date(query.timeStaticsDim === 'HOUR' ? `${a.logTs}:00` : a.logTs);
+        const bT = +new Date(query.timeStaticsDim === 'HOUR' ? `${b.logTs}:00` : b.logTs);
+        return aT - bT;
+      });
     const output = flatArr.reduce((acc, cur) => {
       if (!acc[cur.logTs]) {
         acc[cur.logTs] = {};
@@ -76,7 +88,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       return acc;
     }, {});
     return output;
-  }, [sourceData]);
+  }, [sourceData, query.timeStaticsDim]);
 
   const onSearch = async () => {
     await form.validateFields();
