@@ -480,5 +480,15 @@
             is_deleted = 0
         </where>
     </select>
+    <select id="selectAllStreams"
+            resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceStreamInfo">
+        select inlong_cluster_name as sortClusterName,
+               sort_task_name,
+               inlong_group_id as groupId
+        from stream_sink
+        <where>
+            is_deleted = 0
+        </where>
+    </select>
 
 </mapper>

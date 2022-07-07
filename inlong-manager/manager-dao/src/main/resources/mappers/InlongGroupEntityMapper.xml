@@ -304,4 +304,17 @@
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAllGroups" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceGroupInfo">
+        select inlong_group_id as groupId,
+               inlong_cluster_tag as clusterTag,
+               mq_resource as topic,
+               ext_params as extParams
+        from inlong_group
+        <where>
+            is_deleted = 0
+            AND
+            mq_type in ('PULSAR','KAFKA','TUBE')
+        </where>
+    </select>
 </mapper>

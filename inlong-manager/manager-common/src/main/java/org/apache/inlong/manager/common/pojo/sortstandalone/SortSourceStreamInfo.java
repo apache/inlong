@@ -15,22 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core;
+package org.apache.inlong.manager.common.pojo.sortstandalone;
 
-import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import lombok.Data;
 
-/**
- * Sort source service.
- */
-public interface SortSourceService {
-
-    /**
-     * Get {@link SortSourceConfigResponse} by cluster name and task name.
-     *
-     * @param clusterName Target cluster name.
-     * @param taskName Target task name.
-     * @param md5 Last update Md5.
-     * @return SortSourceConfigResponse
-     */
-    SortSourceConfigResponse getSourceConfig(String clusterName, String taskName, String md5);
+@Data
+public class SortSourceStreamInfo {
+    private static final long serialVersionUID = 1L;
+    String sortClusterName;
+    String sortTaskName;
+    String groupId;
 }
