@@ -94,7 +94,7 @@
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
                                     <includes>
                                         <include>org/apache/inlong/**</include>
-                                        <include>META-INFO/services/org.apache.flink.table.factories.Factory</include>
+                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
                                     </includes>
                                 </filter>
                                 <!-- Unless otherwise noticed these filters only serve to reduce the size of the resulting
