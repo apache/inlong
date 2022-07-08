@@ -1261,7 +1261,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         String statsType = (String) result.getRetData();
-        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer);
+        innEnableOrDisableMetricsStats(false, statsType, req, sBuffer);
     }
 
     /**
@@ -1305,7 +1305,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 if (count++ > 0) {
                     sBuffer.append(",");
                 }
-                sBuffer.append(metricType.getDesc());
+                sBuffer.append(metricType.getName());
             }
             sBuffer.append("]\"}");
             return;

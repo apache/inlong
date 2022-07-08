@@ -389,7 +389,7 @@ public class WebParameterUtils {
                             .append(", the value of ")
                             .append(WebFieldDef.BROKERPORT.name).append(" or ")
                             .append(WebFieldDef.BROKERTLSPORT.name)
-                            .append(" cannot be the same as the value of")
+                            .append(" cannot be the same as the value of ")
                             .append(WebFieldDef.BROKERWEBPORT.name).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
