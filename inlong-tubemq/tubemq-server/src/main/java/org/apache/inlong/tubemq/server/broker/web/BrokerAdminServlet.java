@@ -140,17 +140,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryAllMethods(HttpServletRequest req,
                                      StringBuilder sBuffer) {
-        int index = 0;
-        Set<String> methods = getSupportedMethod();
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (String method : methods) {
-            if (index++ > 0) {
-                sBuffer.append(",");
-            }
-            sBuffer.append("{\"id\":").append(index)
-                    .append(",\"method\":\"").append(method).append("\"}");
-        }
-        sBuffer.append("],\"totalCnt\":").append(index).append("}");
+        int totalCnt = getSupportedMethod(sBuffer);
+        sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
     /**
@@ -1261,7 +1253,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         String statsType = (String) result.getRetData();
-        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer);
+        innEnableOrDisableMetricsStats(false, statsType, req, sBuffer);
     }
 
     /**
@@ -1305,7 +1297,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 if (count++ > 0) {
                     sBuffer.append(",");
                 }
-                sBuffer.append(metricType.getDesc());
+                sBuffer.append(metricType.getName());
             }
             sBuffer.append("]\"}");
             return;

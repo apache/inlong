@@ -356,7 +356,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                     .append("\",\"enableBind\":1,\"allowedBClientRate\":")
                     .append(entry.getAllowedBrokerClientRate())
                     .append(",\"attributes\":\"\",\"lastBindUsedDate\":\"-\"")
-                    .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                    .append(",\"dataVersionId\":").append(entry.getDataVerId())
                     .append(",\"createUser\":\"").append(entry.getCreateUser())
                     .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
                     .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
