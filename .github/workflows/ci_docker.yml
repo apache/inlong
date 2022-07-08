@@ -94,9 +94,11 @@ jobs:
             echo "::set-output name=match_branch::false"
           fi
 
-      # Publish x86 Docker images when the changes are being pushed to the master branch.
+      # Publish x86 Docker images when the changes are being pushed to the master branch or a release branch like 'release-1.0.0'.
       - name: Push x86 Docker images to Docker Hub
-        if: ${{ steps.match.outputs.match_master == 'true' }}
+        if: |
+          steps.match.outputs.match_master == 'true'
+          || steps.match.outputs.match_release == 'true'
         working-directory: docker
         run: |
           bash +x publish-by-arch.sh --tag --publish
