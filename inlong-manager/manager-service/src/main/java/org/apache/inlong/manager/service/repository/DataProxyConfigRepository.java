@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.repository;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
@@ -29,18 +31,21 @@ import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.ClusterSetMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +54,8 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PostConstruct;
 
 /**
  * DataProxyConfigRepository
@@ -76,6 +83,8 @@ public class DataProxyConfigRepository implements IRepository {
 
     @Autowired
     private ClusterSetMapper clusterSetMapper;
+    @Autowired
+    private InlongGroupEntityMapper inlongGroupMapper;
 
     @PostConstruct
     public void initialize() {
@@ -370,5 +379,61 @@ public class DataProxyConfigRepository implements IRepository {
      */
     public String getProxyConfigJson(String clusterName) {
         return this.proxyConfigJson.get(clusterName);
+    }
+
+    /**
+     * changeClusterTag
+     */
+    public String changeClusterTag(String inlongGroupId, String clusterTag,
+            String topic) {
+        // select
+        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+        if (oldGroup == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            extParams = "{}";
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        // change cluster tag
+        extParamsObj.addProperty(KEY_SECOND_CLUSTER_TAG, oldGroup.getInlongClusterTag());
+        extParamsObj.addProperty(KEY_SECOND_TOPIC, oldGroup.getMqResource());
+        oldGroup.setInlongClusterTag(clusterTag);
+        oldGroup.setMqResource(topic);
+        String newExtParams = extParamsObj.toString();
+        oldGroup.setExtParams(newExtParams);
+        // update
+        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+        return inlongGroupId;
+    }
+
+    /**
+     * removeSecondClusterTag
+     */
+    public String removeSecondClusterTag(String inlongGroupId) {
+        // select
+        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+        if (oldGroup == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        extParamsObj.remove(KEY_SECOND_CLUSTER_TAG);
+        extParamsObj.remove(KEY_SECOND_TOPIC);
+        String newExtParams = extParamsObj.toString();
+        oldGroup.setExtParams(newExtParams);
+        // update
+        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+        return inlongGroupId;
     }
 }
