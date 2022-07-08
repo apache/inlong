@@ -20,7 +20,6 @@ package org.apache.inlong.tubemq.server.common.webbase;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +53,23 @@ public class WebMethodMapper {
                 .append(webHandler.getClass().getName()).toString());
     }
 
-    public static Set<String> getRegisteredWebMethod() {
-        return WEB_METHOD_MAP.keySet();
+    public static int getRegisteredWebMethod(StringBuilder sBuffer) {
+        int totalCnt = 0;
+        if (WEB_METHOD_MAP.isEmpty()) {
+            return totalCnt;
+        }
+        for (Map.Entry<String, WebMethodMapper.WebApiRegInfo> entry : WEB_METHOD_MAP.entrySet()) {
+            if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                sBuffer.append(",");
+            }
+            sBuffer.append("{\"method\":\"").append(entry.getKey())
+                    .append("\",\"needAuth\":").append(entry.getValue().needAuthToken)
+                    .append("}");
+        }
+        return totalCnt;
     }
 
     public static class WebApiRegInfo {

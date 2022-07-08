@@ -60,6 +60,8 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
     @Override
     public void registerWebApiMethod() {
         // register query method
+        registerQueryWebMethod("admin_get_methods",
+                "adminQueryAllMethods");
         registerQueryWebMethod("admin_query_sub_info",
                 "getSubscribeInfo");
         registerQueryWebMethod("admin_query_consume_group_detail",
@@ -79,6 +81,23 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         // Disable unnecessary statistics
         registerModifyWebMethod("admin_disable_all_stats",
                 "adminDisableAllStats");
+    }
+
+    /**
+     * Get all API methods supported by this version.
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminQueryAllMethods(HttpServletRequest req,
+                                              StringBuilder sBuffer,
+                                              ProcessResult result) {
+        WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
+        int totalCnt = getRegisteredMethods(sBuffer);
+        WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCnt);
+        return sBuffer;
     }
 
     /**
@@ -526,5 +545,4 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
         }
         strBuffer.append("]");
     }
-
 }
