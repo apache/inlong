@@ -40,6 +40,8 @@ public enum ConnectorJarType {
 
     SQLSERVER_SOURCE("sqlserverExtract", "sqlserver-cdc"),
 
+    PULSAR_SOURCE("pulsarExtract", "pulsar"),
+
     /**
      * load datasource type
      */
