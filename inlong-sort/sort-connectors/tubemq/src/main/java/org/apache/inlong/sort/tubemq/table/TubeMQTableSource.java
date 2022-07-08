@@ -108,6 +108,10 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
      */
     private final boolean ignoreErrors;
     /**
+     * The InLong inner format.
+     */
+    private final boolean innerFormat;
+    /**
      * Data type that describes the final output of the source.
      */
     protected DataType producedDataType;
@@ -126,21 +130,15 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
             String masterAddress, String topic,
             TreeSet<String> tidSet, String consumerGroup, String sessionKey,
             Configuration configuration, @Nullable WatermarkStrategy<RowData> watermarkStrategy,
-            Optional<String> proctimeAttribute, Boolean ignoreErrors) {
-        Preconditions.checkNotNull(
-                physicalDataType, "Physical data type must not be null.");
-        Preconditions.checkNotNull(valueDecodingFormat,
-                "The deserialization schema must not be null.");
-        Preconditions.checkNotNull(masterAddress,
-                "The master address must not be null.");
-        Preconditions.checkNotNull(topic,
-                "The topic must not be null.");
-        Preconditions.checkNotNull(tidSet,
-                "The tid set must not be null.");
-        Preconditions.checkNotNull(consumerGroup,
-                "The consumer group must not be null.");
-        Preconditions.checkNotNull(configuration,
-                "The configuration must not be null.");
+            Optional<String> proctimeAttribute, Boolean ignoreErrors, Boolean innerFormat) {
+
+        Preconditions.checkNotNull(physicalDataType, "Physical data type must not be null.");
+        Preconditions.checkNotNull(valueDecodingFormat, "The deserialization schema must not be null.");
+        Preconditions.checkNotNull(masterAddress, "The master address must not be null.");
+        Preconditions.checkNotNull(topic, "The topic must not be null.");
+        Preconditions.checkNotNull(tidSet, "The tid set must not be null.");
+        Preconditions.checkNotNull(consumerGroup, "The consumer group must not be null.");
+        Preconditions.checkNotNull(configuration, "The configuration must not be null.");
 
         this.physicalDataType = physicalDataType;
         this.producedDataType = physicalDataType;
@@ -155,6 +153,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         this.watermarkStrategy = watermarkStrategy;
         this.proctimeAttribute = proctimeAttribute;
         this.ignoreErrors = ignoreErrors;
+        this.innerFormat = innerFormat;
     }
 
     @Override
@@ -167,14 +166,13 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         final LogicalType physicalType = physicalDataType.getLogicalType();
         final int physicalFieldCount = LogicalTypeChecks.getFieldCount(physicalType);
         final IntStream physicalFields = IntStream.range(0, physicalFieldCount);
-        final DeserializationSchema<RowData> deserialization =
-                createDeserialization(context, valueDecodingFormat, physicalFields.toArray(), null);
+        final DeserializationSchema<RowData> deserialization = createDeserialization(context,
+                valueDecodingFormat, physicalFields.toArray(), null);
 
-        final TypeInformation<RowData> producedTypeInfo =
-                context.createTypeInformation(physicalDataType);
+        final TypeInformation<RowData> producedTypeInfo = context.createTypeInformation(physicalDataType);
 
-        final FlinkTubeMQConsumer<RowData> tubeMQConsumer =
-                createTubeMQConsumer(deserialization, producedTypeInfo, ignoreErrors);
+        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = createTubeMQConsumer(deserialization, producedTypeInfo,
+                ignoreErrors);
 
         return SourceFunctionProvider.of(tubeMQConsumer, false);
     }
@@ -184,7 +182,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         return new TubeMQTableSource(
                 physicalDataType, valueDecodingFormat, masterAddress,
                 topic, tidSet, consumerGroup, sessionKey, configuration,
-                watermarkStrategy, proctimeAttribute, ignoreErrors);
+                watermarkStrategy, proctimeAttribute, ignoreErrors, innerFormat);
     }
 
     @Override
@@ -272,8 +270,8 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
     // Metadata handling
     // --------------------------------------------------------------------------------------------
 
-    private @Nullable
-    DeserializationSchema<RowData> createDeserialization(
+    @Nullable
+    private DeserializationSchema<RowData> createDeserialization(
             DynamicTableSource.Context context,
             @Nullable DecodingFormat<DeserializationSchema<RowData>> format,
             int[] projection,
@@ -281,8 +279,7 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
         if (format == null) {
             return null;
         }
-        DataType physicalFormatDataType =
-                DataTypeUtils.projectRow(this.physicalDataType, projection);
+        DataType physicalFormatDataType = DataTypeUtils.projectRow(this.physicalDataType, projection);
         if (prefix != null) {
             physicalFormatDataType = DataTypeUtils.stripRowPrefix(physicalFormatDataType, prefix);
         }
@@ -295,21 +292,17 @@ public class TubeMQTableSource implements ScanTableSource, SupportsReadingMetada
             boolean ignoreErrors) {
         final MetadataConverter[] metadataConverters =
                 metadataKeys.stream()
-                        .map(
-                                k ->
-                                        Stream.of(ReadableMetadata.values())
-                                                .filter(rm -> rm.key.equals(k))
-                                                .findFirst()
-                                                .orElseThrow(IllegalStateException::new))
+                        .map(k -> Stream.of(ReadableMetadata.values())
+                                .filter(rm -> rm.key.equals(k))
+                                .findFirst()
+                                .orElseThrow(IllegalStateException::new))
                         .map(m -> m.converter)
                         .toArray(MetadataConverter[]::new);
-        final DeserializationSchema<RowData> tubeMQDeserializer =
-                new DynamicTubeMQDeserializationSchema(deserialization, metadataConverters, producedTypeInfo,
-                        ignoreErrors);
+        final DeserializationSchema<RowData> tubeMQDeserializer = new DynamicTubeMQDeserializationSchema(
+                deserialization, metadataConverters, producedTypeInfo, ignoreErrors);
 
-        final FlinkTubeMQConsumer<RowData> tubeMQConsumer =
-                new FlinkTubeMQConsumer(masterAddress, topic, tidSet, consumerGroup, tubeMQDeserializer,
-                        configuration, sessionKey);
+        final FlinkTubeMQConsumer<RowData> tubeMQConsumer = new FlinkTubeMQConsumer(masterAddress, topic, tidSet,
+                consumerGroup, tubeMQDeserializer, configuration, sessionKey, innerFormat);
         return tubeMQConsumer;
     }
 

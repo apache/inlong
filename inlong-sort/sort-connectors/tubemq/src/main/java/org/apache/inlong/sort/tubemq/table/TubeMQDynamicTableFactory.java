@@ -36,7 +36,9 @@ import org.apache.flink.table.factories.FactoryUtil.TableFactoryHelper;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,14 +48,11 @@ import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.BOOTSTRAP_FROM_M
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.GROUP_ID;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.KEY_FORMAT;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.MASTER_RPC;
-import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.PROPERTIES_PREFIX;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.SESSION_KEY;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TID;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.TOPIC_PATTERN;
 import static org.apache.inlong.sort.tubemq.table.TubeMQOptions.getTubeMQProperties;
-
-;
 
 /**
  * A dynamic table factory implementation for TubeMQ.
@@ -62,14 +61,14 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
 
     public static final String IDENTIFIER = "tubemq";
 
+    public static final List<String> INNERFORMATTYPE = Arrays.asList("inlong-msg");
+
+    public static boolean innerFormat = false;
+
     private static DecodingFormat<DeserializationSchema<RowData>> getValueDecodingFormat(
             TableFactoryHelper helper) {
-        return helper.discoverOptionalDecodingFormat(
-                DeserializationFormatFactory.class, FORMAT)
-                .orElseGet(
-                        () ->
-                                helper.discoverDecodingFormat(
-                                        DeserializationFormatFactory.class, FORMAT));
+        return helper.discoverOptionalDecodingFormat(DeserializationFormatFactory.class, FORMAT)
+                .orElseGet(() -> helper.discoverDecodingFormat(DeserializationFormatFactory.class, FORMAT));
     }
 
     private static void validatePKConstraints(
@@ -77,56 +76,47 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
         if (catalogTable.getSchema().getPrimaryKey().isPresent()
                 && format.getChangelogMode().containsOnly(RowKind.INSERT)) {
             Configuration options = Configuration.fromMap(catalogTable.getOptions());
-            String formatName =
-                    options.getOptional(FORMAT).orElse(options.get(FORMAT));
-            throw new ValidationException(
-                    String.format(
-                            "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
-                                    + " on the table, because it can't guarantee the semantic of primary key.",
-                            tableName.asSummaryString(), formatName));
+            String formatName = options.getOptional(FORMAT).orElse(options.get(FORMAT));
+            innerFormat = INNERFORMATTYPE.contains(formatName);
+            throw new ValidationException(String.format(
+                    "The TubeMQ table '%s' with '%s' format doesn't support defining PRIMARY KEY constraint"
+                            + " on the table, because it can't guarantee the semantic of primary key.",
+                    tableName.asSummaryString(), formatName));
         }
     }
 
     private static Optional<DecodingFormat<DeserializationSchema<RowData>>> getKeyDecodingFormat(
             TableFactoryHelper helper) {
-        final Optional<DecodingFormat<DeserializationSchema<RowData>>> keyDecodingFormat =
-                helper.discoverOptionalDecodingFormat(
-                        DeserializationFormatFactory.class, KEY_FORMAT);
-        keyDecodingFormat.ifPresent(
-                format -> {
-                    if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
-                        throw new ValidationException(
-                                String.format(
-                                        "A key format should only deal with INSERT-only records. "
-                                                + "But %s has a changelog mode of %s.",
-                                        helper.getOptions().get(KEY_FORMAT),
-                                        format.getChangelogMode()));
-                    }
-                });
+        final Optional<DecodingFormat<DeserializationSchema<RowData>>> keyDecodingFormat = helper
+                .discoverOptionalDecodingFormat(DeserializationFormatFactory.class, KEY_FORMAT);
+        keyDecodingFormat.ifPresent(format -> {
+            if (!format.getChangelogMode().containsOnly(RowKind.INSERT)) {
+                throw new ValidationException(String.format(
+                        "A key format should only deal with INSERT-only records. "
+                                + "But %s has a changelog mode of %s.",
+                        helper.getOptions().get(KEY_FORMAT),
+                        format.getChangelogMode()));
+            }
+        });
         return keyDecodingFormat;
     }
-    
+
     @Override
     public DynamicTableSource createDynamicTableSource(Context context) {
         final TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
 
         final ReadableConfig tableOptions = helper.getOptions();
 
-        final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat =
-                getValueDecodingFormat(helper);
+        final DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat = getValueDecodingFormat(helper);
 
         // validate all options
         helper.validate();
 
-        helper.validateExcept(PROPERTIES_PREFIX);
-
-        validatePKConstraints(
-                context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
+        validatePKConstraints(context.getObjectIdentifier(), context.getCatalogTable(), valueDecodingFormat);
 
         final Configuration properties = getTubeMQProperties(context.getCatalogTable().getOptions());
 
-        final DataType physicalDataType =
-                context.getCatalogTable().getSchema().toPhysicalRowDataType();
+        final DataType physicalDataType = context.getCatalogTable().getSchema().toPhysicalRowDataType();
 
         return createTubeMQTableSource(
                 physicalDataType,
@@ -138,7 +128,7 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
                 TubeMQOptions.getSessionKey(tableOptions),
                 properties);
     }
-    
+
     protected TubeMQTableSource createTubeMQTableSource(
             DataType physicalDataType,
             DecodingFormat<DeserializationSchema<RowData>> valueDecodingFormat,
@@ -159,7 +149,8 @@ public class TubeMQDynamicTableFactory implements DynamicTableSourceFactory {
                 properties,
                 null,
                 null,
-                false);
+                false,
+                innerFormat);
     }
 
     @Override

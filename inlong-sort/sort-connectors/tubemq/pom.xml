@@ -37,13 +37,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>sort-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
     </dependencies>
 
@@ -60,13 +59,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <artifactSet>
-                                <includes>
-                                    <include>org.apache.inlong:tubemq-client</include>
-                                    <include>org.apache.inlong:sort-common</include>
-                                    <include>org.apache.inlong:flink-table-common</include>
-                                </includes>
-                            </artifactSet>
                             <filters>
                                 <filter>
                                     <artifact>org.apache.inlong:sort-connector-*</artifact>
