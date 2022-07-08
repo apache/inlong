@@ -90,8 +90,6 @@ jobs:
             echo "::set-output name=match_master::true"
           elif [[ ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::set-output name=match_release::true"
-          else
-            echo "::set-output name=match_branch::false"
           fi
 
       # Publish x86 Docker images when the changes are being pushed to the master branch or a release branch like 'release-1.0.0'.
@@ -117,11 +115,9 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Push manifest after publishing Docker images.
+      # Push manifest after publishing aarch64 Docker images.
       - name: Push manifest to Docker Hub
-        if: |
-          steps.match.outputs.match_branch != ''
-          && steps.match.outputs.match_branch != 'false'
+        if: ${{ steps.match.outputs.match_release == 'true' }}
         working-directory: docker
         run: |
           bash +x publish-by-arch.sh --manifest
