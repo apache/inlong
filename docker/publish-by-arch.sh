@@ -40,9 +40,9 @@ buildImage() {
   cd "${SHELL_FOLDER}"
   cd ..
   if [ "$BUILD_ARCH" = "$ARCH_X86" ] && [ "$ENV_ARCH" = "$ARCH_X86" ]; then
-    mvn clean install -DskipTests -Pdocker
+    mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
   else
-    mvn clean install -DskipTests
+    mvn --batch-mode --update-snapshots -e -V clean package -DskipTests
     sh ./docker/build-docker-images.sh ${USE_BUILDX} ${BUILD_ARCH}
   fi
   echo "End building images"
@@ -254,7 +254,7 @@ Options:
   -t, --tag             Add tag operation before publish. Add arch after version and add docker registry org.
   -p, --publish         Publish images according to docker registry information.
   -m, --manifest        Push manifest. This option doesn't need arch.
-  -x, --buildx <ARCH>   Use buildx to build docker images for another arch. This option doesn't need -b.
+  -a, --arch <ARCH>     Use buildx to build docker images for another arch.
                         Arch must be provided, as aarch64 or x86.
   -h, --help            Show help information.
 Example:
@@ -273,8 +273,7 @@ for (( i=1; i<="$#"; i++)); do
     NEED_MANIFEST=true
   elif [ "${!i}" = "-p" ] || [ "${!i}" = "--publish" ]; then
     NEED_PUBLISH=true
-  elif [ "${!i}" = "-x" ] || [ "${!i}" = "--buildx" ]; then
-    NEED_BUILD=true
+  elif [ "${!i}" = "-a" ] || [ "${!i}" = "--arch" ]; then
     USE_BUILDX="--buildx"
     j=$((i+1))
     BUILD_ARCH=${!j}
