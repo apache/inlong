@@ -30,4 +30,5 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @SpringBootTest(classes = DaoBaseTest.class)
 @EnableWebMvc
 public abstract class DaoBaseTest extends BaseTest {
+
 }

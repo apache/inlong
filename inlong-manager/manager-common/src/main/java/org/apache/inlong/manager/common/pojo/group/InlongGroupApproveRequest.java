@@ -33,11 +33,11 @@ public class InlongGroupApproveRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank(message = "inlongGroupId must not be blank")
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
-    @NotBlank(message = "mqType must not be blank")
+    @NotBlank(message = "mqType cannot be blank")
     @ApiModelProperty(value = "MQ Type")
     private String mqType;
 

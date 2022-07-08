@@ -17,16 +17,16 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
+import com.google.gson.Gson;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
-import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortSourceService;
 import org.apache.inlong.manager.service.core.SortService;
-import org.json.JSONObject;
+import org.apache.inlong.manager.service.core.SortSourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,26 +41,26 @@ import java.util.Map;
 public class SortServiceImpl implements SortService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortServiceImpl.class);
+    private static final Gson GSON = new Gson();
 
     private static final int RESPONSE_CODE_SUCCESS = 0;
     private static final int RESPONSE_CODE_NO_UPDATE = 1;
     private static final int RESPONSE_CODE_FAIL = -1;
     private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
 
+    @Autowired
+    private SortSourceService sortSourceService;
 
-    @Autowired private SortSourceService sortSourceService;
-
-    @Autowired private SortClusterService sortClusterService;
+    @Autowired
+    private SortClusterService sortClusterService;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
-
         return sortClusterService.getClusterConfig(clusterName, md5);
     }
 
     @Override
     public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
-
         // check if clusterName and sortTaskId are null.
         if (StringUtils.isBlank(clusterName) || StringUtils.isBlank(sortTaskId)) {
             String errMsg = "Blank cluster name or task id, return nothing";
@@ -75,7 +75,7 @@ public class SortServiceImpl implements SortService {
         try {
             cacheZones = sortSourceService.getCacheZones(clusterName, sortTaskId);
         } catch (Exception e) {
-            String errMsg = "Got exception when get cache zones. " + e.getMessage();
+            String errMsg = "Get cache zones exception: " + e.getMessage();
             LOGGER.error(errMsg, e);
             return SortSourceConfigResponse.builder()
                     .msg(errMsg)
@@ -83,7 +83,7 @@ public class SortServiceImpl implements SortService {
                     .build();
         }
 
-        // if there is not any cacheZones;
+        // if there is not any cacheZones
         if (cacheZones.isEmpty()) {
             String errMsg = "There is not any cacheZones of cluster: " + clusterName
                     + " , task: " + sortTaskId
@@ -102,8 +102,8 @@ public class SortServiceImpl implements SortService {
                 .build();
 
         // no update
-        JSONObject jo = new JSONObject(data);
-        String localMd5 = DigestUtils.md5Hex(jo.toString());
+        String json = GSON.toJson(data);
+        String localMd5 = DigestUtils.md5Hex(json);
         if (md5.equals(localMd5)) {
             String msg = "Same md5, no update";
             return SortSourceConfigResponse.builder()
@@ -113,7 +113,7 @@ public class SortServiceImpl implements SortService {
                     .build();
         }
 
-        // normal response.
+        // normal response
         return SortSourceConfigResponse.builder()
                 .msg("success")
                 .code(RESPONSE_CODE_SUCCESS)
@@ -121,4 +121,5 @@ public class SortServiceImpl implements SortService {
                 .md5(localMd5)
                 .build();
     }
+
 }
