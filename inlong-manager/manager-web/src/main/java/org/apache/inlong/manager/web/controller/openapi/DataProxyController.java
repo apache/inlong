@@ -47,6 +47,8 @@ public class DataProxyController {
 
     @Autowired
     private InlongClusterService clusterService;
+    @Autowired
+    private InlongGroupEntityMapper inlongGroupMapper;
 
     @PostMapping(value = "/dataproxy/getIpList")
     @ApiOperation(value = "Get data proxy ip list by cluster name and tag")
@@ -78,6 +80,75 @@ public class DataProxyController {
     })
     public String getAllConfig(@RequestParam String clusterName, @RequestParam(required = false) String md5) {
         return clusterService.getAllConfig(clusterName, md5);
+    }
+
+    /**
+     * changeClusterTag
+     */
+    @RequestMapping(value = "/changeClusterTag", method = RequestMethod.POST)
+    @ApiOperation(value = "Change cluster tag and topic of a inlong group id.")
+    public Response<String> changeClusterTag(@RequestBody InlongGroupEntity groupInfo) {
+        String inlongGroupId = groupInfo.getInlongGroupId();
+        String clusterTag = groupInfo.getInlongClusterTag();
+        String topic = groupInfo.getMqResource();
+        if (StringUtils.isEmpty(inlongGroupId) || StringUtils.isEmpty(clusterTag) || StringUtils.isEmpty(topic)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // select
+        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+        if (oldGroup == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            extParams = "{}";
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        // change cluster tag
+        extParamsObj.addProperty(KEY_SECOND_CLUSTER_TAG, oldGroup.getInlongClusterTag());
+        extParamsObj.addProperty(KEY_SECOND_TOPIC, oldGroup.getMqResource());
+        oldGroup.setInlongClusterTag(clusterTag);
+        oldGroup.setMqResource(topic);
+        String newExtParams = extParamsObj.toString();
+        oldGroup.setExtParams(newExtParams);
+        // update
+        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+        return Response.success(groupInfo.getInlongGroupId());
+    }
+
+    /**
+     * removeSecondClusterTag
+     */
+    @RequestMapping(value = "/removeSecondClusterTag", method = RequestMethod.POST)
+    @ApiOperation(value = "remove second cluster tag and topic of a inlong group id.")
+    public Response<String> removeSecondClusterTag(@RequestBody InlongGroupEntity groupInfo) {
+        String inlongGroupId = groupInfo.getInlongGroupId();
+        if (StringUtils.isEmpty(inlongGroupId)) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // select
+        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+        if (oldGroup == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        extParamsObj.remove(KEY_SECOND_CLUSTER_TAG);
+        extParamsObj.remove(KEY_SECOND_TOPIC);
+        String newExtParams = extParamsObj.toString();
+        oldGroup.setExtParams(newExtParams);
+        // update
+        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+        return Response.success(groupInfo.getInlongGroupId());
     }
 
 }

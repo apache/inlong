@@ -56,11 +56,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
+
+    private static final String KEY_SECOND_CLUSTER_TAG = "second_cluster_tag";
+    private static final String KEY_SECOND_TOPIC = "second_topic";
+
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
     public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
     public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
     private static final Gson gson = new Gson();
 
     // key: proxyClusterName, value: jsonString
@@ -150,7 +154,6 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * reloadInlongId
      */
-    @SuppressWarnings("unchecked")
     private Map<String, List<InLongIdObject>> reloadInlongId() {
         // parse group
         Map<String, InlongGroupId> groupIdMap = new HashMap<>();
@@ -163,53 +166,108 @@ public class DataProxyConfigRepository implements IRepository {
             if (groupId == null) {
                 continue;
             }
-            // choose topic
-            String groupTopic = groupIdObj.getTopic();
-            String streamTopic = streamIdObj.getTopic();
-            String finalTopic = null;
-            if (StringUtils.isEmpty(groupTopic)) {
-                // both empty then ignore
-                if (StringUtils.isEmpty(streamTopic)) {
-                    continue;
-                } else {
-                    finalTopic = streamTopic;
-                }
-            } else {
-                if (StringUtils.isEmpty(streamTopic)) {
-                    finalTopic = groupTopic;
-                } else {
-                    // Pulsar: namespace+topic
-                    finalTopic = groupTopic + "/" + streamTopic;
-                }
-            }
-            // concat id
-            InLongIdObject obj = new InLongIdObject();
-            String inlongId = groupId + "." + streamIdObj.getInlongStreamId();
-            obj.setInlongId(inlongId);
-            obj.setTopic(finalTopic);
-            Map<String, String> params = new HashMap<>();
-            obj.setParams(params);
-            // parse group extparams
-            if (!StringUtils.isEmpty(groupIdObj.getExtParams())) {
-                try {
-                    Map<String, String> groupParams = gson.fromJson(groupIdObj.getExtParams(), Map.class);
-                    params.putAll(groupParams);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            // parse stream extparams
-            if (!StringUtils.isEmpty(streamIdObj.getExtParams())) {
-                try {
-                    Map<String, String> streamParams = gson.fromJson(streamIdObj.getExtParams(), Map.class);
-                    params.putAll(streamParams);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
+            Map<String, String> groupParams = this.getExtParams(groupIdObj.getExtParams());
+            Map<String, String> streamParams = this.getExtParams(streamIdObj.getExtParams());
+            this.parseFirstTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
+            this.parseSecondTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
         }
         return inlongIdMap;
+    }
+
+    /**
+     * getExtParams
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, String> getExtParams(String extParams) {
+        // parse extparams
+        if (!StringUtils.isEmpty(extParams)) {
+            try {
+                Map<String, String> groupParams = gson.fromJson(extParams, HashMap.class);
+                return groupParams;
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     * parseFirstTopic
+     */
+    private void parseFirstTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+            Map<String, String> groupParams, Map<String, String> streamParams,
+            Map<String, List<InLongIdObject>> inlongIdMap) {
+        // choose topic
+        String groupTopic = groupIdObj.getTopic();
+        String streamTopic = streamIdObj.getTopic();
+        String finalTopic = null;
+        if (StringUtils.isEmpty(groupTopic)) {
+            // both empty then ignore
+            if (StringUtils.isEmpty(streamTopic)) {
+                return;
+            } else {
+                finalTopic = streamTopic;
+            }
+        } else {
+            if (StringUtils.isEmpty(streamTopic)) {
+                finalTopic = groupTopic;
+            } else {
+                // Pulsar: namespace+topic
+                finalTopic = groupTopic + "/" + streamTopic;
+            }
+        }
+        // concat id
+        InLongIdObject obj = new InLongIdObject();
+        String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
+        obj.setInlongId(inlongId);
+        obj.setTopic(finalTopic);
+        Map<String, String> params = new HashMap<>();
+        params.putAll(groupParams);
+        params.putAll(streamParams);
+        obj.setParams(params);
+        inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
+    }
+
+    /**
+     * parseSecondTopic
+     */
+    private void parseSecondTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+            Map<String, String> groupParams, Map<String, String> streamParams,
+            Map<String, List<InLongIdObject>> inlongIdMap) {
+        Map<String, String> params = new HashMap<>();
+        params.putAll(groupParams);
+        params.putAll(streamParams);
+        // find second cluster tag
+        String clusterTag = params.get(KEY_SECOND_CLUSTER_TAG);
+        if (StringUtils.isEmpty(clusterTag)) {
+            return;
+        }
+        // find second topic
+        String groupTopic = groupParams.get(KEY_SECOND_TOPIC);
+        String streamTopic = streamParams.get(KEY_SECOND_TOPIC);
+        String finalTopic = null;
+        if (StringUtils.isEmpty(groupTopic)) {
+            // both empty then ignore
+            if (StringUtils.isEmpty(streamTopic)) {
+                return;
+            } else {
+                finalTopic = streamTopic;
+            }
+        } else {
+            if (StringUtils.isEmpty(streamTopic)) {
+                finalTopic = groupTopic;
+            } else {
+                // Pulsar: namespace+topic
+                finalTopic = groupTopic + "/" + streamTopic;
+            }
+        }
+        // concat id
+        InLongIdObject obj = new InLongIdObject();
+        String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
+        obj.setInlongId(inlongId);
+        obj.setTopic(finalTopic);
+        obj.setParams(params);
+        inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(obj);
     }
 
     /**
