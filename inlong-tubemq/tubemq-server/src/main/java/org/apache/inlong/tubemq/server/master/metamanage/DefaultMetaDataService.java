@@ -556,8 +556,8 @@ public class DefaultMetaDataService implements MetaDataService {
     }
 
     @Override
-    public Set<String> getTotalConfiguredTopicNames() {
-        return metaConfigMapper.getConfiguredTopicSet();
+    public Set<String> getDeployedTopicSet() {
+        return metaConfigMapper.getDeployedTopicSet();
     }
 
     @Override

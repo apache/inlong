@@ -421,7 +421,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         GroupConsumeCtrlEntity itemConf;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (Map<String, String> itemsMap : filterJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemsMap,

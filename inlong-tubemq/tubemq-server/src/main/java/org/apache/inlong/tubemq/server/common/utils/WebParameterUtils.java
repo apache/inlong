@@ -829,7 +829,7 @@ public class WebParameterUtils {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         Set<String> existedTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (String topic : topicNameSet) {
             if (!existedTopicSet.contains(topic)) {
                 result.setFailResult(sBuffer.append(WebFieldDef.COMPSTOPICNAME.name)

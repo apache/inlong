@@ -95,20 +95,21 @@ public class PBParameterUtils {
     /**
      * Check request topic list of consumer
      *
+     * @param depTopicSet  the deployed topic set
      * @param reqTopicLst the topic list to be checked.
-     * @param strBuffer   a string buffer used to construct the result
+     * @param strBuff   a string buffer used to construct the result
      * @return the check result
      */
-    public static ParamCheckResult checkConsumerTopicList(final List<String> reqTopicLst,
-                                                          final StringBuilder strBuffer) {
-        ParamCheckResult retResult = new ParamCheckResult();
-        if ((reqTopicLst == null)
-                || (reqTopicLst.isEmpty())) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+    public static boolean checkConsumerTopicList(Set<String> depTopicSet,
+                                                 List<String> reqTopicLst,
+                                                 ProcessResult result,
+                                                 StringBuilder strBuff) {
+        if ((reqTopicLst == null) || (reqTopicLst.isEmpty())) {
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request miss necessary subscribed topicList data!");
-            return retResult;
+            return result.isSuccess();
         }
+        // remove spaces
         Set<String> transTopicSet = new HashSet<>();
         for (String topicItem : reqTopicLst) {
             if (TStringUtils.isBlank(topicItem)) {
@@ -117,21 +118,34 @@ public class PBParameterUtils {
             transTopicSet.add(topicItem.trim());
         }
         if (transTopicSet.isEmpty()) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     "Request subscribed topicList data must not Blank!");
-            return retResult;
+            return result.isSuccess();
         }
+        // check if exceed max topic count booked
         if (transTopicSet.size() > TBaseConstants.META_MAX_BOOKED_TOPIC_COUNT) {
-            retResult.setCheckResult(false,
-                    TErrCodeConstants.BAD_REQUEST,
-                    strBuffer.append("Subscribed topicList size over max value, required max count is ")
+            result.setFailResult(TErrCodeConstants.BAD_REQUEST,
+                    strBuff.append("Subscribed topicList size over max value, required max count is ")
                             .append(TBaseConstants.META_MAX_BOOKED_TOPIC_COUNT).toString());
-            strBuffer.delete(0, strBuffer.length());
-            return retResult;
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
         }
-        retResult.setCheckData(transTopicSet);
-        return retResult;
+        // Check if the topics all in deployment
+        Set<String> invalidTopicSet = new HashSet<>();
+        for (String reqTopic : transTopicSet) {
+            if (!depTopicSet.contains(reqTopic)) {
+                invalidTopicSet.add(reqTopic);
+            }
+        }
+        if (!invalidTopicSet.isEmpty()) {
+            result.setFailResult(TErrCodeConstants.TOPIC_NOT_DEPLOYED,
+                    strBuff.append("Requested topic [").append(invalidTopicSet)
+                            .append("] not deployed!").toString());
+            strBuff.delete(0, strBuff.length());
+            return result.isSuccess();
+        }
+        result.setSuccResult(transTopicSet);
+        return result.isSuccess();
     }
 
     /**
