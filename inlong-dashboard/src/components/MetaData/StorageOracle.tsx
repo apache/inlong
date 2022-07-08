@@ -29,21 +29,25 @@ import { sourceDataFields } from './SourceDataFields';
 
 // oracleFieldTypes
 const oracleFieldTypes = [
-  'string',
-  'varchar',
-  'char',
-  'tinyint',
-  'smallint',
-  'int',
-  'bigint',
-  'float',
-  'double',
-  'decimal',
-  'numeric',
-  'boolean',
-  'binary',
-  'timestamp',
-  'date',
+  'BINARY_FLOAT',
+  'BINARY_DOUBLE',
+  'SMALLINT',
+  'FLOAT',
+  'FLOAT4',
+  'FLOAT8',
+  'DOUBLE PRECISION',
+  'REAL',
+  'NUMBER',
+  'NUMERIC',
+  'DATE',
+  'DECIMAL',
+  'BOOLEAN',
+  'TIMESTAMP',
+  'CHAR',
+  'VARCHAR',
+  'CLOB',
+  'RAW',
+  'BLOB',
   // 'interval',
 ].map(item => ({
   label: item,
@@ -77,25 +81,14 @@ const getForm: GetStorageFormFieldsType = (
       _inTable: true,
     },
     {
-      type: 'radio',
-      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
-      name: 'enableCreateResource',
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.PrimaryKey'),
+      name: 'primaryKey',
       rules: [{ required: true }],
-      initialValue: 1,
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
-        options: [
-          {
-            label: i18n.t('basic.Yes'),
-            value: 1,
-          },
-          {
-            label: i18n.t('basic.No'),
-            value: 0,
-          },
-        ],
       },
+      _inTable: true,
     },
     {
       type: 'input',
@@ -118,30 +111,6 @@ const getForm: GetStorageFormFieldsType = (
           maxWidth: 500,
         },
       },
-    },
-    {
-      name: 'flushInterval',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FlushInterval'),
-      initialValue: 1,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FlushIntervalUnit'),
-    },
-    {
-      name: 'retryTime',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.Oracle.RetryTimes'),
-      initialValue: 3,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.Oracle.RetryTimesUnit'),
     },
     {
       type: (
@@ -192,7 +161,6 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.IsMetaField'),
       dataIndex: 'isMetaField',
-      initialValue: 0,
       type: 'select',
       props: (text, record, idx, isNew) => ({
         options: [
@@ -210,7 +178,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldFormat'),
       dataIndex: 'fieldFormat',
-      initialValue: 0,
+      initialValue: '',
       type: 'autocomplete',
       props: (text, record, idx, isNew) => ({
         options: ['MICROSECONDS', 'MILLISECONDS', 'SECONDS', 'SQL', 'ISO_8601'].map(item => ({
@@ -219,7 +187,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         })),
       }),
       visible: (text, record) =>
-        ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
+        ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.FieldDescription'),
