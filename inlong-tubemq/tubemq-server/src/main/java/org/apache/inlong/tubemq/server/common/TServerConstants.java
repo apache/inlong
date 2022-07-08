@@ -107,4 +107,6 @@ public final class TServerConstants {
 
     // max statistics token type length
     public static final int META_MAX_STATSTYPE_LENGTH = 256;
+
+    public static final int OFFSET_HISTORY_RECORD_VERSION = 1;
 }
