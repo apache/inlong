@@ -62,7 +62,7 @@ public class DataNodeController {
 
     @GetMapping(value = "/node/get/{id}")
     @ApiOperation(value = "Get node by id")
-    @ApiImplicitParam(name = "id", value = "data node ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Data node ID", dataTypeClass = Integer.class, required = true)
     public Response<DataNodeResponse> get(@PathVariable Integer id) {
         return Response.success(dataNodeService.get(id));
     }

@@ -552,13 +552,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkConsumerTopicList(request.getTopicListList(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
+                request.getTopicListList(), result, strBuffer)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> reqTopicSet = (Set<String>) result.getRetData();
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         ConsumeType csmType = (request.hasRequireBound() && request.getRequireBound())
                 ? ConsumeType.CONSUME_BAND : ConsumeType.CONSUME_NORMAL;
@@ -1234,15 +1234,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkConsumerTopicList(
-                        request.getTopicListList(), sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
+                request.getTopicListList(), result, sBuffer)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> reqTopicSet = (Set<String>) result.getRetData();
         final Map<String, TreeSet<String>> reqTopicConditions =
                 DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         int sourceCount = request.getSourceCount();

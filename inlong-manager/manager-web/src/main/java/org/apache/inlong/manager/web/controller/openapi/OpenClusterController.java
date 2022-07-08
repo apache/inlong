@@ -46,7 +46,7 @@ public class OpenClusterController {
 
     @GetMapping(value = "/cluster/get/{id}")
     @ApiOperation(value = "Get cluster by id")
-    @ApiImplicitParam(name = "id", value = "common cluster ID", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
         return Response.success(clusterService.get(id));
     }

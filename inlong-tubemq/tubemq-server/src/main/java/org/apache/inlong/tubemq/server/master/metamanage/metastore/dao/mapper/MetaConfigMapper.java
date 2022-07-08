@@ -361,7 +361,7 @@ public interface MetaConfigMapper extends KeepAliveService {
      *
      * @return  the deployed topic set
      */
-    Set<String> getConfiguredTopicSet();
+    Set<String> getDeployedTopicSet();
 
     // ////////////////////////////////////////////////////////////
 

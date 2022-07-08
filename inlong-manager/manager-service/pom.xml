@@ -72,6 +72,10 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
@@ -114,7 +118,164 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- elastic search -->
+
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hive-llap-server</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-runner</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-server</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-servlet</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-http</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-rewrite</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jetty-webapp</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <groupId>javax.servlet</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.servlet.jsp-api</artifactId>
+                    <groupId>javax.servlet.jsp</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-web</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>protobuf-java</artifactId>
+                    <groupId>com.google.protobuf</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hive-classification</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hbase-client</artifactId>
+                    <groupId>org.apache.hbase</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>tephra-hbase-compat-1.0</artifactId>
+                    <groupId>co.cask.tephra</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>json</artifactId>
+                    <groupId>com.tdunning</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jdk.tools</artifactId>
+                    <groupId>jdk.tools</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>nimbus-jose-jwt</artifactId>
+                    <groupId>com.nimbusds</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>dropwizard-metrics-hadoop-metrics2-reporter</artifactId>
+                    <groupId>com.github.joshelser</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hive-llap-tez</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hive-vector-code-gen</artifactId>
+                    <groupId>org.apache.hive</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-1.2-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hadoop-yarn-registry</artifactId>
+                    <groupId>org.apache.hadoop</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>groovy-all</artifactId>
+                    <groupId>org.codehaus.groovy</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>protobuf-java</artifactId>
+                    <groupId>com.google.protobuf</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>calcite-core</artifactId>
+                    <groupId>org.apache.calcite</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>ST4</artifactId>
+                    <groupId>org.antlr</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>avatica</artifactId>
+                    <groupId>org.apache.calcite.avatica</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>calcite-druid</artifactId>
+                    <groupId>org.apache.calcite</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>ivy</artifactId>
+                    <groupId>org.apache.ivy</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>stax-api</artifactId>
+                    <groupId>stax</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -221,6 +382,11 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
         </dependency>
 
     </dependencies>
