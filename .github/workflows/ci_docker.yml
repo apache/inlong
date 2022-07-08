@@ -119,7 +119,9 @@ jobs:
 
       # Push manifest after publishing Docker images.
       - name: Push manifest to Docker Hub
-        if: ${{ steps.match.outputs.match_branch != 'false' }}
+        if: |
+          steps.match.outputs.match_branch != ''
+          && steps.match.outputs.match_branch != 'false'
         working-directory: docker
         run: |
           bash +x publish-by-arch.sh --manifest
