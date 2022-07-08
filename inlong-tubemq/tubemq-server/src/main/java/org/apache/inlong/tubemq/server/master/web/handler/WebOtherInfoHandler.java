@@ -409,7 +409,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
             return sBuffer;
         }
         String statsType = (String) result.getRetData();
-        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer, result);
+        innEnableOrDisableMetricsStats(false, statsType, req, sBuffer, result);
         return sBuffer;
     }
 
@@ -458,7 +458,7 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                 if (count++ > 0) {
                     sBuffer.append(",");
                 }
-                sBuffer.append(metricType.getDesc());
+                sBuffer.append(metricType.getName());
             }
             sBuffer.append("]\"}");
             return sBuffer;
