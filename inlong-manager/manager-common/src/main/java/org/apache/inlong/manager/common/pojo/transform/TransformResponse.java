@@ -20,9 +20,9 @@ package org.apache.inlong.manager.common.pojo.transform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.commons.compress.utils.Lists;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,7 +32,7 @@ import java.util.List;
 @ApiModel("Response of the stream transform")
 public class TransformResponse {
 
-    private int id;
+    private Integer id;
 
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
@@ -59,5 +59,5 @@ public class TransformResponse {
     private Integer version;
 
     @ApiModelProperty(value = "Field list")
-    private List<StreamField> fieldList = Lists.newArrayList();
+    private List<StreamField> fieldList = new ArrayList<>();
 }
