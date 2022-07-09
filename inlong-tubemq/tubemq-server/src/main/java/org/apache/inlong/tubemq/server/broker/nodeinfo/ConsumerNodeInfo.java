@@ -45,6 +45,7 @@ public class ConsumerNodeInfo {
     // filter conditions in int format
     private final Set<Integer> filterCondCode = new HashSet<>(10);
     // consumer's address
+    private String addrRcvFrom;
     private String rmtAddrInfo;
     private boolean isSupportLimit = false;
     private long nextStatTime = 0L;
@@ -70,12 +71,14 @@ public class ConsumerNodeInfo {
      * @param sessionKey      the session key
      * @param sessionTime     the session create time
      * @param partStr         the partition information
+     * @param msgRcvFrom      the address message received
      */
-    public ConsumerNodeInfo(final MessageStoreManager storeManager,
-                            final String consumerId, Set<String> filterCodes,
-                            final String sessionKey, long sessionTime, final String partStr) {
+    public ConsumerNodeInfo(MessageStoreManager storeManager,
+                            String consumerId, Set<String> filterCodes,
+                            String sessionKey, long sessionTime, String partStr,
+                            String msgRcvFrom) {
         this(storeManager, TBaseConstants.META_VALUE_UNDEFINED, consumerId,
-            filterCodes, sessionKey, sessionTime, false, partStr);
+                filterCodes, sessionKey, sessionTime, false, partStr, msgRcvFrom);
     }
 
     /**
@@ -89,12 +92,13 @@ public class ConsumerNodeInfo {
      * @param sessionTime        the session create time
      * @param isSupportLimit     whether to support limited consumption function
      * @param partStr            the partition information
+     * @param msgRcvFrom         the address message received
      */
-    public ConsumerNodeInfo(final MessageStoreManager storeManager,
-                            final int qryPriorityId, final String consumerId,
-                            Set<String> filterCodes, final String sessionKey,
+    public ConsumerNodeInfo(MessageStoreManager storeManager,
+                            int qryPriorityId, String consumerId,
+                            Set<String> filterCodes, String sessionKey,
                             long sessionTime, boolean isSupportLimit,
-                            final String partStr) {
+                            String partStr, String msgRcvFrom) {
         setConsumerId(consumerId);
         if (filterCodes != null) {
             for (String filterItem : filterCodes) {
@@ -107,6 +111,7 @@ public class ConsumerNodeInfo {
         this.qryPriorityId.set(qryPriorityId);
         this.storeManager = storeManager;
         this.partStr = partStr;
+        this.addrRcvFrom = msgRcvFrom;
         this.createTime = System.currentTimeMillis();
         if (filterCodes != null && !filterCodes.isEmpty()) {
             this.isFilterConsume = true;
@@ -243,6 +248,10 @@ public class ConsumerNodeInfo {
 
     public long getSessionTime() {
         return sessionTime;
+    }
+
+    public String getAddrRcvFrom() {
+        return addrRcvFrom;
     }
 
     public void setLastProcInfo(long lastGetTime, long lastRdDataOffset, int totalMsgSize) {

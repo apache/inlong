@@ -516,7 +516,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      */
     @Override
     public RegisterResponseM2C consumerRegisterC2M(RegisterRequestC2M request,
-                                                   final String rmtAddress,
+                                                   String rmtAddress,
                                                    boolean overtls) throws Exception {
         // #lizard forgives
         ProcessResult result = new ProcessResult();
@@ -592,7 +592,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
                         reqTopicSet, reqTopicConditions, csmType,
-                        sessionKey, sessionTime, sourceCount, isSelectBig, requiredPartMap);
+                        sessionKey, sessionTime, sourceCount,
+                        isSelectBig, requiredPartMap, rmtAddress);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defMetaDataService, brokerRunManager, strBuffer);
@@ -1269,7 +1270,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName, csmType,
                         sourceCount, nodeId, reqTopicSet, reqTopicConditions,
-                        opsTaskInfo.getCsmFromMaxOffsetCtrlId(), clientSyncInfo);
+                        opsTaskInfo.getCsmFromMaxOffsetCtrlId(), clientSyncInfo,
+                        rmtAddress);
         // need removed for authorize center begin
         if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,

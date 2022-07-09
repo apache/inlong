@@ -496,7 +496,8 @@ public class WebOtherInfoHandler extends AbstractWebHandler {
                     strBuffer.append(",");
                 }
                 strBuffer.append("{\"consumerId\":\"").append(consumer.getConsumerId())
-                        .append("\"").append(",\"isOverTLS\":").append(consumer.isOverTLS());
+                        .append("\",\"receivedFrom\":\"").append(consumer.getAddrRcvFrom())
+                        .append("\",\"isOverTLS\":").append(consumer.isOverTLS());
                 if (consumeType == ConsumeType.CONSUME_BAND) {
                     Map<String, Long> requiredPartition = consumer.getRequiredPartition();
                     if (requiredPartition == null || requiredPartition.isEmpty()) {
