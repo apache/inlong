@@ -222,12 +222,32 @@
             <artifactId>hive-exec</artifactId>
             <exclusions>
                 <exclusion>
+                    <groupId>org.apache.calcite</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.calcite.avatica</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.curator</groupId>
+                    <artifactId>apache-curator</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-yarn-registry</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-llap-tez</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-vector-code-gen</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.ivy</groupId>
+                    <artifactId>ivy</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -238,10 +258,6 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.hadoop</groupId>
-                    <artifactId>hadoop-yarn-registry</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.codehaus.groovy</groupId>
                     <artifactId>groovy-all</artifactId>
                 </exclusion>
@@ -250,24 +266,8 @@
                     <artifactId>protobuf-java</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.calcite</groupId>
-                    <artifactId>calcite-core</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.antlr</groupId>
                     <artifactId>ST4</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.calcite.avatica</groupId>
-                    <artifactId>avatica</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.calcite</groupId>
-                    <artifactId>calcite-druid</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.ivy</groupId>
-                    <artifactId>ivy</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>stax</groupId>
@@ -441,6 +441,14 @@
                          MUST be excluded in the distribution package -->
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.github.stephenc.jcip</groupId>
+                    <artifactId>jcip-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

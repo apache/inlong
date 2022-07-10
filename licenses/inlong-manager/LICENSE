@@ -341,7 +341,6 @@ Apache 2.0 License
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
-  net.minidev:accessors-smart:1.2 - ASM Based Accessors Helper Used By JSON Smart (https://github.com/netplex/json-smart-v2), (Apache License, Version 2.0)
   org.elasticsearch.plugin:aggs-matrix-stats-client:6.8.23 - aggs-matrix-stats (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   io.airlift:aircompressor:0.20 - aircompressor (https://github.com/airlift/aircompressor/tree/0.20), (Apache License 2.0)
   org.apache.directory.server:apacheds-i18n:2.0.0-M15 - ApacheDS I18n (https://directory.apache.org/apacheds/), (The Apache Software License, Version 2.0)
@@ -481,7 +480,6 @@ The text of each license is the standard Apache 2.0 license.
   javax.jdo:jdo-api:3.0.1 - JDO API (http://db.apache.org/jdo), (Apache 2.0)
   net.java.dev.jets3t:jets3t:0.9.0 - An open source Java toolkit for Amazon S3 (http://www.jets3t.org), (Apache License, Version 2.0)
   joda-time:joda-time:2.10.10 - Joda-Time (http://www.joda.org/joda-time/), (Apache License, Version 2.0)
-  net.minidev:json-smart:2.3 - JSON Small and Fast Parser (https://github.com/netplex/json-smart-v2/tree/v2.3), (The Apache Software License, Version 2.0)
   com.github.jsqlparser:jsqlparser:4.2 - JSQLParser library (https://github.com/JSQLParser/JSqlParser), (The Apache Software License, Version 2.0;  GNU Library or Lesser General Public License (LGPL) V2.1)
   com.github.xiaoymin:knife4j-annotations:3.0.3 - Knife4j Annotations (https://gitee.com/xiaoym/knife4j/tree/v2.0.9/knife4j/knife4j-annotations), (The Apache Software License, Version 2.0)
   com.github.xiaoymin:knife4j-core:3.0.3 - knife4j-core (https://gitee.com/xiaoym/knife4j/tree/v2.0.9/knife4j/knife4j-core), (The Apache Software License, Version 2.0)
@@ -692,7 +690,6 @@ The text of each license is also included at licenses/LICENSE-[project].txt.
 
   org.antlr:antlr-runtime:3.5.2 - ANTLR 3 Runtime (https://github.com/antlr/antlr3/tree/3.5.2), (BSD licence)
   asm:asm:3.1 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_3_1), (BSD)
-  org.ow2.asm:asm:5.0.4 - ASM Core (https://gitlab.ow2.org/asm/asm/-/tree/ASM_5_0_4), (BSD)
   org.codehaus.janino:commons-compiler:3.0.11 - Commons Compiler (https://github.com/janino-compiler/janino), (New BSD License)
   org.owasp.encoder:encoder:1.2.2 - Java Encoder (https://github.com/OWASP/owasp-java-encoder/tree/v1.2.2), (The BSD 3-Clause License)
   org.clapper:grizzled-slf4j_2.11:1.3.2 - grizzled-slf4j (https://github.com/bmc/grizzled-slf4j/tree/release-1.3.2), (BSD)
