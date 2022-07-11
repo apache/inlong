@@ -91,6 +91,27 @@ const getForm: GetStorageFormFieldsType = (
       _inTable: true,
     },
     {
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      name: 'enableCreateResource',
+      rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
+      },
+    },
+    {
       type: 'input',
       label: i18n.t('components.AccessHelper.StorageMetaData.Username'),
       name: 'username',
