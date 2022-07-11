@@ -40,6 +40,7 @@ import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,18 +79,20 @@ public class UserServiceImpl implements UserService {
         result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
 
-        try {
-            // decipher according to stored key version
-            // note that if the version is null then the string is treated as unencrypted plain text
-            Integer version = entity.getEncryptVersion();
-            byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
-            byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
-            result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
-            result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            String errMsg = String.format("decryption error: %s", e.getMessage());
-            log.error(errMsg, e);
-            throw new BusinessException(errMsg);
+        if (Strings.isNotBlank(entity.getSecretKey()) && Strings.isNotBlank(entity.getPublicKey())) {
+            try {
+                // decipher according to stored key version
+                // note that if the version is null then the string is treated as unencrypted plain text
+                Integer version = entity.getEncryptVersion();
+                byte[] secretKeyBytes = AESUtils.decryptAsString(entity.getSecretKey(), version);
+                byte[] publicKeyBytes = AESUtils.decryptAsString(entity.getPublicKey(), version);
+                result.setSecretKey(new String(secretKeyBytes, StandardCharsets.UTF_8));
+                result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
+            } catch (Exception e) {
+                String errMsg = String.format("decryption error: %s", e.getMessage());
+                log.error(errMsg, e);
+                throw new BusinessException(errMsg);
+            }
         }
 
         log.debug("success to get user info by id={}", userId);
