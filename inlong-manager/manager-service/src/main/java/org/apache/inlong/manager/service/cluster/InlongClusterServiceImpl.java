@@ -170,12 +170,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return true;
         }
 
+        // if the cluster tag was changed, need to check whether the new tag already exists
         String oldClusterTag = exist.getClusterTag();
         if (!newClusterTag.equals(oldClusterTag)) {
             InlongClusterTagEntity tagConflict = clusterTagMapper.selectByTag(newClusterTag);
             if (tagConflict != null) {
-                String errMsg = String.format("inlong cluster tag [%s] already exist by id [%d]", newClusterTag,
-                        tagConflict.getId());
+                String errMsg = String.format("inlong cluster tag [%s] already exist", newClusterTag);
                 LOGGER.error(errMsg);
                 throw new BusinessException(errMsg);
             }
