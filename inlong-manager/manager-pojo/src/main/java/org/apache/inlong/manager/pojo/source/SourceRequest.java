@@ -17,13 +17,25 @@
 
 package org.apache.inlong.manager.pojo.source;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
+import org.apache.inlong.manager.pojo.source.tubemq.TubeMQSourceRequest;
 import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.hibernate.validator.constraints.Length;
+import org.apache.inlong.manager.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceRequest;
+import org.apache.inlong.manager.pojo.source.mysql.MySQLBinlogSourceRequest;
+import org.apache.inlong.manager.pojo.source.oracle.OracleSourceRequest;
+import org.apache.inlong.manager.pojo.source.postgresql.PostgreSQLSourceRequest;
+import org.apache.inlong.manager.pojo.source.pulsar.PulsarSourceRequest;
+import org.apache.inlong.manager.pojo.source.sqlserver.SQLServerSourceRequest;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -38,6 +50,18 @@ import java.util.Map;
 @Data
 @ApiModel("Stream source request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AutoPushSourceRequest.class, name = SourceType.AUTO_PUSH),
+        @JsonSubTypes.Type(value = FileSourceRequest.class, name = SourceType.FILE),
+        @JsonSubTypes.Type(value = KafkaSourceRequest.class, name = SourceType.KAFKA),
+        @JsonSubTypes.Type(value = MongoDBSourceRequest.class, name = SourceType.MONGODB),
+        @JsonSubTypes.Type(value = MySQLBinlogSourceRequest.class, name = SourceType.MYSQL_BINLOG),
+        @JsonSubTypes.Type(value = OracleSourceRequest.class, name = SourceType.ORACLE),
+        @JsonSubTypes.Type(value = PostgreSQLSourceRequest.class, name = SourceType.POSTGRESQL),
+        @JsonSubTypes.Type(value = PulsarSourceRequest.class, name = SourceType.PULSAR),
+        @JsonSubTypes.Type(value = SQLServerSourceRequest.class, name = SourceType.SQLSERVER),
+        @JsonSubTypes.Type(value = TubeMQSourceRequest.class, name = SourceType.TUBEMQ),
+})
 public class SourceRequest {
 
     @NotNull(groups = UpdateValidation.class)

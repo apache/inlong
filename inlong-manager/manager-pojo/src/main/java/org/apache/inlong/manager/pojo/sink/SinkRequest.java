@@ -17,11 +17,27 @@
 
 package org.apache.inlong.manager.pojo.sink;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.consts.SinkType;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkRequest;
+import org.apache.inlong.manager.pojo.sink.dlciceberg.DLCIcebergSinkRequest;
+import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
+import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseSinkRequest;
+import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSinkRequest;
+import org.apache.inlong.manager.pojo.sink.hive.HiveSinkRequest;
+import org.apache.inlong.manager.pojo.sink.iceberg.IcebergSinkRequest;
+import org.apache.inlong.manager.pojo.sink.kafka.KafkaSinkRequest;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkRequest;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkRequest;
+import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLSinkRequest;
+import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSinkRequest;
+import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
 import org.apache.inlong.manager.common.validation.UpdateValidation;
 import org.hibernate.validator.constraints.Length;
 
@@ -37,6 +53,22 @@ import java.util.Map;
 @Data
 @ApiModel("Stream sink request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClickHouseSinkRequest.class, name = SinkType.CLICKHOUSE),
+        @JsonSubTypes.Type(value = ElasticsearchSinkRequest.class, name = SinkType.ELASTICSEARCH),
+        @JsonSubTypes.Type(value = GreenplumSinkRequest.class, name = SinkType.GREENPLUM),
+        @JsonSubTypes.Type(value = HBaseSinkRequest.class, name = SinkType.HBASE),
+        @JsonSubTypes.Type(value = HDFSSinkRequest.class, name = SinkType.HDFS),
+        @JsonSubTypes.Type(value = HiveSinkRequest.class, name = SinkType.HIVE),
+        @JsonSubTypes.Type(value = IcebergSinkRequest.class, name = SinkType.ICEBERG),
+        @JsonSubTypes.Type(value = DLCIcebergSinkRequest.class, name = SinkType.DLCICEBERG),
+        @JsonSubTypes.Type(value = KafkaSinkRequest.class, name = SinkType.KAFKA),
+        @JsonSubTypes.Type(value = MySQLSinkRequest.class, name = SinkType.MYSQL),
+        @JsonSubTypes.Type(value = OracleSinkRequest.class, name = SinkType.ORACLE),
+        @JsonSubTypes.Type(value = PostgreSQLSinkRequest.class, name = SinkType.POSTGRESQL),
+        @JsonSubTypes.Type(value = SQLServerSinkRequest.class, name = SinkType.SQLSERVER),
+        @JsonSubTypes.Type(value = TDSQLPostgreSQLSinkRequest.class, name = SinkType.TDSQLPOSTGRESQL),
+})
 public abstract class SinkRequest {
 
     @NotNull(groups = UpdateValidation.class)

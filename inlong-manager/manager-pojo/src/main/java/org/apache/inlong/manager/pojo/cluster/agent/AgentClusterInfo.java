@@ -15,16 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.pojo.cluster.agent;
 
-/**
- * Constant of cluster type.
- */
-public class ClusterType {
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
-    public static final String AGENT = "AGENT";
-    public static final String TUBEMQ = "TUBEMQ";
-    public static final String PULSAR = "PULSAR";
-    public static final String DATAPROXY = "DATAPROXY";
+public class AgentClusterInfo extends ClusterInfo {
 
+    public AgentClusterInfo() {
+        this.setType(ClusterType.AGENT);
+    }
+
+    @Override
+    public ClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, AgentClusterRequest::new);
+    }
 }
