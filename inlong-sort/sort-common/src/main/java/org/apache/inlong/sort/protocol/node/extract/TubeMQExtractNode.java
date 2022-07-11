@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 /**
- * TubeMQ extract node for extract data from Tube.
+ * TubeMQ extract node for extracting data from Tube.
  */
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("tubeMQExtract")

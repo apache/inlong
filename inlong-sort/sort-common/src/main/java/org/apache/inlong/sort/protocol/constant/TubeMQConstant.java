@@ -37,6 +37,9 @@ public class TubeMQConstant {
 
     public static final String SESSION_KEY = "session.key";
 
+    /**
+     * The tubemq consumers use this tid set to filter records reading from server.
+     */
     public static final String TID = "tid";
 
     public static final String CONSUMER_STARTUP_MODE = "consumer.startup.mode";
