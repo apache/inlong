@@ -125,4 +125,14 @@
         from stream_sink_field
         where sink_id = #{sinkId,jdbcType=INTEGER}
     </delete>
+
+    <delete id="deleteByRelatedId">
+        delete
+        from stream_sink_field
+        where
+        inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        <if test="streamId != null and streamId != ''">
+            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+        </if>
+    </delete>
 </mapper>

@@ -437,6 +437,5 @@
         delete
         from inlong_stream
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and is_deleted = 0
     </delete>
 </mapper>

@@ -59,4 +59,12 @@ public interface StreamSourceFieldEntityMapper {
      */
     int deleteAll(@Param("sourceId") Integer sourceId);
 
+    /**
+     * Physical delete stream source fields.
+     *
+     * @param groupId
+     * @param streamId
+     */
+    void deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
 }

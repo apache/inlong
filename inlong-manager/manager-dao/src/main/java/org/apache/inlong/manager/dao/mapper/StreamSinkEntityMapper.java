@@ -113,4 +113,9 @@ public interface StreamSinkEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
+    /**
+     * Physical delete stream sinks.
+     */
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
 }

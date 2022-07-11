@@ -78,6 +78,12 @@ public class InlongGroupProcessOperation {
     @Autowired
     private InlongStreamService streamService;
 
+    public void metaDelete(String groupId, String operator) {
+        LOGGER.info("begin to physical delete all related meta data of group, groupId = {}, operator = {}",
+                groupId, operator);
+        groupService.metaDelete(groupId, operator);
+    }
+
     /**
      * Allocate resource application groups for access services and initiate an approval process
      *

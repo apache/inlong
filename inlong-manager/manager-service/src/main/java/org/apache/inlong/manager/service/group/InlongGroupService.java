@@ -130,4 +130,13 @@ public interface InlongGroupService {
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
 
+    /**
+     * Physical delete all meta data related to groupId
+     *
+     * @param groupId Group id
+     * @param operator operate person
+     * @return
+     */
+    void metaDelete(String groupId, String operator);
+
 }

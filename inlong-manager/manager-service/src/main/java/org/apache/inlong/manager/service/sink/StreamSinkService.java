@@ -129,7 +129,7 @@ public interface StreamSinkService {
      * @param operator Operator's name.
      * @return Whether succeed.
      */
-    Boolean deleteAll(String groupId, String streamId, String operator);
+    Boolean metaDeleteAll(String groupId, String streamId, String operator);
 
     /**
      * According to the existing inlong stream ID list, filter out the inlong stream id list

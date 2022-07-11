@@ -296,4 +296,10 @@
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <delete id="deleteByGroupId" parameterType="java.lang.String">
+        delete
+        from inlong_group
+        where inlong_group_id = #{groupId,jdbcType=VARCHAR}
+    </delete>
 </mapper>

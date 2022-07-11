@@ -131,14 +131,14 @@ public interface StreamSourceService {
     boolean logicDeleteAll(String groupId, String streamId, String operator);
 
     /**
-     * Physically delete stream source with the given conditions.
+     * Physically delete stream source meta data with the given conditions.
      *
      * @param groupId InLong group id.
      * @param streamId InLong stream id.
      * @param operator Operator's name
      * @return Whether succeed.
      */
-    boolean deleteAll(String groupId, String streamId, String operator);
+    boolean metaDeleteAll(String groupId, String streamId, String operator);
 
     /**
      * According to the inlong stream id, query the list of source types owned by it.

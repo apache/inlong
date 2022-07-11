@@ -107,6 +107,14 @@ public interface InlongStreamService {
     Boolean logicDeleteAll(String groupId, String operator);
 
     /**
+     * Physical delete all meta data under the specified groupId
+     *
+     * @param groupId Inlong group id
+     * @param operator Edit person's name
+     */
+    void metaDeleteAll(String groupId, String operator);
+
+    /**
      * Obtain the flow of inlong stream according to groupId
      *
      * @param groupId Inlong group id

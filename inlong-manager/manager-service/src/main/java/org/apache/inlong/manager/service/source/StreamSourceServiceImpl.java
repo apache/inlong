@@ -301,14 +301,12 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean deleteAll(String groupId, String streamId, String operator) {
+    public boolean metaDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
-        // Check if it can be deleted
-        groupCheckService.checkGroupStatus(groupId, operator);
         sourceMapper.deleteByRelatedId(groupId, streamId);
+        sourceFieldMapper.deleteByRelatedId(groupId, streamId);
         LOGGER.info("success to delete all source by groupId={}, streamId={}", groupId, streamId);
         return true;
     }

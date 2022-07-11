@@ -58,4 +58,9 @@ public interface StreamSinkFieldEntityMapper {
      */
     int deleteAll(@Param("sinkId") Integer sinkId);
 
+    /**
+     * Physical delete stream sink fields.
+     */
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
 }

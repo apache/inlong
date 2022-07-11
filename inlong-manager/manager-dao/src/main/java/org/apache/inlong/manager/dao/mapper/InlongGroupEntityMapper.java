@@ -52,4 +52,6 @@ public interface InlongGroupEntityMapper {
 
     int deleteByPrimaryKey(Integer id);
 
+    int deleteByGroupId(@Param("groupId") String groupId);
+
 }

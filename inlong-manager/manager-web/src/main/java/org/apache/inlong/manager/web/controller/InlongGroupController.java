@@ -163,6 +163,16 @@ public class InlongGroupController {
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
     }
 
+    @RequestMapping(value = "/deleteResource/{groupId}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "Delete inlong group related resource")
+    @OperationLog(operation = OperationType.DELETE)
+    @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
+    public Response<String> metaDelete(@PathVariable String groupId) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        groupProcessOperation.metaDelete(groupId, operator);
+        return Response.success(groupId);
+    }
+
     @RequestMapping(value = "/getTopic/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get topic info")
     public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {

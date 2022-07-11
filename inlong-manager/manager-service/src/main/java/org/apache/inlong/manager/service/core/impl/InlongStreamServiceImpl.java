@@ -347,6 +347,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
+    public void metaDeleteAll(String groupId, String operator) {
+        LOGGER.info("begin to delete all inlong stream meta data by groupId={} and operator={}", groupId, operator);
+        streamMapper.deleteAllByGroupId(groupId);
+        streamExtMapper.deleteAllByRelatedId(groupId, null);
+        streamFieldMapper.deleteAllByIdentifier(groupId, null);
+        sourceService.metaDeleteAll(groupId, null, operator);
+        sinkService.metaDeleteAll(groupId, null, operator);
+        LOGGER.info("finish delete all inlong stream meta data by groupId={}", groupId);
+    }
+
+    @Override
     public List<InlongStreamBriefInfo> getBriefList(String groupId) {
         LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());

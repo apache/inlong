@@ -24,8 +24,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -294,22 +294,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Boolean deleteAll(String groupId, String streamId, String operator) {
-        LOGGER.info("begin to delete all sink by groupId={}, streamId={}", groupId, streamId);
+    public Boolean metaDeleteAll(String groupId, String streamId, String operator) {
+        LOGGER.info("begin to delete all sink by groupId={}, streamId={}, operator={}", groupId, streamId, operator);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
-
-        // Check if it can be deleted
-        groupCheckService.checkGroupStatus(groupId, operator);
-
-        List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
-        if (CollectionUtils.isNotEmpty(entityList)) {
-            entityList.forEach(entity -> {
-                sinkMapper.deleteByPrimaryKey(entity.getId());
-                sinkFieldMapper.deleteAll(entity.getId());
-            });
-        }
-
+        sinkMapper.deleteByRelatedId(groupId, streamId);
+        sinkFieldMapper.deleteByRelatedId(groupId, streamId);
         LOGGER.info("success to delete all sink by groupId={}, streamId={}", groupId, streamId);
         return true;
     }

@@ -356,8 +356,7 @@
         delete
         from stream_source
         where
-        is_deleted = 0
-        and inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        inlong_group_id = #{groupId, jdbcType=VARCHAR}
         <if test="streamId != null and streamId != ''">
             and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         </if>

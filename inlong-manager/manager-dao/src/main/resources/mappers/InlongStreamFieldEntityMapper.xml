@@ -37,7 +37,8 @@
         <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, is_predefined_field, field_name, field_value, pre_expression,
+        id
+        , inlong_group_id, inlong_stream_id, is_predefined_field, field_name, field_value, pre_expression,
         field_type, field_comment, is_meta_field, meta_field_name, field_format, rank_num, is_deleted
     </sql>
 
@@ -122,8 +123,9 @@
         delete
         from inlong_stream_field
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
-          and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
-          and is_deleted = 0
+        <if test="streamId != null and streamId != ''">
+            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+        </if>
     </delete>
 
 </mapper>
