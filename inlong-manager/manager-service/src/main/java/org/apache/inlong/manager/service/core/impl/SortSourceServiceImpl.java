@@ -322,15 +322,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         String serviceUrl = Optional.ofNullable(param.get(KEY_SERVICE_URL))
                 .orElseThrow(() ->
                         new IllegalStateException(("there is no serviceUrl for cluster " + cluster.getName())));
-
-        String tenant = Optional.ofNullable(param.get(KEY_TENANT))
-                .orElseThrow(() ->
-                        new IllegalStateException(("there is no tenant for cluster " + cluster.getName())));
-
-        String namespace = Optional.ofNullable(param.get(KEY_NAME_SPACE))
-                .orElseThrow(() ->
-                        new IllegalStateException(("there is no namespace for cluster " + cluster.getName())));
-
+        String tenant = param.get(KEY_TENANT);
+        String namespace = param.get(KEY_NAME_SPACE);
         String authentication = Optional.ofNullable(param.get(KEY_AUTH)).orElse("");
 
         List<Topic> topics = groups.stream()
@@ -354,9 +347,12 @@ public class SortSourceServiceImpl implements SortSourceService {
             boolean isSecondTag) {
 
         String topic = isSecondTag ? groupInfo.getSecondTopic() : groupInfo.getTopic();
-        String fullTopic = tenant + '/' + namespace + '/' + topic;
+        StringBuilder fullTopic = new StringBuilder();
+        Optional.ofNullable(tenant).ifPresent(t -> fullTopic.append(t).append("/"));
+        Optional.ofNullable(namespace).ifPresent(n -> fullTopic.append(n).append("/"));
+        fullTopic.append(topic);
         return Topic.builder()
-                .topic(fullTopic)
+                .topic(fullTopic.toString())
                 .topicProperties(groupInfo.getExtParamsMap())
                 .build();
     }

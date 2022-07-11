@@ -60,7 +60,7 @@ public class SortSourceClusterInfo {
             try {
                 extTagMap = MAP_SPLITTER.split(extTag);
             } catch (Throwable t) {
-                LOGGER.error(t.getMessage(), t);
+                LOGGER.error("fail to parse cluster ext tag params", t);
             }
         }
         return extTagMap;
