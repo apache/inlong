@@ -37,7 +37,7 @@ public class SortSourceClusterInfo {
     private static final long serialVersionUID = 1L;
     String name;
     String type;
-    String clusterTag;
+    String clusterTags;
     String extTag;
     String extParams;
     Map<String, String> extTagMap = new ConcurrentHashMap<>();
@@ -49,7 +49,7 @@ public class SortSourceClusterInfo {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error(t.getMessage(), t);
+                LOGGER.error("Fail to parse cluster ext params", t);
             }
         }
         return extParamsMap;

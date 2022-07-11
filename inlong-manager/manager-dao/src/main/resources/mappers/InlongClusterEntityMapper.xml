@@ -203,14 +203,10 @@
             resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceClusterInfo">
         select name,
                type,
-               cluster_tags as cluster_tag,
+               cluster_tags,
                ext_tag,
                ext_params
         from inlong_cluster
-        <where>
-            is_deleted = 0
-            AND
-            type in ('PULSAR','KAFKA','TUBE')
-        </where>
+        where is_deleted = 0
     </select>
 </mapper>

@@ -486,9 +486,7 @@
                sort_task_name,
                inlong_group_id as groupId
         from stream_sink
-        <where>
-            is_deleted = 0
-        </where>
+        where is_deleted = 0
     </select>
 
 </mapper>

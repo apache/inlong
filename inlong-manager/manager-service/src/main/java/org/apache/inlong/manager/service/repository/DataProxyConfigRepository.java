@@ -54,8 +54,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * DataProxyConfigRepository
  */
-@Repository(value = "dataProxyConfigRepository")
 @Lazy
+@Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()

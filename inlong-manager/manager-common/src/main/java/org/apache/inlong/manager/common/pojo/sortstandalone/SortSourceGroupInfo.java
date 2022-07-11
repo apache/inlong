@@ -37,6 +37,7 @@ public class SortSourceGroupInfo {
     String clusterTag;
     String topic;
     String extParams;
+    String mqType;
     Map<String, String> extParamsMap = new ConcurrentHashMap<>();
 
     public Map<String, String> getExtParamsMap() {
@@ -45,7 +46,7 @@ public class SortSourceGroupInfo {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error(t.getMessage(), t);
+                LOGGER.error("Fail to parse group ext params", t);
             }
         }
         return extParamsMap;

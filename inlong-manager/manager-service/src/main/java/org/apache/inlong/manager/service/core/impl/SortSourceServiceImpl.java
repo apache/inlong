@@ -57,8 +57,8 @@ import java.util.stream.Stream;
 /**
  * Implementation of {@link SortSourceService}.
  */
-@Service
 @Lazy
+@Service
 public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceServiceImpl.class);
@@ -192,16 +192,17 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, SortSourceGroupInfo> allId2GroupInfos =
                 groupInfos.stream()
                         .filter(dto -> dto.getGroupId() != null)
+                        .filter(group -> supportedCacheType.contains(group.getMqType()))
                         .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, dto -> dto, (g1, g2) -> g1));
 
         // get all clusters. filter by type and check if consumable, then group by cluster tag.
         List<SortSourceClusterInfo> clusterInfos = clusterEntityMapper.selectAllClusters();
         Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos =
                 clusterInfos.stream()
-                        .filter(dto -> dto.getClusterTag() != null)
+                        .filter(dto -> dto.getClusterTags() != null)
                         .filter(SortSourceClusterInfo::isConsumable)
                         .filter(cluster -> supportedCacheType.contains(cluster.getType()))
-                        .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTag));
+                        .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
         // Prepare CacheZones for each cluster and task
         Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();

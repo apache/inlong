@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 /**
  * Use to cache the sort cluster config and reduce the number of query to database.
  */
-@Service
 @Lazy
+@Service
 public class SortClusterServiceImpl implements SortClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortClusterServiceImpl.class);
