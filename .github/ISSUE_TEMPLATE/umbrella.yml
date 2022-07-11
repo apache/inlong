@@ -18,7 +18,7 @@
 name: '☂ Umbrella'
 title: "[Umbrella] "
 description: An umbrella issue with multiple subtasks
-labels: [ "umbrella" ]
+labels: [ "type/umbrella" ]
 body:
   - type: textarea
     attributes:
