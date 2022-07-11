@@ -91,8 +91,8 @@ public class RestartStreamListener implements SortOperateListener {
             String message = String.format("sort job id is empty for groupId [%s] streamId [%s]", groupId, streamId);
             return ListenerResult.fail(message);
         }
-        String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);
-        if (StringUtils.isEmpty(dataFlows)) {
+        String dataflow = kvConf.get(InlongConstants.DATAFLOW);
+        if (StringUtils.isEmpty(dataflow)) {
             String message = String.format("dataflow is empty for groupId [%s] streamId [%s]", groupId, streamId);
             log.error(message);
             return ListenerResult.fail(message);
@@ -108,7 +108,7 @@ public class RestartStreamListener implements SortOperateListener {
         FlinkService flinkService = new FlinkService(flinkInfo.getEndpoint());
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
         try {
-            flinkOperation.genPath(flinkInfo, dataFlows);
+            flinkOperation.genPath(flinkInfo, dataflow);
             flinkOperation.restart(flinkInfo);
             log.info("job restart success for [{}]", jobId);
             return ListenerResult.success();

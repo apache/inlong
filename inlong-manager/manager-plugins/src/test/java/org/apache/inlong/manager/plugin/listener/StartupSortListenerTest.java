@@ -61,7 +61,7 @@ public class StartupSortListenerTest {
         inlongGroupExtInfos.add(inlongGroupExtInfo2);
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
-        inlongGroupExtInfo5.setKeyName(InlongConstants.DATA_FLOW);
+        inlongGroupExtInfo5.setKeyName(InlongConstants.DATAFLOW);
         inlongGroupExtInfo5.setKeyValue("{\"streamId\":{\n"
                 + "    \"id\": 1,\n"
                 + "    \"source_info\":\n"

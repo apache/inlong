@@ -160,8 +160,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             return ((GroupResourceProcessForm) processForm).getGroupOperateType();
         } else {
             log.error("illegal process form {} to get inlong group info", processForm.getFormName());
-            throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
-                    processForm.getFormName()));
+            throw new RuntimeException("Unsupported ProcessForm " + processForm.getFormName());
         }
     }
 
@@ -171,8 +170,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
             return groupResourceProcessForm.getGroupInfo();
         } else {
             log.error("illegal process form {} to get inlong group info", processForm.getFormName());
-            throw new RuntimeException(String.format("Unsupported ProcessForm {%s} in CreateSortConfigListener",
-                    processForm.getFormName()));
+            throw new RuntimeException("Unsupported ProcessForm " + processForm.getFormName());
         }
     }
 

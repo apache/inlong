@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -43,8 +44,8 @@ public class ZookeeperEnabledSelector implements EventSelector {
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
         InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-        boolean enable =
-                groupInfo.getEnableZookeeper() == 1 && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
+        boolean enable = InlongConstants.ENABLE_ZK.equals(groupInfo.getEnableZookeeper())
+                && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
         log.info("zookeeper enabled was [{}] for groupId [{}]", enable, groupId);
         return enable;
     }

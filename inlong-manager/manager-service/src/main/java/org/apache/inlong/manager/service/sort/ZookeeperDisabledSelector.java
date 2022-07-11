@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -40,7 +41,7 @@ public class ZookeeperDisabledSelector implements EventSelector {
         if (processForm instanceof GroupResourceProcessForm) {
             GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = groupResourceForm.getGroupInfo();
-            boolean enable = groupInfo.getEnableZookeeper() == 0
+            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper())
                     && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
 
             log.info("zookeeper disabled was [{}] for groupId [{}]", enable, groupId);
@@ -49,7 +50,7 @@ public class ZookeeperDisabledSelector implements EventSelector {
             StreamResourceProcessForm streamResourceForm = (StreamResourceProcessForm) processForm;
             InlongGroupInfo groupInfo = streamResourceForm.getGroupInfo();
             InlongStreamInfo streamInfo = streamResourceForm.getStreamInfo();
-            boolean enable = groupInfo.getEnableZookeeper() == 0
+            boolean enable = InlongConstants.DISABLE_ZK.equals(groupInfo.getEnableZookeeper())
                     && MQType.forType(groupInfo.getMqType()) != MQType.NONE;
             log.info("zookeeper disabled was [{}] for groupId [{}] and streamId [{}] ", enable, groupId,
                     streamInfo.getInlongStreamId());

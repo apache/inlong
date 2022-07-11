@@ -29,7 +29,7 @@ import org.apache.inlong.manager.service.mq.PulsarResourceCreateSelector;
 import org.apache.inlong.manager.service.mq.PulsarResourceDeleteSelector;
 import org.apache.inlong.manager.service.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
-import org.apache.inlong.manager.service.sort.CreateSortConfigListenerV2;
+import org.apache.inlong.manager.service.sort.SortConfigListener;
 import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
 import org.apache.inlong.manager.service.sort.light.LightGroupSortListener;
 import org.apache.inlong.manager.service.sort.light.LightGroupSortSelector;
@@ -95,7 +95,7 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     private SinkResourceListener sinkResourceListener;
 
     @Autowired
-    private CreateSortConfigListenerV2 createSortConfigListener;
+    private SortConfigListener sortConfigListener;
 
     @Autowired
     private LightGroupSortListener lightGroupSortListener;
@@ -113,7 +113,7 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
         queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarResourceCreateSelector());
         queueOperateListeners.put(deletePulsarResourceTaskListener, new PulsarResourceDeleteSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(createSortConfigListener, new ZookeeperDisabledSelector());
+        sortOperateListeners.put(sortConfigListener, new ZookeeperDisabledSelector());
         sortOperateListeners.put(lightGroupSortListener, new LightGroupSortSelector());
     }
 
