@@ -104,4 +104,7 @@ public abstract class InlongGroupRequest {
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
 }

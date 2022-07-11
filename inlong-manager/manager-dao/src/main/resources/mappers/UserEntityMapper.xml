@@ -34,6 +34,7 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="create_by" jdbcType="VARCHAR" property="createBy"/>
         <result column="update_by" jdbcType="VARCHAR" property="updateBy"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -67,7 +68,7 @@
     </sql>
     <sql id="Base_Column_List">
         id, name, password, secret_key, public_key, private_key, encrypt_version,
-        account_type, due_date, create_time, update_time, create_by, update_by
+        account_type, due_date, create_time, update_time, create_by, update_by, version
     </sql>
     <select id="selectByExample" parameterType="org.apache.inlong.manager.dao.entity.UserEntityExample"
             resultMap="BaseResultMap">
@@ -100,12 +101,12 @@
                           secret_key, public_key, private_key,
                           encrypt_version, account_type, due_date,
                           create_time, update_time,
-                          create_by, update_by)
+                          create_by, update_by, version)
         values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
                 #{secretKey,jdbcType=VARCHAR}, #{publicKey,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR},
                 #{encryptVersion,jdbcType=INTEGER}, #{accountType,jdbcType=INTEGER}, #{dueDate,jdbcType=TIMESTAMP},
                 #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
-                #{updateBy,jdbcType=VARCHAR})
+                #{updateBy,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         insert into user
@@ -149,6 +150,9 @@
             <if test="updateBy != null">
                 update_by,
             </if>
+            <if test="version != null">
+                version,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -189,6 +193,9 @@
             </if>
             <if test="updateBy != null">
                 #{updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="version != null">
+                #{version,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -238,8 +245,12 @@
             <if test="updateBy != null">
                 update_by = #{updateBy,jdbcType=VARCHAR},
             </if>
+            <if test="version != null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.UserEntity">
         update user
@@ -254,7 +265,9 @@
             create_time     = #{createTime,jdbcType=TIMESTAMP},
             update_time     = #{updateTime,jdbcType=TIMESTAMP},
             create_by       = #{createBy,jdbcType=VARCHAR},
-            update_by       = #{updateBy,jdbcType=VARCHAR}
+            update_by       = #{updateBy,jdbcType=VARCHAR},
+            version         = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
 </mapper>

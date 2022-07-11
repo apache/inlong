@@ -22,6 +22,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.DataNodeType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
@@ -72,6 +73,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(1);
         dataNodeMapper.insert(entity);
 
         LOGGER.debug("success to save data node={}", request);
@@ -118,6 +120,10 @@ public class DataNodeServiceImpl implements DataNodeService {
         if (entity == null) {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
+        }
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("data node information has already updated, please reload data node information and update.");
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_UPDATE_FAILED);
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);

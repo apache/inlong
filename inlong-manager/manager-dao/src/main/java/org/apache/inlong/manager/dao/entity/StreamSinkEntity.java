@@ -53,4 +53,6 @@ public class StreamSinkEntity implements Serializable {
     // Another fields saved as JSON string in extParams
     private String extParams;
 
+    private Integer version;
+
 }

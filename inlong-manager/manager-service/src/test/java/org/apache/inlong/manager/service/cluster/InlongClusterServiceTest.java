@@ -85,13 +85,14 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster info.
      */
-    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl) {
+    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl, Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
+        request.setVersion(version);
         return clusterService.update(request, GLOBAL_OPERATOR);
     }
 
@@ -128,12 +129,13 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster node info.
      */
-    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port) {
+    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port, Integer version) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setId(id);
         request.setParentId(parentId);
         request.setIp(ip);
         request.setPort(port);
+        request.setVersion(version);
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
@@ -167,7 +169,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String clusterNameUpdate = "default_pulsar_2";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate);
+        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate,
+                pulsarCluster.getVersion());
         Assertions.assertTrue(updateSuccess);
 
         // save cluster node
@@ -184,7 +187,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // update cluster node
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate);
+        Integer version = listNode.getList().get(0).getVersion();
+        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
         Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node

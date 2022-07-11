@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
     `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`                int(11)           DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
     INDEX group_status_deleted_index (`status`, `is_deleted`)
@@ -91,6 +92,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_tag`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster_tag` (`cluster_tag`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -117,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `modifier`     varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`      int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -139,6 +142,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster_node` (`parent_id`, `type`, `ip`, `port`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -163,6 +167,7 @@ CREATE TABLE IF NOT EXISTS `data_node`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_data_node` (`name`, `type`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -187,6 +192,7 @@ CREATE TABLE IF NOT EXISTS `consumption`
     `modifier`         varchar(64)       DEFAULT NULL COMMENT 'modifier',
     `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`          int(11)           DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
@@ -256,6 +262,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`          int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -482,6 +489,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink`
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`                int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_sink_name` (`inlong_group_id`, `inlong_stream_id`, `sink_name`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -507,6 +515,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `field_format`     varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `version`          int(11)      DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     KEY `source_id_index` (`source_id`)
 ) ENGINE = InnoDB
@@ -583,6 +592,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `update_by`       varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
     `create_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `update_time`     datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`         int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_user_name` (`name`)
 ) ENGINE = InnoDB
@@ -627,6 +637,7 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `create_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `is_deleted`        int(11)            DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`           int(11)            DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB

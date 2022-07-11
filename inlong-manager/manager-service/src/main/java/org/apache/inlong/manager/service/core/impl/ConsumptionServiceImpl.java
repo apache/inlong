@@ -53,6 +53,8 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +76,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ConsumptionServiceImpl implements ConsumptionService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionServiceImpl.class);
 
     private static final String PREFIX_DLQ = "dlq"; // prefix of the Topic of the dead letter queue
 
@@ -255,7 +259,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         CommonBeanUtils.copyProperties(info, entity, true);
         entity.setModifier(operator);
         entity.setModifyTime(now);
-
+        if (!entity.getVersion().equals(info.getVersion())) {
+            LOGGER.warn(
+                    "consumption information has already updated, please reload consumption information and update.");
+            throw new BusinessException(ErrorCodeEnum.CONSUMPTION_UPDATE_FAILED);
+        }
         // Modify Pulsar consumption info
         MQType mqType = MQType.forType(info.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -372,6 +380,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setVersion(1);
 
         if (info.getId() != null) {
             consumptionMapper.updateByPrimaryKey(entity);

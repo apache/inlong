@@ -43,5 +43,6 @@ public class DataNodeEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private String extParams;
+    private Integer version;
 
 }

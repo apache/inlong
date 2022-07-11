@@ -42,5 +42,6 @@ public class InlongClusterNodeEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
+    private Integer version;
 
 }

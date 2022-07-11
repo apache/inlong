@@ -22,6 +22,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -40,6 +41,9 @@ import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
+import org.apache.inlong.manager.service.sink.StreamSinkServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +59,8 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserEntityMapper userMapper;
@@ -134,6 +140,7 @@ public class UserServiceImpl implements UserService {
         }
 
         entity.setCreateTime(new Date());
+        entity.setVersion(1);
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
         log.debug("success to create user info={}", userInfo);
@@ -176,6 +183,11 @@ public class UserServiceImpl implements UserService {
                     "Ordinary users are not allowed to add valid days");
             Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), updateUser.getType()),
                     "Ordinary users are not allowed to update account type");
+        }
+
+        if (!updateUserEntity.getVersion().equals(updateUser.getVersion())) {
+            LOGGER.warn("user information has already updated, please reload user information and update.");
+            throw new BusinessException(ErrorCodeEnum.USER_UPDATE_FAILED);
         }
 
         // update password

@@ -132,6 +132,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(1);
         clusterTagMapper.insert(entity);
         LOGGER.info("success to save cluster tag={} by user={}", request, operator);
         return entity.getId();
@@ -187,6 +188,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster tag");
 
+        if (!exist.getVersion().equals(request.getVersion())) {
+            LOGGER.warn(
+                    "cluster tag information has already updated, please reload cluster tag information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_TAG_UPDATE_FAILED);
+        }
         // if the cluster tag was changed, need to check whether the new tag already exists
         String oldClusterTag = exist.getClusterTag();
         if (!newClusterTag.equals(oldClusterTag)) {
@@ -354,6 +360,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("cluster information has already updated, please reload cluster information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_UPDATE_FAILED);
+        }
         UserEntity userEntity = userService.getByUsername(operator);
         boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
@@ -450,6 +460,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(1);
         clusterNodeMapper.insert(entity);
 
         LOGGER.info("success to add inlong cluster node={}", request);
@@ -534,6 +545,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (entity == null) {
             LOGGER.error("cluster node not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+        }
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("cluster node information has already updated, please reload node information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NODE_UPDATE_FAILED);
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
         UserEntity userEntity = userService.getByUsername(operator);

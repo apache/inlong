@@ -60,6 +60,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setVersion(1);
 
         groupMapper.insert(entity);
         return groupId;

@@ -114,6 +114,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(operator);
         streamEntity.setCreateTime(new Date());
+        streamEntity.setVersion(1);
 
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
@@ -293,7 +294,10 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
-
+        if (!streamEntity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("stream information has already updated, please reload stream information and update.");
+            throw new BusinessException(ErrorCodeEnum.STREAM_UPDATE_FAILED);
+        }
         // Check whether the current inlong group status supports modification
         this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, request);
 

@@ -33,6 +33,9 @@ public class UserDetail {
     @ApiModelProperty(value = "user roles")
     private Set<String> roles;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
     public String getUsername() {
         return username;
     }

@@ -129,6 +129,9 @@ public class InlongStreamInfo {
     @ApiModelProperty("Stream sink infos")
     private List<StreamSink> sinkList = new ArrayList<>();
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
     public InlongStreamResponse genResponse() {
         return CommonBeanUtils.copyProperties(this, InlongStreamResponse::new);
     }

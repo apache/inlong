@@ -120,6 +120,9 @@ public abstract class StreamSink extends StreamNode {
     @ApiModelProperty("Authentication info if needed")
     private DefaultAuthentication authentication;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
     public SinkRequest genSinkRequest() {
         return null;
     }

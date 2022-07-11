@@ -49,6 +49,7 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(1);
         clusterMapper.insert(entity);
 
         return entity.getId();

@@ -48,12 +48,14 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, inlong_group_id, inlong_stream_id, name, description, mq_resource,
+        id
+        , inlong_group_id, inlong_stream_id, name, description, mq_resource,
         data_type, data_encoding, data_separator, data_escape_char, sync_send,
         daily_records, daily_storage, peak_records, max_length, storage_period, ext_params,
-        status, previous_status, is_deleted, creator, modifier, create_time, modify_time
+        status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -65,7 +67,7 @@
                                    daily_storage, peak_records, max_length,
                                    storage_period, ext_params, status,
                                    previous_status, is_deleted, creator,
-                                   modifier, create_time, modify_time)
+                                   modifier, create_time, modify_time, version)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
                 #{dataType,jdbcType=VARCHAR}, #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
@@ -73,7 +75,8 @@
                 #{dailyStorage,jdbcType=INTEGER}, #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{storagePeriod,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
                 #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
+                #{version,jdbcType=INTEGER})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongStreamEntity">
@@ -151,6 +154,9 @@
             <if test="modifyTime != null">
                 modify_time,
             </if>
+            <if test="version != null">
+                version,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -224,6 +230,9 @@
             </if>
             <if test="modifyTime != null">
                 #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="version != null">
+                #{version,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -308,107 +317,113 @@
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamEntity">
         update inlong_stream
-        set inlong_group_id  = #{inlongGroupId,jdbcType=VARCHAR},
-            inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
-            name             = #{name,jdbcType=VARCHAR},
-            description      = #{description,jdbcType=VARCHAR},
-            mq_resource      = #{mqResource,jdbcType=VARCHAR},
-            data_type        = #{dataType,jdbcType=VARCHAR},
-            data_encoding    = #{dataEncoding,jdbcType=VARCHAR},
-            data_separator   = #{dataSeparator,jdbcType=VARCHAR},
-            data_escape_char = #{dataEscapeChar,jdbcType=VARCHAR},
-            sync_send        = #{syncSend,jdbcType=INTEGER},
-            daily_records    = #{dailyRecords,jdbcType=INTEGER},
-            daily_storage    = #{dailyStorage,jdbcType=INTEGER},
-            peak_records     = #{peakRecords,jdbcType=INTEGER},
-            max_length       = #{maxLength,jdbcType=INTEGER},
-            storage_period   = #{storagePeriod,jdbcType=INTEGER},
-            ext_params       = #{extParams,jdbcType=LONGVARCHAR},
-            status           = #{status,jdbcType=INTEGER},
-            previous_status  = #{previousStatus,jdbcType=INTEGER},
-            is_deleted       = #{isDeleted,jdbcType=INTEGER},
-            creator          = #{creator,jdbcType=VARCHAR},
-            modifier         = #{modifier,jdbcType=VARCHAR},
-            create_time      = #{createTime,jdbcType=TIMESTAMP},
-            modify_time      = #{modifyTime,jdbcType=TIMESTAMP}
-        where id = #{id,jdbcType=INTEGER}
+        set inlong_group_id  = #{inlongGroupId, jdbcType=VARCHAR},
+            inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR},
+            name             = #{name, jdbcType=VARCHAR},
+            description      = #{description, jdbcType=VARCHAR},
+            mq_resource      = #{mqResource, jdbcType=VARCHAR},
+            data_type        = #{dataType, jdbcType=VARCHAR},
+            data_encoding    = #{dataEncoding, jdbcType=VARCHAR},
+            data_separator   = #{dataSeparator, jdbcType=VARCHAR},
+            data_escape_char = #{dataEscapeChar, jdbcType=VARCHAR},
+            sync_send        = #{syncSend, jdbcType=INTEGER},
+            daily_records    = #{dailyRecords, jdbcType=INTEGER},
+            daily_storage    = #{dailyStorage, jdbcType=INTEGER},
+            peak_records     = #{peakRecords, jdbcType=INTEGER},
+            max_length       = #{maxLength, jdbcType=INTEGER},
+            storage_period   = #{storagePeriod, jdbcType=INTEGER},
+            ext_params       = #{extParams, jdbcType=LONGVARCHAR},
+            status           = #{status, jdbcType=INTEGER},
+            previous_status  = #{previousStatus, jdbcType=INTEGER},
+            is_deleted       = #{isDeleted, jdbcType=INTEGER},
+            creator          = #{creator, jdbcType=VARCHAR},
+            modifier         = #{modifier, jdbcType=VARCHAR},
+            create_time      = #{createTime, jdbcType=TIMESTAMP},
+            modify_time      = #{modifyTime, jdbcType=TIMESTAMP},
+            version          = #{version, jdbcType=INTEGER} + 1
+        where id = #{id, jdbcType=INTEGER}
+        and version = #{version, jdbcType=INTEGER}
     </update>
     <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongStreamEntity">
         update inlong_stream
         <set>
             <if test="inlongGroupId != null">
-                inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR},
+                inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR},
             </if>
             <if test="inlongStreamId != null">
-                inlong_stream_id = #{inlongStreamId,jdbcType=VARCHAR},
+                inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR},
             </if>
             <if test="name != null">
                 name = #{name,jdbcType=VARCHAR},
             </if>
             <if test="description != null">
-                description = #{description,jdbcType=VARCHAR},
+                description = #{description, jdbcType=VARCHAR},
             </if>
             <if test="mqResource != null">
-                mq_resource = #{mqResource,jdbcType=VARCHAR},
+                mq_resource = #{mqResource, jdbcType=VARCHAR},
             </if>
             <if test="dataType != null">
-                data_type = #{dataType,jdbcType=VARCHAR},
+                data_type = #{dataType, jdbcType=VARCHAR},
             </if>
             <if test="dataEncoding != null">
-                data_encoding = #{dataEncoding,jdbcType=VARCHAR},
+                data_encoding = #{dataEncoding, jdbcType=VARCHAR},
             </if>
             <if test="dataSeparator != null">
-                data_separator = #{dataSeparator,jdbcType=VARCHAR},
+                data_separator = #{dataSeparator, jdbcType=VARCHAR},
             </if>
             <if test="dataEscapeChar != null">
-                data_escape_char = #{dataEscapeChar,jdbcType=VARCHAR},
+                data_escape_char = #{dataEscapeChar, jdbcType=VARCHAR},
             </if>
             <if test="syncSend != null">
-                sync_send = #{syncSend,jdbcType=INTEGER},
+                sync_send = #{syncSend, jdbcType=INTEGER},
             </if>
             <if test="dailyRecords!= null">
-                daily_records= #{dailyRecords,jdbcType=INTEGER},
+                daily_records= #{dailyRecords, jdbcType=INTEGER},
             </if>
             <if test="dailyStorage!= null">
-                daily_storage= #{dailyStorage,jdbcType=INTEGER},
+                daily_storage= #{dailyStorage, jdbcType=INTEGER},
             </if>
             <if test="peakRecords != null">
-                peak_records= #{peakRecords,jdbcType=INTEGER},
+                peak_records= #{peakRecords, jdbcType=INTEGER},
             </if>
             <if test="maxLength != null">
-                max_length= #{maxLength,jdbcType=INTEGER},
+                max_length= #{maxLength, jdbcType=INTEGER},
             </if>
             <if test="storagePeriod != null">
-                storage_period = #{storagePeriod,jdbcType=INTEGER},
+                storage_period = #{storagePeriod, jdbcType=INTEGER},
             </if>
             <if test="extParams != null">
-                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+                ext_params = #{extParams, jdbcType=LONGVARCHAR},
             </if>
             <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
+                status = #{status, jdbcType=INTEGER},
             </if>
             <if test="previousStatus != null">
-                previous_status = #{previousStatus,jdbcType=INTEGER},
+                previous_status = #{previousStatus, jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=INTEGER},
+                is_deleted = #{isDeleted, jdbcType=INTEGER},
             </if>
             <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
+                creator = #{creator, jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
-                modifier = #{modifier,jdbcType=VARCHAR},
+                modifier = #{modifier, jdbcType=VARCHAR},
             </if>
             <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
+                create_time = #{createTime, jdbcType=TIMESTAMP},
             </if>
             <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+                modify_time = #{modifyTime, jdbcType=TIMESTAMP},
+            </if>
+            <if test="version != null">
+                version = #{version, jdbcType=INTEGER},
             </if>
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}
         and is_deleted = 0
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateStatusByIdentifier">
         update inlong_stream

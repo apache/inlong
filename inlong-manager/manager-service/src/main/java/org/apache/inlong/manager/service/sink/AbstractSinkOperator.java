@@ -82,6 +82,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setVersion(1);
 
         // get the ext params
         setTargetEntity(request, entity);
@@ -110,6 +111,10 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     public void updateOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("sink information has already updated, please reload sink information and update.");
+            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+        }
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
         entity.setPreviousStatus(entity.getStatus());

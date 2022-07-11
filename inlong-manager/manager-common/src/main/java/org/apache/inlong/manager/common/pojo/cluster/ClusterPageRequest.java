@@ -69,4 +69,7 @@ public class ClusterPageRequest extends PageRequest {
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
 }

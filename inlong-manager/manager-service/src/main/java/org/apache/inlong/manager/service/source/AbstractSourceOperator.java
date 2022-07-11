@@ -88,6 +88,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(1);
+
         // get the ext params
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);

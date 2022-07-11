@@ -30,6 +30,7 @@ public enum ErrorCodeEnum {
     REQUEST_COMPONENT_EMPTY(105, "Component is empty"),
     REQUEST_INSTANCE_EMPTY(106, "Instance is empty"),
     USER_IS_NOT_MANAGER(110, "%s is not the manager, please contact %s"),
+    USER_UPDATE_FAILED(111, "The user information has expired, please refresh the page and submit the update again"),
 
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
@@ -45,6 +46,8 @@ public enum ErrorCodeEnum {
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
+    GROUP_UPDATE_FAILED(1015,
+            "The group information has expired, please refresh the page and submit the update again"),
 
     OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
@@ -53,6 +56,12 @@ public enum ErrorCodeEnum {
 
     CLUSTER_NOT_FOUND(1101, "Cluster information does not exist"),
     CLUSTER_TYPE_NOT_SUPPORTED(1102, "Cluster type '%s' not supported"),
+    CLUSTER_UPDATE_FAILED(1103,
+            "The cluster information has expired, please refresh the page and submit the update again"),
+    CLUSTER_NODE_UPDATE_FAILED(1104,
+            "The cluster node information has expired, please refresh the page and submit the update again"),
+    CLUSTER_TAG_UPDATE_FAILED(1105,
+            "The cluster tag information has expired, please refresh the page and submit the update again"),
 
     STREAM_NOT_FOUND(1201, "Inlong stream does not exist/no operation permission"),
     STREAM_ID_DUPLICATE(1202, "The current inlong group has a inlong stream with the same ID"),
@@ -64,8 +73,12 @@ public enum ErrorCodeEnum {
             "The current inlong group status does not allow to modify the stream source type of the inlong stream"),
     STREAM_EXT_SAVE_FAILED(1207, "Failed to save/update inlong stream extension information"),
     STREAM_FIELD_SAVE_FAILED(1208, "Failed to save/update inlong stream field"),
-    STREAM_DELETE_HAS_SOURCE(1209, "The inlong stream contains source info and is not allowed to be deleted"),
-    STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains data sink info and is not allowed to be deleted"),
+    STREAM_DELETE_HAS_SOURCE(1209,
+            "The inlong stream contains source info and is not allowed to be deleted"),
+    STREAM_DELETE_HAS_SINK(1210,
+            "The inlong stream contains data sink info and is not allowed to be deleted"),
+    STREAM_UPDATE_FAILED(1211,
+            "The stream information has expired, please refresh the page and submit the update again"),
 
     SOURCE_TYPE_IS_NULL(1300, "Source type is null"),
     SOURCE_TYPE_NOT_SUPPORT(1301, "Source type '%s' not support"),
@@ -98,6 +111,8 @@ public enum ErrorCodeEnum {
     PARTITION_FIELD_NO_SOURCE_FIELD(1414, "Sink partition field [%s] must have a related source field name"),
     SINK_TYPE_NOT_SAME(1415, "Expected sink type is %s, but found %s"),
     SINK_NAME_IS_NULL(1416, "Sink name is null"),
+    SINK_UPDATE_FAILED(1417,
+            "The sink information has expired, please refresh the page and submit the update again"),
 
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
@@ -106,7 +121,11 @@ public enum ErrorCodeEnum {
             "The transform information has expired, please refresh the page and submit the update again"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
+    WORKFLOW_UPDATE_FAILED(4001,
+            "The work information has expired, please refresh the page and submit the update again"),
 
+    CONSUMPTION_UPDATE_FAILED(2599,
+            "The consumption information has expired, please refresh the page and submit the update again"),
     CONSUMER_GROUP_DUPLICATED(2600, "The consumer group already exists"),
     CONSUMER_GROUP_CREATE_FAILED(2601, "Failed to create tube consumer group"),
     TUBE_GROUP_CREATE_FAILED(2602, "Create Tube consumer group failed"),
@@ -116,6 +135,9 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
+
+    DATA_NODE_UPDATE_FAILED(2700,
+            "The data node information has expired, please refresh the page and submit the update again"),
 
     ;
 

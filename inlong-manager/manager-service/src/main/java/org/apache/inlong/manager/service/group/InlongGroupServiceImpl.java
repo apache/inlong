@@ -213,7 +213,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("inlong group has already updated, please reload inlong group and update.");
+            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_FAILED);
+        }
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);
 

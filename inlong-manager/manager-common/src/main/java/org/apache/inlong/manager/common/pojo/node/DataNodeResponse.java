@@ -70,4 +70,7 @@ public class DataNodeResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
 }

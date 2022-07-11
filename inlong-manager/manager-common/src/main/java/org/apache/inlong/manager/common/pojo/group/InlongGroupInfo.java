@@ -121,6 +121,9 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty("Sort configuration, will transfer into extList")
     private BaseSortConf sortConf;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
     public abstract InlongGroupRequest genRequest();
 
 }

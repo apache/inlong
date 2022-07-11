@@ -41,4 +41,6 @@ public class UserDetailListVO {
     private String status;
 
     private Date dueDate;
+
+    private Integer version;
 }

@@ -67,4 +67,8 @@ public class WorkflowApprover {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
 }

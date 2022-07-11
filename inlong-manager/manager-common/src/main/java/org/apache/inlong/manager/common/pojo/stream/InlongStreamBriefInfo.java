@@ -63,6 +63,9 @@ public class InlongStreamBriefInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Version information of current data record")
+    private Integer version;
+
     @ApiModelProperty(value = "Sink brief list")
     private List<SinkBriefInfo> sinkList;
 
