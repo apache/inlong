@@ -63,8 +63,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceServiceImpl.class);
 
-    private static final Gson gson = new Gson();
-    private static final Set<String> supportedCacheType = new HashSet<String>() { {
+    private static final Gson GSON = new Gson();
+    private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() { {
         add("PULSAR");
         add("KAFKA");
         add("TUBE");
@@ -100,7 +100,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             reload();
             setReloadTimer();
         } catch (Throwable t) {
-            LOGGER.error("Initialize SortSourceConfigRepository error", t);
+            LOGGER.error("initialize SortSourceConfigRepository error", t);
         }
     }
 
@@ -110,7 +110,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         try {
             reloadAllSourceConfig();
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("fail to reload all source config", t);
         }
         LOGGER.debug("end to reload config");
     }
@@ -123,7 +123,7 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // if cluster or task are invalid
         if (StringUtils.isBlank(cluster) || StringUtils.isBlank(task)) {
-            String errMsg = "Blank cluster name or task name, return nothing";
+            String errMsg = "blank cluster name or task name, return nothing";
             LOGGER.error(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
@@ -133,7 +133,7 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // if there is no config
         if (!sortSourceConfigMap.containsKey(cluster) || !sortSourceConfigMap.get(cluster).containsKey(task)) {
-            String errMsg = String.format("There is no valid source config of cluster %s, task %s", cluster, task);
+            String errMsg = String.format("there is no valid source config of cluster %s, task %s", cluster, task);
             LOGGER.error(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
@@ -152,8 +152,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // if there is bad config
         if (sortSourceConfigMap.get(cluster).get(task).getCacheZones().isEmpty()) {
-            String errMsg = String.format("Find empty cache zones of cluster %s, task %s, "
-                    + "Please check the manager log", cluster, task);
+            String errMsg = String.format("find empty cache zones of cluster %s, task %s, "
+                    + "please check the manager log", cluster, task);
             LOGGER.error(errMsg);
             return SortSourceConfigResponse.builder()
                     .code(RESPONSE_CODE_FAIL)
@@ -189,20 +189,18 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // get all groups. group by group id.
         List<SortSourceGroupInfo> groupInfos = inlongGroupEntityMapper.selectAllGroups();
-        Map<String, SortSourceGroupInfo> allId2GroupInfos =
-                groupInfos.stream()
-                        .filter(dto -> dto.getGroupId() != null)
-                        .filter(group -> supportedCacheType.contains(group.getMqType()))
-                        .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, dto -> dto, (g1, g2) -> g1));
+        Map<String, SortSourceGroupInfo> allId2GroupInfos = groupInfos.stream()
+                .filter(dto -> dto.getGroupId() != null)
+                .filter(group -> SUPPORTED_MQ_TYPE.contains(group.getMqType()))
+                .collect(Collectors.toMap(SortSourceGroupInfo::getGroupId, dto -> dto, (g1, g2) -> g1));
 
         // get all clusters. filter by type and check if consumable, then group by cluster tag.
         List<SortSourceClusterInfo> clusterInfos = clusterEntityMapper.selectAllClusters();
-        Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos =
-                clusterInfos.stream()
-                        .filter(dto -> dto.getClusterTags() != null)
-                        .filter(SortSourceClusterInfo::isConsumable)
-                        .filter(cluster -> supportedCacheType.contains(cluster.getType()))
-                        .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
+        Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos = clusterInfos.stream()
+                .filter(dto -> dto.getClusterTags() != null)
+                .filter(SortSourceClusterInfo::isConsumable)
+                .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
+                .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
         // Prepare CacheZones for each cluster and task
         Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();
@@ -217,7 +215,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 try {
                     cacheZones = this.getCacheZones(groupList, allId2GroupInfos, allTag2ClusterInfos);
                 } catch (Throwable t) {
-                    LOGGER.error("Fail to get cacheZones of cluster {}, task {}", cluster, task);
+                    LOGGER.error("fail to get cacheZones of cluster {}, task {}", cluster, task);
                     return;
                 }
                 CacheZoneConfig config = CacheZoneConfig.builder()
@@ -225,7 +223,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                         .sortClusterName(cluster)
                         .sortTaskId(task)
                         .build();
-                String jsonStr = gson.toJson(config);
+                String jsonStr = GSON.toJson(config);
                 String md5 = DigestUtils.md5Hex(jsonStr);
                 task2Config.put(task, config);
                 task2Md5.put(task, md5);
@@ -245,22 +243,19 @@ public class SortSourceServiceImpl implements SortSourceService {
             Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos) {
 
         // stream of group info if group id exists.
-        List<SortSourceGroupInfo> groupInfoStream =
-                groupIdList.stream()
-                        .filter(allId2GroupInfos::containsKey)
-                        .map(allId2GroupInfos::get)
-                        .collect(Collectors.toList());
+        List<SortSourceGroupInfo> groupInfoStream = groupIdList.stream()
+                .filter(allId2GroupInfos::containsKey)
+                .map(allId2GroupInfos::get)
+                .collect(Collectors.toList());
 
         // Group them by cluster tag.
-        Map<String, List<SortSourceGroupInfo>> tag2GroupInfos =
-                groupInfoStream.stream()
-                        .collect(Collectors.groupingBy(SortSourceGroupInfo::getClusterTag));
+        Map<String, List<SortSourceGroupInfo>> tag2GroupInfos = groupInfoStream.stream()
+                .collect(Collectors.groupingBy(SortSourceGroupInfo::getClusterTag));
 
         // Group them by second cluster tag if both 2nd tag and 2nd topic exist.
-        Map<String, List<SortSourceGroupInfo>> secondTag2GroupInfos =
-                groupInfoStream.stream()
-                        .filter(group -> group.getSecondClusterTag() != null && group.getSecondTopic() != null)
-                        .collect(Collectors.groupingBy(SortSourceGroupInfo::getSecondClusterTag));
+        Map<String, List<SortSourceGroupInfo>> secondTag2GroupInfos = groupInfoStream.stream()
+                .filter(group -> group.getSecondClusterTag() != null && group.getSecondTopic() != null)
+                .collect(Collectors.groupingBy(SortSourceGroupInfo::getSecondClusterTag));
 
         // get cache zone list.
         List<CacheZone> firstTagCacheZoneList =
@@ -269,18 +264,16 @@ public class SortSourceServiceImpl implements SortSourceService {
                 this.getCacheZoneListByTag(secondTag2GroupInfos, allTag2ClusterInfos, true);
 
         // combine two cache zone list, and group by cache zone name.
-        Map<String, CacheZone> cacheZones =
-                Stream.of(firstTagCacheZoneList, secondTagCacheZoneList)
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toMap(
-                                CacheZone::getZoneName,
-                                cacheZone -> cacheZone,
-                                (zone1, zone2) -> {
-                                    zone1.getTopics().addAll(zone2.getTopics());
-                                    return zone1;
-                                }
-                        ));
-
+        Map<String, CacheZone> cacheZones = Stream.of(firstTagCacheZoneList, secondTagCacheZoneList)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(
+                        CacheZone::getZoneName,
+                        cacheZone -> cacheZone,
+                        (zone1, zone2) -> {
+                            zone1.getTopics().addAll(zone2.getTopics());
+                            return zone1;
+                        })
+                );
         return cacheZones;
     }
 
@@ -293,31 +286,29 @@ public class SortSourceServiceImpl implements SortSourceService {
         List<String> tags = new ArrayList<>(tag2GroupInfos.keySet());
 
         // Clusters that related to these tags
-        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos =
-                allTag2ClusterInfos.entrySet().stream()
-                        .filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, List<SortSourceClusterInfo>> tag2ClusterInfos = allTag2ClusterInfos.entrySet().stream()
+                .filter(entry -> tag2GroupInfos.containsKey(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // get CacheZone list
-        List<CacheZone> cacheZones =
-                tags.stream()
-                        .filter(tag2ClusterInfos::containsKey)
-                        .flatMap(tag -> {
-                            List<SortSourceGroupInfo> groups = tag2GroupInfos.get(tag);
-                            List<SortSourceClusterInfo> clusters = tag2ClusterInfos.get(tag);
-                            return clusters.stream()
-                                    .map(cluster -> {
-                                        CacheZone zone = null;
-                                        try {
-                                            zone = this.getCacheZone(groups, cluster, isSecondTag);
-                                        } catch (IllegalStateException e) {
-                                            LOGGER.error(e.getMessage());
-                                        }
-                                        return zone;
-                                    });
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
+        List<CacheZone> cacheZones = tags.stream()
+                .filter(tag2ClusterInfos::containsKey)
+                .flatMap(tag -> {
+                    List<SortSourceGroupInfo> groups = tag2GroupInfos.get(tag);
+                    List<SortSourceClusterInfo> clusters = tag2ClusterInfos.get(tag);
+                    return clusters.stream()
+                            .map(cluster -> {
+                                CacheZone zone = null;
+                                try {
+                                    zone = this.getCacheZone(groups, cluster, isSecondTag);
+                                } catch (IllegalStateException e) {
+                                    LOGGER.error("fail to init cache zone for cluster " + cluster, e);
+                                }
+                                return zone;
+                            });
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return cacheZones;
     }
 
@@ -330,15 +321,15 @@ public class SortSourceServiceImpl implements SortSourceService {
         Map<String, String> param = cluster.getExtParamsMap();
         String serviceUrl = Optional.ofNullable(param.get(KEY_SERVICE_URL))
                 .orElseThrow(() ->
-                        new IllegalStateException(("There is no serviceUrl for cluster " + cluster.getName())));
+                        new IllegalStateException(("there is no serviceUrl for cluster " + cluster.getName())));
 
         String tenant = Optional.ofNullable(param.get(KEY_TENANT))
                 .orElseThrow(() ->
-                        new IllegalStateException(("There is no tenant for cluster " + cluster.getName())));
+                        new IllegalStateException(("there is no tenant for cluster " + cluster.getName())));
 
         String namespace = Optional.ofNullable(param.get(KEY_NAME_SPACE))
                 .orElseThrow(() ->
-                        new IllegalStateException(("There is no namespace for cluster " + cluster.getName())));
+                        new IllegalStateException(("there is no namespace for cluster " + cluster.getName())));
 
         String authentication = Optional.ofNullable(param.get(KEY_AUTH)).orElse("");
 

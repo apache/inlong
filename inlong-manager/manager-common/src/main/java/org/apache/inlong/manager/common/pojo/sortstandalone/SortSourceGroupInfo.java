@@ -46,7 +46,7 @@ public class SortSourceGroupInfo {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error("Fail to parse group ext params", t);
+                LOGGER.error("fail to parse group ext params", t);
             }
         }
         return extParamsMap;

@@ -49,7 +49,7 @@ public class SortSourceClusterInfo {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error("Fail to parse cluster ext params", t);
+                LOGGER.error("fail to parse cluster ext params", t);
             }
         }
         return extParamsMap;
