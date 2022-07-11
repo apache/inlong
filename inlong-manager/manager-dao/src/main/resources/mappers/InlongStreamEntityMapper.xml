@@ -417,7 +417,7 @@
                 modify_time = #{modifyTime, jdbcType=TIMESTAMP},
             </if>
             <if test="version != null">
-                version = #{version, jdbcType=INTEGER},
+                version = #{version, jdbcType=INTEGER} + 1,
             </if>
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}

@@ -49,18 +49,18 @@
                                in_charges, status, is_deleted,
                                creator, modifier, create_time,
                                modify_time, ext_params, version)
-        values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
-                #{url,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR},
-                #{inCharges,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{version,jdbcType=INTEGER})
+        values (#{id, jdbcType=INTEGER}, #{name, jdbcType=VARCHAR}, #{type, jdbcType=VARCHAR},
+                #{url, jdbcType=VARCHAR}, #{username, jdbcType=VARCHAR}, #{token, jdbcType=VARCHAR},
+                #{inCharges, jdbcType=VARCHAR}, #{status, jdbcType=INTEGER}, #{isDeleted, jdbcType=INTEGER},
+                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR}, #{createTime, jdbcType=TIMESTAMP},
+                #{modifyTime, jdbcType=TIMESTAMP}, #{extParams, jdbcType=LONGVARCHAR}, #{version, jdbcType=INTEGER})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from data_node
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id, jdbcType=INTEGER}
     </select>
     <select id="selectByNameAndType" resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         select
@@ -98,77 +98,77 @@
     </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
-        set name        = #{name,jdbcType=VARCHAR},
-            type        = #{type,jdbcType=VARCHAR},
-            url         = #{url,jdbcType=VARCHAR},
-            username    = #{username,jdbcType=VARCHAR},
-            token       = #{token,jdbcType=VARCHAR},
-            ext_params  = #{extParams,jdbcType=LONGVARCHAR},
-            in_charges  = #{inCharges,jdbcType=VARCHAR},
-            status      = #{status,jdbcType=INTEGER},
-            is_deleted  = #{isDeleted,jdbcType=INTEGER},
-            creator     = #{creator,jdbcType=VARCHAR},
-            modifier    = #{modifier,jdbcType=VARCHAR},
-            create_time = #{createTime,jdbcType=TIMESTAMP},
-            modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            version     = #{version,jdbcType=INTEGER} + 1
-        where id = #{id,jdbcType=INTEGER}
-        and version = #{version,jdbcType=INTEGER}
+        set name        = #{name, jdbcType=VARCHAR},
+            type        = #{type, jdbcType=VARCHAR},
+            url         = #{url, jdbcType=VARCHAR},
+            username    = #{username, jdbcType=VARCHAR},
+            token       = #{token, jdbcType=VARCHAR},
+            ext_params  = #{extParams, jdbcType=LONGVARCHAR},
+            in_charges  = #{inCharges, jdbcType=VARCHAR},
+            status      = #{status, jdbcType=INTEGER},
+            is_deleted  = #{isDeleted, jdbcType=INTEGER},
+            creator     = #{creator, jdbcType=VARCHAR},
+            modifier    = #{modifier, jdbcType=VARCHAR},
+            create_time = #{createTime, jdbcType=TIMESTAMP},
+            modify_time = #{modifyTime, jdbcType=TIMESTAMP},
+            version     = #{version, jdbcType=INTEGER} + 1
+        where id = #{id, jdbcType=INTEGER}
+        and version = #{version, jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
         <set>
             <if test="name != null">
-                name = #{name,jdbcType=VARCHAR},
+                name = #{name, jdbcType=VARCHAR},
             </if>
             <if test="type != null">
-                type = #{type,jdbcType=VARCHAR},
+                type = #{type, jdbcType=VARCHAR},
             </if>
             <if test="url != null">
-                url = #{url,jdbcType=VARCHAR},
+                url = #{url, jdbcType=VARCHAR},
             </if>
             <if test="username != null">
-                username = #{username,jdbcType=VARCHAR},
+                username = #{username, jdbcType=VARCHAR},
             </if>
             <if test="token != null">
-                token = #{token,jdbcType=VARCHAR},
+                token = #{token, jdbcType=VARCHAR},
             </if>
             <if test="inCharges != null">
-                in_charges = #{inCharges,jdbcType=VARCHAR},
+                in_charges = #{inCharges, jdbcType=VARCHAR},
             </if>
             <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
+                status = #{status, jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
-                is_deleted = #{isDeleted,jdbcType=INTEGER},
+                is_deleted = #{isDeleted, jdbcType=INTEGER},
             </if>
             <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
+                creator = #{creator, jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
-                modifier = #{modifier,jdbcType=VARCHAR},
+                modifier = #{modifier, jdbcType=VARCHAR},
             </if>
             <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
+                create_time = #{createTime, jdbcType=TIMESTAMP},
             </if>
             <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+                modify_time = #{modifyTime, jdbcType=TIMESTAMP},
             </if>
             <if test="extParams != null">
-                ext_params = #{extParams,jdbcType=LONGVARCHAR},
+                ext_params = #{extParams, jdbcType=LONGVARCHAR},
             </if>
             <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
+                version = #{version, jdbcType=INTEGER} + 1,
             </if>
         </set>
-        where id = #{id,jdbcType=INTEGER}
-        and version = #{version,jdbcType=INTEGER}
+        where id = #{id, jdbcType=INTEGER}
+        and version = #{version, jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">
         delete
         from data_node
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id, jdbcType=INTEGER}
     </delete>
 
     <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
