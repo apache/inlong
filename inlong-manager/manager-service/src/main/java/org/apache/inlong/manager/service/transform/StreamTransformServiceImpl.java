@@ -34,7 +34,10 @@ import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
+import org.apache.inlong.manager.service.core.impl.InlongStreamServiceImpl;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,6 +56,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class StreamTransformServiceImpl implements StreamTransformService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StreamTransformServiceImpl.class);
 
     @Autowired
     protected StreamTransformEntityMapper transformMapper;
@@ -81,7 +86,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
-        transformEntity.setVersion(0);
+        transformEntity.setVersion(1);
         transformEntity.setCreator(operator);
         transformEntity.setModifier(operator);
         Date now = new Date();
@@ -134,6 +139,15 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         String groupId = transformRequest.getInlongGroupId();
         groupCheckService.checkGroupStatus(groupId, operator);
         Preconditions.checkNotNull(transformRequest.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
+        StreamTransformEntity exist = transformMapper.selectById(transformRequest.getId());
+        if (exist == null) {
+            LOGGER.error("transform not found by id={}", transformRequest.getId());
+            throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
+        }
+        if (!exist.getVersion().equals(transformRequest.getVersion())) {
+            LOGGER.warn("transform information has already updated, please reload transform information and update.");
+            throw new BusinessException(ErrorCodeEnum.TRAMSFORM_UPDATE_FAILED);
+        }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
         transformEntity.setModifier(operator);

@@ -252,7 +252,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(String.format("Source=%s is not allowed to delete", entity));
         }
 
-        entity.setVersion(entity.getVersion() + 1);
         entity.setPreviousStatus(curStatus.getCode());
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);

@@ -118,6 +118,10 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
+        if (!entity.getVersion().equals(request.getVersion())) {
+            LOGGER.warn("source information has already updated, please reload source information and update.");
+            throw new BusinessException(ErrorCodeEnum.SOURCE_UPDATE_FAILED);
+        }
 
         // Source type cannot be changed
         if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {

@@ -78,8 +78,8 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Primary Key")
     private String primaryKey;
 
-    @ApiModelProperty("version")
-    private Integer version;
+    @ApiModelProperty("es version")
+    private Integer esVersion;
 
     @ApiModelProperty("Password encrypt version")
     private Integer encryptVersion;
@@ -107,7 +107,7 @@ public class ElasticsearchSinkDTO {
                 .retryTimes(request.getRetryTimes())
                 .documentType(request.getDocumentType())
                 .primaryKey(request.getPrimaryKey())
-                .version(request.getVersion())
+                .esVersion(request.getEsVersion())
                 .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();

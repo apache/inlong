@@ -177,13 +177,14 @@
             pre_node_names       = #{preNodeNames,jdbcType=VARCHAR},
             post_node_names      = #{postNodeNames,jdbcType=VARCHAR},
             transform_definition = #{transformDefinition,jdbcType=VARCHAR},
-            version              = #{version,jdbcType=INTEGER},
+            version              = #{version,jdbcType=INTEGER} + 1,
             is_deleted           = #{isDeleted,jdbcType=INTEGER},
             creator              = #{creator,jdbcType=VARCHAR},
             modifier             = #{modifier,jdbcType=VARCHAR},
             create_time          = #{createTime,jdbcType=TIMESTAMP},
             modify_time          = #{modifyTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.StreamTransformEntity">
         update stream_transform
@@ -210,7 +211,7 @@
                 transform_definition = #{transformDefinition,jdbcType=VARCHAR},
             </if>
             <if test="version != null">
-                version = #{version,jdbcType=INTEGER},
+                version = #{version,jdbcType=INTEGER} + 1,
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
@@ -229,6 +230,7 @@
             </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

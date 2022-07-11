@@ -76,6 +76,8 @@ public enum ErrorCodeEnum {
     SOURCE_OPT_NOT_ALLOWED(1306, "Current status does not allow add/modification/delete source info"),
     SOURCE_TYPE_NOT_SAME(1307, "Expected source type is %s, but found %s"),
     SOURCE_NAME_IS_NULL(1308, "Source name is null"),
+    SOURCE_UPDATE_FAILED(1309,
+            "The source information has expired, please refresh the page and submit the update again"),
 
     HIVE_OPERATION_FAILED(1311, "Hive operation failed"),
 
@@ -99,6 +101,9 @@ public enum ErrorCodeEnum {
 
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
+    TRANSFORM_NOT_FOUND(1502, "Transform does not exist"),
+    TRAMSFORM_UPDATE_FAILED(1503,
+            "The transform information has expired, please refresh the page and submit the update again"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 
