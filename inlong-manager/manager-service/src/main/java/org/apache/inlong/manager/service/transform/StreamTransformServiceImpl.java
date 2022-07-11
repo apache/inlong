@@ -34,7 +34,6 @@ import org.apache.inlong.manager.dao.entity.StreamTransformEntity;
 import org.apache.inlong.manager.dao.entity.StreamTransformFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamTransformEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamTransformFieldEntityMapper;
-import org.apache.inlong.manager.service.core.impl.InlongStreamServiceImpl;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,7 @@ import java.util.stream.Collectors;
 public class StreamTransformServiceImpl implements StreamTransformService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamTransformServiceImpl.class);
-
+  
     @Autowired
     protected StreamTransformEntityMapper transformMapper;
     @Autowired
