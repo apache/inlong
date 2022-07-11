@@ -36,6 +36,7 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
     private final String group;
     private final Set<String> topicSet;
     private final Map<String, TreeSet<String>> topicConditions;
+    private String addrRcvFrom;
     private boolean overTLS = false;
     private long startTime = TBaseConstants.META_VALUE_UNDEFINED;
     private int sourceCount = TBaseConstants.META_VALUE_UNDEFINED;
@@ -64,15 +65,17 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
      * @param sourceCount         the minimum consumer count of consume group
      * @param selectedBig         whether to choose a larger value if there is a conflict
      * @param requiredPartition   the required partitions
+     * @param msgRcvFrom          the address received message
      */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
                         Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
                         ConsumeType consumeType, String sessionKey, long startTime,
                         int sourceCount, boolean selectedBig,
-                        Map<String, Long> requiredPartition) {
+                        Map<String, Long> requiredPartition, String msgRcvFrom) {
         this.group = group;
         this.consumeType = consumeType;
         this.consumerId = consumerId;
+        this.addrRcvFrom = msgRcvFrom;
         this.overTLS = overTLS;
         this.topicSet = topicSet;
         if (topicConditions == null) {
@@ -101,14 +104,16 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
      * @param topicConditions     the topic filter condition set
      * @param curCsmCtrlId        the node's consume control id
      * @param syncInfo            the consumer report information
+     * @param msgRcvFrom          the address received message
      */
     public ConsumerInfo(String consumerId, boolean overTLS, String group,
                         ConsumeType consumeType, int sourceCount, int nodeId,
                         Set<String> topicSet, Map<String, TreeSet<String>> topicConditions,
-                        long curCsmCtrlId, ClientSyncInfo syncInfo) {
+                        long curCsmCtrlId, ClientSyncInfo syncInfo, String msgRcvFrom) {
         this.group = group;
         this.consumeType = consumeType;
         this.consumerId = consumerId;
+        this.addrRcvFrom = msgRcvFrom;
         this.overTLS = overTLS;
         this.topicSet = topicSet;
         if (topicConditions == null) {
@@ -132,6 +137,7 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
             return;
         }
         this.overTLS = inCsmInfo.overTLS;
+        this.addrRcvFrom = inCsmInfo.addrRcvFrom;
         this.nodeId = inCsmInfo.getNodeId();
         updClientReportInfo(inCsmInfo.getCsmFromMaxOffsetCtrlId(),
                 inCsmInfo.getLstAssignedTime(), inCsmInfo.getUsedTopicMetaInfoId());
@@ -209,6 +215,10 @@ public class ConsumerInfo implements Comparable<ConsumerInfo>, Serializable {
 
     public Map<String, TreeSet<String>> getTopicConditions() {
         return topicConditions;
+    }
+
+    public String getAddrRcvFrom() {
+        return addrRcvFrom;
     }
 
     public boolean isOverTLS() {

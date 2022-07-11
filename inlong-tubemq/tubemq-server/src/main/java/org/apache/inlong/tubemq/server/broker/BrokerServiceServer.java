@@ -868,7 +868,8 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
                 partLock = brokerRowLock.getLock(null, StringUtils.getBytesUtf8(partStr), true);
                 if (request.getOpType() == RpcConstants.MSG_OPTYPE_REGISTER) {
                     return inProcessConsumerRegister(clientId, groupName,
-                            topicName, partStr, filterCondSet, overtls, request, builder, strBuffer);
+                            topicName, partStr, filterCondSet, rmtAddress,
+                            overtls, request, builder, strBuffer);
                 } else if (request.getOpType() == RpcConstants.MSG_OPTYPE_UNREGISTER) {
                     return inProcessConsumerUnregister(clientId, groupName,
                             topicName, partStr, request, overtls, builder, strBuffer);
@@ -906,16 +907,17 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
      * @param topicName       the topic name
      * @param partStr         the group-topic-partitionId key
      * @param filterCondSet   the filter condition set
+     * @param msgRcvFrom      the address message received
      * @param overtls      whether transfer over TLS
      * @param request         the request
      * @param builder      the response builder
      * @param strBuffer    the string buffer
      * @return             the response
      */
-    private RegisterResponseB2C inProcessConsumerRegister(final String clientId, final String groupName,
-                                                          final String topicName, final String partStr,
-                                                          final Set<String> filterCondSet, boolean overtls,
-                                                          RegisterRequestC2B request,
+    private RegisterResponseB2C inProcessConsumerRegister(String clientId, String groupName,
+                                                          String topicName, String partStr,
+                                                          Set<String> filterCondSet, String msgRcvFrom,
+                                                          boolean overtls, RegisterRequestC2B request,
                                                           RegisterResponseB2C.Builder builder,
                                                           StringBuilder strBuffer) {
         String consumerId = null;
@@ -929,8 +931,10 @@ public class BrokerServiceServer implements BrokerReadService, BrokerWriteServic
             String reqSessionKey = request.hasSessionKey() ? request.getSessionKey() : null;
             int reqQryPriorityId = request.hasQryPriorityId()
                     ? request.getQryPriorityId() : TBaseConstants.META_VALUE_UNDEFINED;
-            consumerNodeInfo = new ConsumerNodeInfo(storeManager, reqQryPriorityId,
-                    clientId, filterCondSet, reqSessionKey, reqSessionTime, true, partStr);
+            consumerNodeInfo =
+                    new ConsumerNodeInfo(storeManager, reqQryPriorityId, clientId,
+                            filterCondSet, reqSessionKey, reqSessionTime,
+                            true, partStr, msgRcvFrom);
             if (consumerRegisterMap.put(partStr, consumerNodeInfo) == null) {
                 BrokerSrvStatsHolder.incConsumerOnlineCnt();
             }
