@@ -22,6 +22,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
@@ -40,7 +41,6 @@ import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
         result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
 
-        if (Strings.isNotBlank(entity.getSecretKey()) && Strings.isNotBlank(entity.getPublicKey())) {
+        if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
                 // decipher according to stored key version
                 // note that if the version is null then the string is treated as unencrypted plain text
