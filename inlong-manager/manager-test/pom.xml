@@ -50,12 +50,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <exclusions>
                 <exclusion>
-                    <artifactId>android-json</artifactId>
                     <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.jayway.jsonpath</groupId>
                     <artifactId>json-path</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

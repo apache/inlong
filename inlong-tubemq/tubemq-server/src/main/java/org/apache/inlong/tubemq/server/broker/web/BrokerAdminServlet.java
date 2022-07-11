@@ -140,17 +140,9 @@ public class BrokerAdminServlet extends AbstractWebHandler {
      */
     public void adminQueryAllMethods(HttpServletRequest req,
                                      StringBuilder sBuffer) {
-        int index = 0;
-        Set<String> methods = getSupportedMethod();
         sBuffer.append("{\"result\":true,\"errCode\":0,\"errMsg\":\"Success!\",\"dataSet\":[");
-        for (String method : methods) {
-            if (index++ > 0) {
-                sBuffer.append(",");
-            }
-            sBuffer.append("{\"id\":").append(index)
-                    .append(",\"method\":\"").append(method).append("\"}");
-        }
-        sBuffer.append("],\"totalCnt\":").append(index).append("}");
+        int totalCnt = getSupportedMethod(sBuffer);
+        sBuffer.append("],\"totalCnt\":").append(totalCnt).append("}");
     }
 
     /**
@@ -218,7 +210,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                         .append(regTime).append(",\"isFilterConsume\":")
                         .append(ifFilterConsume);
             }
-            strBuff.append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
+            strBuff.append(",\"receivedFrom\":\"").append(entry.getValue().getAddrRcvFrom())
+                    .append("\",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
                     .append(",\"curDataLimitInM\":").append(entry.getValue().getCurFlowCtrlLimitSize())
                     .append(",\"curFreqLimit\":").append(entry.getValue().getCurFlowCtrlFreqLimit())
                     .append(",\"totalSentSec\":").append(entry.getValue().getSentMsgSize())
@@ -785,7 +778,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get the maximum query turns
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.MAXRETRYCOUNT, false,
-                2, 1, 5, sBuffer, result)) {
+                2, 1, 30, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return;
         }
@@ -861,7 +854,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         filterCodes.add(groupName);
         // build consumer node information
         ConsumerNodeInfo consumerNodeInfo = new ConsumerNodeInfo(broker.getStoreManager(),
-                "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "");
+                "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "", "");
         // query records from storage
         int qryRetryCount = 0;
         long itemInitOffset = requestOffset;
@@ -1261,7 +1254,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
             return;
         }
         String statsType = (String) result.getRetData();
-        innEnableOrDisableMetricsStats(true, statsType, req, sBuffer);
+        innEnableOrDisableMetricsStats(false, statsType, req, sBuffer);
     }
 
     /**
@@ -1305,7 +1298,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                 if (count++ > 0) {
                     sBuffer.append(",");
                 }
-                sBuffer.append(metricType.getDesc());
+                sBuffer.append(metricType.getName());
             }
             sBuffer.append("]\"}");
             return;

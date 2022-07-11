@@ -389,7 +389,7 @@ public class WebParameterUtils {
                             .append(", the value of ")
                             .append(WebFieldDef.BROKERPORT.name).append(" or ")
                             .append(WebFieldDef.BROKERTLSPORT.name)
-                            .append(" cannot be the same as the value of")
+                            .append(" cannot be the same as the value of ")
                             .append(WebFieldDef.BROKERWEBPORT.name).toString());
             strBuff.delete(0, strBuff.length());
             return result.isSuccess();
@@ -829,7 +829,7 @@ public class WebParameterUtils {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         Set<String> existedTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (String topic : topicNameSet) {
             if (!existedTopicSet.contains(topic)) {
                 result.setFailResult(sBuffer.append(WebFieldDef.COMPSTOPICNAME.name)

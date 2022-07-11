@@ -28,7 +28,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import java.util.concurrent.atomic.AtomicLong;
 
 @MetricDomain(name = "SourceMetric")
-public class SourceJmxMetric extends MetricItem implements SourceMetrics {
+public class SourceJmxMetric extends MetricItem implements SourceMetric {
 
     @Dimension
     private final String tagName;

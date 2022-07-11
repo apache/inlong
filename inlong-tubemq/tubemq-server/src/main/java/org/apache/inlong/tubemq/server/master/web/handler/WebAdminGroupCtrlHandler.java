@@ -356,7 +356,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
                     .append("\",\"enableBind\":1,\"allowedBClientRate\":")
                     .append(entry.getAllowedBrokerClientRate())
                     .append(",\"attributes\":\"\",\"lastBindUsedDate\":\"-\"")
-                    .append("\",\"dataVersionId\":").append(entry.getDataVerId())
+                    .append(",\"dataVersionId\":").append(entry.getDataVerId())
                     .append(",\"createUser\":\"").append(entry.getCreateUser())
                     .append("\",\"createDate\":\"").append(entry.getCreateDateStr())
                     .append("\",\"modifyUser\":\"").append(entry.getModifyUser())
@@ -1279,7 +1279,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         GroupConsumeCtrlEntity itemEntity;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (Map<String, String> itemValueMap : groupJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,
@@ -1349,7 +1349,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         Map<String, String> itemValueMap;
         Map<String, GroupResCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (int j = 0; j < groupJsonArray.size(); j++) {
             itemValueMap = groupJsonArray.get(j);
             // check and get operation info
@@ -1409,7 +1409,7 @@ public class WebAdminGroupCtrlHandler extends AbstractWebHandler {
         GroupConsumeCtrlEntity itemEntity;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
-                defMetaDataService.getTotalConfiguredTopicNames();
+                defMetaDataService.getDeployedTopicSet();
         for (Map<String, String> itemValueMap : groupJsonArray) {
             // check and get operation info
             if (!WebParameterUtils.getAUDBaseInfo(itemValueMap,

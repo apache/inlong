@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.google.gson.Gson;
-import jodd.util.StringUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.sdk.CacheZone;
 import org.apache.inlong.common.pojo.sdk.Topic;
 import org.apache.inlong.manager.dao.entity.SortSourceConfigEntity;
@@ -41,14 +41,14 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final String KEY_ZONE_SERVICE_URL = "serviceUrl";
     private static final String KEY_ZONE_AUTHENTICATION = "authentication";
     private static final String KEY_ZONE_TYPE = "zoneType";
+    private static final Gson GSON = new Gson();
 
     @Autowired
-    private SortSourceConfigEntityMapper sortSourceConfigEntityMapper;
+    private SortSourceConfigEntityMapper sortSourceConfigMapper;
 
     @Override
     public Map<String, CacheZone> getCacheZones(String clusterName, String taskName) {
-        List<SortSourceConfigEntity> configList =
-                sortSourceConfigEntityMapper.selectByClusterAndTask(clusterName, taskName);
+        List<SortSourceConfigEntity> configList = sortSourceConfigMapper.selectByClusterAndTask(clusterName, taskName);
 
         // group configs by zone name
         Map<String, List<SortSourceConfigEntity>> zoneConfigMap =
@@ -64,10 +64,10 @@ public class SortSourceServiceImpl implements SortSourceService {
      * Build one {@link CacheZone} from list of configs including zone config and configs of each topic.
      *
      * <p>
-     *     The way we differ zone config and topic config is
-     *     if the params <b>topic</b> in {@link SortSourceConfigEntity} is blank.
-     *     If topic is blank, it's the <b>zone config</b>,
-     *     otherwise, it's <b>topic config</b>.
+     * The way we differ zone config and topic config is
+     * if the params <b>topic</b> in {@link SortSourceConfigEntity} is blank.
+     * If topic is blank, it's the <b>zone config</b>,
+     * otherwise, it's <b>topic config</b>.
      * </p>
      *
      * @param configList List of configs.
@@ -77,23 +77,22 @@ public class SortSourceServiceImpl implements SortSourceService {
         // get list of Topic
         List<Topic> topicList
                 = configList.stream()
-                .filter(config -> StringUtil.isNotBlank(config.getTopic()))
+                .filter(config -> StringUtils.isNotBlank(config.getTopic()))
                 .map(this::toTopic)
                 .collect(Collectors.toList());
 
         // get zone config
         List<SortSourceConfigEntity> zoneConfigs
                 = configList.stream()
-                .filter(config -> StringUtil.isBlank(config.getTopic()))
+                .filter(config -> StringUtils.isBlank(config.getTopic()))
                 .collect(Collectors.toList());
 
         if (zoneConfigs.size() != 1) {
-            throw new IllegalStateException("The size of zone config should be 1, but found " +  zoneConfigs.size());
+            throw new IllegalStateException("The size of zone config should be 1, but found " + zoneConfigs.size());
         }
 
         SortSourceConfigEntity zoneConfig = zoneConfigs.get(0);
         Map<String, String> zoneProperties = this.jsonProperty2Map(zoneConfig.getExtParams());
-
         return CacheZone.builder()
                 .zoneName(zoneConfig.getZoneName())
                 .serviceUrl(zoneProperties.remove(KEY_ZONE_SERVICE_URL))
@@ -107,8 +106,8 @@ public class SortSourceServiceImpl implements SortSourceService {
     /**
      * Build one {@link Topic} from the corresponding config.
      *
-     * @param topicConfig Config of topic.
-     * @return Topic.
+     * @param topicConfig source config
+     * @return topic info
      */
     private Topic toTopic(SortSourceConfigEntity topicConfig) {
         Map<String, String> topicProperties = this.jsonProperty2Map(topicConfig.getExtParams());
@@ -127,7 +126,7 @@ public class SortSourceServiceImpl implements SortSourceService {
      * @return Properties in map format.
      */
     private Map<String, String> jsonProperty2Map(String jsonProperty) {
-        return new Gson().fromJson(jsonProperty, Map.class);
+        return GSON.fromJson(jsonProperty, Map.class);
     }
 
 }

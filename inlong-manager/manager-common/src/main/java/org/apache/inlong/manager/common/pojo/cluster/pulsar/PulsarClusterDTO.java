@@ -42,11 +42,12 @@ public class PulsarClusterDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080")
+    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
+            notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
-    @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    private String tenant = "public";
 
     /**
      * Get the dto instance from the request

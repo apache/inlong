@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 
 /**
  * The offset snapshot of the consumer group on the broker.
@@ -69,6 +70,7 @@ public class OffsetRecordInfo {
         strBuff.append("{\"groupName\":\"").append(groupName).append("\",\"recordTime\":\"")
                 .append(DateTimeConvertUtils.ms2yyyyMMddHHmmss(dataTime))
                 .append("\",\"brokerId\":").append(brokerId)
+                .append(",\"version\":").append(TServerConstants.OFFSET_HISTORY_RECORD_VERSION)
                 .append(",\"records\":[");
         for (Map.Entry<String, Map<Integer, RecordItem>> entry : histOffsetMap.entrySet()) {
             if (entry == null || entry.getKey() == null || entry.getValue() == null) {

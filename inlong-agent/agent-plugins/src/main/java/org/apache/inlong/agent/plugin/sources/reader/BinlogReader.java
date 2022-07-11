@@ -31,7 +31,7 @@ import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.Reader;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
@@ -60,7 +60,7 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
 /**
  * read binlog data
  */
-public class BinlogReader implements Reader {
+public class BinlogReader extends AbstractReader {
 
     public static final String COMPONENT_NAME = "BinlogReader";
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
@@ -81,6 +81,7 @@ public class BinlogReader implements Reader {
     public static final String JOB_DATABASE_QUEUE_SIZE = "job.binlogJob.queueSize";
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogReader.class);
     private static final Gson gson = new Gson();
+    private static final String BINLOG_READER_TAG_NAME = "AgentBinlogMetric";
     private final AgentConfiguration agentConf = AgentConfiguration.getAgentConf();
     /**
      * pair.left: table name
@@ -120,6 +121,7 @@ public class BinlogReader implements Reader {
     @Override
     public Message read() {
         if (!binlogMessagesQueue.isEmpty()) {
+            GlobalMetrics.incReadNum(metricTagName);
             return getBinlogMessage();
         } else {
             return null;
@@ -171,6 +173,7 @@ public class BinlogReader implements Reader {
                 CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID);
         inlongStreamId = jobConf.get(CommonConstants.PROXY_INLONG_STREAM_ID,
                 CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID);
+        metricTagName = BINLOG_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
 
         if (enableReportConfigLog) {
             String reportConfigServerUrl = jobConf

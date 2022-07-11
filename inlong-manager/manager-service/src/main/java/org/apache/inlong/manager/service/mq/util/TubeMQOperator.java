@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -63,7 +64,7 @@ public class TubeMQOperator {
     private static final String ADD_CONSUMER_PATH = "/webapi.htm?method=admin_add_authorized_consumergroup_info";
 
     @Autowired
-    private HttpUtils httpUtils;
+    private RestTemplate restTemplate;
 
     /**
      * Create topic for the given tube cluster.
@@ -117,8 +118,8 @@ public class TubeMQOperator {
         LOGGER.info("begin to check if the tube topic {} exists", topicName);
         String url = masterUrl + QUERY_TOPIC_PATH + TOPIC_NAME + topicName;
         try {
-            TopicResponse topicView = httpUtils.request(url, HttpMethod.GET, null, new HttpHeaders(),
-                    TopicResponse.class);
+            TopicResponse topicView = HttpUtils.request(restTemplate, url, HttpMethod.GET,
+                    null, new HttpHeaders(), TopicResponse.class);
             if (CollectionUtils.isEmpty(topicView.getData())) {
                 LOGGER.warn("tube topic {} not exists in {}", topicName, url);
                 return false;
@@ -139,8 +140,8 @@ public class TubeMQOperator {
         LOGGER.info("begin to check if the consumer group {} exists on topic {}", consumerGroup, topicName);
         String url = masterUrl + QUERY_CONSUMER_PATH + TOPIC_NAME + topicName + CONSUME_GROUP + consumerGroup;
         try {
-            ConsumerGroupResponse response = httpUtils.request(url, HttpMethod.GET, null, new HttpHeaders(),
-                    ConsumerGroupResponse.class);
+            ConsumerGroupResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
+                    null, new HttpHeaders(), ConsumerGroupResponse.class);
             if (CollectionUtils.isEmpty(response.getData())) {
                 LOGGER.warn("tube consumer group {} not exists for topic {} in {}", consumerGroup, topicName, url);
                 return false;
@@ -161,8 +162,8 @@ public class TubeMQOperator {
     private TubeBrokerInfo getBrokerInfo(String masterUrl) {
         String url = masterUrl + QUERY_BROKER_PATH;
         try {
-            TubeBrokerInfo brokerInfo = httpUtils.request(url, HttpMethod.GET, null, new HttpHeaders(),
-                    TubeBrokerInfo.class);
+            TubeBrokerInfo brokerInfo = HttpUtils.request(restTemplate, url, HttpMethod.GET,
+                    null, new HttpHeaders(), TubeBrokerInfo.class);
             if (brokerInfo.getErrCode() != SUCCESS_CODE) {
                 String msg = "failed to query tube broker from %s, error: %s";
                 LOGGER.error(String.format(msg, url, brokerInfo.getErrMsg()));
@@ -200,8 +201,8 @@ public class TubeMQOperator {
                 + BROKER_ID + StringUtils.join(allBrokers, ",")
                 + CREATE_USER + operator + CONF_MOD_AUTH_TOKEN + token;
         try {
-            TubeHttpResponse response = httpUtils.request(url, HttpMethod.GET, null, new HttpHeaders(),
-                    TubeHttpResponse.class);
+            TubeHttpResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
+                    null, new HttpHeaders(), TubeHttpResponse.class);
             if (response.getErrCode() != SUCCESS_CODE) {
                 String msg = String.format("failed to create tube topic %s, error: %s",
                         topicName, response.getErrMsg());
@@ -229,8 +230,8 @@ public class TubeMQOperator {
                 + GROUP_NAME + consumerGroup
                 + CREATE_USER + operator + CONF_MOD_AUTH_TOKEN + token;
         try {
-            TubeHttpResponse response = httpUtils.request(url, HttpMethod.GET, null, new HttpHeaders(),
-                    TubeHttpResponse.class);
+            TubeHttpResponse response = HttpUtils.request(restTemplate, url, HttpMethod.GET,
+                    null, new HttpHeaders(), TubeHttpResponse.class);
             if (response.getErrCode() != SUCCESS_CODE) {
                 String msg = String.format("failed to create tube consumer group %s for topic %s, error: %s",
                         consumerGroup, topicName, response.getErrMsg());

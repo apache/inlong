@@ -38,8 +38,12 @@ import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Map;
 
@@ -66,22 +70,26 @@ import java.util.Map;
 })
 public class SinkRequest {
 
-    @ApiModelProperty("Sink id")
+    @NotNull(groups = UpdateValidation.class)
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotBlank(message = "inlongGroupId cannot be null")
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotBlank(message = "inlongStreamId cannot be null")
+    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotBlank(message = "sinkType cannot be null")
+    @NotBlank(message = "sinkType cannot be blank")
     @ApiModelProperty("Sink type, including: HIVE, ES, etc.")
     private String sinkType;
 
-    @NotBlank(message = "sinkName cannot be null")
+    @NotBlank(message = "sinkName cannot be blank")
+    @Length(min = 1, max = 100, message = "sinkName length must be between 1 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+            message = "sinkName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Sink name, unique in one stream")
     private String sinkName;
 

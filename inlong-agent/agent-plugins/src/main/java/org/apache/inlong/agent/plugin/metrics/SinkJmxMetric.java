@@ -28,7 +28,7 @@ import org.apache.inlong.common.metric.MetricRegister;
 import java.util.concurrent.atomic.AtomicLong;
 
 @MetricDomain(name = "SinkMetric")
-public class SinkJmxMetric extends MetricItem implements SinkMetrics {
+public class SinkJmxMetric extends MetricItem implements SinkMetric {
 
     @Dimension
     private final String tagName;

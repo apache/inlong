@@ -271,7 +271,7 @@ CREATE TABLE IF NOT EXISTS `inlong_stream_field`
     `inlong_group_id`     varchar(256) NOT NULL COMMENT 'Owning inlong group id',
     `inlong_stream_id`    varchar(256) NOT NULL COMMENT 'Owning inlong stream id',
     `is_predefined_field` tinyint(1)   DEFAULT '0' COMMENT 'Whether it is a predefined field, 0: no, 1: yes',
-    `field_name`          varchar(20)  NOT NULL COMMENT 'field name',
+    `field_name`          varchar(120) NOT NULL COMMENT 'field name',
     `field_value`         varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
     `pre_expression`      varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
     `field_type`          varchar(20)  NOT NULL COMMENT 'field type',
@@ -488,7 +488,7 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `inlong_stream_id` varchar(256) NOT NULL COMMENT 'Inlong stream id',
     `source_id`        int(11)      NOT NULL COMMENT 'Sink id',
     `source_type`      varchar(15)  NOT NULL COMMENT 'Sink type',
-    `field_name`       varchar(20)  NOT NULL COMMENT 'field name',
+    `field_name`       varchar(120) NOT NULL COMMENT 'field name',
     `field_value`      varchar(128) DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
     `pre_expression`   varchar(256) DEFAULT NULL COMMENT 'Pre-defined field value expression',
     `field_type`       varchar(20)  NOT NULL COMMENT 'field type',
@@ -512,7 +512,7 @@ CREATE TABLE IF NOT EXISTS `stream_transform_field`
     `inlong_stream_id`  varchar(256) NOT NULL COMMENT 'Inlong stream id',
     `transform_id`      int(11)      NOT NULL COMMENT 'Transform id',
     `transform_type`    varchar(15)  NOT NULL COMMENT 'Transform type',
-    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_name`        varchar(120) NOT NULL COMMENT 'Field name',
     `field_value`       varchar(128)  DEFAULT NULL COMMENT 'Field value, required if it is a predefined field',
     `pre_expression`    varchar(256)  DEFAULT NULL COMMENT 'Pre-defined field value expression',
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
@@ -541,7 +541,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink_field`
     `sink_type`         varchar(15)  NOT NULL COMMENT 'Sink type',
     `source_field_name` varchar(50)   DEFAULT NULL COMMENT 'Source field name',
     `source_field_type` varchar(50)   DEFAULT NULL COMMENT 'Source field type',
-    `field_name`        varchar(50)  NOT NULL COMMENT 'Field name',
+    `field_name`        varchar(120) NOT NULL COMMENT 'Field name',
     `field_type`        varchar(50)  NOT NULL COMMENT 'Field type',
     `field_comment`     varchar(2000) DEFAULT NULL COMMENT 'Field description',
     `ext_params`        text COMMENT 'Field ext params',
@@ -720,48 +720,6 @@ CREATE TABLE IF NOT EXISTS `db_collector_detail_task`
     `create_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'create time',
     `modify_time`   timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modify time',
     PRIMARY KEY (`id`)
-);
-
--- ----------------------------
--- Table structure for sort_cluster_config
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `sort_cluster_config`
-(
-    `id`           int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `cluster_name` varchar(128) NOT NULL COMMENT 'Cluster name',
-    `task_name`    varchar(128) NOT NULL COMMENT 'Task name',
-    `sink_type`    varchar(128) NOT NULL COMMENT 'Type of sink',
-    PRIMARY KEY (`id`),
-    KEY `sort_cluster_config_index` (`cluster_name`)
-);
-
--- ----------------------------
--- Table structure for sort_task_id_param
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `sort_task_id_param`
-(
-    `id`          int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `task_name`   varchar(128)  NOT NULL COMMENT 'Task name',
-    `group_id`    varchar(128)  NOT NULL COMMENT 'Inlong group id',
-    `stream_id`   varchar(128)  NULL COMMENT 'Inlong stream id',
-    `param_key`   varchar(128)  NOT NULL COMMENT 'Key of param',
-    `param_value` varchar(1024) NOT NULL COMMENT 'Value of param',
-    PRIMARY KEY (`id`),
-    KEY `sort_task_id_param_index` (`task_name`)
-);
-
--- ----------------------------
--- Table structure for sort_task_sink_param
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `sort_task_sink_param`
-(
-    `id`          int(11)       NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `task_name`   varchar(128)  NOT NULL COMMENT 'Task name',
-    `sink_type`   varchar(128)  NOT NULL COMMENT 'Type of sink',
-    `param_key`   varchar(128)  NOT NULL COMMENT 'Key of param',
-    `param_value` varchar(1024) NOT NULL COMMENT 'Value of param',
-    PRIMARY KEY (`id`),
-    KEY `sort_task_sink_params_index` (`task_name`, `sink_type`)
 );
 
 -- ----------------------------

@@ -19,19 +19,18 @@ package org.apache.inlong.agent.plugin.channel;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
+import org.apache.inlong.agent.message.ProxyMessage;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginMetric;
-import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
 
 /**
  * memory channel
@@ -42,48 +41,48 @@ public class MemoryChannel implements Channel {
 
     private static final String MEMORY_CHANNEL_TAG_NAME = "AgentMemoryPlugin";
     private static AtomicLong metricsIndex = new AtomicLong(0);
-    private final PluginMetric pluginMetricNew;
     private LinkedBlockingQueue<Message> queue;
 
     public MemoryChannel() {
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(
-                    MEMORY_CHANNEL_TAG_NAME, metricsIndex.incrementAndGet()));
-        } else {
-            this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(
-                    MEMORY_CHANNEL_TAG_NAME, metricsIndex.incrementAndGet()));
-        }
     }
 
     @Override
     public void push(Message message) {
+        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             if (message != null) {
-                pluginMetricNew.incReadNum();
+                if (message instanceof ProxyMessage) {
+                    groupId = ((ProxyMessage) message).getInlongGroupId();
+                }
+                GlobalMetrics.incReadNum(groupId);
                 queue.put(message);
-                pluginMetricNew.incReadSuccessNum();
+                GlobalMetrics.incReadSuccessNum(groupId);
             }
         } catch (InterruptedException ex) {
-            pluginMetricNew.incReadFailedNum();
+            GlobalMetrics.incReadFailedNum(groupId);
             Thread.currentThread().interrupt();
         }
     }
 
     @Override
     public boolean push(Message message, long timeout, TimeUnit unit) {
+        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             if (message != null) {
-                pluginMetricNew.incReadNum();
+                if (message instanceof ProxyMessage) {
+                    groupId = ((ProxyMessage) message).getInlongGroupId();
+                }
+                GlobalMetrics.incReadNum(groupId);
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
-                    pluginMetricNew.incReadSuccessNum();
+                    GlobalMetrics.incReadSuccessNum(groupId);
                 } else {
-                    pluginMetricNew.incReadFailedNum();
+                    GlobalMetrics.incReadFailedNum(groupId);
                 }
                 return result;
             }
         } catch (InterruptedException ex) {
-            pluginMetricNew.incReadFailedNum();
+            GlobalMetrics.incReadFailedNum(groupId);
             Thread.currentThread().interrupt();
         }
         return false;
@@ -91,14 +90,18 @@ public class MemoryChannel implements Channel {
 
     @Override
     public Message pull(long timeout, TimeUnit unit) {
+        String groupId = DEFAULT_PROXY_INLONG_GROUP_ID;
         try {
             Message message = queue.poll(timeout, unit);
             if (message != null) {
-                pluginMetricNew.incSendSuccessNum();
+                if (message instanceof ProxyMessage) {
+                    groupId = ((ProxyMessage) message).getInlongGroupId();
+                }
+                GlobalMetrics.incSendSuccessNum(groupId);
             }
             return message;
         } catch (InterruptedException ex) {
-            pluginMetricNew.incSendFailedNum();
+            GlobalMetrics.incSendFailedNum(groupId);
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ex);
         }
@@ -116,10 +119,7 @@ public class MemoryChannel implements Channel {
         if (queue != null) {
             queue.clear();
         }
-        LOGGER.info("destroy channel, memory channel metric, readNum: {}, readSuccessNum: {}, "
-                        + "readFailedNum: {}, sendSuccessNum: {}, sendFailedNum: {}",
-                pluginMetricNew.getReadNum(), pluginMetricNew.getReadSuccessNum(),
-                pluginMetricNew.getReadFailedNum(), pluginMetricNew.getSendSuccessNum(),
-                pluginMetricNew.getSendFailedNum());
+        LOGGER.info("destroy channel, show memory channel metric:");
+        GlobalMetrics.showMemoryChannelStatics();
     }
 }

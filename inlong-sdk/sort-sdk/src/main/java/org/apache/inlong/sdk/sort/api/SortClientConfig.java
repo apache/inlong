@@ -17,7 +17,11 @@
 
 package org.apache.inlong.sdk.sort.api;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
+
 import java.io.Serializable;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 public class SortClientConfig implements Serializable {
@@ -26,8 +30,8 @@ public class SortClientConfig implements Serializable {
 
     private static final long serialVersionUID = -7531960714809683830L;
 
-    private String sortTaskId;
-    private String sortClusterName = "default";
+    private final String sortTaskId;
+    private final String sortClusterName;
     private InLongTopicChangeListener assignmentsListener;
     private ReadCallback callback;
     private int callbackQueueSize = 100;
@@ -47,7 +51,7 @@ public class SortClientConfig implements Serializable {
     private ConsumeStrategy consumeStrategy;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
-    private int ackTimeoutSec = 120;
+    private int ackTimeoutSec = 0;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
     private int emptyPollSleepStepMs = 50;
@@ -75,16 +79,8 @@ public class SortClientConfig implements Serializable {
         return sortTaskId;
     }
 
-    public void setSortTaskId(String sortTaskId) {
-        this.sortTaskId = sortTaskId;
-    }
-
     public String getSortClusterName() {
         return sortClusterName;
-    }
-
-    public void setSortClusterName(String sortClusterName) {
-        this.sortClusterName = sortClusterName;
     }
 
     public InLongTopicChangeListener getAssignmentsListener() {
@@ -313,5 +309,44 @@ public class SortClientConfig implements Serializable {
         earliest_absolutely,
         // consume from largest position
         lastest_absolutely
+    }
+
+    /**
+     * setParameters
+     * @param sortSdkParams
+     */
+    public void setParameters(Map<String, String> sortSdkParams) {
+        this.callbackQueueSize = NumberUtils.toInt(sortSdkParams.get("callbackQueueSize"), callbackQueueSize);
+        this.pulsarReceiveQueueSize = NumberUtils.toInt(sortSdkParams.get("pulsarReceiveQueueSize"),
+                pulsarReceiveQueueSize);
+        this.kafkaFetchWaitMs = NumberUtils.toInt(sortSdkParams.get("kafkaFetchWaitMs"), kafkaFetchWaitMs);
+        this.kafkaFetchSizeBytes = NumberUtils.toInt(sortSdkParams.get("kafkaFetchSizeBytes"), kafkaFetchSizeBytes);
+        this.kafkaSocketRecvBufferSize = NumberUtils.toInt(sortSdkParams.get("kafkaSocketRecvBufferSize"),
+                kafkaSocketRecvBufferSize);
+
+        this.localIp = sortSdkParams.getOrDefault("localIp", localIp);
+        this.appName = sortSdkParams.getOrDefault("appName", appName);
+        this.serverName = sortSdkParams.getOrDefault("serverName", serverName);
+        this.containerId = sortSdkParams.getOrDefault("containerId", containerId);
+        this.instanceName = sortSdkParams.getOrDefault("instanceName", instanceName);
+        this.env = sortSdkParams.getOrDefault("env", env);
+        this.managerApiUrl = sortSdkParams.getOrDefault("managerApiUrl", managerApiUrl);
+        this.managerApiVersion = sortSdkParams.getOrDefault("managerApiVersion", managerApiVersion);
+        String strConsumeStrategy = sortSdkParams.getOrDefault("consumeStrategy", consumeStrategy.name());
+
+        this.consumeStrategy = ConsumeStrategy.valueOf(strConsumeStrategy);
+
+        this.reportStatisticIntervalSec = NumberUtils.toInt(sortSdkParams.get("reportStatisticIntervalSec"),
+                reportStatisticIntervalSec);
+        this.updateMetaDataIntervalSec = NumberUtils.toInt(sortSdkParams.get("updateMetaDataIntervalSec"),
+                updateMetaDataIntervalSec);
+        this.ackTimeoutSec = NumberUtils.toInt(sortSdkParams.get("ackTimeoutSec"), ackTimeoutSec);
+
+        String strPrometheusEnabled = sortSdkParams.getOrDefault("isPrometheusEnabled", Boolean.TRUE.toString());
+        this.isPrometheusEnabled = StringUtils.equalsIgnoreCase(strPrometheusEnabled, Boolean.TRUE.toString());
+
+        this.emptyPollSleepStepMs = NumberUtils.toInt(sortSdkParams.get("emptyPollSleepStepMs"), emptyPollSleepStepMs);
+        this.maxEmptyPollSleepMs = NumberUtils.toInt(sortSdkParams.get("maxEmptyPollSleepMs"), maxEmptyPollSleepMs);
+        this.emptyPollTimes = NumberUtils.toInt(sortSdkParams.get("emptyPollTimes"), emptyPollTimes);
     }
 }

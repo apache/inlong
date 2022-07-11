@@ -17,12 +17,18 @@
 
 package org.apache.inlong.agent.plugin.sources.reader;
 
-import static java.sql.Types.BINARY;
-import static java.sql.Types.BLOB;
-import static java.sql.Types.LONGVARBINARY;
-import static java.sql.Types.VARBINARY;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
-import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.audit.AuditUtils;
+import org.apache.inlong.agent.plugin.Message;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
+import org.apache.inlong.agent.utils.AgentDbUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -32,17 +38,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.CharUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.message.DefaultMessage;
-import org.apache.inlong.agent.metrics.audit.AuditUtils;
-import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.utils.AgentDbUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.sql.Types.BINARY;
+import static java.sql.Types.BLOB;
+import static java.sql.Types.LONGVARBINARY;
+import static java.sql.Types.VARBINARY;
 
 /**
  * Read data from database by SQL
@@ -119,16 +118,14 @@ public class SqlReader extends AbstractReader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                readerMetric.incReadNum();
-                streamMetric.incReadNum();
+                GlobalMetrics.incReadNum(metricTagName);
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            readerMetric.incReadFailedNum();
-            streamMetric.incReadFailedNum();
+            GlobalMetrics.incReadFailedNum(metricTagName);
             throw new RuntimeException(ex);
         }
         return null;
@@ -193,9 +190,8 @@ public class SqlReader extends AbstractReader {
 
     @Override
     public void init(JobProfile jobConf) {
-        inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID);
-        inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, "");
-        intMetric(SQL_READER_TAG_NAME);
+        super.init(jobConf);
+        metricTagName = SQL_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         int batchSize = jobConf.getInt(JOB_DATABASE_BATCH_SIZE, DEFAULT_JOB_DATABASE_BATCH_SIZE);
         String userName = jobConf.get(JOB_DATABASE_USER);
         String password = jobConf.get(JOB_DATABASE_PASSWORD);

@@ -39,15 +39,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Data consumption interface
  */
 @RestController
-@RequestMapping("/consumption")
-@Api(tags = "Data Consumption")
+@Api(tags = "Consumption-API")
 public class ConsumptionController {
 
     @Autowired
@@ -55,28 +53,28 @@ public class ConsumptionController {
     @Autowired
     private ConsumptionProcessOperation processOperation;
 
-    @GetMapping("/summary")
+    @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")
     public Response<ConsumptionSummary> getSummary(ConsumptionQuery query) {
         query.setUsername(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(consumptionService.getSummary(query));
     }
 
-    @GetMapping("/list")
+    @GetMapping("/consumption/list")
     @ApiOperation(value = "List data consumptions")
     public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
         query.setUsername(LoginUserUtils.getLoginUserDetail().getUsername());
         return Response.success(consumptionService.list(query));
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/consumption/get/{id}")
     @ApiOperation(value = "Get consumption details")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<ConsumptionInfo> getDetail(@PathVariable(name = "id") Integer id) {
         return Response.success(consumptionService.get(id));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/consumption/delete/{id}")
     @OperationLog(operation = OperationType.DELETE)
     @ApiOperation(value = "Delete data consumption")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
@@ -85,7 +83,7 @@ public class ConsumptionController {
         return Response.success();
     }
 
-    @PostMapping("/save")
+    @PostMapping("/consumption/save")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Save data consumption", notes = "Full coverage")
     public Response<Integer> save(@Validated @RequestBody ConsumptionInfo consumptionInfo) {
@@ -93,7 +91,7 @@ public class ConsumptionController {
         return Response.success(consumptionService.save(consumptionInfo, currentUser));
     }
 
-    @PostMapping("/update/{id}")
+    @PostMapping("/consumption/update/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update data consumption")
     public Response<String> update(@PathVariable(name = "id") Integer id,
@@ -103,7 +101,7 @@ public class ConsumptionController {
         return Response.success();
     }
 
-    @PostMapping("/startProcess/{id}")
+    @PostMapping("/consumption/startProcess/{id}")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Start approval process")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)

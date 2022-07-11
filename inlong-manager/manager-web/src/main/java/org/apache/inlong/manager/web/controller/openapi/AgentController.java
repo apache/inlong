@@ -23,8 +23,8 @@ import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.service.core.AgentService;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.core.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/openapi")
-@Api(tags = "Open-Agent-Config")
+@Api(tags = "Open-Agent-API")
 public class AgentController {
 
     @Autowired

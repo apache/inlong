@@ -17,17 +17,20 @@
 
 package org.apache.inlong.manager.common.util;
 
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Utils for Network
  */
 @Slf4j
+@UtilityClass
 public class NetworkUtils {
 
     /**
@@ -69,14 +72,40 @@ public class NetworkUtils {
      * @return local IP
      */
     public static String getLocalIp() {
-        InetAddress localHost = null;
         try {
-            localHost = Inet4Address.getLocalHost();
+            InetAddress localHost = Inet4Address.getLocalHost();
             return localHost.getHostAddress();
         } catch (UnknownHostException e) {
             log.error(e.getMessage(), e);
         }
         return null;
+    }
+
+    /**
+     * Check if the IP string is valid.
+     *
+     * @param text IP string need to check
+     * @return true: valid, false: invalid
+     */
+    public static boolean ipCheck(String text) {
+        if (text != null && !text.isEmpty()) {
+            String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
+                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                    + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+            return text.matches(regex);
+        }
+        return false;
+    }
+
+    /**
+     * Check if the port is valid.
+     *
+     * @param port port need to check
+     * @return true: valid, false: invalid
+     */
+    public static boolean portCheck(int port) {
+        return port > 0 && port < 65535;
     }
 
 }

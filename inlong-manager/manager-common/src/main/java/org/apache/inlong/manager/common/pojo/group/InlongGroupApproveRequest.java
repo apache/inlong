@@ -21,6 +21,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * Inlong group approval info
  */
@@ -31,9 +33,11 @@ public class InlongGroupApproveRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
     private String inlongGroupId;
 
+    @NotBlank(message = "mqType cannot be blank")
     @ApiModelProperty(value = "MQ Type")
     private String mqType;
 

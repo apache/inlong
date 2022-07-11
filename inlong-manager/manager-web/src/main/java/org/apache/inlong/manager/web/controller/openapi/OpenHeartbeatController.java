@@ -32,14 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
  * Open heartbeat controller.
  */
 @RestController
-@RequestMapping("/openapi/heartbeat")
+@RequestMapping("/openapi")
 @Api(tags = "Open-Heartbeat-API")
 public class OpenHeartbeatController {
 
     @Autowired
     private HeartbeatService heartbeatService;
 
-    @PostMapping(value = "/report")
+    @PostMapping(value = "/heartbeat/report")
     @ApiOperation(value = "heartbeat report")
     public Response<Boolean> reportHeartbeat(@RequestBody HeartbeatReportRequest info) {
         return Response.success(heartbeatService.reportHeartbeat(info));

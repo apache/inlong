@@ -19,20 +19,21 @@ package org.apache.inlong.manager.common.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
- * Approver config of workflow
+ * Workflow approver config
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Approver config of workflow")
+@ApiModel("Workflow approver")
 public class WorkflowApprover {
 
     @ApiModelProperty("id")

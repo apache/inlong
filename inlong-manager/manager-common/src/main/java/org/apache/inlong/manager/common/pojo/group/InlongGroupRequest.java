@@ -26,14 +26,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongTdmqPulsarRequest;
 import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeRequest;
-import org.apache.inlong.manager.common.util.SmallTools;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -57,11 +54,11 @@ import java.util.List;
 })
 public class InlongGroupRequest {
 
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
-    @Length(min = 4, max = 200)
-    @Pattern(regexp = "^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$",
-            message = "inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`")
+    @Length(min = 4, max = 100, message = "inlongGroupId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
+            message = "inlongGroupId only supports lowercase letters, numbers, '-', or '_'")
     private String inlongGroupId;
 
     @ApiModelProperty(value = "Inlong group name", required = true)
@@ -74,7 +71,7 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "MQ type, replaced by mqType")
     private String middlewareType;
 
-    @NotBlank
+    @NotBlank(message = "mqType cannot be blank")
     @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
     private String mqType;
 
@@ -112,8 +109,8 @@ public class InlongGroupRequest {
     @ApiModelProperty(value = "The maximum length of a single piece of data, unit: Byte")
     private Integer maxLength;
 
+    @NotBlank(message = "inCharges cannot be blank")
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
-    @NotBlank
     private String inCharges;
 
     @ApiModelProperty(value = "Name of followers, separated by commas")
@@ -124,31 +121,5 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
-
-    /**
-     * Check the validation of request params
-     */
-    public void checkParams() {
-        if (StringUtils.isBlank(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId cannot be null");
-        }
-
-        if (inlongGroupId.length() < 4 || inlongGroupId.length() > 200) {
-            throw new BusinessException("characters for inlongGroupId must be more than 4 and less than 200");
-        }
-
-        if (!SmallTools.isLowerOrNum(inlongGroupId)) {
-            throw new BusinessException("inlongGroupId must starts with a lowercase letter "
-                    + "and contains only lowercase letters, digits, `-` or `_`");
-        }
-
-        if (StringUtils.isBlank(mqType)) {
-            throw new BusinessException("mqType cannot be null");
-        }
-
-        if (StringUtils.isBlank(inCharges)) {
-            throw new BusinessException("inCharges cannot be null");
-        }
-    }
 
 }

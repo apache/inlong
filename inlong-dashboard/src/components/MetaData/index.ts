@@ -24,6 +24,9 @@ import { StorageClickhouse } from './StorageClickhouse';
 import { StorageKafka } from './StorageKafka';
 import { StorageIceberg } from './StorageIceberg';
 import { StorageEs } from './StorageEs';
+import { StorageGreenplum } from './StorageGreenplum';
+import { StorageMySQL } from './StorageMySQL';
+import { StorageOracle } from './StorageOracle';
 
 export interface StoragesType {
   label: string;
@@ -65,5 +68,20 @@ export const Storages: StoragesType[] = [
     label: 'Elasticsearch',
     value: 'ELASTICSEARCH',
     ...StorageEs,
+  },
+  {
+    label: 'Greenplum',
+    value: 'GREENPLUM',
+    ...StorageGreenplum,
+  },
+  {
+    label: 'MySQL',
+    value: 'MYSQL',
+    ...StorageMySQL,
+  },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    ...StorageOracle,
   },
 ];

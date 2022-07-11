@@ -32,7 +32,7 @@ public interface InlongClusterEntityMapper {
     InlongClusterEntity selectById(Integer id);
 
     /**
-     * Select clusters by tags, name and type, the tag and name can be null.
+     * Select clusters by tags, name and type.
      */
     List<InlongClusterEntity> selectByKey(@Param("clusterTag") String clusterTag, @Param("name") String name,
             @Param("type") String type);

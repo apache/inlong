@@ -43,6 +43,8 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupBriefInfo> selectBriefList(InlongGroupPageRequest request);
 
+    List<InlongGroupEntity> selectByClusterTag(@Param(value = "inlongClusterTag") String inlongClusterTag);
+
     int updateByPrimaryKey(InlongGroupEntity record);
 
     int updateByIdentifierSelective(InlongGroupEntity record);

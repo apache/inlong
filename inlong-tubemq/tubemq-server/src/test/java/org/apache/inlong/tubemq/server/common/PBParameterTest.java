@@ -18,8 +18,11 @@
 package org.apache.inlong.tubemq.server.common;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
+import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.paramcheck.PBParameterUtils;
 import org.apache.inlong.tubemq.server.common.paramcheck.ParamCheckResult;
 import org.junit.Assert;
@@ -43,17 +46,26 @@ public class PBParameterTest {
 
     @Test
     public void checkConsumerTopicTest() {
-        ParamCheckResult result = PBParameterUtils.checkConsumerTopicList(null, null);
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
-        final List<String> topicList = new ArrayList<>();
-        topicList.add("test1");
-        result = PBParameterUtils.checkConsumerTopicList(topicList, new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.SUCCESS);
+        ProcessResult result = new ProcessResult();
+        PBParameterUtils.checkConsumerTopicList(null, null, result, null);
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
+        final Set<String> depTopicList = new HashSet<>();
+        final List<String> reqTopicList = new ArrayList<>();
+        depTopicList.add("test1");
+        reqTopicList.add("test1");
+        PBParameterUtils.checkConsumerTopicList(depTopicList,
+                reqTopicList, result, new StringBuilder(128));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.SUCCESS);
+        reqTopicList.add("test2");
+        PBParameterUtils.checkConsumerTopicList(depTopicList,
+                reqTopicList, result, new StringBuilder(128));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.TOPIC_NOT_DEPLOYED);
         for (int i = 0; i < 1025; i++) {
-            topicList.add("test" + i);
+            reqTopicList.add("test" + i);
         }
-        result = PBParameterUtils.checkConsumerTopicList(topicList, new StringBuilder(128));
-        Assert.assertEquals(result.errCode, TErrCodeConstants.BAD_REQUEST);
+        PBParameterUtils.checkConsumerTopicList(depTopicList,
+                reqTopicList, result, new StringBuilder(128));
+        Assert.assertEquals(result.getErrCode(), TErrCodeConstants.BAD_REQUEST);
     }
 
     @Test

@@ -20,10 +20,6 @@ package org.apache.inlong.sdk.dataproxy.pb.config.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-import com.alibaba.fastjson.JSON;
-
 /**
  * 
  * GetProxyConfigByAgentResponse
@@ -119,24 +115,9 @@ public class GetProxyConfigByAgentResponse {
         response.setData(new ArrayList<>());
         ProxyClusterConfig cluster = ProxyClusterConfig.getExample();
         response.getData().add(cluster);
-        String md5 = GetProxyConfigByAgentResponse.generateMd5(response.getData());
+        String md5 = ProxyClusterConfig.generateMd5(response.getData());
         response.setMd5(md5);
         return response;
     }
 
-    /**
-     * generateMd5
-     * 
-     * @param  configList
-     * @return
-     */
-    public static String generateMd5(List<ProxyClusterConfig> configList) {
-        String md5 = DigestUtils.md2Hex(JSON.toJSONString(configList));
-        return md5;
-    }
-
-    public static void main(String[] args) {
-        GetProxyConfigByAgentResponse data = GetProxyConfigByAgentResponse.getExample();
-        System.out.println(JSON.toJSONString(data));
-    }
 }

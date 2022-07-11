@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,43 +42,42 @@ import org.springframework.web.bind.annotation.RestController;
  * Workflow event related interface
  */
 @RestController
-@RequestMapping("/workflow/event")
-@Api(tags = "Workflow Event")
+@Api(tags = "Workflow-Event-API")
 public class WorkflowEventController {
 
     @Autowired
     private WorkflowEventService workflowEventService;
 
-    @GetMapping("/detail/{id}")
+    @GetMapping("/workflow/event/detail/{id}")
     @ApiOperation(value = "Get event details")
-    @ApiImplicitParam(name = "id", value = "event id", dataTypeClass = Integer.class, required = true)
+    @ApiImplicitParam(name = "id", value = "Event ID", dataTypeClass = Integer.class, required = true)
     public Response<EventLogView> get(@PathVariable Integer id) {
         return Response.success(workflowEventService.get(id));
     }
 
-    @GetMapping("/list")
-    @ApiOperation(value = "Query event list based on conditions")
+    @GetMapping("/workflow/event/list")
+    @ApiOperation(value = "Get event list by paginating")
     public Response<PageInfo<EventLogView>> list(EventLogQuery query) {
         return Response.success(workflowEventService.list(query));
     }
 
     @Deprecated
-    @PostMapping("executeEventListener/{id}")
+    @PostMapping("/workflow/event/executeEventListener/{id}")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Execute the listener based on the log ID")
-    @ApiImplicitParam(name = "id", value = "event id", dataTypeClass = Integer.class, required = true)
+    @ApiOperation(value = "Execute the listener based on the event log ID")
+    @ApiImplicitParam(name = "id", value = "Event log ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> executeEventListener(@PathVariable Integer id) {
         workflowEventService.executeEventListener(id);
         return Response.success();
     }
 
     @Deprecated
-    @PostMapping("executeProcessEventListener")
+    @PostMapping("/workflow/event/executeProcessEventListener")
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Re-execute the specified listener according to the process ID")
+    @ApiOperation(value = "Re-execute the specified listener based on the process ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "processId", value = "process id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
+            @ApiImplicitParam(name = "processId", value = "Process ID", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "listenerName", value = "Listener name", dataTypeClass = String.class)
     })
     public Response<Object> executeProcessEventListener(@RequestParam Integer processId,
             @RequestParam String listenerName) {
@@ -88,12 +86,12 @@ public class WorkflowEventController {
     }
 
     @Deprecated
-    @PostMapping("executeTaskEventListener")
+    @PostMapping("/workflow/event/executeTaskEventListener")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-execute the specified listener based on the task ID")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "taskId", value = "task id", dataTypeClass = Integer.class),
-            @ApiImplicitParam(name = "listenerName", value = "listener name", dataTypeClass = String.class)
+            @ApiImplicitParam(name = "taskId", value = "Task ID", dataTypeClass = Integer.class),
+            @ApiImplicitParam(name = "listenerName", value = "Listener name", dataTypeClass = String.class)
     })
     public Response<Object> executeTaskEventListener(Integer taskId, String listenerName) {
         workflowEventService.executeTaskEventListener(taskId, listenerName);
@@ -101,7 +99,7 @@ public class WorkflowEventController {
     }
 
     @Deprecated
-    @PostMapping("triggerProcessEvent")
+    @PostMapping("/workflow/event/triggerProcessEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the process event based on the process ID")
     public Response<Object> triggerProcessEvent(
@@ -112,7 +110,7 @@ public class WorkflowEventController {
     }
 
     @Deprecated
-    @PostMapping("triggerTaskEvent")
+    @PostMapping("/workflow/event/triggerTaskEvent")
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Re-trigger the task event based on the task ID")
     public Response<Object> triggerTaskEvent(

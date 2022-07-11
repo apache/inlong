@@ -869,8 +869,8 @@ public abstract class AbsMetaConfigMapperImpl implements MetaConfigMapper {
     }
 
     @Override
-    public Set<String> getConfiguredTopicSet() {
-        return topicDeployMapper.getConfiguredTopicSet();
+    public Set<String> getDeployedTopicSet() {
+        return topicDeployMapper.getDeployedTopicSet();
     }
 
     // //////////////////////////////////////////////////////////////////////////////

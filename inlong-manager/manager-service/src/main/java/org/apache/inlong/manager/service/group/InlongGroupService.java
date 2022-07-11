@@ -27,6 +27,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -62,18 +64,19 @@ public interface InlongGroupService {
     /**
      * Modify group information
      *
-     * @param groupInfo Group information that needs to be modified
-     * @param operator Operator name
-     * @return Inlong group id
+     * @param request inlong group request that needs to be modified
+     * @param operator name of operator
+     * @return inlong group id
      */
-    String update(InlongGroupRequest groupInfo, String operator);
+    String update(@Valid @NotNull(message = "inlong group request cannot be null") InlongGroupRequest request,
+            String operator);
 
     /**
      * Modify the status of the specified group
      *
-     * @param groupId Inlong group id
-     * @param status Modified status
-     * @param operator Current operator
+     * @param groupId inlong group id
+     * @param status modified status
+     * @param operator name of operator
      * @return whether succeed
      */
     boolean updateStatus(String groupId, Integer status, String operator);
@@ -82,7 +85,7 @@ public interface InlongGroupService {
      * Delete the group information of the specified group id
      *
      * @param groupId The group id that needs to be deleted
-     * @param operator Current operator
+     * @param operator name of operator
      * @return whether succeed
      */
     boolean delete(String groupId, String operator);
@@ -98,8 +101,8 @@ public interface InlongGroupService {
     /**
      * Query the group information of each status of the current user
      *
-     * @param operator Current operator
-     * @return Group status statistics
+     * @param operator name of operator
+     * @return inlong group status statistics
      */
     InlongGroupCountResponse countGroupByUser(String operator);
 
@@ -115,18 +118,19 @@ public interface InlongGroupService {
     /**
      * Save the group modified when the approval is passed
      *
-     * @param approveInfo Approval information
-     * @param operator Edit person's name
-     * @return whether succeed
+     * @param approveRequest approval information
+     * @param operator name of operator
      */
-    boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator);
+    void updateAfterApprove(
+            @Valid @NotNull(message = "approve request cannot be null") InlongGroupApproveRequest approveRequest,
+            String operator);
 
     /**
      * Save or update extended information
      * <p/>First physically delete the existing extended information, and then add this batch of extended information
      *
-     * @param groupId Group id
-     * @param infoList Ext info list
+     * @param groupId inlong group id
+     * @param infoList inlong group ext info list
      */
     void saveOrUpdateExt(String groupId, List<InlongGroupExtInfo> infoList);
 

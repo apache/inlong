@@ -269,7 +269,7 @@ public interface MetaDataService extends Server {
      *
      * @return  the deployed topic set
      */
-    Set<String> getTotalConfiguredTopicNames();
+    Set<String> getDeployedTopicSet();
 
     /**
      * Get broker configure entity by broker id
