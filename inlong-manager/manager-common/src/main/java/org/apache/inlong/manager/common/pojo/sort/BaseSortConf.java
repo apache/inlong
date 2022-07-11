@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.pojo.sort;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -27,7 +26,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("Sort configuration for inlong group")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sortType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sortType")
 public abstract class BaseSortConf {
 
     public String sortType;

@@ -42,23 +42,23 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
 public class MongoDBSource extends StreamSource {
 
-    @ApiModelProperty("MongoDB primaryKey")
-    private String primaryKey;
-
-    @ApiModelProperty("MongoDB hosts")
+    @ApiModelProperty("Hosts of the MongoDB server")
     private String hosts;
 
-    @ApiModelProperty("MongoDB username")
+    @ApiModelProperty("Username of the MongoDB server")
     private String username;
 
-    @ApiModelProperty("MongoDB password")
+    @ApiModelProperty("Password of the MongoDB server")
     private String password;
 
-    @ApiModelProperty("MongoDB database")
+    @ApiModelProperty("MongoDB database name")
     private String database;
 
-    @ApiModelProperty("MongoDB collection")
+    @ApiModelProperty("MongoDB collection name")
     private String collection;
+
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
 
     public MongoDBSource() {
         this.setSourceType(SourceType.MONGODB.name());

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.oracle;
+package org.apache.inlong.manager.common.pojo.source.postgresql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,41 +28,42 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
- * Oracle source info
+ * PostgreSQL source info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OracleSourceDTO {
+public class PostgreSQLSourceDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Hostname of the Oracle server")
-    private String hostname;
-
-    @ApiModelProperty("Port of the Oracle server")
-    private Integer port;
-
-    @ApiModelProperty("Username of the Oracle server")
+    @ApiModelProperty("Username of the PostgreSQL server")
     private String username;
 
-    @ApiModelProperty("Password of the Oracle server")
+    @ApiModelProperty("Password of the PostgreSQL server")
     private String password;
+
+    @ApiModelProperty("Hostname of the PostgreSQL server")
+    private String hostname;
+
+    @ApiModelProperty("Port of the PostgreSQL server")
+    private Integer port;
 
     @ApiModelProperty("Database name")
     private String database;
 
     @ApiModelProperty("Schema name")
-    private String schemaName;
+    private String schema;
 
-    @ApiModelProperty("Table name")
-    private String tableName;
+    @ApiModelProperty("Decoding plugin name")
+    private String decodingPluginName;
 
-    @ApiModelProperty("Scan startup mode")
-    private String scanStartupMode;
+    @ApiModelProperty("List of table name")
+    private List<String> tableNameList;
 
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
@@ -70,24 +71,24 @@ public class OracleSourceDTO {
     /**
      * Get the dto instance from the request
      */
-    public static OracleSourceDTO getFromRequest(OracleSourceRequest request) {
-        return OracleSourceDTO.builder()
-                .database(request.getDatabase())
-                .hostname(request.getHostname())
-                .port(request.getPort())
+    public static PostgreSQLSourceDTO getFromRequest(PostgreSQLSourceRequest request) {
+        return PostgreSQLSourceDTO.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .schemaName(request.getSchemaName())
-                .tableName(request.getTableName())
+                .hostname(request.getHostname())
+                .port(request.getPort())
+                .schema(request.getSchema())
+                .database(request.getDatabase())
+                .tableNameList(request.getTableNameList())
                 .primaryKey(request.getPrimaryKey())
-                .scanStartupMode(request.getScanStartupMode())
+                .decodingPluginName(request.getDecodingPluginName())
                 .build();
     }
 
-    public static OracleSourceDTO getFromJson(@NotNull String extParams) {
+    public static PostgreSQLSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, OracleSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, PostgreSQLSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }

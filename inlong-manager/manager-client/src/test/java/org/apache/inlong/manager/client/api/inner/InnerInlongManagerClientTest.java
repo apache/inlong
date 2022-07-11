@@ -29,12 +29,13 @@ import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
@@ -48,16 +49,11 @@ import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListRespons
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
-import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
-import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -154,9 +150,9 @@ class InnerInlongManagerClientTest {
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
-                        .sourceResponses(
+                        .streamSources(
                                 Lists.newArrayList(
-                                        AutoPushSourceListResponse.builder()
+                                        AutoPushSource.builder()
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
@@ -186,9 +182,9 @@ class InnerInlongManagerClientTest {
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
-                        .sourceResponses(
+                        .streamSources(
                                 Lists.newArrayList(
-                                        MySQLBinlogSourceListResponse.builder()
+                                        MySQLBinlogSource.builder()
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
@@ -226,9 +222,9 @@ class InnerInlongManagerClientTest {
                         .status(1)
                         .createTime(new Date())
                         .modifyTime(new Date())
-                        .sourceResponses(
+                        .streamSources(
                                 Lists.newArrayList(
-                                        FileSourceListResponse.builder()
+                                        FileSource.builder()
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
@@ -259,9 +255,9 @@ class InnerInlongManagerClientTest {
                 InlongGroupListResponse.builder()
                         .id(1)
                         .inlongGroupId("1")
-                        .sourceResponses(
+                        .streamSources(
                                 Lists.newArrayList(
-                                        KafkaSourceListResponse.builder()
+                                        KafkaSource.builder()
                                                 .id(22)
                                                 .inlongGroupId("1")
                                                 .inlongStreamId("2")
@@ -295,8 +291,8 @@ class InnerInlongManagerClientTest {
 
     @Test
     void testListGroup4AllSource() {
-        ArrayList<SourceListResponse> sourceListResponses = Lists.newArrayList(
-                AutoPushSourceListResponse.builder()
+        ArrayList<StreamSource> streamSources = Lists.newArrayList(
+                AutoPushSource.builder()
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
@@ -304,7 +300,7 @@ class InnerInlongManagerClientTest {
                         .version(1)
                         .build(),
 
-                MySQLBinlogSourceListResponse.builder()
+                MySQLBinlogSource.builder()
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
@@ -317,7 +313,7 @@ class InnerInlongManagerClientTest {
                         .tableWhiteList("")
                         .build(),
 
-                FileSourceListResponse.builder()
+                FileSource.builder()
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
@@ -327,7 +323,7 @@ class InnerInlongManagerClientTest {
                         .timeOffset("timeOffset")
                         .build(),
 
-                KafkaSourceListResponse.builder()
+                KafkaSource.builder()
                         .id(22)
                         .inlongGroupId("1")
                         .inlongStreamId("2")
@@ -335,7 +331,6 @@ class InnerInlongManagerClientTest {
                         .sourceName("source name")
                         .serializationType("csv")
                         .dataNodeName("dataNodeName")
-
                         .topic("topic")
                         .groupId("111")
                         .bootstrapServers("bootstrapServers")
@@ -349,7 +344,7 @@ class InnerInlongManagerClientTest {
                         .inlongGroupId("1")
                         .name("name")
                         .inCharges("admin")
-                        .sourceResponses(sourceListResponses)
+                        .streamSources(streamSources)
                         .build()
         );
 
@@ -390,7 +385,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        String groupId = innerInlongManagerClient.createGroup(new InlongGroupRequest());
+        String groupId = innerInlongManagerClient.createGroup(new InlongPulsarRequest());
         Assertions.assertEquals("1111", groupId);
     }
 
@@ -403,7 +398,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        Pair<String, String> updateGroup = innerInlongManagerClient.updateGroup(new InlongGroupRequest());
+        Pair<String, String> updateGroup = innerInlongManagerClient.updateGroup(new InlongPulsarRequest());
         Assertions.assertEquals("1111", updateGroup.getKey());
         Assertions.assertTrue(StringUtils.isBlank(updateGroup.getValue()));
     }
@@ -676,9 +671,8 @@ class InnerInlongManagerClientTest {
                                 )
                         )
         );
-        ClusterRequest request = new ClusterRequest();
+        ClusterRequest request = new PulsarClusterRequest();
         request.setName("pulsar");
-        request.setType("PULSAR");
         request.setClusterTags("test_cluster");
         Integer clusterIndex = innerInlongManagerClient.saveCluster(request);
         Assertions.assertEquals(1, (int) clusterIndex);

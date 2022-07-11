@@ -15,59 +15,69 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.postgres;
+package org.apache.inlong.manager.common.pojo.source.postgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 import java.util.List;
 
 /**
- * Response info of postgres source list
+ * PostgreSQL source info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of postgres source paging list")
+@ApiModel(value = "PostgreSQL source info")
 @JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
-public class PostgresSourceListResponse extends SourceListResponse {
+public class PostgreSQLSource extends StreamSource {
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
-
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the PostgreSQL server")
     private String username;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the PostgreSQL server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the PostgreSQL server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port;
+    @ApiModelProperty("Port of the PostgreSQL server")
+    private Integer port = 5432;
 
-    @ApiModelProperty("Exposed database of the DB")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema info")
+    @ApiModelProperty("Schema name")
     private String schema;
 
     @ApiModelProperty("Decoding plugin name")
     private String decodingPluginName;
 
-    @ApiModelProperty("List of tables name")
+    @ApiModelProperty("List of table name")
     private List<String> tableNameList;
 
-    public PostgresSourceListResponse() {
-        this.setSourceType(SourceType.POSTGRES.getType());
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
+
+    public PostgreSQLSource() {
+        this.setSourceType(SourceType.POSTGRES.name());
     }
+
+    @Override
+    public SourceRequest genSourceRequest() {
+        return CommonBeanUtils.copyProperties(this, PostgreSQLSourceRequest::new);
+    }
+
 }

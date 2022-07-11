@@ -15,49 +15,58 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.mongodb;
+package org.apache.inlong.manager.common.pojo.source.postgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import java.util.List;
+
 /**
- * Response of MongoDB paging list
+ * Request of PostgreSQL source
  */
 @Data
-@SuperBuilder
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel("Response of MongoDB paging list")
-@JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
-public class MongoDBSourceListResponse extends SourceListResponse {
+@ApiModel(value = "Request of the PostgreSQL source")
+@JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
+public class PostgreSQLSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("MongoDB primaryKey")
-    private String primaryKey;
-
-    @ApiModelProperty("MongoDB hosts")
-    private String hosts;
-
-    @ApiModelProperty("MongoDB username")
+    @ApiModelProperty("Username of the PostgreSQL server")
     private String username;
 
-    @ApiModelProperty("MongoDB password")
+    @ApiModelProperty("Password of the PostgreSQL server")
     private String password;
 
-    @ApiModelProperty("MongoDB database")
+    @ApiModelProperty("Hostname of the PostgreSQL server")
+    private String hostname;
+
+    @ApiModelProperty("Port of the PostgreSQL server")
+    private Integer port = 5432;
+
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("MongoDB collection")
-    private String collection;
+    @ApiModelProperty("Schema name")
+    private String schema;
 
-    public MongoDBSourceListResponse() {
-        this.setSourceType(SourceType.MONGODB.getType());
+    @ApiModelProperty("Decoding plugin name")
+    private String decodingPluginName;
+
+    @ApiModelProperty("List of table name")
+    private List<String> tableNameList;
+
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
+
+    public PostgreSQLSourceRequest() {
+        this.setSourceType(SourceType.POSTGRES.toString());
     }
 
 }

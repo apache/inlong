@@ -24,7 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.util.Date;
 import java.util.List;
@@ -61,6 +61,6 @@ public class InlongGroupListResponse {
     private Date modifyTime;
 
     @ApiModelProperty(value = "Stream sources in the inlong group")
-    private List<SourceListResponse> sourceResponses;
+    private List<StreamSource> streamSources;
 
 }

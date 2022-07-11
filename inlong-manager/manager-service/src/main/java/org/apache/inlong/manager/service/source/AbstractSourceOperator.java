@@ -17,6 +17,8 @@
 
 package org.apache.inlong.manager.service.source;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -37,10 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -71,13 +71,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
      * @return source type string.
      */
     protected abstract String getSourceType();
-
-    /**
-     * Creating source object.
-     *
-     * @return source object
-     */
-    protected abstract StreamSource getSource();
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -112,19 +105,17 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.NOT_SUPPORTED)
-    public StreamSource getByEntity(@NotNull StreamSourceEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
+    public List<StreamField> getSourceFields(Integer sourceId) {
+        List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(sourceId);
+        return CommonBeanUtils.copyListProperties(sourceFieldEntities, StreamField::new);
+    }
 
-        StreamSource source = this.getFromEntity(entity, this::getSource);
-        List<StreamSourceFieldEntity> sourceFieldEntities = sourceFieldMapper.selectBySourceId(entity.getId());
-        List<StreamField> fieldInfos = CommonBeanUtils.copyListProperties(sourceFieldEntities,
-                StreamField::new);
-        source.setFieldList(fieldInfos);
-        return source;
+    @Override
+    public PageInfo<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(this::getFromEntity);
     }
 
     @Override

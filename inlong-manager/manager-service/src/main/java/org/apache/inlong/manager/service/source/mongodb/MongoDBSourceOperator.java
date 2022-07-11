@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.source.file;
+package org.apache.inlong.manager.service.source.mongodb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
@@ -23,9 +23,9 @@ import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceDTO;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -37,30 +37,30 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * File source operator, such as get or set file source info.
+ * MongoDB source operator
  */
 @Service
-public class FileSourceOperator extends AbstractSourceOperator {
+public class MongoDBSourceOperator extends AbstractSourceOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Override
     public Boolean accept(SourceType sourceType) {
-        return SourceType.FILE == sourceType;
+        return SourceType.MONGODB == sourceType;
     }
 
     @Override
     protected String getSourceType() {
-        return SourceType.SOURCE_FILE;
+        return SourceType.MONGODB.getType();
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
-        FileSourceRequest sourceRequest = (FileSourceRequest) request;
+        MongoDBSourceRequest sourceRequest = (MongoDBSourceRequest) request;
+        CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
         try {
-            CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
-            FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
+            MongoDBSourceDTO dto = MongoDBSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
@@ -69,7 +69,7 @@ public class FileSourceOperator extends AbstractSourceOperator {
 
     @Override
     public StreamSource getFromEntity(StreamSourceEntity entity) {
-        FileSource source = new FileSource();
+        MongoDBSource source = new MongoDBSource();
         if (entity == null) {
             return source;
         }
@@ -77,7 +77,7 @@ public class FileSourceOperator extends AbstractSourceOperator {
         String existType = entity.getSourceType();
         Preconditions.checkTrue(getSourceType().equals(existType),
                 String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
-        FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
+        MongoDBSourceDTO dto = MongoDBSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);
 

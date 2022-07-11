@@ -20,12 +20,13 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 
-import java.util.function.Supplier;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Interface of the source operator
@@ -53,17 +54,15 @@ public interface StreamSourceOperator {
      * @param entity get field value from the entity
      * @return source info
      */
-    StreamSource getByEntity(StreamSourceEntity entity);
+    StreamSource getFromEntity(StreamSourceEntity entity);
 
     /**
-     * Get the target from the given entity.
+     * Get stream source field list by the given source id.
      *
-     * @param entity get field value from the entity
-     * @param target encapsulate value to the target
-     * @param <T> target type
-     * @return target after encapsulating.
+     * @param sourceId source id
+     * @return stream field list
      */
-    <T> T getFromEntity(StreamSourceEntity entity, Supplier<T> target);
+    List<StreamField> getSourceFields(@NotNull Integer sourceId);
 
     /**
      * Get source list response from the given source entity page.
@@ -71,7 +70,7 @@ public interface StreamSourceOperator {
      * @param entityPage given entity page
      * @return source list response
      */
-    PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage);
+    PageInfo<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage);
 
     /**
      * Update the source info.

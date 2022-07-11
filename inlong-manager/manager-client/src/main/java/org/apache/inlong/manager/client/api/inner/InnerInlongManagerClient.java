@@ -48,8 +48,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
@@ -326,15 +326,15 @@ public class InnerInlongManagerClient {
     /**
      * Get information of sources.
      */
-    public List<SourceListResponse> listSources(String groupId, String streamId) {
+    public List<StreamSource> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
     }
 
     /**
      * List information of sources by the specified source type.
      */
-    public List<SourceListResponse> listSources(String groupId, String streamId, String sourceType) {
-        Response<PageInfo<SourceListResponse>> response = executeHttpCall(
+    public List<StreamSource> listSources(String groupId, String streamId, String sourceType) {
+        Response<PageInfo<StreamSource>> response = executeHttpCall(
                 streamSourceApi.listSources(groupId, streamId, sourceType));
         assertRespSuccess(response);
         return response.getData().getList();

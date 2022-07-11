@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web;
 
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.junit.jupiter.api.Assertions;
@@ -45,7 +46,7 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        InlongGroupRequest request = new InlongGroupRequest();
+        InlongGroupRequest request = new InlongPulsarRequest();
         request.setInlongGroupId("info");
 
         BeanUtils.copyProperties(request, entity);
@@ -64,7 +65,7 @@ public class UtilsTest {
         entity.setCreateTime(new Date());
         entity.setModifyTime(null);
 
-        InlongGroupRequest request = new InlongGroupRequest();
+        InlongGroupRequest request = new InlongPulsarRequest();
         request.setInlongGroupId("info");
 
         CommonBeanUtils.copyProperties(request, entity, true);

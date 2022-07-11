@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,8 +35,8 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
-public class SinkListResponse {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
+public abstract class SinkListResponse {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;

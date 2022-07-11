@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,7 +35,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("Request of source")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class SourceRequest {
 
     @NotNull(groups = UpdateValidation.class)

@@ -30,35 +30,35 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import javax.validation.constraints.NotNull;
 
 /**
- * Sqlserver source info
+ * SQLServer source info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SqlServerSourceDTO {
+public class SQLServerSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Username of the SqlServer")
+    @ApiModelProperty("Username of the SQLServer server")
     private String username;
 
-    @ApiModelProperty("Password of the SqlServer")
+    @ApiModelProperty("Password of the SQLServer server")
     private String password;
 
-    @ApiModelProperty("Hostname of the SqlServer")
+    @ApiModelProperty("Hostname of the SQLServer server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the SqlServer")
-    private int port;
+    @ApiModelProperty("Port of the SQLServer server")
+    private Integer port;
 
-    @ApiModelProperty("Database of the SqlServer")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema name of the SqlServer")
+    @ApiModelProperty("Schema name")
     private String schemaName;
 
-    @ApiModelProperty("Table name of the SqlServer")
+    @ApiModelProperty("Table name")
     private String tableName;
 
     @ApiModelProperty("Database time zone, default is UTC")
@@ -67,14 +67,14 @@ public class SqlServerSourceDTO {
     @ApiModelProperty("Whether to migrate all databases")
     private boolean allMigration;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
     /**
      * Get the dto instance from the request
      */
-    public static SqlServerSourceDTO getFromRequest(SqlServerSourceRequest request) {
-        return SqlServerSourceDTO.builder()
+    public static SQLServerSourceDTO getFromRequest(SQLServerSourceRequest request) {
+        return SQLServerSourceDTO.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .hostname(request.getHostname())
@@ -91,10 +91,10 @@ public class SqlServerSourceDTO {
     /**
      * Get the dto instance from the JSON string
      */
-    public static SqlServerSourceDTO getFromJson(@NotNull String extParams) {
+    public static SQLServerSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, SqlServerSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, SQLServerSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.postgres;
+package org.apache.inlong.manager.common.pojo.source.sqlserver;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,67 +28,73 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
- * Postgres source info
+ * SQLServer source info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostgresSourceDTO {
+public class SQLServerSourceDTO {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
-
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the SQLServer server")
     private String username;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the SQLServer server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the SQLServer server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port;
+    @ApiModelProperty("Port of the SQLServer server")
+    private Integer port;
 
-    @ApiModelProperty("Exposed database of the DB")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema info")
-    private String schema;
+    @ApiModelProperty("Schema name")
+    private String schemaName;
 
-    @ApiModelProperty("Decoding plugin name")
-    private String decodingPluginName;
+    @ApiModelProperty("Table name")
+    private String tableName;
 
-    @ApiModelProperty("List of tables name")
-    private List<String> tableNameList;
+    @ApiModelProperty("Database time zone, default is UTC")
+    private String serverTimezone;
+
+    @ApiModelProperty("Whether to migrate all databases")
+    private boolean allMigration;
+
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
 
     /**
      * Get the dto instance from the request
      */
-    public static PostgresSourceDTO getFromRequest(PostgresSourceRequest request) {
-        return PostgresSourceDTO.builder()
+    public static SQLServerSourceDTO getFromRequest(SQLServerSourceRequest request) {
+        return SQLServerSourceDTO.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .hostname(request.getHostname())
                 .port(request.getPort())
-                .schema(request.getSchema())
                 .database(request.getDatabase())
-                .tableNameList(request.getTableNameList())
+                .schemaName(request.getSchemaName())
+                .tableName(request.getTableName())
+                .serverTimezone(request.getServerTimezone())
+                .allMigration(request.isAllMigration())
                 .primaryKey(request.getPrimaryKey())
-                .decodingPluginName(request.getDecodingPluginName())
                 .build();
     }
 
-    public static PostgresSourceDTO getFromJson(@NotNull String extParams) {
+    /**
+     * Get the dto instance from the JSON string
+     */
+    public static SQLServerSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, PostgresSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, SQLServerSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
