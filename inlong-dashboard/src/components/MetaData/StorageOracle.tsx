@@ -27,7 +27,7 @@ import i18n from '@/i18n';
 import { excludeObject } from '@/utils';
 import { sourceDataFields } from './SourceDataFields';
 
-// oracleFieldTypes
+//  oracleFieldTypes
 const oracleFieldTypes = [
   'BINARY_FLOAT',
   'BINARY_DOUBLE',
