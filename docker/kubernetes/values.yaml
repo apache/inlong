@@ -51,8 +51,24 @@ images:
   pullPolicy: "IfNotPresent"
 
 volumes:
-  persistence: false
-  storageClassName: "local-storage"
+  mysql:
+    persistence: false
+    storageClassName: "local-storage"
+  tubemqBroker:
+    persistence: false
+    storageClassName: "local-storage"
+  tubemqMaster:
+    persistence: false
+    storageClassName: "local-storage"
+  zookeeper:
+    persistence: false
+    storageClassName: "local-storage"
+  agent:
+    persistence: false
+    storageClassName: "local-storage"
+  dataproxy:
+    persistence: false
+    storageClassName: "local-storage"
 
 ingress:
   enabled: false
@@ -95,6 +111,9 @@ agent:
       memory: "512Mi"
   # The agent service port
   port: 8008
+  volumes:
+    name: rockdb
+    size: "10Gi"
   env:
     AGENT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -207,6 +226,9 @@ dataproxy:
     externalName:
     # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
     externalIPs:
+  volumes:
+    name: data
+    size: "10Gi"
   env:
     DATAPROXY_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport

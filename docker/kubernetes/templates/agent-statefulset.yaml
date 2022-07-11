@@ -122,7 +122,26 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data/collect-data
+            - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}-{{ .Values.agent.volumes.name }}
+              mountPath: /opt/inlong-agent/.rockdb
       volumes:
         - name: data
           emptyDir: {}
+        {{- if not .Values.volumes.agent.persistence }}
+        - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}-{{ .Values.agent.volumes.name }}
+          emptyDir: {}
+        {{- end }}
       restartPolicy: Always
+  {{- if .Values.volumes.agent.persistence }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}-{{ .Values.agent.volumes.name }}
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.agent.volumes.size }}
+        {{- if .Values.volumes.agent.storageClassName }}
+        storageClassName: "{{ .Values.volumes.agent.storageClassName }}"
+  {{- end }}
+  {{- end }}
