@@ -68,4 +68,9 @@ public interface StreamTransformFieldEntityMapper {
      * @return
      */
     int deleteAll(@Param("transformId") Integer transformId);
+
+    /**
+     * Physical delete transform fields.
+     */
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
 }

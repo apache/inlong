@@ -136,4 +136,13 @@
             remark    = #{remark,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
+
+    <delete id="deleteAllByProcessIds">
+        delete
+        from workflow_event_log
+        where process_id in
+        <foreach item="item" index="index" collection="processIds" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

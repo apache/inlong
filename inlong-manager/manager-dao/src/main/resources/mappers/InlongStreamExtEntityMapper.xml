@@ -113,5 +113,4 @@
             and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
         </if>
     </delete>
-
 </mapper>

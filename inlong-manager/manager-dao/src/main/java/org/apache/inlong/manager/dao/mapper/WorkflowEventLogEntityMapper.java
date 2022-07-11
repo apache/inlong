@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.springframework.stereotype.Repository;
@@ -36,5 +37,7 @@ public interface WorkflowEventLogEntityMapper {
     List<WorkflowEventLogEntity> selectByCondition(EventLogQuery request);
 
     int update(WorkflowEventLogEntity record);
+
+    void deleteAllByProcessIds(@Param("processIds") List<Integer> processIds);
 
 }

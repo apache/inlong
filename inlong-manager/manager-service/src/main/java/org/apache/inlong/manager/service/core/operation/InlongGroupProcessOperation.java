@@ -38,6 +38,7 @@ import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowService;
+import org.apache.inlong.manager.workflow.core.WorkflowDeleteService;
 import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,8 @@ public class InlongGroupProcessOperation {
     @Autowired
     private WorkflowQueryService workflowQueryService;
     @Autowired
+    private WorkflowDeleteService workflowDeleteService;
+    @Autowired
     private WorkflowService workflowService;
     @Autowired
     private InlongStreamService streamService;
@@ -81,7 +84,22 @@ public class InlongGroupProcessOperation {
     public void metaDelete(String groupId, String operator) {
         LOGGER.info("begin to physical delete all related meta data of group, groupId = {}, operator = {}",
                 groupId, operator);
+        InlongGroupInfo groupInfo;
+        try {
+            groupInfo = groupService.get(groupId);
+        } catch (Exception e) {
+            LOGGER.error("failed to get group", e);
+            return;
+        }
+        GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
+        if (status != GroupStatus.FINISH) {
+            LOGGER.error("Only finished group can meta delete");
+            return;
+        }
         groupService.metaDelete(groupId, operator);
+        workflowDeleteService.deleteProcessAndTask(groupId);
+        LOGGER.info("finish physical delete all related meta data of group, groupId = {}, operator = {}",
+                groupId, operator);
     }
 
     /**

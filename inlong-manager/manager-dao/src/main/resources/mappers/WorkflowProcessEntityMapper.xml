@@ -155,4 +155,13 @@
             ext_params = #{extParams,jdbcType=LONGVARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
+
+    <delete id="deleteAll">
+        delete
+        from workflow_process
+        where id in
+        <foreach item="item" index="index" collection="processIds" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

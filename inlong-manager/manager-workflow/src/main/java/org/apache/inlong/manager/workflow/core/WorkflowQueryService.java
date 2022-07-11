@@ -114,5 +114,4 @@ public interface WorkflowQueryService {
      * @return the list of log
      */
     List<WorkflowEventLogEntity> listEventLog(EventLogQuery query);
-
 }

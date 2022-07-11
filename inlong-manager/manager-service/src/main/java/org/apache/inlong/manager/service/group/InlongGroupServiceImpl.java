@@ -352,11 +352,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Override
     public void metaDelete(String groupId, String operator) {
         LOGGER.info("begin to delete all meta data for groupId={} and operator={}", groupId, operator);
-        //todo check group status
         groupMapper.deleteByGroupId(groupId);
         groupExtMapper.deleteAllByGroupId(groupId);
         streamService.metaDeleteAll(groupId, operator);
-        //todo delete workflow
         LOGGER.info("finish delete all meta data for groupId={} and operator={}", groupId, operator);
     }
 

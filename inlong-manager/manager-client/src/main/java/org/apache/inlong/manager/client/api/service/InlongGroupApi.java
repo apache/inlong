@@ -69,6 +69,9 @@ public interface InlongGroupApi {
     @DELETE("group/delete/{id}")
     Call<Response<Boolean>> deleteGroup(@Path("id") String id);
 
+    @DELETE("group/deleteResource/{id}")
+    Call<Response<String>> deleteGroupResource(@Path("id") String id);
+
     @POST("group/reset")
     Call<Response<Boolean>> resetGroup(@Body InlongGroupResetRequest request);
 }

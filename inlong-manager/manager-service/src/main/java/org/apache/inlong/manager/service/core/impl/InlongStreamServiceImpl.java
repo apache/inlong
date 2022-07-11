@@ -51,6 +51,7 @@ import org.apache.inlong.manager.dao.mapper.InlongStreamFieldEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
+import org.apache.inlong.manager.service.transform.StreamTransformService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +88,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     private StreamSourceService sourceService;
     @Autowired
     private StreamSinkService sinkService;
+    @Autowired
+    private StreamTransformService transformService;
 
     @Transactional(rollbackFor = Throwable.class)
     @Override
@@ -354,6 +357,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamFieldMapper.deleteAllByIdentifier(groupId, null);
         sourceService.metaDeleteAll(groupId, null, operator);
         sinkService.metaDeleteAll(groupId, null, operator);
+        transformService.metaDeleteAll(groupId, null, operator);
         LOGGER.info("finish delete all inlong stream meta data by groupId={}", groupId);
     }
 

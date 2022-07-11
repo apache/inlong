@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
@@ -41,4 +42,5 @@ public interface WorkflowProcessEntityMapper {
 
     void update(WorkflowProcessEntity workflowProcessEntity);
 
+    void deleteAll(@Param("processIds") List<Integer> processIds);
 }

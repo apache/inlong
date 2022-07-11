@@ -66,7 +66,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Query service
+ * Workflow Query service
  */
 @Slf4j
 @Service

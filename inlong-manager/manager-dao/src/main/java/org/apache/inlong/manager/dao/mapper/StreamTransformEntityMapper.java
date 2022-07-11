@@ -41,4 +41,9 @@ public interface StreamTransformEntityMapper {
 
     int deleteById(Integer id);
 
+    /**
+     * Physical delete transform node.
+     */
+    int deleteByRelatedId(@Param("groupId") String groupId, @Param("streamId") String streamId);
+
 }

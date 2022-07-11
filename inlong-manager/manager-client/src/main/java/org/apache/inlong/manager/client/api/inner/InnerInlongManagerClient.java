@@ -515,6 +515,11 @@ public class InnerInlongManagerClient {
                 || !errMsg.contains("not allowed");
     }
 
+    public String deleteGroupResource(String groupId) {
+        Response<String> response = executeHttpCall(inlongGroupApi.deleteGroupResource(groupId));
+        return response.getData();
+    }
+
     public boolean deleteInlongGroup(String groupId) {
         return deleteInlongGroup(groupId, false);
     }

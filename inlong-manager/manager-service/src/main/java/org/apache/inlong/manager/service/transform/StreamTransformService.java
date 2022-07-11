@@ -64,4 +64,14 @@ public interface StreamTransformService {
      */
     Boolean delete(DeleteTransformRequest request, String operator);
 
+    /**
+     * Physical delete all meta data related to groupId
+     *
+     * @param groupId Group id
+     * @param streamId Stream id
+     * @param operator operate person
+     * @return
+     */
+    void metaDeleteAll(String groupId, String streamId, String operator);
+
 }

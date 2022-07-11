@@ -175,6 +175,14 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         return true;
     }
 
+    @Override
+    public void metaDeleteAll(String groupId, String streamId, String operator) {
+        log.info("begin to delete all transform meta data for group={} stream={}", groupId, streamId);
+        transformMapper.deleteByRelatedId(groupId, streamId);
+        transformFieldMapper.deleteByRelatedId(groupId, streamId);
+        log.info("finish delete all transform meta data for groupId={} stream={}", groupId, streamId);
+    }
+
     private void checkParams(TransformRequest request) {
         Preconditions.checkNotNull(request, ErrorCodeEnum.REQUEST_IS_EMPTY.getMessage());
         String groupId = request.getInlongGroupId();

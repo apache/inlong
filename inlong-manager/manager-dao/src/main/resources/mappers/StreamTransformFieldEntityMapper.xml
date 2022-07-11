@@ -304,4 +304,14 @@
         from stream_transform_field
         where transform_id = #{transformId,jdbcType=INTEGER}
     </delete>
+
+    <delete id="deleteByRelatedId">
+        delete
+        from stream_transform_field
+        where
+        inlong_group_id = #{groupId, jdbcType=VARCHAR}
+        <if test="streamId != null and streamId != ''">
+            and inlong_stream_id = #{streamId, jdbcType=VARCHAR}
+        </if>
+    </delete>
 </mapper>
