@@ -94,13 +94,14 @@ class DataNodeControllerTest extends WebBaseTest {
         nodeEntity.setCreateTime(new Date());
         nodeEntity.setModifyTime(new Date());
         nodeEntity.setInCharges("test");
+        nodeEntity.setVersion(1);
 
         dataNodeEntityMapper.insert(nodeEntity);
 
         DataNodeRequest request = getDataNodeRequest();
         request.setId(nodeEntity.getId());
         request.setName("test447777");
-
+        request.setVersion(nodeEntity.getVersion());
         MvcResult mvcResult = postForSuccessMvcResult("/node/update", request);
 
         Boolean success = getResBodyObj(mvcResult, Boolean.class);
