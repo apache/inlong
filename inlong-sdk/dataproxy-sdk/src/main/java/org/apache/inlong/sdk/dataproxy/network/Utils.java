@@ -18,22 +18,21 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
-import java.io.UnsupportedEncodingException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.URLEncoder;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 public class Utils {
+
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static String userIp;
 
@@ -69,36 +68,6 @@ public class Utils {
         }
         userIp = ip;
         return true;
-    }
-
-    public static String getMD5String(String source) {
-        final char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-        String retString = null;
-
-        if (source == null) {
-            return retString;
-        }
-
-        try {
-            StringBuilder sb = new StringBuilder();
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            try {
-                md.update(source.getBytes("utf8"), 0, source.length());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            byte[] retBytes = md.digest();
-            for (byte b : retBytes) {
-                sb.append(hexDigits[(b >> 4) & 0x0f]);
-                sb.append(hexDigits[b & 0x0f]);
-            }
-
-            retString = sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("" + e);
-        }
-
-        return retString;
     }
 
     public static boolean isNotBlank(String str) {
