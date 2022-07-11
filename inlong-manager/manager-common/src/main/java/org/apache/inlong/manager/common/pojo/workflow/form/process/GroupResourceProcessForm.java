@@ -45,9 +45,6 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     @Setter
     private GroupOperateType groupOperateType = GroupOperateType.INIT;
 
-    @Deprecated
-    private String streamId;
-
     private List<InlongStreamInfo> streamInfos;
 
     public InlongGroupInfo getGroupInfo() {
@@ -70,16 +67,6 @@ public class GroupResourceProcessForm extends BaseProcessForm {
     @Override
     public String getInlongGroupId() {
         return groupInfo.getInlongGroupId();
-    }
-
-    @Deprecated
-    public String getInlongStreamId() {
-        return streamId;
-    }
-
-    @Deprecated
-    public void setInlongStreamId(String streamId) {
-        this.streamId = streamId;
     }
 
     @Override

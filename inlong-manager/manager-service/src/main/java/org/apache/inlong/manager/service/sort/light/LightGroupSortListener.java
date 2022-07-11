@@ -83,11 +83,11 @@ public class LightGroupSortListener implements SortOperateListener {
             List<InlongStreamInfo> streamInfos = processForm.getStreamInfos();
             final String groupId = groupInfo.getInlongGroupId();
             GroupInfo configInfo = this.createGroupInfo(groupInfo, streamInfos);
-            String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
+            String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
             InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
             extInfo.setInlongGroupId(groupId);
-            extInfo.setKeyName(InlongConstants.DATA_FLOW);
-            extInfo.setKeyValue(dataFlows);
+            extInfo.setKeyName(InlongConstants.DATAFLOW);
+            extInfo.setKeyValue(dataflow);
             if (groupInfo.getExtList() == null) {
                 groupInfo.setExtList(Lists.newArrayList());
             }
@@ -145,7 +145,7 @@ public class LightGroupSortListener implements SortOperateListener {
     }
 
     private void upsertExtInfo(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
-        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATA_FLOW.equals(ext.getKeyName()));
+        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATAFLOW.equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
 

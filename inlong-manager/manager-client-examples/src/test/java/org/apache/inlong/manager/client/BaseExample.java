@@ -81,9 +81,9 @@ public class BaseExample {
         pulsarInfo.setMqResource(namespace);
 
         // set enable zk, create resource, lightweight mode, and cluster tag
-        pulsarInfo.setEnableZookeeper(0);
-        pulsarInfo.setEnableCreateResource(1);
-        pulsarInfo.setLightweight(0);
+        pulsarInfo.setEnableZookeeper(InlongConstants.DISABLE_ZK);
+        pulsarInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
+        pulsarInfo.setLightweight(InlongConstants.NORMAL_MODE);
         pulsarInfo.setInlongClusterTag("default_cluster");
 
         pulsarInfo.setDailyRecords(10000000);

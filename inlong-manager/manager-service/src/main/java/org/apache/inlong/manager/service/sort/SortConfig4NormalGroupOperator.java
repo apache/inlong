@@ -19,14 +19,12 @@ package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.common.enums.DataTypeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -38,24 +36,22 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
 import org.apache.inlong.manager.service.sort.util.LoadNodeUtils;
 import org.apache.inlong.manager.service.source.StreamSourceService;
-import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
-import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.sort.protocol.GroupInfo;
 import org.apache.inlong.sort.protocol.StreamInfo;
 import org.apache.inlong.sort.protocol.enums.PulsarScanStartupMode;
 import org.apache.inlong.sort.protocol.node.Node;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,10 +59,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
-@Slf4j
-public class CreateSortConfigListenerV2 implements SortOperateListener {
+/**
+ * Sort config operator, used to create a Sort config for the InlongGroup in normal mode with ZK disabled.
+ */
+@Service
+public class SortConfig4NormalGroupOperator implements SortConfigOperator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SortConfig4NormalGroupOperator.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
@@ -77,92 +76,86 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
     private InlongClusterService clusterService;
 
     @Override
-    public TaskEvent event() {
-        return TaskEvent.COMPLETE;
+    public Boolean accept(Integer isNormal, Integer enableZk) {
+        return InlongConstants.NORMAL_MODE.equals(isNormal)
+                && InlongConstants.DISABLE_ZK.equals(enableZk);
     }
 
-    @SneakyThrows
     @Override
-    public ListenerResult listen(WorkflowContext context) {
-        log.info("Create sort config V2 for groupId={}", context.getProcessForm().getInlongGroupId());
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        GroupOperateType groupOperateType = form.getGroupOperateType();
-        if (groupOperateType == GroupOperateType.SUSPEND || groupOperateType == GroupOperateType.DELETE) {
-            return ListenerResult.success();
-        }
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        List<InlongStreamInfo> streamInfos = form.getStreamInfos();
-        int sinkCount = streamInfos.stream()
-                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
-                .reduce(0, Integer::sum);
-        if (sinkCount == 0) {
-            log.warn("not any sink for group {} found, skip creating sort config", groupInfo.getInlongGroupId());
-            return ListenerResult.success();
+    public void buildConfig(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos, boolean isStream)
+            throws Exception {
+        if (groupInfo == null || CollectionUtils.isEmpty(streamInfos)) {
+            LOGGER.warn("group info is null or stream infos is empty, no need to build sort config for disable zk");
+            return;
         }
 
-        GroupInfo configInfo = createGroupInfo(groupInfo, streamInfos);
-        String dataFlows = OBJECT_MAPPER.writeValueAsString(configInfo);
-        addExtInfo(groupInfo, InlongConstants.DATA_FLOW, dataFlows);
-        return ListenerResult.success();
-    }
+        GroupInfo configInfo = this.createSortGroupInfo(groupInfo, streamInfos);
+        String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
 
-    private void addExtInfo(InlongGroupInfo groupInfo, String key, String value) {
-        if (groupInfo.getExtList() == null) {
-            groupInfo.setExtList(Lists.newArrayList());
+        if (isStream) {
+            this.addToStreamExt(streamInfos, dataflow);
+        } else {
+            this.addToGroupExt(groupInfo, dataflow);
         }
-        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
-        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
-        extInfo.setKeyName(key);
-        extInfo.setKeyValue(value);
-        upsertExtInfo(groupInfo, extInfo);
     }
 
     /**
-     * TODO need support TubeMQ
+     * Create GroupInfo for Sort protocol.
+     *
+     * @see org.apache.inlong.sort.protocol.GroupInfo
      */
-    private GroupInfo createGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+    private GroupInfo createSortGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         String groupId = groupInfo.getInlongGroupId();
         List<StreamSink> streamSinks = sinkService.listSink(groupId, null);
         Map<String, List<StreamSink>> sinkMap = streamSinks.stream()
                 .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
-        Map<String, List<StreamSource>> sourceMap = createPulsarSources(groupInfo, streamInfoList);
 
-        List<StreamInfo> streamInfos = new ArrayList<>();
-        for (InlongStreamInfo inlongStream : streamInfoList) {
-            String streamId = inlongStream.getInlongStreamId();
-            StreamInfo streamInfo = new StreamInfo(streamId,
-                    createNodesForStream(sourceMap.get(streamId), sinkMap.get(streamId)),
-                    createNodeRelationsForStream(sourceMap.get(streamId), sinkMap.get(streamId)));
-            streamInfos.add(streamInfo);
-        }
-
-        return new GroupInfo(groupId, streamInfos);
-    }
-
-    private Map<String, List<StreamSource>> createPulsarSources(
-            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
-
-        if (!MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
-            String errMsg = String.format("Unsupported MQ type %s", groupInfo.getMqType());
-            log.error(errMsg);
+        // get source info
+        Map<String, List<StreamSource>> sourceMap;
+        if (MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
+            sourceMap = this.createPulsarSources(groupInfo, streamInfoList);
+        } else {
+            // TODO need to support TubeMQ
+            String errMsg = String.format("Unsupported MQ type: %s", groupInfo.getMqType());
+            LOGGER.error(errMsg);
             throw new WorkflowListenerException(errMsg);
         }
 
-        Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
+        // create StreamInfo for Sort protocol
+        List<StreamInfo> sortStreamInfos = new ArrayList<>();
+        for (InlongStreamInfo inlongStream : streamInfoList) {
+            String streamId = inlongStream.getInlongStreamId();
+            List<StreamSource> sources = sourceMap.get(streamId);
+            List<StreamSink> sinks = sinkMap.get(streamId);
+            StreamInfo sortStream = new StreamInfo(streamId,
+                    this.createNodesForStream(sources, sinks),
+                    this.createNodeRelationsForStream(sources, sinks));
+            sortStreamInfos.add(sortStream);
+        }
+
+        return new GroupInfo(groupId, sortStreamInfos);
+    }
+
+    /**
+     * Create Pulsar sources for Sort.
+     */
+    private Map<String, List<StreamSource>> createPulsarSources(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
                 ClusterType.PULSAR);
-
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         String adminUrl = pulsarCluster.getAdminUrl();
         String serviceUrl = pulsarCluster.getUrl();
-        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant()) ? InlongConstants.DEFAULT_PULSAR_TENANT
-                : pulsarCluster.getTenant();
+        String tenant = StringUtils.isEmpty(pulsarCluster.getTenant())
+                ? InlongConstants.DEFAULT_PULSAR_TENANT : pulsarCluster.getTenant();
+
+        Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
         streamInfoList.forEach(streamInfo -> {
             PulsarSource pulsarSource = new PulsarSource();
             String streamId = streamInfo.getInlongStreamId();
-            pulsarSource.setTenant(tenant);
             pulsarSource.setSourceName(streamId);
+            pulsarSource.setTenant(tenant);
             pulsarSource.setNamespace(groupInfo.getMqResource());
             pulsarSource.setTopic(streamInfo.getMqResource());
             pulsarSource.setAdminUrl(adminUrl);
@@ -179,6 +172,8 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
                     pulsarSource.setPrimaryKey(((KafkaSource) sourceInfo).getPrimaryKey());
                 }
             }
+
+            // if the SerializationType is still null, set it to the CSV
             if (StringUtils.isEmpty(pulsarSource.getSerializationType())) {
                 pulsarSource.setSerializationType(DataTypeEnum.CSV.getName());
             }
@@ -186,6 +181,7 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
             pulsarSource.setFieldList(streamInfo.getFieldList());
             sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(pulsarSource);
         });
+
         return sourceMap;
     }
 
@@ -205,9 +201,41 @@ public class CreateSortConfigListenerV2 implements SortOperateListener {
         return Lists.newArrayList(relation);
     }
 
-    private void upsertExtInfo(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
+    /**
+     * Add config into inlong group ext info
+     */
+    private void addToGroupExt(InlongGroupInfo groupInfo, String value) {
+        if (groupInfo.getExtList() == null) {
+            groupInfo.setExtList(Lists.newArrayList());
+        }
+
+        InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
+        extInfo.setInlongGroupId(groupInfo.getInlongGroupId());
+        extInfo.setKeyName(InlongConstants.DATAFLOW);
+        extInfo.setKeyValue(value);
+
         groupInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
+    }
+
+    /**
+     * Add config into inlong stream ext info
+     */
+    private void addToStreamExt(List<InlongStreamInfo> streamInfos, String value) {
+        streamInfos.forEach(streamInfo -> {
+            if (streamInfo.getExtList() == null) {
+                streamInfo.setExtList(Lists.newArrayList());
+            }
+
+            InlongStreamExtInfo extInfo = new InlongStreamExtInfo();
+            extInfo.setInlongGroupId(streamInfo.getInlongGroupId());
+            extInfo.setInlongStreamId(streamInfo.getInlongStreamId());
+            extInfo.setKeyName(InlongConstants.DATAFLOW);
+            extInfo.setKeyValue(value);
+
+            streamInfo.getExtList().removeIf(ext -> extInfo.getKeyName().equals(ext.getKeyName()));
+            streamInfo.getExtList().add(extInfo);
+        });
     }
 
 }

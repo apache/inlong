@@ -110,7 +110,7 @@ public class InlongGroupProcessOperation {
                 GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 executorService.execute(() -> workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form));
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 executorService.execute(
                         () -> workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm));
@@ -139,7 +139,7 @@ public class InlongGroupProcessOperation {
                 GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 result = workflowService.start(ProcessName.SUSPEND_GROUP_PROCESS, operator, form);
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.SUSPEND);
                 result = workflowService.start(ProcessName.SUSPEND_LIGHT_GROUP_PROCESS, operator, lightForm);
                 break;
@@ -165,7 +165,7 @@ public class InlongGroupProcessOperation {
                 GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 executorService.execute(() -> workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form));
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 executorService.execute(
                         () -> workflowService.start(ProcessName.RESTART_LIGHT_GROUP_PROCESS, operator, lightForm));
@@ -193,7 +193,7 @@ public class InlongGroupProcessOperation {
                 GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 result = workflowService.start(ProcessName.RESTART_GROUP_PROCESS, operator, form);
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo, GroupOperateType.RESTART);
                 result = workflowService.start(ProcessName.RESTART_LIGHT_GROUP_PROCESS, operator, lightForm);
                 break;
@@ -306,7 +306,7 @@ public class InlongGroupProcessOperation {
                 GroupResourceProcessForm form = genGroupProcessForm(groupInfo, GroupOperateType.DELETE);
                 workflowService.start(ProcessName.DELETE_GROUP_PROCESS, operator, form);
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 LightGroupResourceProcessForm lightForm = genLightGroupProcessForm(groupInfo,
                         GroupOperateType.DELETE);
                 workflowService.start(ProcessName.DELETE_LIGHT_GROUP_PROCESS, operator, lightForm);
