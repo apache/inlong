@@ -18,12 +18,17 @@
 package org.apache.inlong.manager.common.pojo.cluster;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
@@ -36,6 +41,11 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel("Inlong cluster info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DataProxyClusterInfo.class, name = ClusterType.DATA_PROXY),
+        @JsonSubTypes.Type(value = PulsarClusterInfo.class, name = ClusterType.PULSAR),
+        @JsonSubTypes.Type(value = TubeClusterInfo.class, name = ClusterType.TUBE),
+})
 public class ClusterInfo {
 
     @ApiModelProperty(value = "Primary key")

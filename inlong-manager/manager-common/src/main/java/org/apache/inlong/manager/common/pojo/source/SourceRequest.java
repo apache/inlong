@@ -17,11 +17,22 @@
 
 package org.apache.inlong.manager.common.pojo.source;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 
 import javax.validation.constraints.NotBlank;
@@ -33,6 +44,17 @@ import java.util.List;
 @Data
 @ApiModel("Request of source")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AutoPushSourceRequest.class, name = SourceType.SOURCE_AUTO_PUSH),
+        @JsonSubTypes.Type(value = FileSourceRequest.class, name = SourceType.SOURCE_FILE),
+        @JsonSubTypes.Type(value = KafkaSourceRequest.class, name = SourceType.SOURCE_KAFKA),
+        @JsonSubTypes.Type(value = MongoDBSourceRequest.class, name = SourceType.SOURCE_MONGODB),
+        @JsonSubTypes.Type(value = MySQLBinlogSourceRequest.class, name = SourceType.SOURCE_BINLOG),
+        @JsonSubTypes.Type(value = OracleSourceRequest.class, name = SourceType.SOURCE_ORACLE),
+        @JsonSubTypes.Type(value = PostgresSourceRequest.class, name = SourceType.SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PulsarSourceRequest.class, name = SourceType.SOURCE_PULSAR),
+        @JsonSubTypes.Type(value = SqlServerSourceRequest.class, name = SourceType.SOURCE_SQL),
+})
 public class SourceRequest {
 
     private Integer id;

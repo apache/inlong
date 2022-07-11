@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.pojo.group;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
@@ -26,7 +27,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqRequest;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongTdmqPulsarRequest;
+import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeRequest;
 import org.apache.inlong.manager.common.util.SmallTools;
 import org.hibernate.validator.constraints.Length;
 
@@ -43,6 +49,12 @@ import java.util.List;
 @AllArgsConstructor
 @ApiModel("Inlong group create request")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = InlongNoneMqRequest.class, name = MQType.MQ_NONE),
+        @JsonSubTypes.Type(value = InlongPulsarRequest.class, name = MQType.MQ_PULSAR),
+        @JsonSubTypes.Type(value = InlongTdmqPulsarRequest.class, name = MQType.MQ_TDMQ_PULSAR),
+        @JsonSubTypes.Type(value = InlongTubeRequest.class, name = MQType.MQ_TUBE),
+})
 public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong group id", required = true)

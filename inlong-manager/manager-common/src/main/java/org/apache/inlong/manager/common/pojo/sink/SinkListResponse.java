@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +26,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkListResponse;
 
 import java.util.Date;
 import java.util.Map;
@@ -37,6 +52,21 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClickHouseSinkListResponse.class, name = SinkType.SINK_CLICKHOUSE),
+        @JsonSubTypes.Type(value = ElasticsearchSinkListResponse.class, name = SinkType.SINK_ELASTICSEARCH),
+        @JsonSubTypes.Type(value = GreenplumSinkListResponse.class, name = SinkType.SINK_GREENPLUM),
+        @JsonSubTypes.Type(value = HBaseSinkListResponse.class, name = SinkType.SINK_HBASE),
+        @JsonSubTypes.Type(value = HdfsSinkListResponse.class, name = SinkType.SINK_HDFS),
+        @JsonSubTypes.Type(value = HiveSinkListResponse.class, name = SinkType.SINK_HIVE),
+        @JsonSubTypes.Type(value = IcebergSinkListResponse.class, name = SinkType.SINK_ICEBERG),
+        @JsonSubTypes.Type(value = KafkaSinkListResponse.class, name = SinkType.SINK_KAFKA),
+        @JsonSubTypes.Type(value = MySQLSinkListResponse.class, name = SinkType.SINK_MYSQL),
+        @JsonSubTypes.Type(value = OracleSinkListResponse.class, name = SinkType.SINK_ORACLE),
+        @JsonSubTypes.Type(value = PostgresSinkListResponse.class, name = SinkType.SINK_POSTGRES),
+        @JsonSubTypes.Type(value = SqlServerSinkListResponse.class, name = SinkType.SINK_SQLSERVER),
+        @JsonSubTypes.Type(value = TDSQLPostgreSQLSinkListResponse.class, name = SinkType.SINK_TDSQLPOSTGRESQL),
+})
 public class SinkListResponse {
 
     @ApiModelProperty(value = "Primary key")

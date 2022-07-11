@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.group;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
@@ -28,6 +29,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.Authentication;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.group.none.InlongNoneMqInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongTdmqPulsarInfo;
+import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 
 import java.util.Date;
@@ -42,6 +48,12 @@ import java.util.List;
 @AllArgsConstructor
 @ApiModel("Inlong group info")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = InlongNoneMqInfo.class, name = MQType.MQ_NONE),
+        @JsonSubTypes.Type(value = InlongPulsarInfo.class, name = MQType.MQ_PULSAR),
+        @JsonSubTypes.Type(value = InlongTdmqPulsarInfo.class, name = MQType.MQ_TDMQ_PULSAR),
+        @JsonSubTypes.Type(value = InlongTubeInfo.class, name = MQType.MQ_TUBE),
+})
 public abstract class InlongGroupInfo {
 
     @ApiModelProperty(value = "Primary key")

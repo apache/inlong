@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,6 +25,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterRequest;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 
 import javax.validation.constraints.NotBlank;
@@ -38,6 +43,11 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ApiModel("Inlong cluster request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DataProxyClusterRequest.class, name = ClusterType.DATA_PROXY),
+        @JsonSubTypes.Type(value = PulsarClusterRequest.class, name = ClusterType.PULSAR),
+        @JsonSubTypes.Type(value = TubeClusterRequest.class, name = ClusterType.TUBE),
+})
 public class ClusterRequest {
 
     @NotNull(groups = UpdateValidation.class)

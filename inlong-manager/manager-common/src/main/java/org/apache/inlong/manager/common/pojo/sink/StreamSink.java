@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.google.common.collect.Lists;
@@ -33,6 +34,20 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
+import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
+import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
+import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
+import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
+import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
@@ -50,6 +65,21 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream sink info")
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ClickHouseSink.class, name = SinkType.SINK_CLICKHOUSE),
+        @JsonSubTypes.Type(value = ElasticsearchSink.class, name = SinkType.SINK_ELASTICSEARCH),
+        @JsonSubTypes.Type(value = GreenplumSink.class, name = SinkType.SINK_GREENPLUM),
+        @JsonSubTypes.Type(value = HBaseSink.class, name = SinkType.SINK_HBASE),
+        @JsonSubTypes.Type(value = HdfsSink.class, name = SinkType.SINK_HDFS),
+        @JsonSubTypes.Type(value = HiveSink.class, name = SinkType.SINK_HIVE),
+        @JsonSubTypes.Type(value = IcebergSink.class, name = SinkType.SINK_ICEBERG),
+        @JsonSubTypes.Type(value = KafkaSink.class, name = SinkType.SINK_KAFKA),
+        @JsonSubTypes.Type(value = MySQLSink.class, name = SinkType.SINK_MYSQL),
+        @JsonSubTypes.Type(value = OracleSink.class, name = SinkType.SINK_ORACLE),
+        @JsonSubTypes.Type(value = PostgresSink.class, name = SinkType.SINK_POSTGRES),
+        @JsonSubTypes.Type(value = SqlServerSink.class, name = SinkType.SINK_SQLSERVER),
+        @JsonSubTypes.Type(value = TDSQLPostgreSQLSink.class, name = SinkType.SINK_TDSQLPOSTGRESQL),
+})
 public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty("Sink id")

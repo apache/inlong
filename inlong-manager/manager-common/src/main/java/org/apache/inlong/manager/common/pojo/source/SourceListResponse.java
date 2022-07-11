@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +26,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceListResponse;
 
 import java.util.Date;
 
@@ -36,6 +47,17 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AutoPushSourceListResponse.class, name = SourceType.SOURCE_AUTO_PUSH),
+        @JsonSubTypes.Type(value = FileSourceListResponse.class, name = SourceType.SOURCE_FILE),
+        @JsonSubTypes.Type(value = KafkaSourceListResponse.class, name = SourceType.SOURCE_KAFKA),
+        @JsonSubTypes.Type(value = MongoDBSourceListResponse.class, name = SourceType.SOURCE_MONGODB),
+        @JsonSubTypes.Type(value = MySQLBinlogSourceListResponse.class, name = SourceType.SOURCE_BINLOG),
+        @JsonSubTypes.Type(value = OracleSourceListResponse.class, name = SourceType.SOURCE_ORACLE),
+        @JsonSubTypes.Type(value = PostgresSourceListResponse.class, name = SourceType.SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PulsarSourceListResponse.class, name = SourceType.SOURCE_PULSAR),
+        @JsonSubTypes.Type(value = SqlServerSourceListResponse.class, name = SourceType.SOURCE_SQL),
+})
 public class SourceListResponse {
 
     @ApiModelProperty(value = "Primary key")

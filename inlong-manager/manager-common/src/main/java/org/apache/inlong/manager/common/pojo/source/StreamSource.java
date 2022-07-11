@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
@@ -27,6 +28,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
+import org.apache.inlong.manager.common.pojo.source.file.FileSource;
+import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
@@ -40,6 +51,17 @@ import java.util.Date;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AutoPushSource.class, name = SourceType.SOURCE_AUTO_PUSH),
+        @JsonSubTypes.Type(value = FileSource.class, name = SourceType.SOURCE_FILE),
+        @JsonSubTypes.Type(value = KafkaSource.class, name = SourceType.SOURCE_KAFKA),
+        @JsonSubTypes.Type(value = MongoDBSource.class, name = SourceType.SOURCE_MONGODB),
+        @JsonSubTypes.Type(value = MySQLBinlogSource.class, name = SourceType.SOURCE_BINLOG),
+        @JsonSubTypes.Type(value = OracleSource.class, name = SourceType.SOURCE_ORACLE),
+        @JsonSubTypes.Type(value = PostgresSource.class, name = SourceType.SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PulsarSource.class, name = SourceType.SOURCE_PULSAR),
+        @JsonSubTypes.Type(value = SqlServerSource.class, name = SourceType.SOURCE_SQL),
+})
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
 
