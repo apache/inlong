@@ -171,42 +171,41 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.warn("inlong cluster tag was not exist for id={}", id);
             return true;
         }
-        InlongClusterTagEntity tagExist = clusterTagMapper.selectByTag(newClusterTag);
-        if (tagExist != null) {
-            String errMsg = String.format("inlong cluster tag [%s] already exist", newClusterTag);
-            LOGGER.error(errMsg);
-            throw new BusinessException(errMsg);
-        }
 
-        // check if there are some InlongGroups that uses this tag
+        // if the cluster tag was changed, need to check whether the new tag already exists
         String oldClusterTag = exist.getClusterTag();
-        this.assertNoInlongGroupExists(oldClusterTag);
+        if (!newClusterTag.equals(oldClusterTag)) {
+            InlongClusterTagEntity tagConflict = clusterTagMapper.selectByTag(newClusterTag);
+            if (tagConflict != null) {
+                String errMsg = String.format("inlong cluster tag [%s] already exist", newClusterTag);
+                LOGGER.error(errMsg);
+                throw new BusinessException(errMsg);
+            }
 
-        // update the associated cluster tag in inlong_cluster
-        Date now = new Date();
-        List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(newClusterTag, null, null);
-        if (CollectionUtils.isNotEmpty(clusterEntities)) {
-            clusterEntities.forEach(entity -> {
-                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
-                tagSet.remove(oldClusterTag);
-                tagSet.add(newClusterTag);
-                String updateTags = Joiner.on(",").join(tagSet);
-                entity.setClusterTags(updateTags);
-                entity.setModifier(operator);
-                entity.setModifyTime(now);
-                clusterMapper.updateByIdSelective(entity);
-            });
+            // check if there are some InlongGroups that uses this tag
+            this.assertNoInlongGroupExists(oldClusterTag);
+
+            // update the associated cluster tag in inlong_cluster
+            Date now = new Date();
+            List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(oldClusterTag, null, null);
+            if (CollectionUtils.isNotEmpty(clusterEntities)) {
+                clusterEntities.forEach(entity -> {
+                    HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                    tagSet.remove(oldClusterTag);
+                    tagSet.add(newClusterTag);
+                    String updateTags = Joiner.on(",").join(tagSet);
+                    entity.setClusterTags(updateTags);
+                    entity.setModifier(operator);
+                    entity.setModifyTime(now);
+                    clusterMapper.updateByIdSelective(entity);
+                });
+            }
         }
 
-        InlongClusterTagEntity entity = clusterTagMapper.selectById(id);
-        if (entity == null) {
-            LOGGER.error("cluster tag not found by id={}", id);
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
-        }
-        CommonBeanUtils.copyProperties(request, entity, true);
-        entity.setModifier(operator);
-        entity.setModifyTime(new Date());
-        clusterTagMapper.updateById(entity);
+        CommonBeanUtils.copyProperties(request, exist, true);
+        exist.setModifier(operator);
+        exist.setModifyTime(new Date());
+        clusterTagMapper.updateById(exist);
         LOGGER.info("success to update cluster tag={}", request);
         return true;
     }
