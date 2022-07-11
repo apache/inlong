@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.inlong.tubemq.client.common.ClientMetrics;
+import org.apache.inlong.tubemq.client.common.ClientStatsInfo;
 import org.apache.inlong.tubemq.client.common.TubeClientVersion;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.exception.TubeClientException;
@@ -96,15 +96,16 @@ public class BaseMessageConsumer implements MessageConsumer {
     private final ConsumerSamplePrint samplePrintCtrl =
             new ConsumerSamplePrint();
     private final RpcConfig rpcConfig = new RpcConfig();
-    private AtomicLong visitToken = new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
-    private AtomicReference<String> authAuthorizedTokenRef =
+    private final AtomicLong visitToken =
+            new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
+    private final AtomicReference<String> authAuthorizedTokenRef =
             new AtomicReference<>("");
-    private ClientAuthenticateHandler authenticateHandler =
+    private final ClientAuthenticateHandler authenticateHandler =
             new SimpleClientAuthenticateHandler();
     private Thread heartBeatThread2Broker;
-    private AtomicBoolean isShutdown = new AtomicBoolean(false);
-    private AtomicBoolean isRebalanceStopped = new AtomicBoolean(false);
-    private AtomicBoolean isFirst = new AtomicBoolean(true);
+    private final AtomicBoolean isShutdown = new AtomicBoolean(false);
+    private final AtomicBoolean isRebalanceStopped = new AtomicBoolean(false);
+    private final AtomicBoolean isFirst = new AtomicBoolean(true);
     private int heartbeatRetryTimes = 0;
     // Status:
     // -1: Unsubscribed
@@ -116,7 +117,7 @@ public class BaseMessageConsumer implements MessageConsumer {
     private int rebalanceRetryTimes = 0;
     private long lastHeartbeatTime2Master = 0;
     private long lastHeartbeatTime2Broker = 0;
-    protected final ClientMetrics clientMetrics;
+    protected final ClientStatsInfo clientStatsInfo;
 
     /**
      * Construct a BaseMessageConsumer object.
@@ -143,8 +144,9 @@ public class BaseMessageConsumer implements MessageConsumer {
         } catch (Exception e) {
             throw new TubeClientException("Get consumer id failed!", e);
         }
-        this.clientMetrics =
-                new ClientMetrics(false, this.consumerId, this.consumerConfig);
+        this.clientStatsInfo =
+                new ClientStatsInfo(false,
+                        this.consumerId, this.consumerConfig.getStatsConfig());
         this.rmtDataCache =
                 new RmtDataCache(this.consumerConfig, null);
         this.rpcServiceFactory =
@@ -454,7 +456,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 //
             }
         }
-        clientMetrics.printMetricInfo(true, strBuffer);
+        clientStatsInfo.selfPrintStatsInfo(true, true, strBuffer);
         logger.info(strBuffer
                 .append("[SHUTDOWN_CONSUMER] Partitions unregistered,  consumer :")
                 .append(this.consumerId).toString());
@@ -828,7 +830,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                 .consumerRegisterC2B(createBrokerRegisterRequest(partition),
                                     AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                         if (responseB2C != null && responseB2C.getSuccess()) {
-                            clientMetrics.bookReg2Broker(false);
+                            clientStatsInfo.bookReg2Broker(false);
                             long currOffset =
                                 responseB2C.hasCurrOffset() ? responseB2C.getCurrOffset()
                                         : TBaseConstants.META_VALUE_UNDEFINED;
@@ -842,7 +844,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                 .append(partition.toString()).toString());
                             strBuffer.delete(0, strBuffer.length());
                         } else {
-                            clientMetrics.bookReg2Broker(true);
+                            clientStatsInfo.bookReg2Broker(true);
                             if (responseB2C == null) {
                                 logger.warn(strBuffer.append("register2broker error! ")
                                     .append(retryTimesRegister2Broker).append(" register ")
@@ -1208,9 +1210,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                     partition, taskContext.isLastConsumed()),
                                     AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
         } catch (Throwable ee) {
-            clientMetrics.bookFailRpcCall(
-                    System.currentTimeMillis() - startTime,
-                    TErrCodeConstants.UNSPECIFIED_ABNORMAL);
+            clientStatsInfo.bookFailRpcCall(TErrCodeConstants.UNSPECIFIED_ABNORMAL);
             // Process the exception
             rmtDataCache.errReqRelease(partitionKey, taskContext.getUsedToken(), false);
             taskContext.setFailProcessResult(400, strBuffer
@@ -1221,7 +1221,7 @@ public class BaseMessageConsumer implements MessageConsumer {
         }
         long dltTime = System.currentTimeMillis() - startTime;
         if (msgRspB2C == null) {
-            clientMetrics.bookFailRpcCall(dltTime, TErrCodeConstants.INTERNAL_SERVER_ERROR);
+            clientStatsInfo.bookFailRpcCall(TErrCodeConstants.INTERNAL_SERVER_ERROR);
             rmtDataCache.errReqRelease(partitionKey, taskContext.getUsedToken(), false);
             taskContext.setFailProcessResult(500, "Get message null");
             return taskContext;
@@ -1278,7 +1278,8 @@ public class BaseMessageConsumer implements MessageConsumer {
                         strBuffer.append(partitionKey).append(TokenConstants.ATTR_SEP)
                             .append(taskContext.getUsedToken()).toString(), messageList, maxOffset);
                     strBuffer.delete(0, strBuffer.length());
-                    clientMetrics.bookSuccGetMsg(dltTime, msgCount, msgSize);
+                    clientStatsInfo.bookSuccGetMsg(dltTime,
+                            topic, partitionKey, msgCount, msgSize);
                     break;
                 }
                 case TErrCodeConstants.HB_NO_NODE:
@@ -1339,13 +1340,11 @@ public class BaseMessageConsumer implements MessageConsumer {
                 }
             }
             if (msgRspB2C.getErrCode() != TErrCodeConstants.SUCCESS) {
-                clientMetrics.bookFailRpcCall(dltTime, msgRspB2C.getErrCode());
+                clientStatsInfo.bookFailRpcCall(msgRspB2C.getErrCode());
             }
             return taskContext;
         } catch (Throwable ee) {
-            clientMetrics.bookFailRpcCall(
-                    System.currentTimeMillis() - startTime,
-                    TErrCodeConstants.INTERNAL_SERVER_ERROR);
+            clientStatsInfo.bookFailRpcCall(TErrCodeConstants.INTERNAL_SERVER_ERROR);
             logger.error("Process response code error", ee);
             rmtDataCache.succRspRelease(partitionKey, topic,
                     taskContext.getUsedToken(), false, isFilterConsume(topic),
@@ -1422,7 +1421,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 rmtDataCache.resumeTimeoutConsumePartitions(isPullConsume,
                         consumerConfig.getPullProtectConfirmTimeoutMs());
                 // print metric information
-                clientMetrics.printMetricInfo(false, strBuffer);
+                clientStatsInfo.selfPrintStatsInfo(false, true, strBuffer);
                 // Fetch the rebalance result, construct message adn return it.
                 ConsumerEvent event = rebalanceResults.poll();
                 List<SubscribeInfo> subInfoList = null;
@@ -1442,7 +1441,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                                 AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                 // Process unsuccessful response
                 if (response == null) {
-                    clientMetrics.bookHB2MasterTimeout();
+                    clientStatsInfo.bookHB2MasterTimeout();
                     logger.error(strBuffer.append("[Heartbeat Failed] ")
                             .append("return result is null!").toString());
                     heartbeatRetryTimes++;
@@ -1451,7 +1450,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                 if (!response.getSuccess()) {
                     // If master replies that cannot find current consumer node, re-register
                     if (response.getErrCode() == TErrCodeConstants.HB_NO_NODE) {
-                        clientMetrics.bookHB2MasterTimeout();
+                        clientStatsInfo.bookHB2MasterTimeout();
                         try {
                             ClientMaster.RegisterResponseM2C regResponse =
                                 masterService.consumerRegisterC2M(createMasterRegisterRequest(),
@@ -1493,7 +1492,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                         }
                         return;
                     }
-                    clientMetrics.bookHB2MasterException();
+                    clientStatsInfo.bookHB2MasterException();
                     logger.error(strBuffer.append("[Heartbeat Failed] ")
                             .append(response.getErrMsg()).toString());
                     if (response.getErrCode() == TErrCodeConstants.CERTIFICATE_FAILURE) {
@@ -1599,8 +1598,11 @@ public class BaseMessageConsumer implements MessageConsumer {
                                                 createBrokerHeartBeatRequest(brokerInfo.getBrokerId(), partStrSet),
                                                 AddressUtils.getLocalAddress(), consumerConfig.isTlsEnable());
                                 // When response is success
-                                if (heartBeatResponseV2 != null
-                                    && heartBeatResponseV2.getSuccess()) {
+                                if (heartBeatResponseV2 == null) {
+                                    clientStatsInfo.bookHB2BrokerTimeout();
+                                    continue;
+                                }
+                                if (heartBeatResponseV2.getSuccess()) {
                                     // If the peer require authentication, set a flag.
                                     // The following request will attach the auth information.
                                     rmtDataCache.bookBrokerRequireAuthInfo(
@@ -1644,19 +1646,18 @@ public class BaseMessageConsumer implements MessageConsumer {
                                             }
                                         }
                                     }
-                                }
-                                if (heartBeatResponseV2 != null) {
-                                    clientMetrics.bookHB2BrokerException();
+                                } else {
+                                    clientStatsInfo.bookHB2BrokerException();
                                     if (heartBeatResponseV2.getErrCode()
-                                        == TErrCodeConstants.CERTIFICATE_FAILURE) {
+                                            == TErrCodeConstants.CERTIFICATE_FAILURE) {
                                         for (Partition partition : partitions) {
                                             removePartition(partition);
                                         }
                                         logger.warn(strBuffer
-                                            .append("[heart2broker error] certificate failure, ")
-                                            .append(brokerInfo.getBrokerStrInfo())
-                                            .append("'s partitions area released, ")
-                                            .append(heartBeatResponseV2.getErrMsg()).toString());
+                                                .append("[heart2broker error] certificate failure, ")
+                                                .append(brokerInfo.getBrokerStrInfo())
+                                                .append("'s partitions area released, ")
+                                                .append(heartBeatResponseV2.getErrMsg()).toString());
                                         strBuffer.delete(0, strBuffer.length());
                                     }
                                 }
@@ -1665,7 +1666,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                             // If there's error in the heartbeat, collect the log and print out.
                             // Release the log string buffer.
                             if (!isShutdown()) {
-                                clientMetrics.bookHB2BrokerException();
+                                clientStatsInfo.bookHB2BrokerException();
                                 samplePrintCtrl.printExceptionCaught(ee);
                                 if (!partStrSet.isEmpty()) {
                                     strBuffer.delete(0, strBuffer.length());
@@ -1685,7 +1686,7 @@ public class BaseMessageConsumer implements MessageConsumer {
                     lastHeartbeatTime2Broker = System.currentTimeMillis();
                     Thread.sleep(consumerConfig.getHeartbeatPeriodMs());
                 } catch (Throwable e) {
-                    clientMetrics.bookHB2BrokerException();
+                    clientStatsInfo.bookHB2BrokerException();
                     lastHeartbeatTime2Broker = System.currentTimeMillis();
                     if (!isShutdown()) {
                         logger.error("heartbeat thread error 3 : ", e);

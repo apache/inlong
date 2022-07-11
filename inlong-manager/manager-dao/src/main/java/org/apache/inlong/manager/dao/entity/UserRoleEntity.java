@@ -21,12 +21,15 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * User role entity, including username, role code, etc.
+ */
 @Data
 public class UserRoleEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private Integer id;
-    private String userName;
+    private String username;
     private String roleCode;
     private Date createTime;
     private Date updateTime;

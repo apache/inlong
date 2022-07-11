@@ -95,6 +95,11 @@ public class ConsumeGroupInfo {
     private final AtomicLong lastMetaInfoFreshTime =
             new AtomicLong(TBaseConstants.META_VALUE_UNDEFINED);
 
+    /**
+     *  Initial a Consume group node information.
+     *
+     * @param consumer   the consumer of consume group.
+     */
     public ConsumeGroupInfo(ConsumerInfo consumer) {
         this.groupName = consumer.getGroupName();
         this.consumeType = consumer.getConsumeType();
@@ -107,6 +112,9 @@ public class ConsumeGroupInfo {
      * Add consumer to consume group
      *
      * @param inConsumer consumer object
+     * @param sBuffer    the string buffer
+     * @param result     the process result
+     * @return           whether the addition is successful
      */
     public boolean addConsumer(ConsumerInfo inConsumer,
                                StringBuilder sBuffer,

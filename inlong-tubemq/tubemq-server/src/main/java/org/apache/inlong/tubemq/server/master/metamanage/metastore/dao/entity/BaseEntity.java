@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
@@ -159,9 +160,9 @@ public class BaseEntity implements Serializable, Cloneable {
         return attributes;
     }
 
-    public void setCreateInfo(String creater, Date createDate) {
-        if (TStringUtils.isNotBlank(creater)) {
-            this.createUser = creater;
+    public void setCreateInfo(String creator, Date createDate) {
+        if (TStringUtils.isNotBlank(creator)) {
+            this.createUser = creator;
         }
         setCreateDate(createDate);
     }
@@ -269,6 +270,36 @@ public class BaseEntity implements Serializable, Cloneable {
         return sBuilder;
     }
 
+    /**
+     * Get field value to key and value format.
+     *
+     * @param paramMap   build container
+     * @param isLongName if return field key is long name
+     */
+    public void getConfigureInfo(Map<String, String> paramMap,
+                                 boolean isLongName) {
+        if (dataVersionId != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "dataVersionId" : "dVerId"),
+                    String.valueOf(dataVersionId));
+        }
+        if (serialId.get() != TBaseConstants.META_VALUE_UNDEFINED) {
+            paramMap.put((isLongName ? "serialId" : "serialId"),
+                    String.valueOf(serialId.get()));
+        }
+        if (TStringUtils.isNotBlank(createUser)) {
+            paramMap.put((isLongName ? "createUser" : "cur"), createUser);
+        }
+        if (TStringUtils.isNotBlank(createDateStr)) {
+            paramMap.put((isLongName ? "createDate" : "cDate"), createDateStr);
+        }
+        if (TStringUtils.isNotBlank(modifyUser)) {
+            paramMap.put((isLongName ? "modifyUser" : "mur"), modifyUser);
+        }
+        if (TStringUtils.isNotBlank(modifyDateStr)) {
+            paramMap.put((isLongName ? "modifyDate" : "mDate"), modifyDateStr);
+        }
+    }
+
     private void setModifyDate(Date date) {
         if (date == null) {
             return;
@@ -285,6 +316,21 @@ public class BaseEntity implements Serializable, Cloneable {
         this.createDateStr = DateTimeConvertUtils.date2yyyyMMddHHmmss(date);
     }
 
+    /**
+     * Check if data field values are equal
+     *
+     * @param other  check object
+     * @return if equals
+     */
+    public boolean isDataEquals(BaseEntity other) {
+        return dataVersionId == other.dataVersionId
+                && Objects.equals(createUser, other.createUser)
+                && Objects.equals(createDateStr, other.createDateStr)
+                && Objects.equals(modifyUser, other.modifyUser)
+                && Objects.equals(modifyDateStr, other.modifyDateStr);
+                // && Objects.equals(attributes, other.attributes);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -294,13 +340,8 @@ public class BaseEntity implements Serializable, Cloneable {
             return false;
         }
         BaseEntity that = (BaseEntity) o;
-        return dataVersionId == that.dataVersionId
-                && serialId.get() == that.serialId.get()
-                && Objects.equals(createUser, that.createUser)
-                && Objects.equals(createDate, that.createDate)
-                && Objects.equals(modifyUser, that.modifyUser)
-                && Objects.equals(modifyDate, that.modifyDate)
-                && Objects.equals(attributes, that.attributes);
+        return (serialId.get() == that.serialId.get())
+                && isDataEquals(that);
     }
 
     @Override

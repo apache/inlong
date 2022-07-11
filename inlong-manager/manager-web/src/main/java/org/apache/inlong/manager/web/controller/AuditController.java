@@ -27,10 +27,13 @@ import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Audit controller.
+ */
 @RestController
 @RequestMapping("/audit")
 @Api(tags = "Audit")
@@ -39,10 +42,10 @@ public class AuditController {
     @Autowired
     private AuditService auditService;
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    @GetMapping(value = "/list")
     @ApiOperation(value = "Query audit list according to conditions")
     public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws IOException {
         return Response.success(auditService.listByCondition(request));
     }
-    
+
 }

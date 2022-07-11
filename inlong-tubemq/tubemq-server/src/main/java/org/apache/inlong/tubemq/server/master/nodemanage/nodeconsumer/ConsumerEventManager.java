@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.tubemq.corebase.balance.ConsumerEvent;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class ConsumerEventManager {
             LinkedList<ConsumerEvent> tmptList =
                     disconnectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
-                MasterMetricsHolder.incSvrBalDisConConsumerCnt();
+                MasterSrvStatsHolder.incSvrBalDisConConsumerCnt();
             } else {
                 eventList = tmptList;
             }
@@ -75,7 +75,7 @@ public class ConsumerEventManager {
             LinkedList<ConsumerEvent> tmptList =
                     connectEventMap.putIfAbsent(consumerId, eventList);
             if (tmptList == null) {
-                MasterMetricsHolder.incSvrBalConEventConsumerCnt();
+                MasterSrvStatsHolder.incSvrBalConEventConsumerCnt();
             } else {
                 eventList = tmptList;
             }
@@ -135,9 +135,9 @@ public class ConsumerEventManager {
                     if (eventList.isEmpty()) {
                         currentEventMap.remove(consumerId);
                         if (selDisConnMap) {
-                            MasterMetricsHolder.decSvrBalDisConConsumerCnt();
+                            MasterSrvStatsHolder.decSvrBalDisConConsumerCnt();
                         } else {
-                            MasterMetricsHolder.decSvrBalConEventConsumerCnt();
+                            MasterSrvStatsHolder.decSvrBalConEventConsumerCnt();
                         }
                     }
                 }
@@ -201,11 +201,11 @@ public class ConsumerEventManager {
         LinkedList<ConsumerEvent> eventInfos =
                 disconnectEventMap.remove(consumerId);
         if (eventInfos != null) {
-            MasterMetricsHolder.decSvrBalDisConConsumerCnt();
+            MasterSrvStatsHolder.decSvrBalDisConConsumerCnt();
         }
         eventInfos = connectEventMap.remove(consumerId);
         if (eventInfos != null) {
-            MasterMetricsHolder.decSvrBalConEventConsumerCnt();
+            MasterSrvStatsHolder.decSvrBalConEventConsumerCnt();
         }
     }
 

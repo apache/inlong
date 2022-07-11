@@ -17,19 +17,20 @@
 
 package org.apache.inlong.agent.metrics.meta;
 
-import static org.apache.inlong.agent.metrics.Metric.Type.COUNTER_INT;
-import static org.apache.inlong.agent.metrics.Metric.Type.COUNTER_LONG;
-import static org.apache.inlong.agent.metrics.Metric.Type.DEFAULT;
-import static org.apache.inlong.agent.metrics.Metric.Type.GAUGE_INT;
-import static org.apache.inlong.agent.metrics.Metric.Type.GAUGE_LONG;
-
-import java.lang.reflect.Field;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.metrics.Metric;
 import org.apache.inlong.agent.metrics.counter.CounterInt;
 import org.apache.inlong.agent.metrics.counter.CounterLong;
 import org.apache.inlong.agent.metrics.gauge.GaugeInt;
 import org.apache.inlong.agent.metrics.gauge.GaugeLong;
+
+import java.lang.reflect.Field;
+
+import static org.apache.inlong.agent.metrics.Metric.Type.COUNTER_INT;
+import static org.apache.inlong.agent.metrics.Metric.Type.COUNTER_LONG;
+import static org.apache.inlong.agent.metrics.Metric.Type.DEFAULT;
+import static org.apache.inlong.agent.metrics.Metric.Type.GAUGE_INT;
+import static org.apache.inlong.agent.metrics.Metric.Type.GAUGE_LONG;
 
 /**
  * this class is related to {@link Metric}
@@ -41,6 +42,13 @@ public class MetricMeta {
     private String desc;
     private Field field;
 
+    /**
+     * build metricMeta based on Metric and Field params
+     *
+     * @param annotation Metric
+     * @param field Field
+     * @return MetricMeta
+     */
     public static MetricMeta build(Metric annotation, Field field) {
         MetricMeta metricMeta = new MetricMeta();
         metricMeta.name = StringUtils.capitalize(field.getName());

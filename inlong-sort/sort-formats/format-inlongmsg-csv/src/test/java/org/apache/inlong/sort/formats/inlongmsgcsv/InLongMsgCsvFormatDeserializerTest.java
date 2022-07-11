@@ -36,7 +36,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;

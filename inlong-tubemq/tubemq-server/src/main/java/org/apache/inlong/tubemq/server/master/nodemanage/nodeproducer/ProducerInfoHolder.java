@@ -20,7 +20,7 @@ package org.apache.inlong.tubemq.server.master.nodemanage.nodeproducer;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.tubemq.corebase.cluster.ProducerInfo;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 
 public class ProducerInfoHolder {
 
@@ -36,7 +36,7 @@ public class ProducerInfoHolder {
                                 String host, boolean overTLS) {
         if (producerInfoMap.put(producerId,
                 new ProducerInfo(producerId, topicSet, host, overTLS)) == null) {
-            MasterMetricsHolder.incProducerCnt();
+            MasterSrvStatsHolder.incProducerCnt();
         }
     }
 
@@ -56,7 +56,7 @@ public class ProducerInfoHolder {
     public ProducerInfo removeProducer(String producerId, boolean isTimeout) {
         ProducerInfo info = producerInfoMap.remove(producerId);
         if (info != null) {
-            MasterMetricsHolder.decProducerCnt(isTimeout);
+            MasterSrvStatsHolder.decProducerCnt(isTimeout);
         }
         return info;
     }

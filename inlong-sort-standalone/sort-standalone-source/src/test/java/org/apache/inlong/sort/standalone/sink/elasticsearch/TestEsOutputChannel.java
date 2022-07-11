@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
@@ -56,8 +56,7 @@ public class TestEsOutputChannel {
 
     /**
      * mock
-     * 
-     * @return
+     *
      * @throws Exception
      */
     public static EsOutputChannel mock() throws Exception {
@@ -114,7 +113,7 @@ public class TestEsOutputChannel {
         EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
         EsOutputChannel output = new EsOutputChannel(context);
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         dispatchQueue.add(indexRequest);
         output.init();
         output.send();

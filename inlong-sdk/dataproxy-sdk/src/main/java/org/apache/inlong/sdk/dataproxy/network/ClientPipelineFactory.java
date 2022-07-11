@@ -18,14 +18,13 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.inlong.sdk.dataproxy.codec.ProtocolDecoder;
 import org.apache.inlong.sdk.dataproxy.codec.ProtocolEncoder;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 
-public class ClientPipelineFactory implements ChannelPipelineFactory {
+public class ClientPipelineFactory extends ChannelInitializer<SocketChannel> {
     private final ClientMgr clientMgr;
     private final Sender sender;
 
@@ -34,16 +33,16 @@ public class ClientPipelineFactory implements ChannelPipelineFactory {
         this.sender = sender;
     }
 
-    public ChannelPipeline getPipeline() throws Exception {
+    @Override
+    public void initChannel(SocketChannel ch) throws Exception {
 
-        ChannelPipeline pipeline = Channels.pipeline();
+        // Setup channel except for the SsHandler for TLS enabled connections
 
-        pipeline.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
+        ch.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
                 65536, 0, 4, 0, 0));
-        pipeline.addLast("contentDecoder", new ProtocolDecoder());
-        pipeline.addLast("contentEncoder", new ProtocolEncoder());
-        pipeline.addLast("handler", new ClientHandler(sender, clientMgr));
 
-        return pipeline;
+        ch.pipeline().addLast("contentDecoder", new ProtocolDecoder());
+        ch.pipeline().addLast("contentEncoder", new ProtocolEncoder());
+        ch.pipeline().addLast("handler", new ClientHandler(sender, clientMgr));
     }
 }

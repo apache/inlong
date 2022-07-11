@@ -17,70 +17,133 @@
  * under the License.
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
 import { useRequest, useUpdateEffect } from '@/hooks';
 import { useTranslation } from 'react-i18next';
-import { getCreateFormContent as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
+import { getDataSourcesFileFields as getFileCreateFormContent } from '@/components/MetaData/DataSourcesFile';
+import {
+  getDataSourcesBinLogFields,
+  toFormValues,
+  toSubmitValues,
+} from '@/components/MetaData/DataSourcesBinLog';
+import { FormItemProps } from '@/components/FormGenerator';
 
 export interface Props extends ModalProps {
-  type: 'DB' | 'FILE';
+  type: 'BINLOG' | 'FILE';
   // When editing, use the ID to call the interface for obtaining details
   id?: string;
   // Pass when editing, directly echo the record data
   record?: Record<string, any>;
   // Additional form configuration
-  content?: any[];
+  content?: FormItemProps[];
 }
 
 const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }) => {
   const [form] = useForm();
   const { t } = useTranslation();
 
+  const [currentValues, setCurrentValues] = useState({});
+
+  const toFormVals = useCallback(
+    v => {
+      const mapFunc = {
+        BINLOG: toFormValues,
+      }[type];
+      return mapFunc ? mapFunc(v) : v;
+    },
+    [type],
+  );
+
+  const toSubmitVals = useCallback(
+    v => {
+      const mapFunc = {
+        BINLOG: toSubmitValues,
+      }[type];
+      return mapFunc ? mapFunc(v) : v;
+    },
+    [type],
+  );
+
   const onOk = async () => {
     const values = await form.validateFields();
-    modalProps?.onOk(values);
+    modalProps?.onOk(toSubmitVals(values));
   };
 
   useUpdateEffect(() => {
     if (modalProps.visible) {
       // open
       form.resetFields(); // Note that it will cause the form to remount to initiate a select request
-      id && getData(id);
-    }
-    if (!id && Object.keys(record || {})?.length) {
-      form.setFieldsValue(record);
+      if (id) {
+        getData(id);
+      } else if (!id && Object.keys(record || {})?.length) {
+        form.setFieldsValue(toFormVals(record));
+        setCurrentValues(toFormVals(record));
+      }
+    } else {
+      setCurrentValues({});
     }
   }, [modalProps.visible]);
 
   const { run: getData } = useRequest(
     id => ({
-      url: `/datasource/${type.toLowerCase()}/getDetail/${id}`,
+      url: `/source/get/${id}`,
+      params: {
+        sourceType: type,
+      },
     }),
     {
       manual: true,
-      onSuccess: result => form.setFieldsValue(result),
+      formatResult: result => toFormVals(result),
+      onSuccess: result => {
+        form.setFieldsValue(result);
+        setCurrentValues(result);
+      },
     },
   );
 
-  const getCreateFormContent = useMemo(() => {
-    return {
-      FILE: getFileCreateFormContent,
-    }[type];
-  }, [type]);
+  const getCreateFormContent = useMemo(
+    () => currentValues => {
+      const config = {
+        BINLOG: getDataSourcesBinLogFields,
+        FILE: getFileCreateFormContent,
+      }[type]('form', { currentValues }) as FormItemProps[];
+      return [
+        {
+          name: 'sourceName',
+          type: 'input',
+          label: t('components.AccessHelper.DataSourcesEditor.CreateModal.DataSourceName'),
+          rules: [{ required: true }],
+          props: {
+            disabled: !!id,
+          },
+        } as FormItemProps,
+      ].concat(config);
+    },
+    [type, id, t],
+  );
 
   return (
     <>
       <Modal
         {...modalProps}
         title={
-          type === 'DB' ? 'DB' : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
+          type === 'BINLOG'
+            ? 'BINLOG'
+            : t('components.AccessHelper.DataSourcesEditor.CreateModal.File')
         }
+        width={666}
         onOk={onOk}
       >
-        <FormGenerator content={content.concat(getCreateFormContent())} form={form} useMaxWidth />
+        <FormGenerator
+          content={content.concat(getCreateFormContent(currentValues))}
+          onValuesChange={vals => setCurrentValues(prev => ({ ...prev, ...vals }))}
+          allValues={currentValues}
+          form={form}
+          useMaxWidth
+        />
       </Modal>
     </>
   );

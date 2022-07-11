@@ -17,13 +17,16 @@
 
 package org.apache.inlong.tubemq.server.master.web.handler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.cluster.TopicInfo;
 import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
+import org.apache.inlong.tubemq.corebase.utils.ConcurrentHashSet;
 import org.apache.inlong.tubemq.corebase.utils.Tuple2;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
@@ -57,6 +60,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 "getGroupAddressStrInfo");
         registerQueryWebMethod("admin_query_cluster_topic_view",
                 "adminQueryClusterTopicView");
+        registerQueryWebMethod("admin_query_group_info_by_topic",
+                "adminGetOnlineGroupSetByTopic");
         registerQueryWebMethod("admin_query_cluster_default_setting",
                 "adminQueryClusterDefSetting");
 
@@ -94,7 +99,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     public StringBuilder getGroupAddressStrInfo(HttpServletRequest req,
                                                 StringBuilder sBuffer,
                                                 ProcessResult result) {
-        ClusterGroupVO clusterGroupVO = metaDataManager.getGroupAddressStrInfo();
+        ClusterGroupVO clusterGroupVO = defMetaDataService.getGroupAddressStrInfo();
         if (clusterGroupVO == null) {
             WebParameterUtils.buildFailResultWithBlankData(
                     500, "GetBrokerGroup info error", sBuffer);
@@ -139,7 +144,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                                                StringBuilder sBuffer,
                                                ProcessResult result) {
         try {
-            metaDataManager.transferMaster();
+            defMetaDataService.transferMaster();
             WebParameterUtils.buildSuccessResult(sBuffer,
                     "TransferMaster method called, please wait 20 seconds!");
         } catch (Exception e2) {
@@ -259,12 +264,14 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query topic configure info
         Map<String, List<TopicDeployEntity>> topicConfMap =
-                metaDataManager.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
+                defMetaDataService.getTopicConfMapByTopicAndBrokerIds(topicNameSet, brokerIds);
         BrokerRunManager brokerRunManager = master.getBrokerRunManager();
         int totalCount = 0;
         int brokerCount = 0;
         int totalCfgNumPartCount = 0;
         int totalRunNumPartCount = 0;
+        int totalCfgTopicStoreCount = 0;
+        int totalRunTopicStoreCount = 0;
         boolean isSrvAcceptPublish = false;
         boolean isSrvAcceptSubscribe = false;
         boolean isAcceptPublish = false;
@@ -276,6 +283,8 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                 sBuffer.append(",");
             }
             brokerCount = 0;
+            totalCfgTopicStoreCount = 0;
+            totalRunTopicStoreCount = 0;
             totalCfgNumPartCount = 0;
             totalRunNumPartCount = 0;
             isSrvAcceptPublish = false;
@@ -284,19 +293,21 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
             isAcceptPublish = false;
             isAcceptSubscribe = false;
             for (TopicDeployEntity entity : entry.getValue()) {
+                BrokerConfEntity brokerConfEntity =
+                        defMetaDataService.getBrokerConfByBrokerId(entity.getBrokerId());
+                if (brokerConfEntity == null) {
+                    continue;
+                }
                 brokerCount++;
+                Tuple2<Boolean, Boolean> pubSubStatus =
+                        WebParameterUtils.getPubSubStatusByManageStatus(
+                                brokerConfEntity.getManageStatus().getCode());
+                isAcceptPublish = pubSubStatus.getF0();
+                isAcceptSubscribe = pubSubStatus.getF1();
                 TopicPropGroup topicProps = entity.getTopicProps();
+                totalCfgTopicStoreCount += topicProps.getNumTopicStores();
                 totalCfgNumPartCount +=
                         topicProps.getNumPartitions() * topicProps.getNumTopicStores();
-                BrokerConfEntity brokerConfEntity =
-                        metaDataManager.getBrokerConfByBrokerId(entity.getBrokerId());
-                if (brokerConfEntity != null) {
-                    Tuple2<Boolean, Boolean> pubSubStatus =
-                            WebParameterUtils.getPubSubStatusByManageStatus(
-                                    brokerConfEntity.getManageStatus().getCode());
-                    isAcceptPublish = pubSubStatus.getF0();
-                    isAcceptSubscribe = pubSubStatus.getF1();
-                }
                 TopicInfo topicInfo =
                         brokerRunManager.getPubBrokerTopicInfo(entity.getBrokerId(), entity.getTopicName());
                 if (topicInfo != null) {
@@ -306,17 +317,20 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
                     if (isAcceptSubscribe && topicInfo.isAcceptSubscribe()) {
                         isSrvAcceptSubscribe = true;
                     }
+                    totalRunTopicStoreCount += topicInfo.getTopicStoreNum();
                     totalRunNumPartCount +=
                             topicInfo.getPartitionNum() * topicInfo.getTopicStoreNum();
                 }
             }
             TopicCtrlEntity authEntity =
-                    metaDataManager.getTopicCtrlByTopicName(entry.getKey());
+                    defMetaDataService.getTopicCtrlByTopicName(entry.getKey());
             if (authEntity != null) {
                 enableAuthControl = authEntity.isAuthCtrlEnable();
             }
             sBuffer.append("{\"topicName\":\"").append(entry.getKey())
                     .append("\",\"totalCfgBrokerCnt\":").append(brokerCount)
+                    .append(",\"totalCfgNumStore\":").append(totalCfgTopicStoreCount)
+                    .append(",\"totalRunNumStore\":").append(totalRunTopicStoreCount)
                     .append(",\"totalCfgNumPart\":").append(totalCfgNumPartCount)
                     .append(",\"totalRunNumPartCount\":").append(totalRunNumPartCount)
                     .append(",\"isSrvAcceptPublish\":").append(isSrvAcceptPublish)
@@ -326,6 +340,62 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         WebParameterUtils.buildSuccessWithDataRetEnd(sBuffer, totalCount);
         return sBuffer;
+    }
+
+    /**
+     * Query group set by topic view
+     *
+     * @param req       Http Servlet Request
+     * @param strBuff   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminGetOnlineGroupSetByTopic(HttpServletRequest req,
+                                                       StringBuilder strBuff,
+                                                       ProcessResult result) {
+        // check and get topicName field
+        if (!WebParameterUtils.getStringParamValue(req,
+                WebFieldDef.COMPSTOPICNAME, false, null, strBuff, result)) {
+            WebParameterUtils.buildFailResult(strBuff, result.getErrMsg());
+            return strBuff;
+        }
+        Set<String> topicNameSet = (Set<String>) result.getRetData();
+        Set<String> targetTopicSet;
+        // query topic-group map info
+        ConcurrentHashMap<String, ConcurrentHashSet<String>> topicGroupMap =
+                master.getConsumerHolder().getRegTopicGroupMap();
+        if (topicNameSet == null || topicNameSet.isEmpty()) {
+            targetTopicSet = new HashSet<>(topicGroupMap.keySet());
+        } else {
+            targetTopicSet = new HashSet<>(topicNameSet);
+        }
+        // build query result
+        int totalCnt = 0;
+        int topicItemCnt;
+        WebParameterUtils.buildSuccessWithDataRetBegin(strBuff);
+        for (String topicName : targetTopicSet) {
+            if (topicName == null) {
+                continue;
+            }
+            if (totalCnt++ > 0) {
+                strBuff.append(",");
+            }
+            topicItemCnt = 0;
+            ConcurrentHashSet<String> groupSet = topicGroupMap.get(topicName);
+            strBuff.append("{\"topicName\":\"").append(topicName)
+                    .append("\",\"groupSet\":[");
+            if (groupSet != null) {
+                for (String groupName : groupSet) {
+                    if (topicItemCnt++ > 0) {
+                        strBuff.append(",");
+                    }
+                    strBuff.append("\"").append(groupName).append("\"");
+                }
+            }
+            strBuff.append("],\"groupCnt\":").append(topicItemCnt).append("}");
+        }
+        WebParameterUtils.buildSuccessWithDataRetEnd(strBuff, totalCnt);
+        return strBuff;
     }
 
     /**
@@ -346,7 +416,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         BaseEntity opEntity = (BaseEntity) result.getRetData();
         // add or modify record
-        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity,
+        if (!defMetaDataService.addOrUpdClusterDefSetting(opEntity,
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_VALUE_UNDEFINED, TBaseConstants.META_VALUE_UNDEFINED,
                 TBaseConstants.META_VALUE_UNDEFINED, Boolean.FALSE, 0,
@@ -452,7 +522,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
         }
         String flowCtrlInfo = (String) result.getRetData();
         // add or modify record
-        if (!metaDataManager.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
+        if (!defMetaDataService.addOrUpdClusterDefSetting(opEntity, inBrokerPort,
                 inBrokerTlsPort, inBrokerWebPort, maxMsgSizeMB, inQryPriorityId,
                 flowCtrlEnable, flowRuleCnt, flowCtrlInfo, inTopicProps, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
@@ -464,7 +534,7 @@ public class WebMasterInfoHandler extends AbstractWebHandler {
     private StringBuilder buildRetInfo(StringBuilder sBuffer, boolean isNewVer) {
         int totalCnt = 0;
         ClusterSettingEntity curConf =
-                metaDataManager.getClusterDefSetting(true);
+                defMetaDataService.getClusterDefSetting(true);
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
         if (curConf != null) {
             totalCnt++;

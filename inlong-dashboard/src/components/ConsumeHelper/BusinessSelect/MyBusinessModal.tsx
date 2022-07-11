@@ -31,7 +31,7 @@ export interface MyAccessModalProps extends Omit<ModalProps, 'onOk'> {
 const getFilterFormContent = () => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
 ];
 
@@ -39,15 +39,16 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
   const { t } = useTranslation();
 
   const [options, setOptions] = useState({
-    keyWord: '',
+    keyword: '',
     pageSize: 10,
     pageNum: 1,
   });
 
   const { run: getData, data, loading } = useRequest(
     {
-      url: '/business/list',
-      params: {
+      url: '/group/list',
+      method: 'POST',
+      data: {
         ...options,
         status: 130,
       },
@@ -73,7 +74,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
 
   const closeAll = () => {
     setOptions({
-      keyWord: '',
+      keyword: '',
       pageSize: 10,
       pageNum: 1,
     });
@@ -99,7 +100,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
     },
     {
       title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.BusinessName'),
-      dataIndex: 'cnName',
+      dataIndex: 'name',
     },
     {
       title: t('components.ConsumeHelper.BusinessSelect.MyBusinessModal.Owners'),

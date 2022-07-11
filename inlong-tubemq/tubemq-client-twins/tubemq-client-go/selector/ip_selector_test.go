@@ -24,14 +24,14 @@ import (
 )
 
 func TestSingleIP(t *testing.T) {
-	serviceName := "192.168.0.1:9092"
+	serviceName := "127.0.0.1:9092"
 	selector, err := Get("ip")
 	assert.Nil(t, err)
 	node, err := selector.Select(serviceName)
 	assert.Nil(t, err)
 	assert.Equal(t, node.HasNext, false)
-	assert.Equal(t, node.Address, "192.168.0.1:9092")
-	assert.Equal(t, node.ServiceName, "192.168.0.1:9092")
+	assert.Equal(t, node.Address, "127.0.0.1:9092")
+	assert.Equal(t, node.ServiceName, "127.0.0.1:9092")
 }
 
 func TestSingleDNS(t *testing.T) {
@@ -46,29 +46,29 @@ func TestSingleDNS(t *testing.T) {
 }
 
 func TestMultipleIP(t *testing.T) {
-	serviceName := "192.168.0.1:9091,192.168.0.1:9092,192.168.0.1:9093,192.168.0.1:9094"
+	serviceName := "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094"
 	selector, err := Get("dns")
 	assert.Nil(t, err)
 	node, err := selector.Select(serviceName)
 	assert.Nil(t, err)
 	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "192.168.0.1:9091", node.Address)
-	assert.Equal(t, "192.168.0.1:9091,192.168.0.1:9092,192.168.0.1:9093,192.168.0.1:9094", node.ServiceName)
+	assert.Equal(t, "127.0.0.1:9091", node.Address)
+	assert.Equal(t, "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094", node.ServiceName)
 
 	node, err = selector.Select(serviceName)
 	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "192.168.0.1:9092", node.Address)
-	assert.Equal(t, "192.168.0.1:9091,192.168.0.1:9092,192.168.0.1:9093,192.168.0.1:9094", node.ServiceName)
+	assert.Equal(t, "127.0.0.1:9092", node.Address)
+	assert.Equal(t, "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094", node.ServiceName)
 
 	node, err = selector.Select(serviceName)
 	assert.Equal(t, true, node.HasNext)
-	assert.Equal(t, "192.168.0.1:9093", node.Address)
-	assert.Equal(t, "192.168.0.1:9091,192.168.0.1:9092,192.168.0.1:9093,192.168.0.1:9094", node.ServiceName)
+	assert.Equal(t, "127.0.0.1:9093", node.Address)
+	assert.Equal(t, "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094", node.ServiceName)
 
 	node, err = selector.Select(serviceName)
 	assert.Equal(t, false, node.HasNext)
-	assert.Equal(t, "192.168.0.1:9094", node.Address)
-	assert.Equal(t, "192.168.0.1:9091,192.168.0.1:9092,192.168.0.1:9093,192.168.0.1:9094", node.ServiceName)
+	assert.Equal(t, "127.0.0.1:9094", node.Address)
+	assert.Equal(t, "127.0.0.1:9091,127.0.0.1:9092,127.0.0.1:9093,127.0.0.1:9094", node.ServiceName)
 }
 
 func TestMultipleDNS(t *testing.T) {

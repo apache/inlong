@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
+    or more contributor license agreements. See the NOTICE file
     distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
+    regarding copyright ownership. The ASF licenses this file
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
+    with the License. You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -67,171 +67,12 @@
         </javaClientGenerator>
 
         <!-- Which entities to generate -->
-        <!--<table tableName="agent_heartbeat_log" domainObjectName="AgentHeartBeatLogEntity" enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
+        <table tableName="inlong_stream_ext" domainObjectName="InlongStreamExtEntity"
+                enableInsert="true" enableSelectByPrimaryKey="true"
+                enableUpdateByPrimaryKey="true" enableDeleteByPrimaryKey="true"
                 enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="user" domainObjectName="UserEntity"
-          enableSelectByPrimaryKey="true"
-          enableUpdateByPrimaryKey="true"
-          enableDeleteByPrimaryKey="true" enableInsert="true"
-          enableCountByExample="false" enableDeleteByExample="false"
-          enableSelectByExample="true" enableUpdateByExample="false"/>
-
-        <table tableName="user_role" domainObjectName="UserRoleEntity"
-                enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="business" domainObjectName="BusinessEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="business_ext" domainObjectName="BusinessExtEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="data_schema" domainObjectName="DataSchemaEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="data_proxy_cluster" domainObjectName="DataProxyClusterEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="cluster_info" domainObjectName="ClusterInfoEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="data_stream" domainObjectName="DataStreamEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="data_stream_ext" domainObjectName="DataStreamExtEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="data_stream_field" domainObjectName="DataStreamFieldEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_file_basic" domainObjectName="SourceFileBasicEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_file_detail" domainObjectName="SourceFileDetailEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_db_basic" domainObjectName="SourceDbBasicEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="source_db_detail" domainObjectName="SourceDbDetailEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="storage_ext" domainObjectName="StorageExtEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="storage_hive" domainObjectName="StorageHiveEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="storage_hive_field" domainObjectName="StorageHiveFieldEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="common_file_server" domainObjectName="CommonFileServerEntity"
-                        enableSelectByPrimaryKey="true"
-                        enableUpdateByPrimaryKey="true"
-                        enableDeleteByPrimaryKey="true" enableInsert="true"
-                        enableCountByExample="false" enableDeleteByExample="false"
-                        enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="common_db_server" domainObjectName="CommonDbServerEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="consumption" domainObjectName="ConsumptionEntity"
-                enableSelectByPrimaryKey="true"
-                enableUpdateByPrimaryKey="true"
-                enableDeleteByPrimaryKey="true" enableInsert="true"
-                enableCountByExample="false" enableDeleteByExample="false"
-                enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="sort_cluster_config" domainObjectName="SortClusterConfgiEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
-
-        <table tableName="sort_id_params" domainObjectName="SortIdParamsEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>-->
-
-        <table tableName="sort_task_id_param" domainObjectName="SortTaskIdParamEntity"
-               enableSelectByPrimaryKey="true"
-               enableUpdateByPrimaryKey="true"
-               enableDeleteByPrimaryKey="true" enableInsert="true"
-               enableCountByExample="false" enableDeleteByExample="false"
-               enableSelectByExample="false" enableUpdateByExample="false"/>
+                enableSelectByExample="false" enableUpdateByExample="false">
+        </table>
 
     </context>
 </generatorConfiguration>

@@ -17,8 +17,8 @@
 
 package org.apache.inlong.audit.util;
 
+import io.netty.channel.Channel;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.jboss.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
 
@@ -92,10 +92,10 @@ public class IpPort {
      */
     public static InetSocketAddress parseInetSocketAddress(Channel channel) {
         InetSocketAddress destAddr = null;
-        if (channel.getRemoteAddress() instanceof InetSocketAddress) {
-            destAddr = (InetSocketAddress) channel.getRemoteAddress();
+        if (channel.remoteAddress() instanceof InetSocketAddress) {
+            destAddr = (InetSocketAddress) channel.remoteAddress();
         } else {
-            String sendIp = channel.getRemoteAddress().toString();
+            String sendIp = channel.remoteAddress().toString();
             destAddr = new InetSocketAddress(sendIp, 0);
         }
         return destAddr;

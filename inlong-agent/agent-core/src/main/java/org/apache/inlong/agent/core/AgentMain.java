@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
-import static org.apache.inlong.agent.constants.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
-import static org.apache.inlong.agent.constants.AgentConstants.PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_PROMETHEUS_EXPORTER_PORT;
+import static org.apache.inlong.agent.constant.AgentConstants.PROMETHEUS_EXPORTER_PORT;
 
 /**
  * Agent entrance class
@@ -55,7 +55,7 @@ public class AgentMain {
     /**
      * Print help information
      *
-     * @param opts - options
+     * @param opts options
      */
     private static void help(Options opts) {
         HelpFormatter formatter = new HelpFormatter();
@@ -66,7 +66,7 @@ public class AgentMain {
     /**
      * Init options
      *
-     * @param args - argument
+     * @param args argument
      * @return command line
      */
     public static CommandLine initOptions(String[] args) {
@@ -84,7 +84,7 @@ public class AgentMain {
     /**
      * Init agent conf
      *
-     * @param cl - commandline
+     * @param cl commandline
      */
     public static void initAgentConf(CommandLine cl) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -101,7 +101,7 @@ public class AgentMain {
     /**
      * Stopping agent gracefully if get killed.
      *
-     * @param manager - agent manager
+     * @param manager agent manager
      */
     private static void stopManagerIfKilled(AgentManager manager) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -117,7 +117,7 @@ public class AgentMain {
     /**
      * Main entrance.
      *
-     * @param args - arguments
+     * @param args arguments
      * @throws Exception exceptions
      */
     public static void main(String[] args) throws Exception {

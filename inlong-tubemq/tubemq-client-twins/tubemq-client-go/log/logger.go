@@ -41,6 +41,7 @@ var LevelNames = map[string]Level{
 	"fatal": LevelFatal,
 }
 
+// Logger is an interface that abstracts behavior of the logger.
 type Logger interface {
 	// Trace logs to TRACE log. Arguments are handled in the manner of fmt.Print.
 	Trace(args ...interface{})

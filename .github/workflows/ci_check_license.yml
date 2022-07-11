@@ -17,24 +17,20 @@
 
 name: InLong Check License Header
 
-on:
-  push:
-    branches: [ master, 'INLONG-*' ]
-  pull_request:
-    branches: [ master, 'INLONG-*' ]
+on: [ push, pull_request ]
 
 jobs:
-  build:
-    name: Check License Header
+  check-license:
+    name: Check license header
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Check License Header
-        uses: apache/skywalking-eyes@ed749b83e23f10eae9c379870c3d5ed45ce4e67a
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check license header
+        uses: apache/skywalking-eyes@v0.3.0
         with:
           log: info
           config: .licenserc.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

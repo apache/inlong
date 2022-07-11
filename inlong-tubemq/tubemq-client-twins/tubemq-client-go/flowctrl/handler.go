@@ -29,10 +29,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/util"
 )
 
+// RuleHandler represents the flow control handler.
 type RuleHandler struct {
 	lastUpdate         int64
 	flowCtrlInfo       string

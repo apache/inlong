@@ -17,15 +17,17 @@
 
 package org.apache.inlong.sort.standalone.config.loader;
 
-import java.io.UnsupportedEncodingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.flume.Context;
-import org.apache.inlong.sort.standalone.config.pojo.SortClusterConfig;
+import org.apache.inlong.common.pojo.sortstandalone.SortClusterConfig;
+import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigType;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
-import com.google.gson.Gson;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * 
@@ -34,7 +36,8 @@ import com.google.gson.Gson;
 public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLoader {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(ClassResourceSortClusterConfigLoader.class);
-    public static final String FILENAME = "SortClusterConfig.conf";
+
+    private Context context;
 
     /**
      * load
@@ -43,17 +46,24 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
      */
     @Override
     public SortClusterConfig load() {
+        String fileName = SortClusterConfigType.DEFAULT_FILE;
         try {
-            String confString = IOUtils.toString(getClass().getClassLoader().getResource(FILENAME));
-            Gson gson = new Gson();
-            SortClusterConfig config = gson.fromJson(confString, SortClusterConfig.class);
+            if (context != null) {
+                fileName = context.getString(SortClusterConfigType.KEY_FILE, SortClusterConfigType.DEFAULT_FILE);
+            }
+            String confString = IOUtils.toString(getClass().getClassLoader().getResource(fileName),
+                    Charset.defaultCharset());
+            int index = confString.indexOf('{');
+            confString = confString.substring(index);
+            ObjectMapper objectMapper = new ObjectMapper();
+            SortClusterConfig config = objectMapper.readValue(confString, SortClusterConfig.class);
             return config;
         } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", FILENAME, e);
+            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", FILENAME, e);
+            LOG.error("fail to load properties, file ={}, and e= {}", fileName, e);
         }
-        return new SortClusterConfig();
+        return SortClusterConfig.builder().build();
     }
 
     /**
@@ -63,5 +73,6 @@ public class ClassResourceSortClusterConfigLoader implements SortClusterConfigLo
      */
     @Override
     public void configure(Context context) {
+        this.context = context;
     }
 }

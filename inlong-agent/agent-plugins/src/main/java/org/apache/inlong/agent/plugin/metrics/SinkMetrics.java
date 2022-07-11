@@ -22,7 +22,7 @@ package org.apache.inlong.agent.plugin.metrics;
 public interface SinkMetrics {
 
     /**
-     * @return The tag name of sink metrics.
+     *  The tag name of sink metrics.
      */
     String getTagName();
 
@@ -32,7 +32,7 @@ public interface SinkMetrics {
     void incSinkSuccessCount();
 
     /**
-     * @return Count of the sink success metric.
+     *  Count of the sink success metric.
      */
     long getSinkSuccessCount();
 
@@ -42,7 +42,7 @@ public interface SinkMetrics {
     void incSinkFailCount();
 
     /**
-     * @return Count of the sink failed metric.
+     *  Count of the sink failed metric.
      */
     long getSinkFailCount();
 

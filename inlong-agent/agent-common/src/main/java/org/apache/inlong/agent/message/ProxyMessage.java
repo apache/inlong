@@ -17,11 +17,13 @@
 
 package org.apache.inlong.agent.message;
 
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_GROUP_ID;
-import static org.apache.inlong.agent.constants.CommonConstants.PROXY_KEY_STREAM_ID;
+import org.apache.inlong.agent.plugin.Message;
 
 import java.util.Map;
-import org.apache.inlong.agent.plugin.Message;
+
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_DATA;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_KEY_STREAM_ID;
 
 /**
  * Bus message with body, header, inlongGroupId and inlongStreamId.
@@ -34,12 +36,32 @@ public class ProxyMessage implements Message {
     private final Map<String, String> header;
     private final String inlongGroupId;
     private final String inlongStreamId;
+    // determine the group key when making batch
+    private final String batchKey;
+    private String dataKey;
 
     public ProxyMessage(byte[] body, Map<String, String> header) {
         this.body = body;
         this.header = header;
         this.inlongGroupId = header.get(PROXY_KEY_GROUP_ID);
         this.inlongStreamId = header.getOrDefault(PROXY_KEY_STREAM_ID, DEFAULT_INLONG_STREAM_ID);
+        this.dataKey = header.getOrDefault(PROXY_KEY_DATA, "");
+        // use the batch key of user and inlongStreamId to determine one batch
+        this.batchKey = dataKey + inlongStreamId;
+    }
+
+    /**
+     * Transform Message to ProxyMessage
+     *
+     * @param message Message
+     * @return ProxyMessage
+     */
+    public static ProxyMessage parse(Message message) {
+        return new ProxyMessage(message.getBody(), message.getHeader());
+    }
+
+    public String getDataKey() {
+        return dataKey;
     }
 
     /**
@@ -70,7 +92,7 @@ public class ProxyMessage implements Message {
         return inlongStreamId;
     }
 
-    public static ProxyMessage parse(Message message) {
-        return new ProxyMessage(message.getBody(), message.getHeader());
+    public String getBatchKey() {
+        return batchKey;
     }
 }

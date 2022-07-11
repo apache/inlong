@@ -25,15 +25,20 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class AddTopicReq extends BaseReq {
-    private String createUser;
-    private String deleteWhen;
-    private Integer unflushThreshold;
-    private Boolean acceptPublish;
-    private Integer numPartitions;
-    private Integer unflushInterval;
-    private Boolean acceptSubscribe;
-    private String brokerId;
-    private String confModAuthToken;
     private String topicName;
+    private String brokerId;
+    private Integer numPartitions;
+    private Integer numTopicStores;
+    private String deleteWhen;
+    private Integer unflushInterval;
+    private Integer unflushThreshold;
+    private Integer unflushDataHold;
+    private Integer memCacheMsgCntInK;
+    private Integer memCacheFlushIntvl;
+    private Integer maxMsgSizeInMB;
     private String deletePolicy;
+    private Boolean acceptPublish;
+    private Boolean acceptSubscribe;
+    private String confModAuthToken;
+    private String createUser;
 }

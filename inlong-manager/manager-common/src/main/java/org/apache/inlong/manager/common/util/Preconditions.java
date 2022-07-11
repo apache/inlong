@@ -50,19 +50,19 @@ public class Preconditions {
         checkTrue(str == null || str.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Collection str, String errMsg) {
+    public static void checkEmpty(Collection<?> str, String errMsg) {
         checkTrue(str == null || str.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Collection collection, Supplier<String> errMsg) {
+    public static void checkEmpty(Collection<?> collection, Supplier<String> errMsg) {
         checkTrue(collection == null || collection.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Map map, String errMsg) {
+    public static void checkEmpty(Map<?, ?> map, String errMsg) {
         checkTrue(map == null || map.isEmpty(), errMsg);
     }
 
-    public static void checkEmpty(Map map, Supplier<String> errMsg) {
+    public static void checkEmpty(Map<?, ?> map, Supplier<String> errMsg) {
         checkTrue(map == null || map.isEmpty(), errMsg);
     }
 
@@ -74,19 +74,19 @@ public class Preconditions {
         checkTrue(str != null && !str.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Collection collection, String errMsg) {
+    public static void checkNotEmpty(Collection<?> collection, String errMsg) {
         checkTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Collection collection, Supplier<String> errMsg) {
+    public static void checkNotEmpty(Collection<?> collection, Supplier<String> errMsg) {
         checkTrue(collection != null && !collection.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Map map, String errMsg) {
+    public static void checkNotEmpty(Map<?, ?> map, String errMsg) {
         checkTrue(map != null && !map.isEmpty(), errMsg);
     }
 
-    public static void checkNotEmpty(Map map, Supplier<String> errMsg) {
+    public static void checkNotEmpty(Map<?, ?> map, Supplier<String> errMsg) {
         checkTrue(map != null && !map.isEmpty(), errMsg);
     }
 

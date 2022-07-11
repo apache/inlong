@@ -41,7 +41,7 @@ const Comp: React.FC = () => {
       name: 'password',
       rules: [
         { required: true, message: t('pages.Login.PasswordCanNotBeBlank') },
-        { pattern: /^[a-z_\d]+$/, message: t('pages.Login.OnlyLowercaseWords') },
+        { pattern: /^[0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
       ],
     },
   ];
@@ -79,7 +79,7 @@ const Comp: React.FC = () => {
   return (
     <div className={styles.wrap} onKeyUp={onEnter}>
       <div className={styles['form-wrap']}>
-        <div className={styles.title}>InLong</div>
+        <img className={styles.logo} src={require('../../components/Icons/logo.svg')} alt="" />
         <div>
           <FormGenerator
             form={form}

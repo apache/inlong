@@ -37,8 +37,8 @@ public class RoleServiceImpl implements RoleService {
     private UserRoleEntityMapper userRoleEntityMapper;
 
     @Override
-    public List<String> listByUser(String userName) {
-        return userRoleEntityMapper.listByUserName(userName)
+    public List<String> listByUser(String username) {
+        return userRoleEntityMapper.listByUsername(username)
                 .stream()
                 .map(UserRoleEntity::getRoleCode)
                 .collect(Collectors.toList());

@@ -191,13 +191,16 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * Check whether the specified query item value matches
      * Allowed query items:
      *   topicName, maxMsgSizeInB, authCtrlStatus
+     *
+     * @param target  the matched object
+     * @param fullMatch  whether match parent parameters
      * @return true: matched, false: not match
      */
-    public boolean isMatched(TopicCtrlEntity target) {
+    public boolean isMatched(TopicCtrlEntity target, boolean fullMatch) {
         if (target == null) {
             return true;
         }
-        if (!super.isMatched(target)) {
+        if (fullMatch && !super.isMatched(target)) {
             return false;
         }
         return (target.getMaxMsgSizeInB() == TBaseConstants.META_VALUE_UNDEFINED
@@ -256,7 +259,8 @@ public class TopicCtrlEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(TopicCtrlEntity other) {
-        return topicNameId == other.topicNameId
+        return super.isDataEquals(other)
+                && topicNameId == other.topicNameId
                 && maxMsgSizeInB == other.maxMsgSizeInB
                 && topicName.equals(other.topicName)
                 && authCtrlStatus == other.authCtrlStatus;

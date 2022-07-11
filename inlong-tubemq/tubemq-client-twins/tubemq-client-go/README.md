@@ -18,14 +18,14 @@
     under the License.
 
 -->
-[![Go Report Card](https://goreportcard.com/badge/github.com/apache/incubator-inlong)](https://goreportcard.com/report/github.com/apache/incubator-inlong)
+[![Go Report Card](https://goreportcard.com/badge/github.com/apache/inlong)](https://goreportcard.com/report/github.com/apache/inlong)
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
 # TubeMQ Go Client Library
 
 ## Goal
 
 This project is a pure-Go client library for TubeMQ that does not
-depend on the [TubeMQ C++ library](https://github.com/apache/incubator-inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp). Production is not supported yet.
+depend on the [TubeMQ C++ library](https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp). Production is not supported yet.
 ## Requirements
 
 - Go 1.11+
@@ -35,18 +35,18 @@ depend on the [TubeMQ C++ library](https://github.com/apache/incubator-inlong/tr
 
 Import the `client` and`config` library:
 ```go
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
 ```
 
 Import the `log` library for log if needed:
 ```go
-import "github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+import "github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 ```
 
 Create a Consumer by parsing address:
 ```go
-cfg, err := config.ParseAddress("9.23.27.160:8099?topic=test_1&group=test_group")
+cfg, err := config.ParseAddress("127.0.0.1:8099?topic=test_1&group=test_group")
 if err != nil {
 	fmt.Errorf("Failed to parse address %s", err.Error())
 	panic(err)
@@ -97,4 +97,4 @@ for _, msg := range cr.Messages {
 ```
 
 ## Example
-Multiple Goroutines consumption is also supported. More specific examples can be referred in [Go Client Examples](https://github.com/apache/incubator-inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-go/example).
+Multiple Goroutines consumption is also supported. More specific examples can be referred in [Go Client Examples](https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-go/example).

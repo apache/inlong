@@ -1,168 +1,209 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ *   Licensed to the Apache Software Foundation (ASF) under one
+ *   or more contributor license agreements.  See the NOTICE file
+ *   distributed with this work for additional information
+ *   regarding copyright ownership.  The ASF licenses this file
+ *   to you under the Apache License, Version 2.0 (the
+ *   "License"); you may not use this file except in compliance
+ *   with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
 
 package org.apache.inlong.manager.common.util;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.exceptions.JsonException;
+import org.reflections.Reflections;
 
-/**
- * JSON utils
- */
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 @Slf4j
+@UtilityClass
 public class JsonUtils {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final String PROJECT_PACKAGE = "org.apache.inlong.manager.common.pojo";
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
-        MAPPER.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
-        MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        initJsonTypeDefine(OBJECT_MAPPER);
     }
 
     /**
-     * The instance need to transform to string
-     *
-     * @param obj instance need to transform
-     * @return JSON string after transform
+     * Transform Java object to JSON string
      */
-    public static String toJson(Object obj) {
-        if (obj == null) {
-            return null;
-        }
-        if (obj.getClass() == String.class) {
-            return (String) obj;
-        }
-        try {
-            return MAPPER.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            log.error("JSON transform error: {}", obj, e);
-            throw new JsonException("JSON transform error");
-        }
+    @SneakyThrows
+    public static String toJsonString(Object object) {
+        return OBJECT_MAPPER.writeValueAsString(object);
     }
 
     /**
-     * Transform the string to specify type
-     *
-     * @param json JSON string
-     * @param type specify type
-     * @param <T> type
-     * @return instance of type T
+     * Transform Java object to JSON byte
      */
-    public static <T> T parse(String json, TypeReference<T> type) {
-        try {
-            return MAPPER.readValue(json, type);
-        } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
-        }
+    @SneakyThrows
+    public static byte[] toJsonByte(Object object) {
+        return OBJECT_MAPPER.writeValueAsBytes(object);
     }
 
     /**
-     * Transform the string to JsonNode
-     *
-     * @param json JSON string
-     * @return JsonNode instance after transform
+     * Parse JSON string to java object
      */
-    public static JsonNode parse(String json) {
-        if (StringUtils.isBlank(json)) {
+    public static <T> T parseObject(String text, Class<T> clazz) {
+        if (StringUtils.isEmpty(text)) {
             return null;
         }
         try {
-            return MAPPER.readTree(json);
+            return OBJECT_MAPPER.readValue(text, clazz);
         } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
+            log.error("json parse err for: " + text, e);
+            throw new JsonException(e);
         }
     }
 
     /**
-     * Transform JSON string to Java instance
-     *
-     * @param json JSON string
-     * @param tClass Java instance type
-     * @param <T> type
-     * @return java instance after transform
+     * Parse JSON string to java object
      */
-    public static <T> T parse(String json, Class<T> tClass) {
-        try {
-            return MAPPER.readValue(json, tClass);
-        } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
+    public static <T> T parseObject(byte[] bytes, Class<T> clazz) {
+        if (ArrayUtils.isEmpty(bytes)) {
+            return null;
         }
-    }
-
-    public static <T> T parse(String json, JavaType javaType) {
         try {
-            return MAPPER.readValue(json, javaType);
+            return OBJECT_MAPPER.readValue(bytes, clazz);
         } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
+            log.error("json parse err for: " + Arrays.toString(bytes), e);
+            throw new JsonException(e);
         }
     }
 
     /**
-     * Transform JSON string to List
-     *
-     * @param json JSON string
-     * @param eClass element class
-     * @param <E> element type
-     * @return list after transform
+     * Parse JSON string to java object
      */
-    public static <E> List<E> parseList(String json, Class<E> eClass) {
+    public static <T> T parseObject(String text, JavaType javaType) {
         try {
-            return MAPPER.readValue(json, MAPPER.getTypeFactory().constructCollectionType(List.class, eClass));
+            return OBJECT_MAPPER.readValue(text, javaType);
         } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
+            log.error("json parse err for: " + text, e);
+            throw new JsonException(e);
         }
     }
 
     /**
-     * Transform JSON string to Map
+     * Parse JSON string to Java object.
+     * <p/>
+     * This method enhancements to {@link #parseObject(String, Class)},
+     * as the above method can not solve this situation:
      *
-     * @param json JSON string
-     * @param kClass key type in Map
-     * @param vClass value type in Map
-     * @param <K> key type
-     * @param <V> value type
-     * @return map after transform
+     * <pre>
+     *     OBJECT_MAPPER.readValue(jsonStr, Response&lt;PageInfo&lt;String>>.class)
+     * </pre>
+     *
+     * @param text json string
+     * @param typeReference The generic type is actually the parsed java type
+     * @return java object;
+     * @throws JsonException when parse error
      */
-    public static <K, V> Map<K, V> parseMap(String json, Class<K> kClass, Class<V> vClass) {
+    public static <T> T parseObject(String text, TypeReference<T> typeReference) {
         try {
-            return MAPPER.readValue(json, MAPPER.getTypeFactory().constructMapType(Map.class, kClass, vClass));
+            return OBJECT_MAPPER.readValue(text, typeReference);
         } catch (IOException e) {
-            log.error("JSON transform error: {}", json, e);
-            throw new JsonException("JSON transform error");
+            log.error("json parse err for: " + text, e);
+            throw new JsonException(e);
         }
     }
 
+    /**
+     * Parse JSON array to List
+     */
+    public static <T> List<T> parseArray(String text, Class<T> clazz) {
+        if (StringUtils.isEmpty(text)) {
+            return new ArrayList<>();
+        }
+        try {
+            return OBJECT_MAPPER.readValue(text,
+                    OBJECT_MAPPER.getTypeFactory().constructCollectionType(List.class, clazz));
+        } catch (IOException e) {
+            log.error("json parse err for: " + text, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * Parse JSON string to JsonNode
+     */
+    public static JsonNode parseTree(String text) {
+        try {
+            return OBJECT_MAPPER.readTree(text);
+        } catch (IOException e) {
+            log.error("json parse err for: " + text, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * Parse JSON byte to JsonNode
+     */
+    public static JsonNode parseTree(byte[] text) {
+        try {
+            return OBJECT_MAPPER.readTree(text);
+        } catch (IOException e) {
+            log.error("json parse err for: " + Arrays.toString(text), e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * Init all classes that marked with JsonTypeInfo annotation
+     */
+    public static void initJsonTypeDefine(ObjectMapper objectMapper) {
+        Reflections reflections = new Reflections(PROJECT_PACKAGE);
+        Set<Class<?>> typeSet = reflections.getTypesAnnotatedWith(JsonTypeInfo.class);
+
+        // Get all subtype of class which marked JsonTypeInfo annotation
+        for (Class<?> type : typeSet) {
+            Set<?> clazzSet = reflections.getSubTypesOf(type);
+            if (CollectionUtils.isEmpty(clazzSet)) {
+                continue;
+            }
+            // Register all subclasses
+            clazzSet.stream()
+                    .map(obj -> (Class<?>) obj)
+                    // Skip the interface and abstract class
+                    .filter(clazz -> !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers()))
+                    .forEach(clazz -> {
+                        // Get the JsonTypeDefine annotation
+                        JsonTypeDefine extendClassDefine = clazz.getAnnotation(JsonTypeDefine.class);
+                        if (extendClassDefine == null) {
+                            return;
+                        }
+                        // Register the subtype and use the NamedType to build the relation
+                        objectMapper.registerSubtypes(new NamedType(clazz, extendClassDefine.value()));
+                    });
+        }
+    }
 }

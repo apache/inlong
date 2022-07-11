@@ -21,7 +21,7 @@ import { pathToRegexp } from 'path-to-regexp';
 import type { RouteProps as ReactRouteProps } from 'react-router-dom';
 
 export interface RouteProps extends Omit<ReactRouteProps, 'component'> {
-  component: () => Promise<{ default: any }>;
+  component?: () => Promise<{ default: any }>;
   childRoutes?: RouteProps[];
 }
 
@@ -42,8 +42,8 @@ const routes: RouteProps[] = [
     exact: true,
     childRoutes: [
       {
-        path: '/create',
-        component: () => import('@/pages/AccessCreate'),
+        path: '/create/:id?',
+        component: () => import('@/pages/AccessDetail'),
         exact: true,
       },
       {
@@ -71,10 +71,21 @@ const routes: RouteProps[] = [
     ],
   },
   {
-    path: '/approvals',
-    component: () => import('@/pages/Approvals'),
+    path: '/audit',
     exact: true,
     childRoutes: [
+      {
+        path: '/:type?',
+        component: () => import('@/pages/Approvals'),
+        exact: true,
+        childRoutes: [
+          {
+            path: '/:id',
+            component: () => import('@/pages/ApprovalDetail'),
+            exact: true,
+          },
+        ],
+      },
       {
         path: '/detail/:id',
         component: () => import('@/pages/ApprovalDetail'),
@@ -82,9 +93,31 @@ const routes: RouteProps[] = [
       },
     ],
   },
+  // {
+  //   path: '/dataSources',
+  //   component: () => import('@/pages/DataSources'),
+  //   exact: true,
+  // },
   {
     path: '/user',
     component: () => import('@/pages/UserManagement'),
+    exact: true,
+  },
+  {
+    path: '/clusters',
+    component: () => import('@/pages/Clusters'),
+    exact: true,
+    childRoutes: [
+      {
+        path: '/node',
+        component: () => import('@/pages/Clusters/NodeManage'),
+        exact: true,
+      },
+    ],
+  },
+  {
+    path: '/clusterTags',
+    component: () => import('@/pages/ClusterTags'),
     exact: true,
   },
   {

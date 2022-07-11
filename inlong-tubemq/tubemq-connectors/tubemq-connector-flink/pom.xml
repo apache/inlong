@@ -22,14 +22,14 @@
     <parent>
         <artifactId>tubemq-connectors</artifactId>
         <groupId>org.apache.inlong</groupId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>Apache InLong - TubeMQ Connectors-flink</name>
     <artifactId>tubemq-connector-flink</artifactId>
 
     <properties>
-        <flink.version>1.9.2</flink.version>
+        <flink.version>1.13.5</flink.version>
         <scala.binary.version>2.11</scala.binary.version>
     </properties>
 
@@ -37,17 +37,18 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>tubemq-core</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
             <scope>provided</scope>
         </dependency>
 

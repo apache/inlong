@@ -18,14 +18,6 @@
 
 package org.apache.inlong.sort.formats.base;
 
-import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
-import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
-import static org.apache.flink.util.Preconditions.checkState;
-import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -39,14 +31,17 @@ import org.apache.flink.table.factories.TableFactoryService;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.ArrayType;
 import org.apache.flink.table.types.logical.BigIntType;
+import org.apache.flink.table.types.logical.BinaryType;
 import org.apache.flink.table.types.logical.BooleanType;
 import org.apache.flink.table.types.logical.DateType;
 import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.table.types.logical.DoubleType;
 import org.apache.flink.table.types.logical.FloatType;
 import org.apache.flink.table.types.logical.IntType;
+import org.apache.flink.table.types.logical.LocalZonedTimestampType;
 import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.logical.MapType;
+import org.apache.flink.table.types.logical.NullType;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.table.types.logical.SmallIntType;
 import org.apache.flink.table.types.logical.TimeType;
@@ -57,6 +52,8 @@ import org.apache.flink.types.Row;
 import org.apache.inlong.sort.formats.common.ArrayFormatInfo;
 import org.apache.inlong.sort.formats.common.ArrayTypeInfo;
 import org.apache.inlong.sort.formats.common.BasicFormatInfo;
+import org.apache.inlong.sort.formats.common.BinaryFormatInfo;
+import org.apache.inlong.sort.formats.common.BinaryTypeInfo;
 import org.apache.inlong.sort.formats.common.BooleanFormatInfo;
 import org.apache.inlong.sort.formats.common.BooleanTypeInfo;
 import org.apache.inlong.sort.formats.common.ByteFormatInfo;
@@ -73,10 +70,13 @@ import org.apache.inlong.sort.formats.common.FormatInfo;
 import org.apache.inlong.sort.formats.common.FormatUtils;
 import org.apache.inlong.sort.formats.common.IntFormatInfo;
 import org.apache.inlong.sort.formats.common.IntTypeInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampFormatInfo;
+import org.apache.inlong.sort.formats.common.LocalZonedTimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.LongFormatInfo;
 import org.apache.inlong.sort.formats.common.LongTypeInfo;
 import org.apache.inlong.sort.formats.common.MapFormatInfo;
 import org.apache.inlong.sort.formats.common.MapTypeInfo;
+import org.apache.inlong.sort.formats.common.NullFormatInfo;
 import org.apache.inlong.sort.formats.common.RowFormatInfo;
 import org.apache.inlong.sort.formats.common.RowTypeInfo;
 import org.apache.inlong.sort.formats.common.ShortFormatInfo;
@@ -88,6 +88,16 @@ import org.apache.inlong.sort.formats.common.TimeTypeInfo;
 import org.apache.inlong.sort.formats.common.TimestampFormatInfo;
 import org.apache.inlong.sort.formats.common.TimestampTypeInfo;
 import org.apache.inlong.sort.formats.common.TypeInfo;
+import org.apache.inlong.sort.formats.common.VarCharFormatInfo;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.flink.table.descriptors.FormatDescriptorValidator.FORMAT_DERIVE_SCHEMA;
+import static org.apache.flink.table.factories.TableFormatFactoryBase.deriveSchema;
+import static org.apache.flink.util.Preconditions.checkState;
+import static org.apache.inlong.sort.formats.base.TableFormatConstants.FORMAT_SCHEMA;
 
 /**
  * A utility class for table formats.
@@ -163,7 +173,7 @@ public class TableFormatUtils {
                 );
 
         return deserializationSchemaFactory
-                       .createProjectedDeserializationSchema(properties, fields);
+                .createProjectedDeserializationSchema(properties, fields);
     }
 
     /**
@@ -188,7 +198,7 @@ public class TableFormatUtils {
                 );
 
         return serializationSchemaFactory
-                       .createProjectedSerializationSchema(properties, fields);
+                .createProjectedSerializationSchema(properties, fields);
     }
 
     /**
@@ -211,7 +221,7 @@ public class TableFormatUtils {
                 );
 
         return tableFormatSerializerFactory
-                       .createFormatSerializer(properties);
+                .createFormatSerializer(properties);
     }
 
     /**
@@ -234,7 +244,7 @@ public class TableFormatUtils {
                 );
 
         return tableFormatDeserializerFactory
-                       .createFormatDeserializer(properties);
+                .createFormatDeserializer(properties);
     }
 
     /**
@@ -268,6 +278,8 @@ public class TableFormatUtils {
             return new TimeFormatInfo();
         } else if (logicalType instanceof TimestampType) {
             return new TimestampFormatInfo();
+        } else if (logicalType instanceof LocalZonedTimestampType) {
+            return new LocalZonedTimestampFormatInfo();
         } else if (logicalType instanceof ArrayType) {
             ArrayType arrayType = (ArrayType) logicalType;
             LogicalType elementType = arrayType.getElementType();
@@ -299,8 +311,13 @@ public class TableFormatUtils {
             }
 
             return new RowFormatInfo(fieldNames, fieldFormatInfos);
+        } else if (logicalType instanceof BinaryType) {
+            return BinaryFormatInfo.INSTANCE;
+        } else if (logicalType instanceof NullType) {
+            return NullFormatInfo.INSTANCE;
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException(String.format("not found logicalType %s",
+                    logicalType == null ? "null" : logicalType.toString()));
         }
     }
 
@@ -309,7 +326,9 @@ public class TableFormatUtils {
      */
     public static LogicalType deriveLogicalType(FormatInfo formatInfo) {
         if (formatInfo instanceof StringFormatInfo) {
-            return new VarCharType();
+            return new VarCharType(VarCharType.MAX_LENGTH);
+        } else if (formatInfo instanceof VarCharFormatInfo) {
+            return new VarCharType(((VarCharFormatInfo) formatInfo).getLength());
         } else if (formatInfo instanceof BooleanFormatInfo) {
             return new BooleanType();
         } else if (formatInfo instanceof ByteFormatInfo) {
@@ -325,13 +344,16 @@ public class TableFormatUtils {
         } else if (formatInfo instanceof DoubleFormatInfo) {
             return new DoubleType();
         } else if (formatInfo instanceof DecimalFormatInfo) {
-            return new DecimalType();
+            DecimalFormatInfo decimalFormatInfo = (DecimalFormatInfo) formatInfo;
+            return new DecimalType(decimalFormatInfo.getPrecision(), decimalFormatInfo.getScale());
         } else if (formatInfo instanceof TimeFormatInfo) {
-            return new TimeType();
+            return new TimeType(((TimeFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof DateFormatInfo) {
             return new DateType();
         } else if (formatInfo instanceof TimestampFormatInfo) {
-            return new TimestampType();
+            return new TimestampType(((TimestampFormatInfo) formatInfo).getPrecision());
+        } else if (formatInfo instanceof LocalZonedTimestampFormatInfo) {
+            return new LocalZonedTimestampType(((LocalZonedTimestampFormatInfo) formatInfo).getPrecision());
         } else if (formatInfo instanceof ArrayFormatInfo) {
             FormatInfo elementFormatInfo = ((ArrayFormatInfo) formatInfo).getElementFormatInfo();
             return new ArrayType(deriveLogicalType(elementFormatInfo));
@@ -350,8 +372,13 @@ public class TableFormatUtils {
                 logicalTypes[i] = deriveLogicalType(formatInfos[i]);
             }
             return RowType.of(logicalTypes, rowFormatInfo.getFieldNames());
+        } else if (formatInfo instanceof BinaryFormatInfo) {
+            return new BinaryType();
+        } else if (formatInfo instanceof NullFormatInfo) {
+            return new NullType();
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException(String.format("not found formatInfo %s",
+                    formatInfo == null ? "null" : formatInfo.toString()));
         }
     }
 
@@ -386,6 +413,10 @@ public class TableFormatUtils {
             return Types.SQL_TIME;
         } else if (typeInfo instanceof TimestampTypeInfo) {
             return Types.SQL_TIMESTAMP;
+        } else if (typeInfo instanceof LocalZonedTimestampTypeInfo) {
+            return Types.LOCAL_DATE_TIME;
+        } else if (typeInfo instanceof BinaryTypeInfo) {
+            return Types.PRIMITIVE_ARRAY(Types.BYTE);
         } else if (typeInfo instanceof ArrayTypeInfo) {
             ArrayTypeInfo arrayTypeInfo = (ArrayTypeInfo) typeInfo;
             TypeInfo elementTypeInfo =
@@ -414,7 +445,7 @@ public class TableFormatUtils {
 
             return Types.ROW_NAMED(fieldNames, fieldTypes);
         } else {
-            throw new IllegalStateException("Unexpected format.");
+            throw new IllegalStateException("Unexpected type info " + typeInfo + ".");
         }
     }
 

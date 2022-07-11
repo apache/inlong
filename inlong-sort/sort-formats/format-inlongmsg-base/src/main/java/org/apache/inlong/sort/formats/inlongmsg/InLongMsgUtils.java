@@ -36,7 +36,7 @@ import org.apache.flink.table.api.ValidationException;
 import org.apache.flink.table.descriptors.DescriptorProperties;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.Row;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 import org.apache.inlong.sort.formats.base.TableFormatConstants;
 import org.apache.inlong.sort.formats.base.TableFormatUtils;
 import org.apache.inlong.sort.formats.common.FormatInfo;
@@ -106,6 +106,42 @@ public class InLongMsgUtils {
 
             return new RowFormatInfo(dataFieldNames, dataFieldFormatInfos);
         }
+    }
+
+    /**
+     * Parse head of message.
+     */
+    public static InLongMsgHead parseHead(String attr) {
+        Map<String, String> attributes = parseAttr(attr);
+
+        // Extracts interface from the attributes.
+        String streamId;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_STREAM_ID)) {
+            streamId = attributes.get(INLONGMSG_ATTR_STREAM_ID);
+        } else {
+            throw new IllegalArgumentException("Could not find " + INLONGMSG_ATTR_STREAM_ID + " in attributes!");
+        }
+
+        // Extracts time from the attributes
+        Timestamp time;
+
+        if (attributes.containsKey(INLONGMSG_ATTR_TIME_T)) {
+            String date = attributes.get(INLONGMSG_ATTR_TIME_T).trim();
+            time = parseDateTime(date);
+        } else if (attributes.containsKey(INLONGMSG_ATTR_TIME_DT)) {
+            String epoch = attributes.get(INLONGMSG_ATTR_TIME_DT).trim();
+            time = parseEpochTime(epoch);
+        } else {
+            throw new IllegalArgumentException(
+                    "Could not find " + INLONGMSG_ATTR_TIME_T
+                            + " or " + INLONGMSG_ATTR_TIME_DT + " in attributes!");
+        }
+
+        // Extracts predefined fields from the attributes
+        List<String> predefinedFields = getPredefinedFields(attributes);
+
+        return new InLongMsgHead(attributes, streamId, time, predefinedFields);
     }
 
     public static Map<String, String> parseAttr(String attr) {

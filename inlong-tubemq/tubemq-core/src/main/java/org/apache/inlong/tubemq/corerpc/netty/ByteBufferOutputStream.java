@@ -50,6 +50,8 @@ public class ByteBufferOutputStream extends OutputStream {
 
     /**
      * Prepend a list of ByteBuffers to this stream.
+     *
+     * @param lists    need to prepended content
      */
     public void prepend(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -60,6 +62,8 @@ public class ByteBufferOutputStream extends OutputStream {
 
     /**
      * Append a list of ByteBuffers to this stream.
+     *
+     * @param lists    need to appended content
      */
     public void append(List<ByteBuffer> lists) {
         for (ByteBuffer buffer : lists) {
@@ -104,6 +108,8 @@ public class ByteBufferOutputStream extends OutputStream {
 
     /**
      * Add a buffer to the output without copying, if possible.
+     *
+     * @param buffer   the content need to written
      */
     public void writeBuffer(ByteBuffer buffer) throws IOException {
         if (buffer.remaining() < RpcConstants.RPC_MAX_BUFFER_SIZE) {

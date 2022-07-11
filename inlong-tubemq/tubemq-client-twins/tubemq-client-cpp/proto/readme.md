@@ -15,6 +15,6 @@
  * limitations under the License.
  */
 
-The proto directory and files are copied from https://github.com/apache/incubator-tubemq/tree/master/tubemq-core/src/main/proto
+The proto directory and files are copied from https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-core/src/main/proto
 
 Corresponding *.cc and *.h files are compiled with protobuf 2.5.0 version, if you need other protobuf version's source code, please directly compile *.proto file.

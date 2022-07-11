@@ -19,8 +19,6 @@ package org.apache.inlong.tubemq.manager.entry;
 
 import java.util.Date;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -36,7 +34,6 @@ import lombok.Data;
 @Data
 public class ClusterEntry {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long clusterId;
 
     private String clusterName;
@@ -46,4 +43,6 @@ public class ClusterEntry {
     private Date modifyTime;
 
     private String createUser;
+
+    private int reloadBrokerSize;
 }

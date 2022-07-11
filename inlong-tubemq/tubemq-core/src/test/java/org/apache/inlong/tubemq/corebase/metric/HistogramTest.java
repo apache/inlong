@@ -126,5 +126,11 @@ public class HistogramTest {
                 "\"disk_dlt\":{\"count\":2,\"min\":1,\"max\":100,\"cells\":{\"cell_0t2\":1,\"cell_64t128\":1}}";
         Assert.assertEquals(result2, strBuff.toString());
         strBuff.delete(0, strBuff.length());
+        // test clear()
+        estHistogram.clear();
+        estHistogram.getValue(tmpMap, false);
+        Assert.assertEquals(tmpMap.get("disk_dlt_count").longValue(), 0L);
+        Assert.assertEquals(tmpMap.get("disk_dlt_max").longValue(), Long.MIN_VALUE);
+        Assert.assertEquals(tmpMap.get("disk_dlt_min").longValue(), Long.MAX_VALUE);
     }
 }

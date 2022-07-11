@@ -63,8 +63,15 @@ public class SimpleMessageProducer implements MessageProducer {
     private final PartitionRouter partitionRouter;
     private final DefaultBrokerRcvQltyStats brokerRcvQltyStats;
     private final RpcConfig rpcConfig = new RpcConfig();
-    private AtomicBoolean isShutDown = new AtomicBoolean(false);
+    private final AtomicBoolean isShutDown = new AtomicBoolean(false);
 
+    /**
+     * Initial a producer object
+     *
+     * @param sessionFactory        the session factory
+     * @param tubeClientConfig      the client configure
+     * @throws TubeClientException  the exception while creating object
+     */
     public SimpleMessageProducer(final InnerSessionFactory sessionFactory,
                                  TubeClientConfig tubeClientConfig) throws TubeClientException {
         java.security.Security.setProperty("networkaddress.cache.ttl", "3");
@@ -223,7 +230,6 @@ public class SimpleMessageProducer implements MessageProducer {
                 rpcServiceFactory.addRmtAddrErrCount(partition.getBroker().getBrokerAddr());
             }
             producerManager.getClientMetrics().bookFailRpcCall(
-                    System.currentTimeMillis() - startTime,
                     TErrCodeConstants.UNSPECIFIED_ABNORMAL);
             partition.increRetries(1);
             this.brokerRcvQltyStats.addReceiveStatistic(brokerId, false);
@@ -269,7 +275,6 @@ public class SimpleMessageProducer implements MessageProducer {
                         @Override
                         public void handleError(Throwable error) {
                             producerManager.getClientMetrics().bookFailRpcCall(
-                                    System.currentTimeMillis() - startTime,
                                     TErrCodeConstants.UNSPECIFIED_ABNORMAL);
                             partition.increRetries(1);
                             brokerRcvQltyStats.addReceiveStatistic(brokerId, false);
@@ -365,7 +370,8 @@ public class SimpleMessageProducer implements MessageProducer {
                                                  final ClientBroker.SendMessageResponseB2P response) {
         final String resultStr = response.getErrMsg();
         if (response.getErrCode() == TErrCodeConstants.SUCCESS) {
-            producerManager.getClientMetrics().bookSuccSendMsg(dltTime, message.getData().length);
+            producerManager.getClientMetrics().bookSuccSendMsg(dltTime,
+                    message.getTopic(), partition.getPartitionKey(), message.getData().length);
             if (response.hasMessageId()) {
                 return new MessageSentResult(true,
                         response.getErrCode(), "Ok!",
@@ -376,7 +382,7 @@ public class SimpleMessageProducer implements MessageProducer {
                         message, Long.parseLong(resultStr), partition);
             }
         } else {
-            producerManager.getClientMetrics().bookFailRpcCall(dltTime, response.getErrCode());
+            producerManager.getClientMetrics().bookFailRpcCall(response.getErrCode());
             return new MessageSentResult(false, response.getErrCode(), resultStr,
                     message, TBaseConstants.META_VALUE_UNDEFINED, partition);
         }

@@ -38,7 +38,7 @@ export default (
       rules: [
         { required: true },
         {
-          pattern: /^[a-z_\d]+$/,
+          pattern: /^[0-9a-z_\d]+$/,
           message: i18n.t(
             'components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules',
           ),
@@ -61,14 +61,14 @@ export default (
       type: BusinessSelect,
       label: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.ConsumerTargetBusinessID'),
       name: 'inlongGroupId',
-      extraNames: ['middlewareType'],
+      extraNames: ['mqType'],
       initialValue: currentValues.inlongGroupId,
       rules: [{ required: true }],
       props: {
         style: { width: 500 },
         onChange: (inlongGroupId, record) => ({
           topic: undefined,
-          middlewareType: record.middlewareType,
+          mqType: record.mqType,
         }),
       },
     },
@@ -79,22 +79,22 @@ export default (
       initialValue: currentValues.topic,
       rules: [{ required: true }],
       props: {
-        mode: currentValues.middlewareType === 'PULSAR' ? 'multiple' : '',
+        mode: currentValues.mqType === 'PULSAR' ? 'multiple' : '',
         options: {
-          requestService: `/business/getTopic/${currentValues.inlongGroupId}`,
+          requestService: `/group/getTopic/${currentValues.inlongGroupId}`,
           requestParams: {
             formatResult: result =>
-              result.middlewareType === 'TUBE'
+              result.mqType === 'TUBE'
                 ? [
                     {
-                      label: result.mqResourceObj,
-                      value: result.mqResourceObj,
+                      label: result.mqResource,
+                      value: result.mqResource,
                     },
                   ]
-                : result.dsTopicList?.map(item => ({
+                : result.streamTopics?.map(item => ({
                     ...item,
-                    label: item.mqResourceObj,
-                    value: item.mqResourceObj,
+                    label: item.mqResource,
+                    value: item.mqResource,
                   })) || [],
           },
         },
@@ -119,7 +119,7 @@ export default (
         ],
       },
       rules: [{ required: true }],
-      visible: values => !!values.middlewareType && values.middlewareType !== 'PULSAR',
+      visible: values => !!values.mqType && values.mqType !== 'PULSAR',
     },
     {
       type: 'input',
@@ -129,12 +129,12 @@ export default (
       extra: i18n.t('components.ConsumeHelper.FieldsConfig.basicFields.DataStreamIDsHelp'),
       rules: [{ required: true }],
       style:
-        currentValues.middlewareType === 'PULSAR'
+        currentValues.mqType === 'PULSAR'
           ? {
               display: 'none',
             }
           : {},
-      visible: values => values.middlewareType === 'PULSAR' || values.filterEnabled,
+      visible: values => values.mqType === 'PULSAR' || values.filterEnabled,
     },
     {
       type: 'text',
@@ -160,7 +160,7 @@ export default (
           },
         ],
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'input',
@@ -168,7 +168,7 @@ export default (
       name: 'mqExtInfo.deadLetterTopic',
       initialValue: currentValues.mqExtInfo?.deadLetterTopic,
       rules: [{ required: true }],
-      visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+      visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
     },
     {
       type: 'radio',
@@ -188,7 +188,7 @@ export default (
           },
         ],
       },
-      visible: values => values.mqExtInfo?.isDlq && values.middlewareType === 'PULSAR',
+      visible: values => values.mqExtInfo?.isDlq && values.mqType === 'PULSAR',
     },
     {
       type: 'input',
@@ -197,7 +197,7 @@ export default (
       initialValue: currentValues.mqExtInfo?.retryLetterTopic,
       rules: [{ required: true }],
       visible: values =>
-        values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.middlewareType === 'PULSAR',
+        values.mqExtInfo?.isDlq && values.mqExtInfo?.isRlq && values.mqType === 'PULSAR',
     },
   ] as FormItemProps[];
 

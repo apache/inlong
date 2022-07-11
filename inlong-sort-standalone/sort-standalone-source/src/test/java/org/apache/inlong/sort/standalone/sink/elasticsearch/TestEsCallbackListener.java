@@ -19,7 +19,7 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.elasticsearch.action.DocWriteRequest.OpType;
 import org.elasticsearch.action.bulk.BulkItemResponse;
@@ -57,7 +57,7 @@ public class TestEsCallbackListener {
     public void testBeforeBulk() {
         // prepare
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         long executionId = 0;
         BulkRequest bulkRequest = new BulkRequest();
         bulkRequest.add(indexRequest);
@@ -77,7 +77,7 @@ public class TestEsCallbackListener {
         LinkedBlockingQueue<EsIndexRequest> dispatchQueue = new LinkedBlockingQueue<>();
         EsSinkContext context = TestEsSinkContext.mock(dispatchQueue);
         ProfileEvent event = TestEsSinkContext.mockProfileEvent();
-        EsIndexRequest indexRequest = context.getIndexRequestHandler().parse(context, event);
+        EsIndexRequest indexRequest = context.createIndexRequestHandler().parse(context, event);
         long executionId = 0;
         EsCallbackListener listener = new EsCallbackListener(context);
         // request

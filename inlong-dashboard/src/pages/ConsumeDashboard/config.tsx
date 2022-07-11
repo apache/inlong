@@ -115,7 +115,7 @@ export const getColumns = ({ onDelete }) => {
     },
     {
       title: i18n.t('pages.ConsumeDashboard.config.Middleware'),
-      dataIndex: 'middlewareType',
+      dataIndex: 'mqType',
       width: 120,
     },
     {

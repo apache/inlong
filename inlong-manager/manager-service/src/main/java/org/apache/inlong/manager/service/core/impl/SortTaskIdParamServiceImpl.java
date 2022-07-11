@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Sort id params service implementation. */
+/**
+ * Sort id params service implementation.
+ */
 @Service
 public class SortTaskIdParamServiceImpl implements SortTaskIdParamService {
 
@@ -38,22 +40,18 @@ public class SortTaskIdParamServiceImpl implements SortTaskIdParamService {
 
     @Autowired private SortTaskIdParamEntityMapper sortTaskIdParamEntityMapper;
 
-    private final Map<String, Map<String, String>> idParams = new HashMap<>();
-
     @Override
     public List<Map<String, String>> selectByTaskName(String taskName) {
         List<SortTaskIdParamEntity> taskIdParamEntityList =
                 sortTaskIdParamEntityMapper.selectByTaskName(taskName);
-        idParams.clear();
-        taskIdParamEntityList.forEach(this::addParam);
+        Map<String, Map<String, String>> idParams = new HashMap<>();
+        taskIdParamEntityList.forEach(entity -> {
+            Map<String, String> idParam =
+                    idParams.computeIfAbsent(entity.getKey(), key -> new HashMap<>());
+            idParam.put(entity.getParamKey(), entity.getParamValue());
+            idParam.putIfAbsent(KEY_GROUP_ID, entity.getGroupId());
+            idParam.putIfAbsent(KEY_STREAM_ID, entity.getStreamId());
+        });
         return new ArrayList<>(idParams.values());
-    }
-
-    private void addParam(SortTaskIdParamEntity entity) {
-        Map<String, String> idParam =
-                idParams.computeIfAbsent(entity.getKey(), key -> new HashMap<>());
-        idParam.put(entity.getParamKey(), entity.getParamValue());
-        idParam.putIfAbsent(KEY_GROUP_ID, entity.getGroupId());
-        idParam.putIfAbsent(KEY_STREAM_ID, entity.getStreamId());
     }
 }

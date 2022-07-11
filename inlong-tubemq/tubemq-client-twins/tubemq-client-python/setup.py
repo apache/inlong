@@ -68,7 +68,7 @@ setup(
     version=__version__,
     author="dockerzhang",
     author_email="dockerzhang@apache.org",
-    url="https://github.com/apache/incubator-tubemq/tree/tubemq-client-python",
+    url="https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-python",
     description="TubeMq Python SDK Client project built with pybind11",
     long_description="",
     ext_modules=ext_modules,

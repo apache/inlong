@@ -17,14 +17,17 @@
 
 package org.apache.inlong.manager.common.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.crypto.hash.SimpleHash;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.crypto.hash.SimpleHash;
+import java.util.regex.Pattern;
 
 /**
  * Common tools
@@ -32,8 +35,20 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 @Slf4j
 public class SmallTools {
 
+    private static final Pattern LOWER_NUMBER_PATTERN = Pattern.compile("^(?![0-9]+$)[a-z][a-z0-9_-]{1,200}$");
+
     private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    /**
+     * Check if the string starts with a lowercase letter and contains only lowercase letters, digits, `-` or `_`.
+     */
+    public static boolean isLowerOrNum(String str) {
+        if (StringUtils.isNotBlank(str)) {
+            return LOWER_NUMBER_PATTERN.matcher(str).matches();
+        }
+        return false;
+    }
 
     /**
      * IP validation check

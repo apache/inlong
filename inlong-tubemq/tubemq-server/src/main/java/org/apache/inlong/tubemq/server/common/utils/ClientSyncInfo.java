@@ -40,6 +40,12 @@ public class ClientSyncInfo {
 
     }
 
+    /**
+     * Update the client reported subscription information
+     *
+     * @param brokerRunManager   the broker run-manager
+     * @param clientSubRepInfo   the client reported subscription information
+     */
     public void updSubRepInfo(BrokerRunManager brokerRunManager,
                               ClientMaster.ClientSubRepInfo clientSubRepInfo) {
         if (clientSubRepInfo == null) {

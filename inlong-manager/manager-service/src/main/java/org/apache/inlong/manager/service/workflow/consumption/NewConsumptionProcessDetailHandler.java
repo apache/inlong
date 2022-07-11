@@ -17,10 +17,12 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import org.apache.inlong.manager.common.workflow.ProcessDefinitionService;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ProcessDetailHandler;
-import org.apache.inlong.manager.common.model.view.ProcessDetail;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
+import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.util.WorkflowFormParserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,20 +34,21 @@ import org.springframework.stereotype.Component;
 public class NewConsumptionProcessDetailHandler implements ProcessDetailHandler {
 
     @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
     private ProcessDefinitionService processDefinitionService;
 
     @Override
-    public ProcessDetail handle(ProcessDetail processDetail) {
-        Process process = processDefinitionService.getByName(processDetail.getWorkflow().getName());
-
-        NewConsumptionWorkflowForm workflowForm = WorkflowFormParserUtils
-                .parseProcessForm(processDetail.getProcessInfo().getFormData().toString(), process);
-
-        if (workflowForm == null) {
-            return processDetail;
+    public ProcessDetailResponse handle(ProcessDetailResponse processResponse) {
+        WorkflowProcess process = processDefinitionService.getByName(processResponse.getWorkflow().getName());
+        NewConsumptionProcessForm processForm = WorkflowFormParserUtils
+                .parseProcessForm(objectMapper, processResponse.getProcessInfo().getFormData().toString(), process);
+        if (processForm == null) {
+            return processResponse;
         }
 
-        processDetail.getProcessInfo().setFormData(workflowForm);
-        return processDetail;
+        processResponse.getProcessInfo().setFormData(processForm);
+        return processResponse;
     }
+
 }

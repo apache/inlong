@@ -20,7 +20,7 @@ package org.apache.inlong.agent.plugin.trigger;
 import java.nio.file.Path;
 import java.util.HashMap;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.plugin.AgentBaseTestsHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;

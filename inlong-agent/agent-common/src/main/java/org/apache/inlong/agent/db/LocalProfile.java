@@ -17,20 +17,23 @@
 
 package org.apache.inlong.agent.db;
 
+import org.apache.inlong.agent.conf.JobProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.inlong.agent.conf.JobProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Stream;
 
 /**
  * profile from local file
  */
 public class LocalProfile {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalProfile.class);
 
     private static final String JSON_SUFFIX = ".json";
@@ -44,22 +47,31 @@ public class LocalProfile {
         this.filePath = Paths.get(fileName);
     }
 
+    /**
+     * If filePath is a directory, read all local file and construct job profiles
+     *
+     * @return list of JobProfiles
+     */
     public List<JobProfile> readFromLocal() {
         List<JobProfile> profileList = new ArrayList<>();
         try {
             if (Files.isDirectory(this.filePath)) {
                 // list parent path and find files which name is end with .json or .properties
-                for (Iterator<Path> it = Files.list(this.filePath).iterator(); it.hasNext(); ) {
-                    String childPath = it.next().toString();
-                    JobProfile jobProfile = null;
-                    if (childPath.endsWith(JSON_SUFFIX)) {
-                        jobProfile = JobProfile.parseJsonFile(childPath);
-                    } else if (childPath.endsWith(PROPERTIES_SUFFIX)) {
-                        jobProfile = JobProfile.parsePropertiesFile(childPath);
+                try (final Stream<Path> pathStream = Files.list(this.filePath)) {
+                    for (Iterator<Path> it = pathStream.iterator(); it.hasNext(); ) {
+                        String childPath = it.next().toString();
+                        JobProfile jobProfile = null;
+                        if (childPath.endsWith(JSON_SUFFIX)) {
+                            jobProfile = JobProfile.parseJsonFile(childPath);
+                        } else if (childPath.endsWith(PROPERTIES_SUFFIX)) {
+                            jobProfile = JobProfile.parsePropertiesFile(childPath);
+                        }
+                        if (jobProfile != null && jobProfile.allRequiredKeyExist()) {
+                            profileList.add(jobProfile);
+                        }
                     }
-                    if (jobProfile != null && jobProfile.allRequiredKeyExist()) {
-                        profileList.add(jobProfile);
-                    }
+                } catch (Exception e) {
+                    LOGGER.error("error caught", e);
                 }
             }
         } catch (Exception ex) {

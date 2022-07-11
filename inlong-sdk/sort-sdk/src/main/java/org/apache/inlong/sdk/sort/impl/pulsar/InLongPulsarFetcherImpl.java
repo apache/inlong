@@ -19,12 +19,13 @@ package org.apache.inlong.sdk.sort.impl.pulsar;
 
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.sort.api.ClientContext;
 import org.apache.inlong.sdk.sort.api.InLongTopicFetcher;
 import org.apache.inlong.sdk.sort.entity.InLongMessage;
@@ -39,7 +40,6 @@ import org.apache.pulsar.client.api.PulsarClient;
 import org.apache.pulsar.client.api.PulsarClientException;
 import org.apache.pulsar.client.api.Schema;
 import org.apache.pulsar.client.api.SubscriptionType;
-import org.apache.pulsar.shade.org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +48,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     private final Logger logger = LoggerFactory.getLogger(InLongPulsarFetcherImpl.class);
     private final ReentrantReadWriteLock mainLock = new ReentrantReadWriteLock(true);
     private final ConcurrentHashMap<String, MessageId> offsetCache = new ConcurrentHashMap<>();
-
     private Consumer<byte[]> consumer;
-
-    private volatile Thread fetchThread;
 
     public InLongPulsarFetcherImpl(InLongTopic inLongTopic,
             ClientContext context) {
@@ -102,7 +99,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
-                    logger.error("consumer == null");
+                    logger.error("consumer == null {}", inLongTopic);
                     return;
                 }
                 MessageId messageId = offsetCache.get(msgOffset);
@@ -110,13 +107,14 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                             inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                             .addAckFailTimes(1L);
-                    logger.error("messageId == null");
+                    logger.error("messageId == null {}", inLongTopic);
                     return;
                 }
                 consumer.acknowledgeAsync(messageId)
                         .thenAccept(consumer -> ackSucc(msgOffset))
                         .exceptionally(exception -> {
-                            logger.error("ack fail:{}", msgOffset);
+                            logger.error("ack fail:{} {},error:{}", 
+                                    inLongTopic, msgOffset, exception.getMessage(), exception);
                             context.getStatManager().getStatistics(context.getConfig().getSortTaskId(),
                                     inLongTopic.getInLongCluster().getClusterId(), inLongTopic.getTopic())
                                     .addAckFailTimes(1L);
@@ -143,17 +141,20 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     }
 
     private boolean createConsumer(PulsarClient client) {
+        if (null == client) {
+            return false;
+        }
         try {
             consumer = client.newConsumer(Schema.BYTES)
                     .topic(inLongTopic.getTopic())
                     .subscriptionName(context.getConfig().getSortTaskId())
                     .subscriptionType(SubscriptionType.Shared)
                     .startMessageIdInclusive()
-                    .ackTimeout(10, TimeUnit.SECONDS)
+                    .ackTimeout(context.getConfig().getAckTimeoutSec(), TimeUnit.SECONDS)
                     .receiverQueueSize(context.getConfig().getPulsarReceiveQueueSize())
                     .subscribe();
 
-            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss.SSS");
+            String threadName = "sort_sdk_fetch_thread_" + StringUtil.formatDate(new Date());
             this.fetchThread = new Thread(new Fetcher(), threadName);
             this.fetchThread.start();
         } catch (Exception e) {
@@ -161,15 +162,6 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             return false;
         }
         return true;
-    }
-
-    /**
-     * isValidState
-     */
-    public void isValidState() {
-        if (closed) {
-            throw new IllegalStateException(inLongTopic + " closed.");
-        }
     }
 
     /**
@@ -201,7 +193,6 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
     public boolean close() {
         mainLock.writeLock().lock();
         try {
-            this.closed = true;
             try {
                 if (consumer != null) {
                     consumer.close();
@@ -212,10 +203,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
             } catch (PulsarClientException e) {
                 e.printStackTrace();
             }
-
             logger.info("closed {}", inLongTopic);
             return true;
         } finally {
+            this.closed = true;
             mainLock.writeLock().unlock();
         }
     }
@@ -230,7 +221,7 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
         /**
          * put the received msg to onFinished method
          *
-         * @param messageRecords {@link List<MessageRecord>}
+         * @param messageRecords {@link List}
          */
         private void handleAndCallbackMsg(List<MessageRecord> messageRecords) {
             long start = System.currentTimeMillis();
@@ -291,8 +282,11 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                             String offsetKey = getOffset(msg.getMessageId());
                             offsetCache.put(offsetKey, msg.getMessageId());
 
+                            List<InLongMessage> inLongMessages = deserializer
+                                    .deserialize(context, inLongTopic, msg.getProperties(), msg.getData());
+
                             msgs.add(new MessageRecord(inLongTopic.getTopicKey(),
-                                    Collections.singletonList(new InLongMessage(msg.getData(), msg.getProperties())),
+                                    inLongMessages,
                                     offsetKey, System.currentTimeMillis()));
                             context.getStatManager()
                                     .getStatistics(context.getConfig().getSortTaskId(),
@@ -327,6 +321,10 @@ public class InLongPulsarFetcherImpl extends InLongTopicFetcher {
                     if (hasPermit) {
                         context.releaseRequestPermit();
                     }
+                }
+
+                if (closed) {
+                    break;
                 }
             }
         }

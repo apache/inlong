@@ -52,6 +52,15 @@ public interface ClusterService {
     ClusterEntry getOneCluster(long clusterId);
 
     /**
+     *
+     * get one cluster by cluster name
+     *
+     * @param clusterName
+     * @return
+     */
+    ClusterEntry getOneCluster(String clusterName);
+
+    /**
      * get all clusters
      *
      * @return
@@ -65,4 +74,5 @@ public interface ClusterService {
      * @return
      */
     TubeMQResult modifyCluster(ClusterDto clusterDto);
+
 }

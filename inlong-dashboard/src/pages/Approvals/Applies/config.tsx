@@ -37,7 +37,7 @@ export const getFilterFormContent = defaultValues => [
   {
     type: 'select',
     label: i18n.t('basic.Status'),
-    name: 'state',
+    name: 'status',
     initialValue: defaultValues.state,
     props: {
       dropdownMatchSelectWidth: false,
@@ -52,7 +52,7 @@ export const getColumns = activedName => [
     title: i18n.t('pages.Approvals.ProcessID'),
     dataIndex: 'id',
     width: 90,
-    render: text => <Link to={`/approvals/detail/${text}?actived=${activedName}`}>{text}</Link>,
+    render: text => <Link to={`/audit/${activedName}/${text}`}>{text}</Link>,
   },
   {
     title: i18n.t('pages.Approvals.ApplicationType'),
@@ -60,7 +60,7 @@ export const getColumns = activedName => [
     dataIndex: 'displayName',
   },
   {
-    title: i18n.t('pages.Approvals.BusinessId'),
+    title: i18n.t('pages.Approvals.GroupId'),
     dataIndex: 'inlongGroupId',
     width: 200,
     render: (text, record) => record.showInList?.inlongGroupId,
@@ -74,12 +74,12 @@ export const getColumns = activedName => [
   {
     title: i18n.t('pages.Approvals.Approver'),
     dataIndex: 'currentTasks',
-    width: 250,
+    width: 220,
     render: text => text?.map(item => item.approvers)?.join(', '),
   },
   {
     title: i18n.t('basic.Status'),
-    dataIndex: 'state',
+    dataIndex: 'status',
     width: 100,
     render: text => genStatusTag(text),
   },
@@ -88,9 +88,7 @@ export const getColumns = activedName => [
     dataIndex: 'action',
     width: 100,
     render: (text, record) => (
-      <Link to={`/approvals/detail/${record.id}?actived=${activedName}`}>
-        {i18n.t('basic.Detail')}
-      </Link>
+      <Link to={`/audit/${activedName}/${record.id}`}>{i18n.t('basic.Detail')}</Link>
     ),
   },
 ];

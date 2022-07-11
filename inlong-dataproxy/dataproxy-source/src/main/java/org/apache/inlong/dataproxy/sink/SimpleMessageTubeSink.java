@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -39,7 +40,7 @@ import org.apache.flume.Transaction;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
 import org.apache.flume.source.shaded.guava.RateLimiter;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.config.ConfigManager;
 import org.apache.inlong.dataproxy.config.holder.ConfigUpdateCallback;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
@@ -58,7 +59,6 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -424,8 +424,8 @@ public class SimpleMessageTubeSink extends AbstractSink implements Configurable 
             Message message = new Message(topic, event.getBody());
             message.setAttrKeyVal("dataproxyip", NetworkUtils.getLocalIp());
             String streamId = "";
-            if (event.getHeaders().containsKey(AttributeConstants.INTERFACE_ID)) {
-                streamId = event.getHeaders().get(AttributeConstants.INTERFACE_ID);
+            if (event.getHeaders().containsKey(AttributeConstants.STREAM_ID)) {
+                streamId = event.getHeaders().get(AttributeConstants.STREAM_ID);
             } else if (event.getHeaders().containsKey(AttributeConstants.INAME)) {
                 streamId = event.getHeaders().get(AttributeConstants.INAME);
             }

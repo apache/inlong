@@ -34,15 +34,16 @@ PYBIND11_MODULE(tubemq_config, m) {
         .value("kConsumeFromLatestOffset", ConsumePosition::kConsumeFromLatestOffset)
         .value("kComsumeFromMaxOffsetAlways", ConsumePosition::kComsumeFromMaxOffsetAlways)
         .export_values();
-        
+
     py::class_<ConsumerConfig>(m, "ConsumerConfig")
         .def(py::init<>())
         .def("setRpcReadTimeoutMs", &ConsumerConfig::SetRpcReadTimeoutMs)
         .def("setMasterAddrInfo", &ConsumerConfig::SetMasterAddrInfo)
-        .def("setGroupConsumeTarget", static_cast<bool (ConsumerConfig::*)\
+        .def("setGroupConsumeTarget", static_cast<bool(ConsumerConfig::*) \
         (string&, const string&, const set<string>&)>(&ConsumerConfig::SetGroupConsumeTarget), "")
-        .def("setGroupConsumeTarget", static_cast<bool (ConsumerConfig::*)\
-        (string&, const string&, const map<string, set<string>>&)>(&ConsumerConfig::SetGroupConsumeTarget), "")
+        .def("setGroupConsumeTarget", static_cast<bool(ConsumerConfig::*) \
+        (string&, const string&, const map<string, set<string>>&)> \
+        (&ConsumerConfig::SetGroupConsumeTarget), "")
         .def("getRpcReadTimeoutMs", &ConsumerConfig::GetRpcReadTimeoutMs)
         .def("setConsumePosition", &ConsumerConfig::SetConsumePosition)
         .def("getMasterAddrInfo", &ConsumerConfig::GetMasterAddrInfo);

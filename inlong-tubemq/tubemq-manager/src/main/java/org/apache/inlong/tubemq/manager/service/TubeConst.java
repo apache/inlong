@@ -34,6 +34,10 @@ public class TubeConst {
             "/webapi.htm?type=op_modify&method=admin_add_new_topic_record";
     public static final String RELOAD_BROKER =
             "/webapi.htm?type=op_modify&method=admin_reload_broker_configure";
+    public static final String QUERY_CONSUMER_GROUP_INFO =
+            "/webapi.htm?type=op_query&method=admin_query_topic_authorize_control";
+    public static final String QUERY_CONSUMER_INFO =
+            "/webapi.htm?type=op_query&method=admin_query_sub_info";
 
     /**
      * http method type
@@ -47,12 +51,19 @@ public class TubeConst {
     public static final String CLONE = "clone";
     public static final String ADD = "add";
     public static final String QUERY = "query";
+    public static final String SWITCH = "switch";
+    public static final String PUBLISH = "publish";
+    public static final String SUBSCRIBE = "subscribe";
     public static final String REBALANCE_CONSUMER_GROUP = "rebalanceGroup";
     public static final String REBALANCE_CONSUMER = "rebalanceConsumer";
     public static final String SET_READ_OR_WRITE = "setReadOrWrite";
     public static final String AUTH_CONTROL = "authControl";
     public static final String ADD_TOPIC_TASK = "addTopicTask";
     public static final String QUERY_CAN_WRITE = "queryCanWrite";
+    public static final String FILTER_CONDITION = "filterCondition";
+    public static final String FLOW_CONTROL = "flowControl";
+    public static final String BATCH_DELETE = "batchDelete";
+
 
     /**
      * status code

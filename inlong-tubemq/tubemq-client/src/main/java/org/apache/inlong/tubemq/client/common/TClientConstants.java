@@ -25,7 +25,7 @@ public class TClientConstants {
     public static final long CFG_DEFAULT_REGFAIL_WAIT_PERIOD_MS = 1000;
     public static final long CFG_DEFAULT_MSG_NOTFOUND_WAIT_PERIOD_MS = 400L;
     public static final long CFG_DEFAULT_CONSUME_READ_WAIT_PERIOD_MS = 90000L;
-    public static final long CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS = 50L;
+    public static final long CFG_DEFAULT_CONSUME_READ_CHECK_SLICE_MS = 3L;
     public static final long CFG_DEFAULT_PUSH_LISTENER_WAIT_PERIOD_MS = 3000L;
     public static final long CFG_DEFAULT_PULL_REB_CONFIRM_WAIT_PERIOD_MS = 3000L;
     public static final long CFG_DEFAULT_PULL_PROTECT_CONFIRM_WAIT_PERIOD_MS = 60000L;
@@ -39,14 +39,4 @@ public class TClientConstants {
 
     public static final long CFG_DEFAULT_META_QUERY_WAIT_PERIOD_MS = 10000L;
     public static final long CFG_MIN_META_QUERY_WAIT_PERIOD_MS = 5000L;
-
-    // client metric information print period
-    public static final long METRIC_PRINT_DEFAULT_PERIOD_MS = 3 * 1000 * 60;
-    public static final long METRIC_PRINT_MIN_PERIOD_MS = 3 * 1000 * 60;
-    public static final long METRIC_PRINT_MAX_PERIOD_MS = 60 * 1000 * 60;
-
-    // client metric information print period
-    public static final long METRIC_RESET_DEFAULT_PERIOD_MS = 30 * 60 * 1000;
-    public static final long METRIC_RESET_MIN_PERIOD_MS = 30 * 60 * 1000;
-    public static final long METRIC_RESET_MAX_PERIOD_MS = 24 * 3600 * 1000;
 }

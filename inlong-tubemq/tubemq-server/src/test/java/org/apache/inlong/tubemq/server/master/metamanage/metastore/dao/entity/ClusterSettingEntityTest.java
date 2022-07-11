@@ -18,7 +18,10 @@
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
+import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.corebase.utils.SettingValidUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.apache.inlong.tubemq.server.common.statusdef.EnableStatus;
@@ -180,4 +183,79 @@ public class ClusterSettingEntityTest {
         Assert.assertNotEquals(setting5.getClsDefTopicProps(), setting2.getClsDefTopicProps());
     }
 
+    @Test
+    public void getMapValuesTest() {
+        Map<String, String> paramMap = new HashMap<>();
+        // case 1
+        ClusterSettingEntity entity1 = new ClusterSettingEntity();
+        entity1.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 0);
+        paramMap.clear();
+        // case 2
+        String createUser = "creater";
+        String dateStr1 = "20220302110925";
+        Date createDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr1);
+        String modifyUser = "modifyUser";
+        String dateStr2 = "20220302111925";
+        Date modifyDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr2);
+        BaseEntity baseEntity = new BaseEntity(30,
+                createUser, createDate, modifyUser, modifyDate);
+        ClusterSettingEntity entity2 = new ClusterSettingEntity(baseEntity);
+        entity2.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 6);
+        Assert.assertEquals(paramMap.get("dataVersionId"),
+                String.valueOf(30));
+        Assert.assertEquals(paramMap.get("serialId"),
+                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("createUser"), createUser);
+        Assert.assertEquals(paramMap.get("createDate"), dateStr1);
+        Assert.assertEquals(paramMap.get("modifyUser"), modifyUser);
+        Assert.assertEquals(paramMap.get("modifyDate"), dateStr2);
+        paramMap.clear();
+        // case 3
+        entity2.updModifyInfo(5, 6, 7,
+                8, 9, 101, false,
+                0, null, null);
+        entity2.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 12);
+        Assert.assertEquals(paramMap.get("dataVersionId"),
+                String.valueOf(5));
+        Assert.assertEquals(paramMap.get("serialId"),
+                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("createUser"), createUser);
+        Assert.assertEquals(paramMap.get("createDate"), dateStr1);
+        Assert.assertEquals(paramMap.get("modifyUser"), modifyUser);
+        Assert.assertEquals(paramMap.get("modifyDate"), dateStr2);
+        Assert.assertEquals(paramMap.get("brokerPort"), String.valueOf(6));
+        Assert.assertEquals(paramMap.get("brokerTLSPort"), String.valueOf(7));
+        Assert.assertEquals(paramMap.get("brokerWebPort"), String.valueOf(8));
+        Assert.assertEquals(paramMap.get("maxMsgSizeInMB"), String.valueOf(9));
+        Assert.assertEquals(paramMap.get("qryPriorityId"), String.valueOf(101));
+        Assert.assertEquals(paramMap.get("flowCtrlEnable"), "false");
+        paramMap.clear();
+        // case 4
+        entity2.updModifyInfo(9, 10, 11,
+                12, 13, 301, true,
+                2, "[{\"type\":1},{\"type\":2}]", null);
+        entity2.getConfigureInfo(paramMap, false);
+        Assert.assertEquals(paramMap.size(), 14);
+        Assert.assertEquals(paramMap.get("dVerId"),
+                String.valueOf(9));
+        Assert.assertEquals(paramMap.get("serialId"),
+                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("cur"), createUser);
+        Assert.assertEquals(paramMap.get("cDate"), dateStr1);
+        Assert.assertEquals(paramMap.get("mur"), modifyUser);
+        Assert.assertEquals(paramMap.get("mDate"), dateStr2);
+
+        Assert.assertEquals(paramMap.get("bPort"), String.valueOf(10));
+        Assert.assertEquals(paramMap.get("bTlsPort"), String.valueOf(11));
+        Assert.assertEquals(paramMap.get("bWebPort"), String.valueOf(12));
+        Assert.assertEquals(paramMap.get("mxMsgInMB"), String.valueOf(13));
+        Assert.assertEquals(paramMap.get("qryPriId"), String.valueOf(301));
+        Assert.assertEquals(paramMap.get("fCtrlEn"), "true");
+        Assert.assertEquals(paramMap.get("fCtrlCnt"), String.valueOf(2));
+        Assert.assertEquals(paramMap.get("fCtrlInfo"), "[{\"type\":1},{\"type\":2}]");
+        paramMap.clear();
+    }
 }

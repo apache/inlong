@@ -22,12 +22,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/remote"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/sub"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/codec"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/errs"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/metadata"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/protocol"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/remote"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/sub"
 )
 
 const (
@@ -40,7 +40,8 @@ const (
 )
 
 // RegisterRequestC2M implements the RegisterRequestRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
+func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+	r *remote.RmtDataCache) (*protocol.RegisterResponseM2C, error) {
 	reqC2M := &protocol.RegisterRequestC2M{
 		ClientId:         proto.String(sub.GetClientID()),
 		HostName:         proto.String(metadata.GetNode().GetHost()),
@@ -100,7 +101,8 @@ func (c *rpcClient) RegisterRequestC2M(ctx context.Context, metadata *metadata.M
 }
 
 // HeartRequestC2M implements the HeartRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo, r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error) {
+func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo,
+	r *remote.RmtDataCache) (*protocol.HeartResponseM2C, error) {
 	reqC2M := &protocol.HeartRequestC2M{
 		ClientId:            proto.String(sub.GetClientID()),
 		GroupName:           proto.String(metadata.GetSubscribeInfo().GetGroup()),
@@ -161,7 +163,8 @@ func (c *rpcClient) HeartRequestC2M(ctx context.Context, metadata *metadata.Meta
 }
 
 // CloseRequestC2M implements the CloseRequestC2M interface according to TubeMQ RPC protocol.
-func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata, sub *sub.SubInfo) (*protocol.CloseResponseM2C, error) {
+func (c *rpcClient) CloseRequestC2M(ctx context.Context, metadata *metadata.Metadata,
+	sub *sub.SubInfo) (*protocol.CloseResponseM2C, error) {
 	reqC2M := &protocol.CloseRequestC2M{
 		ClientId:  proto.String(sub.GetClientID()),
 		GroupName: proto.String(metadata.GetSubscribeInfo().GetGroup()),

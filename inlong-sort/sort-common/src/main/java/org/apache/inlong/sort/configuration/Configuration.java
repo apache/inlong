@@ -616,6 +616,12 @@ public class Configuration implements java.io.Serializable, Cloneable {
         }
     }
 
+    public void addAll(Map<String, Object> propsMap) {
+        synchronized (this.confData) {
+            this.confData.putAll(propsMap);
+        }
+    }
+
     /**
      * Adds all entries from the given configuration into this configuration. The keys are prepended
      * with the given prefix.

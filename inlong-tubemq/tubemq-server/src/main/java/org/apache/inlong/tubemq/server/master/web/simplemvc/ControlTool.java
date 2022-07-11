@@ -25,7 +25,7 @@ public class ControlTool {
     private static final Logger logger =
             LoggerFactory.getLogger(ControlTool.class);
 
-    private RequestDispatcher dispatcher;
+    private final RequestDispatcher dispatcher;
 
     private RequestContext requestContext;
 

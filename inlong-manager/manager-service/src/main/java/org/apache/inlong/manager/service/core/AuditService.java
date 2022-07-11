@@ -22,6 +22,9 @@ import java.util.List;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 
+/**
+ * The service interface for audit.
+ */
 public interface AuditService {
 
 

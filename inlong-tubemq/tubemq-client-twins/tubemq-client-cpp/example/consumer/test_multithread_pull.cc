@@ -147,7 +147,6 @@ int main(int argc, char* argv[]) {
 
   result = consumer_1.Start(err_info, consumer_config);
   if (!result) {
-
     printf("\n Initial consumer failure, error is: %s ", err_info.c_str());
     return -2;
   }

@@ -19,21 +19,23 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.inlong.sdk.commons.protocol.EventConstants;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
+import org.apache.inlong.sort.standalone.utils.UnescapeHelper;
 
 /**
  * 
  * DefaultEvent2IndexRequestHandler
  */
 public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHandler {
+
+    public static final String KEY_EXTINFO = "extinfo";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private AtomicLong esIndexIndex = new AtomicLong(System.currentTimeMillis());
@@ -67,7 +69,7 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
             strContext = new String(bodyBytes, Charset.defaultCharset());
         }
         // unescape
-        List<String> columnVlues = unescapeFields(strContext, cDelimeter);
+        List<String> columnVlues = UnescapeHelper.toFiledList(strContext, cDelimeter);
         int valueLength = columnVlues.size();
         List<String> fieldList = idConfig.getFieldList();
         int columnLength = fieldList.size();
@@ -104,97 +106,17 @@ public class DefaultEvent2IndexRequestHandler implements IEvent2IndexRequestHand
     }
 
     /**
-     * unescapeFields
-     * 
-     * @param  fieldValues
-     * @param  separator
-     * @return
-     */
-    public static List<String> unescapeFields(String fieldValues, char separator) {
-        List<String> fields = new ArrayList<String>();
-        if (fieldValues.length() <= 0) {
-            return fields;
-        }
-
-        int fieldLen = fieldValues.length();
-        StringBuilder builder = new StringBuilder();
-        int i = 0;
-        for (; i < fieldLen - 1; i++) {
-            char value = fieldValues.charAt(i);
-            switch (value) {
-                case '\\' :
-                    char nextValue = fieldValues.charAt(i + 1);
-                    switch (nextValue) {
-                        case '0' :
-                            builder.append(0x00);
-                            i++;
-                            break;
-                        case 'n' :
-                            builder.append('\n');
-                            i++;
-                            break;
-                        case 'r' :
-                            builder.append('\r');
-                            i++;
-                            break;
-                        case '\\' :
-                            builder.append('\\');
-                            i++;
-                            break;
-                        default :
-                            if (nextValue == separator) {
-                                builder.append(separator);
-                                i++;
-                            } else {
-                                builder.append(value);
-                            }
-                            break;
-                    }
-                    if (i == fieldLen - 1) {
-                        fields.add(builder.toString());
-                    }
-                    break;
-                default :
-                    if (value == separator) {
-                        fields.add(builder.toString());
-                        builder.delete(0, builder.length());
-                    } else {
-                        builder.append(value);
-                    }
-                    break;
-            }
-        }
-
-        if (i == fieldLen - 1) {
-            char value = fieldValues.charAt(i);
-            if (value == separator) {
-                fields.add(builder.toString());
-                fields.add("");
-            } else {
-                builder.append(value);
-                fields.add(builder.toString());
-            }
-        }
-        return fields;
-    }
-
-    /**
      * getExtInfo
      * 
      * @param  event
      * @return
      */
     public static String getExtInfo(ProfileEvent event) {
-        if (event.getHeaders().size() > 0) {
-            StringBuilder sBuilder = new StringBuilder();
-            for (Entry<String, String> extInfo : event.getHeaders().entrySet()) {
-                String key = extInfo.getKey();
-                String value = extInfo.getValue();
-                sBuilder.append(key).append('=').append(value).append('&');
-            }
-            String extinfo = sBuilder.substring(0, sBuilder.length() - 1);
-            return extinfo;
+        String extinfoValue = event.getHeaders().get(KEY_EXTINFO);
+        if (extinfoValue != null) {
+            return KEY_EXTINFO + "=" + extinfoValue;
         }
-        return "";
+        extinfoValue = KEY_EXTINFO + "=" + event.getHeaders().get(EventConstants.HEADER_KEY_SOURCE_IP);
+        return extinfoValue;
     }
 }

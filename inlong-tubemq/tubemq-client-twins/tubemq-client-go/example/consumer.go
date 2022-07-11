@@ -20,9 +20,9 @@ package main
 import (
 	"time"
 
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
-	"github.com/apache/incubator-inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/client"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/config"
+	"github.com/apache/inlong/inlong-tubemq/tubemq-client-twins/tubemq-client-go/log"
 )
 
 func main() {
@@ -37,9 +37,10 @@ func main() {
 	// config.WithBoundConsume("ss", 1, true, partitionOffset))
 
 	// Example for parseAddress
-	cfg, err := config.ParseAddress("9.23.27.160:8099?topic=test_1&group=test_group")
+	cfg, err := config.ParseAddress("127.0.0.1:8099?topic=test_1&group=test_group")
 	// For topic filter
-	// cfg, err := config.ParseAddress("9.23.27.160:8099?topic=Topic1&filters=12312323&filters=1212&topic=Topic2&filters=121212&filters=2321323&group=test_group")
+	// cfg, err := config.ParseAddress("127.0.0.1:8099?topic=Topic1&filters=12312323" +
+	//	"&filters=1212&topic=Topic2&filters=121212&filters=2321323&group=test_group")
 	if err != nil {
 		log.Errorf("Failed to parse address", err.Error())
 		panic(err)

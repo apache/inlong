@@ -343,7 +343,8 @@ public class GroupResCtrlEntity extends BaseEntity implements Cloneable {
      * @return if equals
      */
     public boolean isDataEquals(GroupResCtrlEntity other) {
-        return allowedBrokerClientRate == other.allowedBrokerClientRate
+        return super.isDataEquals(other)
+                && allowedBrokerClientRate == other.allowedBrokerClientRate
                 && qryPriorityId == other.qryPriorityId
                 && ruleCnt == other.ruleCnt
                 && groupName.equals(other.groupName)

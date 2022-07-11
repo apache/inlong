@@ -21,35 +21,24 @@ import org.apache.flume.Context;
 import org.apache.flume.Sink;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.sink.AbstractSink;
-import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class KafkaFederationSink extends AbstractSink implements Configurable {
     private static final Logger LOG = InlongLoggerFactory.getLogger(KafkaFederationSink.class);
     private Context parentContext;
     private KafkaFederationSinkContext context;
     private List<KafkaFederationWorker> workers = new ArrayList<>();
-    private Map<String, String> dimensions;
 
     /** init and start workers */
     @Override
     public void start() {
         String sinkName = this.getName();
-        if (getChannel() == null) {
-            LOG.error("channel is null");
-        }
-        this.context = new KafkaFederationSinkContext(getName(), parentContext, getChannel());
+        this.context = new KafkaFederationSinkContext(sinkName, parentContext, getChannel());
         this.context.start();
-        this.dimensions = new HashMap<>();
-        this.dimensions.put(SortMetricItem.KEY_CLUSTER_ID, this.context.getClusterId());
-        this.dimensions.put(SortMetricItem.KEY_TASK_NAME, this.context.getTaskName());
-        this.dimensions.put(SortMetricItem.KEY_SINK_ID, this.context.getSinkName());
         // create worker
         for (int i = 0; i < context.getMaxThreads(); i++) {
             KafkaFederationWorker worker = new KafkaFederationWorker(sinkName, i, context);

@@ -23,23 +23,23 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.enums.BizConstant;
 
 /**
  * Extended consumption information of different MQs
  */
 @Data
 @ApiModel("Extended consumption information of different MQs")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "middlewareType", defaultImpl = ConsumptionMqExtBase.class)
+@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType", defaultImpl = ConsumptionMqExtBase.class)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = BizConstant.MIDDLEWARE_PULSAR)
+        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "PULSAR"),
+        @JsonSubTypes.Type(value = ConsumptionPulsarInfo.class, name = "TDMQ_PULSAR")
 })
 public class ConsumptionMqExtBase {
 
-    @ApiModelProperty(value = "Self-incrementing primary key")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Consumer information ID")
+    @ApiModelProperty(value = "Consumption ID")
     private Integer consumptionId;
 
     @ApiModelProperty(value = "Consumer group")
@@ -51,7 +51,6 @@ public class ConsumptionMqExtBase {
     @ApiModelProperty("Whether to delete, 0: not deleted, 1: deleted")
     private Integer isDeleted = 0;
 
-    @ApiModelProperty(value = "Data storage middleware type, high throughput: TUBE, high consistency: PULSAR")
-    private String middlewareType;
-
+    @ApiModelProperty("The type of MQ")
+    private String mqType;
 }

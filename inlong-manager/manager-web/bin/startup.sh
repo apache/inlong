@@ -1,12 +1,12 @@
 #! /bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
+# or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
+# regarding copyright ownership. The ASF licenses this file
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# with the License. You may obtain a copy of the License at
 #
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -20,16 +20,16 @@
 
 #======================================================================
 # Project start shell script
-# config directory: configuration file directory
-# log directory: project operation log directory
-# log/startup.log: record startup log
-# log/back directory: Project running log backup directory
+# logs directory: project operation log directory
+# logs/startup.log: record startup log
+# logs/back directory: Project running log backup directory
 # nohup background process
 #
 #======================================================================
 
 # Project name
 APPLICATION="InLong-Manager-Web"
+echo start ${APPLICATION} Application...
 
 # Project startup jar package name
 APPLICATION_JAR="manager-web.jar"
@@ -39,11 +39,13 @@ export PATH=$PATH:$JAVA_HOME/bin
 
 # Absolute path of bin directory
 BIN_PATH=$(
-  cd $(dirname $0)
+  # shellcheck disable=SC2164
+  cd "$(dirname $0)"
   pwd
 )
 
 # Enter the root directory path
+# shellcheck disable=SC2164
 cd "$BIN_PATH"
 cd ../
 
@@ -59,41 +61,23 @@ CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}:${JAR_MAIN}
 MAIN_CLASS=org.apache.inlong.manager.web.InLongWebApplication
 
 # Project log output absolute path
-LOG_DIR=${BASE_PATH}"/log"
-LOG_FILE="${LOG_DIR}/sout-manager-web.log"
-# Log backup directory
-LOG_BACK_DIR="${LOG_DIR}/back/"
-
-# Project startup log output absolute path
+LOG_DIR=${BASE_PATH}"/logs"
 LOG_STARTUP_PATH="${LOG_DIR}/startup.log"
-
-# current time
-NOW=$(date +'%Y-%m-%m-%H-%M-%S')
-NOW_PRETTY=$(date +'%Y-%m-%m %H:%M:%S')
-
-# Startup log
-STARTUP_LOG="================================================ ${NOW_PRETTY} ================================================\n"
 
 # If the logs folder does not exist, create the folder
 if [ ! -d "${LOG_DIR}" ]; then
   mkdir "${LOG_DIR}"
 fi
 
-# If the log/back folder does not exist, create a folder
-if [ ! -d "${LOG_BACK_DIR}" ]; then
-  mkdir "${LOG_BACK_DIR}"
-fi
-
-# If the project log exists, rename the backup
-if [ -f "${LOG_FILE}" ]; then
-  mv ${LOG_FILE} "${LOG_BACK_DIR}/${APPLICATION}_back_${NOW}.log"
-fi
-
-# Create a new project run log
-echo "" >${LOG_FILE}
-
 # JVM Configuration
-JAVA_OPT="-server -Xms512m -Xmx1024m -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow "
+JAVA_OPT="-server -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m -XX:-OmitStackTraceInFastThrow"
+
+if [ -z "$MANAGER_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms512m -Xmx1024m"
+else
+  HEAP_OPTS="$MANAGER_JVM_HEAP_OPTS"
+fi
+JAVA_OPT="${JAVA_OPT} ${HEAP_OPTS}"
 
 # outside param
 JAVA_OPT="${JAVA_OPT} $1"
@@ -107,38 +91,16 @@ JAVA_OPT="${JAVA_OPT} -XX:+IgnoreUnrecognizedVMOptions -XX:+UseConcMarkSweepGC -
 # Remote debugger
 #JAVA_OPT="${JAVA_OPT} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8081"
 
-#=======================================================
-# Append command startup related logs to the log file
-#=======================================================
+# Start service: start the project in the background, and output the log to the logs folder under the project root directory
+nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &
 
-# Output project name
-STARTUP_LOG="${STARTUP_LOG}application name: ${APPLICATION}\n"
-# Output jar package name
-STARTUP_LOG="${STARTUP_LOG}application jar name: ${APPLICATION_JAR}\n"
-# Output project root directory
-STARTUP_LOG="${STARTUP_LOG}application root path: ${BASE_PATH}\n"
-# Output project bin path
-STARTUP_LOG="${STARTUP_LOG}application bin path: ${BIN_PATH}\n"
-# Output project config path
-STARTUP_LOG="${STARTUP_LOG}application config path: ${CONFIG_DIR}\n"
-# Print log path
-STARTUP_LOG="${STARTUP_LOG}application log path: ${LOG_DIR}\n"
-# Print JVM configuration
-STARTUP_LOG="${STARTUP_LOG}application JAVA_OPT: ${JAVA_OPT}\n"
-
-# Print start command
-STARTUP_LOG="${STARTUP_LOG}application startup command: nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>${LOG_FILE} 2>${LOG_DIR}/error.log &\n"
-
-#======================================================================
-# Execute the startup command: start the project in the background, and output the log to the logs folder under the project root directory
-#======================================================================
-nohup java ${JAVA_OPT} -Dlog4j2.formatMsgNoLookups=true -Dlog4j.formatMsgNoLookups=true -cp ${CLASSPATH} ${MAIN_CLASS} 1>${LOG_FILE} 2>${LOG_DIR}/error.log &
+# Print the startup log
+STARTUP_LOG="startup command: nohup java ${JAVA_OPT} -cp ${CLASSPATH} ${MAIN_CLASS} 1>/dev/null 2>${LOG_DIR}/error.log &\n"
 
 # Process ID
 PID="$!"
 STARTUP_LOG="${STARTUP_LOG}application pid: ${PID}\n"
 
-# The startup log is appended to the startup log file
+# Append and print the startup log
 echo -e ${STARTUP_LOG} >>${LOG_STARTUP_PATH}
-# Print startup log
 echo -e ${STARTUP_LOG}

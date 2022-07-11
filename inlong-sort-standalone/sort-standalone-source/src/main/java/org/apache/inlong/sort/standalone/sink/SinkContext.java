@@ -18,15 +18,19 @@
 package org.apache.inlong.sort.standalone.sink;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.pojo.sortstandalone.SortTaskConfig;
+import org.apache.inlong.sort.standalone.channel.ProfileEvent;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.holder.SortClusterConfigHolder;
-import org.apache.inlong.sort.standalone.config.pojo.SortTaskConfig;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItemSet;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
@@ -42,6 +46,7 @@ public class SinkContext {
     public static final String KEY_MAX_THREADS = "maxThreads";
     public static final String KEY_PROCESSINTERVAL = "processInterval";
     public static final String KEY_RELOADINTERVAL = "reloadInterval";
+    public static final String KEY_TASK_NAME = "taskName";
 
     protected final String clusterId;
     protected final String taskName;
@@ -71,7 +76,7 @@ public class SinkContext {
         this.sinkContext = context;
         this.channel = channel;
         this.clusterId = context.getString(CommonPropertiesHolder.KEY_CLUSTER_ID);
-        this.taskName = context.getString(SortTaskConfig.KEY_TASK_NAME);
+        this.taskName = context.getString(KEY_TASK_NAME);
         this.maxThreads = sinkContext.getInteger(KEY_MAX_THREADS, 10);
         this.processInterval = sinkContext.getInteger(KEY_PROCESSINTERVAL, 100);
         this.reloadInterval = sinkContext.getLong(KEY_RELOADINTERVAL, 60000L);
@@ -216,5 +221,20 @@ public class SinkContext {
      */
     public SortMetricItemSet getMetricItemSet() {
         return metricItemSet;
+    }
+
+    /**
+     * fillInlongId
+     *
+     * @param currentRecord
+     * @param dimensions
+     */
+    public static void fillInlongId(ProfileEvent currentRecord, Map<String, String> dimensions) {
+        String inlongGroupId = currentRecord.getInlongGroupId();
+        inlongGroupId = (StringUtils.isBlank(inlongGroupId)) ? "-" : inlongGroupId;
+        String inlongStreamId = currentRecord.getInlongStreamId();
+        inlongStreamId = (StringUtils.isBlank(inlongStreamId)) ? "-" : inlongStreamId;
+        dimensions.put(SortMetricItem.KEY_INLONG_GROUP_ID, inlongGroupId);
+        dimensions.put(SortMetricItem.KEY_INLONG_STREAM_ID, inlongStreamId);
     }
 }

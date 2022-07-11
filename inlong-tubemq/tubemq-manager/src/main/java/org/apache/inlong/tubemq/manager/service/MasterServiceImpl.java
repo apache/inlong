@@ -37,6 +37,7 @@ import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.node.request.BaseReq;
 import org.apache.inlong.tubemq.manager.entry.MasterEntry;
 import org.apache.inlong.tubemq.manager.repository.MasterRepository;
+import static org.apache.inlong.tubemq.manager.service.TubeConst.DELETE_FAIL;
 import org.apache.inlong.tubemq.manager.service.interfaces.MasterService;
 import org.apache.inlong.tubemq.manager.service.tube.TubeHttpResponse;
 import org.apache.inlong.tubemq.manager.utils.ConvertUtils;
@@ -105,8 +106,7 @@ public class MasterServiceImpl implements MasterService {
         if (req.getClusterId() == null) {
             return TubeMQResult.errorResult("please input clusterId");
         }
-        MasterEntry masterEntry = masterRepository.findMasterEntryByClusterIdEquals(
-                req.getClusterId());
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(req.getClusterId()));
         if (masterEntry == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -147,11 +147,21 @@ public class MasterServiceImpl implements MasterService {
         if (clusterId == null) {
             return null;
         }
-        List<MasterEntry> masters = masterRepository
-                .findMasterEntriesByClusterIdEquals(
-                        clusterId);
+        List<MasterEntry> masters = masterRepository.findMasterEntriesByClusterIdEquals(clusterId);
         if (CollectionUtils.isEmpty(masters)) {
             throw new RuntimeException("cluster id " + clusterId + "no master node, please check");
+        }
+        return masters;
+    }
+
+    @Override
+    public List<MasterEntry> getMasterNodes(String masterIp) {
+        if (masterIp == null) {
+            return null;
+        }
+        List<MasterEntry> masters = masterRepository.findMasterEntryByIpEquals(masterIp);
+        if (CollectionUtils.isEmpty(masters)) {
+            throw new RuntimeException("master ip " + masterIp + "no master node, please check");
         }
         return masters;
     }
@@ -160,8 +170,7 @@ public class MasterServiceImpl implements MasterService {
     public String getQueryUrl(Map<String, String> queryBody) throws Exception {
         int clusterId = Integer.parseInt(queryBody.get("clusterId"));
         queryBody.remove("clusterId");
-        MasterEntry masterEntry =
-                masterRepository.findMasterEntryByClusterIdEquals(clusterId);
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
         return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
                 + "/" + TubeConst.TUBE_REQUEST_PATH + "?" + ConvertUtils.covertMapToQueryString(queryBody);
     }
@@ -170,6 +179,21 @@ public class MasterServiceImpl implements MasterService {
     public TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterWebPort) {
         String url = TubeConst.SCHEMA + masterIp + ":" + masterWebPort + TubeConst.BROKER_RUN_STATUS;
         return requestMaster(url);
+    }
+
+    @Override
+    public String getQueryCountUrl(Integer clusterId, String method) {
+        MasterEntry masterEntry = getMasterNode(Long.valueOf(clusterId));
+        return TubeConst.SCHEMA + masterEntry.getIp() + ":" + masterEntry.getWebPort()
+                + method + "&" + "clusterId=" + clusterId;
+    }
+
+    @Override
+    public void deleteMaster(Long clusterId) {
+        Integer successCode = masterRepository.deleteByClusterId(clusterId);
+        if (successCode.equals(DELETE_FAIL)) {
+            throw new RuntimeException("no such master with clusterId = " + clusterId);
+        }
     }
 
 }

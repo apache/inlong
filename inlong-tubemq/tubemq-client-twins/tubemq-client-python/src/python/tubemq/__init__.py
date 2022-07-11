@@ -15,6 +15,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#
 
-from .client import consumer
+from .client import Consumer
+from .tube_msg import TubeMsg

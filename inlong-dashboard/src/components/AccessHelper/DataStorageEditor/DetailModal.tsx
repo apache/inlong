@@ -17,18 +17,17 @@
  * under the License.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Modal } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import { useRequest, useUpdateEffect } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import FormGenerator, {
   useForm,
   FormItemProps,
   FormGeneratorProps,
 } from '@/components/FormGenerator';
-import { GetStorageFormFieldsType } from '@/utils/metaData';
-import { getHiveForm, getHiveColumns } from '@/components/MetaData/StorageHive';
-import { getClickhouseForm, getClickhouseColumns } from '@/components/MetaData/StorageClickhouse';
+import { Storages, StoragesType } from '@/components/MetaData';
 
 export interface DetailModalProps extends ModalProps {
   inlongGroupId: string;
@@ -38,9 +37,7 @@ export interface DetailModalProps extends ModalProps {
   id?: string;
   // (False operation) Need to pass when editing, row data
   record?: Record<string, any>;
-  // You can customize the conversion format after successfully obtaining the existing data during editing
-  onSuccessDataFormat?: Function;
-  storageType: 'HIVE' | 'TEST';
+  sinkType: 'HIVE' | 'TEST';
   dataType?: string;
   // defaultRowTypeFields, which can be used to auto-fill form default values
   defaultRowTypeFields?: Record<string, unknown>[];
@@ -49,12 +46,19 @@ export interface DetailModalProps extends ModalProps {
   onValuesChange?: FormGeneratorProps['onValuesChange'];
 }
 
+const StoragesMap: Record<string, StoragesType> = Storages.reduce(
+  (acc, cur) => ({
+    ...acc,
+    [cur.value]: cur,
+  }),
+  {},
+);
+
 const Comp: React.FC<DetailModalProps> = ({
   inlongGroupId,
   id,
   record,
-  storageType,
-  onSuccessDataFormat,
+  sinkType,
   name,
   content = [],
   dataType,
@@ -64,48 +68,58 @@ const Comp: React.FC<DetailModalProps> = ({
 }) => {
   const [form] = useForm();
 
+  const { t } = useTranslation();
+
   const [currentValues, setCurrentValues] = useState({});
 
   const fieldListKey = useMemo(() => {
     return {
       HIVE: {
         // Field name of the field array form
-        columnsKey: 'hiveFieldList',
-        // Cloumns definition of field array
-        getColumns: getHiveColumns,
+        columnsKey: 'sinkFieldList',
         // In addition to the defaultRowTypeFields field that is populated by default, additional fields that need to be populated
         // The left is the defaultRowTypeFields field, and the right is the newly filled field
         restMapping: {
           fieldName: 'fieldName',
         },
       },
-      CLICK_HOUSE: {
-        columnsKey: 'clickHouseFieldList',
-        getColumns: getClickhouseColumns,
+      CLICKHOUSE: {
+        columnsKey: 'sinkFieldList',
         restMapping: {
           fieldName: 'fieldName',
         },
       },
-    }[storageType];
-  }, [storageType]);
+    }[sinkType];
+  }, [sinkType]);
+
+  const toFormVals = useCallback(
+    v => {
+      const mapFunc = StoragesMap[sinkType]?.toFormValues;
+      return mapFunc ? mapFunc(v) : v;
+    },
+    [sinkType],
+  );
+
+  const toSubmitVals = useCallback(
+    v => {
+      const mapFunc = StoragesMap[sinkType]?.toSubmitValues;
+      return mapFunc ? mapFunc(v) : v;
+    },
+    [sinkType],
+  );
 
   const { data, run: getData } = useRequest(
     id => ({
-      url: `/storage/get/${id}`,
+      url: `/sink/get/${id}`,
       params: {
-        storageType,
+        sinkType,
       },
     }),
     {
       manual: true,
       onSuccess: result => {
-        const data =
-          typeof onSuccessDataFormat === 'function' ? onSuccessDataFormat(result) : result;
-        form.setFieldsValue(data);
-        setCurrentValues(data);
-        if (onValuesChange) {
-          onValuesChange(data, data);
-        }
+        form.setFieldsValue(toFormVals(result));
+        setCurrentValues(toFormVals(result));
       },
     },
   );
@@ -119,17 +133,19 @@ const Comp: React.FC<DetailModalProps> = ({
         return;
       }
       if (Object.keys(record || {})?.length) {
-        form.setFieldsValue(record);
-        setCurrentValues(record);
+        form.setFieldsValue(toFormVals(record));
+        setCurrentValues(toFormVals(record));
       } else {
         const usefulDefaultRowTypeFields = defaultRowTypeFields?.filter(
           item => item.fieldName && item.fieldType,
         );
         if (fieldListKey && usefulDefaultRowTypeFields?.length) {
+          const getFieldListColumns = Storages.find(item => item.value === sinkType)
+            ?.getFieldListColumns;
           form.setFieldsValue({
             [fieldListKey.columnsKey]: usefulDefaultRowTypeFields?.map(item => ({
               // The default value defined by cloumns
-              ...fieldListKey.getColumns(dataType).reduce(
+              ...getFieldListColumns(dataType).reduce(
                 (acc, cur) => ({
                   ...acc,
                   [cur.dataIndex]: cur.initialValue,
@@ -152,33 +168,56 @@ const Comp: React.FC<DetailModalProps> = ({
           });
         }
       }
+    } else {
+      setCurrentValues({});
     }
   }, [modalProps.visible]);
 
   const formContent = useMemo(() => {
-    const map: Record<string, GetStorageFormFieldsType> = {
-      HIVE: getHiveForm,
-      CLICK_HOUSE: getClickhouseForm,
-    };
-    const item = map[storageType];
-
-    return item('form', {
-      dataType,
-      isEdit: !!id,
-      inlongGroupId,
+    const getForm = StoragesMap[sinkType].getForm;
+    const config = getForm('form', {
       currentValues,
+      inlongGroupId,
+      isEdit: !!id,
+      dataType,
       form,
     }) as FormItemProps[];
-  }, [storageType, dataType, inlongGroupId, id, currentValues, form]);
+    return [
+      {
+        name: 'sinkName',
+        type: 'input',
+        label: t('components.AccessHelper.StorageMetaData.SinkName'),
+        rules: [
+          { required: true },
+          {
+            pattern: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+            message: t('components.AccessHelper.StorageMetaData.SinkNameRule'),
+          },
+        ],
+        props: {
+          disabled: !!id,
+        },
+      },
+      {
+        name: 'description',
+        type: 'textarea',
+        label: t('components.AccessHelper.StorageMetaData.Description'),
+        props: {
+          showCount: true,
+          maxLength: 300,
+        },
+      } as FormItemProps,
+    ].concat(config);
+  }, [sinkType, dataType, inlongGroupId, id, currentValues, form, t]);
 
   const onOk = async () => {
     const values = await form.validateFields();
-    values.filePath = (currentValues as any).filePath;
-    modalProps.onOk && modalProps.onOk(values);
+    delete values._showHigher; // delete front-end key
+    modalProps.onOk && modalProps.onOk(toSubmitVals(values));
   };
 
   const onValuesChangeHandler = (...rest) => {
-    setCurrentValues(rest[1]);
+    setCurrentValues(prev => ({ ...prev, ...rest[1] }));
 
     if (onValuesChange) {
       (onValuesChange as any)(...rest);
@@ -186,7 +225,7 @@ const Comp: React.FC<DetailModalProps> = ({
   };
 
   return (
-    <Modal title={storageType} width={1200} {...modalProps} onOk={onOk}>
+    <Modal title={sinkType} width={1200} {...modalProps} onOk={onOk}>
       <FormGenerator
         name={name}
         labelCol={{ span: 4 }}

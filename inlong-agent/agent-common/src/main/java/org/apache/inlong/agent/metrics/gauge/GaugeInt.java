@@ -19,6 +19,9 @@ package org.apache.inlong.agent.metrics.gauge;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * GaugeInt
+ */
 public class GaugeInt implements Gauge<Integer> {
 
     private final AtomicInteger value = new AtomicInteger(0);

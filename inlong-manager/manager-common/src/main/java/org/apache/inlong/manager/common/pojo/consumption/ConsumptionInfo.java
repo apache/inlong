@@ -20,15 +20,15 @@ package org.apache.inlong.manager.common.pojo.consumption;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.Date;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 /**
  * Data consumption info
@@ -43,25 +43,20 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "key id")
     private Integer id;
 
-    @ApiModelProperty(value = "consumer group id")
-    @NotBlank(message = "consumerGroupId cannot be null")
-    private String consumerGroupId;
-
-    @ApiModelProperty(value = "consumer group name: only support [a-zA-Z0-9_]")
-    @NotBlank(message = "consumerGroupName cannot be null")
-    private String consumerGroupName;
+    @ApiModelProperty(value = "consumer group: only support [a-zA-Z0-9_]")
+    @NotBlank(message = "consumerGroup cannot be null")
+    private String consumerGroup;
 
     @ApiModelProperty(value = "consumption in charge")
-    @NotNull(message = "inCharges cannot be null")
+    @NotBlank(message = "inCharges cannot be null")
     private String inCharges;
 
-    @ApiModelProperty(value = "consumption target business group id")
-    @NotBlank(message = "business group id cannot be null")
+    @ApiModelProperty(value = "consumption target inlong group id")
+    @NotBlank(message = "inlong group id cannot be null")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Middleware type, high throughput: TUBE, high consistency: PULSAR")
-    // @NotBlank(message = "middlewareType cannot be null")
-    private String middlewareType;
+    @ApiModelProperty(value = "MQ type, high throughput: TUBE, high consistency: PULSAR")
+    private String mqType;
 
     @ApiModelProperty(value = "consumption target topic")
     private String topic;
@@ -70,9 +65,10 @@ public class ConsumptionInfo {
     private String masterUrl;
 
     @ApiModelProperty(value = "whether to filter consumption, 0: not filter, 1: filter")
+    @Builder.Default
     private Integer filterEnabled = 0;
 
-    @ApiModelProperty(value = "consumption target data stream id")
+    @ApiModelProperty(value = "consumption target inlong stream id")
     private String inlongStreamId;
 
     @ApiModelProperty(value = "status, 10: pending assigned, 11: pending approval, "
@@ -91,7 +87,7 @@ public class ConsumptionInfo {
     private ConsumptionMqExtBase mqExtInfo;
 
     @JsonIgnore
-    @AssertTrue(message = "when filter enabled, data stream id cannot be null")
+    @AssertTrue(message = "when filter enabled, inlong stream id cannot be null")
     public boolean isValidateFilter() {
         if (filterEnabled == 0) {
             return true;

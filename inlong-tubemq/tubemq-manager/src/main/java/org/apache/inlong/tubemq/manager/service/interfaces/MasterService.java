@@ -76,11 +76,19 @@ public interface MasterService {
     List<MasterEntry> getMasterNodes(Long clusterId);
 
     /**
+     * get master in master ip
+     * @param masterIp
+     * @return
+     */
+    List<MasterEntry> getMasterNodes(String masterIp);
+
+    /**
      * use queryBody to generate queryUrl for master query
      *
      * @param queryBody
      * @return
-     * @throws Exception
+     *
+     * @throws Exception exception
      */
     String getQueryUrl(Map<String, String> queryBody) throws Exception;
 
@@ -92,4 +100,14 @@ public interface MasterService {
      * @return
      */
     TubeMQResult checkMasterNodeStatus(String masterIp, Integer masterPort);
+
+    String getQueryCountUrl(Integer clusterId, String method);
+
+    /**
+     * delete master by cluster id
+     *
+     * @param clusterId
+     */
+    void deleteMaster(Long clusterId);
+
 }

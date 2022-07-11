@@ -32,6 +32,9 @@ public class SortClientConfig implements Serializable {
     private ReadCallback callback;
     private int callbackQueueSize = 100;
     private int pulsarReceiveQueueSize = 2000;
+    private int kafkaFetchWaitMs = 5000;
+    private int kafkaFetchSizeBytes = 3 * 1024 * 1024;
+    private int kafkaSocketRecvBufferSize = 5 * 1024 * 1024;
     private Semaphore globalInProgressRequest = new Semaphore(Short.MAX_VALUE, true);
     private String localIp;
     private String appName;
@@ -44,7 +47,7 @@ public class SortClientConfig implements Serializable {
     private ConsumeStrategy consumeStrategy;
     private int reportStatisticIntervalSec = 60;
     private int updateMetaDataIntervalSec = 10;
-    private int ackTimeoutSec = 10;
+    private int ackTimeoutSec = 120;
     private volatile boolean stopConsume = false;
     private boolean isPrometheusEnabled = true;
     private int emptyPollSleepStepMs = 50;
@@ -158,6 +161,30 @@ public class SortClientConfig implements Serializable {
 
     public void setPulsarReceiveQueueSize(int pulsarReceiveQueueSize) {
         this.pulsarReceiveQueueSize = pulsarReceiveQueueSize;
+    }
+
+    public int getKafkaFetchWaitMs() {
+        return kafkaFetchWaitMs;
+    }
+
+    public void setKafkaFetchWaitMs(int kafkaFetchWaitMs) {
+        this.kafkaFetchWaitMs = kafkaFetchWaitMs;
+    }
+
+    public int getKafkaFetchSizeBytes() {
+        return kafkaFetchSizeBytes;
+    }
+
+    public void setKafkaFetchSizeBytes(int kafkaFetchSizeBytes) {
+        this.kafkaFetchSizeBytes = kafkaFetchSizeBytes;
+    }
+
+    public int getKafkaSocketRecvBufferSize() {
+        return kafkaSocketRecvBufferSize;
+    }
+
+    public void setKafkaSocketRecvBufferSize(int kafkaSocketRecvBufferSize) {
+        this.kafkaSocketRecvBufferSize = kafkaSocketRecvBufferSize;
     }
 
     public Semaphore getGlobalInProgressRequest() {

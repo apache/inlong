@@ -20,6 +20,9 @@ package org.apache.inlong.manager.common.pojo.tubemq;
 import java.util.List;
 import lombok.Data;
 
+/**
+ * The request info of add tube consume group.
+ */
 @Data
 public class AddTubeConsumeGroupRequest {
 

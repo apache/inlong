@@ -21,10 +21,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.flume.Event;
-import org.apache.inlong.commons.config.metrics.CountMetric;
-import org.apache.inlong.commons.config.metrics.Dimension;
-import org.apache.inlong.commons.config.metrics.MetricDomain;
-import org.apache.inlong.commons.config.metrics.MetricItem;
+import org.apache.inlong.common.metric.CountMetric;
+import org.apache.inlong.common.metric.Dimension;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
@@ -114,6 +114,9 @@ public class DataProxyMetricItem extends MetricItem {
      * @param dimensions
      */
     public static void fillInlongId(Event event, Map<String, String> dimensions) {
+        if (event == null) {
+            return;
+        }
         Map<String, String> headers = event.getHeaders();
         String inlongGroupId = getInlongGroupId(headers);
         String inlongStreamId = getInlongStreamId(headers);
@@ -128,7 +131,7 @@ public class DataProxyMetricItem extends MetricItem {
      * @param dimensions
      */
     public static void fillAuditFormatTime(Event event, Map<String, String> dimensions) {
-        long msgTime = AuditUtils.getLogTime(event);
+        long msgTime = (event != null) ? AuditUtils.getLogTime(event) : System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(DataProxyMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
     }
@@ -156,7 +159,7 @@ public class DataProxyMetricItem extends MetricItem {
     public static String getInlongStreamId(Map<String, String> headers) {
         String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         if (inlongStreamId == null) {
-            inlongStreamId = headers.getOrDefault(AttributeConstants.INTERFACE_ID, "");
+            inlongStreamId = headers.getOrDefault(AttributeConstants.STREAM_ID, "");
         }
         return inlongStreamId;
     }

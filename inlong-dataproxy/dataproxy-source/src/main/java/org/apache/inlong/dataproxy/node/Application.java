@@ -17,15 +17,10 @@
 
 package org.apache.inlong.dataproxy.node;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -51,18 +46,24 @@ import org.apache.flume.node.PollingZooKeeperConfigurationProvider;
 import org.apache.flume.node.PropertiesFileConfigurationProvider;
 import org.apache.flume.node.StaticZooKeeperConfigurationProvider;
 import org.apache.flume.util.SSLUtil;
-import org.apache.inlong.commons.config.IDataProxyConfigHolder;
-import org.apache.inlong.dataproxy.config.ConfigManager;
+import org.apache.inlong.common.config.IDataProxyConfigHolder;
+import org.apache.inlong.common.metric.MetricObserver;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.metrics.MetricObserver;
+import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.metrics.audit.AuditUtils;
+import org.apache.inlong.sdk.commons.admin.AdminTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 
@@ -81,16 +82,27 @@ public class Application {
     private MaterializedConfiguration materializedConfiguration;
     private MonitorService monitorServer;
     private final ReentrantLock lifecycleLock = new ReentrantLock();
+    private AdminTask adminTask;
 
+    /**
+     * Constructor
+     */
     public Application() {
         this(new ArrayList<LifecycleAware>(0));
     }
 
+    /**
+     * Constructor
+     * @param components
+     */
     public Application(List<LifecycleAware> components) {
         this.components = components;
         supervisor = new LifecycleSupervisor();
     }
 
+    /**
+     * start
+     */
     public void start() {
         lifecycleLock.lock();
         try {
@@ -104,11 +116,18 @@ public class Application {
                 supervisor.supervise(component,
                         new SupervisorPolicy.AlwaysRestartPolicy(), LifecycleState.START);
             }
+            // start admin task
+            this.adminTask = new AdminTask(new Context(CommonPropertiesHolder.get()));
+            this.adminTask.start();
         } finally {
             lifecycleLock.unlock();
         }
     }
 
+    /**
+     * handleConfigurationEvent
+     * @param conf
+     */
     @Subscribe
     public void handleConfigurationEvent(MaterializedConfiguration conf) {
         try {
@@ -126,6 +145,9 @@ public class Application {
         }
     }
 
+    /**
+     * stop
+     */
     public void stop() {
         lifecycleLock.lock();
         stopAllComponents();
@@ -134,11 +156,18 @@ public class Application {
             if (monitorServer != null) {
                 monitorServer.stop();
             }
+            // stop admin task
+            if (this.adminTask != null) {
+                this.adminTask.stop();
+            }
         } finally {
             lifecycleLock.unlock();
         }
     }
 
+    /**
+     * stopAllComponents
+     */
     private void stopAllComponents() {
         if (this.materializedConfiguration != null) {
             logger.info("Shutting down configuration: {}", this.materializedConfiguration);
@@ -177,6 +206,10 @@ public class Application {
         }
     }
 
+    /**
+     * startAllComponents
+     * @param materializedConfiguration
+     */
     private void startAllComponents(MaterializedConfiguration materializedConfiguration) {
         logger.info("Starting new configuration:{}", materializedConfiguration);
 
@@ -234,6 +267,9 @@ public class Application {
         this.loadMonitoring();
     }
 
+    /**
+     * loadMonitoring
+     */
     @SuppressWarnings("unchecked")
     private void loadMonitoring() {
         Properties systemProps = System.getProperties();
@@ -393,12 +429,9 @@ public class Application {
                 }
             }
             // metrics
-            MetricObserver.init(ConfigManager.getInstance().getCommonProperties());
+            MetricObserver.init(CommonPropertiesHolder.get());
             // audit
             AuditUtils.initAudit();
-
-            // start application
-            application.start();
 
             final Application appReference = application;
             Runtime.getRuntime().addShutdownHook(new Thread("agent-shutdown-hook") {
@@ -410,6 +443,9 @@ public class Application {
                 }
             });
 
+            // start application
+            application.start();
+            Thread.sleep(5000);
         } catch (Exception e) {
             logger.error("A fatal error occurred while running. Exception follows.", e);
         }
@@ -421,8 +457,7 @@ public class Application {
      * @param commandLine
      */
     private static void startByManagerConf(CommandLine commandLine) {
-        String proxyName = ConfigManager.getInstance().getCommonProperties()
-                .get(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
+        String proxyName = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         ManagerPropertiesConfigurationProvider configurationProvider = new ManagerPropertiesConfigurationProvider(
                 proxyName);
         Application application = new Application();

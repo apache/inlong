@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Source file basic entity, including file rolling type, upload max siez, etc.
+ */
 @Data
 public class SourceFileBasicEntity implements Serializable {
 

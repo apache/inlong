@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+/**
+ * Source database Detail entity, including table name, connection name, etc.
+ */
 @Data
 public class SourceDbDetailEntity implements Serializable {
 

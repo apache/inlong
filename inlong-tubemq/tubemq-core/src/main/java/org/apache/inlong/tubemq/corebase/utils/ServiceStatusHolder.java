@@ -22,32 +22,35 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Node Read and Write Service status holder.
+ */
 public class ServiceStatusHolder {
     private static final Logger logger =
             LoggerFactory.getLogger(ServiceStatusHolder.class);
-    private static AtomicBoolean isServiceStopped = new AtomicBoolean(false);
-    private static AtomicBoolean isReadStopped = new AtomicBoolean(false);
-    private static AtomicBoolean isWriteStopped = new AtomicBoolean(false);
+    private static final AtomicBoolean isServiceStopped = new AtomicBoolean(false);
+    private static final AtomicBoolean isReadStopped = new AtomicBoolean(false);
+    private static final AtomicBoolean isWriteStopped = new AtomicBoolean(false);
 
     private static int allowedReadIOExcptCnt = 10;
     private static int allowedWriteIOExcptCnt = 10;
-    private static long statisDurationMs = 120000;
-    private static AtomicLong curReadIOExcptCnt = new AtomicLong(0);
-    private static AtomicLong lastReadStatsTime =
+    private static long statsDurationMs = 120000;
+    private static final AtomicLong curReadIOExcptCnt = new AtomicLong(0);
+    private static final AtomicLong lastReadStatsTime =
             new AtomicLong(System.currentTimeMillis());
-    private static AtomicBoolean isPauseRead = new AtomicBoolean(false);
+    private static final AtomicBoolean isPauseRead = new AtomicBoolean(false);
 
-    private static AtomicLong curWriteIOExcptCnt = new AtomicLong(0);
-    private static AtomicLong lastWriteStatsTime =
+    private static final AtomicLong curWriteIOExcptCnt = new AtomicLong(0);
+    private static final AtomicLong lastWriteStatsTime =
             new AtomicLong(System.currentTimeMillis());
-    private static AtomicBoolean isPauseWrite = new AtomicBoolean(false);
+    private static final AtomicBoolean isPauseWrite = new AtomicBoolean(false);
 
-    public static void setStatisParameters(int paraAllowedReadIOExcptCnt,
-                                           int paraAllowedWriteIOExcptCnt,
-                                           long paraStatisDurationMs) {
+    public static void setStatsParameters(int paraAllowedReadIOExcptCnt,
+                                          int paraAllowedWriteIOExcptCnt,
+                                          long paraStatsDurationMs) {
         allowedReadIOExcptCnt = paraAllowedReadIOExcptCnt;
         allowedWriteIOExcptCnt = paraAllowedWriteIOExcptCnt;
-        statisDurationMs = paraStatisDurationMs;
+        statsDurationMs = paraStatsDurationMs;
     }
 
     public static boolean isServiceStopped() {
@@ -67,7 +70,7 @@ public class ServiceStatusHolder {
 
     public static boolean addWriteIOErrCnt() {
         long curTime = lastWriteStatsTime.get();
-        if (System.currentTimeMillis() - curTime > statisDurationMs) {
+        if (System.currentTimeMillis() - curTime > statsDurationMs) {
             if (lastWriteStatsTime.compareAndSet(curTime, System.currentTimeMillis())) {
                 curWriteIOExcptCnt.getAndSet(0);
                 if (isPauseWrite.get()) {
@@ -92,7 +95,7 @@ public class ServiceStatusHolder {
 
     public static boolean addReadIOErrCnt() {
         long curTime = lastReadStatsTime.get();
-        if (System.currentTimeMillis() - curTime > statisDurationMs) {
+        if (System.currentTimeMillis() - curTime > statsDurationMs) {
             if (lastReadStatsTime.compareAndSet(curTime, System.currentTimeMillis())) {
                 curReadIOExcptCnt.getAndSet(0);
                 if (isPauseRead.get()) {
@@ -115,6 +118,13 @@ public class ServiceStatusHolder {
         return getCurServiceStatus(isPauseRead.get(), isReadStopped.get());
     }
 
+    /**
+     * Set the read and write service status
+     *
+     * @param isReadStop      whether stop read service
+     * @param isWriteStop     whether stop write service
+     * @param caller          the caller
+     */
     public static void setReadWriteServiceStatus(boolean isReadStop,
                                                  boolean isWriteStop,
                                                  String caller) {

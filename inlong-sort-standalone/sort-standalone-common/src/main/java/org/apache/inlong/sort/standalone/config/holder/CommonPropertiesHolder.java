@@ -17,16 +17,16 @@
 
 package org.apache.inlong.sort.standalone.config.holder;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.sort.standalone.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.sort.standalone.config.loader.CommonPropertiesLoader;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
 import org.slf4j.Logger;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -35,14 +35,16 @@ import org.slf4j.Logger;
 public class CommonPropertiesHolder {
 
     public static final Logger LOG = InlongLoggerFactory.getLogger(CommonPropertiesHolder.class);
-    public static final String KEY_COMMON_PROPERTIES = "common-properties-loader";
     public static final String DEFAULT_LOADER = ClassResourceCommonPropertiesLoader.class.getName();
+    public static final String KEY_COMMON_PROPERTIES = "common_properties_loader";
     public static final String KEY_CLUSTER_ID = "clusterId";
+    public static final String KEY_SORT_SOURCE_ACKPOLICY = "sortSource.ackPolicy";
 
     private static Map<String, String> props;
     private static Context context;
 
     private static long auditFormatInterval = 60000L;
+    private static AckPolicy ackPolicy;
 
     /**
      * init
@@ -60,8 +62,11 @@ public class CommonPropertiesHolder {
                         CommonPropertiesLoader loader = (CommonPropertiesLoader) loaderObject;
                         props.putAll(loader.load());
                         LOG.info("loaderClass:{},properties:{}", loaderClassName, props);
-                        auditFormatInterval = NumberUtils
+                        CommonPropertiesHolder.auditFormatInterval = NumberUtils
                                 .toLong(CommonPropertiesHolder.getString("auditFormatInterval"), 60000L);
+                        String strAckPolicy = CommonPropertiesHolder.getString(KEY_SORT_SOURCE_ACKPOLICY,
+                                AckPolicy.COUNT.name());
+                        CommonPropertiesHolder.ackPolicy = AckPolicy.getAckPolicy(strAckPolicy);
                     }
                 } catch (Throwable t) {
                     LOG.error("Fail to init CommonPropertiesLoader,loaderClass:{},error:{}",
@@ -88,7 +93,7 @@ public class CommonPropertiesHolder {
 
     /**
      * get context
-     * 
+     *
      * @return the context
      */
     public static Context getContext() {
@@ -198,10 +203,19 @@ public class CommonPropertiesHolder {
 
     /**
      * getAuditFormatInterval
-     * 
+     *
      * @return
      */
     public static long getAuditFormatInterval() {
         return auditFormatInterval;
     }
+
+    /**
+     * get ackPolicy
+     * @return the ackPolicy
+     */
+    public static AckPolicy getAckPolicy() {
+        return ackPolicy;
+    }
+
 }

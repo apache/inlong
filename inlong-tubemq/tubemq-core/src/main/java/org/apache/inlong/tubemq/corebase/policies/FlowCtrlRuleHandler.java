@@ -48,7 +48,6 @@ public class FlowCtrlRuleHandler {
     private final String flowCtrlName;
     private static final Logger logger =
             LoggerFactory.getLogger(FlowCtrlRuleHandler.class);
-    private final JsonParser jsonParser = new JsonParser();
     private final TimeZone timeZone = TimeZone.getTimeZone("GMT+8:00");
     private final ReentrantLock writeLock = new ReentrantLock();
     // Flow control ID and string information obtained from the server
@@ -331,7 +330,7 @@ public class FlowCtrlRuleHandler {
         }
         JsonArray objArray = null;
         try {
-            objArray = jsonParser.parse(flowCtrlInfo).getAsJsonArray();
+            objArray = JsonParser.parseString(flowCtrlInfo).getAsJsonArray();
         } catch (Throwable e1) {
             throw new Exception("Parse flowCtrlInfo value failure", e1);
         }

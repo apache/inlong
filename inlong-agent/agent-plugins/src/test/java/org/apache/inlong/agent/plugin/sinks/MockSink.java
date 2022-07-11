@@ -17,9 +17,9 @@
 
 package org.apache.inlong.agent.plugin.sinks;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_CYCLE_UNIT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DATA_TIME;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DATA_TIME;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.inlong.agent.conf.JobProfile;
@@ -48,12 +48,15 @@ public class MockSink implements Sink {
     private long dataTime;
 
     private final SinkMetrics sinkMetrics;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public MockSink() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sinkMetrics = new SinkPrometheusMetrics(MOCK_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkPrometheusMetrics(AgentUtils.getUniqId(
+                    MOCK_SINK_TAG_NAME,  metricsIndex.incrementAndGet()));
         } else {
-            this.sinkMetrics = new SinkJmxMetric(MOCK_SINK_TAG_NAME);
+            this.sinkMetrics = new SinkJmxMetric(AgentUtils.getUniqId(
+                    MOCK_SINK_TAG_NAME,  metricsIndex.incrementAndGet()));
         }
     }
 

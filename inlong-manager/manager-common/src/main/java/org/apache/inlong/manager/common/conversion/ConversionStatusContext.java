@@ -17,6 +17,9 @@
 
 package org.apache.inlong.manager.common.conversion;
 
+/**
+ * Conversion status context.
+ */
 public class ConversionStatusContext {
 
     private final ConversionStrategy conversionStrategy;
@@ -25,6 +28,9 @@ public class ConversionStatusContext {
         this.conversionStrategy = conversionStrategy;
     }
 
+    /**
+     * Excute unit conversion.
+     */
     public Integer executeConversion(Integer value) {
         return conversionStrategy.unitConversion(value);
     }

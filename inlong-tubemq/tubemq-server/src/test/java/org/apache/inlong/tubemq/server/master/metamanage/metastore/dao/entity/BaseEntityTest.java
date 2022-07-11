@@ -18,6 +18,8 @@
 package org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.utils.DateTimeConvertUtils;
 import org.apache.inlong.tubemq.server.common.TServerConstants;
@@ -150,6 +152,49 @@ public class BaseEntityTest {
         Assert.assertEquals(baseEntity6.getModifyDateStr(), baseEntity9.getModifyDateStr());
         // case 10
         Assert.assertTrue(baseEntity8.isMatched(baseEntity9));
+    }
+
+    @Test
+    public void getMapValuesTest() {
+        Map<String, String> paramMap = new HashMap<>();
+        // case 1
+        BaseEntity entity1 = new BaseEntity();
+        entity1.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 0);
+        paramMap.clear();
+        // case 2
+        String createUser = "creater";
+        String dateStr1 = "20220302110925";
+        Date createDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr1);
+        BaseEntity entity2 = new BaseEntity(createUser, createDate);
+        entity2.getConfigureInfo(paramMap, true);
+        Assert.assertEquals(paramMap.size(), 6);
+        Assert.assertEquals(paramMap.get("dataVersionId"),
+                String.valueOf(entity2.getDataVerId()));
+        Assert.assertEquals(paramMap.get("serialId"),
+                String.valueOf(entity2.getSerialId()));
+        Assert.assertEquals(paramMap.get("createUser"), createUser);
+        Assert.assertEquals(paramMap.get("createDate"), entity2.getCreateDateStr());
+        Assert.assertEquals(paramMap.get("modifyUser"), createUser);
+        Assert.assertEquals(paramMap.get("modifyDate"), entity2.getModifyDateStr());
+        paramMap.clear();
+        // case 3
+        String modifyUser = "modifyUser";
+        String dateStr2 = "20220302111925";
+        Date modifyDate = DateTimeConvertUtils.yyyyMMddHHmmss2date(dateStr2);
+        BaseEntity entity3 = new BaseEntity(55,
+                createUser, createDate, modifyUser, modifyDate);
+        entity3.getConfigureInfo(paramMap, false);
+        Assert.assertEquals(paramMap.size(), 6);
+        Assert.assertEquals(paramMap.get("dVerId"),
+                String.valueOf(entity3.getDataVerId()));
+        Assert.assertEquals(paramMap.get("serialId"),
+                String.valueOf(entity3.getSerialId()));
+        Assert.assertEquals(paramMap.get("cur"), createUser);
+        Assert.assertEquals(paramMap.get("cDate"), entity3.getCreateDateStr());
+        Assert.assertEquals(paramMap.get("mur"), entity3.getModifyUser());
+        Assert.assertEquals(paramMap.get("mDate"), entity3.getModifyDateStr());
+        paramMap.clear();
     }
 
 }

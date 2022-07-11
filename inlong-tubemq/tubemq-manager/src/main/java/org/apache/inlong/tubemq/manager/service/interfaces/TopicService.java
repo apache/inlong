@@ -19,6 +19,7 @@ package org.apache.inlong.tubemq.manager.service.interfaces;
 
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
@@ -37,6 +38,14 @@ public interface TopicService {
      * @return
      */
     TubeHttpGroupDetailInfo requestGroupRunInfo(MasterEntry masterEntry, String group);
+
+    /**
+     * query if a group exist with a topic
+     *
+     * @param req
+     * @return
+     */
+    TubeMQResult queryGroupExist(QueryConsumerGroupReq req);
 
     TopicView requestTopicViewInfo(Long clusterId, String topicName);
 

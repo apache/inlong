@@ -18,14 +18,15 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
 
 public class TcpClientExample {
 
@@ -33,7 +34,10 @@ public class TcpClientExample {
 
     public static String localIP = "127.0.0.1";
 
-    public static void main() {
+    /**
+     * Example of client tcp.
+     */
+    public static void main(String[] args) throws InterruptedException {
 
         String dataProxyGroup = "test_test";
         String inlongGroupId = "test_test";
@@ -47,7 +51,7 @@ public class TcpClientExample {
          * for example:
          *  /data/inlong/config/test_test.local
          * and file context like this:
-         * {"isInterVisit":1,"cluster_id":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
+         * {"isInterVisit":1,"clusterId":"1","size":1,"switch":1,"address":[{"host":"127.0.0.1",
          * "port":"46802"},{"host":"127.0.0.1","port":"46802"}]}
          * 2. if isLocalVisit is false, will get dataproxy server info from manager
          * so we must ensure that the manager server url is configured correctly!

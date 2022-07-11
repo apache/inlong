@@ -99,6 +99,8 @@ public class ThreadUtils {
     }
 
     /**
+     * Check and wait the specified thread exit
+     *
      * @param t Waits on the passed thread to die dumping a threaddump every minute while its up.
      */
     public static void threadDumpingIsAlive(final Thread t) throws InterruptedException {
@@ -115,6 +117,8 @@ public class ThreadUtils {
     }
 
     /**
+     * Sleep current thread
+     *
      * @param millis How long to sleep for in milliseconds.
      */
     public static void sleep(long millis) {

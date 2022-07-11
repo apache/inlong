@@ -42,21 +42,21 @@ import org.apache.inlong.tubemq.server.common.statusdef.ManageStatus;
 import org.apache.inlong.tubemq.server.common.utils.SerialIdUtils;
 import org.apache.inlong.tubemq.server.master.MasterConfig;
 import org.apache.inlong.tubemq.server.master.TMaster;
-import org.apache.inlong.tubemq.server.master.metamanage.MetaDataManager;
-import org.apache.inlong.tubemq.server.master.metamanage.keepalive.AliveObserver;
+import org.apache.inlong.tubemq.server.master.metamanage.MetaDataService;
+import org.apache.inlong.tubemq.server.master.metamanage.metastore.ConfigObserver;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BrokerConfEntity;
-import org.apache.inlong.tubemq.server.master.metrics.MasterMetricsHolder;
+import org.apache.inlong.tubemq.server.master.stats.MasterSrvStatsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
  * Broker run manager
  */
-public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
+public class DefBrokerRunManager implements BrokerRunManager, ConfigObserver {
     private static final Logger logger =
             LoggerFactory.getLogger(DefBrokerRunManager.class);
     // meta data manager
-    private final MetaDataManager metaDataManager;
+    private final MetaDataService metaDataService;
     private final HeartbeatManager heartbeatManager;
     // broker string info
     private final AtomicLong brokerInfoCheckSum =
@@ -83,11 +83,11 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
      * @param tMaster  the initial TMaster object
      */
     public DefBrokerRunManager(TMaster tMaster) {
-        this.metaDataManager = tMaster.getDefMetaDataManager();
+        this.metaDataService = tMaster.getMetaDataService();
         this.heartbeatManager = tMaster.getHeartbeatManager();
         MasterConfig masterConfig = tMaster.getMasterConfig();
         this.brokerAbnHolder =
-                new BrokerAbnHolder(masterConfig.getMaxAutoForbiddenCnt(), this.metaDataManager);
+                new BrokerAbnHolder(masterConfig.getMaxAutoForbiddenCnt(), this.metaDataService);
         heartbeatManager.regBrokerCheckBusiness(masterConfig.getBrokerHeartbeatTimeoutMs(),
                 new TimeoutListener() {
                     @Override
@@ -98,7 +98,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                                 nodeInfo.getSecondKey(), true);
                     }
                 });
-        this.metaDataManager.registerObserver(this);
+        this.metaDataService.regMetaConfigObserver(this);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
 
     @Override
     public void reloadCacheData() {
-        updBrokerStaticInfo(metaDataManager.getBrokerConfInfo(null));
+        updBrokerStaticInfo(metaDataService.getBrokerConfInfo(null));
     }
 
     @Override
@@ -146,7 +146,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                 || !brokerReg.equals(entity.getSimpleBrokerInfo())
                 || !brokerTLSReg.equals(entity.getSimpleTLSBrokerInfo())) {
             if (brokerReg == null) {
-                MasterMetricsHolder.incBrokerConfigCnt();
+                MasterSrvStatsHolder.incBrokerConfigCnt();
             } else {
                 if (!brokerReg.equals(entity.getSimpleBrokerInfo())) {
                     this.brokersMap.put(entity.getBrokerId(), entity.getSimpleBrokerInfo());
@@ -190,7 +190,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                                     boolean isOverTLS, StringBuilder sBuffer,
                                     ProcessResult result) {
         BrokerConfEntity brokerEntry =
-                metaDataManager.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
+                metaDataService.getBrokerConfByBrokerId(brokerInfo.getBrokerId());
         if (brokerEntry == null) {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Not found broker configure info, please create first!")
@@ -204,7 +204,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
             result.setFailResult(TErrCodeConstants.BAD_REQUEST,
                     sBuffer.append("Inconsistent broker configure,please confirm first!")
                             .append(" the connecting client id is:").append(clientId)
-                            .append(", the configure's broker address by brokerId is:")
+                            .append(", the configured broker address by brokerId is:")
                             .append(brokerEntry.getBrokerIdAndAddress()).toString());
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
@@ -227,10 +227,12 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
             sBuffer.delete(0, sBuffer.length());
             return result.isSuccess();
         }
-        String brokerConfInfo =
-                brokerEntry.getBrokerDefaultConfInfo();
+        brokerEntry.getBrokerDefaultConfInfo(
+                metaDataService.getClusterDefSetting(false), sBuffer);
+        String brokerConfInfo = sBuffer.toString();
+        sBuffer.delete(0, sBuffer.length());
         Map<String, String> topicConfInfoMap =
-                metaDataManager.getBrokerTopicStrConfigInfo(brokerEntry, sBuffer);
+                metaDataService.getBrokerTopicStrConfigInfo(brokerEntry, sBuffer);
         //
         BrokerRunStatusInfo runStatusInfo =
                 brokerRunSyncManageMap.get(brokerInfo.getBrokerId());
@@ -244,7 +246,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                             brokerInfo.getBrokerId(), tmpRunStatusInfo);
             if (runStatusInfo == null) {
                 brokerTotalCount.incrementAndGet();
-                MasterMetricsHolder.incBrokerOnlineCnt();
+                MasterSrvStatsHolder.incBrokerOnlineCnt();
                 runStatusInfo = tmpRunStatusInfo;
             }
         } else {
@@ -285,8 +287,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
                 reportCheckSumId, isTackData, repBrokerConfInfo, repTopicConfInfo, sBuffer);
         // process removed topic info
         if (isTackRmvInfo) {
-            metaDataManager.clearRmvedTopicConfInfo(brokerId,
-                    removedTopics, sBuffer, result);
+            metaDataService.delCleanedTopicDeployInfo(brokerId, removedTopics, sBuffer, result);
             logger.info(sBuffer.append("[Broker Report] receive broker removed topics = ")
                     .append(removedTopics.toString()).append(", removed result is ")
                     .append(result.getErrMsg()).toString());
@@ -328,13 +329,16 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
         ManageStatus manageStatus = ManageStatus.STATUS_MANAGE_UNDEFINED;
         StringBuilder sBuffer = new StringBuilder(512);
         BrokerConfEntity brokerConfEntity =
-                metaDataManager.getBrokerConfByBrokerId(brokerId);
+                metaDataService.getBrokerConfByBrokerId(brokerId);
         if (brokerConfEntity != null) {
-            brokerConfInfo = brokerConfEntity.getBrokerDefaultConfInfo();
+            brokerConfEntity.getBrokerDefaultConfInfo(
+                    metaDataService.getClusterDefSetting(false), sBuffer);
+            brokerConfInfo = sBuffer.toString();
+            sBuffer.delete(0, sBuffer.length());
             manageStatus = brokerConfEntity.getManageStatus();
         }
         Map<String, String> brokerTopicSetConfInfo =
-                this.metaDataManager.getBrokerTopicStrConfigInfo(brokerConfEntity, sBuffer);
+                this.metaDataService.getBrokerTopicStrConfigInfo(brokerConfEntity, sBuffer);
         return new Tuple3<>(manageStatus, brokerConfInfo, brokerTopicSetConfInfo);
     }
 
@@ -475,7 +479,7 @@ public class DefBrokerRunManager implements BrokerRunManager, AliveObserver {
         if (runStatusInfo == null) {
             return false;
         }
-        MasterMetricsHolder.decBrokerOnlineCnt(isTimeout);
+        MasterSrvStatsHolder.decBrokerOnlineCnt(isTimeout);
         brokerTotalCount.decrementAndGet();
         brokerAbnHolder.removeBroker(brokerId);
         brokerPubSubInfo.rmvBrokerAllPushedInfo(brokerId);

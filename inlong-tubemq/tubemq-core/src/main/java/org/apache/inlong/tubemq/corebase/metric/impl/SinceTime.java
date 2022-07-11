@@ -48,4 +48,9 @@ public class SinceTime extends BaseMetric {
     public void reset() {
         this.sinceTime.set(System.currentTimeMillis());
     }
+
+    public void reset(long resetTime) {
+        this.sinceTime.set(resetTime);
+    }
+
 }

@@ -17,29 +17,32 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.workflow.event.EventSelector;
+import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.inlong.manager.common.event.EventSelector;
-import org.apache.inlong.manager.common.event.task.DataSourceOperateListener;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.model.WorkflowContext;
-import org.apache.inlong.manager.common.model.definition.ProcessForm;
-import org.apache.inlong.manager.common.plugin.ProcessPlugin;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.UpdateBusinessWorkflowForm.OperateType;
-import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Test class for process plugin.
+ */
 public class MockPlugin implements ProcessPlugin {
 
     public EventSelector stopProcessSelector = new EventSelector() {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.SUSPEND;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+            return form.getGroupOperateType() == GroupOperateType.SUSPEND;
         }
     };
 
@@ -47,11 +50,11 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.RESTART;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+            return form.getGroupOperateType() == GroupOperateType.RESTART;
         }
     };
 
@@ -59,15 +62,15 @@ public class MockPlugin implements ProcessPlugin {
         @Override
         public boolean accept(WorkflowContext context) {
             ProcessForm processForm = context.getProcessForm();
-            if (processForm == null || !(processForm instanceof UpdateBusinessWorkflowForm)) {
+            if (!(processForm instanceof GroupResourceProcessForm)) {
                 return false;
             }
-            UpdateBusinessWorkflowForm form = (UpdateBusinessWorkflowForm) processForm;
-            return form.getOperateType() == OperateType.DELETE;
+            GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+            return form.getGroupOperateType() == GroupOperateType.DELETE;
         }
     };
 
-    @Autowired
+    @Override
     public Map<DataSourceOperateListener, EventSelector> createSourceOperateListeners() {
         Map<DataSourceOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSourceListener(), deleteProcessSelector);
@@ -76,7 +79,7 @@ public class MockPlugin implements ProcessPlugin {
         return listeners;
     }
 
-    @Autowired
+    @Override
     public Map<SortOperateListener, EventSelector> createSortOperateListeners() {
         Map<SortOperateListener, EventSelector> listeners = new HashMap<>();
         listeners.put(new MockDeleteSortListener(), deleteProcessSelector);

@@ -17,35 +17,61 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
- * Cluster information query conditions
+ * Inlong cluster request
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-@ApiModel("Cluster Information Query Conditions")
+@ApiModel("Inlong cluster request")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public class ClusterRequest {
 
-    @ApiModelProperty(value = "cluster type")
+    @NotNull(groups = UpdateValidation.class)
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
+
+    @NotBlank
+    @ApiModelProperty(value = "Cluster name")
+    private String name;
+
+    @NotBlank
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP")
-    private String ip;
+    @ApiModelProperty(value = "Cluster url")
+    private String url;
 
-    @ApiModelProperty(value = "Whether to backup the cluster")
-    private Integer isBackup;
+    @NotBlank
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
 
-    @ApiModelProperty(value = "state")
-    private Integer status;
+    @ApiModelProperty(value = "Extension tag")
+    private String extTag;
+
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
+
+    @ApiModelProperty(value = "Cluster heartbeat info")
+    private String heartbeat;
+
+    @ApiModelProperty(value = "Extended params")
+    private String extParams;
+
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    private String inCharges;
 
 }

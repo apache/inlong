@@ -17,25 +17,33 @@
  * under the License.
  */
 
-import React from 'react';
-import ReactDom from 'react-dom';
+import React, { useEffect, useMemo, useImperativeHandle, forwardRef } from 'react';
 import { Button, Space, message } from 'antd';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useRequest, useBoolean } from '@/hooks';
+import { useRequest, useBoolean, useSelector } from '@/hooks';
 import { useTranslation } from 'react-i18next';
 import request from '@/utils/request';
+import { State } from '@/models';
 import { CommonInterface } from '../common';
 import { getFormContent } from './config';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) => {
+const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
   const { t } = useTranslation();
-  const [editing, { setTrue, setFalse }] = useBoolean(false);
+  const [editing, { setTrue, setFalse }] = useBoolean(isCreate);
+
+  const { userName } = useSelector<State, State>(state => state);
 
   const [form] = useForm();
 
-  const { data, run: getData } = useRequest(`/business/get/${inlongGroupId}`, {
+  const isUpdate = useMemo(() => {
+    return !!inlongGroupId;
+  }, [inlongGroupId]);
+
+  const { data, run: getData } = useRequest(`/group/get/${inlongGroupId}`, {
+    ready: isUpdate,
+    refreshDeps: [inlongGroupId],
     formatResult: data => ({
       ...data,
       inCharges: data.inCharges.split(','),
@@ -44,26 +52,45 @@ const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) 
     onSuccess: data => form.setFieldsValue(data),
   });
 
-  const onSave = async () => {
+  const onOk = async () => {
     const values = await form.validateFields();
 
     const submitData = {
       ...values,
-      inCharges: values.inCharges.join(','),
-      followers: values.inCharges.join(','),
-      mqExtInfo: {
-        ...data.mqExtInfo,
-        ...values.mqExtInfo,
-      },
+      inCharges: values.inCharges?.join(','),
+      followers: values.followers?.join(','),
     };
-    await request({
-      url: '/business/update',
+
+    if (isUpdate) {
+      submitData.inlongGroupId = inlongGroupId;
+    }
+
+    const result = await request({
+      url: isUpdate ? '/group/update' : '/group/save',
       method: 'POST',
-      data: {
-        ...data,
-        ...submitData,
-      },
+      data: submitData,
     });
+
+    return {
+      ...values,
+      inlongGroupId: result,
+    };
+  };
+
+  useEffect(() => {
+    const values = {} as Record<string, unknown>;
+    if (!isUpdate) {
+      if (userName) values.inCharges = [userName];
+      form.setFieldsValue(values);
+    }
+  }, [isUpdate, form, userName]);
+
+  useImperativeHandle(ref, () => ({
+    onOk,
+  }));
+
+  const onSave = async () => {
+    await onOk();
     await getData();
     setFalse();
     message.success(t('basic.OperatingSuccess'));
@@ -74,39 +101,38 @@ const Comp: React.FC<Props> = ({ inlongGroupId, isActive, readonly, extraRef }) 
     setFalse();
   };
 
-  const Extra = () => {
-    return editing ? (
-      <Space>
-        <Button type="primary" onClick={onSave}>
-          {t('basic.Save')}
-        </Button>
-        <Button onClick={onCancel}>{t('basic.Cancel')}</Button>
-      </Space>
-    ) : (
-      <Button type="primary" onClick={setTrue}>
-        {t('basic.Edit')}
-      </Button>
-    );
-  };
-
   return (
-    <>
+    <div style={{ position: 'relative' }}>
       <FormGenerator
         form={form}
         content={getFormContent({
           editing,
           initialValues: data,
+          isCreate,
+          isUpdate,
         })}
         allValues={data}
         useMaxWidth={600}
       />
 
-      {isActive &&
-        !readonly &&
-        extraRef?.current &&
-        ReactDom.createPortal(<Extra />, extraRef.current)}
-    </>
+      {!isCreate && !readonly && (
+        <div style={{ position: 'absolute', top: 0, right: 0 }}>
+          {editing ? (
+            <Space>
+              <Button type="primary" onClick={onSave}>
+                {t('basic.Save')}
+              </Button>
+              <Button onClick={onCancel}>{t('basic.Cancel')}</Button>
+            </Space>
+          ) : (
+            <Button type="primary" onClick={setTrue}>
+              {t('basic.Edit')}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

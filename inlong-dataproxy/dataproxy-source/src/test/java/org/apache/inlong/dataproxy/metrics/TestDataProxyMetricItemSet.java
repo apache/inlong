@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -28,12 +28,12 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricItemMBean;
-import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.commons.config.metrics.MetricUtils;
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemMBean;
+import org.apache.inlong.common.metric.MetricItemSetMBean;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.commons.config.metrics.MetricUtils;
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -76,6 +77,14 @@ public class TestMetricListenerRunnable {
         itemSink.inlongGroupId = INLONG_GROUP_ID1;
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
+    }
+    
+    /**
+     * setdown
+     */
+    @AfterClass
+    public static void setdown() {
+        MetricRegister.unregister(itemSet);
     }
 
     /**

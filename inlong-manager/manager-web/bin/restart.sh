@@ -1,12 +1,12 @@
 #! /bin/bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
+# or more contributor license agreements. See the NOTICE file
 # distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
+# regarding copyright ownership. The ASF licenses this file
 # to you under the Apache License, Version 2.0 (the
 # "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
+# with the License. You may obtain a copy of the License at
 #
 #   http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -27,19 +27,20 @@
 
 # Project name
 APPLICATION="InLong-Manager-Web"
+echo restart ${APPLICATION} Application...
 
 BIN_PATH=$(
-  cd $(dirname $0)
+  # shellcheck disable=SC2164
+  cd "$(dirname $0)"
   pwd
 )
-echo "restart in " ${BIN_PATH}
+echo "restart in" ${BIN_PATH}
 
 # Stop service
-echo stop ${APPLICATION} Application...
 sh "$BIN_PATH"/shutdown.sh
 
 sleep 1s
+echo ""
 
 # Start service
-echo start ${APPLICATION} Application...
 sh "$BIN_PATH"/startup.sh

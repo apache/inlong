@@ -37,7 +37,7 @@ public class WorkflowApproverQuery {
     @ApiModelProperty("id")
     private Integer id;
 
-    @ApiModelProperty("Process definition name")
+    @ApiModelProperty("WorkflowProcess definition name")
     private String processName;
 
     @ApiModelProperty("Approval task name")

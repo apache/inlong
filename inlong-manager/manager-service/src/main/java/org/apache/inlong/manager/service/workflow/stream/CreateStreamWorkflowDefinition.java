@@ -17,143 +17,108 @@
 
 package org.apache.inlong.manager.service.workflow.stream;
 
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.BizConstant;
-import org.apache.inlong.manager.service.core.StorageService;
-import org.apache.inlong.manager.service.thirdpart.hive.CreateHiveTableForStreamListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarGroupForStreamTaskListener;
-import org.apache.inlong.manager.service.thirdpart.mq.CreatePulsarTopicForStreamTaskListener;
-import org.apache.inlong.manager.service.thirdpart.sort.PushHiveConfigTaskListener;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.business.BusinessResourceWorkflowForm;
-import org.apache.inlong.manager.service.workflow.business.listener.InitBusinessInfoListener;
-import org.apache.inlong.manager.common.model.definition.EndEvent;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.ServiceTask;
-import org.apache.inlong.manager.common.model.definition.StartEvent;
+import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamCompleteProcessListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamFailedProcessListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.StreamInitProcessListener;
+import org.apache.inlong.manager.workflow.definition.EndEvent;
+import org.apache.inlong.manager.workflow.definition.ServiceTask;
+import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
+import org.apache.inlong.manager.workflow.definition.StartEvent;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Data stream access resource creation
+ * Inlong stream access resource creation
  */
 @Component
 @Slf4j
 public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private StorageService storageService;
-    @Autowired
-    private InitBusinessInfoListener initBusinessInfoListener;
+    private StreamInitProcessListener streamInitProcessListener;
     @Autowired
     private StreamFailedProcessListener streamFailedProcessListener;
     @Autowired
     private StreamCompleteProcessListener streamCompleteProcessListener;
     @Autowired
-    private CreateHiveTableForStreamListener createHiveTableListener;
-    @Autowired
-    private PushHiveConfigTaskListener pushHiveConfigTaskListener;
-    @Autowired
-    private CreatePulsarTopicForStreamTaskListener createPulsarTopicTaskListener;
-    @Autowired
-    private CreatePulsarGroupForStreamTaskListener createPulsarGroupTaskListener;
+    private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
-    public Process defineProcess() {
+    public WorkflowProcess defineProcess() {
+
         // Configuration process
-        Process process = new Process();
-        process.addListener(initBusinessInfoListener);
+        WorkflowProcess process = new WorkflowProcess();
+        process.addListener(streamInitProcessListener);
         process.addListener(streamFailedProcessListener);
         process.addListener(streamCompleteProcessListener);
 
-        process.setType("Data stream access resource creation");
+        process.setType("Stream Resource Creation");
         process.setName(getProcessName().name());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(BusinessResourceWorkflowForm.class);
+        process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
-        process.setHidden(true);
+        process.setHidden(1);
 
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
+        // init MQ
+        ServiceTask initMQTask = new ServiceTask();
+        initMQTask.setName("initMQ");
+        initMQTask.setDisplayName("Stream-InitMQ");
+        initMQTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
+        initMQTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initMQTask);
+
+        // init Sink
+        ServiceTask initSinkTask = new ServiceTask();
+        initSinkTask.setName("initSink");
+        initSinkTask.setDisplayName("Stream-InitSink");
+        initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
+        initSinkTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSinkTask);
+
+        // init Sort
+        ServiceTask initSortTask = new ServiceTask();
+        initSortTask.setName("initSort");
+        initSortTask.setDisplayName("Stream-InitSort");
+        initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSortTask);
+
+        // init Source
+        ServiceTask initSourceTask = new ServiceTask();
+        initSourceTask.setName("initSource");
+        initSourceTask.setDisplayName("Stream-InitSource");
+        initSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
+        initSourceTask.addListenerProvider(streamTaskListenerFactory);
+        process.addTask(initSourceTask);
+
         // End node
         EndEvent endEvent = new EndEvent();
         process.setEndEvent(endEvent);
 
-        ServiceTask createPulsarTopicTask = new ServiceTask();
-        createPulsarTopicTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
-            String middlewareType = form.getBusinessInfo().getMiddlewareType();
-            if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-                return false;
-            }
-            log.warn("no need to create pulsar topic for groupId={}, streamId={}, as the middlewareType={}",
-                    form.getInlongGroupId(), form.getInlongStreamId(), middlewareType);
-            return true;
-        });
-        createPulsarTopicTask.setName("createPulsarTopic");
-        createPulsarTopicTask.setDisplayName("Stream-CreatePulsarTopic");
-        createPulsarTopicTask.addListener(createPulsarTopicTaskListener);
-        process.addTask(createPulsarTopicTask);
-
-        ServiceTask createPulsarSubscriptionGroupTask = new ServiceTask();
-        createPulsarSubscriptionGroupTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
-            String middlewareType = form.getBusinessInfo().getMiddlewareType();
-            if (BizConstant.MIDDLEWARE_PULSAR.equalsIgnoreCase(middlewareType)) {
-                return false;
-            }
-            log.warn("no need to create pulsar subscription for groupId={}, streamId={}, as the middlewareType={}",
-                    form.getInlongGroupId(), form.getInlongStreamId(), middlewareType);
-            return true;
-        });
-        createPulsarSubscriptionGroupTask.setName("createPulsarSubscription");
-        createPulsarSubscriptionGroupTask.setDisplayName("Stream-CreatePulsarSubscription");
-        createPulsarSubscriptionGroupTask.addListener(createPulsarGroupTaskListener);
-        process.addTask(createPulsarSubscriptionGroupTask);
-
-        ServiceTask createHiveTableTask = new ServiceTask();
-        createHiveTableTask.setSkipResolver(c -> {
-            BusinessResourceWorkflowForm form = (BusinessResourceWorkflowForm) c.getProcessForm();
-            String groupId = form.getInlongGroupId();
-            String streamId = form.getInlongStreamId();
-            List<String> dsForHive = storageService.filterStreamIdByStorageType(groupId, BizConstant.STORAGE_HIVE,
-                    Collections.singletonList(streamId));
-            if (CollectionUtils.isEmpty(dsForHive)) {
-                log.warn("business [{}] adn data stream [{}] does not have storage, skip create hive table", groupId,
-                        streamId);
-                return true;
-            }
-            return false;
-        });
-
-        createHiveTableTask.setName("createHiveTable");
-        createHiveTableTask.setDisplayName("Stream-CreateHiveTable");
-        createHiveTableTask.addListener(createHiveTableListener);
-        process.addTask(createHiveTableTask);
-
-        ServiceTask pushSortConfig = new ServiceTask();
-        pushSortConfig.setName("pushSortConfig");
-        pushSortConfig.setDisplayName("Stream-PushSortConfig");
-        pushSortConfig.addListener(pushHiveConfigTaskListener);
-        process.addTask(pushSortConfig);
-
-        startEvent.addNext(createPulsarTopicTask);
-        createPulsarTopicTask.addNext(createPulsarSubscriptionGroupTask);
-        createPulsarSubscriptionGroupTask.addNext(createHiveTableTask);
-        createHiveTableTask.addNext(pushSortConfig);
-        pushSortConfig.addNext(endEvent);
+        // Task dependency order: 1.MQ -> 2.Sink -> 3.Sort -> 4.Source
+        // To ensure that after some tasks fail, data will not start to be collected by source or consumed by sort
+        startEvent.addNext(initMQTask);
+        initMQTask.addNext(initSinkTask);
+        initSinkTask.addNext(initSortTask);
+        initSortTask.addNext(initSourceTask);
+        initSourceTask.addNext(endEvent);
 
         return process;
     }
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.CREATE_DATASTREAM_RESOURCE;
+        return ProcessName.CREATE_STREAM_RESOURCE;
     }
+
 }

@@ -79,7 +79,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // query matched records
         Map<String, TopicCtrlEntity> topicCtrlMap =
-                metaDataManager.getTopicCtrlConf(topicNameSet, qryEntity);
+                defMetaDataService.getTopicCtrlConf(topicNameSet, qryEntity);
         // build query result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -93,7 +93,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                     .append("\",\"createDate\":\"").append(entity.getCreateDateStr())
                     .append("\",\"authConsumeGroup\":[");
             List<GroupConsumeCtrlEntity> groupEntity =
-                    metaDataManager.getConsumeCtrlByTopic(entity.getTopicName());
+                    defMetaDataService.getConsumeCtrlByTopic(entity.getTopicName());
             int j = 0;
             if (!groupEntity.isEmpty()) {
                 for (GroupConsumeCtrlEntity itemEntity : groupEntity) {
@@ -171,7 +171,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         // add or update records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
-            retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(opEntity,
+            retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
                     topicName, enableTopicAuth, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
@@ -203,7 +203,7 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
                 (Map<String, TopicCtrlEntity>) result.getRetData();
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (TopicCtrlEntity topicCtrlInfo : addRecordMap.values()) {
-            retInfo.add(metaDataManager.addOrUpdTopicCtrlConf(topicCtrlInfo, sBuffer, result));
+            retInfo.add(defMetaDataService.insertTopicCtrlConf(topicCtrlInfo, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
     }
@@ -235,10 +235,8 @@ public class WebAdminTopicAuthHandler extends AbstractWebHandler {
         // delete records
         List<TopicProcessResult> retInfo = new ArrayList<>();
         for (String topicName : topicNameSet) {
-            metaDataManager.addOrUpdTopicCtrlConf(opEntity,
-                    topicName, Boolean.FALSE, sBuffer, result);
-            retInfo.add(new TopicProcessResult(
-                    TBaseConstants.META_VALUE_UNDEFINED, topicName, result));
+            retInfo.add(defMetaDataService.insertTopicCtrlConf(opEntity,
+                    topicName, Boolean.FALSE, sBuffer, result));
         }
         return buildRetInfo(retInfo, sBuffer);
     }

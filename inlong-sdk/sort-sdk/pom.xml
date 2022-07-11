@@ -24,12 +24,47 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-sdk</artifactId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
     <artifactId>sort-sdk</artifactId>
-    <version>1.1.0-incubating-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
 
     <name>Apache InLong - Sort SDK</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sdk-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>tubemq-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pulsar</groupId>
+            <artifactId>pulsar-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -39,15 +74,16 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.1</version>
+                    <version>${plugin.surefire.version}</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -72,58 +108,5 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.compile.version>3.8.1</plugin.compile.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.pulsar</groupId>
-            <artifactId>pulsar-client</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-
-        <dependency>
-            <artifactId>powermock-module-junit4</artifactId>
-            <groupId>org.powermock</groupId>
-            <scope>test</scope>
-            <version>2.0.2</version>
-        </dependency>
-
-        <dependency>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <groupId>org.powermock</groupId>
-            <scope>test</scope>
-            <version>2.0.2</version>
-        </dependency>
-
-        <dependency>
-            <artifactId>mockito-core</artifactId>
-            <groupId>org.mockito</groupId>
-            <scope>test</scope>
-            <version>2.23.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>tubemq-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-    </dependencies>
 
 </project>

@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -17,16 +17,9 @@
 
 package org.apache.inlong.dataproxy.sink.pulsar.federation;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.flume.Context;
 import org.apache.flume.Event;
+import org.apache.inlong.common.metric.MetricRegister;
 import org.apache.inlong.dataproxy.utils.MockUtils;
 import org.apache.pulsar.client.api.ClientBuilder;
 import org.apache.pulsar.client.api.MessageId;
@@ -43,14 +36,20 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.Assert.assertTrue;
+
 /**
- * 
  * TestPulsarProducerFederation
  */
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
 @PrepareForTest({PulsarClient.class, ClientBuilder.class, MessageId.class,
-        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class})
+        Producer.class, ProducerBuilder.class, TypedMessageBuilder.class, MetricRegister.class})
 public class TestPulsarProducerFederation {
 
     public static final Logger LOG = LoggerFactory.getLogger(TestPulsarProducerFederation.class);
@@ -63,8 +62,9 @@ public class TestPulsarProducerFederation {
     @BeforeClass
     public static void setUp() {
         Map<String, String> result = new ConcurrentHashMap<>();
-        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource("flume.conf")
-                .openStream()) {
+        try (InputStream inStream = TestPulsarFederationSink.class.getClassLoader().getResource(
+                "dataproxy-pulsar.conf").openStream()) {
+            MockUtils.mockMetricRegister();
             Properties props = new Properties();
             props.load(inStream);
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
@@ -73,17 +73,13 @@ public class TestPulsarProducerFederation {
             context = new Context(result);
             sinkContext = new Context(context.getSubProperties("proxy_inlong5th_sz.sinks.pulsar-sink-more1."));
             MockUtils.mockPulsarClient();
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
         } catch (Exception e) {
-            LOG.error("fail to load properties, file ={}, and e= {}", "flume.conf", e);
+            LOG.error("fail to load properties, file ={}, and e= {}", "dataproxy-pulsar.conf", e);
         }
     }
 
     /**
      * testResult
-     * 
-     * @throws Exception
      */
     @Test
     public void testResult() throws Exception {
@@ -93,7 +89,7 @@ public class TestPulsarProducerFederation {
         federation.start();
         Event event = MockUtils.mockEvent();
         boolean result = federation.send(event);
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
 }

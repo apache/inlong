@@ -48,7 +48,7 @@ public class LongMaxGauge extends BaseMetric implements Gauge {
 
     @Override
     public void clear() {
-        this.value.set(0L);
+        this.value.set(Long.MIN_VALUE);
     }
 
     @Override

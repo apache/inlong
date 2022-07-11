@@ -28,7 +28,6 @@ public class FallbackKey {
     // -------------------------
     //  Factory methods
     // -------------------------
-
     static FallbackKey createFallbackKey(String key) {
         return new FallbackKey(key, false);
     }

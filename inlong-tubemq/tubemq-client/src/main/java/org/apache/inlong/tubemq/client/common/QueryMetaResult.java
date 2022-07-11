@@ -37,10 +37,12 @@ public class QueryMetaResult extends RetValue {
         super(errCode, errInfo);
     }
 
+    @Override
     public void setFailResult(int errCode, final String errMsg) {
         super.setFailResult(errCode, errMsg);
     }
 
+    @Override
     public void setFailResult(final String errMsg) {
         super.setFailResult(errMsg);
     }

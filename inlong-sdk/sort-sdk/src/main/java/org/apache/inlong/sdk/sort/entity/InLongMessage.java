@@ -21,23 +21,49 @@ import java.util.Map;
 
 public class InLongMessage {
 
-    private final Map<String, String> msgHeader;
-    private byte[] data;
+    private String inlongGroupId;
+    private String inlongStreamId;
+    private long msgTime; //message generation time, milliseconds
+    private String sourceIp; // agent ip of message generation
+    private final Map<String, String> params;
+    private final byte[] body;
 
-    public InLongMessage(byte[] data, Map<String, String> msgHeader) {
-        this.data = data;
-        this.msgHeader = msgHeader;
+    public InLongMessage(byte[] body, Map<String, String> params) {
+        this.body = body;
+        this.params = params;
     }
 
-    public byte[] getData() {
-        return data;
+    public InLongMessage(String inlongGroupId, String inlongStreamId, long msgTime, String sourceIp, byte[] body,
+            Map<String, String> params) {
+        this.inlongGroupId = inlongGroupId;
+        this.inlongStreamId = inlongStreamId;
+        this.msgTime = msgTime;
+        this.sourceIp = sourceIp;
+        this.body = body;
+        this.params = params;
     }
 
-    public void setData(byte[] data) {
-        this.data = data;
+    public long getMsgTime() {
+        return msgTime;
     }
 
-    public Map<String, String> getMsgHeader() {
-        return msgHeader;
+    public String getSourceIp() {
+        return sourceIp;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public String getInlongGroupId() {
+        return inlongGroupId;
+    }
+
+    public String getInlongStreamId() {
+        return inlongStreamId;
     }
 }

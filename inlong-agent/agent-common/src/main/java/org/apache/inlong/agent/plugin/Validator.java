@@ -23,9 +23,7 @@ package org.apache.inlong.agent.plugin;
 public interface Validator {
 
     /**
-     *
-     * @param messageLine
-     * @return
+     * validate whether messageLine meets specified requirement
      */
     boolean validate(String messageLine);
 

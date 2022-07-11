@@ -61,6 +61,16 @@ public class ConsumerNodeInfo {
             new AtomicInteger(TBaseConstants.META_VALUE_UNDEFINED);
     private long createTime = System.currentTimeMillis();
 
+    /**
+     * Initial consumer node information
+     *
+     * @param storeManager    the store manager
+     * @param consumerId      the consumer id
+     * @param filterCodes     the filter condition items
+     * @param sessionKey      the session key
+     * @param sessionTime     the session create time
+     * @param partStr         the partition information
+     */
     public ConsumerNodeInfo(final MessageStoreManager storeManager,
                             final String consumerId, Set<String> filterCodes,
                             final String sessionKey, long sessionTime, final String partStr) {
@@ -68,6 +78,18 @@ public class ConsumerNodeInfo {
             filterCodes, sessionKey, sessionTime, false, partStr);
     }
 
+    /**
+     * Initial consumer node information
+     *
+     * @param storeManager       the store manager
+     * @param qryPriorityId      the query priority id
+     * @param consumerId         the consumer id
+     * @param filterCodes        the filter condition items
+     * @param sessionKey         the session key
+     * @param sessionTime        the session create time
+     * @param isSupportLimit     whether to support limited consumption function
+     * @param partStr            the partition information
+     */
     public ConsumerNodeInfo(final MessageStoreManager storeManager,
                             final int qryPriorityId, final String consumerId,
                             Set<String> filterCodes, final String sessionKey,
@@ -92,7 +114,16 @@ public class ConsumerNodeInfo {
         this.isSupportLimit = isSupportLimit;
     }
 
-    // #lizard forgives
+    /**
+     * Query the current allowed maximum consumption size
+     *
+     * @param storeKey              the store block key
+     * @param flowCtrlRuleHandler   the flow-control rule handler
+     * @param currMaxDataOffset     the current max data offset
+     * @param maxMsgTransferSize    the max message transfer size
+     * @param isEscFlowCtrl         whether need escape flow-control process
+     * @return                      the allowed consumption size
+     */
     public int getCurrentAllowedSize(final String storeKey,
                                      final FlowCtrlRuleHandler flowCtrlRuleHandler,
                                      final long currMaxDataOffset, int maxMsgTransferSize,
@@ -229,10 +260,10 @@ public class ConsumerNodeInfo {
     /**
      * Recalculate message limit value.
      *
-     * @param curDataDlt
-     * @param currTime
-     * @param maxMsgTransferSize
-     * @param flowCtrlRuleHandler
+     * @param curDataDlt              current data lag
+     * @param currTime                current time
+     * @param maxMsgTransferSize      the max message transfer size
+     * @param flowCtrlRuleHandler     the flow-control rule handler
      */
     private void recalcMsgLimitValue(long curDataDlt, long currTime, int maxMsgTransferSize,
                                      final FlowCtrlRuleHandler flowCtrlRuleHandler) {
@@ -257,5 +288,4 @@ public class ConsumerNodeInfo {
                     currTime + TBaseConstants.CFG_FC_MAX_SAMPLING_PERIOD;
         }
     }
-
 }

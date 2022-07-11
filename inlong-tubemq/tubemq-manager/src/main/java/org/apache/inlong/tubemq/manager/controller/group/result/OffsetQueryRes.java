@@ -28,31 +28,4 @@ public class OffsetQueryRes {
     private String errMsg;
     private List<GroupOffsetRes> dataSet;
     private int totalCnt;
-
-    @Data
-    private static class GroupOffsetRes {
-        private String groupName;
-        private List<TopicOffsetRes> subInfo;
-        private int topicCount;
-
-        @Data
-        private static class TopicOffsetRes {
-            private String topicName;
-            private List<OffsetPartitionRes> offsets;
-            private int partCount;
-
-            @Data
-            private static class OffsetPartitionRes {
-                private int partitionId;
-                private long curOffset;
-                private int flightOffset;
-                private int curDataOffset;
-                private int offsetLag;
-                private int dataLag;
-                private int offsetMax;
-                private int dataMax;
-            }
-        }
-    }
-
 }

@@ -31,12 +31,10 @@ import java.util.List;
  */
 public class ManagerResultFormatter {
 
+    public static final String SUCCESS_CODE = "true";
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagerResultFormatter.class);
-
     private static final String RESULT_CODE = "success";
     private static final String RESULT_DATA = "data";
-    public static final String SUCCESS_CODE = "true";
-
     private static final Gson GSON = new Gson();
 
     /**
@@ -46,11 +44,10 @@ public class ManagerResultFormatter {
      */
     public static JsonObject getResultData(String jsonStr) {
         JsonObject object = GSON.fromJson(jsonStr, JsonObject.class);
-        if (object == null || !object.has(RESULT_CODE)
-                || !object.has(RESULT_DATA)
+        if (object == null || !object.has(RESULT_CODE) || !object.has(RESULT_DATA)
                 || !SUCCESS_CODE.equals(object.get(RESULT_CODE).getAsString())) {
             throw new IllegalArgumentException("cannot get result data,"
-                    + " please check manager status, return str is" + jsonStr);
+                    + " please check manager status, return str is " + jsonStr);
 
         }
         return object;
@@ -59,8 +56,8 @@ public class ManagerResultFormatter {
     /**
      * get random list of base list.
      *
-     * @param baseList - base list
-     * @param num - max Num
+     * @param baseList base list
+     * @param num max Num
      * @return random list
      */
     public static <T> List<T> getRandomList(List<T> baseList, int num) {

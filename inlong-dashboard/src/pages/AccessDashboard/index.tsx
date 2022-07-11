@@ -33,7 +33,7 @@ const Comp: React.FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const [options, setOptions] = useState({
-    // keyWord: '',
+    // keyword: '',
     // status: '',
     pageSize: defaultSize,
     pageNum: 1,
@@ -45,13 +45,14 @@ const Comp: React.FC = () => {
   });
 
   const { data: summary = {} } = useRequest({
-    url: '/business/countByStatus',
+    url: '/group/countByStatus',
   });
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/business/list',
-      params: options,
+      url: '/group/list',
+      method: 'POST',
+      data: options,
     },
     {
       refreshDeps: [options],
@@ -63,7 +64,7 @@ const Comp: React.FC = () => {
       title: t('pages.AccessDashboard.ConfirmDelete'),
       onOk: async () => {
         await request({
-          url: `/business/delete/${inlongGroupId}`,
+          url: `/group/delete/${inlongGroupId}`,
           method: 'DELETE',
         });
         await getList();

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
+    or more contributor license agreements. See the NOTICE file
     distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
+    regarding copyright ownership. The ASF licenses this file
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
+    with the License. You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -22,7 +22,7 @@
 <mapper namespace="org.apache.inlong.manager.dao.mapper.UserRoleEntityMapper">
     <resultMap id="BaseResultMap" type="org.apache.inlong.manager.dao.entity.UserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_name" jdbcType="VARCHAR" property="username"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
@@ -48,7 +48,7 @@
         insert into user_role (id, user_name, role_code,
                                create_time, update_time, create_by,
                                update_by, disabled)
-        values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
+        values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR},
                 #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR},
                 #{updateBy,jdbcType=VARCHAR}, #{disabled,jdbcType=INTEGER})
     </insert>
@@ -59,7 +59,7 @@
             <if test="id != null">
                 id,
             </if>
-            <if test="userName != null">
+            <if test="username != null">
                 user_name,
             </if>
             <if test="roleCode != null">
@@ -85,8 +85,8 @@
             <if test="id != null">
                 #{id,jdbcType=INTEGER},
             </if>
-            <if test="userName != null">
-                #{userName,jdbcType=VARCHAR},
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
             </if>
             <if test="roleCode != null">
                 #{roleCode,jdbcType=VARCHAR},
@@ -112,8 +112,8 @@
             parameterType="org.apache.inlong.manager.dao.entity.UserRoleEntity">
         update user_role
         <set>
-            <if test="userName != null">
-                user_name = #{userName,jdbcType=VARCHAR},
+            <if test="username != null">
+                user_name = #{username,jdbcType=VARCHAR},
             </if>
             <if test="roleCode != null">
                 role_code = #{roleCode,jdbcType=VARCHAR},
@@ -139,7 +139,7 @@
     <update id="updateByPrimaryKey"
             parameterType="org.apache.inlong.manager.dao.entity.UserRoleEntity">
         update user_role
-        set user_name   = #{userName,jdbcType=VARCHAR},
+        set user_name   = #{username,jdbcType=VARCHAR},
             role_code   = #{roleCode,jdbcType=VARCHAR},
             create_time = #{createTime,jdbcType=TIMESTAMP},
             update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -149,10 +149,10 @@
         where id = #{id,jdbcType=INTEGER}
     </update>
 
-    <select id="listByUserName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <select id="listByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from user_role
-        where user_name = #{userName,jdbcType=VARCHAR}
+        where user_name = #{username,jdbcType=VARCHAR}
     </select>
 </mapper>

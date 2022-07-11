@@ -192,4 +192,14 @@ public class ESTHistogram extends BaseMetric implements Histogram {
         }
         strBuff.append("}}");
     }
+
+    @Override
+    public void clear() {
+        this.count.clear();
+        this.min.clear();
+        this.max.clear();
+        for (int i = 0; i < NUM_BUCKETS; i++) {
+            this.buckets[i].clear();
+        }
+    }
 }

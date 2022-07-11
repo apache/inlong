@@ -20,11 +20,12 @@ file_path=$(cd "$(dirname "$0")";pwd)
 # config
 cat <<EOF > ${file_path}/../conf/application.properties
 spring.jpa.hibernate.ddl-auto=update
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 # configuration for admin
 topic.config.schedule=0/5 * * * * ?
 broker.reload.schedule=0/5 * * * * ?
 # mysql configuration for manager
-spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/tubemanager?useSSL=false
+spring.datasource.url=jdbc:mysql://$MYSQL_HOST:$MYSQL_PORT/apache_inlong_tubemq?useSSL=false
 spring.datasource.username=$MYSQL_USER
 spring.datasource.password=$MYSQL_PASSWD
 # server port
@@ -41,4 +42,4 @@ curl --header "Content-Type: application/json" --request POST --data \
 http://localhost:8089/v1/cluster?method=add
 
 # keep alive
-tail -F ${file_path}/../logs/tubemq-manager.out
+tail -F ${file_path}/../logs/info.log

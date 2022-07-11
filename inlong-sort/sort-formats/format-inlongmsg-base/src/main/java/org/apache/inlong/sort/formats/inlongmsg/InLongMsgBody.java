@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.inlong.commons.msg.InLongMsg;
+import org.apache.inlong.common.msg.InLongMsg;
 
 /**
  * The body deserialized from {@link InLongMsg}.

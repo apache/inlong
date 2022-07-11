@@ -22,6 +22,9 @@ import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTyp
 
 import java.io.Serializable;
 
+/**
+ * interface for serialization infos
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
@@ -29,6 +32,7 @@ import java.io.Serializable;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = JsonSerializationInfo.class, name = "json"),
         @JsonSubTypes.Type(value = CanalSerializationInfo.class, name = "canal"),
+        @JsonSubTypes.Type(value = DebeziumSerializationInfo.class, name = "debezium_json"),
         @JsonSubTypes.Type(value = AvroSerializationInfo.class, name = "avro")})
 public interface SerializationInfo extends Serializable {
 

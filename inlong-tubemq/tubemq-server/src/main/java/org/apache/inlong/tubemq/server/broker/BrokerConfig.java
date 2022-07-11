@@ -18,8 +18,8 @@
 package org.apache.inlong.tubemq.server.broker;
 
 import static java.lang.Math.abs;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.config.TLSConfig;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
@@ -118,9 +118,15 @@ public class BrokerConfig extends AbstractFileConfig {
     // the scan storage cycle for consume group offset
     private long groupOffsetScanDurMs =
             TServerConstants.CFG_DEFAULT_GROUP_OFFSET_SCAN_DUR;
+    // whether to enable the memory cache storage, the default is true, open the memory cache
+    private boolean enableMemStore = true;
 
     public BrokerConfig() {
         super();
+    }
+
+    public boolean isEnableMemStore() {
+        return enableMemStore;
     }
 
     public boolean isUpdateConsumerOffsets() {
@@ -355,6 +361,9 @@ public class BrokerConfig extends AbstractFileConfig {
                     MixedUtils.mid(getLong(brokerSect, "groupOffsetScanDurMs"),
                             TServerConstants.CFG_MIN_GROUP_OFFSET_SCAN_DUR,
                             TServerConstants.CFG_MAX_GROUP_OFFSET_SCAN_DUR);
+        }
+        if (TStringUtils.isNotBlank(brokerSect.get("enableMemStore"))) {
+            this.enableMemStore = this.getBoolean(brokerSect, "enableMemStore");
         }
     }
 

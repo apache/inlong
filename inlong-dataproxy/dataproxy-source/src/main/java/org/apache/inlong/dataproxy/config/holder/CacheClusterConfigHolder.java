@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.config.loader.CacheClusterConfigLoader;
@@ -60,6 +60,7 @@ public class CacheClusterConfigHolder implements Configurable {
         this.reloadInterval = context.getLong(RELOAD_INTERVAL, 60000L);
         String loaderType = context.getString(CACHE_CLUSTER_CONFIG_TYPE,
                 ContextCacheClusterConfigLoader.class.getName());
+        LOG.info("Init CacheClusterConfigLoader,loaderType:{}", loaderType);
         try {
             Class<?> loaderClass = ClassUtils.getClass(loaderType);
             Object loaderObject = loaderClass.getDeclaredConstructor().newInstance();

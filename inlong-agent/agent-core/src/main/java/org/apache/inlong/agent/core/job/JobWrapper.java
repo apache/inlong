@@ -17,18 +17,26 @@
 
 package org.apache.inlong.agent.core.job;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.AgentConfiguration;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.AgentManager;
 import org.apache.inlong.agent.core.task.Task;
 import org.apache.inlong.agent.core.task.TaskManager;
+import org.apache.inlong.agent.db.CommandDb;
 import org.apache.inlong.agent.state.AbstractStateWrapper;
 import org.apache.inlong.agent.state.State;
+import org.apache.inlong.common.constant.Constants;
+import org.apache.inlong.common.db.CommandEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_JOB_VERSION;
+import static org.apache.inlong.agent.constant.AgentConstants.JOB_VERSION;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_OFFSET_DELIMITER;
 
 /**
  * JobWrapper is used in JobManager, it defines the life cycle of
@@ -42,8 +50,8 @@ public class JobWrapper extends AbstractStateWrapper {
     private final TaskManager taskManager;
     private final JobManager jobManager;
     private final Job job;
-
     private final List<Task> allTasks;
+    private CommandDb db;
 
     public JobWrapper(AgentManager manager, Job job) {
         super();
@@ -52,6 +60,7 @@ public class JobWrapper extends AbstractStateWrapper {
         this.jobManager = manager.getJobManager();
         this.job = job;
         this.allTasks = new ArrayList<>();
+        this.db = manager.getCommandDb();
         doChangeState(State.ACCEPTED);
     }
 
@@ -74,7 +83,18 @@ public class JobWrapper extends AbstractStateWrapper {
             doChangeState(State.SUCCEEDED);
         } else {
             doChangeState(State.FAILED);
+            saveFailedCommand();
         }
+    }
+
+    private void saveFailedCommand() {
+        CommandEntity entity = new CommandEntity();
+        entity.setId(job.getJobInstanceId());
+        entity.setAcked(false);
+        entity.setTaskId(Integer.valueOf(job.getJobInstanceId()));
+        entity.setCommandResult(Constants.RESULT_FAIL);
+        entity.setVersion(job.getJobConf().getInt(JOB_VERSION, DEFAULT_JOB_VERSION));
+        db.storeCommand(entity);
     }
 
     /**
@@ -89,7 +109,24 @@ public class JobWrapper extends AbstractStateWrapper {
     }
 
     /**
+     * get snapshot of each task
+     *
+     * @return snapshot string
+     */
+    public String getSnapshot() {
+        List<String> snapshotList = new ArrayList<>();
+        for (Task task : allTasks) {
+            String snapshot = task.getReader().getSnapshot();
+            if (snapshot != null) {
+                snapshotList.add(snapshot);
+            }
+        }
+        return String.join(JOB_OFFSET_DELIMITER, snapshotList);
+    }
+
+    /**
      * get job
+     *
      * @return job
      */
     public Job getJob() {
@@ -126,5 +163,9 @@ public class JobWrapper extends AbstractStateWrapper {
         }).addCallback(State.RUNNING, State.SUCCEEDED, ((before, after) -> {
             jobManager.markJobAsSuccess(job.getJobInstanceId());
         }));
+    }
+
+    public List<Task> getAllTasks() {
+        return allTasks;
     }
 }

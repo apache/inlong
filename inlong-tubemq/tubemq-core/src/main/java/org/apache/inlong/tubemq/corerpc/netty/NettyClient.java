@@ -18,6 +18,14 @@
 package org.apache.inlong.tubemq.corerpc.netty;
 
 import com.google.protobuf.ByteString;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.channels.UnresolvedAddressException;
@@ -40,18 +48,6 @@ import org.apache.inlong.tubemq.corerpc.codec.PbEnDecoder;
 import org.apache.inlong.tubemq.corerpc.exception.ClientClosedException;
 import org.apache.inlong.tubemq.corerpc.exception.NetworkException;
 import org.apache.inlong.tubemq.corerpc.utils.MixUtils;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.timeout.ReadTimeoutException;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.jboss.netty.util.Timeout;
-import org.jboss.netty.util.Timer;
-import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,16 +66,18 @@ public class NettyClient implements Client {
             new ConcurrentHashMap<>();
     private final AtomicInteger serialNoGenerator =
             new AtomicInteger(0);
-    private AtomicBoolean released = new AtomicBoolean(false);
+    private final AtomicBoolean released = new AtomicBoolean(false);
     private NodeAddrInfo addressInfo;
-    private ClientFactory clientFactory;
+    private final ClientFactory clientFactory;
     private Channel channel;
-    private long connectTimeout;
-    private volatile AtomicBoolean closed = new AtomicBoolean(true);
+    private final long connectTimeout;
+    private final AtomicBoolean closed = new AtomicBoolean(true);
 
     /**
-     * @param clientFactory
-     * @param connectTimeout
+     * Initial a netty client object
+     *
+     * @param clientFactory    the client factory
+     * @param connectTimeout   the connection timeout
      */
     public NettyClient(ClientFactory clientFactory, long connectTimeout) {
         this.clientFactory = clientFactory;
@@ -94,8 +92,10 @@ public class NettyClient implements Client {
     }
 
     /**
-     * @param channel
-     * @param addressInfo
+     * Set a channel
+     *
+     * @param channel      the channel
+     * @param addressInfo   the address of the channel
      */
     public void setChannel(Channel channel, final NodeAddrInfo addressInfo) {
         this.channel = channel;
@@ -144,7 +144,7 @@ public class NettyClient implements Client {
         requests.put(request.getSerialNo(), future);
         if (callback == null) {
             try {
-                getChannel().write(pack);
+                getChannel().writeAndFlush(pack);
                 return future.get(timeout, timeUnit);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
@@ -166,7 +166,7 @@ public class NettyClient implements Client {
                         timer.newTimeout(new TimeoutTask(request.getSerialNo()), timeout, timeUnit));
                 inserted = true;
                 //write data after build Timeout to avoid one request processed twice
-                getChannel().write(pack);
+                getChannel().writeAndFlush(pack);
             } catch (Throwable e) {
                 Callback<ResponseWrapper> callback1 =
                     requests.remove(request.getSerialNo());
@@ -205,8 +205,8 @@ public class NettyClient implements Client {
         return (!this.closed.get()
                 && channel != null
                 && channel.isOpen()
-                && channel.isBound()
-                && channel.isConnected());
+                && channel.isWritable()
+                && channel.isActive());
     }
 
     @Override
@@ -226,6 +226,8 @@ public class NettyClient implements Client {
      * remove clientFactory cache
      * handler unfinished callbacks
      * and close the channel
+     *
+     * @param removeParent    whether remove the object from client factory
      */
     @Override
     public void close(boolean removeParent) {
@@ -273,16 +275,20 @@ public class NettyClient implements Client {
     /**
      * tube NettyClientHandler
      */
-    public class NettyClientHandler extends SimpleChannelUpstreamHandler {
+    public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
-        @Override
         /**
-         * Invoked when a message object (e.g: {@link ChannelBuffer}) was received
-         * from a remote peer.
+         * Invoked when a message object was received from a remote peer.
+         *
+         * @param ctx     the channel handler context
+         * @param e       the message event
          */
-        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-            if (e.getMessage() instanceof RpcDataPack) {
-                RpcDataPack dataPack = (RpcDataPack) e.getMessage();
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object e) {
+            logger.debug("client message receive!");
+            if (e instanceof RpcDataPack) {
+                logger.debug("RpcDataPack client message receive!");
+                RpcDataPack dataPack = (RpcDataPack) e;
                 Callback callback = requests.remove(dataPack.getSerialNo());
                 if (callback != null) {
                     Timeout timeout = timeouts.remove(dataPack.getSerialNo());
@@ -366,16 +372,18 @@ public class NettyClient implements Client {
         }
 
         /**
-         * Invoked when an exception was raised by an I/O thread or a
-         * {@link ChannelHandler}.
+         * Invoked when an exception was raised by an I/O thread
+         *
+         * @param ctx   the channel handler context
+         * @param e     the exception object
          */
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) throws Exception {
             Throwable t = e.getCause();
             if ((t instanceof IOException || t instanceof ReadTimeoutException
                 || t instanceof UnresolvedAddressException)) {
                 if (t instanceof ReadTimeoutException) {
-                    logger.info("Close client {} due to idle.", e.getChannel());
+                    logger.info("Close client {} due to idle.", ctx.channel());
                 }
                 if (t instanceof UnresolvedAddressException) {
                     logger.info("UnresolvedAddressException for connect {} closed.", addressInfo.getHostPortStr());
@@ -386,12 +394,13 @@ public class NettyClient implements Client {
             }
         }
 
-        @Override
         /**
-         * Invoked when a {@link Channel} was closed and all its related resources
-         * were released.
+         * Invoked when a {@link Channel} was closed and all its related resources were released.
+         *
+         * @param ctx   the channel handler context
          */
-        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) {
             NettyClient.this.close();
         }
     }
@@ -401,7 +410,7 @@ public class NettyClient implements Client {
      */
     public class TimeoutTask implements TimerTask {
 
-        private int serialNo;
+        private final int serialNo;
 
         public TimeoutTask(int serialNo) {
             this.serialNo = serialNo;
@@ -415,12 +424,8 @@ public class NettyClient implements Client {
             }
             final Callback callback = requests.remove(serialNo);
             if (callback != null) {
-                channel.getPipeline().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.handleError(new TimeoutException("Request is timeout!"));
-                    }
-                });
+                channel.eventLoop().execute(
+                        () -> callback.handleError(new TimeoutException("Request is timeout!")));
             }
         }
     }

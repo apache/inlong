@@ -19,19 +19,15 @@
 
 package org.apache.inlong.dataproxy.source;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 import org.apache.flume.Context;
 import org.apache.flume.EventDrivenSource;
 import org.apache.flume.conf.Configurable;
-import org.apache.inlong.dataproxy.base.NamedThreadFactory;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.ThreadRenamingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +40,8 @@ public class SimpleUdpSource
 
     private static int UPD_BUFFER_DEFAULT_SIZE = 8192;
 
+    private Bootstrap bootstrap;
+
     public SimpleUdpSource() {
         super();
     }
@@ -51,24 +49,20 @@ public class SimpleUdpSource
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void startSource() {
-        ThreadRenamingRunnable.setThreadNameDeterminer(ThreadNameDeterminer.CURRENT);
         // setup Netty server
-        serverBootstrap = new ConnectionlessBootstrap(
-                new NioDatagramChannelFactory(Executors
-                        .newCachedThreadPool(new NamedThreadFactory("udpSource-nettyWorker"
-                                + "-threadGroup")), maxThreads));
+        bootstrap = new Bootstrap();
         logger.info("Set max workers : {} ;",maxThreads);
-        serverBootstrap.setOption("receiveBufferSizePredictorFactory",
-                new FixedReceiveBufferSizePredictorFactory(UPD_BUFFER_DEFAULT_SIZE));
-        ChannelPipelineFactory fac = this.getChannelPiplineFactory();
-        serverBootstrap.setPipelineFactory(fac);
+        bootstrap.channel(NioDatagramChannel.class);
+        bootstrap.option(ChannelOption.SO_RCVBUF, receiveBufferSize);
+        bootstrap.option(ChannelOption.SO_SNDBUF, sendBufferSize);
+        ChannelInitializer fac = this.getChannelInitializerFactory();
+        bootstrap.handler(fac);
         try {
             if (host == null) {
-                nettyChannel =
-                        ((ConnectionlessBootstrap)serverBootstrap).bind(new InetSocketAddress(port));
+                channelFuture = bootstrap.bind(new InetSocketAddress(port)).sync();
             } else {
-                nettyChannel =
-                        ((ConnectionlessBootstrap)serverBootstrap).bind(new InetSocketAddress(host, port));
+
+                channelFuture = bootstrap.bind(new InetSocketAddress(host, port)).sync();
             }
         } catch (Exception e) {
             logger.error("Simple UDP Source error bind host {} port {}, program will exit!",
@@ -76,7 +70,6 @@ public class SimpleUdpSource
             System.exit(-1);
             //throw new FlumeException(e.getMessage());
         }
-        allChannels.add(nettyChannel);
         logger.info("Simple UDP Source started at host {}, port {}", host, port);
     }
 

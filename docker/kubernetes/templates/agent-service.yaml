@@ -24,10 +24,12 @@ metadata:
     {{- include "inlong.commonLabels" . | nindent 4 }}
     component: {{ .Values.agent.component }}
 spec:
-  ports:
-    - name: {{ .Values.agent.component}}-port
-      port: {{ .Values.agent.ports.agent }}
   type: ClusterIP
+  ports:
+    - name: {{ .Values.agent.component }}-port
+      protocol: TCP
+      port: {{ .Values.agent.port }}
+      targetPort: 8008
   selector:
     {{- include "inlong.matchLabels" . | nindent 4 }}
     component: {{ .Values.agent.component }}

@@ -17,27 +17,19 @@
 
 package org.apache.inlong.dataproxy.http;
 
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.GROUP_ID;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.DATA_TIME;
-import static org.apache.inlong.dataproxy.consts.AttributeConstants.INTERFACE_ID;
-import static org.apache.inlong.dataproxy.http.HttpSourceConstants.BODY;
-import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_REQUEST;
-import static org.apache.inlong.dataproxy.http.HttpSourceConstants.HTTP_RESPONSE;
-
-import org.apache.inlong.commons.monitor.LogCounter;
+import org.apache.inlong.common.monitor.LogCounter;
+import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.http.exception.MessageProcessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class MessageProcessServlet
-        extends HttpServlet {
+public class MessageProcessServlet extends HttpServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessServlet.class);
     private static final LogCounter logCounter = new LogCounter(10, 100000, 60 * 1000);
@@ -55,18 +47,16 @@ public class MessageProcessServlet
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
         try {
             Context context = new MappedContext();
+            context.put(AttributeConstants.GROUP_ID, req.getParameter(AttributeConstants.GROUP_ID));
+            context.put(AttributeConstants.STREAM_ID, req.getParameter(AttributeConstants.STREAM_ID));
+            context.put(AttributeConstants.DATA_TIME, req.getParameter(AttributeConstants.DATA_TIME));
+            context.put(AttributeConstants.BODY, req.getParameter(AttributeConstants.BODY));
 
-            context.put(GROUP_ID, req.getParameter(GROUP_ID));
-            context.put(INTERFACE_ID, req.getParameter(INTERFACE_ID));
-            context.put(DATA_TIME, req.getParameter(DATA_TIME));
-            context.put(BODY, req.getParameter(BODY));
-
-            context.put(HTTP_REQUEST, req);
-            context.put(HTTP_RESPONSE, resp);
+            context.put(AttributeConstants.HTTP_REQUEST, req);
+            context.put(AttributeConstants.HTTP_RESPONSE, resp);
 
             messageHandler.processMessage(context);
         } catch (MessageProcessException e) {

@@ -19,6 +19,9 @@ package org.apache.inlong.agent.metrics.gauge;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * GaugeLong
+ */
 public class GaugeLong implements Gauge<Long> {
 
     private final AtomicLong value = new AtomicLong(0);

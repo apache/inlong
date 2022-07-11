@@ -26,19 +26,17 @@ public interface Reader extends Stage {
     /**
      * Read message
      *
-     * @return - message
+     * @return message
      */
     Message read();
 
     /**
      * Whether finish reading
-     * @return
      */
     boolean isFinished();
 
     /**
      * Return the reader's reading source name
-     * @return
      */
     String getReadSource();
 
@@ -52,4 +50,19 @@ public interface Reader extends Stage {
      * to solve while loop cause too much cpu usage
      */
     void setWaitMillisecs(long millis);
+
+    /**
+     * get snapshot of the reader
+     */
+    String getSnapshot();
+
+    /**
+     * finish read
+     */
+    void finishRead();
+
+    /**
+     * source is exist
+     */
+    boolean isSourceExist();
 }

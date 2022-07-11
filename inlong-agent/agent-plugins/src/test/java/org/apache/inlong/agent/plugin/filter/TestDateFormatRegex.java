@@ -17,8 +17,8 @@
 
 package org.apache.inlong.agent.plugin.filter;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_INSTANCE_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 import java.io.File;
 import java.nio.file.Path;

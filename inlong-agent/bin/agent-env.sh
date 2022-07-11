@@ -36,18 +36,24 @@ else
   export JPS="$JAVA_HOME/bin/jps"
 fi
 
-HEAP_OPTS="-Xmx1024m -Xms512m"
+if [ -z "$AGENT_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms512m -Xmx6656m"
+else
+  HEAP_OPTS="$AGENT_JVM_HEAP_OPTS"
+fi
 GC_OPTS="-XX:SurvivorRatio=6 -XX:+UseMembar -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSScavengeBeforeRemark -XX:ParallelCMSThreads=3 -XX:+TieredCompilation -XX:+UseCMSCompactAtFullCollection -verbose:gc -Xloggc:$BASE_DIR/logs/gc.log.`date +%Y-%m-%d-%H-%M-%S` -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$BASE_DIR/logs/ -XX:+CMSClassUnloadingEnabled -XX:CMSInitiatingOccupancyFraction=60 -XX:CMSFullGCsBeforeCompaction=1 -Dsun.net.inetaddr.ttl=3 -Dsun.net.inetaddr.negative.ttl=1 -Djava.net.preferIPv4Stack=true"
 AGENT_JVM_ARGS="$HEAP_OPTS $GC_OPTS"
 
 # Add Agent Rmi Args when necessary
 AGENT_RMI_ARGS="-Dcom.sun.management.jmxremote \
 -Dcom.sun.management.jmxremote.port=18080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-export CLASSPATH=$CLASSPATH:$BASE_DIR/conf:$(ls $BASE_DIR/lib/*.jar | tr '\n' :)
+CONFIG_DIR=${BASE_DIR}"/conf/"
+JAR_LIBS=${BASE_DIR}"/lib/*"
+CLASSPATH=${CONFIG_DIR}:${JAR_LIBS}
 
 JMX_ENABLED=$(grep -c "agent.prometheus.enable=false" $BASE_DIR/conf/agent.properties)
 if [[ $JMX_ENABLED == 1 ]]; then
-  export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+  export AGENT_ARGS="$AGENT_JVM_ARGS $AGENT_RMI_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 else
-  export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR -Dlog4j.configuration=file:$BASE_DIR/conf/log4j.properties"
+  export AGENT_ARGS="$AGENT_JVM_ARGS -cp $CLASSPATH -Dagent.home=$BASE_DIR"
 fi

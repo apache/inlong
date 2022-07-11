@@ -20,10 +20,10 @@
 package org.apache.inlong.agent.plugin.metrics;
 
 import org.apache.inlong.agent.metrics.Metric;
-import org.apache.inlong.commons.config.metrics.Dimension;
-import org.apache.inlong.commons.config.metrics.MetricDomain;
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
+import org.apache.inlong.common.metric.Dimension;
+import org.apache.inlong.common.metric.MetricDomain;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricRegister;
 
 import java.util.concurrent.atomic.AtomicLong;
 

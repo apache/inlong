@@ -20,18 +20,19 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import java.util.List;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
-import org.apache.inlong.manager.common.workflow.EventListenerService;
-import org.apache.inlong.manager.common.workflow.QueryService;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.instance.EventLog;
-import org.apache.inlong.manager.common.model.view.EventLogQuery;
-import org.apache.inlong.manager.common.model.view.EventLogView;
+import org.apache.inlong.manager.workflow.core.EventListenerService;
+import org.apache.inlong.manager.workflow.core.WorkflowQueryService;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Workflow event related services
@@ -40,21 +41,20 @@ import org.springframework.stereotype.Service;
 public class WorkflowEventServiceImpl implements WorkflowEventService {
 
     @Autowired
-    private QueryService queryService;
-
+    private WorkflowQueryService queryService;
     @Autowired
     private EventListenerService eventListenerService;
 
     @Override
     public EventLogView get(Integer id) {
-        EventLog eventLog = queryService.getEventLog(id);
-        return CommonBeanUtils.copyProperties(eventLog, EventLogView::new);
+        WorkflowEventLogEntity workflowEventLogEntity = queryService.getEventLog(id);
+        return CommonBeanUtils.copyProperties(workflowEventLogEntity, EventLogView::new);
     }
 
     @Override
     public PageInfo<EventLogView> list(EventLogQuery query) {
         PageHelper.startPage(query.getPageNum(), query.getPageSize());
-        Page<EventLog> page = (Page<EventLog>) queryService.listEventLog(query);
+        Page<WorkflowEventLogEntity> page = (Page<WorkflowEventLogEntity>) queryService.listEventLog(query);
 
         List<EventLogView> viewList = CommonBeanUtils.copyListProperties(page, EventLogView::new);
         PageInfo<EventLogView> pageInfo = new PageInfo<>(viewList);
@@ -69,22 +69,22 @@ public class WorkflowEventServiceImpl implements WorkflowEventService {
     }
 
     @Override
-    public void executeProcessEventListener(Integer processInstId, String listenerName) {
-        eventListenerService.executeProcessEventListener(processInstId, listenerName);
+    public void executeProcessEventListener(Integer processId, String listenerName) {
+        eventListenerService.executeProcessEventListener(processId, listenerName);
     }
 
     @Override
-    public void executeTaskEventListener(Integer taskInstId, String listenerName) {
-        eventListenerService.executeTaskEventListener(taskInstId, listenerName);
+    public void executeTaskEventListener(Integer taskId, String listenerName) {
+        eventListenerService.executeTaskEventListener(taskId, listenerName);
     }
 
     @Override
-    public void triggerProcessEvent(Integer processInstId, ProcessEvent processEvent) {
-        eventListenerService.triggerProcessEvent(processInstId, processEvent);
+    public void triggerProcessEvent(Integer processId, ProcessEvent processEvent) {
+        eventListenerService.triggerProcessEvent(processId, processEvent);
     }
 
     @Override
-    public void triggerTaskEvent(Integer taskInstId, TaskEvent taskEvent) {
-        eventListenerService.triggerTaskEvent(taskInstId, taskEvent);
+    public void triggerTaskEvent(Integer taskId, TaskEvent taskEvent) {
+        eventListenerService.triggerTaskEvent(taskId, taskEvent);
     }
 }

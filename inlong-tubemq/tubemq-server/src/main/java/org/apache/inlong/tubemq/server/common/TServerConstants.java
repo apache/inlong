@@ -69,6 +69,12 @@ public final class TServerConstants {
     public static final int BROKER_GROUP_ID_MIN = 0;
     public static final int BROKER_GROUP_ID_DEF = 0;
 
+    public static final int TOPIC_ID_MIN = 0;
+    public static final int TOPIC_ID_DEF = 0;
+
+    public static final int DATA_VERSION_ID_MIN = 0;
+    public static final int DATA_VERSION_ID_DEF = 0;
+
     public static final int CFG_MODAUTHTOKEN_MAX_LENGTH = 128;
     public static final int CFG_ROWLOCK_DEFAULT_DURATION = 30000;
     public static final int CFG_ZK_COMMIT_DEFAULT_RETRIES = 10;
@@ -99,6 +105,6 @@ public final class TServerConstants {
     public static final long CFG_OFFSET_RESET_MID_ALARM_CHECK =
             DataStoreUtils.STORE_INDEX_HEAD_LEN * 1000000L;
 
-    // Minimum snapshot period
-    public static final long MIN_SNAPSHOT_PERIOD_MS = 5000L;
+    // max statistics token type length
+    public static final int META_MAX_STATSTYPE_LENGTH = 256;
 }

@@ -18,8 +18,11 @@
 package org.apache.inlong.tubemq.server.master;
 
 import com.sleepycat.je.Durability;
-import org.apache.inlong.tubemq.server.common.fileconfig.MasterReplicationConfig;
-import org.apache.inlong.tubemq.server.common.fileconfig.ZKConfig;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+import org.apache.inlong.tubemq.server.common.fileconfig.BdbMetaConfig;
+import org.apache.inlong.tubemq.server.common.fileconfig.ZKMetaConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,10 +33,47 @@ public class MasterConfigTest {
     }
 
     @Test
-    public void testNormalConfig() {
+    public void testMetaBdbConfig() throws Exception {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile(this.getClass().getResource("/master-normal.ini").getPath());
+        Path configUrl = Paths.get(Objects.requireNonNull(
+                getClass().getClassLoader().getResource("master-meta-bdb.ini")).toURI());
+        masterConfig.loadFromFile(configUrl.toString());
+        Assert.assertEquals(masterConfig.getMetaDataPath(), "var/meta_data");
+        Assert.assertTrue(masterConfig.isUseBdbStoreMetaData());
+        final BdbMetaConfig repConfig = masterConfig.getBdbMetaConfig();
+        Assert.assertEquals("tubemqMasterGroup", repConfig.getRepGroupName());
+        Assert.assertEquals("tubemqMasterGroupNode1", repConfig.getRepNodeName());
+        Assert.assertEquals(9001, repConfig.getRepNodePort());
+        Assert.assertEquals("127.0.0.1:9001", repConfig.getRepHelperHost());
+        Assert.assertEquals(Durability.SyncPolicy.SYNC, repConfig.getMetaLocalSyncPolicy());
+        Assert.assertEquals(Durability.SyncPolicy.WRITE_NO_SYNC, repConfig.getMetaReplicaSyncPolicy());
+        Assert.assertEquals(Durability.ReplicaAckPolicy.SIMPLE_MAJORITY, repConfig.getRepReplicaAckPolicy());
+        Assert.assertEquals(10000, repConfig.getRepStatusCheckTimeoutMs());
+    }
 
+    @Test
+    public void testMetaZooKeeperConfig() throws Exception {
+        final MasterConfig masterConfig = new MasterConfig();
+        Path configUrl = Paths.get(Objects.requireNonNull(
+                getClass().getClassLoader().getResource("master-meta-zk.ini")).toURI());
+        masterConfig.loadFromFile(configUrl.toString());
+        Assert.assertFalse(masterConfig.isUseBdbStoreMetaData());
+        final ZKMetaConfig zkMetaConfig = masterConfig.getZkMetaConfig();
+        Assert.assertEquals("/tubemq", zkMetaConfig.getZkNodeRoot());
+        Assert.assertEquals("localhost:2181", zkMetaConfig.getZkServerAddr());
+        Assert.assertEquals(30000, zkMetaConfig.getZkSessionTimeoutMs());
+        Assert.assertEquals(30000, zkMetaConfig.getZkConnectionTimeoutMs());
+        Assert.assertEquals(5000, zkMetaConfig.getZkSyncTimeMs());
+        Assert.assertEquals(5000, zkMetaConfig.getZkCommitPeriodMs());
+        Assert.assertEquals(4000, zkMetaConfig.getZkMasterCheckPeriodMs());
+    }
+
+    @Test
+    public void testNormalConfig() throws Exception {
+        final MasterConfig masterConfig = new MasterConfig();
+        Path configUrl = Paths.get(Objects.requireNonNull(
+                getClass().getClassLoader().getResource("master-normal.ini")).toURI());
+        masterConfig.loadFromFile(configUrl.toString());
         Assert.assertEquals("127.0.0.1", masterConfig.getHostName());
         Assert.assertEquals(8000, masterConfig.getPort());
         Assert.assertEquals(8080, masterConfig.getWebPort());
@@ -46,15 +86,7 @@ public class MasterConfigTest {
         Assert.assertEquals("resources", masterConfig.getWebResourcePath());
         Assert.assertEquals("var/meta_data_1", masterConfig.getMetaDataPath());
 
-        final ZKConfig zkConfig = masterConfig.getZkConfig();
-        Assert.assertEquals("/tubemq", zkConfig.getZkNodeRoot());
-        Assert.assertEquals("localhost:2181", zkConfig.getZkServerAddr());
-        Assert.assertEquals(30000, zkConfig.getZkSessionTimeoutMs());
-        Assert.assertEquals(30000, zkConfig.getZkConnectionTimeoutMs());
-        Assert.assertEquals(5000, zkConfig.getZkSyncTimeMs());
-        Assert.assertEquals(5000, zkConfig.getZkCommitPeriodMs());
-
-        final MasterReplicationConfig repConfig = masterConfig.getReplicationConfig();
+        final BdbMetaConfig repConfig = masterConfig.getBdbMetaConfig();
         Assert.assertEquals("gp1", repConfig.getRepGroupName());
         Assert.assertEquals("tubemqMasterGroupNode1", repConfig.getRepNodeName());
         Assert.assertEquals(9999, repConfig.getRepNodePort());
@@ -66,14 +98,13 @@ public class MasterConfigTest {
     }
 
     @Test
-    public void testOptionalReplicationConfig() {
+    public void testOptionalReplicationConfig() throws Exception {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile(this.getClass()
-            .getResource("/master-replication-optional.ini").getPath());
-
+        Path configUrl = Paths.get(Objects.requireNonNull(
+                getClass().getClassLoader().getResource("master-replication-optional.ini")).toURI());
+        masterConfig.loadFromFile(configUrl.toString());
         Assert.assertEquals(masterConfig.getMetaDataPath(), "var/meta_data");
-
-        final MasterReplicationConfig repConfig = masterConfig.getReplicationConfig();
+        final BdbMetaConfig repConfig = masterConfig.getBdbMetaConfig();
         Assert.assertEquals("tubemqMasterGroup", repConfig.getRepGroupName());
         Assert.assertEquals("tubemqMasterGroupNode1", repConfig.getRepNodeName());
         Assert.assertEquals(9001, repConfig.getRepNodePort());
@@ -85,14 +116,13 @@ public class MasterConfigTest {
     }
 
     @Test
-    public void testReplicationConfigBackwardCompatibility() {
+    public void testReplicationConfigBackwardCompatibility() throws Exception {
         final MasterConfig masterConfig = new MasterConfig();
-        masterConfig.loadFromFile(this.getClass()
-            .getResource("/master-replication-compatibility.ini").getPath());
-
+        Path configUrl = Paths.get(Objects.requireNonNull(
+                getClass().getClassLoader().getResource("master-replication-compatibility.ini")).toURI());
+        masterConfig.loadFromFile(configUrl.toString());
         Assert.assertEquals("var/tubemqMasterGroup/master_data", masterConfig.getMetaDataPath());
-
-        final MasterReplicationConfig repConfig = masterConfig.getReplicationConfig();
+        final BdbMetaConfig repConfig = masterConfig.getBdbMetaConfig();
         Assert.assertEquals("gp1", repConfig.getRepGroupName());
         Assert.assertEquals("tubemqMasterGroupNode1", repConfig.getRepNodeName());
         Assert.assertEquals(9999, repConfig.getRepNodePort());

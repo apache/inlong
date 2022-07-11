@@ -17,7 +17,7 @@
  * under the License.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Steps, Tooltip } from 'antd';
 
 const { Step } = Steps;
@@ -26,16 +26,34 @@ export interface StepsProps {
   data: {
     title: string;
     desc: string;
-    state: string;
+    status: string;
     remark?: string;
   }[];
 }
 
 const Comp: React.FC<StepsProps> = ({ data }) => {
-  const current = data.findIndex(item => item.state === 'PENDING');
+  const canceledIndex = useMemo(() => {
+    return data.findIndex(item => item.status === 'CANCELED');
+  }, [data]);
+
+  const rejectIndex = useMemo(() => {
+    return data.findIndex(item => item.status === 'REJECTED');
+  }, [data]);
+
+  const current = useMemo(() => {
+    if (canceledIndex !== -1) return canceledIndex;
+    if (rejectIndex !== -1) return rejectIndex;
+    const pendingIndex = data.findIndex(item => item.status === 'PENDING');
+    return pendingIndex !== -1 ? pendingIndex : data.length;
+  }, [data, canceledIndex, rejectIndex]);
 
   return (
-    <Steps size="small" current={current !== -1 ? current : data.length} direction="vertical">
+    <Steps
+      size="small"
+      status={canceledIndex !== -1 || rejectIndex !== -1 ? 'error' : 'wait'}
+      current={current}
+      direction="vertical"
+    >
       {data.map((item, index) => (
         <Step
           key={index}

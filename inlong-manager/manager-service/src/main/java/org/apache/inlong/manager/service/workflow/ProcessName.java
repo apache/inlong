@@ -18,44 +18,79 @@
 package org.apache.inlong.manager.service.workflow;
 
 /**
- * Process name
+ * WorkflowProcess name
  */
 public enum ProcessName {
 
     /**
-     * New business access application process
+     * New inlong group application process
      */
-    NEW_BUSINESS_WORKFLOW("New-Business-Access"),
+    NEW_GROUP_PROCESS("New-Group"),
 
     /**
-     * Suspend business application process
+     * Startup inlong group application process
      */
-    SUSPEND_BUSINESS_WORKFLOW("Suspend-Business"),
+    CREATE_GROUP_RESOURCE("Create-Group"),
 
     /**
-     * Restart business application process
+     * Suspend inlong group application process
      */
-    RESTART_BUSINESS_WORKFLOW("Restart-Business"),
+    SUSPEND_GROUP_PROCESS("Suspend-Group"),
 
     /**
-     * Delete business application process
+     * Restart inlong group application process
      */
-    DELETE_BUSINESS_WORKFLOW("Delete-Business"),
+    RESTART_GROUP_PROCESS("Restart-Group"),
 
     /**
-     * New data consumption application process
+     * Delete inlong group application process
      */
-    NEW_CONSUMPTION_WORKFLOW("New-Data-Consumption"),
+    DELETE_GROUP_PROCESS("Delete-Group"),
 
     /**
-     * New business resource creation
+     * Startup lightweight inlong group application process
      */
-    CREATE_BUSINESS_RESOURCE("Business-Access-Resource"),
+    CREATE_LIGHT_GROUP_PROCESS("Create-Light-Group"),
 
     /**
-     * Single data stream resource creation
+     * Suspend lightweight inlong group application process
      */
-    CREATE_DATASTREAM_RESOURCE("Data-Stream-Resource");
+    SUSPEND_LIGHT_GROUP_PROCESS("Suspend-Light-Group"),
+
+    /**
+     * Restart lightweight inlong group application process
+     */
+    RESTART_LIGHT_GROUP_PROCESS("Restart-Light-Group"),
+
+    /**
+     * Delete lightweight inlong group application process
+     */
+    DELETE_LIGHT_GROUP_PROCESS("Delete-Light-Group"),
+
+    /**
+     * New consumption application process
+     */
+    NEW_CONSUMPTION_PROCESS("New-Consumption"),
+
+    /**
+     * Startup single stream process
+     */
+    CREATE_STREAM_RESOURCE("Create-Stream"),
+
+    /**
+     * Suspend single stream process
+     */
+    SUSPEND_STREAM_RESOURCE("Suspend-Stream"),
+
+    /**
+     * Restart single stream process
+     */
+    RESTART_STREAM_RESOURCE("Restart-Stream"),
+
+    /**
+     * Delete single stream process
+     */
+    DELETE_STREAM_RESOURCE("Delete-Stream");
 
     private final String displayName;
 
@@ -66,4 +101,5 @@ public enum ProcessName {
     public String getDisplayName() {
         return displayName;
     }
+
 }

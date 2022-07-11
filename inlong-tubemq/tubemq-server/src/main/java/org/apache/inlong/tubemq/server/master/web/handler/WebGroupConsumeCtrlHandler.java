@@ -27,6 +27,7 @@ import org.apache.inlong.tubemq.corebase.rv.ProcessResult;
 import org.apache.inlong.tubemq.server.common.fielddef.WebFieldDef;
 import org.apache.inlong.tubemq.server.common.utils.WebParameterUtils;
 import org.apache.inlong.tubemq.server.master.TMaster;
+import org.apache.inlong.tubemq.server.master.metamanage.DataOpErrCode;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.BaseEntity;
 import org.apache.inlong.tubemq.server.master.metamanage.metastore.dao.entity.GroupConsumeCtrlEntity;
 
@@ -52,6 +53,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
                 "adminBatchModGroupConsumeCtrlInfo");
         registerModifyWebMethod("admin_delete_group_csmctrl_info",
                 "adminDelGroupConsumeCtrlInfo");
+        registerModifyWebMethod("admin_batch_delete_group_csmctrl_info",
+                "adminBatchDelGroupConsumeCtrlInfo");
     }
 
     /**
@@ -92,7 +95,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
-        Boolean consumeEnable = (Boolean) result.getRetData();
+        final Boolean consumeEnable = (Boolean) result.getRetData();
         // get filterEnable info
         if (!WebParameterUtils.getBooleanParamValue(req,
                 WebFieldDef.FILTERENABLE, false, null, sBuffer, result)) {
@@ -109,7 +112,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         qryEntity.updModifyInfo(qryEntity.getDataVerId(),
                 consumeEnable, null, filterEnable, null);
         Map<String, List<GroupConsumeCtrlEntity>> qryResultMap =
-                metaDataManager.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
+                defMetaDataService.getGroupConsumeCtrlConf(groupSet, topicNameSet, qryEntity);
         // build return result
         int totalCnt = 0;
         WebParameterUtils.buildSuccessWithDataRetBegin(sBuffer);
@@ -221,9 +224,73 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         }
         Set<String> topicNameSet = (Set<String>) result.getRetData();
         // execute delete operation
-        List<GroupProcessResult> retInfo =
-                metaDataManager.delGroupConsumeCtrlConf(opEntity.getModifyUser(),
-                        groupNameSet, topicNameSet, sBuffer, result);
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        if (topicNameSet.isEmpty()) {
+            Map<String, List<GroupConsumeCtrlEntity>> groupCtrlConsumeMap =
+                    defMetaDataService.getConsumeCtrlByGroupName(groupNameSet);
+            for (Map.Entry<String, List<GroupConsumeCtrlEntity>> entry :
+                    groupCtrlConsumeMap.entrySet()) {
+                if (entry.getValue().isEmpty()) {
+                    result.setFullInfo(true,
+                            DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
+                    retInfo.add(new GroupProcessResult(entry.getKey(), "", result));
+                    continue;
+                }
+                for (GroupConsumeCtrlEntity ctrlEntity : entry.getValue()) {
+                    if (ctrlEntity != null) {
+                        defMetaDataService.delConsumeCtrlConf(opEntity.getModifyUser(),
+                                ctrlEntity.getGroupName(), ctrlEntity.getTopicName(), sBuffer, result);
+                    }
+                }
+                result.setFullInfo(true,
+                        DataOpErrCode.DERR_SUCCESS.getCode(), "Ok!");
+                retInfo.add(new GroupProcessResult(entry.getKey(), "", result));
+            }
+        } else {
+            for (String groupName : groupNameSet) {
+                for (String topicName : topicNameSet) {
+                    defMetaDataService.delConsumeCtrlConf(opEntity.getModifyUser(),
+                            groupName, topicName, sBuffer, result);
+                    retInfo.add(new GroupProcessResult(groupName, topicName, result));
+                }
+            }
+        }
+        buildRetInfo(retInfo, sBuffer);
+        return sBuffer;
+    }
+
+    /**
+     * Batch delete group consume configure info
+     *
+     * @param req       Http Servlet Request
+     * @param sBuffer   string buffer
+     * @param result    process result
+     * @return    process result
+     */
+    public StringBuilder adminBatchDelGroupConsumeCtrlInfo(HttpServletRequest req,
+                                                           StringBuilder sBuffer,
+                                                           ProcessResult result) {
+        // check and get operation info
+        if (!WebParameterUtils.getAUDBaseInfo(req, false, null, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        BaseEntity opEntity = (BaseEntity) result.getRetData();
+        // check and get groupCsmJsonSet data
+        if (!getGroupConsumeJsonSetInfo(req, false, opEntity, sBuffer, result)) {
+            WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
+            return sBuffer;
+        }
+        Map<String, GroupConsumeCtrlEntity> batchAddInfoMap =
+                (Map<String, GroupConsumeCtrlEntity>) result.getRetData();
+        // delete group consume control records
+        List<GroupProcessResult> retInfo = new ArrayList<>();
+        for (GroupConsumeCtrlEntity ctrlEntity : batchAddInfoMap.values()) {
+            defMetaDataService.delConsumeCtrlConf(opEntity.getModifyUser(),
+                    ctrlEntity.getGroupName(), ctrlEntity.getTopicName(), sBuffer, result);
+            retInfo.add(new GroupProcessResult(ctrlEntity.getGroupName(),
+                    ctrlEntity.getTopicName(), result));
+        }
         buildRetInfo(retInfo, sBuffer);
         return sBuffer;
     }
@@ -240,7 +307,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         BaseEntity opInfoEntity = (BaseEntity) result.getRetData();
         // check and get topicName field
         if (!WebParameterUtils.getAndValidTopicNameInfo(req,
-                metaDataManager, true, null, sBuffer, result)) {
+                defMetaDataService, true, null, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return sBuffer;
         }
@@ -286,7 +353,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (String groupName : groupNameSet) {
             for (String topicName : topicNameSet) {
-                retInfo.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(isAddOp,
+                retInfo.add(defMetaDataService.addOrUpdConsumeCtrlInfo(isAddOp,
                         opInfoEntity, groupName, topicName, consumeEnable, disableRsn,
                         filterEnable, filterCondStr, sBuffer, result));
             }
@@ -315,7 +382,7 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         GroupProcessResult addResult;
         List<GroupProcessResult> retInfo = new ArrayList<>();
         for (GroupConsumeCtrlEntity ctrlEntity : batchAddInfoMap.values()) {
-            retInfo.add(metaDataManager.addOrUpdGroupConsumeCtrlInfo(
+            retInfo.add(defMetaDataService.addOrUpdConsumeCtrlInfo(
                     isAddOp, ctrlEntity, sBuffer, result));
         }
         buildRetInfo(retInfo, sBuffer);
@@ -354,8 +421,14 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         GroupConsumeCtrlEntity itemConf;
         Map<String, GroupConsumeCtrlEntity> addRecordMap = new HashMap<>();
         Set<String> configuredTopicSet =
-                metaDataManager.getTotalConfiguredTopicNames();
+                defMetaDataService.getTotalConfiguredTopicNames();
         for (Map<String, String> itemsMap : filterJsonArray) {
+            // check and get operation info
+            if (!WebParameterUtils.getAUDBaseInfo(itemsMap,
+                    isAddOp, defOpEntity, sBuffer, result)) {
+                return result.isSuccess();
+            }
+            final BaseEntity itemOpEntity = (BaseEntity) result.getRetData();
             if (!WebParameterUtils.getStringParamValue(itemsMap,
                     WebFieldDef.GROUPNAME, true, "", sBuffer, result)) {
                 return result.isSuccess();
@@ -401,8 +474,8 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
             }
             String filterCondStr = (String) result.getRetData();
             // add record object
-            itemConf = new GroupConsumeCtrlEntity(defOpEntity, groupName, topicName);
-            itemConf.updModifyInfo(defOpEntity.getDataVerId(),
+            itemConf = new GroupConsumeCtrlEntity(itemOpEntity, groupName, topicName);
+            itemConf.updModifyInfo(itemOpEntity.getDataVerId(),
                     consumeEnable, disableRsn, filterEnable, filterCondStr);
             addRecordMap.put(itemConf.getRecordKey(), itemConf);
         }
@@ -418,5 +491,4 @@ public class WebGroupConsumeCtrlHandler extends AbstractWebHandler {
         result.setSuccResult(addRecordMap);
         return result.isSuccess();
     }
-
 }

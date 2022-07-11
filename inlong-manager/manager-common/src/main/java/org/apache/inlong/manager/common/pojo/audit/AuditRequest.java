@@ -19,13 +19,17 @@ package org.apache.inlong.manager.common.pojo.audit;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.List;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.enums.TimeStaticsDim;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
+
+/**
+ * The request info of audit.
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Audit query request")
@@ -46,14 +50,9 @@ public class AuditRequest {
     private String dt;
 
     /**
-     * Query source such as MYSQL,ELASTICSEARCH
-     */
-    // it has been changed to be specified by config item in the configuration file
-//    @ApiModelProperty(value = "query source, default MYSQL", required = true, example = "MYSQL")
-//    private AuditQuerySource querySource = AuditQuerySource.MYSQL;
-    /**
      * Time statics dim such as MINUTE, HOUR, DAY
      */
     @ApiModelProperty(value = "time statics dim, default MINUTE", required = true, example = "MINUTE")
     private TimeStaticsDim timeStaticsDim = TimeStaticsDim.MINUTE;
+
 }

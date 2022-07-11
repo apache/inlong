@@ -39,6 +39,8 @@ public class Bytes {
     private static final Logger logger = LoggerFactory.getLogger(Bytes.class);
 
     /**
+     * Compare two arrays content.
+     *
      * @param left  left operand
      * @param right right operand
      * @return 0 if equal, < 0 if left is less than right, etc.

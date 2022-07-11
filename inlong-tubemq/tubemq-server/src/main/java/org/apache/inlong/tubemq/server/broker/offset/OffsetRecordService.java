@@ -20,8 +20,11 @@ package org.apache.inlong.tubemq.server.broker.offset;
 import java.util.Map;
 import org.apache.inlong.tubemq.corebase.daemon.AbstractDaemonService;
 import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
+import org.apache.inlong.tubemq.corebase.utils.ServiceStatusHolder;
 import org.apache.inlong.tubemq.server.broker.TubeBroker;
+import org.apache.inlong.tubemq.server.broker.metadata.TopicMetadata;
 import org.apache.inlong.tubemq.server.broker.msgstore.MessageStoreManager;
+import org.apache.inlong.tubemq.server.common.TServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,8 +80,16 @@ public class OffsetRecordService extends AbstractDaemonService {
     }
 
     private void storeRecord2LocalTopic(StringBuilder strBuff) {
-        // get query timestamp
-        long recordStamp = System.currentTimeMillis();
+        // check node writable status
+        if (ServiceStatusHolder.isWriteServiceStop()) {
+            return;
+        }
+        // check topic writable status
+        TopicMetadata topicMetadata = storeManager.getMetadataManager()
+                .getTopicMetadata(TServerConstants.OFFSET_HISTORY_NAME);
+        if (!topicMetadata.isAcceptPublish()) {
+            return;
+        }
         // get group offset information
         Map<String, OffsetRecordInfo> groupOffsetMap =
                 offsetManager.getOnlineGroupOffsetInfo();
@@ -89,7 +100,6 @@ public class OffsetRecordService extends AbstractDaemonService {
         storeManager.getTopicPublishInfos(groupOffsetMap);
         // store group offset records to offset storage topic
         broker.getBrokerServiceServer().appendGroupOffsetInfo(groupOffsetMap,
-                brokerAddrId, recordStamp, 10, 3, strBuff);
+                brokerAddrId, System.currentTimeMillis(), 10, 3, strBuff);
     }
-
 }

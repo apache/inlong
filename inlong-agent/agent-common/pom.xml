@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.apache.inlong</groupId>
         <artifactId>inlong-agent</artifactId>
-        <version>1.1.0-incubating-SNAPSHOT</version>
+        <version>1.3.0-SNAPSHOT</version>
     </parent>
     <artifactId>agent-common</artifactId>
     <modelVersion>4.0.0</modelVersion>
@@ -33,15 +33,22 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>inlong-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>audit-sdk</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <artifactId>commons-dbutils</artifactId>
             <groupId>commons-dbutils</groupId>
-        </dependency>
-        <dependency>
-            <artifactId>je</artifactId>
-            <groupId>com.sleepycat</groupId>
         </dependency>
         <dependency>
             <artifactId>commons-lang3</artifactId>
@@ -52,6 +59,18 @@
             <groupId>com.google.code.gson</groupId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>slf4j-api</artifactId>
             <groupId>org.slf4j</groupId>
         </dependency>
@@ -59,11 +78,6 @@
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
         </dependency>
-        <dependency>
-            <artifactId>slf4j-log4j12</artifactId>
-            <groupId>org.slf4j</groupId>
-        </dependency>
-
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
@@ -101,11 +115,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.inlong</groupId>
-            <artifactId>audit-sdk</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -25,9 +25,11 @@ import org.apache.inlong.tubemq.corebase.utils.AddressUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+@PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class TubeSingleSessionFactoryTest {
@@ -36,7 +38,7 @@ public class TubeSingleSessionFactoryTest {
         TubeClientConfig config = mock(TubeClientConfig.class);
         when(config.getRpcConnProcessorCnt()).thenReturn(1);
         when(config.getRpcRspCallBackThreadCnt()).thenReturn(1);
-        when(config.getMasterInfo()).thenReturn(new MasterInfo("192.168.1.1:18080"));
+        when(config.getMasterInfo()).thenReturn(new MasterInfo("127.0.0.1:18080"));
 
         PowerMockito.mockStatic(AddressUtils.class);
         PowerMockito.when(AddressUtils.getLocalAddress()).thenReturn("127.0.0.1");

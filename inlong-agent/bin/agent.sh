@@ -20,7 +20,6 @@ BASE_DIR=$(dirname $0)/..
 
 source $BASE_DIR/bin/agent-env.sh
 CONSOLE_OUTPUT_FILE="$LOG_DIR/agent-out.log"
-PID_FILE="$BASE_DIR/.agent.run.pid"
 
 function help() {
     echo "Usage: agent.sh {status|start|stop|restart}" >&2
@@ -32,16 +31,11 @@ function help() {
 }
 
 function running(){
-	if [ -f "$PID_FILE" ]; then
-		pid=$(cat "$PID_FILE")
-		process=$("$JPS" | grep "$pid" | grep -v grep)
-		if [ "$process" == "" ]; then
-	    	return 1;
-		else
-			return 0;
-		fi
+	process=$("$JPS" | grep "AgentMain" | grep -v grep)
+	if [ "$process" == "" ]; then
+	  	return 1;
 	else
-		return 1
+		return 0;
 	fi
 }
 
@@ -51,9 +45,7 @@ function start_agent() {
 		echo "agent is running."
 		exit 1
 	fi
-	nohup $JAVA $AGENT_ARGS org.apache.inlong.agent.core.AgentMain > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
-  echo $! > $PID_FILE
-  chmod 755 $PID_FILE
+	nohup $JAVA $AGENT_ARGS org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
 }
 
 # stop agent
@@ -63,7 +55,7 @@ function stop_agent() {
 		exit 1
 	fi
 	count=0
-	pid=$(cat $PID_FILE)
+	pid=$("$JPS" | grep "AgentMain" | grep -v grep | awk '{print $1}')
 	while running;
 	do
 	  let count=$count+1
@@ -77,7 +69,6 @@ function stop_agent() {
 	  sleep 6;
 	done
 	echo "Stop agent successfully."
-	rm $PID_FILE
 }
 
 # get status of agent

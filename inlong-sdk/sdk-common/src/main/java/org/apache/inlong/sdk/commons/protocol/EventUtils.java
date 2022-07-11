@@ -17,7 +17,6 @@
 
 package org.apache.inlong.sdk.commons.protocol;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,17 +82,19 @@ public class EventUtils {
         headerBuilder.setInlongGroupId(inlongGroupId);
         // string inlongStreamId = 2; //inlongStreamId
         headerBuilder.setInlongStreamId(inlongStreamId);
-        // int64 packTime = 3; //pack time, milliseconds
+        // int64 packId = 3; //pack id
+        headerBuilder.setPackId(0);
+        // int64 packTime = 4; //pack time, milliseconds
         headerBuilder.setPackTime(System.currentTimeMillis());
-        // int32 msgCount = 4; //message count
+        // int32 msgCount = 5; //message count
         headerBuilder.setMsgCount(events.size());
-        // int32 srcLength = 5; //total length of raw messages body
+        // int32 srcLength = 6; //total length of raw messages body
         headerBuilder.setSrcLength(srcBytes.length);
-        // int32 compressLen = 6; //compress length of messages
+        // int32 compressLen = 7; //compress length of messages
         headerBuilder.setCompressLen(compressedBytes.length);
-        // INLONG_COMPRESSED_TYPE compressType = 7; //compress type
+        // INLONG_COMPRESSED_TYPE compressType = 8; //compress type
         headerBuilder.setCompressType(compressedType);
-        // map<string, string> params = 8; //additional parameters
+        // map<string, string> params = 9; //additional parameters
         packBuilder.setHeader(headerBuilder.build());
         return packBuilder.build();
     }
@@ -101,14 +102,11 @@ public class EventUtils {
     /**
      * decodeSdkPack
      * 
-     * @param  packBytes
-     * @param  offset
-     * @param  length
+     * @param  packObject
      * @return List,ProxyEvent
      * @throws IOException
      */
-    public static List<ProxyEvent> decodeSdkPack(byte[] packBytes, int offset, int length) throws IOException {
-        MessagePack packObject = MessagePack.parseFrom(new ByteArrayInputStream(packBytes, offset, length));
+    public static List<ProxyEvent> decodeSdkPack(MessagePack packObject) throws IOException {
         MessagePackHeader header = packObject.getHeader();
         // decompress
         byte[] compressBytes = packObject.getCompressBytes().toByteArray();

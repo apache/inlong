@@ -67,7 +67,7 @@ const Comp = ({ id }: Props, ref) => {
       topic: Array.isArray(values.topic) ? values.topic.join(',') : values.topic,
       mqExtInfo: {
         ...values.mqExtInfo,
-        middlewareType: values.middlewareType,
+        mqType: values.mqType,
       },
     };
 

@@ -85,7 +85,7 @@
         </module>
         <module name="AvoidStarImport">
             <property name="severity" value="error"/>
-        </module>		
+        </module>
         <module name="OneTopLevelClass"/>
         <module name="NoLineWrap">
             <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
@@ -371,13 +371,13 @@
             <property name="severity" value="ignore"/>
         </module>
         <module name="InvalidJavadocPosition">
-            <property name="severity" value="info"/>
+            <property name="severity" value="error"/>
         </module>
-        <!-- new add
-        <module name="JavadocTagContinuationIndentation"/>
-         -->
+        <module name="JavadocTagContinuationIndentation">
+            <property name="severity" value="error"/>
+        </module>
         <module name="SummaryJavadoc">
-            <property name="severity" value="info"/>
+            <property name="severity" value="error"/>
             <property name="forbiddenSummaryFragments"
              value="^@return the *|^This method returns |^A [{]@code [a-zA-Z0-9]+[}]( is a )"/>
              <!--
@@ -396,20 +396,10 @@
         </module>
         -->
         <module name="JavadocMethod">
-            <property name="severity" value="info"/>
+            <property name="severity" value="error"/>
             <property name="scope" value="public"/>
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
-            <property name="allowedAnnotations" value="Override, Test"/>
-            <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
-        </module>
-        <module name="MissingJavadocMethod">
-            <property name="severity" value="info"/>
-            <property name="scope" value="public"/>
-            <!--
-            <property name="minLineCount" value="2"/>
-            -->
-            <property name="minLineCount" value="15"/>
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>
         </module>
@@ -429,9 +419,15 @@
          </module>
 
         <module name="SingleLineJavadoc">
-            <property name="severity" value="info"/>
+            <property name="severity" value="error"/>
             <property name="ignoreInlineTags" value="true"/>
         </module>
+        <!--
+        <module name="MissingJavadocMethod">
+            <property name="severity" value="info"/>
+            <property name="scope" value="public"/>
+        </module>
+        -->
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="expected"/>
         </module>

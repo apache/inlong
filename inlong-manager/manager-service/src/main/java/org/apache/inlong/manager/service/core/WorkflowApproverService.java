@@ -17,10 +17,11 @@
 
 package org.apache.inlong.manager.service.core;
 
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
+
+import java.util.List;
 
 /**
  * Workflow approver configuration service
@@ -30,8 +31,8 @@ public interface WorkflowApproverService {
     /**
      * Get process approver
      *
-     * @param processName Process name
-     * @param taskName Task name
+     * @param processName WorkflowProcess name
+     * @param taskName WorkflowTask name
      * @param context Context
      * @return Approver
      */

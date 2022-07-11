@@ -29,6 +29,13 @@ public class FileUtil {
         return dir.delete();
     }
 
+    /**
+     * Delete the contents of files and subdirectories in the specified directory
+     *
+     * @param dir            the specified directory
+     * @return               the deleted count
+     * @throws IOException   the exception while deleting contents
+     */
     public static boolean fullyDeleteContents(File dir) throws IOException {
         boolean deletionSucceeded = true;
         File[] contents = dir.listFiles();
@@ -67,5 +74,4 @@ public class FileUtil {
                     .append(dir.getAbsolutePath()).toString());
         }
     }
-
 }

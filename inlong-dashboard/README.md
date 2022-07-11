@@ -1,5 +1,5 @@
 ## About Dashboard
-This is a dashboard console for us to use the [Apache InLong incubator](https://github.com/apache/incubator-inlong).
+This is a dashboard console for us to use the [Apache InLong](https://github.com/apache/inlong).
 
 ## Build
 

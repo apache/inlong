@@ -26,23 +26,23 @@ const getBusinessContent = initialValues => [
   ...genBusinessFields(
     [
       'inlongGroupId',
-      'cnName',
+      'name',
       'inCharges',
       'description',
-      'middlewareType',
-      'mqResourceObj',
+      'mqType',
+      'mqResource',
       'queueModule',
-      'topicPartitionNum',
+      'partitionNum',
       'dailyRecords',
       'dailyStorage',
       'peakRecords',
       'maxLength',
-      'mqExtInfo.ensemble',
-      'mqExtInfo.writeQuorum',
-      'mqExtInfo.ackQuorum',
-      'mqExtInfo.retentionTime',
-      'mqExtInfo.ttl',
-      'mqExtInfo.retentionSize',
+      'ensemble',
+      'writeQuorum',
+      'ackQuorum',
+      'ttl',
+      'retentionTime',
+      'retentionSize',
     ],
     initialValues,
   ).map(item => {
@@ -61,7 +61,7 @@ const getBusinessContent = initialValues => [
   }),
 ];
 
-export const getFormContent = ({ isViwer, formData, suffixContent }) => {
+export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, isFinished }) => {
   const array = [
     {
       type: (
@@ -70,7 +70,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
         </Divider>
       ),
     },
-    ...(getBusinessContent(formData.businessInfo) || []),
+    ...(getBusinessContent(formData.groupInfo) || []),
     {
       type: (
         <Divider orientation="left">
@@ -86,15 +86,49 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
             { title: 'ID', dataIndex: 'inlongStreamId' },
             {
               title: i18n.t('pages.ApprovalDetail.AccessConfig.DataStorages'),
-              dataIndex: 'storageList',
-              render: text => text.map(item => item.storageType).join(','),
+              dataIndex: 'sinkList',
+              render: text => text.map(item => item.sinkType).join(','),
             },
           ]}
           dataSource={formData?.streamInfoList || []}
+          rowKey="id"
         />
       ),
     },
   ];
+
+  const extraForm = noExtraForm
+    ? []
+    : [
+        {
+          type: 'select',
+          label: i18n.t('pages.ApprovalDetail.AccessConfig.BindClusterTag'),
+          name: ['inlongClusterTag'],
+          rules: [{ required: true }],
+          props: {
+            disabled: isFinished,
+            options: {
+              requestAuto: isFinished,
+              requestService: {
+                url: '/cluster/tag/list',
+                method: 'POST',
+                data: {
+                  pageNum: 1,
+                  pageSize: 100,
+                },
+              },
+              requestParams: {
+                formatResult: result =>
+                  result?.list?.map(item => ({
+                    ...item,
+                    label: item.clusterTag,
+                    value: item.clusterTag,
+                  })),
+              },
+            },
+          },
+        },
+      ];
 
   return isViwer
     ? array
@@ -106,6 +140,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent }) => {
             </Divider>
           ),
         },
+        ...extraForm,
         ...suffixContent,
       ]);
 };

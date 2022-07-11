@@ -17,11 +17,13 @@
  * under the License.
  */
 
-import React, { useMemo, useState, useRef } from 'react';
-import { Tabs } from 'antd';
-import { PageContainer } from '@/components/PageContainer';
-import { useParams, useRequest } from '@/hooks';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
+import { Tabs, Button, Card, message, Steps, Space } from 'antd';
+import { PageContainer, FooterToolbar } from '@/components/PageContainer';
+import { parse } from 'qs';
+import { useParams, useRequest, useSet, useHistory, useLocation } from '@/hooks';
 import { useTranslation } from 'react-i18next';
+import request from '@/utils/request';
 import Info from './Info';
 import DataSources from './DataSources';
 import DataStream from './DataStream';
@@ -30,27 +32,44 @@ import Audit from './Audit';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const history = useHistory();
+  const { id: groupId } = useParams<{ id: string }>();
 
-  const { data } = useRequest(`/business/get/${id}`, {
+  const qs = parse(location.search.slice(1));
+
+  const [current, setCurrent] = useState(+qs.step || 0);
+  const [, { add: addOpened, has: hasOpened }] = useSet([current]);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [id, setId] = useState(groupId || '');
+
+  const childRef = useRef(null);
+  const [mqType, setMqType] = useState();
+
+  const [isCreate] = useState(location.pathname.indexOf('/access/create') === 0);
+
+  useEffect(() => {
+    if (!hasOpened(current)) addOpened(current);
+  }, [current, addOpened, hasOpened]);
+
+  const { data } = useRequest(`/group/get/${id}`, {
+    ready: !!id && !mqType,
     refreshDeps: [id],
+    onSuccess: result => setMqType(result.mqType),
   });
 
-  const extraRef = useRef<HTMLDivElement>();
-
   const isReadonly = useMemo(() => [0, 101, 102].includes(data?.status), [data]);
-  const middlewareType = data?.middlewareType;
 
   const list = useMemo(
     () =>
       [
         {
           label: t('pages.AccessDetail.Business'),
-          value: 'businessInfo',
+          value: 'groupInfo',
           content: Info,
         },
         {
-          label: middlewareType === 'PULSAR' ? 'TOPIC' : t('pages.AccessDetail.DataStreams'),
+          label: t('pages.AccessDetail.DataStreams'),
           value: 'dataStream',
           content: DataStream,
         },
@@ -58,45 +77,140 @@ const Comp: React.FC = () => {
           label: t('pages.AccessDetail.DataSources'),
           value: 'dataSources',
           content: DataSources,
-          hidden: isReadonly,
         },
         {
           label: t('pages.AccessDetail.DataStorages'),
-          value: 'dataStorage',
+          value: 'streamSink',
           content: DataStorage,
-          hidden: isReadonly,
         },
         {
           label: t('pages.AccessDetail.Audit'),
           value: 'audit',
           content: Audit,
-          hidden: isReadonly,
+          hidden: isReadonly || isCreate,
         },
       ].filter(item => !item.hidden),
-    [isReadonly, middlewareType, t],
+    [isReadonly, isCreate, t],
   );
 
-  const [actived, setActived] = useState(list[0].value);
+  const onOk = async current => {
+    const onOk = childRef?.current?.onOk;
+
+    setConfirmLoading(true);
+    try {
+      const result = onOk && (await onOk());
+      if (current === 0) {
+        setMqType(result.mqType);
+        setId(result.inlongGroupId);
+      }
+      history.push({
+        pathname: `/access/create/${result?.inlongGroupId || id}`,
+        search: `?step=${current + 1}`,
+      });
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
+
+  const onSubmit = async () => {
+    await request({
+      url: `/group/startProcess/${id}`,
+      method: 'POST',
+    });
+    message.success(t('pages.AccessCreate.SubmittedSuccessfully'));
+    history.push('/access');
+  };
+
+  const Footer = () => (
+    <Space style={{ display: 'flex', justifyContent: 'center' }}>
+      {current > 0 && (
+        <Button disabled={confirmLoading} onClick={() => setCurrent(current - 1)}>
+          {t('pages.AccessCreate.Previous')}
+        </Button>
+      )}
+      {current !== list.length - 1 && (
+        <Button
+          type="primary"
+          loading={confirmLoading}
+          onClick={async () => {
+            await onOk(current).catch(err => {
+              if (err?.errorFields?.length) {
+                message.error(t('pages.AccessCreate.CheckMsg'));
+              } else if (typeof err === 'string') {
+                message.error(err);
+              }
+              return Promise.reject(err);
+            });
+
+            const newCurrent = current + 1;
+            setCurrent(newCurrent);
+          }}
+        >
+          {t('pages.AccessCreate.NextStep')}
+        </Button>
+      )}
+      {current === list.length - 1 && (
+        <Button type="primary" onClick={onSubmit}>
+          {t('pages.AccessCreate.Submit')}
+        </Button>
+      )}
+      <Button onClick={() => history.push('/access')}>{t('pages.AccessCreate.Back')}</Button>
+    </Space>
+  );
+
+  const Div = isCreate ? Card : Tabs;
 
   return (
-    <PageContainer breadcrumb={[{ name: `${t('pages.AccessDetail.BusinessDetail')}${id}` }]}>
-      <Tabs
-        activeKey={actived}
-        onChange={val => setActived(val)}
-        tabBarExtraContent={<div ref={extraRef} />}
-      >
-        {list.map(({ content: Content, ...item }) => (
-          <Tabs.TabPane tab={item.label} key={item.value}>
-            <Content
-              inlongGroupId={id}
-              isActive={actived === item.value}
-              readonly={isReadonly}
-              extraRef={extraRef}
-              middlewareType={middlewareType}
-            />
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+    <PageContainer
+      breadcrumb={[
+        {
+          name: isCreate
+            ? t('pages.AccessCreate.NewAccess')
+            : `${t('pages.AccessDetail.BusinessDetail')}${id}`,
+        },
+      ]}
+      useDefaultContainer={!isCreate}
+    >
+      {isCreate && (
+        <Steps
+          current={current}
+          size="small"
+          style={{ marginBottom: 20, width: 600 }}
+          onChange={c => setCurrent(c)}
+        >
+          {list.map(item => (
+            <Steps.Step key={item.label} title={item.label} />
+          ))}
+        </Steps>
+      )}
+
+      <Div>
+        {list.map(({ content: Content, ...item }, index) => {
+          // Lazy load the content of the step, and at the same time make the loaded useCache content not destroy
+          const child =
+            !isCreate || hasOpened(index) ? (
+              <Content
+                inlongGroupId={id}
+                readonly={isReadonly}
+                mqType={mqType}
+                isCreate={isCreate}
+                ref={index === current ? childRef : null}
+              />
+            ) : null;
+
+          return isCreate ? (
+            <div key={item.label} style={{ display: `${index === current ? 'block' : 'none'}` }}>
+              {child}
+            </div>
+          ) : (
+            <Tabs.TabPane tab={item.label} key={item.value}>
+              {child}
+            </Tabs.TabPane>
+          );
+        })}
+      </Div>
+
+      {isCreate && <FooterToolbar extra={<Footer />} />}
     </PageContainer>
   );
 };

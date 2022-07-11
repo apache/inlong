@@ -20,51 +20,63 @@
 // import React from 'react';
 import { genBusinessFields } from '@/components/AccessHelper';
 
-export const getFormContent = ({ editing, initialValues }) =>
-  genBusinessFields(
-    [
-      'middlewareType',
-      'inlongGroupId',
-      'mqResourceObj',
-      'name',
-      'cnName',
-      'inCharges',
-      'description',
-      'queueModule',
-      'topicPartitionNum',
-      'dailyRecords',
-      'dailyStorage',
-      'peakRecords',
-      'maxLength',
-      // 'mqExtInfo.ensemble',
-      'mqExtInfo.writeQuorum',
-      'mqExtInfo.ackQuorum',
-      'mqExtInfo.retentionTime',
-      'mqExtInfo.ttl',
-      'mqExtInfo.retentionSize',
-    ],
-    initialValues,
-  ).map(item => ({
-    ...item,
-    type: transType(editing, item, initialValues),
-    suffix:
-      typeof item.suffix === 'object' && !editing
-        ? {
-            ...item.suffix,
-            type: 'text',
-          }
-        : item.suffix,
-    extra: null,
-  }));
+export const getFormContent = ({ editing, initialValues, isCreate, isUpdate }) => {
+  const keys = [
+    'mqType',
+    'queueModule',
+    'partitionNum',
+    'inlongGroupId',
+    !isCreate && 'mqResource',
+    'name',
+    'inCharges',
+    'description',
+    'dailyRecords',
+    'dailyStorage',
+    'peakRecords',
+    'maxLength',
+    // 'ensemble',
+    'writeQuorum',
+    'ackQuorum',
+    'ttl',
+    'retentionTime',
+    'retentionSize',
+  ].filter(Boolean);
+
+  return isCreate
+    ? genBusinessFields(keys, initialValues).map(item => {
+        if (item.name === 'inlongGroupId' && isUpdate) {
+          return {
+            ...item,
+            props: {
+              ...item.props,
+              disabled: true,
+            },
+          };
+        }
+        return item;
+      })
+    : genBusinessFields(keys, initialValues).map(item => ({
+        ...item,
+        type: transType(editing, item, initialValues),
+        suffix:
+          typeof item.suffix === 'object' && !editing
+            ? {
+                ...item.suffix,
+                type: 'text',
+              }
+            : item.suffix,
+        extra: null,
+      }));
+};
 
 function transType(editing: boolean, conf, initialValues) {
   const arr = [
     {
       name: [
-        'middlewareType',
+        'mqType',
         'queueModule',
-        'topicPartitionNum',
-        'name',
+        'partitionNum',
+        'inlongGroupId',
         'dailyRecords',
         'dailyStorage',
         'peakRecords',
@@ -75,15 +87,15 @@ function transType(editing: boolean, conf, initialValues) {
     },
     {
       name: [
-        'cnName',
+        'name',
         'description',
         'inCharges',
-        'mqExtInfo.ensemble',
-        'mqExtInfo.writeQuorum',
-        'mqExtInfo.ackQuorum',
-        'mqExtInfo.retentionTime',
-        'mqExtInfo.ttl',
-        'mqExtInfo.retentionSize',
+        'ensemble',
+        'writeQuorum',
+        'ackQuorum',
+        'ttl',
+        'retentionTime',
+        'retentionSize',
       ],
       as: 'text',
       active: !editing,

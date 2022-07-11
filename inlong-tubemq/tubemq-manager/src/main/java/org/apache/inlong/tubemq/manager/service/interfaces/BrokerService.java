@@ -73,6 +73,8 @@ public interface BrokerService {
     TubeMQResult cloneOffset(String brokerIp, int brokerWebPort, CloneOffsetReq req);
 
     /**
+     * delete offset
+     *
      * @param brokerIp
      * @param brokerWebPort
      * @param req

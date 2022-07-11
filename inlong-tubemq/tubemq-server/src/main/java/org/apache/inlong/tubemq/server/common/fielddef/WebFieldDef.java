@@ -235,7 +235,7 @@ public enum WebFieldDef {
     GROUPJSONSET(83, "groupNameJsonSet", "gJsonSet", WebFieldType.JSONSET,
             "The black list group set that needs to be added or modified"),
     REJOINWAIT(84, "reJoinWait", "rjWait", WebFieldType.INT,
-            "The duration for consumer rejoin rebalance", RegexDef.TMP_NUMBER),
+            "The duration for consumer rejoin balance", RegexDef.TMP_NUMBER),
 
     COMPSCONSUMERID(85, "consumerId", "csmId", WebFieldType.COMPSTRING,
             "consumer id", TServerConstants.CFG_CONSUMER_CLIENTID_MAX_LENGTH,
@@ -257,7 +257,10 @@ public enum WebFieldDef {
             "The record time of the historical offset of the consume group",
                DateTimeConvertUtils.LENGTH_YYYYMMDDHHMMSS),
     MAXRETRYCOUNT(93, "maxRetryCnt", "mrc", WebFieldType.INT,
-            "Max retry query turns", RegexDef.TMP_NUMBER);
+            "Max retry query turns", RegexDef.TMP_NUMBER),
+    STATSTYPE(94, "statsType", "st", WebFieldType.STRING,
+            "Statistics type", TServerConstants.META_MAX_STATSTYPE_LENGTH);
+
 
     public final int id;
     public final String name;

@@ -18,6 +18,10 @@
 
 package org.apache.inlong.sdk.dataproxy.network;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,10 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class NettyClient {
 
     private ConnState connState;
     private ProxyClientConfig configure;
-    private ClientBootstrap bootstrap;
+    private Bootstrap bootstrap;
     private String serverIP;
     private int serverPort;
 
@@ -52,7 +52,7 @@ public class NettyClient {
         this.serverIP = serverIP;
     }
 
-    public NettyClient(ClientBootstrap bootstrap, String serverIP,
+    public NettyClient(Bootstrap bootstrap, String serverIP,
                        int serverPort, ProxyClientConfig configure) {
         this.bootstrap = bootstrap;
         this.serverIP = serverIP;
@@ -97,7 +97,7 @@ public class NettyClient {
         if (!future.isSuccess()) {
             return false;
         }
-        channel = future.getChannel();
+        channel = future.channel();
         setState(ConnState.READY);
         logger.info("ip {} stat {}", serverIP, connState);
         return true;
@@ -144,7 +144,7 @@ public class NettyClient {
     public boolean isActive() {
         stateLock.lock();
         try {
-            return (connState == ConnState.READY && channel != null && channel.isOpen() && channel.isConnected());
+            return (connState == ConnState.READY && channel != null && channel.isOpen() && channel.isActive());
         } catch (Exception e) {
             logger.error("channel maybe null!{}", e.getMessage());
             return false;
@@ -173,7 +173,7 @@ public class NettyClient {
         // TODO Auto-generated method stub
         ChannelFuture future = null;
         try {
-            future = channel.write(encodeObject);
+            future = channel.writeAndFlush(encodeObject);
         } catch (Exception e) {
             logger.error("channel write error {}", e.getMessage());
             e.printStackTrace();

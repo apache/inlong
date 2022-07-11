@@ -28,12 +28,13 @@ import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.apache.inlong.commons.config.metrics.MetricItem;
-import org.apache.inlong.commons.config.metrics.MetricItemMBean;
-import org.apache.inlong.commons.config.metrics.MetricItemSetMBean;
-import org.apache.inlong.commons.config.metrics.MetricRegister;
-import org.apache.inlong.commons.config.metrics.MetricUtils;
-import org.apache.inlong.commons.config.metrics.MetricValue;
+import org.apache.inlong.common.metric.MetricItem;
+import org.apache.inlong.common.metric.MetricItemMBean;
+import org.apache.inlong.common.metric.MetricItemSetMBean;
+import org.apache.inlong.common.metric.MetricRegister;
+import org.apache.inlong.common.metric.MetricUtils;
+import org.apache.inlong.common.metric.MetricValue;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -80,6 +81,14 @@ public class TestSortMetricItemSet {
         itemSink.inlongGroupId = INLONG_GROUP_ID1;
         itemSink.inlongStreamId = INLONG_STREAM_ID;
         dimSink = itemSink.getDimensions();
+    }
+    
+    /**
+     * setdown
+     */
+    @AfterClass
+    public static void setdown() {
+        MetricRegister.unregister(itemSet);
     }
 
     /**

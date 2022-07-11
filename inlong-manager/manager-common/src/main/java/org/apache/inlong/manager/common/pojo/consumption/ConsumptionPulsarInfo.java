@@ -22,7 +22,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.inlong.manager.common.enums.BizConstant;
+import org.apache.inlong.manager.common.enums.MQType;
 
 /**
  * Pulsar consumer information
@@ -33,8 +33,9 @@ import org.apache.inlong.manager.common.enums.BizConstant;
 @ApiModel("Pulsar consumer information")
 public class ConsumptionPulsarInfo extends ConsumptionMqExtBase {
 
-    @ApiModelProperty("The middleware type of MQ")
-    private String middlewareType = BizConstant.MIDDLEWARE_PULSAR;
+    public ConsumptionPulsarInfo() {
+        this.setMqType(MQType.PULSAR.getType());
+    }
 
     @ApiModelProperty("Whether to configure the dead letter queue, 0: do not configure, 1: configure")
     private Integer isDlq;

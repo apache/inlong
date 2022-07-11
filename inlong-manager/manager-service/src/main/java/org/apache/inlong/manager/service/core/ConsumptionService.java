@@ -18,12 +18,11 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.business.BusinessInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.service.workflow.WorkflowResult;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 
 /**
  * Data consumption interface
@@ -55,13 +54,13 @@ public interface ConsumptionService {
     ConsumptionInfo get(Integer id);
 
     /**
-     * Determine whether the Consumer group ID already exists
+     * Determine whether the Consumer group already exists
      *
-     * @param consumerGroupId Consumer group ID
+     * @param consumerGroup Consumer group
      * @param excludeSelfId Exclude the ID of this record
      * @return does it exist
      */
-    boolean isConsumerGroupIdExists(String consumerGroupId, Integer excludeSelfId);
+    boolean isConsumerGroupExists(String consumerGroup, Integer excludeSelfId);
 
     /**
      * Save basic data consumption information
@@ -89,17 +88,8 @@ public interface ConsumptionService {
     Boolean delete(Integer id, String operator);
 
     /**
-     * Start the application process
-     *
-     * @param id Data consumption id
-     * @param operator Operator
-     * @return Process information
-     */
-    WorkflowResult startProcess(Integer id, String operator);
-
-    /**
      * Save the consumer group info for Sort to the database
      */
-    void saveSortConsumption(BusinessInfo bizInfo, String topic, String consumerGroup);
+    void saveSortConsumption(InlongGroupInfo bizInfo, String topic, String consumerGroup);
 
 }

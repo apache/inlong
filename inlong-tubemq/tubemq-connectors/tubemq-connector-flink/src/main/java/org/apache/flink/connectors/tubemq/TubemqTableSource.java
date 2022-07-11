@@ -41,7 +41,7 @@ import org.apache.flink.table.sources.StreamTableSource;
 import org.apache.flink.types.Row;
 
 /**
- * Tubemq {@link StreamTableSource}.
+ * TubeMQ {@link StreamTableSource}.
  */
 public class TubemqTableSource implements
     StreamTableSource<Row>,
@@ -50,7 +50,7 @@ public class TubemqTableSource implements
     DefinedFieldMapping {
 
     /**
-     * Deserialization schema for records from tubemq.
+     * Deserialization schema for records from TubeMQ.
      */
     private final DeserializationSchema<Row> deserializationSchema;
 
@@ -77,30 +77,44 @@ public class TubemqTableSource implements
     private final Map<String, String> fieldMapping;
 
     /**
-     * The address of tubemq master, format eg: 127.0.0.1:8080,127.0.0.2:8081 .
+     * The address of TubeMQ master, format eg: 127.0.0.1:8080,127.0.0.2:8081 .
      */
     private final String masterAddress;
 
     /**
-     * The tubemq topic name.
+     * The TubeMQ topic name.
      */
     private final String topic;
 
     /**
-     * The tubemq tid filter collection.
+     * The TubeMQ tid filter collection.
      */
     private final TreeSet<String> tidSet;
 
     /**
-     * The tubemq consumer group name.
+     * The TubeMQ consumer group name.
      */
     private final String consumerGroup;
 
     /**
-     * The parameters collection for tubemq consumer.
+     * The parameters collection for TubeMQ consumer.
      */
     private final Configuration configuration;
 
+    /**
+     * Build TubeMQ table source
+     *
+     * @param deserializationSchema   the deserialize schema
+     * @param schema             the data schema
+     * @param proctimeAttribute              the proc time
+     * @param rowtimeAttributeDescriptors    the row time attribute descriptor
+     * @param fieldMapping        the field map information
+     * @param masterAddress       the master address
+     * @param topic               the topic name
+     * @param tidSet              the topic's filter condition items
+     * @param consumerGroup       the consumer group
+     * @param configuration       the configure
+     */
     public TubemqTableSource(
         DeserializationSchema<Row> deserializationSchema,
         TableSchema schema,

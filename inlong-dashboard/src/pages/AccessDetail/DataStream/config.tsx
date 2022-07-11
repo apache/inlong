@@ -25,15 +25,15 @@ import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
-    initialValue: defaultValues.keyWord,
+    name: 'keyword',
+    initialValue: defaultValues.keyword,
   },
 ];
 
 export const genExtraContent = ({
   editingId,
   record,
-  middlewareType,
+  mqType,
   onSave,
   onCancel,
   onEdit,
@@ -66,13 +66,7 @@ export const genExtraContent = ({
       ];
 };
 
-export const genFormContent = (
-  editingId,
-  currentValues,
-  inlongGroupId,
-  readonly,
-  middlewareType,
-) => {
+export const genFormContent = (editingId, currentValues, inlongGroupId, readonly, mqType) => {
   const extraParams = {
     inlongGroupId,
     useDataSourcesActionRequest: !!currentValues?.id,
@@ -95,21 +89,11 @@ export const genFormContent = (
         {
           label: 'Topic Name',
           type: 'text',
-          name: 'mqResourceObj',
-          visible: middlewareType === 'PULSAR' && editingId !== true,
+          name: 'mqResource',
+          visible: mqType === 'PULSAR' && editingId !== true,
         },
         'name',
-        'inCharges',
         'description',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-            </Divider>
-          ),
-        },
-        'dataSourceType',
-        'dataSourcesConfig',
         {
           type: (
             <Divider orientation="left">
@@ -127,7 +111,7 @@ export const genFormContent = (
               {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
             </Divider>
           ),
-          visible: middlewareType === 'PULSAR',
+          visible: mqType === 'PULSAR',
         },
       ],
       currentValues,
@@ -136,29 +120,28 @@ export const genFormContent = (
     ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
       item => ({
         ...item,
-        visible: middlewareType === 'PULSAR',
+        visible: mqType === 'PULSAR',
       }),
     ),
-    ...genDataFields(
-      [
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
-            </Divider>
-          ),
-        },
-        'dataStorage',
-        'dataStorageHIVE',
-        'dataStorageCLICK_HOUSE',
-      ],
-      currentValues,
-      extraParams,
-    ),
+    // ...genDataFields(
+    //   [
+    //     {
+    //       type: (
+    //         <Divider orientation="left">
+    //           {i18n.t('pages.AccessCreate.DataStream.config.DataStorages')}
+    //         </Divider>
+    //       ),
+    //     },
+    //     'streamSink',
+    //     ...Storages.map(item => `streamSink${item.value}`),
+    //   ],
+    //   currentValues,
+    //   extraParams,
+    // ),
   ].map(item => {
     if (
       (editingId === true && currentValues?.id === undefined) ||
-      (item.name === 'dataStorage' && !readonly)
+      (item.name === 'streamSink' && !readonly)
     ) {
       return item;
     }
@@ -172,8 +155,6 @@ export const genFormContent = (
       if (typeof obj.type === 'string') {
         obj.type = 'text';
         obj.props = { options: obj.props?.options };
-      } else if (obj.name === 'inCharges') {
-        obj.type = <span>{currentValues?.inCharges?.join(', ')}</span>;
       }
 
       if ((obj.suffix as any)?.type) {

@@ -24,12 +24,12 @@ import (
 )
 
 func TestSplitToMap(t *testing.T) {
-	source := "$msgType$=metadata_journal_log,$msgTime$=202111081911,tdbusip=10.56.15.232"
+	source := "$msgType$=metadata_journal_log,$msgTime$=202111081911,tdbusip=127.0.0.1"
 	m := SplitToMap(source, ",", "=")
 	properties := make(map[string]string)
 	properties["$msgType$"] = "metadata_journal_log"
 	properties["$msgTime$"] = "202111081911"
-	properties["tdbusip"] = "10.56.15.232"
+	properties["tdbusip"] = "127.0.0.1"
 	assert.Equal(t, properties, m)
 
 	source = "key=val&key1&key2="

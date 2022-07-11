@@ -28,8 +28,8 @@ import org.apache.velocity.app.VelocityEngine;
 
 public class VelocityTemplateEngine implements TemplateEngine {
 
-    private WebConfig config;
-    private VelocityEngine engine;
+    private final WebConfig config;
+    private final VelocityEngine engine;
 
     public VelocityTemplateEngine(WebConfig config) {
         this.config = config;

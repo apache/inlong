@@ -33,10 +33,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.inlong.tubemq.manager.controller.TubeMQResult;
 import org.apache.inlong.tubemq.manager.controller.group.request.DeleteOffsetReq;
+import org.apache.inlong.tubemq.manager.controller.group.request.QueryConsumerGroupReq;
 import org.apache.inlong.tubemq.manager.controller.group.request.QueryOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.AllBrokersOffsetRes.OffsetInfo;
+import org.apache.inlong.tubemq.manager.controller.group.result.GroupOffsetRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.OffsetPartitionRes;
 import org.apache.inlong.tubemq.manager.controller.group.result.OffsetQueryRes;
+import org.apache.inlong.tubemq.manager.controller.group.result.TopicOffsetRes;
 import org.apache.inlong.tubemq.manager.controller.node.request.CloneOffsetReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceConsumerReq;
 import org.apache.inlong.tubemq.manager.controller.topic.request.RebalanceGroupReq;
@@ -96,6 +100,18 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
+    public TubeMQResult queryGroupExist(QueryConsumerGroupReq req) {
+        MasterEntry masterNode = masterService.getMasterNode(req);
+        TubeHttpGroupDetailInfo groupDetailInfo = requestGroupRunInfo(masterNode,
+                req.getConsumerGroup());
+        List<String> topicSet = groupDetailInfo.getTopicSet();
+        if (topicSet.stream().anyMatch(topic -> topic.equals(req.getTopicName()))) {
+            return TubeMQResult.successResult();
+        }
+        return TubeMQResult.errorResult(TubeMQErrorConst.NO_SUCH_GROUP);
+    }
+
+    @Override
     public TopicView requestTopicViewInfo(Long clusterId, String topicName) {
         MasterEntry masterNode = masterService.getMasterNode(clusterId);
         String url = TubeConst.SCHEMA + masterNode.getIp() + ":" + masterNode.getWebPort()
@@ -116,7 +132,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public TubeMQResult cloneOffsetToOtherGroups(CloneOffsetReq req) {
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -161,7 +177,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult rebalanceGroup(RebalanceGroupReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -193,7 +209,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult deleteOffset(DeleteOffsetReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -224,7 +240,7 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public TubeMQResult queryOffset(QueryOffsetReq req) {
 
-        MasterEntry master = masterService.getMasterNode(req);
+        MasterEntry master = masterService.getMasterNode(Long.valueOf(req.getClusterId()));
         if (master == null) {
             return TubeMQResult.errorResult("no such cluster");
         }
@@ -250,7 +266,7 @@ public class TopicServiceImpl implements TopicService {
             generateOffsetInfo(offsetPerBroker, topicInfo, res);
         }
 
-        result.setData(gson.toJson(allBrokersOffsetRes));
+        result.setData(allBrokersOffsetRes);
         return result;
     }
 
@@ -273,7 +289,16 @@ public class TopicServiceImpl implements TopicService {
                                     OffsetQueryRes res) {
         OffsetInfo offsetInfo = new OffsetInfo();
         offsetInfo.setBrokerId(topicInfo.getBrokerId());
-        offsetInfo.setOffsetQueryRes(res);
-        offsetPerBroker.add(offsetInfo);
+        offsetInfo.setBrokerIp(topicInfo.getBrokerIp());
+        if (TubeConst.SUCCESS_CODE == res.getErrCode()) {
+            List<GroupOffsetRes> dataSet = res.getDataSet();
+            for (GroupOffsetRes groupOffsetRes : dataSet) {
+                for (TopicOffsetRes topicOffsetRes : groupOffsetRes.getSubInfo()) {
+                    List<OffsetPartitionRes> offsets = topicOffsetRes.getOffsets();
+                    offsetInfo.setOffsets(offsets);
+                }
+            }
+            offsetPerBroker.add(offsetInfo);
+        }
     }
 }

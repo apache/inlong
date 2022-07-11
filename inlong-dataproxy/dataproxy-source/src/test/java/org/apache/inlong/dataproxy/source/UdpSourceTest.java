@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class UdpSourceTest {
 

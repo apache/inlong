@@ -22,6 +22,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -31,11 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/**
+ * Base configuration, store and parse config params.
+ */
 public abstract class AbstractConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfiguration.class);
@@ -43,7 +47,9 @@ public abstract class AbstractConfiguration {
 
     private final Map<String, JsonPrimitive> configStorage = new HashMap<>();
 
-    /** get config file by class loader **/
+    /**
+     * get config file by class loader
+     **/
     private ClassLoader classLoader;
 
     public AbstractConfiguration() {
@@ -54,7 +60,8 @@ public abstract class AbstractConfiguration {
     }
 
     /**
-     * Check whether all required keys exist
+     * Check whether all required keys exist.
+     *
      * @return true if all key exist else false.
      */
     public abstract boolean allRequiredKeyExist();
@@ -62,8 +69,8 @@ public abstract class AbstractConfiguration {
     /**
      * support load config file from json/properties file.
      *
-     * @param fileName -  file name
-     * @param isJson - whether is json file
+     * @param fileName file name
+     * @param isJson whether is json file
      */
     private void loadResource(String fileName, boolean isJson) {
         Reader reader = null;
@@ -78,7 +85,7 @@ public abstract class AbstractConfiguration {
                     Properties properties = new Properties();
                     properties.load(reader);
                     properties.forEach((key, value) -> configStorage.put((String) key,
-                        new JsonPrimitive((String) value)));
+                            new JsonPrimitive((String) value)));
                 }
             }
         } catch (Exception ioe) {
@@ -91,7 +98,7 @@ public abstract class AbstractConfiguration {
     /**
      * load config from json string.
      *
-     * @param jsonStr - json string
+     * @param jsonStr json string
      */
     public void loadJsonStrResource(String jsonStr) {
         JsonElement tmpElement = JSON_PARSER.parse(jsonStr);
@@ -101,7 +108,7 @@ public abstract class AbstractConfiguration {
     /**
      * load config file from CLASS_PATH. config file is json file.
      *
-     * @param fileName - file name
+     * @param fileName file name
      */
     void loadJsonResource(String fileName) {
         loadResource(fileName, true);
@@ -114,9 +121,9 @@ public abstract class AbstractConfiguration {
     /**
      * Convert json string to map
      *
-     * @param keyDeptPath - map
-     * @param dept - json dept
-     * @param tmpElement - json element
+     * @param keyDeptPath map
+     * @param dept json dept
+     * @param tmpElement json element
      */
     void updateConfig(HashMap<Integer, String> keyDeptPath, int dept, JsonElement tmpElement) {
         if (tmpElement instanceof JsonObject) {
@@ -147,8 +154,8 @@ public abstract class AbstractConfiguration {
     /**
      * get int from config
      *
-     * @param key - key
-     * @param defaultValue - default value
+     * @param key key
+     * @param defaultValue default value
      * @return value
      */
     public int getInt(String key, int defaultValue) {
@@ -159,7 +166,7 @@ public abstract class AbstractConfiguration {
     /**
      * get int from config
      *
-     * @param key - key
+     * @param key key
      * @return value
      * @throws NullPointerException npe
      */
@@ -174,8 +181,8 @@ public abstract class AbstractConfiguration {
     /**
      * get long
      *
-     * @param key - key
-     * @param defaultValue - default value
+     * @param key key
+     * @param defaultValue default value
      * @return long
      */
     public long getLong(String key, long defaultValue) {
@@ -186,8 +193,8 @@ public abstract class AbstractConfiguration {
     /**
      * get boolean
      *
-     * @param key - key
-     * @param defaultValue - default value
+     * @param key key
+     * @param defaultValue default value
      * @return boolean
      */
     public boolean getBoolean(String key, boolean defaultValue) {
@@ -198,8 +205,8 @@ public abstract class AbstractConfiguration {
     /**
      * get string
      *
-     * @param key - key
-     * @param defaultValue - default value
+     * @param key key
+     * @param defaultValue default value
      * @return string
      */
     public String get(String key, String defaultValue) {
@@ -210,7 +217,7 @@ public abstract class AbstractConfiguration {
     /**
      * get string or throw npe
      *
-     * @param key - key
+     * @param key key
      * @return string
      * @throws NullPointerException if value is null, throw npe
      */
@@ -225,8 +232,8 @@ public abstract class AbstractConfiguration {
     /**
      * whether key exists
      *
-     * @param key - key
-     * @return - true if key exists else not
+     * @param key key
+     * @return true if key exists else not
      */
     public boolean hasKey(String key) {
         return configStorage.containsKey(key);
@@ -235,8 +242,8 @@ public abstract class AbstractConfiguration {
     /**
      * set key/value
      *
-     * @param key - key
-     * @param value - value
+     * @param key key
+     * @param value value
      */
     public void set(String key, String value) {
         configStorage.put(key, new JsonPrimitive(value));
@@ -258,6 +265,9 @@ public abstract class AbstractConfiguration {
         return configStorage;
     }
 
+    /**
+     * get configStorage list, item format: "key=value"
+     */
     List<String> getStorageList() {
         List<String> result = new ArrayList<>();
         for (Map.Entry<String, JsonPrimitive> entry : configStorage.entrySet()) {

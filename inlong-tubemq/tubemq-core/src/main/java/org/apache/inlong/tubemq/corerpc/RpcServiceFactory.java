@@ -48,7 +48,7 @@ public class RpcServiceFactory {
     private static final Logger logger =
             LoggerFactory.getLogger(RpcServiceFactory.class);
     private static final int DEFAULT_IDLE_TIME = 10 * 60 * 1000;
-    private static AtomicInteger threadIdGen = new AtomicInteger(0);
+    private static final AtomicInteger threadIdGen = new AtomicInteger(0);
     private final ClientFactory clientFactory;
     private final ConcurrentHashMap<Integer, ServiceRpcServer> servers =
             new ConcurrentHashMap<>();
@@ -68,8 +68,8 @@ public class RpcServiceFactory {
             new ConcurrentHashMap<>();
     private long unAvailableFbdDurationMs =
         RpcConstants.CFG_UNAVAILABLE_FORBIDDEN_DURATION_MS;
-    private AtomicLong lastLogPrintTime = new AtomicLong(0);
-    private AtomicLong lastCheckTime = new AtomicLong(0);
+    private final AtomicLong lastLogPrintTime = new AtomicLong(0);
+    private final AtomicLong lastCheckTime = new AtomicLong(0);
     private long linkStatsDurationMs =
             RpcConstants.CFG_LQ_STATS_DURATION_MS;
     private long linkStatsForbiddenDurMs =
@@ -89,6 +89,8 @@ public class RpcServiceFactory {
 
     /**
      * initial with an tube clientFactory
+     *
+     * @param clientFactory    the client factory
      */
     public RpcServiceFactory(final ClientFactory clientFactory) {
         this.clientFactory = clientFactory;
@@ -97,6 +99,9 @@ public class RpcServiceFactory {
 
     /**
      * initial with an tube clientFactory and rpc config
+     *
+     * @param clientFactory  the client factory
+     * @param config         the configure information
      */
     public RpcServiceFactory(final ClientFactory clientFactory, final RpcConfig config) {
         this.clientFactory = clientFactory;
@@ -125,8 +130,8 @@ public class RpcServiceFactory {
     /**
      * check if the remote address is forbidden or not
      *
-     * @param remoteAddr
-     * @return
+     * @param remoteAddr   the remote address
+     * @return             whether is forbidden
      */
     public boolean isRemoteAddrForbidden(String remoteAddr) {
         Long forbiddenTime = forbiddenAddrMap.get(remoteAddr);
@@ -144,7 +149,7 @@ public class RpcServiceFactory {
     /**
      * get all Link abnormal Forbidden Address
      *
-     * @return
+     * @return  the forbidden address map
      */
     public ConcurrentHashMap<String, Long> getForbiddenAddrMap() {
         return forbiddenAddrMap;
@@ -153,14 +158,16 @@ public class RpcServiceFactory {
     /**
      * get all service abnormal Forbidden brokerIds
      *
-     * @return
+     * @return   the unavailable broker map
      */
     public ConcurrentHashMap<Integer, Long> getUnavailableBrokerMap() {
         return brokerUnavailableMap;
     }
 
     /**
-     * @param remoteAddr
+     * Remove the remote address from forbidden address map
+     *
+     * @param remoteAddr   the remote address need to removed
      */
     public void resetRmtAddrErrCount(String remoteAddr) {
         forbiddenAddrMap.remove(remoteAddr);
@@ -178,7 +185,9 @@ public class RpcServiceFactory {
     }
 
     /**
-     * @param remoteAddr
+     * Accumulate a error count for the remote address
+     *
+     * @param remoteAddr    the remote address
      */
     public void addRmtAddrErrCount(String remoteAddr) {
         RemoteConErrStats rmtConErrStats = remoteAddrMap.get(remoteAddr);
@@ -220,7 +229,7 @@ public class RpcServiceFactory {
                 }
                 int needForbiddenCount =
                         (int) Math.rint(remoteAddrMap.size() * linkStatsMaxAllowedForbiddenRate);
-                needForbiddenCount = (needForbiddenCount > 30) ? 30 : needForbiddenCount;
+                needForbiddenCount = Math.min(needForbiddenCount, 30);
                 if (needForbiddenCount > totalCount) {
                     forbiddenAddrMap.put(remoteAddr, System.currentTimeMillis());
                     isAdded = true;
@@ -241,6 +250,10 @@ public class RpcServiceFactory {
         }
     }
 
+    /**
+     * Remove expired records
+     * All forbidden records will be removed after the specified time
+     */
     public void rmvAllExpiredRecords() {
         long curTime = System.currentTimeMillis();
         Set<String> expiredAddrs = new HashSet<>();
@@ -291,6 +304,10 @@ public class RpcServiceFactory {
         brokerUnavailableMap.put(brokerId, System.currentTimeMillis());
     }
 
+    /**
+     * Remove unavailable records
+     * All unavailable records will be removed after the specified time
+     */
     public void rmvExpiredUnavailableBrokers() {
         long curTime = System.currentTimeMillis();
         Set<Integer> expiredBrokers = new HashSet<>();
@@ -316,10 +333,12 @@ public class RpcServiceFactory {
     }
 
     /**
-     * @param clazz
-     * @param brokerInfo
-     * @param config
-     * @return
+     * Get broker's service
+     *
+     * @param clazz        the class object
+     * @param brokerInfo   the broker object
+     * @param config       the configure
+     * @return             the service instance for the broker
      */
     public synchronized <T> T getService(Class<T> clazz,
                                          BrokerInfo brokerInfo,
@@ -343,7 +362,7 @@ public class RpcServiceFactory {
     /**
      * check is service empty
      *
-     * @return
+     * @return whether is empty
      */
     public boolean isServiceEmpty() {
         return servicesCache.isEmpty();
@@ -405,12 +424,12 @@ public class RpcServiceFactory {
     /**
      * start an tube netty server
      *
-     * @param clazz
-     * @param serviceInstance
-     * @param listenPort
-     * @param threadPool
-     * @param config
-     * @throws Exception
+     * @param clazz             the class object
+     * @param serviceInstance   the service instance
+     * @param listenPort        the listen port
+     * @param threadPool        the thread pool
+     * @param config            the configure
+     * @throws Exception        the excepition while processing
      */
     public synchronized void publishService(Class clazz, Object serviceInstance,
                                             int listenPort, ExecutorService threadPool,
@@ -588,5 +607,4 @@ public class RpcServiceFactory {
             }
         }
     }
-
 }

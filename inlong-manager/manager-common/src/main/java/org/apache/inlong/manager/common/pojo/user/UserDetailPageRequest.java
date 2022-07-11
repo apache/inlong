@@ -21,11 +21,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.inlong.manager.common.beans.PageRequest;
 
+/**
+ * User detail page request.
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class UserDetailPageRequest extends PageRequest {
 
-    public String userName;
+    public String username;
 
     public Integer type;
 

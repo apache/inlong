@@ -44,21 +44,21 @@ export type GetStorageFormFieldsType = (
 ) => FormItemProps[] | ColumnsType;
 
 interface FieldConfigItem extends FormItemProps {
-  _col?: boolean | Record<string, unknown>;
+  _inTable?: boolean | Record<string, unknown>;
 }
 
 export const getColsFromFields = (fieldsConfig: FieldConfigItem[]): ColumnsType => {
   return fieldsConfig
-    .filter(item => item._col)
+    .filter(item => item._inTable)
     .map(item => {
       let output = {
         title: item.label,
         dataIndex: item.name,
       };
-      if (typeof item._col === 'object') {
+      if (typeof item._inTable === 'object') {
         output = {
           ...output,
-          ...item._col,
+          ...item._inTable,
         };
       }
       return output;

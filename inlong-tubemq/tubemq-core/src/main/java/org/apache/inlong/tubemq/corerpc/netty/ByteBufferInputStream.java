@@ -28,7 +28,7 @@ import java.util.List;
  * Copied from <a href="http://avro.apache.org">Apache Avro Project</a>
  */
 public class ByteBufferInputStream extends InputStream {
-    private List<ByteBuffer> buffers;
+    private final List<ByteBuffer> buffers;
     private int current;
 
     public ByteBufferInputStream(List<ByteBuffer> buffers) {
@@ -36,6 +36,9 @@ public class ByteBufferInputStream extends InputStream {
     }
 
     /**
+     * Read a byte at this buffer
+     *
+     * @return the read value
      * @throws java.io.EOFException if EOF is reached.
      * @see java.io.InputStream#read()
      */
@@ -45,6 +48,11 @@ public class ByteBufferInputStream extends InputStream {
     }
 
     /**
+     * Read content of specified length
+     *
+     * @param b     the content buffer
+     * @param off   the offset position
+     * @param len   the content length
      * @throws java.io.EOFException if EOF is reached before reading all the bytes.
      * @see java.io.InputStream#read(byte[], int, int)
      */
@@ -67,6 +75,7 @@ public class ByteBufferInputStream extends InputStream {
     /**
      * Read a buffer from the input without copying, if possible.
      *
+     * @param length    the need read data length
      * @throws java.io.EOFException if EOF is reached before reading all the bytes.
      */
     public ByteBuffer readBuffer(int length) throws IOException {

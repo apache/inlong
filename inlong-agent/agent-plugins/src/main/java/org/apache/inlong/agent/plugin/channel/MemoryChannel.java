@@ -17,40 +17,44 @@
 
 package org.apache.inlong.agent.plugin.channel;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.agent.conf.JobProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.metrics.PluginJmxMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginMetric;
 import org.apache.inlong.agent.plugin.metrics.PluginPrometheusMetric;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+/**
+ * memory channel
+ */
 public class MemoryChannel implements Channel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MemoryChannel.class);
 
     private static final String MEMORY_CHANNEL_TAG_NAME = "AgentMemoryPlugin";
-
-    private LinkedBlockingQueue<Message> queue;
-
+    private static AtomicLong metricsIndex = new AtomicLong(0);
     private final PluginMetric pluginMetricNew;
+    private LinkedBlockingQueue<Message> queue;
 
     public MemoryChannel() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.pluginMetricNew = new PluginPrometheusMetric(MEMORY_CHANNEL_TAG_NAME);
+            this.pluginMetricNew = new PluginPrometheusMetric(AgentUtils.getUniqId(
+                    MEMORY_CHANNEL_TAG_NAME, metricsIndex.incrementAndGet()));
         } else {
-            this.pluginMetricNew = new PluginJmxMetric(MEMORY_CHANNEL_TAG_NAME);
+            this.pluginMetricNew = new PluginJmxMetric(AgentUtils.getUniqId(
+                    MEMORY_CHANNEL_TAG_NAME, metricsIndex.incrementAndGet()));
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void push(Message message) {
         try {
@@ -85,9 +89,6 @@ public class MemoryChannel implements Channel {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Message pull(long timeout, TimeUnit unit) {
         try {
@@ -107,7 +108,7 @@ public class MemoryChannel implements Channel {
     public void init(JobProfile jobConf) {
         queue = new LinkedBlockingQueue<>(
                 jobConf.getInt(AgentConstants.CHANNEL_MEMORY_CAPACITY,
-                    AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
+                        AgentConstants.DEFAULT_CHANNEL_MEMORY_CAPACITY));
     }
 
     @Override
@@ -116,9 +117,9 @@ public class MemoryChannel implements Channel {
             queue.clear();
         }
         LOGGER.info("destroy channel, memory channel metric, readNum: {}, readSuccessNum: {}, "
-            + "readFailedNum: {}, sendSuccessNum: {}, sendFailedNum: {}",
-            pluginMetricNew.getReadNum(), pluginMetricNew.getReadSuccessNum(),
-            pluginMetricNew.getReadFailedNum(), pluginMetricNew.getSendSuccessNum(),
-            pluginMetricNew.getSendFailedNum());
+                        + "readFailedNum: {}, sendSuccessNum: {}, sendFailedNum: {}",
+                pluginMetricNew.getReadNum(), pluginMetricNew.getReadSuccessNum(),
+                pluginMetricNew.getReadFailedNum(), pluginMetricNew.getSendSuccessNum(),
+                pluginMetricNew.getSendFailedNum());
     }
 }

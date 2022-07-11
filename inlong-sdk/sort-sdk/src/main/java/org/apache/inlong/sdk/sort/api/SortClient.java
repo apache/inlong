@@ -25,4 +25,6 @@ public abstract class SortClient {
             throws Exception;
 
     public abstract boolean close();
+
+    public abstract SortClientConfig getConfig();
 }

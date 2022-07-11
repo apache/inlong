@@ -29,44 +29,35 @@ export default (
 ): FormItemProps[] => {
   const fields: FormItemProps[] = [
     {
-      type: 'text',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessID'),
-      name: 'inlongGroupId',
-      initialValue: currentValues.inlongGroupId,
-    },
-    {
-      type: 'text',
-      label: 'TubeTopic',
-      name: 'mqResourceObj',
-      initialValue: currentValues.mqResourceObj,
-      visible: values => values.middlewareType === 'TUBE',
-    },
-    {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishName'),
-      name: 'name',
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupId'),
+      name: 'inlongGroupId',
       props: {
         maxLength: 32,
       },
       rules: [
         { required: true },
         {
-          pattern: /^[a-z_\d]+$/,
-          message: i18n.t(
-            'components.AccessHelper.FieldsConfig.businessFields.BusinessEnglishNameRules',
-          ),
+          pattern: /^[a-z_\-\d]+$/,
+          message: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupIdRules'),
         },
       ],
-      initialValue: currentValues.name,
+      initialValue: currentValues.inlongGroupId,
+    },
+    {
+      type: 'text',
+      label: currentValues.mqType === 'TUBE' ? 'Tube Topic' : 'Pulsar Namespace',
+      name: 'mqResource',
+      initialValue: currentValues.mqResource,
     },
     {
       type: 'input',
-      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.BusinessLabelName'),
-      name: 'cnName',
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.InlongGroupName'),
+      name: 'name',
       props: {
         maxLength: 32,
       },
-      initialValue: currentValues.cnName,
+      initialValue: currentValues.name,
     },
     {
       type: <StaffSelect mode="multiple" currentUserClosable={false} />,
@@ -93,8 +84,8 @@ export default (
     {
       type: 'radio',
       label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.MessageMiddleware'),
-      name: 'middlewareType',
-      initialValue: currentValues.middlewareType ?? 'TUBE',
+      name: 'mqType',
+      initialValue: currentValues.mqType ?? 'TUBE',
       rules: [{ required: true }],
       props: {
         options: [
@@ -127,20 +118,20 @@ export default (
           },
         ],
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
-      label: 'Topic Partition Nums',
-      name: 'topicPartitionNum',
-      initialValue: currentValues.topicPartitionNum ?? 3,
+      label: i18n.t('components.AccessHelper.FieldsConfig.businessFields.PartitionNum'),
+      name: 'partitionNum',
+      initialValue: currentValues.partitionNum ?? 3,
       rules: [{ required: true }],
       props: {
         min: 1,
         max: 20,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR' && values.queueModule === 'parallel',
+      visible: values => values.mqType === 'PULSAR' && values.queueModule === 'parallel',
     },
     {
       type: 'inputnumber',
@@ -153,7 +144,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -166,7 +157,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -179,7 +170,7 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
@@ -192,23 +183,22 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'TUBE',
+      visible: values => values.mqType === 'TUBE',
     },
     {
       type: 'inputnumber',
       label: 'ensemble',
-      name: 'mqExtInfo.ensemble',
-      initialValue: currentValues.mqExtInfo?.ensemble ?? 3,
+      name: 'ensemble',
+      initialValue: currentValues?.ensemble ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.EnsembleExtra'),
       rules: [
         ({ getFieldValue }) => ({
           validator(_, val) {
             if (val) {
-              const writeQuorum = getFieldValue(['mqExtInfo', 'writeQuorum']) || 0;
-              const ackQuorum = getFieldValue(['mqExtInfo', 'ackQuorum']) || 0;
-              const ensemble = val || 0;
-              return ackQuorum <= writeQuorum && writeQuorum <= ensemble
+              const writeQuorum = getFieldValue(['writeQuorum']) || 0;
+              const ackQuorum = getFieldValue(['ackQuorum']) || 0;
+              return ackQuorum <= writeQuorum && writeQuorum <= val
                 ? Promise.resolve()
                 : Promise.reject(new Error('Max match: ensemble ≥ write quorum ≥ ack quorum'));
             }
@@ -221,13 +211,13 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
-      label: 'write quorum',
-      name: 'mqExtInfo.writeQuorum',
-      initialValue: currentValues.mqExtInfo?.writeQuorum ?? 3,
+      label: 'Write Quorum',
+      name: 'writeQuorum',
+      initialValue: currentValues?.writeQuorum ?? 3,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.WriteQuorumExtra'),
       props: {
@@ -235,13 +225,13 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
-      label: 'ack quorum',
-      name: 'mqExtInfo.ackQuorum',
-      initialValue: currentValues.mqExtInfo?.ackQuorum ?? 2,
+      label: 'ACK Quorum',
+      name: 'ackQuorum',
+      initialValue: currentValues?.ackQuorum ?? 2,
       suffix: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumSuffix'),
       extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.AckQuorumExtra'),
       props: {
@@ -249,26 +239,18 @@ export default (
         max: 10,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
-      label: 'retention time',
-      name: 'mqExtInfo.retentionTime',
-      initialValue: currentValues.mqExtInfo?.retentionTime ?? 72,
+      label: 'Time To Live',
+      name: 'ttl',
+      initialValue: currentValues?.ttl ?? 24,
       rules: [
         ({ getFieldValue }) => ({
           validator(_, val) {
-            const retentionSize = getFieldValue(['mqExtInfo', 'retentionSize']);
-            if ((val === 0 && retentionSize > 0) || (val > 0 && retentionSize === 0)) {
-              return Promise.reject(
-                new Error(
-                  'Can not: retentionTime=0,retentionSize>0 | retentionTime>0,retentionSize=0',
-                ),
-              );
-            }
             if (val) {
-              const unit = getFieldValue(['mqExtInfo', 'retentionTimeUnit']);
+              const unit = getFieldValue(['ttlUnit']);
               const value = unit === 'hours' ? Math.ceil(val / 24) : val;
               return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
             }
@@ -278,49 +260,8 @@ export default (
       ],
       suffix: {
         type: 'select',
-        name: 'mqExtInfo.retentionTimeUnit',
-        initialValue: currentValues.rmqExtInfo?.etentionTimeUnit ?? 'hours',
-        props: {
-          options: [
-            {
-              label: 'D',
-              value: 'days',
-            },
-            {
-              label: 'H',
-              value: 'hours',
-            },
-          ],
-        },
-      },
-      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionTimeExtra'),
-      props: {
-        min: -1,
-        precision: 0,
-      },
-      visible: values => values.middlewareType === 'PULSAR',
-    },
-    {
-      type: 'inputnumber',
-      label: 'ttl',
-      name: 'mqExtInfo.ttl',
-      initialValue: currentValues.mqExtInfo?.ttl ?? 24,
-      rules: [
-        ({ getFieldValue }) => ({
-          validator(_, val) {
-            if (val) {
-              const unit = getFieldValue(['mqExtInfo', 'ttlUnit']);
-              const value = unit === 'hours' ? Math.ceil(val / 24) : val;
-              return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
-            }
-            return Promise.resolve();
-          },
-        }),
-      ],
-      suffix: {
-        type: 'select',
-        name: 'mqExtInfo.ttlUnit',
-        initialValue: currentValues.mqExtInfo?.ttlUnit ?? 'hours',
+        name: 'ttlUnit',
+        initialValue: currentValues?.ttlUnit ?? 'hours',
         props: {
           options: [
             {
@@ -339,17 +280,66 @@ export default (
         min: 1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
     {
       type: 'inputnumber',
-      label: 'retention size',
-      name: 'mqExtInfo.retentionSize',
-      initialValue: currentValues.mqExtInfo?.retentionSize ?? -1,
+      label: 'Retention Time',
+      name: 'retentionTime',
+      initialValue: currentValues?.retentionTime ?? 72,
+      rules: [
+        ({ getFieldValue }) => ({
+          validator(_, val) {
+            const retentionSize = getFieldValue(['retentionSize']);
+            if ((val === 0 && retentionSize > 0) || (val > 0 && retentionSize === 0)) {
+              return Promise.reject(
+                new Error(
+                  'Can not: retentionTime=0, retentionSize>0 | retentionTime>0, retentionSize=0',
+                ),
+              );
+            }
+            if (val) {
+              const unit = getFieldValue(['retentionTimeUnit']);
+              const value = unit === 'hours' ? Math.ceil(val / 24) : val;
+              return value <= 14 ? Promise.resolve() : Promise.reject(new Error('Max: 14 Days'));
+            }
+            return Promise.resolve();
+          },
+        }),
+      ],
       suffix: {
         type: 'select',
-        name: 'mqExtInfo.retentionSizeUnit',
-        initialValue: currentValues.mqExtInfo?.retentionSizeUnit ?? 'MB',
+        name: 'retentionTimeUnit',
+        initialValue: currentValues?.retentionTimeUnit ?? 'hours',
+        props: {
+          options: [
+            {
+              label: 'D',
+              value: 'days',
+            },
+            {
+              label: 'H',
+              value: 'hours',
+            },
+          ],
+        },
+      },
+      extra: i18n.t('components.AccessHelper.FieldsConfig.businessFields.RetentionTimeExtra'),
+      props: {
+        min: -1,
+        precision: 0,
+      },
+      visible: values => values.mqType === 'PULSAR',
+    },
+    {
+      type: 'inputnumber',
+      label: 'Retention Size',
+      name: 'retentionSize',
+      initialValue: currentValues?.retentionSize ?? -1,
+      suffix: {
+        type: 'select',
+        name: 'retentionSizeUnit',
+        initialValue: currentValues?.retentionSizeUnit ?? 'MB',
         props: {
           options: [
             {
@@ -372,7 +362,7 @@ export default (
         min: -1,
         precision: 0,
       },
-      visible: values => values.middlewareType === 'PULSAR',
+      visible: values => values.mqType === 'PULSAR',
     },
   ] as FormItemProps[];
 

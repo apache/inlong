@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.auth;
 
 import com.google.common.collect.Sets;
-import java.util.Date;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.UserEntity;
@@ -29,36 +29,51 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
+import java.util.Date;
+
+/**
+ * Web user authorization.
+ */
 public class WebAuthorizingRealm extends AuthorizingRealm {
 
-    private UserService userService;
+    private final UserService userService;
 
     public WebAuthorizingRealm(UserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * Login authentication
+     */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
             throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) authenticationToken;
         String username = upToken.getUsername();
         UserEntity userEntity = userService.getByName(username);
-
         Preconditions.checkNotNull(userEntity, "User doesn't exist");
         Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");
-
         UserDetail userDetail = new UserDetail();
-        userDetail.setUserName(username);
-        userDetail.setRoles(Sets.newHashSet(userEntity.getAccountType().toString()));
-
+        userDetail.setUsername(username);
+        userDetail.setRoles(Sets.newHashSet(userEntity.getAccountType() == 0
+                ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
         return new SimpleAuthenticationInfo(userDetail, userEntity.getPassword(), getName());
     }
 
+    /**
+     * URI access control
+     */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        return null;
+        SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        UserDetail userDetail = (UserDetail) getAvailablePrincipal(principalCollection);
+        if (userDetail != null) {
+            simpleAuthorizationInfo.setRoles(userDetail.getRoles());
+        }
+        return simpleAuthorizationInfo;
     }
 }

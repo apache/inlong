@@ -77,4 +77,11 @@ public class SimpleHistogram extends BaseMetric implements Histogram {
                 .append(this.max.getShortName()).append("\":")
                 .append(this.max.getAndResetValue()).append("}");
     }
+
+    @Override
+    public void clear() {
+        this.count.clear();
+        this.min.clear();
+        this.max.clear();
+    }
 }

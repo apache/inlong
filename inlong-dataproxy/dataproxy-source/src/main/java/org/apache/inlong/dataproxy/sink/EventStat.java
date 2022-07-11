@@ -17,20 +17,29 @@
 
 package org.apache.inlong.dataproxy.sink;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.flume.Event;
+import org.apache.inlong.dataproxy.base.OrderEvent;
+import org.apache.inlong.dataproxy.utils.MessageUtils;
 
 public class EventStat {
+
+    private static long RETRY_INTERVAL_MS = 1 * 1000L;
     private Event event;
-    private int myRetryCnt;
+    private AtomicInteger myRetryCnt = new AtomicInteger(0);
+    private boolean isOrderMessage = false;
 
     public EventStat(Event event) {
         this.event = event;
-        this.myRetryCnt = 0;
+        this.isOrderMessage = MessageUtils
+                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
     }
 
     public EventStat(Event event, int retryCnt) {
         this.event = event;
-        this.myRetryCnt = retryCnt;
+        this.myRetryCnt.set(retryCnt);
+        this.isOrderMessage = MessageUtils
+                .isSyncSendForOrder(event) && (event instanceof OrderEvent);
     }
 
     public Event getEvent() {
@@ -42,15 +51,19 @@ public class EventStat {
     }
 
     public int getRetryCnt() {
-        return myRetryCnt;
+        return myRetryCnt.get();
     }
 
     public void setRetryCnt(int retryCnt) {
-        this.myRetryCnt = retryCnt;
+        this.myRetryCnt.set(retryCnt);
     }
 
     public void incRetryCnt() {
-        this.myRetryCnt++;
+        this.myRetryCnt.incrementAndGet();
+    }
+
+    public boolean isOrderMessage() {
+        return isOrderMessage;
     }
 
     public boolean shouldDrop() {
@@ -59,6 +72,6 @@ public class EventStat {
 
     public void reset() {
         this.event = null;
-        this.myRetryCnt = 0;
+        this.myRetryCnt.set(0);
     }
 }

@@ -17,17 +17,15 @@
  * under the License.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import ReactDom from 'react-dom';
 import { Form, Collapse, Button, Empty, Modal, Space, message } from 'antd';
 import FormGenerator, { FormItemContent } from '@/components/FormGenerator';
 import { defaultSize } from '@/configs/pagination';
-import { useRequest, useSelector } from '@/hooks';
-import { State } from '@/models';
+import { useRequest, useEventEmitter } from '@/hooks';
 import request from '@/utils/request';
 import { useTranslation } from 'react-i18next';
-import { dataToValues, valuesToData } from '@/pages/AccessCreate/DataStream/helper';
-import { pickObject } from '@/utils';
+import { dataToValues, valuesToData } from './helper';
 import { CommonInterface } from '../common';
 import StreamItemModal from './StreamItemModal';
 import { getFilterFormContent, genExtraContent, genFormContent } from './config';
@@ -36,12 +34,10 @@ import styles from './index.module.less';
 
 type Props = CommonInterface;
 
-const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
+const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
   const { t } = useTranslation();
 
   const [form] = Form.useForm();
-
-  const userName = useSelector<State, State['userName']>(state => state.userName);
 
   const [activeKey, setActiveKey] = useState('0');
 
@@ -65,8 +61,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
 
   const { data = realTimeValues, run: getList, mutate } = useRequest(
     {
-      url: '/datastream/listAll',
-      params: {
+      url: '/stream/listAll',
+      method: 'POST',
+      data: {
         ...options,
         inlongGroupId,
       },
@@ -99,7 +96,6 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       'id',
       'inlongGroupId',
       'inlongStreamId',
-      'dataSourceBasicId',
       'dataSourceType',
       'havePredefinedFields',
     ]);
@@ -120,13 +116,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       const { list } = await getTouchedValues();
       const values = list.find(item => item.id === record.id);
       const data = valuesToData(values ? [values] : [], inlongGroupId);
-      const submitData = data.map(item =>
-        pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
-      );
       await request({
-        url: '/datastream/updateAll',
+        url: '/stream/update',
         method: 'POST',
-        data: submitData?.[0],
+        data: data?.[0]?.streamInfo,
       });
     } else {
       // create
@@ -134,15 +127,27 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       const values = list?.[0];
       const data = valuesToData(values ? [values] : [], inlongGroupId);
       await request({
-        url: '/datastream/saveAll',
+        url: '/stream/save',
         method: 'POST',
-        data: data?.[0],
+        data: data?.[0]?.streamInfo,
       });
     }
     await getList();
     setEditingId(false);
     message.success(t('basic.OperatingSuccess'));
   };
+
+  const onOk = () => {
+    if (editingId) {
+      return Promise.reject('Please save the data');
+    } else {
+      return Promise.resolve();
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    onOk,
+  }));
 
   const onEdit = record => {
     // setEditingId(record.id);
@@ -151,6 +156,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   };
 
   const onCancel = async () => {
+    setEditingId(false);
     await getList();
   };
 
@@ -159,10 +165,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       title: t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: '/datastream/delete',
+          url: '/stream/delete',
           method: 'DELETE',
           params: {
-            inlongGroupId,
+            groupId: inlongGroupId,
             streamId: record?.inlongStreamId,
           },
         });
@@ -172,11 +178,11 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
     });
   };
 
-  const genExtra = (record, index) => {
+  const genExtra = (record = {}, index) => {
     const list = genExtraContent({
       editingId,
       record,
-      middlewareType,
+      mqType,
       onSave,
       onEdit,
       onCancel,
@@ -207,116 +213,115 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
       <div className={styles.collapseHeader}>
         {(record as any).inlongStreamId ? (
           ['inlongStreamId', 'name', 'modifier', 'createTime', 'status'].map(key => (
-            <div key={key} className={styles.collapseHeaderItem}>
-              {key === 'status' ? genStatusTag(record?.[key]) : record?.[key]}
-            </div>
+            <div key={key}>{key === 'status' ? genStatusTag(record?.[key]) : record?.[key]}</div>
           ))
         ) : (
-          <div className={styles.collapseHeaderItem}>
-            {t('pages.AccessDetail.DataStream.NewDataStream')}
-          </div>
+          <div>{t('pages.AccessDetail.DataStream.NewDataStream')}</div>
         )}
-        {!readonly && genExtra(record, index)}
       </div>
     );
   };
+
+  const event$ = useEventEmitter();
+
+  event$.useSubscription(() => {
+    setTimeout(() => {
+      setRealTimeValues(form.getFieldsValue());
+    }, 0);
+  });
 
   return (
     <>
       <div className={styles.topFilterContainer}>
         <FormGenerator layout="inline" content={getFilterFormContent()} onFilter={onFilter} />
-        <div ref={topRightRef}></div>
+        <div ref={topRightRef} />
       </div>
 
-      {userName && (
-        <Form
-          form={form}
-          labelAlign="left"
-          labelCol={{ xs: 6, sm: 4 }}
-          wrapperCol={{ xs: 18, sm: 20 }}
-          onValuesChange={(c, v) => setRealTimeValues(v)}
-        >
-          <Form.List name="list" initialValue={data.list}>
-            {(fields, { add }) => (
-              <>
-                {topRightRef.current &&
-                  !readonly &&
-                  ReactDom.createPortal(
-                    <Space>
-                      <Button
-                        type="primary"
-                        disabled={!!editingId}
-                        onClick={async () => {
-                          setEditingId(true);
-                          await add({}, 0);
-                          setTimeout(() => {
-                            setRealTimeValues(form.getFieldsValue());
-                            const newActiveKey = Math.max(...fields.map(item => item.key)) + 1 + '';
-                            setActiveKey(newActiveKey);
-                          }, 0);
-                          mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
-                        }}
-                      >
-                        {t('pages.AccessDetail.DataStream.CreateDataStream')}
-                      </Button>
-                    </Space>,
-                    topRightRef.current,
-                  )}
-
-                {fields.length ? (
-                  <Collapse
-                    accordion
-                    activeKey={activeKey}
-                    onChange={key => setActiveKey(key as any)}
-                    style={{ backgroundColor: 'transparent', border: 'none' }}
-                  >
-                    {fields.map((field, index) => (
-                      <Collapse.Panel
-                        header={genHeader(data?.list?.[index], index)}
-                        key={field.key.toString()}
-                        style={{
-                          marginBottom: 10,
-                          border: '1px solid #e5e5e5',
-                          backgroundColor: '#f6f7fb',
-                        }}
-                      >
-                        <FormItemContent
-                          values={realTimeValues.list?.[index]}
-                          content={genFormContent(
-                            editingId,
-                            { ...realTimeValues.list?.[index], inCharges: [userName] },
-                            inlongGroupId,
-                            readonly,
-                            middlewareType,
-                          ).map(item => {
-                            const obj = { ...item } as any;
-                            if (obj.name) {
-                              obj.name = [field.name, obj.name];
-                              obj.fieldKey = [field.fieldKey, obj.name];
-                            }
-                            if (obj.suffix && obj.suffix.name) {
-                              obj.suffix.name = [field.name, obj.suffix.name];
-                              obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
-                            }
-
-                            return obj;
-                          })}
-                        />
-                      </Collapse.Panel>
-                    ))}
-                  </Collapse>
-                ) : (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      <Form
+        form={form}
+        labelAlign="left"
+        labelCol={{ xs: 6, sm: 4 }}
+        wrapperCol={{ xs: 18, sm: 20 }}
+        onValuesChange={(c, v) => setRealTimeValues(v)}
+      >
+        <Form.List name="list" initialValue={data.list}>
+          {(fields, { add }) => (
+            <>
+              {topRightRef.current &&
+                !readonly &&
+                ReactDom.createPortal(
+                  <Space>
+                    <Button
+                      type="primary"
+                      disabled={!!editingId}
+                      onClick={async () => {
+                        setEditingId(true);
+                        await add({}, 0);
+                        event$.emit();
+                        setActiveKey('isAdd');
+                        mutate({ list: [{}].concat(data.list), total: data.list.length + 1 });
+                      }}
+                    >
+                      {t('pages.AccessDetail.DataStream.CreateDataStream')}
+                    </Button>
+                  </Space>,
+                  topRightRef.current,
                 )}
-              </>
-            )}
-          </Form.List>
-        </Form>
-      )}
+
+              {fields.length ? (
+                <Collapse
+                  accordion
+                  activeKey={activeKey}
+                  onChange={key => setActiveKey(key as any)}
+                  style={{ backgroundColor: 'transparent', border: 'none' }}
+                >
+                  {fields.map((field, index) => (
+                    <Collapse.Panel
+                      header={genHeader(data?.list?.[index], index)}
+                      extra={!readonly && genExtra(data?.list?.[index], index)}
+                      key={editingId === true && index === 0 ? 'isAdd' : field.key.toString()}
+                      style={{
+                        marginBottom: 10,
+                        border: '1px solid #e5e5e5',
+                        backgroundColor: '#f6f7fb',
+                      }}
+                    >
+                      <FormItemContent
+                        values={realTimeValues.list?.[index]}
+                        content={genFormContent(
+                          editingId,
+                          { ...realTimeValues.list?.[index] },
+                          inlongGroupId,
+                          readonly,
+                          mqType,
+                        ).map(item => {
+                          const obj = { ...item } as any;
+                          if (obj.name) {
+                            obj.name = [field.name, obj.name];
+                            obj.fieldKey = [field.fieldKey, obj.name];
+                          }
+                          if (obj.suffix && obj.suffix.name) {
+                            obj.suffix.name = [field.name, obj.suffix.name];
+                            obj.suffix.fieldKey = [field.fieldKey, obj.suffix.name];
+                          }
+
+                          return obj;
+                        })}
+                      />
+                    </Collapse.Panel>
+                  ))}
+                </Collapse>
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )}
+            </>
+          )}
+        </Form.List>
+      </Form>
 
       <StreamItemModal
         {...streamItemModal}
-        middlewareType={middlewareType}
+        mqType={mqType}
         onOk={async () => {
           await getList();
           setEditingId(false);
@@ -328,4 +333,4 @@ const Comp: React.FC<Props> = ({ inlongGroupId, readonly, middlewareType }) => {
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

@@ -19,6 +19,7 @@ package org.apache.inlong.sdk.commons.protocol;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,8 @@ public class TestEventUtils {
             MessagePack packObj = EventUtils.encodeSdkEvents(INLONG_GROUP_ID, INLONG_STREAM_ID, compressedType,
                     eventList);
             byte[] packBytes = packObj.toByteArray();
-            List<ProxyEvent> proxyEventList = EventUtils.decodeSdkPack(packBytes, 0, packBytes.length);
+            MessagePack packObject = MessagePack.parseFrom(new ByteArrayInputStream(packBytes, 0, packBytes.length));
+            List<ProxyEvent> proxyEventList = EventUtils.decodeSdkPack(packObject);
             assertEquals(1, proxyEventList.size());
         } catch (Exception e) {
             e.printStackTrace();

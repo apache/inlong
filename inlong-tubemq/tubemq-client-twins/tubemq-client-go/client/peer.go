@@ -17,6 +17,7 @@
 
 package client
 
+// PeerInfo represents the partition information of a broker.
 type PeerInfo struct {
 	PartitionID  uint32
 	BrokerHost   string

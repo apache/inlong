@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import org.apache.inlong.manager.common.util.InLongCollectionUtils;
+import org.apache.inlong.manager.common.util.InlongCollectionUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**
@@ -34,10 +34,10 @@ import org.apache.inlong.manager.common.util.Preconditions;
 public enum ConsumptionStatus {
 
     @ApiModelProperty(value = "To be allocated: 10")
-    WAITING_ASSIGN(10),
+    WAIT_ASSIGN(10),
 
     @ApiModelProperty(value = "Pending approval: 11")
-    WAITING_APPROVE(11),
+    WAIT_APPROVE(11),
 
     @ApiModelProperty(value = "Approval rejected: 20")
     REJECTED(20),
@@ -49,11 +49,11 @@ public enum ConsumptionStatus {
     CANCELED(22);
 
     public static final Set<ConsumptionStatus> ALLOW_SAVE_UPDATE_STATUS = ImmutableSet
-            .of(WAITING_ASSIGN, REJECTED, CANCELED);
+            .of(WAIT_ASSIGN, REJECTED, CANCELED);
 
-    public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAITING_ASSIGN);
+    public static final Set<ConsumptionStatus> ALLOW_START_WORKFLOW_STATUS = ImmutableSet.of(WAIT_ASSIGN);
 
-    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InLongCollectionUtils.transformToImmutableMap(
+    private static final Map<Integer, ConsumptionStatus> STATUS_MAP = InlongCollectionUtils.transformToImmutableMap(
             Lists.newArrayList(ConsumptionStatus.values()),
             ConsumptionStatus::getStatus,
             Function.identity()

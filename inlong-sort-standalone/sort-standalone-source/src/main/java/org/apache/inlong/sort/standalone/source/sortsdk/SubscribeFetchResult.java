@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.apache.inlong.sdk.sort.entity.MessageRecord;
+import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 
 /**
@@ -46,7 +47,7 @@ public class SubscribeFetchResult {
      * @param sortId The sortId of fetched message.
      * @param message Message that fetched from upstream data storage.
      */
-
+    @Deprecated
     private SubscribeFetchResult(
             final String sortId,
             final MessageRecord message) {
@@ -66,7 +67,7 @@ public class SubscribeFetchResult {
      * @param sortId String
      * @param msgKey String
      * @param offset String
-     * @param headers {@link Map<String,String>}
+     * @param headers Map
      * @param recTime long
      * @param body byte[]
      */
@@ -78,6 +79,7 @@ public class SubscribeFetchResult {
         this.headers.put(Constants.HEADER_KEY_MESSAGE_KEY, msgKey);
         this.headers.put(Constants.HEADER_KEY_MSG_OFFSET, offset);
         this.headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(recTime));
+        this.headers.put(SortMetricItem.KEY_TASK_NAME, sortId);
         this.headers.putAll(headers);
         this.body = body;
     }
@@ -122,15 +124,30 @@ public class SubscribeFetchResult {
          * @param messageRecord Message that fetched from upstream data storage.
          * @return One SubscribeFetchResult.
          */
+        @Deprecated
         public static SubscribeFetchResult create(
                 @NotBlank(message = "SortId should not be null or empty.") final String sortId,
                 @NotNull(message = "MessageRecord should not be null.") final MessageRecord messageRecord) {
             return new SubscribeFetchResult(sortId, messageRecord);
         }
 
+        /**
+         * Create one {@link SubscribeFetchResult}.
+         *
+         * @param sortId The sortId of fetched message.
+         * @param msgKey The msgKey to ack.
+         * @param offset The offset of this message.
+         * @param headers Headers of message.
+         * @param recTime Receive time of message.
+         * @param body Data of message.
+         * @return One SubscribeFetchResult.
+         */
         public static SubscribeFetchResult create(
                 final String sortId,
-                final String msgKey, final String offset, final Map<String, String> headers, final long recTime,
+                final String msgKey,
+                final String offset,
+                final Map<String, String> headers,
+                final long recTime,
                 final byte[] body) {
             return new SubscribeFetchResult(sortId, msgKey, offset, headers, recTime, body);
         }

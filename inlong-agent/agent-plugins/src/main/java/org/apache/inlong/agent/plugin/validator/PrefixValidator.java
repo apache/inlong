@@ -19,13 +19,16 @@ package org.apache.inlong.agent.plugin.validator;
 
 import org.apache.inlong.agent.plugin.Validator;
 
+/**
+ * validate whether a message has a specified prefix
+ */
 public class PrefixValidator implements Validator {
+
+    private String prefix;
 
     public PrefixValidator(String prefix) {
         this.prefix = prefix;
     }
-
-    private String prefix;
 
     @Override
     public boolean validate(String messageLine) {

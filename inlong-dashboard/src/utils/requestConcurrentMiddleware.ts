@@ -45,7 +45,7 @@ export default async (ctx, next) => {
 
   const urlKey = `${url}?${stringify(options?.params)}`;
 
-  if (options.method?.toUpperCase() !== 'GET') {
+  if (options?.method?.toUpperCase() !== 'GET') {
     await next();
     return;
   }

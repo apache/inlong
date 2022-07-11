@@ -1,5 +1,5 @@
 ### TubeMQ Python Client
-TubeMQ Python Client library is a wrapper over the existing [C++ client library](https://github.com/apache/incubator-tubemq/tree/master/tubemq-client-twins/tubemq-client-cpp/) and exposes all of the same features.
+TubeMQ Python Client library is a wrapper over the existing [C++ client library](https://github.com/apache/inlong/tree/master/inlong-tubemq/tubemq-client-twins/tubemq-client-cpp/) and exposes all of the same features.
 
 #### Install from source
 ##### install python-devel

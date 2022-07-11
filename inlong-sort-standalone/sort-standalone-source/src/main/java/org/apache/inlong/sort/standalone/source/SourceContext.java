@@ -18,6 +18,7 @@
 package org.apache.inlong.sort.standalone.source;
 
 import org.apache.flume.Context;
+import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 
 import javax.validation.constraints.NotBlank;
@@ -25,7 +26,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Base source context <b>WITHOUT</b> metric reporter.
- * The derived classes of SourceContext may implement {@link org.apache.inlong.commons.config.metrics.MetricItem} and
+ * The derived classes of SourceContext may implement {@link MetricItem} and
  * realize methods to report customized metrics.
  */
 public class SourceContext {

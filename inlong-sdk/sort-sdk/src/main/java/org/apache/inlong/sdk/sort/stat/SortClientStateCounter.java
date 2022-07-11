@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
 public class SortClientStateCounter {
 
-    private final AtomicLongArray count = new AtomicLongArray(20);
+    private final AtomicLongArray count = new AtomicLongArray(21);
     public String sortTaskId;
     public String cacheClusterId;
     public String topic;
@@ -285,6 +285,16 @@ public class SortClientStateCounter {
      */
     public SortClientStateCounter addFetchTimeCost(long num) {
         count.getAndAdd(19, num);
+        return this;
+    }
+
+    /**
+     * count decompression consume size
+     * @param num long
+     * @return {@link SortClientStateCounter}
+     */
+    public SortClientStateCounter addDecompressionConsumeSize(long num) {
+        count.getAndAdd(20, num);
         return this;
     }
 }

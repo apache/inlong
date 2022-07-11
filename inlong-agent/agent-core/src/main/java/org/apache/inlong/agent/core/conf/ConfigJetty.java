@@ -17,16 +17,13 @@
 
 package org.apache.inlong.agent.core.conf;
 
-import static org.apache.inlong.agent.constants.JobConstants.JOB_DIR_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_TRIGGER;
-
-import java.io.Closeable;
 import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
-import org.apache.inlong.agent.constants.AgentConstants;
+import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.core.job.JobManager;
 import org.apache.inlong.agent.core.trigger.TriggerManager;
+import org.apache.inlong.common.enums.TaskTypeEnum;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -34,6 +31,11 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Closeable;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_SOURCE_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_TRIGGER;
 
 /**
  * start http server and get job/agent config via http
@@ -62,8 +64,8 @@ public class ConfigJetty implements Closeable {
     private void initJetty() throws Exception {
         ServerConnector connector = new ServerConnector(this.server);
         connector.setPort(conf.getInt(
-            AgentConstants.AGENT_HTTP_PORT, AgentConstants.DEFAULT_AGENT_HTTP_PORT));
-        server.setConnectors(new Connector[] { connector });
+                AgentConstants.AGENT_HTTP_PORT, AgentConstants.DEFAULT_AGENT_HTTP_PORT));
+        server.setConnectors(new Connector[]{connector});
 
         ServletHandler servletHandler = new ServletHandler();
         ServletHolder holder = new ServletHolder(new ConfigServlet(this));
@@ -72,17 +74,37 @@ public class ConfigJetty implements Closeable {
         server.start();
     }
 
+    /**
+     * store job conf:
+     * 1. if it's trigger job, store it in local db;
+     * 2. for other job, submit it to jobManager to be executed
+     *
+     * @param jobProfile JobProfile
+     */
     public void storeJobConf(JobProfile jobProfile) {
         // store job conf to bdb
         if (jobProfile != null) {
             // trigger job is a special kind of job
             if (jobProfile.hasKey(JOB_TRIGGER)) {
                 triggerManager.submitTrigger(
-                    TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
-            } else if (jobProfile.hasKey(JOB_DIR_FILTER_PATTERN)) {
-                jobManager.submitFileJobProfile(jobProfile);
+                        TriggerProfile.parseJsonStr(jobProfile.toJsonStr()));
             } else {
-                jobManager.submitSqlJobProfile(jobProfile);
+                TaskTypeEnum taskType = TaskTypeEnum
+                        .getTaskType(jobProfile.getInt(JOB_SOURCE_TYPE));
+                switch (taskType) {
+                    case SQL:
+                        jobManager.submitSqlJobProfile(jobProfile);
+                        break;
+                    case FILE:
+                        jobManager.submitFileJobProfile(jobProfile);
+                        break;
+                    case KAFKA:
+                    case BINLOG:
+                        jobManager.submitJobProfile(jobProfile, true);
+                        break;
+                    default:
+                        LOGGER.error("source type not supported {}", taskType);
+                }
             }
         }
     }
@@ -96,7 +118,8 @@ public class ConfigJetty implements Closeable {
 
     /**
      * delete job from conf
-     * @param jobProfile
+     *
+     * @param jobProfile JobProfile
      */
     public void deleteJobConf(JobProfile jobProfile) {
         if (jobProfile != null) {

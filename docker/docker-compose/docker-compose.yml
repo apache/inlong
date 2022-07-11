@@ -18,7 +18,7 @@ version: '3.5'
 
 services:
   mysql:
-    image: mysql:5.7
+    image: mysql:8.0.28
     container_name: mysql
     ports:
       - "3306:3306"
@@ -33,58 +33,30 @@ services:
       - ./mysql:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
 
-  tubemq-server:
-    image: inlong/tubemq-all:latest
-    container_name: tubemq-server
+  pulsar:
+    image: apachepulsar/pulsar:2.8.2
+    container_name: pulsar
     ports:
-      - "8080:8080"
-      - "8715:8715"
-      - "8123:8123"
-      - "2181:2181"
-    healthcheck:
-      test: "curl localhost:8080"
-      interval: 2s
-      timeout: 20s
-      retries: 10
-
-  tubemq-manager:
-    image: inlong/tubemq-manager:latest
-    container_name: tubemq-manager
-    depends_on:
-      mysql:
-        condition: service_healthy
-      tubemq-server:
-        condition: service_healthy
-    ports:
-      - "8089:8089"
-    environment:
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASSWD=inlong
-      - TUBE_MASTER_IP=tubemq-server
-    healthcheck:
-      test: "curl localhost:8089"
-      interval: 2s
-      timeout: 20s
-      retries: 10
+      - "6650:6650"
+    volumes:
+      - ./pulsar/data:/pulsar/data
+    command: bin/pulsar standalone
 
   manager:
     image: inlong/manager
     container_name: manager
     depends_on:
-      tubemq-manager:
+      mysql:
         condition: service_healthy
     ports:
       - "8083:8083"
     environment:
-      - ACTIVE_PROFILE=prod
       - JDBC_URL=mysql:3306
       - USERNAME=root
       - PASSWORD=inlong
-      - TUBE_MANAGER=http:\/\/tubemq-manager:8089
-      - TUBE_MASTER=tubemq-server:8715
       - ZK_URL=tubemq-server:2181
-      - SORT_APP_NAME=inlong_hive
+      - FLINK_HOST=localhost
+      - FLINK_PORT=8081
 
   webisite:
     image: inlong/dashboard
@@ -101,13 +73,13 @@ services:
     container_name: dataproxy
     depends_on:
       - manager
-      - tubemq-server
     ports:
       - "46801:46801"
     environment:
       - MANAGER_OPENAPI_IP=manager
       - MANAGER_OPENAPI_PORT=8083
-      - TUBMQ_MASTER_LIST=tubemq-server:8715
+      - AUDIT_PROXY_URL=audit:10081
+      - MQ_TYPE=pulsar
 
   agent:
     image: inlong/agent:latest
@@ -120,7 +92,23 @@ services:
       - MANAGER_OPENAPI_PORT=8083
       - DATAPROXY_IP=dataproxy
       - DATAPROXY_PORT=46801
+      - AUDIT_PROXY_URL=audit:10081
     ports:
       - "8008:8008"
     volumes:
       - ./collect-data:/data/collect-data
+
+  audit:
+    image: inlong/audit:latest
+    container_name: audit
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - JDBC_URL=mysql:3306
+      - USERNAME=root
+      - PASSWORD=inlong
+      - PULSAR_BROKER_LIST=pulsar:6650
+      - MQ_TYPE=pulsar
+    ports:
+      - "10081:10081"

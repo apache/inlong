@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,27 +17,24 @@
 
 package org.apache.inlong.dataproxy.config.loader;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.inlong.common.metric.MetricListener;
+import org.apache.inlong.dataproxy.config.RemoteConfigManager;
+import org.junit.Test;
 
 import java.util.Map;
 
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
-import org.apache.inlong.dataproxy.metrics.MetricListener;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
- * 
- * TestClassResourceCommonPropertiesLoader
+ * Test for {@link ClassResourceCommonPropertiesLoader}
  */
 public class TestClassResourceCommonPropertiesLoader {
 
     /**
      * testResult
-     * 
-     * @throws Exception
      */
     @Test
-    public void testResult() throws Exception {
+    public void testResult() {
         // increase source
         ClassResourceCommonPropertiesLoader loader = new ClassResourceCommonPropertiesLoader();
         Map<String, String> props = loader.load();

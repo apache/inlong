@@ -17,13 +17,14 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import { DataSourcesCreateModal } from '@/components/AccessHelper';
-import { tableColumns as fileColumns } from '@/components/MetaData/DataSourcesFile';
+import { dataSourcesBinLogColumns } from '@/components/MetaData/DataSourcesBinLog';
+import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
@@ -34,35 +35,35 @@ type Props = CommonInterface;
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
   {
     type: 'radiobutton',
-    name: 'type',
+    name: 'sourceType',
     label: i18n.t('pages.AccessDetail.DataSources.Type'),
-    initialValue: defaultValues.type,
+    initialValue: defaultValues.sourceType,
     props: {
       buttonStyle: 'solid',
       options: [
         {
           label: i18n.t('pages.AccessDetail.DataSources.File'),
-          value: 'file',
+          value: 'FILE',
         },
-        // {
-        //   label: 'DB',
-        //   value: 'db',
-        // },
+        {
+          label: 'BinLog',
+          value: 'BINLOG',
+        },
       ],
     },
   },
 ];
 
-const Comp: React.FC<Props> = ({ inlongGroupId }) => {
+const Comp = ({ inlongGroupId }: Props, ref) => {
   const [options, setOptions] = useState({
-    // keyWord: '',
+    // keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    type: 'file',
+    sourceType: 'FILE',
   });
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
@@ -71,10 +72,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: `/datasource/${options.type}/listDetail/`,
+      url: '/source/list',
       params: {
         ...options,
-        type: undefined,
         inlongGroupId,
       },
     },
@@ -88,12 +88,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     const submitData = {
       ...values,
       inlongGroupId: inlongGroupId,
+      sourceType: options.sourceType,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
     }
+
     await request({
-      url: `/datasource/${options.type}/${isUpdate ? 'updateDetail' : 'saveDetail'}`,
+      url: `/source/${isUpdate ? 'update' : 'save'}`,
       method: 'POST',
       data: submitData,
     });
@@ -107,11 +109,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeletConfirm'),
+      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/datasource/${options.type}/deleteDetail/${id}`,
+          url: `/source/delete/${id}`,
           method: 'DELETE',
+          params: {
+            sourceType: options.sourceType,
+          },
         });
         await getList();
         message.success(i18n.t('pages.AccessDetail.DataSources.DeleteSuccessfully'));
@@ -145,10 +150,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     {
       title: i18n.t('pages.AccessDetail.DataSources.DataStreams'),
       dataIndex: 'inlongStreamId',
-      width: 100,
     } as any,
   ]
-    .concat(fileColumns)
+    .concat(options.sourceType === 'FILE' ? dataSourcesFileColumns : dataSourcesBinLogColumns)
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -181,12 +185,13 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         disabled: !!createModal.id,
         options: {
           requestService: {
-            url: '/datastream/list',
-            params: {
+            url: '/stream/list',
+            method: 'POST',
+            data: {
               pageNum: 1,
               pageSize: 1000,
               inlongGroupId,
-              dataSourceType: options.type,
+              dataSourceType: options.sourceType,
             },
           },
           requestParams: {
@@ -227,7 +232,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
       <DataSourcesCreateModal
         {...createModal}
-        type={options.type.toUpperCase() as any}
+        type={options.sourceType as any}
         content={createContent}
         visible={createModal.visible as boolean}
         onOk={async values => {
@@ -240,4 +245,4 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

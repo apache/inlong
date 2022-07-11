@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
-import org.apache.inlong.manager.common.model.definition.Process;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 
 /**
  * Definition of workflow
@@ -29,7 +29,7 @@ public interface WorkflowDefinition {
      *
      * @return defined process
      */
-    Process defineProcess();
+    WorkflowProcess defineProcess();
 
     /**
      * Get process name

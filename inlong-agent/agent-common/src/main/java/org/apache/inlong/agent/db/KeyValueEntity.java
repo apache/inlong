@@ -17,29 +17,21 @@
 
 package org.apache.inlong.agent.db;
 
-import com.sleepycat.persist.model.Entity;
-import com.sleepycat.persist.model.PrimaryKey;
-import com.sleepycat.persist.model.Relationship;
-import com.sleepycat.persist.model.SecondaryKey;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.conf.TriggerProfile;
 
 /**
  * key value entity. key is string and value is a json
  */
-@Entity(version = 1)
 public class KeyValueEntity {
 
-    @PrimaryKey
     private String key;
 
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private StateSearchKey stateSearchKey;
 
     /**
      * stores the file name that the jsonValue refers
      */
-    @SecondaryKey(relate = Relationship.MANY_TO_ONE)
     private String fileName;
 
     private String jsonValue;
@@ -57,6 +49,10 @@ public class KeyValueEntity {
 
     public String getKey() {
         return key;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public StateSearchKey getStateSearchKey() {
@@ -79,6 +75,7 @@ public class KeyValueEntity {
 
     /**
      * convert keyValue to job profile
+     *
      * @return JobConfiguration
      */
     public JobProfile getAsJobProfile() {
@@ -88,7 +85,6 @@ public class KeyValueEntity {
 
     /**
      * convert keyValue to trigger profile
-     * @return
      */
     public TriggerProfile getAsTriggerProfile() {
         return TriggerProfile.parseJsonStr(getJsonValue());
@@ -96,7 +92,6 @@ public class KeyValueEntity {
 
     /**
      * check whether the entity is finished
-     * @return
      */
     public boolean checkFinished() {
         return stateSearchKey.equals(StateSearchKey.SUCCESS)

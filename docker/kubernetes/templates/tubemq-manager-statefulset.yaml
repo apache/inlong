@@ -25,17 +25,37 @@ metadata:
     component: {{ .Values.tubemqManager.component }}
 spec:
   serviceName: {{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}
-  replicas: {{ .Values.tubemqManager.replicaCount }}
+  replicas: {{ .Values.tubemqManager.replicas }}
   selector:
     matchLabels:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.tubemqManager.component }}
+  updateStrategy:
+    type: {{ .Values.tubemqManager.updateStrategy.type | quote }}
+  podManagementPolicy: {{ .Values.tubemqManager.podManagementPolicy | quote }}
   template:
     metadata:
       labels:
         {{- include "inlong.template.labels" . | nindent 8 }}
         component: {{ .Values.tubemqManager.component }}
+      {{- if .Values.tubemqManager.annotations }}
+      annotations:
+        {{- toYaml .Values.tubemqManager.annotations | nindent 8 }}
+      {{- end }}
     spec:
+      {{- if .Values.tubemqManager.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tubemqManager.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tubemqManager.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.tubemqManager.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tubemqManager.affinity }}
+      affinity:
+        {{- toYaml .Values.tubemqManager.affinity | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.tubemqManager.terminationGracePeriodSeconds }}
       initContainers:
         - name: wait-{{ .Values.mysql.component }}-ready
           image: {{ .Values.images.initContainer.repository }}:{{ .Values.images.initContainer.tag }}
@@ -43,13 +63,13 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.mysql.replicaCount }}
+              count={{ .Values.mysql.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.mysql.ports.server }}
-                until [ $(nc -z -w 5 $host $port; echo $?) -eq 0 ]
+                host="$replica.{{ template "inlong.mysql.hostname" . }}"
+                port={{ .Values.mysql.port }}
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3
@@ -61,13 +81,13 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.tubemqMaster.replicaCount }}
+              count={{ .Values.tubemqMaster.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-$i"
-                host="$replica.{{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}.{{ .Release.Namespace }}.svc.cluster.local"
-                port={{ .Values.tubemqMaster.ports.webNodePort }}
-                until curl $host:$port/index.htm
+                host="$replica.{{ template "inlong.tubemqMaster.hostname" . }}"
+                port={{ .Values.tubemqMaster.ports.webPort }}
+                until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for $replica to be ready"
                   sleep 3
@@ -77,19 +97,27 @@ spec:
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqManager.component }}
           image: {{ .Values.images.tubemqManager.repository }}:{{ .Values.images.tubemqManager.tag }}
           imagePullPolicy: {{ .Values.images.pullPolicy }}
+          {{- if .Values.tubemqManager.resources }}
+          resources:
+            {{- toYaml .Values.tubemqManager.resources | nindent 12 }}
+          {{- end }}
           env:
             - name: MYSQL_HOST
               value: {{ include "inlong.mysql.hostname" . | quote }}
             - name: MYSQL_USER
-              value: {{ .Values.tubemqManager.mysqlUser | quote }}
+              value: {{ include "inlong.mysql.username" . | quote }}
             - name: MYSQL_PASSWD
               valueFrom:
                 secretKeyRef:
                   name: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}
-                  key: mysql-root-password
+                  key: mysql-password
             - name: TUBE_MASTER_IP
-              value: {{ include "inlong.tubemqMaster.hostname" . | quote }}
+              value: "{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.rpcPort }}"
+            {{- range $key, $value := .Values.tubemqManager.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           ports:
-            - name: {{ .Values.tubemqManager.component }}-port
+            - name: tubemq-mgr-port
               containerPort: 8089
       restartPolicy: Always

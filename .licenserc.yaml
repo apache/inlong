@@ -27,7 +27,6 @@ header:
     # Exclude generated content
     - 'LICENSE'
     - 'NOTICE'
-    - 'DISCLAIMER-WIP'
     - 'codestyle/**'
 
     # Documents
@@ -76,6 +75,9 @@ header:
 
     # Test case: temporary data for test cases
     - '**/AgentBaseTestsHelper/**'
+
+    # Test case: flink sql comments statement support limit for end2end test cases
+    - '**/resources/flinkSql/**'
 
     # Referenced 3rd codes
     - '**/resources/assets/lib/**'

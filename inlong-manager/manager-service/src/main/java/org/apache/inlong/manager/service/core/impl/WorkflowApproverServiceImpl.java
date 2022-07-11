@@ -17,15 +17,8 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.EntityStatus;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.workflow.FilterKey;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
@@ -35,12 +28,20 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.mapper.WorkflowApproverEntityMapper;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.common.workflow.WorkflowEngine;
-import org.apache.inlong.manager.common.model.definition.Process;
-import org.apache.inlong.manager.common.model.definition.Task;
-import org.apache.inlong.manager.common.model.definition.UserTask;
+import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
+import org.apache.inlong.manager.workflow.definition.UserTask;
+import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
+import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Operation of workflow approvers
@@ -51,7 +52,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
     @Autowired
     private WorkflowApproverEntityMapper workflowApproverMapper;
     @Autowired
-    private WorkflowEngine workflowEngine;
+    private ProcessDefinitionService processDefinitionService;
 
     @Override
     public List<String> getApprovers(String processName, String taskName, WorkflowApproverFilterContext context) {
@@ -82,11 +83,11 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         List<WorkflowApproverEntity> entityList = workflowApproverMapper.selectByQuery(query);
         List<WorkflowApprover> approverList = CommonBeanUtils.copyListProperties(entityList, WorkflowApprover::new);
         approverList.forEach(config -> {
-            Process process = workflowEngine.processDefinitionService().getByName(config.getProcessName());
+            WorkflowProcess process = processDefinitionService.getByName(config.getProcessName());
             if (process != null) {
                 config.setProcessDisplayName(process.getDisplayName());
                 config.setTaskDisplayName(Optional.ofNullable(process.getTaskByName(config.getTaskName())).map(
-                        Task::getDisplayName).orElse(null));
+                        WorkflowTask::getDisplayName).orElse(null));
             }
         });
 
@@ -101,11 +102,11 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         approver.setModifier(operator);
         approver.setCreator(operator);
 
-        Process process = workflowEngine.processDefinitionService().getByName(approver.getProcessName());
+        WorkflowProcess process = processDefinitionService.getByName(approver.getProcessName());
         Preconditions.checkNotNull(process, "process not exit with name: " + approver.getProcessName());
-        Task task = process.getTaskByName(approver.getTaskName());
+        WorkflowTask task = process.getTaskByName(approver.getTaskName());
         Preconditions.checkNotNull(task, "task not exit with name: " + approver.getTaskName());
-        Preconditions.checkTrue(task instanceof UserTask, "task should be userTask");
+        Preconditions.checkTrue(task instanceof UserTask, "task should be UserTask");
 
         List<WorkflowApproverEntity> exist = this.workflowApproverMapper.selectByQuery(
                 WorkflowApproverQuery.builder()
@@ -118,7 +119,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         Preconditions.checkEmpty(exist, "already exit the same config");
 
         WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(approver, WorkflowApproverEntity::new);
-        entity.setIsDeleted(EntityStatus.UN_DELETED.getCode());
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
         int success = this.workflowApproverMapper.insert(entity);
         Preconditions.checkTrue(success == 1, "add failed");
     }

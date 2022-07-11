@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -173,6 +173,7 @@ public class InternalHttpSender {
      * @param timeUnit
      * @param hostInfo
      * @return
+     *
      * @throws Exception
      */
     private SendResult sendByHttp(List<String> bodies, String groupId, String streamId, long dt,

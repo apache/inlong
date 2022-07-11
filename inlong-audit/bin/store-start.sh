@@ -18,11 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-bin_dir=$(dirname $0)
-base_dir=`cd -P $bin_dir/..;pwd`
-cd ..
+base_dir=$(
+  cd $(dirname $0)
+  cd ..
+  pwd
+)
 
-PID=$(ps -ef | grep "inlong-audit" | grep -v grep | awk '{ print $2}')
+LOG_PATH="${base_dir}/logs"
+
+PID=$(ps -ef | grep "audit-store" | grep -v grep | awk '{ print $2}')
+LOG_DIR="${base_dir}/logs"
 
 if [ -n "$PID" ]; then
  echo "Application has already started."
@@ -39,15 +44,22 @@ else
     JAVA=$JAVA_HOME/bin/java
 fi
 
-if [ ! -d "${base_dir}/logs" ]; then
-  mkdir ${base_dir}/logs
+if [ ! -d "${LOG_DIR}" ]; then
+  mkdir ${LOG_DIR}
 fi
 
-JAVA_OPTS="-server -Xms2g -Xmx2g -XX:SurvivorRatio=2 -XX:+UseParallelGC"
+JAVA_OPTS="-server -XX:SurvivorRatio=2 -XX:+UseParallelGC"
+
+if [ -z "$AUDIT_JVM_HEAP_OPTS" ]; then
+  HEAP_OPTS="-Xms512m -Xmx1024m"
+else
+  HEAP_OPTS="$AUDIT_JVM_HEAP_OPTS"
+fi
+JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 
 SERVERJAR=`ls -lt ${base_dir}/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}'`
 
-nohup $JAVA $JAVA_OPTS -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR" > $base_dir/logs/audit-store.log 2>&1 < /dev/null &
+nohup $JAVA $JAVA_OPTS -Daudit.log.path=$LOG_PATH -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR"  1>${LOG_DIR}/store.log 2>${LOG_DIR}/store-error.log &
 
 PIDFILE="$base_dir/bin/PID"
 

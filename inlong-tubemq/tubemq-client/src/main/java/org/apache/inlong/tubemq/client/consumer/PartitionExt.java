@@ -80,12 +80,12 @@ public class PartitionExt extends Partition {
      * @param isReqEscLimit   if the rsplimitDlt is ignored in current consume
      * @param rsplimitDlt     max offset of the current consume
      * @param lastDataDlt     offset of the last data fetch
-     * @param isRRequireSlow  if the server requires slow down
+     * @param isRequireSlow  if the server requires slow down
      * @return message size per minute
      */
     public long procConsumeResult(boolean isFilterConsume, int reqProcType, int errCode,
                                   int msgSize, boolean isReqEscLimit, long rsplimitDlt,
-                                  long lastDataDlt, boolean isRRequireSlow) {
+                                  long lastDataDlt, boolean isRequireSlow) {
         if (lastDataDlt >= 0) {
             this.lastDataRdDlt = lastDataDlt;
         }
@@ -121,7 +121,7 @@ public class PartitionExt extends Partition {
             }
             if (errCode == TErrCodeConstants.SUCCESS) {
                 if (isFilterConsume && filterCtrlItem.getFreqLtInMs() >= 0) {
-                    if (isRRequireSlow) {
+                    if (isRequireSlow) {
                         return this.filterCtrlItem.getZeroCnt();
                     } else {
                         return this.filterCtrlItem.getFreqLtInMs();

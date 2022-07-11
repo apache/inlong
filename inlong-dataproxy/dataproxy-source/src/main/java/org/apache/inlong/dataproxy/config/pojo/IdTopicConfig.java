@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.config.pojo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -175,4 +175,16 @@ public class IdTopicConfig {
         this.fileDelimiter = fileDelimiter;
     }
 
+    /**
+     * formatTopicName<br>
+     * change full topic name "pulsar-9xn9wp35pbxb/test/atta_topic_1" to base topic name "atta_topic_1"<br>
+     */
+    public void formatTopicName() {
+        if (this.topicName != null) {
+            int index = this.topicName.lastIndexOf('/');
+            if (index >= 0) {
+                this.topicName = this.topicName.substring(index + 1);
+            }
+        }
+    }
 }

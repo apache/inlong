@@ -35,9 +35,11 @@ import org.apache.inlong.tubemq.corerpc.client.ClientFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+@PowerMockIgnore("javax.management.*")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(AddressUtils.class)
 public class TubeBaseSessionFactoryTest {
@@ -45,7 +47,7 @@ public class TubeBaseSessionFactoryTest {
     @Test
     public void testTubeBaseSessionFactory() throws Exception {
         TubeClientConfig config = mock(TubeClientConfig.class);
-        when(config.getMasterInfo()).thenReturn(new MasterInfo("192.168.1.1:18080"));
+        when(config.getMasterInfo()).thenReturn(new MasterInfo("127.0.0.1:18080"));
 
         ClientFactory clientFactory = mock(ClientFactory.class);
         PowerMockito.mockStatic(AddressUtils.class);
@@ -63,9 +65,9 @@ public class TubeBaseSessionFactoryTest {
         assertEquals(1, factory.getCurrClients().size());
 
         final PullMessageConsumer pullMessageConsumer = factory.createPullConsumer(
-                new ConsumerConfig("192.168.1.1:18080", "test"));
+                new ConsumerConfig("127.0.0.1:18080", "test"));
         final PushMessageConsumer pushMessageConsumer = factory.createPushConsumer(
-                new ConsumerConfig("192.168.1.1:18080", "test"));
+                new ConsumerConfig("127.0.0.1:18080", "test"));
 
         assertEquals(3, factory.getCurrClients().size());
         factory.removeClient(producer);

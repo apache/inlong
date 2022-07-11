@@ -68,10 +68,12 @@ export const toChartData = (source, sourceDataMap) => {
 };
 
 export const toTableData = (source, sourceDataMap) => {
-  return Object.keys(sourceDataMap).map(logTs => ({
-    ...sourceDataMap[logTs],
-    logTs,
-  }));
+  return Object.keys(sourceDataMap)
+    .reverse()
+    .map(logTs => ({
+      ...sourceDataMap[logTs],
+      logTs,
+    }));
 };
 
 export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStreamSuccess) => [
@@ -84,8 +86,9 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
       options: {
         requestAuto: true,
         requestService: {
-          url: '/datastream/list',
-          params: {
+          url: '/stream/list',
+          method: 'POST',
+          data: {
             pageNum: 1,
             pageSize: 1000,
             inlongGroupId,

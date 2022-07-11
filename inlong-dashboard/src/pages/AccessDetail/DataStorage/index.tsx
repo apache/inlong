@@ -17,15 +17,14 @@
  * under the License.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, forwardRef } from 'react';
 import { Button, Modal, message } from 'antd';
 import HighTable from '@/components/HighTable';
 import { defaultSize } from '@/configs/pagination';
 import { useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import { DataStorageDetailModal } from '@/components/AccessHelper';
-import { hiveTableColumns } from '@/components/MetaData/StorageHive';
-import { clickhouseTableColumns } from '@/components/MetaData/StorageClickhouse';
+import { Storages } from '@/components/MetaData';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
 import { genStatusTag } from './status';
@@ -35,38 +34,32 @@ type Props = CommonInterface;
 const getFilterFormContent = defaultValues => [
   {
     type: 'inputsearch',
-    name: 'keyWord',
+    name: 'keyword',
   },
   {
     type: 'select',
-    name: 'storageType',
+    name: 'sinkType',
     label: i18n.t('pages.AccessDetail.DataStorage.Type'),
-    initialValue: defaultValues.storageType,
+    initialValue: defaultValues.sinkType,
     props: {
       dropdownMatchSelectWidth: false,
-      options: [
-        {
-          label: 'HIVE',
-          value: 'HIVE',
-        },
-        {
-          label: 'CLICK_HOUSE',
-          value: 'CLICK_HOUSE',
-        },
-      ],
+      options: Storages.map(item => ({
+        label: item.label,
+        value: item.value,
+      })),
     },
   },
 ];
 
-const Comp: React.FC<Props> = ({ inlongGroupId }) => {
+const Comp = ({ inlongGroupId }: Props, ref) => {
   const [options, setOptions] = useState({
-    keyWord: '',
+    keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    storageType: 'HIVE',
+    sinkType: 'HIVE',
   });
 
-  const [changedValues, setChangedValues] = useState({}) as any;
+  const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
 
   const [createModal, setCreateModal] = useState<Record<string, unknown>>({
     visible: false,
@@ -74,7 +67,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/storage/list',
+      url: '/sink/list',
       params: {
         ...options,
         inlongGroupId,
@@ -85,14 +78,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     },
   );
 
-  const { data: datastreamList = [] } = useRequest(
+  const { data: streamList = [] } = useRequest(
     {
-      url: '/datastream/list',
-      params: {
+      url: '/stream/list',
+      method: 'POST',
+      data: {
         pageNum: 1,
         pageSize: 1000,
         inlongGroupId,
-        storageType: options.storageType,
+        sinkType: options.sinkType,
       },
     },
     {
@@ -105,14 +99,14 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     const isUpdate = createModal.id;
     const submitData = {
       ...values,
-      storageType: options.storageType,
+      sinkType: options.sinkType,
       inlongGroupId: inlongGroupId,
     };
     if (isUpdate) {
       submitData.id = createModal.id;
     }
     await request({
-      url: isUpdate ? '/storage/update' : '/storage/save',
+      url: isUpdate ? '/sink/update' : '/sink/save',
       method: 'POST',
       data: submitData,
     });
@@ -120,8 +114,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     message.success(i18n.t('basic.OperatingSuccess'));
   };
 
-  const onEdit = ({ id }) => {
+  const onEdit = ({ id, inlongStreamId }) => {
     setCreateModal({ visible: true, id });
+    setCurDataStreamIdentifier(inlongStreamId);
   };
 
   const onDelete = ({ id }) => {
@@ -129,10 +124,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       title: i18n.t('basic.DeleteConfirm'),
       onOk: async () => {
         await request({
-          url: `/storage/delete/${id}`,
+          url: `/sink/delete/${id}`,
           method: 'DELETE',
           params: {
-            storageType: options.storageType,
+            sinkType: options.sinkType,
           },
         });
         await getList();
@@ -163,10 +158,17 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
     total: data?.total,
   };
 
-  const columnsMap = {
-    HIVE: hiveTableColumns,
-    CLICK_HOUSE: clickhouseTableColumns,
-  };
+  const columnsMap = useMemo(
+    () =>
+      Storages.reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur.value]: cur.tableColumns,
+        }),
+        {},
+      ),
+    [],
+  );
 
   const createContent = useMemo(
     () => [
@@ -177,7 +179,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         props: {
           notFoundContent: i18n.t('pages.AccessDetail.DataStorage.NoDataStreams'),
           disabled: !!createModal.id,
-          options: datastreamList.map(item => ({
+          options: streamList.map(item => ({
             label: item.inlongStreamId,
             value: item.inlongStreamId,
           })),
@@ -185,12 +187,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         rules: [{ required: true }],
       },
     ],
-    [createModal.id, datastreamList],
+    [createModal.id, streamList],
   );
 
-  const datastreamItem = datastreamList.find(
-    item => item.inlongStreamId === changedValues.inlongStreamId,
-  );
+  const streamItem = streamList.find(item => item.inlongStreamId === curDataStreamIdentifier);
 
   const columns = [
     {
@@ -198,7 +198,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
       dataIndex: 'inlongStreamId',
     },
   ]
-    .concat(columnsMap[options.storageType])
+    .concat(columnsMap[options.sinkType])
     .concat([
       {
         title: i18n.t('basic.Status'),
@@ -247,10 +247,10 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
         {...createModal}
         inlongGroupId={inlongGroupId}
         content={createContent}
-        storageType={options.storageType as any}
+        sinkType={options.sinkType as any}
         visible={createModal.visible as boolean}
-        dataType={datastreamItem?.dataType}
-        onValuesChange={(c, v) => setChangedValues(v)}
+        dataType={streamItem?.dataType}
+        onValuesChange={(c, v) => setCurDataStreamIdentifier(v?.inlongStreamId)}
         onOk={async values => {
           await onSave(values);
           setCreateModal({ visible: false });
@@ -261,4 +261,4 @@ const Comp: React.FC<Props> = ({ inlongGroupId }) => {
   );
 };
 
-export default Comp;
+export default forwardRef(Comp);

@@ -43,4 +43,6 @@ public abstract class InLongTopicManager implements Cleanable {
 
     public abstract void offlineAllTp();
 
+    public abstract void close();
+
 }

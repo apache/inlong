@@ -18,17 +18,16 @@
 package org.apache.inlong.sort.standalone.sink.kafka;
 
 import com.google.common.base.Preconditions;
+
 import org.apache.flume.Channel;
 import org.apache.flume.Event;
 import org.apache.flume.Transaction;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.sort.standalone.channel.ProfileEvent;
-import org.apache.inlong.sort.standalone.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.sort.standalone.config.pojo.InlongId;
 import org.apache.inlong.sort.standalone.metrics.SortMetricItem;
 import org.apache.inlong.sort.standalone.utils.Constants;
 import org.apache.inlong.sort.standalone.utils.InlongLoggerFactory;
-import org.apache.pulsar.shade.org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -89,10 +88,6 @@ public class KafkaFederationWorker extends Thread {
             Transaction tx = null;
             try {
                 Channel channel = context.getChannel();
-                if (channel == null) {
-                    LOG.error("in kafka worker, channel is null ");
-                    break;
-                }
                 tx = channel.getTransaction();
                 tx.begin();
                 Event rowEvent = channel.take();
@@ -105,14 +100,15 @@ public class KafkaFederationWorker extends Thread {
                     continue;
                 }
                 if (!(rowEvent instanceof ProfileEvent)) {
+                    tx.commit();
+                    tx.close();
                     LOG.error("The type of row event is not compatible with ProfileEvent");
                     continue;
                 }
-                ProfileEvent event = (ProfileEvent) rowEvent;
-                this.fillTopic(event);
-                SortMetricItem.fillInlongId(event, dimensions);
-                this.reportAudit(event);
-                this.producerFederation.send(event, tx);
+                ProfileEvent profileEvent = (ProfileEvent) rowEvent;
+                String topic = this.fillTopic(profileEvent);
+                this.context.addSendMetric(profileEvent, topic);
+                this.producerFederation.send(profileEvent, tx);
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
                 if (tx != null) {
@@ -133,15 +129,14 @@ public class KafkaFederationWorker extends Thread {
      *
      * @param event
      */
-    private void fillTopic(Event event) {
+    private String fillTopic(Event event) {
         Map<String, String> headers = event.getHeaders();
         String inlongGroupId = headers.get(Constants.INLONG_GROUP_ID);
         String inlongStreamId = headers.get(Constants.INLONG_STREAM_ID);
         String uid = InlongId.generateUid(inlongGroupId, inlongStreamId);
         String topic = this.context.getTopic(uid);
-        if (!StringUtils.isBlank(topic)) {
-            headers.put(Constants.TOPIC, topic);
-        }
+        headers.put(Constants.TOPIC, topic);
+        return topic;
     }
 
     /** sleepOneInterval */
@@ -151,21 +146,5 @@ public class KafkaFederationWorker extends Thread {
         } catch (InterruptedException e1) {
             LOG.error(e1.getMessage(), e1);
         }
-    }
-
-    /**
-     * Report event to audit.
-     *
-     * @param event Fetched event.
-     */
-    private void reportAudit(ProfileEvent event) {
-        this.dimensions.put(
-                SortMetricItem.KEY_SINK_DATA_ID, event.getHeaders().get(Constants.TOPIC));
-        long msgTime = event.getRawLogTime();
-        long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
-        dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
-        SortMetricItem metricItem = this.context.getMetricItemSet().findMetricItem(dimensions);
-        metricItem.sendCount.incrementAndGet();
-        metricItem.sendSize.addAndGet(event.getBody().length);
     }
 }

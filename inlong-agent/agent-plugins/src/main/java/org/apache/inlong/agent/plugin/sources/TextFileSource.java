@@ -17,16 +17,6 @@
 
 package org.apache.inlong.agent.plugin.sources;
 
-import static org.apache.inlong.agent.constants.CommonConstants.POSITION_SUFFIX;
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_LINE_FILTER;
-import static org.apache.inlong.agent.constants.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_LINE_FILTER_PATTERN;
-import static org.apache.inlong.agent.constants.JobConstants.JOB_READ_WAIT_TIMEOUT;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
@@ -35,9 +25,22 @@ import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
 import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
+import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 
 /**
  * Read text files
@@ -52,12 +55,15 @@ public class TextFileSource implements Source {
     public static final String MD5_SUFFIX = ".md5";
 
     private final SourceMetrics sourceMetrics;
+    private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileSource() {
         if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(TEXT_FILE_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
+                    TEXT_FILE_SOURCE_TAG_NAME,  metricsIndex.incrementAndGet()));
         } else {
-            this.sourceMetrics = new SourceJmxMetric(TEXT_FILE_SOURCE_TAG_NAME);
+            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
+                    TEXT_FILE_SOURCE_TAG_NAME,  metricsIndex.incrementAndGet()));
         }
     }
 
@@ -68,7 +74,8 @@ public class TextFileSource implements Source {
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
         for (File file : allFiles) {
             int seekPosition = jobConf.getInt(file.getAbsolutePath() + POSITION_SUFFIX, 0);
-            LOGGER.info("read from history position {} with job profile {}", seekPosition, jobConf.getInstanceId());
+            LOGGER.info("read from history position {} with job profile {}, file absolute path: {}", seekPosition,
+                    jobConf.getInstanceId(), file.getAbsolutePath());
             String md5 = jobConf.get(file.getAbsolutePath() + MD5_SUFFIX, "");
             TextFileReader textFileReader = new TextFileReader(file, seekPosition);
             long waitTimeout = jobConf.getLong(JOB_READ_WAIT_TIMEOUT, DEFAULT_JOB_READ_WAIT_TIMEOUT);

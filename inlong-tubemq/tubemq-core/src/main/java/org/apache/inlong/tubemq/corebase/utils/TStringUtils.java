@@ -20,8 +20,9 @@ package org.apache.inlong.tubemq.corebase.utils;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.tubemq.corebase.TBaseConstants;
 import org.apache.inlong.tubemq.corebase.TokenConstants;
 
@@ -81,7 +82,7 @@ public class TStringUtils {
      *
      * @param origStr The string to be converted
      * @return Convert the string to Camel Case
-     * if it is <code>null</code>, return<code>null</code>
+     *     if it is <code>null</code>, return<code>null</code>
      */
     public static String toCamelCase(String origStr) {
         if (isEmpty(origStr)) {
@@ -134,15 +135,26 @@ public class TStringUtils {
         return new String(tgtStr, 0, curWritePos);
     }
 
+    /**
+     * Get the authorization signature based on the provided values
+     * base64.encode(hmacSha1(password, username, timestamp, random number))
+     *
+     * @param usrName       the user name
+     * @param usrPassWord   the password of username
+     * @param timestamp     the time stamp
+     * @param randomValue   the random value
+     */
     public static String getAuthSignature(final String usrName,
                                           final String usrPassWord,
                                           long timestamp, int randomValue) {
         Base64 base64 = new Base64();
         StringBuilder sbuf = new StringBuilder(512);
         byte[] baseStr =
-                base64.encode(HmacUtils.hmacSha1(usrPassWord,
-                        sbuf.append(usrName).append(timestamp)
-                                .append(randomValue).toString()));
+                base64.encode(new HmacUtils(HmacAlgorithms.HMAC_SHA_1, usrPassWord)
+                        .hmac(sbuf.append(usrName)
+                                .append(timestamp)
+                                .append(randomValue)
+                                .toString()));
         sbuf.delete(0, sbuf.length());
         String signature = "";
         try {
@@ -155,6 +167,14 @@ public class TStringUtils {
         return signature;
     }
 
+    /**
+     * Build attribute information
+     *
+     * @param srcAttrs   the current attribute
+     * @param attrKey    the attribute key
+     * @param attrVal    the attribute value
+     * @return           the new attribute information
+     */
     public static String setAttrValToAttributes(String srcAttrs,
                                                 String attrKey, String attrVal) {
         StringBuilder sbuf = new StringBuilder(512);
@@ -184,6 +204,13 @@ public class TStringUtils {
         return sbuf.toString();
     }
 
+    /**
+     * Get attribute value by key from attribute information
+     *
+     * @param srcAttrs   the current attribute
+     * @param attrKey    the attribute key
+     * @return           the attribute value
+     */
     public static String getAttrValFrmAttributes(String srcAttrs, String attrKey) {
         if (!isBlank(srcAttrs)) {
             String[] strAttrs = srcAttrs.split(TokenConstants.SEGMENT_SEP);

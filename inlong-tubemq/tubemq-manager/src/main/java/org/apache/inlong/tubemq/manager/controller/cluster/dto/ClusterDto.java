@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ClusterDto {
     private Long clusterId;
     private String clusterName;
+    private int reloadBrokerSize;
 
     public boolean legal() {
         return (clusterId != null && StringUtils.isNotBlank(clusterName));

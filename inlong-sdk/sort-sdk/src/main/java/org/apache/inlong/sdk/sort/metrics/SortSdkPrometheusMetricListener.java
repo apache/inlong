@@ -17,8 +17,8 @@
 
 package org.apache.inlong.sdk.sort.metrics;
 
-import static org.apache.inlong.commons.config.metrics.MetricItemMBean.DOMAIN_SEPARATOR;
-import static org.apache.inlong.commons.config.metrics.MetricRegister.JMX_DOMAIN;
+import static org.apache.inlong.common.metric.MetricItemMBean.DOMAIN_SEPARATOR;
+import static org.apache.inlong.common.metric.MetricRegister.JMX_DOMAIN;
 
 import java.lang.management.ManagementFactory;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class SortSdkPrometheusMetricListener {
 
         final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         StringBuilder beanName = new StringBuilder();
-        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortSdkCounter");
+        beanName.append(JMX_DOMAIN).append(DOMAIN_SEPARATOR).append("type=SortSdk").append(",name=").append(sortTaskId);
         String strBeanName = beanName.toString();
         try {
             ObjectName objName = new ObjectName(strBeanName);

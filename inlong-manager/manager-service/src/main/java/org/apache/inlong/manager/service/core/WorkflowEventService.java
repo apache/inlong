@@ -18,10 +18,10 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.event.process.ProcessEvent;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.view.EventLogQuery;
-import org.apache.inlong.manager.common.model.view.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
 /**
  * Workflow event related services
@@ -54,32 +54,33 @@ public interface WorkflowEventService {
     /**
      * Re-execute the specified listener according to the process ID
      *
-     * @param processInstId Process ID
+     * @param processId WorkflowProcess ID
      * @param listenerName Listener name
      */
-    void executeProcessEventListener(Integer processInstId, String listenerName);
+    void executeProcessEventListener(Integer processId, String listenerName);
 
     /**
      * Re-execute the specified listener based on the task ID
      *
-     * @param taskInstId Task ID
+     * @param taskId WorkflowTask ID
      * @param listenerName Listener name
      */
-    void executeTaskEventListener(Integer taskInstId, String listenerName);
+    void executeTaskEventListener(Integer taskId, String listenerName);
 
     /**
      * Re-trigger the process event based on the process ID
      *
-     * @param processInstId Process ID
-     * @param processEvent Process event
+     * @param processId WorkflowProcess ID
+     * @param processEvent WorkflowProcess event
      */
-    void triggerProcessEvent(Integer processInstId, ProcessEvent processEvent);
+    void triggerProcessEvent(Integer processId, ProcessEvent processEvent);
 
     /**
      * Re-trigger task events based on task ID
      *
-     * @param taskInstId Task ID
-     * @param taskEvent Task event
+     * @param taskId WorkflowTask ID
+     * @param taskEvent WorkflowTask event
      */
-    void triggerTaskEvent(Integer taskInstId, TaskEvent taskEvent);
+    void triggerTaskEvent(Integer taskId, TaskEvent taskEvent);
+
 }

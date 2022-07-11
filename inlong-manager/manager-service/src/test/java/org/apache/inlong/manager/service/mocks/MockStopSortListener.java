@@ -17,11 +17,14 @@
 
 package org.apache.inlong.manager.service.mocks;
 
-import org.apache.inlong.manager.common.event.ListenerResult;
-import org.apache.inlong.manager.common.event.task.SortOperateListener;
-import org.apache.inlong.manager.common.event.task.TaskEvent;
-import org.apache.inlong.manager.common.model.WorkflowContext;
+import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
+import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
+/**
+ * Test class for listen stop sort event.
+ */
 public class MockStopSortListener implements SortOperateListener {
 
     @Override
@@ -30,12 +33,8 @@ public class MockStopSortListener implements SortOperateListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) {
         return ListenerResult.success("Mock stop sort success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

@@ -19,5 +19,8 @@
 # under the License.
 #
 
-# this program kills the sort
-ps -ef |grep "org.apache.inlong.sort.standalone.SortStandaloneApplication"|grep "java"|grep -v grep|awk '{print $2}'|xargs kill -9
+#kill
+pidInfo=$(ps -ef | grep java |grep org.apache.inlong.sort.standalone.SortStandaloneApplication| grep -v grep | awk '{print $2}')
+for pid in $pidInfo;do
+	kill -9 $pid
+done

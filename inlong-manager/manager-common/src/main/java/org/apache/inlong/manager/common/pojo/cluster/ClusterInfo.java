@@ -17,42 +17,74 @@
 
 package org.apache.inlong.manager.common.pojo.cluster;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+
+import java.util.Date;
 
 /**
- * Common cluster information
+ * Inlong cluster info
  */
 @Data
-@ApiModel("Common cluster information")
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Inlong cluster info")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
 public class ClusterInfo {
 
-    @ApiModelProperty(value = "Incremental primary key")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "cluster name")
+    @ApiModelProperty(value = "Cluster name")
     private String name;
 
-    @ApiModelProperty(value = "Cluster type, including TUBE, ZK, etc.")
+    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
     private String type;
 
-    @ApiModelProperty(value = "Cluster IP address")
-    private String ip;
+    @ApiModelProperty(value = "Cluster url")
+    private String url;
 
-    @ApiModelProperty(value = "Cluster port number")
-    private Integer port;
+    @ApiModelProperty(value = "Cluster tags, separated by commas")
+    private String clusterTags;
+
+    @ApiModelProperty(value = "Extension tag")
+    private String extTag;
+
+    @ApiModelProperty(value = "Cluster token")
+    private String token;
+
+    @ApiModelProperty(value = "Cluster heartbeat info")
+    private String heartbeat;
+
+    @ApiModelProperty(value = "Extended params")
+    private String extParams;
 
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 
-    @ApiModelProperty(value = "Cluster URL address")
-    private String url;
-
-    @ApiModelProperty(value = "Whether it is a backup cluster, 0: no, 1: yes")
-    private Integer isBackup;
-
     @ApiModelProperty(value = "Cluster status")
     private Integer status;
+
+    @ApiModelProperty(value = "Name of in creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of in modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    public ClusterRequest genRequest() {
+        return CommonBeanUtils.copyProperties(this, ClusterRequest::new);
+    }
 
 }

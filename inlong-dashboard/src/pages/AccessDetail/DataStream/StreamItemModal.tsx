@@ -25,16 +25,16 @@ import { useUpdateEffect } from '@/hooks';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
-import { valuesToData } from '@/pages/AccessCreate/DataStream/helper';
+import { valuesToData } from './helper';
 import { pickObject } from '@/utils';
 
 export interface Props extends ModalProps {
   inlongGroupId: string;
   record?: Record<string, any>;
-  middlewareType: string;
+  mqType: string;
 }
 
-export const genFormContent = (currentValues, inlongGroupId, middlewareType) => {
+export const genFormContent = (currentValues, inlongGroupId, mqType) => {
   const extraParams = {
     inlongGroupId,
   };
@@ -51,16 +51,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
         },
         'inlongStreamId',
         'name',
-        'inCharges',
         'description',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataSources')}
-            </Divider>
-          ),
-        },
-        'dataSourceType',
         {
           type: (
             <Divider orientation="left">
@@ -76,7 +67,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
               {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
             </Divider>
           ),
-          visible: middlewareType === 'PULSAR',
+          visible: mqType === 'PULSAR',
         },
       ],
       currentValues,
@@ -85,7 +76,7 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
     ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
       item => ({
         ...item,
-        visible: middlewareType === 'PULSAR',
+        visible: mqType === 'PULSAR',
       }),
     ),
   ].map(item => {
@@ -99,22 +90,20 @@ export const genFormContent = (currentValues, inlongGroupId, middlewareType) => 
   });
 };
 
-const Comp: React.FC<Props> = ({ inlongGroupId, record, middlewareType, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps }) => {
   const [form] = useForm();
   const onOk = async () => {
     const values = {
-      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'dataSourceBasicId'], record),
+      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId'], record),
       ...(await form.validateFields()),
     };
 
     const data = valuesToData(values ? [values] : [], inlongGroupId);
-    const submitData = data.map(item =>
-      pickObject(['dbBasicInfo', 'fileBasicInfo', 'streamInfo'], item),
-    );
+    const submitData = data.map(item => pickObject(['streamInfo'], item));
     await request({
-      url: '/datastream/updateAll',
+      url: '/stream/update',
       method: 'POST',
-      data: submitData?.[0],
+      data: submitData?.[0]?.streamInfo,
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));
@@ -140,7 +129,7 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, middlewareType, ...modal
       <FormGenerator
         labelCol={{ span: 4 }}
         wrapperCol={{ span: 20 }}
-        content={genFormContent(record, inlongGroupId, middlewareType)}
+        content={genFormContent(record, inlongGroupId, mqType)}
         form={form}
         useMaxWidth
       />
