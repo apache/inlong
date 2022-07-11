@@ -44,6 +44,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Test for Tube{@link TubeMQExtractNode} SQL parser.
+ */
 public class TubeMQNodeSqlParseTest extends AbstractTestBase {
 
     /**
@@ -54,9 +57,9 @@ public class TubeMQNodeSqlParseTest extends AbstractTestBase {
                 new FieldInfo("name", new StringFormatInfo()),
                 new FieldInfo("age", new IntFormatInfo()),
                 new FieldInfo("salary", new FloatFormatInfo()));
-        
+
         return new TubeMQExtractNode(id, "tubeMQ_input", fields, null, null,
-                "127.0.0.1:8715","inlong","json","test",null,null);
+                "127.0.0.1:8715", "inlong", "json", "test", null, null);
     }
 
     /**
