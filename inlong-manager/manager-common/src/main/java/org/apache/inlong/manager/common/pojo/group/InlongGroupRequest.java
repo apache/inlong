@@ -18,11 +18,9 @@
 package org.apache.inlong.manager.common.pojo.group;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -35,12 +33,11 @@ import java.util.List;
  * Inlong group request
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group create request")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
-public class InlongGroupRequest {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
+public abstract class InlongGroupRequest {
 
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
@@ -71,15 +68,12 @@ public class InlongGroupRequest {
     private String tubeMaster;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
-    @Builder.Default
     private Integer lightweight = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")

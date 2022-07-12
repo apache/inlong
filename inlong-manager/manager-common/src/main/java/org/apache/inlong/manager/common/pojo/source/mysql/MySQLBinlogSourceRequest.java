@@ -46,8 +46,8 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port = 3306;
+    @ApiModelProperty("Port of the DB server")
+    private Integer port = 3306;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
     private Integer serverId = 0;
@@ -108,10 +108,10 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     private String primaryKey;
 
     @ApiModelProperty("Directly read binlog from the specified offset filename")
-    public String specificOffsetFile;
+    private String specificOffsetFile;
 
     @ApiModelProperty("Directly read binlog from the specified offset position")
-    public Integer specificOffsetPos;
+    private Integer specificOffsetPos;
 
     public MySQLBinlogSourceRequest() {
         this.setSourceType(SourceType.BINLOG.toString());

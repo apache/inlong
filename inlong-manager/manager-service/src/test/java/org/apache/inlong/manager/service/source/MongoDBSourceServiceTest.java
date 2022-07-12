@@ -15,30 +15,27 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.source;
+package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Oracle source service test
+ * MongoDB source service test
  */
-public class OracleSourceServiceTest extends ServiceBaseTest {
+public class MongoDBSourceServiceTest extends ServiceBaseTest {
 
     private static final String hostname = "127.0.0.1";
-    private static final Integer port = 1521;
-    private static final String database = "oracle_database";
-    private static final String schema = "oracle_schema";
-    private static final String tableName = "oracle_table";
+    private static final String database = "mongo_database";
+    private static final String collection = "mongo_collection";
     private final String sourceName = "stream_source_service_test";
     @Autowired
     private StreamSourceService sourceService;
@@ -51,16 +48,14 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        OracleSourceRequest sourceInfo = new OracleSourceRequest();
+        MongoDBSourceRequest sourceInfo = new MongoDBSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
-        sourceInfo.setSourceType(SourceType.ORACLE.getType());
-        sourceInfo.setHostname(hostname);
+        sourceInfo.setSourceType(SourceType.MONGODB.getType());
+        sourceInfo.setHosts(hostname);
         sourceInfo.setDatabase(database);
-        sourceInfo.setTableName(tableName);
-        sourceInfo.setPort(port);
-        sourceInfo.setSchemaName(schema);
+        sourceInfo.setCollection(collection);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
@@ -88,8 +83,8 @@ public class OracleSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        OracleSource oracleSource = (OracleSource) response;
-        OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSource, OracleSourceRequest::new);
+        MongoDBSource mongoDBSource = (MongoDBSource) response;
+        MongoDBSourceRequest request = CommonBeanUtils.copyProperties(mongoDBSource, MongoDBSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 

@@ -40,16 +40,16 @@ public class OracleSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
+    @ApiModelProperty("Hostname of the Oracle server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private Integer port = 1521;
+    @ApiModelProperty("Port of the Oracle server")
+    private Integer port;
 
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the Oracle server")
     private String username;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the Oracle server")
     private String password;
 
     @ApiModelProperty("Database name")
@@ -58,13 +58,13 @@ public class OracleSourceDTO {
     @ApiModelProperty("Schema name")
     private String schemaName;
 
-    @ApiModelProperty("table name")
+    @ApiModelProperty("Table name")
     private String tableName;
 
     @ApiModelProperty("Scan startup mode")
     private String scanStartupMode;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
     /**

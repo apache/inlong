@@ -34,7 +34,7 @@ import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.HttpUtils;
 
 import java.util.List;
@@ -111,8 +111,8 @@ public class InlongClientImpl implements InlongClient {
             groupListResponses.forEach(response -> {
                 String groupId = response.getInlongGroupId();
                 SimpleGroupStatus groupStatus = SimpleGroupStatus.parseStatusByCode(response.getStatus());
-                List<SourceListResponse> sourceListResponses = response.getSourceResponses();
-                groupStatus = recheckGroupStatus(groupStatus, sourceListResponses);
+                List<StreamSource> sources = response.getStreamSources();
+                groupStatus = recheckGroupStatus(groupStatus, sources);
                 groupStatusMap.put(groupId, groupStatus);
             });
         }
@@ -129,10 +129,9 @@ public class InlongClientImpl implements InlongClient {
         return new InlongGroupImpl(groupInfo, this);
     }
 
-    private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus,
-            List<SourceListResponse> sourceListResponses) {
-        Map<SimpleSourceStatus, List<SourceListResponse>> statusListMap = Maps.newHashMap();
-        sourceListResponses.forEach(source -> {
+    private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus, List<StreamSource> sources) {
+        Map<SimpleSourceStatus, List<StreamSource>> statusListMap = Maps.newHashMap();
+        sources.forEach(source -> {
             SimpleSourceStatus status = SimpleSourceStatus.parseByStatus(source.getStatus());
             statusListMap.computeIfAbsent(status, k -> Lists.newArrayList()).add(source);
         });

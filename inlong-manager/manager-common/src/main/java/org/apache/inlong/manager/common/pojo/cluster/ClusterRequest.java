@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
@@ -33,12 +32,11 @@ import javax.validation.constraints.NotNull;
  * Inlong cluster request
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong cluster request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public class ClusterRequest {
+public abstract class ClusterRequest {
 
     @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")

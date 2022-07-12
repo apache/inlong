@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -105,7 +104,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
         }
         StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
-        StreamSource streamSource = operation.getByEntity(entity);
+        StreamSource streamSource = operation.getFromEntity(entity);
         LOGGER.debug("success to get source by id={}", id);
         return streamSource;
     }
@@ -132,7 +131,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
+    public PageInfo<? extends StreamSource> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -144,16 +143,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             sourceMap.computeIfAbsent(sourceType, k -> new Page<>()).add(entity);
         }
-        List<SourceListResponse> responseList = Lists.newArrayList();
+        List<StreamSource> responseList = Lists.newArrayList();
         for (Map.Entry<SourceType, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
             SourceType sourceType = entry.getKey();
             StreamSourceOperator operation = operationFactory.getInstance(sourceType);
-            PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
+            PageInfo<? extends StreamSource> pageInfo = operation.getPageInfo(entry.getValue());
             if (null != pageInfo && CollectionUtils.isNotEmpty(pageInfo.getList())) {
                 responseList.addAll(pageInfo.getList());
             }
         }
-        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responseList);
+        PageInfo<? extends StreamSource> pageInfo = PageInfo.of(responseList);
 
         LOGGER.debug("success to list source page, result size {}", pageInfo.getSize());
         return pageInfo;
@@ -176,7 +175,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
-            streamFields.stream().forEach(streamField -> streamField.setId(null));
+            streamFields.forEach(streamField -> streamField.setId(null));
         }
         operation.updateOpt(request, groupEntity.getStatus(), operator);
 

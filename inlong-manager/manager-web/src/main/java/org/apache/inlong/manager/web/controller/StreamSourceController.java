@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -65,7 +64,7 @@ public class StreamSourceController {
 
     @RequestMapping(value = "/source/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream source list by paginating")
-    public Response<PageInfo<? extends SourceListResponse>> listByCondition(SourcePageRequest request) {
+    public Response<PageInfo<? extends StreamSource>> listByCondition(SourcePageRequest request) {
         return Response.success(sourceService.listByCondition(request));
     }
 

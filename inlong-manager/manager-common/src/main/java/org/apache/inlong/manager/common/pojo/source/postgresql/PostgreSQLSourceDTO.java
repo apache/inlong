@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.postgres;
+package org.apache.inlong.manager.common.pojo.source.postgresql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,48 +31,48 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Postgres source info
+ * PostgreSQL source info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostgresSourceDTO {
+public class PostgreSQLSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
-
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the PostgreSQL server")
     private String username;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the PostgreSQL server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the PostgreSQL server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port;
+    @ApiModelProperty("Port of the PostgreSQL server")
+    private Integer port;
 
-    @ApiModelProperty("Exposed database of the DB")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema info")
+    @ApiModelProperty("Schema name")
     private String schema;
 
     @ApiModelProperty("Decoding plugin name")
     private String decodingPluginName;
 
-    @ApiModelProperty("List of tables name")
+    @ApiModelProperty("List of table name")
     private List<String> tableNameList;
+
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
 
     /**
      * Get the dto instance from the request
      */
-    public static PostgresSourceDTO getFromRequest(PostgresSourceRequest request) {
-        return PostgresSourceDTO.builder()
+    public static PostgreSQLSourceDTO getFromRequest(PostgreSQLSourceRequest request) {
+        return PostgreSQLSourceDTO.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
                 .hostname(request.getHostname())
@@ -85,10 +85,10 @@ public class PostgresSourceDTO {
                 .build();
     }
 
-    public static PostgresSourceDTO getFromJson(@NotNull String extParams) {
+    public static PostgreSQLSourceDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, PostgresSourceDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, PostgreSQLSourceDTO.class);
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }

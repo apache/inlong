@@ -19,42 +19,48 @@ package org.apache.inlong.manager.common.pojo.source.sqlserver;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request info of the SqlServer source
+ * SQLServer source info
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the SqlServer source")
+@ApiModel(value = "SQLServer source info")
 @JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
-public class SqlServerSourceRequest extends SourceRequest {
+public class SQLServerSource extends StreamSource {
 
-    @ApiModelProperty("Username of the SqlServer")
+    @ApiModelProperty("Username of the SQLServer server")
     private String username;
 
-    @ApiModelProperty("Password of the SqlServer")
+    @ApiModelProperty("Password of the SQLServer server")
     private String password;
 
-    @ApiModelProperty("Hostname of the SqlServer")
+    @ApiModelProperty("Hostname of the SQLServer server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the SqlServer")
-    private int port;
+    @ApiModelProperty("Port of the SQLServer server")
+    private Integer port;
 
-    @ApiModelProperty("Database of the SqlServer")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema name of the SqlServer")
+    @ApiModelProperty("Schema name")
     private String schemaName;
 
-    @ApiModelProperty("Table name of the SqlServer")
+    @ApiModelProperty("Table name")
     private String tableName;
 
     @ApiModelProperty("Database time zone, default is UTC")
@@ -63,11 +69,16 @@ public class SqlServerSourceRequest extends SourceRequest {
     @ApiModelProperty("Whether to migrate all databases")
     private boolean allMigration;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
-    public SqlServerSourceRequest() {
-        this.setSourceType(SourceType.SQLSERVER.toString());
+    public SQLServerSource() {
+        this.setSourceType(SourceType.SQLSERVER.name());
+    }
+
+    @Override
+    public SourceRequest genSourceRequest() {
+        return CommonBeanUtils.copyProperties(this, SQLServerSourceRequest::new);
     }
 
 }

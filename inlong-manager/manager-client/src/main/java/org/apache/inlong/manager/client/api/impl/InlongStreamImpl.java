@@ -29,7 +29,6 @@ import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -341,15 +340,15 @@ public class InlongStreamImpl implements InlongStream {
     }
 
     private void initOrUpdateSource(InlongStreamInfo streamInfo) {
-        List<SourceListResponse> sourceListResponses = managerClient.listSources(inlongGroupId, inlongStreamId);
+        List<StreamSource> streamSources = managerClient.listSources(inlongGroupId, inlongStreamId);
         List<String> updateSourceNames = Lists.newArrayList();
-        for (SourceListResponse sourceListResponse : sourceListResponses) {
-            final String sourceName = sourceListResponse.getSourceName();
-            final int id = sourceListResponse.getId();
+        for (StreamSource source : streamSources) {
+            final String sourceName = source.getSourceName();
+            final int id = source.getId();
             if (this.streamSources.get(sourceName) == null) {
                 boolean isDelete = managerClient.deleteSource(id);
                 if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
+                    throw new RuntimeException(String.format("Delete source=%s failed", source));
                 }
             } else {
                 StreamSource streamSource = this.streamSources.get(sourceName);
@@ -364,7 +363,7 @@ public class InlongStreamImpl implements InlongStream {
                 updateSourceNames.add(sourceName);
             }
         }
-        for (Map.Entry<String, StreamSource> sourceEntry : streamSources.entrySet()) {
+        for (Map.Entry<String, StreamSource> sourceEntry : this.streamSources.entrySet()) {
             String sourceName = sourceEntry.getKey();
             if (updateSourceNames.contains(sourceName)) {
                 continue;

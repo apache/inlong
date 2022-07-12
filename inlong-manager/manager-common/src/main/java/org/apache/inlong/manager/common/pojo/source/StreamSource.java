@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -39,7 +38,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
 

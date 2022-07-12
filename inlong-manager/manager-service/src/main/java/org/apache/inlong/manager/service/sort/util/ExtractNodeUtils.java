@@ -31,9 +31,9 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
@@ -86,11 +86,11 @@ public class ExtractNodeUtils {
             case PULSAR:
                 return createExtractNode((PulsarSource) sourceInfo);
             case POSTGRES:
-                return createExtractNode((PostgresSource) sourceInfo);
+                return createExtractNode((PostgreSQLSource) sourceInfo);
             case ORACLE:
                 return createExtractNode((OracleSource) sourceInfo);
             case SQLSERVER:
-                return createExtractNode((SqlServerSource) sourceInfo);
+                return createExtractNode((SQLServerSource) sourceInfo);
             case MONGODB:
                 return createExtractNode((MongoDBSource) sourceInfo);
             default:
@@ -281,22 +281,22 @@ public class ExtractNodeUtils {
     /**
      * Create PostgreSQL extract node
      *
-     * @param postgresSource PostgreSQL source info
+     * @param postgreSQLSource PostgreSQL source info
      * @return PostgreSQL extract node info
      */
-    public static PostgresExtractNode createExtractNode(PostgresSource postgresSource) {
-        List<StreamField> streamFields = postgresSource.getFieldList();
-        String id = postgresSource.getSourceName();
-        String name = postgresSource.getSourceName();
+    public static PostgresExtractNode createExtractNode(PostgreSQLSource postgreSQLSource) {
+        List<StreamField> streamFields = postgreSQLSource.getFieldList();
+        String id = postgreSQLSource.getSourceName();
+        String name = postgreSQLSource.getSourceName();
         List<FieldInfo> fields = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
         return new PostgresExtractNode(id, name, fields, null, null,
-                postgresSource.getPrimaryKey(), postgresSource.getTableNameList(),
-                postgresSource.getHostname(), postgresSource.getUsername(),
-                postgresSource.getPassword(), postgresSource.getDatabase(),
-                postgresSource.getSchema(), postgresSource.getPort(),
-                postgresSource.getDecodingPluginName());
+                postgreSQLSource.getPrimaryKey(), postgreSQLSource.getTableNameList(),
+                postgreSQLSource.getHostname(), postgreSQLSource.getUsername(),
+                postgreSQLSource.getPassword(), postgreSQLSource.getDatabase(),
+                postgreSQLSource.getSchema(), postgreSQLSource.getPort(),
+                postgreSQLSource.getDecodingPluginName());
     }
 
     /**
@@ -340,7 +340,7 @@ public class ExtractNodeUtils {
      * @param source SqlServer source info
      * @return SqlServer extract node info
      */
-    public static SqlServerExtractNode createExtractNode(SqlServerSource source) {
+    public static SqlServerExtractNode createExtractNode(SQLServerSource source) {
         String name = source.getSourceName();
         List<StreamField> streamFields = source.getFieldList();
         List<FieldInfo> fieldInfos = streamFields.stream()

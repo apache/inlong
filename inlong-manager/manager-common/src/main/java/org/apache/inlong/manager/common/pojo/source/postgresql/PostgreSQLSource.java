@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.source.sqlserver;
+package org.apache.inlong.manager.common.pojo.source.postgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,55 +30,54 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import java.util.List;
+
 /**
- * SqlServer source info
+ * PostgreSQL source info
  */
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "SqlServer source info")
-@JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
-public class SqlServerSource extends StreamSource {
+@ApiModel(value = "PostgreSQL source info")
+@JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
+public class PostgreSQLSource extends StreamSource {
 
-    @ApiModelProperty("Username of the SqlServer")
+    @ApiModelProperty("Username of the PostgreSQL server")
     private String username;
 
-    @ApiModelProperty("Password of the SqlServer")
+    @ApiModelProperty("Password of the PostgreSQL server")
     private String password;
 
-    @ApiModelProperty("Hostname of the SqlServer")
+    @ApiModelProperty("Hostname of the PostgreSQL server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the SqlServer")
-    private int port;
+    @ApiModelProperty("Port of the PostgreSQL server")
+    private Integer port = 5432;
 
-    @ApiModelProperty("Database of the SqlServer")
+    @ApiModelProperty("Database name")
     private String database;
 
-    @ApiModelProperty("Schema name of the SqlServer")
-    private String schemaName;
+    @ApiModelProperty("Schema name")
+    private String schema;
 
-    @ApiModelProperty("Table name of the SqlServer")
-    private String tableName;
+    @ApiModelProperty("Decoding plugin name")
+    private String decodingPluginName;
 
-    @ApiModelProperty("Database time zone, default is UTC")
-    private String serverTimezone;
+    @ApiModelProperty("List of table name")
+    private List<String> tableNameList;
 
-    @ApiModelProperty("Whether to migrate all databases")
-    private boolean allMigration;
-
-    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
-    public SqlServerSource() {
-        this.setSourceType(SourceType.SQLSERVER.name());
+    public PostgreSQLSource() {
+        this.setSourceType(SourceType.POSTGRES.name());
     }
 
     @Override
     public SourceRequest genSourceRequest() {
-        return CommonBeanUtils.copyProperties(this, SqlServerSourceRequest::new);
+        return CommonBeanUtils.copyProperties(this, PostgreSQLSourceRequest::new);
     }
 
 }

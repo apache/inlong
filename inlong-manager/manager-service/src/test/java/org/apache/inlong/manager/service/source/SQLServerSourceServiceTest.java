@@ -15,16 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.source;
+package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * SqlServer source service test.
  */
-public class SqlServerSourceServiceTest extends ServiceBaseTest {
+public class SQLServerSourceServiceTest extends ServiceBaseTest {
 
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 1521;
@@ -51,7 +50,7 @@ public class SqlServerSourceServiceTest extends ServiceBaseTest {
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        SqlServerSourceRequest sourceInfo = new SqlServerSourceRequest();
+        SQLServerSourceRequest sourceInfo = new SQLServerSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
@@ -88,8 +87,8 @@ public class SqlServerSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        SqlServerSource sqlserverSource = (SqlServerSource) response;
-        SqlServerSourceRequest request = CommonBeanUtils.copyProperties(sqlserverSource, SqlServerSourceRequest::new);
+        SQLServerSource sqlserverSource = (SQLServerSource) response;
+        SQLServerSourceRequest request = CommonBeanUtils.copyProperties(sqlserverSource, SQLServerSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 

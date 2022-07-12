@@ -32,7 +32,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -202,12 +201,12 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<SourceListResponse> sourceListResponses = managerClient.listSources(groupId, streamId);
+        List<StreamSource> streamSources = managerClient.listSources(groupId, streamId);
         List<String> updateSourceNames = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(sourceListResponses)) {
-            for (SourceListResponse sourceListResponse : sourceListResponses) {
-                final String sourceName = sourceListResponse.getSourceName();
-                final int id = sourceListResponse.getId();
+        if (CollectionUtils.isNotEmpty(streamSources)) {
+            for (StreamSource source : streamSources) {
+                final String sourceName = source.getSourceName();
+                final int id = source.getId();
                 if (sourceRequests.get(sourceName) == null) {
                     boolean isDelete = managerClient.deleteSource(id);
                     if (!isDelete) {
@@ -222,7 +221,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                                 updateState.getValue()));
                     }
                     updateSourceNames.add(sourceName);
-                    sourceRequest.setId(sourceListResponse.getId());
+                    sourceRequest.setId(source.getId());
                 }
             }
         }

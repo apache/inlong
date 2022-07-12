@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -183,18 +183,16 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             Set<String> groupIds = groupResponseList.stream().map(InlongGroupListResponse::getInlongGroupId)
                     .collect(Collectors.toSet());
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
-            Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
+            Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
             sourceEntities.forEach(sourceEntity -> {
                 SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
                 StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceType);
-                SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
-                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
-                        .add(sourceListResponse);
+                StreamSource source = operation.getFromEntity(sourceEntity);
+                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });
             groupResponseList.forEach(group -> {
-                List<SourceListResponse> sourceListResponses = sourceMap.getOrDefault(group.getInlongGroupId(),
-                        Lists.newArrayList());
-                group.setSourceResponses(sourceListResponses);
+                List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
+                group.setStreamSources(sources);
             });
         }
         PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupResponseList);

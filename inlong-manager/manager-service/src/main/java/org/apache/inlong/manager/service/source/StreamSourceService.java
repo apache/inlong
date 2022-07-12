@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -68,10 +67,10 @@ public interface StreamSourceService {
     /**
      * Paging query source information based on conditions.
      *
-     * @param request Paging request.
-     * @return Source info list.
+     * @param request paging request.
+     * @return source list
      */
-    PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request);
+    PageInfo<? extends StreamSource> listByCondition(SourcePageRequest request);
 
     /**
      * Modify data source information

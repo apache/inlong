@@ -28,7 +28,7 @@ import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.io.IOException;
@@ -174,8 +174,8 @@ public class DescribeCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-                sourceListResponses.forEach(PrintUtils::printJson);
+                List<StreamSource> sources = managerClient.listSources(group, stream, type);
+                sources.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
