@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -70,13 +72,6 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
      */
     protected abstract String getSinkType();
 
-    /**
-     * Creating sink object.
-     *
-     * @return sink object
-     */
-    protected abstract StreamSink getSink();
-
     @Override
     public Integer saveOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(request, StreamSinkEntity::new);
@@ -95,6 +90,20 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         request.setId(sinkId);
         this.saveFieldOpt(request);
         return sinkId;
+    }
+
+    @Override
+    public List<SinkField> getSinkFields(Integer sinkId) {
+        List<StreamSinkFieldEntity> sinkFieldEntities = sinkFieldMapper.selectBySinkId(sinkId);
+        return CommonBeanUtils.copyListProperties(sinkFieldEntities, SinkField::new);
+    }
+
+    @Override
+    public PageInfo<? extends StreamSink> getPageInfo(Page<StreamSinkEntity> entityPage) {
+        if (CollectionUtils.isEmpty(entityPage)) {
+            return new PageInfo<>();
+        }
+        return entityPage.toPageInfo(this::getFromEntity);
     }
 
     @Override
@@ -137,13 +146,12 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         sinkFieldMapper.deleteAll(sinkId);
         // Then batch save the sink fields
         this.saveFieldOpt(request);
-        LOGGER.info("success to update field");
+        LOGGER.info("success to update sink field");
     }
 
-    @Override
-    public void saveFieldOpt(SinkRequest request) {
+    protected void saveFieldOpt(SinkRequest request) {
         List<SinkField> fieldList = request.getSinkFieldList();
-        LOGGER.info("begin to save field={}", fieldList);
+        LOGGER.info("begin to save sink fields={}", fieldList);
         if (CollectionUtils.isEmpty(fieldList)) {
             return;
         }
@@ -155,6 +163,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         String sinkType = request.getSinkType();
         Integer sinkId = request.getId();
         for (SinkField fieldInfo : fieldList) {
+            this.checkFieldInfo(fieldInfo);
             StreamSinkFieldEntity fieldEntity = CommonBeanUtils.copyProperties(fieldInfo, StreamSinkFieldEntity::new);
             if (StringUtils.isEmpty(fieldEntity.getFieldComment())) {
                 fieldEntity.setFieldComment(fieldEntity.getFieldName());
@@ -168,7 +177,14 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         }
 
         sinkFieldMapper.insertAll(entityList);
-        LOGGER.info("success to save field");
+        LOGGER.info("success to save sink fields");
+    }
+
+    /**
+     * Check the validity of sink fields.
+     */
+    protected void checkFieldInfo(SinkField fieldInfo) {
+
     }
 
 }

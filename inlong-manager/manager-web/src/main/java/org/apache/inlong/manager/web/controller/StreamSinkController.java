@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -65,7 +64,7 @@ public class StreamSinkController {
 
     @RequestMapping(value = "/sink/list", method = RequestMethod.GET)
     @ApiOperation(value = "Get stream sink list by paginating")
-    public Response<PageInfo<? extends SinkListResponse>> listByCondition(SinkPageRequest request) {
+    public Response<PageInfo<? extends StreamSink>> listByCondition(SinkPageRequest request) {
         return Response.success(sinkService.listByCondition(request));
     }
 

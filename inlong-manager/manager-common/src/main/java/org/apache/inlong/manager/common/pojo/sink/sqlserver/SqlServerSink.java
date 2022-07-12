@@ -29,28 +29,28 @@ import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * SqlServer sink info
+ * SQLServer sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "SqlServer sink info")
+@ApiModel(value = "SQLServer sink info")
 @JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
 public class SqlServerSink extends StreamSink {
 
-    @ApiModelProperty("Username of the Sqlserver")
+    @ApiModelProperty("Username of the SQLServer")
     private String username;
 
-    @ApiModelProperty("Password of the Sqlserver")
+    @ApiModelProperty("Password of the SQLServer")
     private String password;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
+    @ApiModelProperty("SQLServer meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
 
-    @ApiModelProperty("schemaName of the Sqlserver")
+    @ApiModelProperty("Schema name of the SQLServer")
     private String schemaName;
 
-    @ApiModelProperty("tableName of the Sqlserver")
+    @ApiModelProperty("Table name of the SQLServer")
     private String tableName;
 
     @ApiModelProperty("Database time zone, Default is UTC")

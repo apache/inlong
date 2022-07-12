@@ -27,7 +27,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -376,16 +375,16 @@ public class InlongStreamImpl implements InlongStream {
     }
 
     private void initOrUpdateSink(InlongStreamInfo streamInfo) {
-        List<SinkListResponse> sinkListResponses = managerClient.listSinks(inlongGroupId, inlongStreamId);
+        List<StreamSink> streamSinks = managerClient.listSinks(inlongGroupId, inlongStreamId);
         // delete or update the sink info
         List<String> updateSinkNames = Lists.newArrayList();
-        for (SinkListResponse sinkResponse : sinkListResponses) {
-            final String sinkName = sinkResponse.getSinkName();
-            final int id = sinkResponse.getId();
+        for (StreamSink sink : streamSinks) {
+            final String sinkName = sink.getSinkName();
+            final int id = sink.getId();
             if (this.streamSinks.get(sinkName) == null) {
                 boolean isDelete = managerClient.deleteSink(id);
                 if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete sink=%s failed", sinkResponse));
+                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
                 }
             } else {
                 StreamSink streamSink = this.streamSinks.get(sinkName);
@@ -402,7 +401,7 @@ public class InlongStreamImpl implements InlongStream {
         }
 
         // create sink info after deleting or updating
-        for (Map.Entry<String, StreamSink> sinkEntry : streamSinks.entrySet()) {
+        for (Map.Entry<String, StreamSink> sinkEntry : this.streamSinks.entrySet()) {
             String sinkName = sinkEntry.getKey();
             if (updateSinkNames.contains(sinkName)) {
                 continue;

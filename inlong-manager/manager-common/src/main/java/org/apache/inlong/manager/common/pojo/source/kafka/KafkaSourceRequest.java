@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of kafka source info
+ * Kafka source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the kafka source info")
+@ApiModel(value = "Kafka source request")
 @JsonTypeDefine(value = SourceType.SOURCE_KAFKA)
 public class KafkaSourceRequest extends SourceRequest {
 

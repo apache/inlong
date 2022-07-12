@@ -46,8 +46,8 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
@@ -167,7 +167,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information of group.
+     * Get info of group.
      */
     @SneakyThrows
     public InlongGroupInfo getGroupInfo(String inlongGroupId) {
@@ -192,7 +192,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information of groups.
+     * Get inlong group list.
      */
     public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
         InlongGroupPageRequest request = InlongGroupPageRequest.builder()
@@ -229,7 +229,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Create inlong group
+     * Create an inlong group
      */
     public String createGroup(InlongGroupRequest groupInfo) {
         Response<String> response = executeHttpCall(inlongGroupApi.createGroup(groupInfo));
@@ -257,7 +257,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Create information of stream.
+     * Create an inlong stream.
      */
     public Integer createStreamInfo(InlongStreamInfo streamInfo) {
         Response<Integer> response = executeHttpCall(inlongStreamApi.createStream(streamInfo));
@@ -303,7 +303,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information of stream.
+     * Get inlong stream info.
      */
     public List<InlongStreamInfo> listStreamInfo(String inlongGroupId) {
         InlongStreamPageRequest pageRequest = new InlongStreamPageRequest();
@@ -324,14 +324,14 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information of sources.
+     * List stream sources by the given groupId and streamId.
      */
     public List<StreamSource> listSources(String groupId, String streamId) {
         return listSources(groupId, streamId, null);
     }
 
     /**
-     * List information of sources by the specified source type.
+     * List stream sources by the specified source type.
      */
     public List<StreamSource> listSources(String groupId, String streamId, String sourceType) {
         Response<PageInfo<StreamSource>> response = executeHttpCall(
@@ -341,7 +341,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Update data Source Information.
+     * Update the stream source info.
      */
     public Pair<Boolean, String> updateSource(SourceRequest request) {
         Response<Boolean> response = executeHttpCall(streamSourceApi.updateSource(request));
@@ -353,7 +353,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Delete data source information by id.
+     * Delete the stream source info by id.
      */
     public boolean deleteSource(int id) {
         Preconditions.checkTrue(id > 0, "sourceId is illegal");
@@ -363,7 +363,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Create a conversion function information.
+     * Create a conversion function info.
      */
     public Integer createTransform(TransformRequest transformRequest) {
         Response<Integer> response = executeHttpCall(streamTransformApi.createTransform(transformRequest));
@@ -372,7 +372,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get all conversion function information.
+     * Get all conversion function info.
      */
     public List<TransformResponse> listTransform(String groupId, String streamId) {
         Response<List<TransformResponse>> response = executeHttpCall(
@@ -382,7 +382,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Update conversion function information.
+     * Update conversion function info.
      */
     public Pair<Boolean, String> updateTransform(TransformRequest transformRequest) {
         Response<Boolean> response = executeHttpCall(streamTransformApi.updateTransform(transformRequest));
@@ -395,7 +395,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Delete conversion function information.
+     * Delete conversion function info.
      */
     public boolean deleteTransform(TransformRequest transformRequest) {
         Preconditions.checkNotEmpty(transformRequest.getInlongGroupId(), "inlongGroupId should not be null");
@@ -416,7 +416,7 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Delete information of data sink by ID.
+     * Delete stream sink info by ID.
      */
     public boolean deleteSink(int id) {
         Preconditions.checkTrue(id > 0, "sinkId is illegal");
@@ -426,24 +426,24 @@ public class InnerInlongManagerClient {
     }
 
     /**
-     * Get information of data sinks.
+     * List stream sinks by the given groupId and streamId.
      */
-    public List<SinkListResponse> listSinks(String groupId, String streamId) {
+    public List<StreamSink> listSinks(String groupId, String streamId) {
         return listSinks(groupId, streamId, null);
     }
 
     /**
-     * Get information of data sinks.
+     * List stream sinks by the specified sink type.
      */
-    public List<SinkListResponse> listSinks(String groupId, String streamId, String sinkType) {
-        Response<PageInfo<SinkListResponse>> response = executeHttpCall(
+    public List<StreamSink> listSinks(String groupId, String streamId, String sinkType) {
+        Response<PageInfo<StreamSink>> response = executeHttpCall(
                 streamSinkApi.listSinks(groupId, streamId, sinkType));
         assertRespSuccess(response);
         return response.getData().getList();
     }
 
     /**
-     * Update information of data sink.
+     * Update the stream sink info.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
         Response<Boolean> responseBody = executeHttpCall(streamSinkApi.updateSink(sinkRequest));
@@ -504,7 +504,7 @@ public class InnerInlongManagerClient {
                 responseCall = inlongGroupApi.restartProcess(groupId);
             }
         } else {
-            throw new IllegalArgumentException(String.format("Unsupported state: %s", status));
+            throw new IllegalArgumentException(String.format("Unsupported inlong group status: %s", status));
         }
 
         Response<String> responseBody = executeHttpCall(responseCall);

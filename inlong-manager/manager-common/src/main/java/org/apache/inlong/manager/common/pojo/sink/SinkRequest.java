@@ -32,10 +32,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Request of sink
+ * Stream sink request
  */
 @Data
-@ApiModel("Request of sink")
+@ApiModel("Stream sink request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
 public abstract class SinkRequest {
 

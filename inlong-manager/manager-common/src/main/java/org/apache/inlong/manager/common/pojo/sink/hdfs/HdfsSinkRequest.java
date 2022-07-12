@@ -29,12 +29,12 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import java.util.List;
 
 /**
- * Request of the HDFS sink
+ * HDFS sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Kafka sink info")
+@ApiModel(value = "HDFS sink request")
 @JsonTypeDefine(value = SinkType.SINK_HDFS)
 public class HdfsSinkRequest extends SinkRequest {
 
@@ -44,8 +44,8 @@ public class HdfsSinkRequest extends SinkRequest {
     @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
     private String dataPath;
 
-    @ApiModelProperty("Compress formt")
-    private String compressFormt;
+    @ApiModelProperty("Compress format")
+    private String compressFormat;
 
     @ApiModelProperty("Server timeZone")
     private String serverTimeZone;

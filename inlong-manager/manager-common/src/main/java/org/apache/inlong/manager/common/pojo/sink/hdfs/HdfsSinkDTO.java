@@ -48,8 +48,8 @@ public class HdfsSinkDTO {
     @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
     private String dataPath;
 
-    @ApiModelProperty("Compress formt")
-    private String compressFormt;
+    @ApiModelProperty("Compress format")
+    private String compressFormat;
 
     @ApiModelProperty("Server timeZone")
     private String serverTimeZone;
@@ -71,7 +71,7 @@ public class HdfsSinkDTO {
                 .dataPath(request.getDataPath())
                 .dataSeparator(request.getDataSeparator())
                 .fileFormat(request.getFileFormat())
-                .compressFormt(request.getCompressFormt())
+                .compressFormat(request.getCompressFormat())
                 .serverTimeZone(request.getServerTimeZone())
                 .partitionFieldList(request.getPartitionFieldList())
                 .properties(request.getProperties())
@@ -79,7 +79,7 @@ public class HdfsSinkDTO {
     }
 
     /**
-     * Get Hdfs sink info from JSON string
+     * Get HDFS sink info from JSON string
      */
     public static HdfsSinkDTO getFromJson(@NotNull String extParams) {
         try {

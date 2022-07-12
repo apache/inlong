@@ -28,9 +28,10 @@ import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,8 @@ import java.util.List;
  */
 @Service
 public class AutoPushSourceOperator extends AbstractSourceOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutoPushSourceOperator.class);
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -63,6 +66,7 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
             AutoPushSourceDTO dto = AutoPushSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
+            LOGGER.error("parsing json string to source info failed", e);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
@@ -74,9 +78,6 @@ public class AutoPushSourceOperator extends AbstractSourceOperator {
             return source;
         }
 
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
         AutoPushSourceDTO dto = AutoPushSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);

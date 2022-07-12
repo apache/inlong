@@ -15,35 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.dlc;
+package org.apache.inlong.manager.common.pojo.sink.dlciceberg;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response info of DLCIceberg source list
+ * DLCIceberg sink info
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(SinkType.SINK_DLCICEBERG)
-@ApiModel("Response of DLCIceberg sink paging list")
-public class DLCIcebergSinkListResponse extends SinkListResponse {
+@ApiModel(value = "DLCIceberg sink info")
+@JsonTypeDefine(value = SinkType.SINK_DLCICEBERG)
+public class DLCIcebergSink extends StreamSink {
 
-    @ApiModelProperty("Catalog URI")
+    @ApiModelProperty("Catalog URI of the DLCIceberg server")
     private String catalogUri;
 
-    @ApiModelProperty("Data warehouse")
+    @ApiModelProperty("Data warehouse of the DLCIceberg server")
     private String warehouse;
 
     @ApiModelProperty("Target database name")
@@ -55,4 +53,12 @@ public class DLCIcebergSinkListResponse extends SinkListResponse {
     @ApiModelProperty(value = "Primary key")
     private String primaryKey;
 
+    public DLCIcebergSink() {
+        this.setSinkType(SinkType.SINK_DLCICEBERG);
+    }
+
+    @Override
+    public SinkRequest genSinkRequest() {
+        return CommonBeanUtils.copyProperties(this, DLCIcebergSinkRequest::new);
+    }
 }

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Postgres sink info
+ * PostgreSQL sink info
  */
 @Data
 @Builder

@@ -22,10 +22,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * Hdfs partition field info
+ * HDFS partition field info
  */
 @Data
-@ApiModel("Hdfs partition field")
+@ApiModel("HDFS partition field")
 public class HdfsPartitionField {
 
     @ApiModelProperty("Field name")

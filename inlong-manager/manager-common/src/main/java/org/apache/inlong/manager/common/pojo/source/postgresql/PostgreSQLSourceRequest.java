@@ -29,12 +29,12 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import java.util.List;
 
 /**
- * Request of PostgreSQL source
+ * PostgreSQL source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the PostgreSQL source")
+@ApiModel(value = "PostgreSQL source request")
 @JsonTypeDefine(value = SourceType.SOURCE_POSTGRES)
 public class PostgreSQLSourceRequest extends SourceRequest {
 

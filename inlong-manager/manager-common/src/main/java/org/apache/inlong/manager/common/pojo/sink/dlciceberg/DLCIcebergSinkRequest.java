@@ -15,46 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.dlciceberg;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Response info of TDSQLPostgreSQL sink list
+ * DLCIceberg sink request.
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(SinkType.SINK_TDSQLPOSTGRESQL)
-@ApiModel("Response of TDSQLPostgreSQL sink paging list")
-public class TDSQLPostgreSQLSinkListResponse extends SinkListResponse {
+@ApiModel(value = "DLCIceberg sink request")
+@JsonTypeDefine(value = SinkType.SINK_DLCICEBERG)
+public class DLCIcebergSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
-    private String jdbcUrl;
+    @ApiModelProperty("Catalog URI of the DLCIceberg server")
+    private String catalogUri;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
+    @ApiModelProperty("Data warehouse of the DLCIceberg server")
+    private String warehouse;
 
-    @ApiModelProperty("User password")
-    private String password;
-
-    @ApiModelProperty("Target schema name")
-    private String schemaName;
+    @ApiModelProperty("Target database name")
+    private String dbName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Primary key")
+    @ApiModelProperty(value = "Primary key")
     private String primaryKey;
+
 }

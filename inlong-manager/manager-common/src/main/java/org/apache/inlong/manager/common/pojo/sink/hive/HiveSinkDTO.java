@@ -43,13 +43,13 @@ public class HiveSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Hive JDBC URL")
+    @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Hive server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Hive server")
     private String password;
 
     @ApiModelProperty("Target database name")
@@ -70,22 +70,22 @@ public class HiveSinkDTO {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat;
 
-    @ApiModelProperty("Data encoding type")
+    @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
-    @ApiModelProperty("Data field separator")
+    @ApiModelProperty("Data separator, stored as ASCII code")
     private String dataSeparator;
 
     @ApiModelProperty("Properties for hive")
     private Map<String, Object> properties;
 
-    @ApiModelProperty("Version for hive")
+    @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
     /**

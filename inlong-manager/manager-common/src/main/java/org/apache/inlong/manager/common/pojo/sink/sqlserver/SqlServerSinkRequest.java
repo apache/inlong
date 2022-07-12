@@ -27,28 +27,28 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the sqlserver sink info
+ * SQLServer sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the sqlserver sink info")
+@ApiModel(value = "SQLServer sink request")
 @JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
 public class SqlServerSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Username of the Sqlserver")
+    @ApiModelProperty("Username of the SQLServer")
     private String username;
 
-    @ApiModelProperty("Password of the Sqlserver")
+    @ApiModelProperty("Password of the SQLServer")
     private String password;
 
-    @ApiModelProperty("sqlserver meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
+    @ApiModelProperty("SQLServer meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
     private String jdbcUrl;
 
-    @ApiModelProperty("schemaName of the Sqlserver")
+    @ApiModelProperty("Schema name of the SQLServer")
     private String schemaName;
 
-    @ApiModelProperty("tableName of the Sqlserver")
+    @ApiModelProperty("Table name of the SQLServer")
     private String tableName;
 
     @ApiModelProperty("Database time zone, Default is UTC")

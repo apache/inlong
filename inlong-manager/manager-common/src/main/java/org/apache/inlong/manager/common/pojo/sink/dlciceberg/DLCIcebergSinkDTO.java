@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.dlc;
+package org.apache.inlong.manager.common.pojo.sink.dlciceberg;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,10 +44,10 @@ public class DLCIcebergSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(DLCIcebergSinkDTO.class);
 
-    @ApiModelProperty("Catalog URI")
+    @ApiModelProperty("Catalog URI of the DLCIceberg server")
     private String catalogUri;
 
-    @ApiModelProperty("Data warehouse")
+    @ApiModelProperty("Data warehouse of the DLCIceberg server")
     private String warehouse;
 
     @ApiModelProperty("Target database name")

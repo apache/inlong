@@ -17,14 +17,16 @@
 
 package org.apache.inlong.manager.common.pojo.sink.postgres;
 
-import java.util.List;
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * Postgres table info.
+ * PostgreSQL table info.
  */
 @Data
 public class PostgresTableInfo {
+
     private String dbName;
     private String tableName;
     private String tableDesc;

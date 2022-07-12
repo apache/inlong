@@ -31,12 +31,12 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 import java.util.List;
 
 /**
- * Hdfs sink info
+ * HDFS sink info
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Hdfs sink info")
+@ApiModel(value = "HDFS sink info")
 @JsonTypeDefine(value = SinkType.SINK_HDFS)
 public class HdfsSink extends StreamSink {
 

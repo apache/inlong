@@ -27,16 +27,16 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the HBase sink
+ * HBase sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the HBase sink")
+@ApiModel(value = "HBase sink request")
 @JsonTypeDefine(value = SinkType.SINK_HBASE)
 public class HBaseSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Namespace")
+    @ApiModelProperty("Target namespace")
     private String namespace;
 
     @ApiModelProperty("Target table name")

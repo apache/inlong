@@ -30,10 +30,10 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
- * Request of transform
+ * Stream transform request
  */
 @Data
-@ApiModel("Request of stream transform")
+@ApiModel("Stream transform request")
 public class TransformRequest {
 
     @NotNull(groups = UpdateValidation.class)

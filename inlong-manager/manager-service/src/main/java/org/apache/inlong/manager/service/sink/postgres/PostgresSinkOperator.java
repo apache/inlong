@@ -18,37 +18,28 @@
 package org.apache.inlong.manager.service.sink.postgres;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.sink.AbstractSinkOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
- * Postgres sink operator
+ * PostgreSQL sink operator
  */
 @Service
 public class PostgresSinkOperator extends AbstractSinkOperator {
@@ -57,8 +48,6 @@ public class PostgresSinkOperator extends AbstractSinkOperator {
 
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
-    private StreamSinkFieldEntityMapper sinkFieldMapper;
 
     @Override
     public Boolean accept(SinkType sinkType) {
@@ -66,41 +55,8 @@ public class PostgresSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    public StreamSink getByEntity(@NotNull StreamSinkEntity entity) {
-        Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        String existType = entity.getSinkType();
-        Preconditions.checkTrue(this.getSinkType().equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
-        StreamSink response = this.getFromEntity(entity, this::getSink);
-        List<StreamSinkFieldEntity> entities = sinkFieldMapper.selectBySinkId(entity.getId());
-        List<SinkField> infos = CommonBeanUtils.copyListProperties(entities, SinkField::new);
-        response.setSinkFieldList(infos);
-        return response;
-    }
-
-    @Override
-    public <T> T getFromEntity(StreamSinkEntity entity, Supplier<T> target) {
-        T result = target.get();
-        if (entity == null) {
-            return result;
-        }
-        String existType = entity.getSinkType();
-        Preconditions.checkTrue(this.getSinkType().equals(existType),
-                String.format(ErrorCodeEnum.SINK_TYPE_NOT_SAME.getMessage(), this.getSinkType(), existType));
-
-        PostgresSinkDTO dto = PostgresSinkDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(entity, result, true);
-        CommonBeanUtils.copyProperties(dto, result, true);
-
-        return result;
-    }
-
-    @Override
-    public PageInfo<? extends SinkListResponse> getPageInfo(Page<StreamSinkEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, PostgresSinkListResponse::new));
+    protected String getSinkType() {
+        return SinkType.SINK_POSTGRES;
     }
 
     @Override
@@ -118,13 +74,18 @@ public class PostgresSinkOperator extends AbstractSinkOperator {
     }
 
     @Override
-    protected String getSinkType() {
-        return SinkType.SINK_POSTGRES;
-    }
+    public StreamSink getFromEntity(StreamSinkEntity entity) {
+        PostgresSink sink = new PostgresSink();
+        if (entity == null) {
+            return sink;
+        }
 
-    @Override
-    protected StreamSink getSink() {
-        return new PostgresSink();
+        PostgresSinkDTO dto = PostgresSinkDTO.getFromJson(entity.getExtParams());
+        CommonBeanUtils.copyProperties(entity, sink, true);
+        CommonBeanUtils.copyProperties(dto, sink, true);
+        List<SinkField> sinkFields = super.getSinkFields(entity.getId());
+        sink.setSinkFieldList(sinkFields);
+        return sink;
     }
 
 }

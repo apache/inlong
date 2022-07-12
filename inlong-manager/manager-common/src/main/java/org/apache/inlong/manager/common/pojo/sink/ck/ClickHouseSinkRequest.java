@@ -27,22 +27,22 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the ClickHouse sink.
+ * ClickHouse sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the ClickHouse sink info")
+@ApiModel(value = "ClickHouse sink request")
 @JsonTypeDefine(value = SinkType.SINK_CLICKHOUSE)
 public class ClickHouseSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("ClickHouse JDBC URL")
+    @ApiModelProperty("JDBC URL of the ClickHouse server")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the ClickHouse server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the ClickHouse server")
     private String password;
 
     @ApiModelProperty("Target database name")
@@ -73,7 +73,7 @@ public class ClickHouseSinkRequest extends SinkRequest {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
-    @ApiModelProperty("Table engine, support MergeTree Mem and so on")
+    @ApiModelProperty("ClickHouse table engine, support MergeTree Mem and so on")
     private String engine;
 
     @ApiModelProperty("Table partition information")

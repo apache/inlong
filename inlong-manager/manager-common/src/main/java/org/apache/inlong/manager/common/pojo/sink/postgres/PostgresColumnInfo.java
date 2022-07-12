@@ -20,10 +20,11 @@ package org.apache.inlong.manager.common.pojo.sink.postgres;
 import lombok.Data;
 
 /**
- * Postgres column info.
+ * PostgreSQL column info.
  */
 @Data
 public class PostgresColumnInfo {
+
     private String name;
     private String type;
     private String desc;
