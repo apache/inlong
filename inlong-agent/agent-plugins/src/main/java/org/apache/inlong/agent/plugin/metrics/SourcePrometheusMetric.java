@@ -38,7 +38,7 @@ public class SourcePrometheusMetric implements SourceMetric {
             .labelNames("tag")
             .register();
 
-    private String tagName;
+    private final String tagName;
 
     public SourcePrometheusMetric(String tagName) {
         this.tagName = tagName;
