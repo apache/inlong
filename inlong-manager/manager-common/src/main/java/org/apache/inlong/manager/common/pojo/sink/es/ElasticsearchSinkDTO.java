@@ -78,7 +78,7 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Primary Key")
     private String primaryKey;
 
-    @ApiModelProperty("es version")
+    @ApiModelProperty("Elasticsearch version")
     private Integer esVersion;
 
     @ApiModelProperty("Password encrypt version")
