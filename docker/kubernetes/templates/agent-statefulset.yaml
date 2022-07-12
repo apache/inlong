@@ -123,7 +123,7 @@ spec:
             - name: data
               mountPath: /data/collect-data
             - name: {{ template "inlong.fullname" . }}-{{ .Values.agent.component }}-{{ .Values.agent.volumes.name }}
-              mountPath: /opt/inlong-agent/.rockdb
+              mountPath: /opt/inlong-agent/.rocksdb
       volumes:
         - name: data
           emptyDir: {}

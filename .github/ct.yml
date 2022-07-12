@@ -19,4 +19,3 @@ chart-dirs:
   - 'docker'
 validate-maintainers: true
 check-version-increment: false
-timeout-minutes: 10
