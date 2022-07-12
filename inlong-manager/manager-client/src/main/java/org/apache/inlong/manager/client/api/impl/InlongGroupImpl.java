@@ -227,6 +227,11 @@ public class InlongGroupImpl implements InlongGroup {
     @Override
     public InlongGroupContext delete(boolean async) throws Exception {
         InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupContext.getGroupId());
+        GroupStatus status = GroupStatus.forCode(groupInfo.getStatus());
+        if (status == GroupStatus.FINISH) {
+            managerClient.deleteGroupResource(groupInfo.getInlongGroupId());
+            return generateSnapshot();
+        }
         boolean isDeleted = managerClient.deleteInlongGroup(groupInfo.getInlongGroupId(), async);
         if (isDeleted) {
             groupInfo.setStatus(GroupStatus.DELETED.getCode());
@@ -252,6 +257,12 @@ public class InlongGroupImpl implements InlongGroup {
     private InlongGroupContext generateSnapshot() {
         // fetch current group
         InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupContext.getGroupId());
+        // if current group is not exists, set deleted status
+        if (groupInfo == null) {
+            groupInfo = groupContext.getGroupInfo();
+            groupInfo.setStatus(GroupStatus.DELETED.getCode());
+            return new InlongGroupContext(groupContext);
+        }
         groupContext.setGroupInfo(groupInfo);
         String inlongGroupId = groupInfo.getInlongGroupId();
         // fetch stream in group

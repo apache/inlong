@@ -237,6 +237,12 @@ public class InnerInlongManagerClient {
         return response.getData();
     }
 
+    public String deleteGroupResource(String groupId) {
+        Response<String> response = executeHttpCall(inlongGroupApi.deleteGroupResource(groupId));
+        assertRespSuccess(response);
+        return response.getData();
+    }
+
     /**
      * Update inlong group info
      *
@@ -513,11 +519,6 @@ public class InnerInlongManagerClient {
         return responseBody.isSuccess()
                 || errMsg == null
                 || !errMsg.contains("not allowed");
-    }
-
-    public String deleteGroupResource(String groupId) {
-        Response<String> response = executeHttpCall(inlongGroupApi.deleteGroupResource(groupId));
-        return response.getData();
     }
 
     public boolean deleteInlongGroup(String groupId) {

@@ -51,7 +51,12 @@ public class InlongGroupTransfer {
         Preconditions.checkNotNull(groupInfo, "Inlong group info cannot be null");
         String groupId = groupInfo.getInlongGroupId();
         Preconditions.checkNotEmpty(groupId, "groupId cannot be empty");
-        groupInfo.setExtList(Lists.newArrayList());
+        // init extensions
+        if (groupInfo.getExtList() != null) {
+            groupInfo.setExtList(groupInfo.getExtList());
+        } else {
+            groupInfo.setExtList(Lists.newArrayList());
+        }
         // set authentication into group ext list
         List<InlongGroupExtInfo> extInfos = new ArrayList<>();
         if (groupInfo.getAuthentication() != null) {
