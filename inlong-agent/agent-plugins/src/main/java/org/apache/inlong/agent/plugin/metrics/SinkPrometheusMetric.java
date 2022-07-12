@@ -30,13 +30,13 @@ public class SinkPrometheusMetric implements SinkMetric {
 
     private final String tagName;
 
-    private final Counter sinkSuccessCounter = Counter.build()
+    private static final Counter SINK_SUCCESS_COUNTER = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_SUCCESS_COUNTER_NAME)
             .help("The success message count in agent sink since agent started.")
             .labelNames("tag")
             .register();
 
-    private final Counter sinkFailCounter = Counter.build()
+    private static final Counter SINK_FAIL_COUNTER = Counter.build()
             .name(AGENT_SINK_METRICS_PREFIX + SINK_FAIL_COUNTER_NAME)
             .help("The failed message count in agent sink since agent started.")
             .labelNames("tag")
@@ -53,21 +53,21 @@ public class SinkPrometheusMetric implements SinkMetric {
 
     @Override
     public void incSinkSuccessCount() {
-        sinkSuccessCounter.labels(tagName).inc();
+        SINK_SUCCESS_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSinkSuccessCount() {
-        return (long) sinkSuccessCounter.labels(tagName).get();
+        return (long) SINK_SUCCESS_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incSinkFailCount() {
-        sinkFailCounter.labels(tagName).inc();
+        SINK_FAIL_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSinkFailCount() {
-        return (long) sinkFailCounter.labels(tagName).get();
+        return (long) SINK_FAIL_COUNTER.labels(tagName).get();
     }
 }
