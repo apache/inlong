@@ -143,5 +143,5 @@ spec:
             storage: {{ .Values.agent.volumes.size }}
         {{- if .Values.volumes.agent.storageClassName }}
         storageClassName: "{{ .Values.volumes.agent.storageClassName }}"
-  {{- end }}
+        {{- end }}
   {{- end }}
