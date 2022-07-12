@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.hdfs;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,69 +26,66 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
- * TDSQLPostgreSQL sink info
+ * HDFS sink info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TDSQLPostgreSQLSinkDTO {
+public class HDFSSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkDTO.class);
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
-    private String jdbcUrl;
+    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    private String fileFormat;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
+    private String dataPath;
 
-    @ApiModelProperty("User password")
-    private String password;
+    @ApiModelProperty("Compress format")
+    private String compressFormat;
 
-    @ApiModelProperty("Target schema name")
-    private String schemaName;
+    @ApiModelProperty("Server timeZone")
+    private String serverTimeZone;
 
-    @ApiModelProperty("Target table name")
-    private String tableName;
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
+    @ApiModelProperty("Partition field list")
+    private List<HDFSPartitionField> partitionFieldList;
 
-    @ApiModelProperty("Properties for TDSQLPostgreSQL")
+    @ApiModelProperty("Properties for hbase")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static TDSQLPostgreSQLSinkDTO getFromRequest(TDSQLPostgreSQLSinkRequest request) {
-        return TDSQLPostgreSQLSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .schemaName(request.getSchemaName())
-                .primaryKey(request.getPrimaryKey())
-                .tableName(request.getTableName())
+    public static HDFSSinkDTO getFromRequest(HDFSSinkRequest request) {
+        return HDFSSinkDTO.builder()
+                .dataPath(request.getDataPath())
+                .dataSeparator(request.getDataSeparator())
+                .fileFormat(request.getFileFormat())
+                .compressFormat(request.getCompressFormat())
+                .serverTimeZone(request.getServerTimeZone())
+                .partitionFieldList(request.getPartitionFieldList())
                 .properties(request.getProperties())
                 .build();
     }
 
     /**
-     * Get TDSQLPostgreSQL sink info from JSON string
+     * Get HDFS sink info from JSON string
      */
-    public static TDSQLPostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
+    public static HDFSSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, TDSQLPostgreSQLSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, HDFSSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch tdsql postgresql sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }

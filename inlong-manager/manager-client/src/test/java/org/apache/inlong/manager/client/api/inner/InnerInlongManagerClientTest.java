@@ -43,7 +43,7 @@ import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
+import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
@@ -605,7 +605,7 @@ class InnerInlongManagerClientTest {
                         .topicName("test")
                         .partitionNum("6")
                         .build(),
-                PostgresSink.builder()
+                PostgreSQLSink.builder()
                         .id(7)
                         .sinkType("POSTGRES")
                         .primaryKey("test")

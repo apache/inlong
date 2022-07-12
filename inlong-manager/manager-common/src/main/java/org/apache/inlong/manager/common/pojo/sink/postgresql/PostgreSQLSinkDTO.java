@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.postgresql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,25 +26,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
- * TDSQLPostgreSQL sink info
+ * PostgreSQL sink info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TDSQLPostgreSQLSinkDTO {
+public class PostgreSQLSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkDTO.class);
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    @ApiModelProperty("JDBC URL of the PostgreSQL server")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -53,8 +51,8 @@ public class TDSQLPostgreSQLSinkDTO {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Target schema name")
-    private String schemaName;
+    @ApiModelProperty("Target database name")
+    private String dbName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
@@ -62,18 +60,18 @@ public class TDSQLPostgreSQLSinkDTO {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
-    @ApiModelProperty("Properties for TDSQLPostgreSQL")
+    @ApiModelProperty("Properties for PostgreSQL")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static TDSQLPostgreSQLSinkDTO getFromRequest(TDSQLPostgreSQLSinkRequest request) {
-        return TDSQLPostgreSQLSinkDTO.builder()
+    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) {
+        return PostgreSQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
                 .password(request.getPassword())
-                .schemaName(request.getSchemaName())
+                .dbName(request.getDbName())
                 .primaryKey(request.getPrimaryKey())
                 .tableName(request.getTableName())
                 .properties(request.getProperties())
@@ -81,16 +79,30 @@ public class TDSQLPostgreSQLSinkDTO {
     }
 
     /**
-     * Get TDSQLPostgreSQL sink info from JSON string
+     * Get PostgreSQL sink info from JSON string
+     *
+     * @param extParams JSON string
+     * @return PostgreSQL sink DTO
      */
-    public static TDSQLPostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
+    public static PostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, TDSQLPostgreSQLSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, PostgreSQLSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch tdsql postgresql sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
+    }
+
+    /**
+     * Get PostgreSQL table info
+     */
+    public static PostgreSQLTableInfo getTableInfo(PostgreSQLSinkDTO pgSink, List<PostgreSQLColumnInfo> columnList) {
+        PostgreSQLTableInfo tableInfo = new PostgreSQLTableInfo();
+        tableInfo.setDbName(pgSink.getDbName());
+        tableInfo.setTableName(pgSink.getTableName());
+        tableInfo.setPrimaryKey(pgSink.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
     }
 
 }

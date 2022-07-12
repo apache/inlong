@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * SqlServer source service test.
+ * SQLServer source service test.
  */
 public class SQLServerSourceServiceTest extends ServiceBaseTest {
 

@@ -335,10 +335,10 @@ public class ExtractNodeUtils {
     }
 
     /**
-     * Create SqlServer extract node
+     * Create SQLServer extract node
      *
-     * @param source SqlServer source info
-     * @return SqlServer extract node info
+     * @param source SQLServer source info
+     * @return SQLServer extract node info
      */
     public static SqlServerExtractNode createExtractNode(SQLServerSource source) {
         String name = source.getSourceName();

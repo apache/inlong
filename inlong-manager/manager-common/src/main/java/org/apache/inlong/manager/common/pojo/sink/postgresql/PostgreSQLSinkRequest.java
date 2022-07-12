@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.postgresql;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,16 +27,16 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * TDSQLPostgreSQL sink request.
+ * PostgreSQL sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "TDSQLPostgreSQL sink request")
-@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
-public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
+@ApiModel(value = "PostgreSQL sink request")
+@JsonTypeDefine(value = SinkType.SINK_POSTGRES)
+public class PostgreSQLSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
+    @ApiModelProperty("JDBC URL of the PostgreSQL server")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -45,12 +45,12 @@ public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
     @ApiModelProperty("User password")
     private String password;
 
-    @ApiModelProperty("Target schema name")
-    private String schemaName;
+    @ApiModelProperty("Target database name")
+    private String dbName;
 
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @ApiModelProperty("Primary key")
+    @ApiModelProperty("Primary key is required when serializationType is json, avro")
     private String primaryKey;
 }

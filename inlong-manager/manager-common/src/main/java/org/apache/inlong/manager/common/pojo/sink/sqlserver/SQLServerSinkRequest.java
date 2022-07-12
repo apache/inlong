@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.sqlserver;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,30 +27,37 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * TDSQLPostgreSQL sink request.
+ * SQLServer sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "TDSQLPostgreSQL sink request")
-@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
-public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
+@ApiModel(value = "SQLServer sink request")
+@JsonTypeDefine(value = SinkType.SINK_SQLSERVER)
+public class SQLServerSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
-    private String jdbcUrl;
-
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the SQLServer")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("Password of the SQLServer")
     private String password;
 
-    @ApiModelProperty("Target schema name")
+    @ApiModelProperty("SQLServer meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Schema name of the SQLServer")
     private String schemaName;
 
-    @ApiModelProperty("Target table name")
+    @ApiModelProperty("Table name of the SQLServer")
     private String tableName;
 
-    @ApiModelProperty("Primary key")
+    @ApiModelProperty("Database time zone, Default is UTC")
+    private String serverTimezone;
+
+    @ApiModelProperty("Whether to migrate all databases")
+    private boolean allMigration;
+
+    @ApiModelProperty(value = "Primary key must be shared by all tables")
     private String primaryKey;
+
 }

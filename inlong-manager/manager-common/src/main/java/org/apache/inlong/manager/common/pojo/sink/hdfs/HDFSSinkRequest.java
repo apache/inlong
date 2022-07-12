@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.hdfs;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,31 +26,34 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
+import java.util.List;
+
 /**
- * TDSQLPostgreSQL sink request.
+ * HDFS sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "TDSQLPostgreSQL sink request")
-@JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
-public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
+@ApiModel(value = "HDFS sink request")
+@JsonTypeDefine(value = SinkType.SINK_HDFS)
+public class HDFSSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
-    private String jdbcUrl;
+    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    private String fileFormat;
 
-    @ApiModelProperty("Username for JDBC URL")
-    private String username;
+    @ApiModelProperty("Data path, such as: hdfs://ip:port/usr/hive/warehouse/test.db")
+    private String dataPath;
 
-    @ApiModelProperty("User password")
-    private String password;
+    @ApiModelProperty("Compress format")
+    private String compressFormat;
 
-    @ApiModelProperty("Target schema name")
-    private String schemaName;
+    @ApiModelProperty("Server timeZone")
+    private String serverTimeZone;
 
-    @ApiModelProperty("Target table name")
-    private String tableName;
+    @ApiModelProperty("Data field separator")
+    private String dataSeparator;
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
+    @ApiModelProperty("Partition field list")
+    private List<HDFSPartitionField> partitionFieldList;
+
 }

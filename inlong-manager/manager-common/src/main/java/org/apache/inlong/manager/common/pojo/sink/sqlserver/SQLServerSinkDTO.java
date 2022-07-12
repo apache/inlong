@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql;
+package org.apache.inlong.manager.common.pojo.sink.sqlserver;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,70 +26,69 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.util.Map;
 
 /**
- * TDSQLPostgreSQL sink info
+ * SQLServer source info
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TDSQLPostgreSQLSinkDTO {
+public class SQLServerSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(TDSQLPostgreSQLSinkDTO.class);
 
-    @ApiModelProperty("TDSQLPostgreSQL jdbc url, such as jdbc:postgresql://host:port/database")
-    private String jdbcUrl;
-
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the SQLServer")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("Password of the SQLServer")
     private String password;
 
-    @ApiModelProperty("Target schema name")
+    @ApiModelProperty("SQLServer meta db URL, etc jdbc:sqlserver://host:port;databaseName=database")
+    private String jdbcUrl;
+
+    @ApiModelProperty("Schema name of the SQLServer")
     private String schemaName;
 
-    @ApiModelProperty("Target table name")
+    @ApiModelProperty("Table name of the SQLServer")
     private String tableName;
 
-    @ApiModelProperty("Primary key")
-    private String primaryKey;
+    @ApiModelProperty("Database time zone, Default is UTC")
+    private String serverTimezone;
 
-    @ApiModelProperty("Properties for TDSQLPostgreSQL")
-    private Map<String, Object> properties;
+    @ApiModelProperty("Whether to migrate all databases")
+    private boolean allMigration;
+
+    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    private String primaryKey;
 
     /**
      * Get the dto instance from the request
      */
-    public static TDSQLPostgreSQLSinkDTO getFromRequest(TDSQLPostgreSQLSinkRequest request) {
-        return TDSQLPostgreSQLSinkDTO.builder()
-                .jdbcUrl(request.getJdbcUrl())
+    public static SQLServerSinkDTO getFromRequest(SQLServerSinkRequest request) {
+        return SQLServerSinkDTO.builder()
                 .username(request.getUsername())
                 .password(request.getPassword())
+                .jdbcUrl(request.getJdbcUrl())
                 .schemaName(request.getSchemaName())
-                .primaryKey(request.getPrimaryKey())
                 .tableName(request.getTableName())
-                .properties(request.getProperties())
+                .serverTimezone(request.getServerTimezone())
+                .allMigration(request.isAllMigration())
+                .primaryKey(request.getPrimaryKey())
                 .build();
     }
 
     /**
-     * Get TDSQLPostgreSQL sink info from JSON string
+     * Get the dto instance from json
      */
-    public static TDSQLPostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
+    public static SQLServerSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, TDSQLPostgreSQLSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, SQLServerSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch tdsql postgresql sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
         }
     }
 
