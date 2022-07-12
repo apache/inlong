@@ -35,7 +35,7 @@ const oracleFieldTypes = [
   'FLOAT',
   'FLOAT4',
   'FLOAT8',
-  'DOUBLE PRECISION',
+  'DOUBLE',
   'REAL',
   'NUMBER',
   'NUMERIC',

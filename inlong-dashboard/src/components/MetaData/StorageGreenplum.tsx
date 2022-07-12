@@ -40,7 +40,7 @@ const greenplumFieldTypes = [
   'REAL',
   'FLOAT4',
   'FLOAT8',
-  'DOUBLE PRECISION',
+  'DOUBLE',
   'NUMERIC',
   'DECIMAL',
   'BOOLEAN',
