@@ -112,7 +112,7 @@ agent:
   # The agent service port
   port: 8008
   volumes:
-    name: rockdb
+    name: rocksdb
     size: "10Gi"
   env:
     AGENT_JVM_HEAP_OPTS: >-
