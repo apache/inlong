@@ -35,7 +35,7 @@ else
   sed -i 's/useWebProxy=.*/useWebProxy=false/g' /opt/tubemq-server/conf/master.ini
 fi
 # for standalone, start all services
-if [[ $TARGET == "standalone" ]]; then
+if [ "${TARGET}" = "standalone" ]; then
   # zookeeper start
   /docker-entrypoint.sh zkServer.sh start
   wait_port_to_listen zookeeper 2181
@@ -55,12 +55,12 @@ if [[ $TARGET == "standalone" ]]; then
   tail -F /opt/tubemq-server/logs/*
 fi
 # for master
-if [[ $TARGET == "master" ]]; then
+if [ "${TARGET}" = "master" ]; then
   ./tubemq.sh master start
   tail -F /opt/tubemq-server/logs/master.log
 fi
 # for broker
-if [[ $TARGET == "broker" ]]; then
+if [ "${TARGET}" = "broker" ]; then
   ./tubemq.sh broker start
   tail -F /opt/tubemq-server/logs/broker.log
 fi
