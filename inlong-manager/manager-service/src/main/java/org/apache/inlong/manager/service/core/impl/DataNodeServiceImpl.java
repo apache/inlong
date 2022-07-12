@@ -51,6 +51,8 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataNodeServiceImpl.class);
 
+    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     private DataNodeEntityMapper dataNodeMapper;
 
@@ -127,8 +129,11 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
-        dataNodeMapper.updateById(entity);
-
+        int isSuccess = dataNodeMapper.updateById(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("data node information has already updated, please reload data node information and update.");
+            throw new BusinessException(ErrorCodeEnum.DATA_NODE_UPDATE_FAILED);
+        }
         LOGGER.info("success to update data node={}", request);
         return true;
     }

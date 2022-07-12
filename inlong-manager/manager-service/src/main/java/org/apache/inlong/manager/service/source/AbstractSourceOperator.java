@@ -52,6 +52,8 @@ import java.util.Objects;
 public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperator.class);
+    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -166,8 +168,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     break;
             }
         }
-
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        int isSuccess = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("source information has already updated, please reload source information and update.");
+            throw new BusinessException(ErrorCodeEnum.SOURCE_UPDATE_FAILED);
+        }
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());
     }

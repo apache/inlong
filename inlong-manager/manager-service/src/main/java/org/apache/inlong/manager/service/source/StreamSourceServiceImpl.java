@@ -66,6 +66,7 @@ import java.util.stream.Collectors;
 public class StreamSourceServiceImpl implements StreamSourceService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSourceServiceImpl.class);
+    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private SourceOperatorFactory operatorFactory;
@@ -256,7 +257,11 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);
         entity.setModifyTime(new Date());
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        int isSuccess = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("source information has already updated, please reload source information and update.");
+            throw new BusinessException(ErrorCodeEnum.SOURCE_UPDATE_FAILED);
+        }
         sourceFieldMapper.deleteAll(id);
 
         LOGGER.info("success to delete source for id={} by user={}", id, operator);

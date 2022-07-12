@@ -57,7 +57,8 @@ import java.util.stream.Collectors;
 public class StreamTransformServiceImpl implements StreamTransformService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamTransformServiceImpl.class);
-  
+    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     protected StreamTransformEntityMapper transformMapper;
     @Autowired
@@ -152,8 +153,11 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setModifier(operator);
         transformEntity.setVersion(transformEntity.getVersion() + 1);
         transformEntity.setModifyTime(new Date());
-
-        transformMapper.updateByIdSelective(transformEntity);
+        int isSuccess = transformMapper.updateByIdSelective(transformEntity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("transform information has already updated, please reload transform information and update.");
+            throw new BusinessException(ErrorCodeEnum.TRAMSFORM_UPDATE_FAILED);
+        }
         updateFieldOpt(transformEntity, transformRequest.getFieldList());
         return true;
     }

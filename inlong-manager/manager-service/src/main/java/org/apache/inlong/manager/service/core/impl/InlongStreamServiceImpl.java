@@ -73,6 +73,7 @@ import java.util.stream.Collectors;
 public class InlongStreamServiceImpl implements InlongStreamService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceImpl.class);
+    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private InlongStreamEntityMapper streamMapper;
@@ -303,8 +304,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
-        streamMapper.updateByIdentifierSelective(streamEntity);
-
+        int isSuccess = streamMapper.updateByIdentifierSelective(streamEntity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("stream information has already updated, please reload stream information and update.");
+            throw new BusinessException(ErrorCodeEnum.STREAM_UPDATE_FAILED);
+        }
         // Update field information
         updateField(groupId, streamId, request.getFieldList());
         // Update extension info

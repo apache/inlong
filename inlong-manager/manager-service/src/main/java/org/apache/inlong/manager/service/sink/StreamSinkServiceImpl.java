@@ -68,6 +68,8 @@ import java.util.stream.Collectors;
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
+    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     private SinkOperatorFactory operatorFactory;
     @Autowired
@@ -273,7 +275,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setIsDeleted(id);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        sinkMapper.updateByPrimaryKeySelective(entity);
+        int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("sink information has already updated, please reload sink information and update.");
+            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+        }
         sinkFieldMapper.logicDeleteAll(id);
 
         LOGGER.info("success to delete sink info: {}", entity);

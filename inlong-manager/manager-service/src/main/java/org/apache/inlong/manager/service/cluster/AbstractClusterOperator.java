@@ -18,10 +18,14 @@
 package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +37,8 @@ import java.util.Date;
  */
 public abstract class AbstractClusterOperator implements InlongClusterOperator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClusterOperator.class);
+    private static final Integer UPDATE_SUCCESS = 1;
     @Autowired
     protected InlongClusterEntityMapper clusterMapper;
 
@@ -71,7 +77,11 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        clusterMapper.updateByIdSelective(entity);
+        int isSuccess = clusterMapper.updateByIdSelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("cluster information has already updated, please reload cluster information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_UPDATE_FAILED);
+        }
     }
 
 }

@@ -60,6 +60,7 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private UserEntityMapper userMapper;
@@ -198,8 +199,13 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setAccountType(updateUser.getType());
         updateUserEntity.setName(updateUser.getUsername());
 
+        int isSuccess = userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("user information has already updated, please reload user information and update.");
+            throw new BusinessException(ErrorCodeEnum.USER_UPDATE_FAILED);
+        }
         log.debug("success to update user info={} by {}", updateUser, currentUser);
-        return userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        return isSuccess;
     }
 
     @Override

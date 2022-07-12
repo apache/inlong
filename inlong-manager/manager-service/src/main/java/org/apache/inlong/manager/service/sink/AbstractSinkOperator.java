@@ -49,6 +49,7 @@ import java.util.List;
 public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
+    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -121,7 +122,11 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setStatus(SinkStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        sinkMapper.updateByPrimaryKeySelective(entity);
+        int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("sink information has already updated, please reload sink information and update.");
+            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+        }
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
         this.updateFieldOpt(onlyAdd, request);

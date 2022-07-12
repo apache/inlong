@@ -83,6 +83,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
+    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -316,8 +318,12 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
             consumptionPulsarMapper.updateByConsumptionId(pulsarEntity);
         }
-
-        consumptionMapper.updateByPrimaryKeySelective(entity);
+        int isSuccess = consumptionMapper.updateByPrimaryKeySelective(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn(
+                    "consumption information has already updated, please reload consumption information and update.");
+            throw new BusinessException(ErrorCodeEnum.CONSUMPTION_UPDATE_FAILED);
+        }
         return true;
     }
 

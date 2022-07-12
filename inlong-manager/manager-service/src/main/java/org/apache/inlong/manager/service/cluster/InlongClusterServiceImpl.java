@@ -71,6 +71,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,6 +93,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongClusterServiceImpl.class);
     private static final Gson GSON = new Gson();
+
+    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -170,6 +174,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Boolean updateTag(ClusterTagRequest request, String operator) {
         LOGGER.debug("begin to update cluster tag={}", request);
         Preconditions.checkNotNull(request, "inlong cluster request cannot be empty");
@@ -226,7 +231,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         CommonBeanUtils.copyProperties(request, exist, true);
         exist.setModifier(operator);
         exist.setModifyTime(new Date());
-        clusterTagMapper.updateById(exist);
+        int isSuccess = clusterTagMapper.updateById(exist);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn(
+                    "cluster tag information has already updated, please reload cluster tag information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_TAG_UPDATE_FAILED);
+        }
         LOGGER.info("success to update cluster tag={}", request);
         return true;
     }
@@ -526,6 +536,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class, isolation = Isolation.REPEATABLE_READ)
     public Boolean updateNode(ClusterNodeRequest request, String operator) {
         LOGGER.debug("begin to update inlong cluster node={}", request);
         Preconditions.checkNotNull(request, "inlong cluster node cannot be empty");
@@ -558,8 +569,11 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setParentId(request.getParentId());
         entity.setModifier(operator);
-        clusterNodeMapper.updateById(entity);
-
+        int isSuccess = clusterNodeMapper.updateById(entity);
+        if (isSuccess != UPDATE_SUCCESS) {
+            LOGGER.warn("cluster node information has already updated, please reload node information and update.");
+            throw new BusinessException(ErrorCodeEnum.CLUSTER_NODE_UPDATE_FAILED);
+        }
         LOGGER.info("success to update inlong cluster node={}", request);
         return true;
     }
