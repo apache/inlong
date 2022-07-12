@@ -180,7 +180,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             Date now = new Date();
             for (StreamTransformEntity entity : entityList) {
                 Integer id = entity.getId();
-                entity.setVersion(entity.getVersion() + 1);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);

@@ -147,7 +147,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        entity.setVersion(entity.getVersion() + 1);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
 

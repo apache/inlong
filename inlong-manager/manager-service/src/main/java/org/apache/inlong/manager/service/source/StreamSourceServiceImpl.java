@@ -324,7 +324,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
                 Integer id = entity.getId();
-                entity.setVersion(entity.getVersion() + 1);
                 entity.setPreviousStatus(entity.getStatus());
                 entity.setStatus(nextStatus);
                 entity.setIsDeleted(id);
