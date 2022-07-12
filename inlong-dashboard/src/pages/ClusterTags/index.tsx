@@ -175,7 +175,7 @@ const Comp: React.FC = () => {
           </Card>
 
           <Card>
-            <ClusterList tagId={1} clusterTag={currentTag.clusterTag} />
+            <ClusterList clusterTag={currentTag.clusterTag} />
           </Card>
         </Col>
       </Row>

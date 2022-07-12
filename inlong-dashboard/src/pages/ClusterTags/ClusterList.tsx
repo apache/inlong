@@ -28,7 +28,6 @@ import ClusterBindModal from './ClusterBindModal';
 import request from '@/utils/request';
 
 export interface ClusterListProps {
-  tagId: number;
   clusterTag: string;
 }
 
@@ -58,7 +57,7 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp: React.FC<ClusterListProps> = ({ tagId, clusterTag }) => {
+const Comp: React.FC<ClusterListProps> = ({ clusterTag }) => {
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
@@ -93,18 +92,22 @@ const Comp: React.FC<ClusterListProps> = ({ tagId, clusterTag }) => {
   const onDelete = useCallback(
     ({ id }) => {
       Modal.confirm({
-        title: i18n.t('basic.DeleteConfirm'),
+        title: i18n.t('pages.ClusterTags.DelClusterConfirm'),
         onOk: async () => {
           await request({
-            url: `/cluster/delete/${id}`,
-            method: 'DELETE',
+            url: '/cluster/bindTag',
+            method: 'POST',
+            data: {
+              unbindClusters: [id],
+              clusterTag,
+            },
           });
           await getList();
-          message.success(i18n.t('basic.DeleteSuccess'));
+          message.success(i18n.t('DelClusterSuccess'));
         },
       });
     },
-    [getList],
+    [clusterTag, getList],
   );
 
   const onChange = ({ current: pageNum, pageSize }) => {
@@ -151,7 +154,7 @@ const Comp: React.FC<ClusterListProps> = ({ tagId, clusterTag }) => {
         render: (text, record) => (
           <>
             {/* <Button type="link">{i18n.t('basic.Detail')}</Button> */}
-            <Button type="link" onClick={() => onDelete(record)} style={{ display: 'none' }}>
+            <Button type="link" onClick={() => onDelete(record)}>
               {i18n.t('pages.ClusterTags.DelCluster')}
             </Button>
           </>
@@ -168,11 +171,7 @@ const Comp: React.FC<ClusterListProps> = ({ tagId, clusterTag }) => {
           onFilter,
         }}
         suffix={
-          <Button
-            type="primary"
-            onClick={() => setClusterBindModal({ visible: true })}
-            style={{ display: 'none' }}
-          >
+          <Button type="primary" onClick={() => setClusterBindModal({ visible: true })}>
             {i18n.t('pages.ClusterTags.BindCluster')}
           </Button>
         }
@@ -188,7 +187,7 @@ const Comp: React.FC<ClusterListProps> = ({ tagId, clusterTag }) => {
 
       <ClusterBindModal
         {...clusterBindModal}
-        tagId={tagId}
+        clusterTag={clusterTag}
         visible={clusterBindModal.visible as boolean}
         onOk={async () => {
           await getList();
