@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.source;
+package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
+import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
@@ -30,15 +30,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * SqlServer source service test.
+ * Oracle source service test
  */
-public class SQLServerSourceServiceTest extends ServiceBaseTest {
+public class OracleSourceServiceTest extends ServiceBaseTest {
 
     private static final String hostname = "127.0.0.1";
     private static final Integer port = 1521;
-    private static final String database = "sqlserver_database";
-    private static final String schema = "sqlserver_schema";
-    private static final String tableName = "sqlserver_table";
+    private static final String database = "oracle_database";
+    private static final String schema = "oracle_schema";
+    private static final String tableName = "oracle_table";
     private final String sourceName = "stream_source_service_test";
     @Autowired
     private StreamSourceService sourceService;
@@ -51,11 +51,11 @@ public class SQLServerSourceServiceTest extends ServiceBaseTest {
     public Integer saveSource() {
         streamServiceTest.saveInlongStream(GLOBAL_GROUP_ID, GLOBAL_STREAM_ID, GLOBAL_OPERATOR);
 
-        SQLServerSourceRequest sourceInfo = new SQLServerSourceRequest();
+        OracleSourceRequest sourceInfo = new OracleSourceRequest();
         sourceInfo.setInlongGroupId(GLOBAL_GROUP_ID);
         sourceInfo.setInlongStreamId(GLOBAL_STREAM_ID);
         sourceInfo.setSourceName(sourceName);
-        sourceInfo.setSourceType(SourceType.SQLSERVER.getType());
+        sourceInfo.setSourceType(SourceType.ORACLE.getType());
         sourceInfo.setHostname(hostname);
         sourceInfo.setDatabase(database);
         sourceInfo.setTableName(tableName);
@@ -88,8 +88,8 @@ public class SQLServerSourceServiceTest extends ServiceBaseTest {
         StreamSource response = sourceService.get(id);
         Assertions.assertEquals(GLOBAL_GROUP_ID, response.getInlongGroupId());
 
-        SQLServerSource sqlserverSource = (SQLServerSource) response;
-        SQLServerSourceRequest request = CommonBeanUtils.copyProperties(sqlserverSource, SQLServerSourceRequest::new);
+        OracleSource oracleSource = (OracleSource) response;
+        OracleSourceRequest request = CommonBeanUtils.copyProperties(oracleSource, OracleSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
         Assertions.assertTrue(result);
 
