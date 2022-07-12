@@ -28,9 +28,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.EncryptUtils;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -87,6 +88,9 @@ public class HiveSinkDTO {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
     @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
@@ -94,9 +98,11 @@ public class HiveSinkDTO {
      * Get the dto instance from the request
      */
     public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
         }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -113,6 +119,7 @@ public class HiveSinkDTO {
                 .dataSeparator(request.getDataSeparator())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -160,7 +167,8 @@ public class HiveSinkDTO {
 
     private HiveSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtils.decryptByConfigAsString(this.password);
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
         }
         return this;
     }

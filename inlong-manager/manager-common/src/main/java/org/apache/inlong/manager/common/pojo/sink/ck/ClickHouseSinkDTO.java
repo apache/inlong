@@ -27,9 +27,10 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.EncryptUtils;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +94,9 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
     @ApiModelProperty("Properties for clickhouse")
     private Map<String, Object> properties;
 
@@ -100,9 +104,11 @@ public class ClickHouseSinkDTO {
      * Get the dto instance from the request
      */
     public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
         }
         return ClickHouseSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -121,6 +127,7 @@ public class ClickHouseSinkDTO {
                 .partitionBy(request.getPartitionBy())
                 .primaryKey(request.getPrimaryKey())
                 .orderBy(request.getOrderBy())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -150,7 +157,8 @@ public class ClickHouseSinkDTO {
 
     private ClickHouseSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtils.decryptByConfigAsString(this.password);
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
         }
         return this;
     }

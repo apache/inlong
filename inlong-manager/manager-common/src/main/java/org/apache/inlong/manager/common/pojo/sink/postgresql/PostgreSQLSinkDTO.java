@@ -27,9 +27,10 @@ import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.util.EncryptUtils;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +63,9 @@ public class PostgreSQLSinkDTO {
     @ApiModelProperty("Primary key")
     private String primaryKey;
 
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
     @ApiModelProperty("Properties for PostgreSQL")
     private Map<String, Object> properties;
 
@@ -69,10 +73,12 @@ public class PostgreSQLSinkDTO {
      * Get the dto instance from the request
      */
 
-    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception{
+    public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;
         if (StringUtils.isNotEmpty(request.getPassword())) {
-            passwd = EncryptUtils.encryptByConfigToString(request.getPassword().getBytes());
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
         }
         return PostgreSQLSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
@@ -81,6 +87,7 @@ public class PostgreSQLSinkDTO {
                 .dbName(request.getDbName())
                 .primaryKey(request.getPrimaryKey())
                 .tableName(request.getTableName())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -114,7 +121,8 @@ public class PostgreSQLSinkDTO {
 
     private PostgreSQLSinkDTO decryptPassword() throws Exception {
         if (StringUtils.isNotEmpty(this.password)) {
-            this.password = EncryptUtils.decryptByConfigAsString(this.password);
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
         }
         return this;
     }
