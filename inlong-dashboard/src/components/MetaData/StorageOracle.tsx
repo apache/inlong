@@ -48,7 +48,6 @@ const oracleFieldTypes = [
   'CLOB',
   'RAW',
   'BLOB',
-  // 'interval',
 ].map(item => ({
   label: item,
   value: item,

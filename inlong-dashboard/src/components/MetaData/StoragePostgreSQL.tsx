@@ -52,7 +52,6 @@ const postgreSQLFieldTypes = [
   'VARCHAR',
   'TEXT',
   'BYTEA',
-  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
