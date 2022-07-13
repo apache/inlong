@@ -77,7 +77,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -X
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
 

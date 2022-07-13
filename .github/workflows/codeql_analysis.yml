@@ -38,10 +38,10 @@ jobs:
         uses: actions/checkout@v3
 
       # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.language }}
+      #- name: Initialize CodeQL
+      #  uses: github/codeql-action/init@v2
+      #  with:
+      #    languages: ${{ matrix.language }}
 
       # build project
       - name: Set up JDK
@@ -60,10 +60,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -X
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
 
       # Perform CodeQL Analysis
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+      #- name: Perform CodeQL Analysis
+      #  uses: github/codeql-action/analyze@v2
