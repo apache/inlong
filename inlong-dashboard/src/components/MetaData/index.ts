@@ -27,6 +27,7 @@ import { StorageEs } from './StorageEs';
 import { StorageGreenplum } from './StorageGreenplum';
 import { StorageMySQL } from './StorageMySQL';
 import { StorageOracle } from './StorageOracle';
+import { StoragePostgreSQL } from './StoragePostgreSQL';
 
 export interface StoragesType {
   label: string;
@@ -83,5 +84,10 @@ export const Storages: StoragesType[] = [
     label: 'Oracle',
     value: 'ORACLE',
     ...StorageOracle,
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRES',
+    ...StoragePostgreSQL,
   },
 ];
