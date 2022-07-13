@@ -46,15 +46,15 @@ if [ -n "$1" ]; then
 fi
 
 CONFIG_FILE="audit-proxy-${MQ_TYPE}.conf"
-CONFIG_FILE_WITH_COFING_PATH="${base_dir}/conf/${CONFIG_FILE}"
-CONFIG_FILE_WITH_PATH="${base_dir}/conf"
+#CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
+CONFIG_FILE_WITH_PATH="${base_dir}/conf/${CONFIG_FILE}"
 LOG_DIR="${base_dir}/logs"
 
 if [ ! -d "${LOG_DIR}" ]; then
   mkdir ${LOG_DIR}
 fi
 if [ -f "$CONFIG_FILE_WITH_PATH" ]; then
-  nohup bash +x ${base_dir}/bin/audit-proxy agent --conf conf/ -f "${CONFIG_FILE_WITH_COFING_PATH}" -n agent1 --no-reload-conf 1>${LOG_DIR}/proxy.log 2>${LOG_DIR}/proxy-error.log &
+  nohup bash +x ${base_dir}/bin/audit-proxy agent --conf conf/ -f "${CONFIG_FILE_WITH_PATH}" -n agent1 --no-reload-conf 1>${LOG_DIR}/proxy.log 2>${LOG_DIR}/proxy-error.log &
 else
   error "${CONFIG_FILE_WITH_PATH} is not exist! start failed!" 1
 fi
