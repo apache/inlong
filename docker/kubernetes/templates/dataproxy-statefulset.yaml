@@ -106,7 +106,7 @@ spec:
         emptyDir: {}
       {{- end }}
       restartPolicy: Always
-  #Create pvc for dataproxy
+  # Create pvc for dataproxy
   {{- if .Values.volumes.dataproxy.persistence }}
   volumeClaimTemplates:
     - metadata:

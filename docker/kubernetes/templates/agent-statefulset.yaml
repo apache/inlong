@@ -132,6 +132,7 @@ spec:
           emptyDir: {}
         {{- end }}
       restartPolicy: Always
+  # Create pvc for agent
   {{- if .Values.volumes.agent.persistence }}
   volumeClaimTemplates:
     - metadata:
