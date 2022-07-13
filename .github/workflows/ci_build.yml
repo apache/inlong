@@ -81,6 +81,7 @@ jobs:
         env:
           CI: false
 
+      # test
       - name: Get InLong version
         if: ${{ success() }}
         run: |
