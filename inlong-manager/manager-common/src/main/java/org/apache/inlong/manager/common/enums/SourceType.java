@@ -37,6 +37,7 @@ public enum SourceType {
     ORACLE("ORACLE", TaskTypeEnum.ORACLE),
     SQLSERVER("SQLSERVER", TaskTypeEnum.SQLSERVER),
     MONGODB("MONGODB", TaskTypeEnum.MONGODB),
+    TUBEMQ("TUBEMQ",TaskTypeEnum.TUBEMQ),
 
     ;
 
@@ -50,6 +51,7 @@ public enum SourceType {
     public static final String SOURCE_ORACLE = "ORACLE";
     public static final String SOURCE_SQLSERVER = "SQLSERVER";
     public static final String SOURCE_MONGODB = "MONGODB";
+    public static final String SOURCE_TUBEMQ = "TUBEMQ";
 
     @Getter
     private final String type;

@@ -34,6 +34,7 @@ import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
 import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
 import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.common.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.OracleConstant.ScanStartUpMode;
@@ -47,6 +48,7 @@ import org.apache.inlong.sort.protocol.node.extract.OracleExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PostgresExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.PulsarExtractNode;
 import org.apache.inlong.sort.protocol.node.extract.SqlServerExtractNode;
+import org.apache.inlong.sort.protocol.node.extract.TubeMQExtractNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
 import org.apache.inlong.sort.protocol.node.format.CanalJsonFormat;
 import org.apache.inlong.sort.protocol.node.format.CsvFormat;
@@ -93,6 +95,8 @@ public class ExtractNodeUtils {
                 return createExtractNode((SQLServerSource) sourceInfo);
             case MONGODB:
                 return createExtractNode((MongoDBSource) sourceInfo);
+            case TUBEMQ:
+                return createExtractNode((TubeMQSource)sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -390,6 +394,34 @@ public class ExtractNodeUtils {
                 source.getUsername(),
                 source.getPassword(),
                 source.getDatabase()
+        );
+    }
+
+    /**
+     * Create TubeMQ extract node
+     *
+     * @param source TubeMQ source info
+     * @return TubeMQ extract node info
+     */
+    public static TubeMQExtractNode createExtractNode(TubeMQSource source) {
+        String name = source.getSourceName();
+        List<StreamField> streamFields = source.getFieldList();
+        List<FieldInfo> fieldInfos = streamFields.stream()
+                .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
+                .collect(Collectors.toList());
+        Map<String, String> properties = Maps.newHashMap();
+        return new TubeMQExtractNode(
+                name,
+                name,
+                fieldInfos,
+                null,
+                properties, 
+                source.getMasterRpc(),
+                source.getTopic(),
+                source.getSerializationType(),
+                source.getGroupId(),
+                source.getSessionKey(),
+                source.getTid()
         );
     }
 

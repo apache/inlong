@@ -27,15 +27,16 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
+import org.apache.inlong.manager.common.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -113,15 +114,8 @@ public class SortConfig4NormalGroupOperator implements SortConfigOperator {
 
         // get source info
         Map<String, List<StreamSource>> sourceMap;
-        if (MQType.MQ_PULSAR.equals(groupInfo.getMqType())) {
-            sourceMap = this.createPulsarSources(groupInfo, streamInfoList);
-        } else {
-            // TODO need to support TubeMQ
-            String errMsg = String.format("Unsupported MQ type: %s", groupInfo.getMqType());
-            LOGGER.error(errMsg);
-            throw new WorkflowListenerException(errMsg);
-        }
-
+        MQType.forType(groupInfo.getMqType());
+        sourceMap = createMQSources(groupInfo, streamInfoList);
         // create StreamInfo for Sort protocol
         List<StreamInfo> sortStreamInfos = new ArrayList<>();
         for (InlongStreamInfo inlongStream : streamInfoList) {
@@ -137,10 +131,46 @@ public class SortConfig4NormalGroupOperator implements SortConfigOperator {
         return new GroupInfo(groupId, sortStreamInfos);
     }
 
+    private Map<String, List<StreamSource>> createMQSources(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+        if (MQType.forType(groupInfo.getMqType()) == MQType.TUBE) {
+            return createTubeSource(groupInfo, streamInfoList);
+        }
+        return createPulsarSource(groupInfo, streamInfoList);
+    }
+
+    /**
+     * Create Tube sources for Sort.
+     */
+    private Map<String, List<StreamSource>> createTubeSource(
+            InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+        ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
+                ClusterType.TUBE);
+        TubeClusterInfo tubeClusterInfo = (TubeClusterInfo) clusterInfo;
+        String masterRpc = tubeClusterInfo.getUrl();
+        Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
+        streamInfoList.forEach(streamInfo -> {
+            TubeMQSource tubeMQSource = new TubeMQSource();
+            String streamId = streamInfo.getInlongStreamId();
+            tubeMQSource.setSourceName(streamId);
+            tubeMQSource.setTopic(streamInfo.getMqResource());
+            tubeMQSource.setGroupId(streamId);
+            tubeMQSource.setMasterRpc(masterRpc);
+            List<StreamSource> sourceInfos = sourceService.listSource(groupInfo.getInlongGroupId(), streamId);
+            for (StreamSource sourceInfo : sourceInfos) {
+                tubeMQSource.setSerializationType(sourceInfo.getSerializationType());
+            }
+            tubeMQSource.setFieldList(streamInfo.getFieldList());
+            sourceMap.computeIfAbsent(streamId, key -> Lists.newArrayList()).add(tubeMQSource);
+        });
+
+        return sourceMap;
+    }
+
     /**
      * Create Pulsar sources for Sort.
      */
-    private Map<String, List<StreamSource>> createPulsarSources(
+    private Map<String, List<StreamSource>> createPulsarSource(
             InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         ClusterInfo clusterInfo = clusterService.getOne(groupInfo.getInlongClusterTag(), null,
                 ClusterType.PULSAR);
