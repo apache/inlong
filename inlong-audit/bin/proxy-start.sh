@@ -41,9 +41,9 @@ error() {
   fi
 }
 
-prepare_file=${BASE_DIR}/conf/server.properties
-if [ ! -f "$prepare_file" ]; then
-  touch "$prepare_file"
+PREPARE_FILE=${BASE_DIR}/conf/server.properties
+if [ ! -f "$PREPARE_FILE" ]; then
+  touch "$PREPARE_FILE"
 fi
 
 MQ_TYPE=pulsar
