@@ -157,11 +157,11 @@ spec:
           configMap:
             name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-ini
             defaultMode: 0644
-        {{- if not .Values.volumes.tubemqMaster.persistence }}
+        {{- if not .Values.tubemqMaster.volumes.persistence }}
         - name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.name }}
           emptyDir: {}
         {{- end }}
-  {{- if .Values.volumes.tubemqMaster.persistence }}
+  {{- if .Values.tubemqMaster.volumes.persistence }}
   volumeClaimTemplates:
     - metadata:
         name: {{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-{{ .Values.tubemqMaster.volumes.name }}
@@ -170,7 +170,7 @@ spec:
         resources:
           requests:
             storage: {{ .Values.tubemqMaster.volumes.size }}
-        {{- if .Values.volumes.tubemqMaster.storageClassName }}
-        storageClassName: "{{ .Values.volumes.tubemqMaster.storageClassName }}"
+        {{- if .Values.tubemqMaster.volumes.storageClassName }}
+        storageClassName: "{{ .Values.tubemqMaster.volumes.storageClassName }}"
         {{- end }}
   {{- end }}

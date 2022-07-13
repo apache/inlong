@@ -50,26 +50,6 @@ images:
     tag: latest
   pullPolicy: "IfNotPresent"
 
-volumes:
-  mysql:
-    persistence: false
-    storageClassName: "local-storage"
-  tubemqBroker:
-    persistence: false
-    storageClassName: "local-storage"
-  tubemqMaster:
-    persistence: false
-    storageClassName: "local-storage"
-  zookeeper:
-    persistence: false
-    storageClassName: "local-storage"
-  agent:
-    persistence: false
-    storageClassName: "local-storage"
-  dataproxy:
-    persistence: false
-    storageClassName: "local-storage"
-
 ingress:
   enabled: false
   hosts:
@@ -114,6 +94,8 @@ agent:
   volumes:
     name: rocksdb
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   env:
     AGENT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -229,6 +211,8 @@ dataproxy:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   env:
     DATAPROXY_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -428,6 +412,8 @@ mysql:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
 
 zookeeper:
   component: "zookeeper"
@@ -486,6 +472,8 @@ zookeeper:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -548,6 +536,8 @@ tubemqMaster:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -628,6 +618,8 @@ tubemqBroker:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
