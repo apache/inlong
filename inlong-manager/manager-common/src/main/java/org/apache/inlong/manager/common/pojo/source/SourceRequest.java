@@ -31,10 +31,10 @@ import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
- * Request info of source
+ * Stream source request
  */
 @Data
-@ApiModel("Request of source")
+@ApiModel("Stream source request")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class SourceRequest {
 

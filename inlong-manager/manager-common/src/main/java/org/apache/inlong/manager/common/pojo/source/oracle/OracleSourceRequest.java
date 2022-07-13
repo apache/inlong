@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of Oracle source
+ * Oracle source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the oracle source info")
+@ApiModel(value = "Oracle source request")
 @JsonTypeDefine(value = SourceType.SOURCE_ORACLE)
 public class OracleSourceRequest extends SourceRequest {
 

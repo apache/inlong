@@ -79,7 +79,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return whether succeed
      */
-    boolean update(SourceRequest sourceRequest, String operator);
+    Boolean update(SourceRequest sourceRequest, String operator);
 
     /**
      * Update source status by the given groupId and streamId
@@ -90,7 +90,7 @@ public interface StreamSourceService {
      * @param operator The operator name.
      * @return whether succeed
      */
-    boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator);
+    Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -99,7 +99,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean delete(Integer id, String operator);
+    Boolean delete(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -108,7 +108,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean restart(Integer id, String operator);
+    Boolean restart(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -117,7 +117,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean stop(Integer id, String operator);
+    Boolean stop(Integer id, String operator);
 
     /**
      * Logically delete stream source with the given conditions.
@@ -127,7 +127,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed.
      */
-    boolean logicDeleteAll(String groupId, String streamId, String operator);
+    Boolean logicDeleteAll(String groupId, String streamId, String operator);
 
     /**
      * Physically delete stream source with the given conditions.
@@ -137,7 +137,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed.
      */
-    boolean deleteAll(String groupId, String streamId, String operator);
+    Boolean deleteAll(String groupId, String streamId, String operator);
 
     /**
      * According to the inlong stream id, query the list of source types owned by it.

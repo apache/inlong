@@ -31,7 +31,7 @@ import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -158,8 +158,8 @@ public class ListCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-                PrintUtils.print(sinkListResponses, SinkInfo.class);
+                List<StreamSink> streamSinks = managerClient.listSinks(group, stream);
+                PrintUtils.print(streamSinks, SinkInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -190,8 +190,8 @@ public class ListCommand extends AbstractCommand {
         @Override
         void run() {
             try {
-                List<StreamSource> sourceListResponses = managerClient.listSources(group, stream, type);
-                PrintUtils.print(sourceListResponses, SourceInfo.class);
+                List<StreamSource> streamSources = managerClient.listSources(group, stream, type);
+                PrintUtils.print(streamSources, SourceInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

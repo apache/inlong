@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request info of the SqlServer source
+ * SQLServer source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the SqlServer source")
+@ApiModel(value = "SQLServer source request")
 @JsonTypeDefine(value = SourceType.SOURCE_SQLSERVER)
 public class SQLServerSourceRequest extends SourceRequest {
 

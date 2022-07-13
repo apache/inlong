@@ -29,7 +29,6 @@ import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
 import org.apache.inlong.manager.client.api.inner.InnerStreamContext;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
@@ -240,15 +239,15 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
         InlongStreamInfo streamInfo = streamContext.getStreamInfo();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        List<SinkListResponse> sinkListResponses = managerClient.listSinks(groupId, streamId);
+        List<StreamSink> streamSinks = managerClient.listSinks(groupId, streamId);
         List<String> updateSinkNames = Lists.newArrayList();
-        for (SinkListResponse sinkListResponse : sinkListResponses) {
-            final String sinkName = sinkListResponse.getSinkName();
-            final int id = sinkListResponse.getId();
+        for (StreamSink sink : streamSinks) {
+            final String sinkName = sink.getSinkName();
+            final int id = sink.getId();
             if (sinkRequests.get(sinkName) == null) {
                 boolean isDelete = managerClient.deleteSink(id);
                 if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete sink=%s failed", sinkListResponse));
+                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
                 }
             } else {
                 SinkRequest sinkRequest = sinkRequests.get(sinkName);
@@ -259,7 +258,7 @@ public class DefaultInlongStreamBuilder extends InlongStreamBuilder {
                             updateState.getValue()));
                 }
                 updateSinkNames.add(sinkName);
-                sinkRequest.setId(sinkListResponse.getId());
+                sinkRequest.setId(sink.getId());
             }
         }
         for (Map.Entry<String, SinkRequest> requestEntry : sinkRequests.entrySet()) {

@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,9 +73,6 @@ public class FileSourceOperator extends AbstractSourceOperator {
             return source;
         }
 
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
         FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
         CommonBeanUtils.copyProperties(entity, source, true);
         CommonBeanUtils.copyProperties(dto, source, true);

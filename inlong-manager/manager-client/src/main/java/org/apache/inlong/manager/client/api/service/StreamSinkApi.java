@@ -19,8 +19,8 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -41,7 +41,7 @@ public interface StreamSinkApi {
     Call<Response<Boolean>> deleteSink(@Path("id") Integer id);
 
     @GET("sink/list")
-    Call<Response<PageInfo<SinkListResponse>>> listSinks(@Query("inlongGroupId") String groupId,
+    Call<Response<PageInfo<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
 
 }

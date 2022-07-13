@@ -36,19 +36,14 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
+import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
-import org.apache.inlong.manager.common.pojo.sink.hive.HiveSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
-import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
-import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSinkListResponse;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
@@ -573,44 +568,44 @@ class InnerInlongManagerClientTest {
 
     @Test
     void testListSink4AllType() {
-        List<SinkListResponse> listResponses = Lists.newArrayList(
-                ClickHouseSinkListResponse.builder()
+        List<StreamSink> sinkList = Lists.newArrayList(
+                ClickHouseSink.builder()
                         .id(1)
                         .sinkType("CLICKHOUSE")
                         .jdbcUrl("127.0.0.1")
                         .partitionStrategy("BALANCE")
                         .partitionFields("partitionFields")
                         .build(),
-                ElasticsearchSinkListResponse.builder()
+                ElasticsearchSink.builder()
                         .id(2)
                         .sinkType("ELASTICSEARCH")
                         .host("127.0.0.1")
                         .flushInterval(2)
                         .build(),
-                HBaseSinkListResponse.builder()
+                HBaseSink.builder()
                         .id(3)
                         .sinkType("HBASE")
                         .tableName("tableName")
                         .rowKey("rowKey")
                         .build(),
-                HiveSinkListResponse.builder()
+                HiveSink.builder()
                         .id(4)
                         .sinkType("HIVE")
                         .dataPath("hdfs://ip:port/user/hive/warehouse/test.db")
                         .hiveVersion("hiveVersion")
                         .build(),
-                IcebergSinkListResponse.builder()
+                IcebergSink.builder()
                         .id(5)
                         .sinkType("ICEBERG")
                         .partitionType("H-hour")
                         .build(),
-                KafkaSinkListResponse.builder()
+                KafkaSink.builder()
                         .id(6)
                         .sinkType("KAFKA")
                         .topicName("test")
                         .partitionNum("6")
                         .build(),
-                PostgresSinkListResponse.builder()
+                PostgreSQLSink.builder()
                         .id(7)
                         .sinkType("POSTGRES")
                         .primaryKey("test")
@@ -621,13 +616,13 @@ class InnerInlongManagerClientTest {
                 get(urlMatching("/api/inlong/manager/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
-                                        Response.success(new PageInfo<>(Lists.newArrayList(listResponses))))
+                                        Response.success(new PageInfo<>(Lists.newArrayList(sinkList))))
                                 )
                         )
         );
 
-        List<SinkListResponse> sinkListResponses = innerInlongManagerClient.listSinks("11", "11");
-        Assertions.assertEquals(JsonUtils.toJsonString(listResponses), JsonUtils.toJsonString(sinkListResponses));
+        List<StreamSink> sinks = innerInlongManagerClient.listSinks("11", "11");
+        Assertions.assertEquals(JsonUtils.toJsonString(sinkList), JsonUtils.toJsonString(sinks));
     }
 
     @Test

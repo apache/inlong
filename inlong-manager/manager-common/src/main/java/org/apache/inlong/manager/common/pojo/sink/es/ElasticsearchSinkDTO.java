@@ -28,7 +28,6 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,16 +41,16 @@ public class ElasticsearchSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Elasticsearch Host")
+    @ApiModelProperty("Host of the Elasticsearch server")
     private String host;
 
-    @ApiModelProperty("Elasticsearch Port")
+    @ApiModelProperty("Port of the Elasticsearch server")
     private Integer port;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Elasticsearch server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Elasticsearch server")
     private String password;
 
     @ApiModelProperty("Elasticsearch index name")
@@ -65,6 +64,9 @@ public class ElasticsearchSinkDTO {
 
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
+
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
 
     @ApiModelProperty("Document Type")
     private String documentType;
@@ -107,11 +109,6 @@ public class ElasticsearchSinkDTO {
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
-    }
-
-    public static String getElasticSearchIndexName(ElasticsearchSinkDTO esInfo,
-            List<ElasticsearchFieldInfo> fieldList) {
-        return esInfo.getIndexName();
     }
 
 }

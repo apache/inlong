@@ -42,13 +42,13 @@ public class ClickHouseSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("ClickHouse JDBC URL")
+    @ApiModelProperty("JDBC URL of the ClickHouse server")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the ClickHouse server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the ClickHouse server")
     private String password;
 
     @ApiModelProperty("Target database name")
@@ -79,7 +79,7 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
 
-    @ApiModelProperty("Table engine, support MergeTree Mem and so on")
+    @ApiModelProperty("ClickHouse table engine, support MergeTree Mem and so on")
     private String engine;
 
     @ApiModelProperty("Table partition information")

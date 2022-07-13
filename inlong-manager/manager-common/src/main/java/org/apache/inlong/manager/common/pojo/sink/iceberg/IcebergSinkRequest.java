@@ -27,19 +27,22 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Iceberg sink info
+ * Iceberg sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Iceberg sink info")
+@ApiModel(value = "Iceberg sink request")
 @JsonTypeDefine(value = SinkType.SINK_ICEBERG)
 public class IcebergSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Catalog URI")
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    private String catalogType = "HIVE";
+
+    @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
     private String catalogUri;
 
-    @ApiModelProperty("Iceberg warehouse dir")
+    @ApiModelProperty("Iceberg data warehouse dir")
     private String warehouse;
 
     @ApiModelProperty("Target database name")
@@ -54,8 +57,8 @@ public class IcebergSinkRequest extends SinkRequest {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    private String catalogType = "HIVE";
+    @ApiModelProperty("Partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
+    private String partitionType;
 
     @ApiModelProperty("Primary key")
     private String primaryKey;

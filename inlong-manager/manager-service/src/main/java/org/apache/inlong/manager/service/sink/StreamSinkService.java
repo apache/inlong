@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.sink;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -79,10 +78,10 @@ public interface StreamSinkService {
     /**
      * Paging query sink information based on conditions.
      *
-     * @param request Paging request.
-     * @return Sink info list.
+     * @param request paging request.
+     * @return sink list
      */
-    PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request);
+    PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request);
 
     /**
      * Modify data sink information.

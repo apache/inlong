@@ -38,13 +38,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_GREENPLUM)
 public class GreenplumSink extends StreamSink {
 
-    @ApiModelProperty("Greenplum JDBC URL such as:jdbc:postgresql://host:port/database")
+    @ApiModelProperty("JDBC URL of Greenplum server, such as: jdbc:postgresql://host:port/database")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of Greenplum server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of Greenplum server")
     private String password;
 
     @ApiModelProperty("Target table name")

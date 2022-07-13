@@ -75,15 +75,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
-        String groupId = request.getInlongGroupId();
-        String streamId = request.getInlongStreamId();
-        String sourceName = request.getSourceName();
-        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
-        if (CollectionUtils.isNotEmpty(existList)) {
-            String err = "source name=%s already exists with groupId=%s streamId=%s";
-            throw new BusinessException(String.format(err, sourceName, groupId, streamId));
-        }
-
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
         entity.setVersion(1);
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
@@ -221,11 +212,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         // Then batch save the source fields
         this.saveFieldOpt(entity, fieldInfos);
 
-        LOGGER.info("success to update field");
+        LOGGER.info("success to update source fields");
     }
 
     private void saveFieldOpt(StreamSourceEntity entity, List<StreamField> fieldInfos) {
-        LOGGER.info("begin to save source field={}", fieldInfos);
+        LOGGER.info("begin to save source fields={}", fieldInfos);
         if (CollectionUtils.isEmpty(fieldInfos)) {
             return;
         }
