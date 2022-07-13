@@ -19,6 +19,7 @@ package org.apache.inlong.manager.client.cli.util;
 
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 
 import java.io.BufferedInputStream;
@@ -39,23 +40,23 @@ public class ClientUtils {
 
     private static final String CONFIG_FILE = "application.properties";
 
+    private static ClientConfiguration configuration;
+
+    private static String serviceUrl;
+
+    public static ClientFactory clientFactory;
+
     /**
      * Get an inlong client instance.
      */
     public static InlongClientImpl getClient() throws IOException {
-        Properties properties = new Properties();
-        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-        InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
-        properties.load(inputStream);
-
-        String serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
-        String user = properties.getProperty("default.admin.user");
-        String password = properties.getProperty("default.admin.password");
-
-        ClientConfiguration configuration = new ClientConfiguration();
-        configuration.setAuthentication(new DefaultAuthentication(user, password));
-
+        initClientConfiguration();
         return new InlongClientImpl(serviceUrl, configuration);
+    }
+
+    public static void initClientFactory() throws IOException {
+        initClientConfiguration();
+        clientFactory = org.apache.inlong.manager.client.api.util.ClientUtils.getClientFactory(configuration);
     }
 
     /**
@@ -84,4 +85,17 @@ public class ClientUtils {
         return null;
     }
 
+    private static void initClientConfiguration() throws IOException {
+        Properties properties = new Properties();
+        String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
+        InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
+        properties.load(inputStream);
+
+        serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
+        String user = properties.getProperty("default.admin.user");
+        String password = properties.getProperty("default.admin.password");
+
+        configuration = new ClientConfiguration();
+        configuration.setAuthentication(new DefaultAuthentication(user, password));
+    }
 }

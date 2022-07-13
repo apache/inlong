@@ -30,7 +30,8 @@ import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.enums.SimpleSourceStatus;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
+import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
@@ -51,6 +52,7 @@ public class InlongClientImpl implements InlongClient {
     private static final String HOST_SPLITTER = ":";
     @Getter
     private final ClientConfiguration configuration;
+    private final InlongGroupClient groupClient;
 
     public InlongClientImpl(String serviceUrl, ClientConfiguration configuration) {
         Map<String, String> hostPorts = Splitter.on(URL_SPLITTER).withKeyValueSeparator(HOST_SPLITTER)
@@ -74,37 +76,36 @@ public class InlongClientImpl implements InlongClient {
             throw new RuntimeException(String.format("%s is not connective", serviceUrl));
         }
         this.configuration = configuration;
+        groupClient = ClientUtils.getClientFactory(configuration).getGroupClient();
     }
 
     @Override
     public InlongGroup forGroup(InlongGroupInfo groupInfo) {
-        return new InlongGroupImpl(groupInfo, this);
+        return new InlongGroupImpl(groupInfo, configuration);
     }
 
     @Override
     public List<InlongGroup> listGroup(String expr, int status, int pageNum, int pageSize) {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
-        PageInfo<InlongGroupListResponse> responsePageInfo = managerClient.listGroups(expr, status, pageNum,
+        PageInfo<InlongGroupListResponse> responsePageInfo = groupClient.listGroups(expr, status, pageNum,
                 pageSize);
         if (CollectionUtils.isEmpty(responsePageInfo.getList())) {
             return Lists.newArrayList();
         } else {
             return responsePageInfo.getList().stream().map(response -> {
                 String groupId = response.getInlongGroupId();
-                InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
-                return new InlongGroupImpl(groupInfo, this);
+                InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
+                return new InlongGroupImpl(groupInfo, configuration);
             }).collect(Collectors.toList());
         }
     }
 
     @Override
     public Map<String, SimpleGroupStatus> listGroupStatus(List<String> groupIds) {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
         InlongGroupPageRequest request = new InlongGroupPageRequest();
         request.setGroupIdList(groupIds);
         request.setListSources(true);
 
-        PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(request);
+        PageInfo<InlongGroupListResponse> pageInfo = groupClient.listGroups(request);
         List<InlongGroupListResponse> groupListResponses = pageInfo.getList();
         Map<String, SimpleGroupStatus> groupStatusMap = Maps.newHashMap();
         if (CollectionUtils.isNotEmpty(groupListResponses)) {
@@ -121,12 +122,11 @@ public class InlongClientImpl implements InlongClient {
 
     @Override
     public InlongGroup getGroup(String groupId) {
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(this.configuration);
-        InlongGroupInfo groupInfo = managerClient.getGroupInfo(groupId);
+        InlongGroupInfo groupInfo = groupClient.getGroupInfo(groupId);
         if (groupInfo == null) {
             return new BlankInlongGroup();
         }
-        return new InlongGroupImpl(groupInfo, this);
+        return new InlongGroupImpl(groupInfo, configuration);
     }
 
     private SimpleGroupStatus recheckGroupStatus(SimpleGroupStatus groupStatus, List<StreamSource> sources) {

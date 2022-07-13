@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.client.api.impl;
 
 import com.google.common.collect.Lists;
+import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.transform.MultiDependencyTransform;
 import org.apache.inlong.manager.client.api.transform.SingleDependencyTransform;
+import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
@@ -44,7 +46,11 @@ public class InlongStreamImplTest {
 
     @Test
     public void testCreatePipeline() {
-        InlongStream inlongStream = new InlongStreamImpl("group", "stream", null);
+        String serviceUrl = "127.0.0.1:8085";
+        ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
+        InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
+        InlongStream inlongStream = new InlongStreamImpl("group", "stream", inlongClient.getConfiguration());
         // add stream source
         KafkaSource kafkaSource = new KafkaSource();
         kafkaSource.setSourceName("A");
