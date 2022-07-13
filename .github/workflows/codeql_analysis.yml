@@ -56,7 +56,6 @@ jobs:
           path: |
             ~/.m2/repository
             !~/.m2/repository/org/apache/inlong
-            !~/.m2/repository/com/github/eirslett
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
