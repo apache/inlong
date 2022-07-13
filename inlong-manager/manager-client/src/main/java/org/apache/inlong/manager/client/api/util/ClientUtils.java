@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.client.api.util;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -39,6 +40,7 @@ import java.util.Optional;
  * Utils for client
  */
 @Slf4j
+@UtilityClass
 public class ClientUtils {
 
     private static final String REQUEST_FAILED_MSG = "Request to Inlong %s failed: %s";
