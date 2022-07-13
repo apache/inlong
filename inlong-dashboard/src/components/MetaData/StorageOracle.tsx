@@ -65,7 +65,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:oracle:thin://host:port/database/',
+        placeholder: 'jdbc:oracle:thin://127.0.0.1:1521/db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },

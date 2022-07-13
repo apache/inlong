@@ -69,7 +69,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:postgresql:thin://127.0.0.1:5432/database',
+        placeholder: 'jdbc:postgresql://127.0.0.1:5432/db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
