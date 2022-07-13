@@ -46,7 +46,6 @@ if [ -n "$1" ]; then
 fi
 
 CONFIG_FILE="audit-proxy-${MQ_TYPE}.conf"
-#CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
 CONFIG_FILE_WITH_PATH="${base_dir}/conf/${CONFIG_FILE}"
 LOG_DIR="${base_dir}/logs"
 
