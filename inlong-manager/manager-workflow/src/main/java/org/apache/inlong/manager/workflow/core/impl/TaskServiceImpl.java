@@ -68,6 +68,8 @@ public class TaskServiceImpl implements TaskService {
         WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.COMPLETE, remark, operator);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
+        ServiceTask serviceTask = (ServiceTask) context.getActionContext().getTask();
+        serviceTask.initListeners(context);
         return context;
     }
 
