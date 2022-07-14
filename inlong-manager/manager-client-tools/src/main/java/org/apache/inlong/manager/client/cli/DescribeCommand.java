@@ -33,7 +33,6 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

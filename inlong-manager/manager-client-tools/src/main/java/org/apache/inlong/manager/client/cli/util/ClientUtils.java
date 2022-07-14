@@ -24,7 +24,6 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
