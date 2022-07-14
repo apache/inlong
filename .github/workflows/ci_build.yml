@@ -76,6 +76,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      #test
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:

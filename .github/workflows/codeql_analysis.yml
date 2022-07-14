@@ -66,5 +66,5 @@ jobs:
           CI: false
 
       # Perform CodeQL Analysis
-      #- name: Perform CodeQL Analysis
-      #  uses: github/codeql-action/analyze@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
