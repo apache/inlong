@@ -54,8 +54,8 @@ public class ClientUtils {
     }
 
     public static void initClientFactory() {
-        initClientConfiguration();
-        clientFactory = org.apache.inlong.manager.client.api.util.ClientUtils.getClientFactory(configuration);
+        clientFactory = org.apache.inlong.manager.client.api.util.ClientUtils.getClientFactory(
+                getClient().getConfiguration());
     }
 
     /**
