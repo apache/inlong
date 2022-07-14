@@ -48,13 +48,7 @@ public class DescribeCommand extends AbstractCommand {
     public DescribeCommand() {
         super("describe");
 
-        try {
-            ClientUtils.initClientFactory();
-        } catch (IOException e) {
-            System.err.println("init clientFactory error");
-            System.err.println(e.getMessage());
-            return;
-        }
+        ClientUtils.initClientFactory();
 
         jcommander.addCommand("stream", new DescribeStream(ClientUtils.clientFactory.getStreamClient()));
         jcommander.addCommand("group", new DescribeGroup(ClientUtils.clientFactory.getGroupClient()));

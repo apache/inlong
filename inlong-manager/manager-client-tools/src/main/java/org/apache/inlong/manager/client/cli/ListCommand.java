@@ -52,13 +52,7 @@ public class ListCommand extends AbstractCommand {
     public ListCommand() {
         super("list");
 
-        try {
-            ClientUtils.initClientFactory();
-        } catch (IOException e) {
-            System.err.println("init clientFactory error");
-            System.err.println(e.getMessage());
-            return;
-        }
+        ClientUtils.initClientFactory();
 
         jcommander.addCommand("stream", new ListStream(ClientUtils.clientFactory.getStreamClient()));
         jcommander.addCommand("group", new ListGroup(ClientUtils.clientFactory.getGroupClient()));

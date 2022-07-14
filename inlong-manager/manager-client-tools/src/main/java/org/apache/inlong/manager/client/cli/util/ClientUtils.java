@@ -49,12 +49,12 @@ public class ClientUtils {
     /**
      * Get an inlong client instance.
      */
-    public static InlongClientImpl getClient() throws IOException {
+    public static InlongClientImpl getClient() {
         initClientConfiguration();
         return new InlongClientImpl(serviceUrl, configuration);
     }
 
-    public static void initClientFactory() throws IOException {
+    public static void initClientFactory() {
         initClientConfiguration();
         clientFactory = org.apache.inlong.manager.client.api.util.ClientUtils.getClientFactory(configuration);
     }
@@ -65,37 +65,33 @@ public class ClientUtils {
     public static String readFile(File file) {
         if (!file.exists()) {
             System.out.println("File does not exist.");
-        } else {
-            try {
-                FileReader fileReader = new FileReader(file);
-                Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()));
-                int ch;
-                StringBuilder stringBuilder = new StringBuilder();
-                while ((ch = reader.read()) != -1) {
-                    stringBuilder.append((char) ch);
-                }
-                fileReader.close();
-                reader.close();
-
-                return stringBuilder.toString();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
+            return null;
         }
-        return null;
+        StringBuilder stringBuilder = new StringBuilder();
+        try (Reader reader = new InputStreamReader(Files.newInputStream(file.toPath()))) {
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                stringBuilder.append((char) ch);
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return stringBuilder.toString();
     }
 
-    private static void initClientConfiguration() throws IOException {
+    private static void initClientConfiguration() {
         Properties properties = new Properties();
         String path = Thread.currentThread().getContextClassLoader().getResource("").getPath() + CONFIG_FILE;
-        InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)));
-        properties.load(inputStream);
+        try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(Paths.get(path)))) {
+            properties.load(inputStream);
+            serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
+            String user = properties.getProperty("default.admin.user");
+            String password = properties.getProperty("default.admin.password");
 
-        serviceUrl = properties.getProperty("server.host") + ":" + properties.getProperty("server.port");
-        String user = properties.getProperty("default.admin.user");
-        String password = properties.getProperty("default.admin.password");
-
-        configuration = new ClientConfiguration();
-        configuration.setAuthentication(new DefaultAuthentication(user, password));
+            configuration = new ClientConfiguration();
+            configuration.setAuthentication(new DefaultAuthentication(user, password));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

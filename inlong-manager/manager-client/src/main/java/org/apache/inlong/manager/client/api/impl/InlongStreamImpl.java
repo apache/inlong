@@ -47,6 +47,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -130,11 +131,13 @@ public class InlongStreamImpl implements InlongStream {
     }
 
     public InlongStreamImpl(String groupId, String streamId, ClientConfiguration configuration) {
-        ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
-        this.streamClient = clientFactory.getStreamClient();
-        this.sourceClient = clientFactory.getSourceClient();
-        this.sinkClient = clientFactory.getSinkClient();
-        this.transformClient = clientFactory.getTransformClient();
+        if (Optional.ofNullable(configuration).isPresent()) {
+            ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
+            this.streamClient = clientFactory.getStreamClient();
+            this.sourceClient = clientFactory.getSourceClient();
+            this.sinkClient = clientFactory.getSinkClient();
+            this.transformClient = clientFactory.getTransformClient();
+        }
         this.inlongGroupId = groupId;
         this.inlongStreamId = streamId;
     }
