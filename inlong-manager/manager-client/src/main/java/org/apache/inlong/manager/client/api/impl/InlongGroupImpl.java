@@ -83,8 +83,6 @@ public class InlongGroupImpl implements InlongGroup {
         this.groupClient = clientFactory.getGroupClient();
         this.workFlowClient = clientFactory.getWorkflowClient();
 
-//        this.groupClient =
-
         InlongGroupInfo newGroupInfo = groupClient.getGroupIfExists(groupInfo.getInlongGroupId());
         if (newGroupInfo != null) {
             this.groupContext.setGroupInfo(groupInfo);
