@@ -213,6 +213,7 @@ const Comp: React.FC<DetailModalProps> = ({
   const onOk = async () => {
     const values = await form.validateFields();
     delete values._showHigher; // delete front-end key
+    if (data) values.version = data.version;
     modalProps.onOk && modalProps.onOk(toSubmitVals(values));
   };
 

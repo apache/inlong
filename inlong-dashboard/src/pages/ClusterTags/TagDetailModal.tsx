@@ -33,7 +33,7 @@ export interface TagDetailModalProps extends ModalProps {
 const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getData } = useRequest(
+  const { data: savedData, run: getData } = useRequest(
     id => ({
       url: `/cluster/tag/get/${id}`,
     }),
@@ -58,6 +58,7 @@ const TagDetailModal: React.FC<TagDetailModalProps> = ({ id, ...modalProps }) =>
     };
     if (isUpdate) {
       submitData.id = id;
+      submitData.version = savedData?.version;
     }
     await request({
       url: `/cluster/tag/${isUpdate ? 'update' : 'save'}`,

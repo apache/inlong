@@ -35,7 +35,7 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getData } = useRequest(
+  const { data: savedData, run: getData } = useRequest(
     id => ({
       url: `/cluster/get/${id}`,
     }),
@@ -63,7 +63,7 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
     };
     if (isUpdate) {
       submitData.id = id;
-      // submitData.version = data?.version;
+      submitData.version = savedData?.version;
     }
     await request({
       url: `/cluster/${isUpdate ? 'update' : 'save'}`,
