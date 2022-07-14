@@ -77,13 +77,10 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: |
-          md5sum pom.xml
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
 
-      # test
       - name: Get InLong version
         if: ${{ success() }}
         run: |

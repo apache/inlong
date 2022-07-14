@@ -56,13 +56,12 @@ jobs:
           path: |
             ~/.m2/repository
             !~/.m2/repository/org/apache/inlong
+            !~/.m2/repository/com/github/eirslett
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: |
-          md5sum pom.xml
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
 
