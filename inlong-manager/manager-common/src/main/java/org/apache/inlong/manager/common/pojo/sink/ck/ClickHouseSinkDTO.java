@@ -24,10 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -91,17 +94,26 @@ public class ClickHouseSinkDTO {
     @ApiModelProperty("Table primary key")
     private String primaryKey;
 
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
     @ApiModelProperty("Properties for clickhouse")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) {
+    public static ClickHouseSinkDTO getFromRequest(ClickHouseSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
+        }
         return ClickHouseSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .flushInterval(request.getFlushInterval())
@@ -115,6 +127,7 @@ public class ClickHouseSinkDTO {
                 .partitionBy(request.getPartitionBy())
                 .primaryKey(request.getPrimaryKey())
                 .orderBy(request.getOrderBy())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -122,7 +135,7 @@ public class ClickHouseSinkDTO {
     public static ClickHouseSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ClickHouseSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ClickHouseSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -140,6 +153,14 @@ public class ClickHouseSinkDTO {
         tableInfo.setColumns(columnList);
 
         return tableInfo;
+    }
+
+    private ClickHouseSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
+        }
+        return this;
     }
 
 }
