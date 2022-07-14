@@ -72,7 +72,6 @@ public class PostgreSQLSinkDTO {
     /**
      * Get the dto instance from the request
      */
-
     public static PostgreSQLSinkDTO getFromRequest(PostgreSQLSinkRequest request) throws Exception {
         Integer encryptVersion = AESUtils.getCurrentVersion(null);
         String passwd = null;

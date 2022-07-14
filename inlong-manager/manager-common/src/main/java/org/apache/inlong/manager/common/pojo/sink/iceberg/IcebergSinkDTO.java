@@ -75,7 +75,6 @@ public class IcebergSinkDTO {
     /**
      * Get the dto instance from the request
      */
-
     public static IcebergSinkDTO getFromRequest(IcebergSinkRequest request) {
         return IcebergSinkDTO.builder()
                 .catalogUri(request.getCatalogUri())
