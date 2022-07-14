@@ -30,12 +30,14 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -53,9 +55,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of sink service interface
@@ -159,6 +163,20 @@ public class StreamSinkServiceImpl implements StreamSinkService {
 
         LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         return summaryList;
+    }
+
+    @Override
+    public Map<String, List<StreamSink>> getSinksMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos) {
+        String groupId = groupInfo.getInlongGroupId();
+        LOGGER.debug("begin to get sink map for groupId={}", groupId);
+
+        List<StreamSink> streamSinks = this.listSink(groupId, null);
+        Map<String, List<StreamSink>> result = streamSinks.stream()
+                .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+
+        LOGGER.debug("success to get sink map, size={}, groupInfo={}", result.size(), groupInfo);
+        return result;
     }
 
     @Override

@@ -17,16 +17,15 @@
 
 package org.apache.inlong.manager.common.pojo.workflow.form.process;
 
-import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.FormValidateException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,22 +40,13 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     private InlongGroupInfo groupInfo;
 
-    @Getter
-    @Setter
-    private GroupOperateType groupOperateType = GroupOperateType.INIT;
-
     private List<InlongStreamInfo> streamInfos;
 
-    public InlongGroupInfo getGroupInfo() {
-        return groupInfo;
-    }
-
-    public void setGroupInfo(InlongGroupInfo groupInfo) {
-        this.groupInfo = groupInfo;
-    }
+    private GroupOperateType groupOperateType = GroupOperateType.INIT;
 
     @Override
     public void validate() throws FormValidateException {
+        Preconditions.checkNotNull(groupInfo, "InlongGroupInfo cannot be null");
     }
 
     @Override
@@ -71,9 +61,10 @@ public class GroupResourceProcessForm extends BaseProcessForm {
 
     @Override
     public Map<String, Object> showInList() {
-        Map<String, Object> show = Maps.newHashMap();
+        Map<String, Object> show = new HashMap<>();
         show.put("inlongGroupId", groupInfo.getInlongGroupId());
         show.put("groupOperateType", this.groupOperateType);
         return show;
     }
+
 }

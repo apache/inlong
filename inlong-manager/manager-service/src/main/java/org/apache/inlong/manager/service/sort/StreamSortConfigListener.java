@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.sort;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -45,7 +44,6 @@ import java.util.List;
 public class StreamSortConfigListener implements SortOperateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSortConfigListener.class);
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
     @Autowired
     private SortConfigOperatorFactory operatorFactory;
@@ -79,8 +77,7 @@ public class StreamSortConfigListener implements SortOperateListener {
 
         List<InlongStreamInfo> streamInfos = Collections.singletonList(streamInfo);
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getLightweight(),
-                    groupInfo.getEnableZookeeper());
+            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
             operator.buildConfig(groupInfo, streamInfos, true);
         } catch (Exception e) {
             String msg = String.format("failed to build sort config for groupId=%s, streamId=%s, ", groupId, streamId);
