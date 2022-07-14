@@ -37,30 +37,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.language }}
-
-      # build project
+      # Set up jdk
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: 8
           distribution: adopt
 
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+
+      # Build project
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository
             !~/.m2/repository/org/apache/inlong
+            !~/.m2/repository/com/github/eirslett
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        run: |
+          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
         env:
           CI: false
 
