@@ -523,7 +523,7 @@ class InnerInlongManagerClientTest {
                         .id(4)
                         .sourceType("KAFKA")
                         .autoOffsetReset("11")
-                        .bootstrapServers("10.110.221.22")
+                        .bootstrapServers("127.0.0.1")
                         .build()
         );
 
