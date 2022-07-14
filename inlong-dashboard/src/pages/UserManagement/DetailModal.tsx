@@ -75,7 +75,7 @@ const content = [
 const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getData } = useRequest(
+  const { data: savedData, run: getData } = useRequest(
     id => ({
       url: `/user/get/${id}`,
     }),
@@ -92,6 +92,7 @@ const Comp: React.FC<Props> = ({ id, ...modalProps }) => {
     const isUpdate = id;
     if (isUpdate) {
       values.id = id;
+      values.version = savedData?.version;
     }
     await request({
       url: isUpdate ? '/user/update' : '/user/register',

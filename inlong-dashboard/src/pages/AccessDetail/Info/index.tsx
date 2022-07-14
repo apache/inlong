@@ -57,6 +57,7 @@ const Comp = ({ inlongGroupId, readonly, isCreate }: Props, ref) => {
 
     const submitData = {
       ...values,
+      version: data.version,
       inCharges: values.inCharges?.join(','),
       followers: values.followers?.join(','),
     };

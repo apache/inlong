@@ -79,7 +79,7 @@ const Comp: React.FC<Props> = ({ clusterTag, ...modalProps }) => {
               formatResult: result =>
                 result?.list?.map(item => ({
                   ...item,
-                  label: item.name,
+                  label: `${item.name} (${item.type})`,
                   value: item.id,
                 })),
             },
