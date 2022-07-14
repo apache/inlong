@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -688,7 +689,7 @@ class InnerInlongManagerClientTest {
                 .id(1)
                 .inlongGroupId("1")
                 .inlongStreamId("1")
-                .sinkType("MYSQL")
+                .sinkType(SinkType.SINK_MYSQL)
                 .sinkName("mysql_test")
                 // streamNode field
                 .preNodes(new HashSet<>())
