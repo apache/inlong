@@ -87,6 +87,7 @@ public final class InLongMsgPbFormatFactory
     public Set<ConfigOption<?>> requiredOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(INNER_FORMAT);
+        options.add(DECOMPRESS_TYPE);
         return options;
     }
 
@@ -94,6 +95,7 @@ public final class InLongMsgPbFormatFactory
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IGNORE_PARSE_ERRORS);
+        options.add(IGNORE_TAILING_UNMAPPABLE);
         return options;
     }
 }
