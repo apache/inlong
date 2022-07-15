@@ -35,15 +35,14 @@ public class SortConfigOperatorFactory {
     /**
      * Get a Sort config operator instance.
      *
-     * @param isNormal is the inlong group is normal mode, 0: normal mode, 1: lightweight mode
      * @param enableZk is the inlong group enable the ZooKeeper, 1: enable, 0: disable
      */
-    public SortConfigOperator getInstance(Integer isNormal, Integer enableZk) {
+    public SortConfigOperator getInstance(Integer enableZk) {
         return operatorList.stream()
-                .filter(inst -> inst.accept(isNormal, enableZk))
+                .filter(inst -> inst.accept(enableZk))
                 .findFirst()
-                .orElseThrow(() -> new BusinessException("not found any instance of SortConfigOperator when isNormal="
-                        + isNormal + ", enableZk=" + enableZk));
+                .orElseThrow(() -> new BusinessException("not found any instance of SortConfigOperator when enableZk="
+                        + enableZk));
     }
 
 }

@@ -30,10 +30,9 @@ public interface SortConfigOperator {
     /**
      * Determines whether the current instance matches the specified type.
      *
-     * @param isNormal is the inlong group is normal mode, 0: normal mode, 1: lightweight mode
      * @param enableZk is the inlong group enable the ZooKeeper, 1: enable, 0: disable
      */
-    Boolean accept(Integer isNormal, Integer enableZk);
+    Boolean accept(Integer enableZk);
 
     /**
      * Build Sort config.

@@ -20,13 +20,17 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface of the source operator
@@ -63,6 +67,20 @@ public interface StreamSourceOperator {
      * @return stream field list
      */
     List<StreamField> getSourceFields(@NotNull Integer sourceId);
+
+    /**
+     * Get the StreamSource Map by the inlong group info and inlong stream info list.
+     *
+     * @param groupInfo inlong group info
+     * @param streamInfos inlong stream info list
+     * @param streamSources stream source list
+     * @return map of StreamSource list, key-inlongStreamId, value-StreamSourceList
+     * @apiNote The MQ source which was used in InlongGroup must implement the method.
+     */
+    default Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
+        return new HashMap<>();
+    }
 
     /**
      * Get source list response from the given source entity page.

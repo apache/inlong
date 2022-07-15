@@ -72,8 +72,7 @@ public class SortConfigListener implements SortOperateListener {
         }
 
         try {
-            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getLightweight(),
-                    groupInfo.getEnableZookeeper());
+            SortConfigOperator operator = operatorFactory.getInstance(groupInfo.getEnableZookeeper());
             operator.buildConfig(groupInfo, streamInfos, false);
         } catch (Exception e) {
             String msg = String.format("failed to build sort config for groupId=%s, ", groupId);

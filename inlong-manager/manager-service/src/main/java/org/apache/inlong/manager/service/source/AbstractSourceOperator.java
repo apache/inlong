@@ -58,19 +58,19 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     protected StreamSourceFieldEntityMapper sourceFieldMapper;
 
     /**
+     * Getting the source type.
+     *
+     * @return source type string.
+     */
+    protected abstract String getSourceType();
+
+    /**
      * Setting the parameters of the latest entity.
      *
      * @param request source request
      * @param targetEntity entity object which will set the new parameters.
      */
     protected abstract void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity);
-
-    /**
-     * Getting the source type.
-     *
-     * @return source type string.
-     */
-    protected abstract String getSourceType();
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
