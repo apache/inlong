@@ -413,4 +413,22 @@ public class InlongStreamImpl implements InlongStream {
         }
     }
 
+    @Override
+    public StreamSink getSinkInfoById(Integer sinkId) {
+        Preconditions.checkNotNull(sinkId, "sinkId cannot be null");
+        // Get from cache firstly
+        return this.streamSinks.values()
+                .stream()
+                .filter(streamSink -> streamSink.getId().equals(sinkId))
+                .findAny()
+                // Try to get from db, if it doesn't exist in cache
+                .orElseGet(() -> managerClient.getSinkInfo(sinkId));
+    }
+
+    @Override
+    public StreamSink getSinkInfoByName(String sinkName) {
+        Preconditions.checkNotEmpty(sinkName, "sinkName cannot be empty");
+        return this.streamSinks.get(sinkName);
+    }
+
 }

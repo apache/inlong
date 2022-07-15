@@ -28,6 +28,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
+import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
@@ -60,6 +62,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -671,6 +674,45 @@ class InnerInlongManagerClientTest {
         request.setClusterTags("test_cluster");
         Integer clusterIndex = innerInlongManagerClient.saveCluster(request);
         Assertions.assertEquals(1, (int) clusterIndex);
+    }
+
+    @Test
+    void testGetMysqlSinkInfo() {
+        StreamSink streamSink = MySQLSink.builder()
+                // mysql field
+                .jdbcUrl("127.0.0.1:3306")
+                .username("test")
+                .password("pwd")
+                .tableName("tableName")
+                .primaryKey("id")
+                // streamSink field
+                .id(1)
+                .inlongGroupId("1")
+                .inlongStreamId("1")
+                .sinkType(SinkType.SINK_MYSQL)
+                .sinkName("mysql_test")
+                // streamNode field
+                .preNodes(new HashSet<>())
+                .postNodes(new HashSet<>())
+                .fieldList(
+                        Lists.newArrayList(StreamField.builder()
+                                .fieldName("id")
+                                .fieldType("int")
+                                .build())
+                )
+                .build();
+
+        stubFor(
+                get(urlMatching("/api/inlong/manager/sink/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(streamSink))
+                                ))
+        );
+
+        StreamSink sinkInfo = innerInlongManagerClient.getSinkInfo(1);
+        Assertions.assertEquals(1, sinkInfo.getId());
+        Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
 
 }

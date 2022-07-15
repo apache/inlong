@@ -44,4 +44,7 @@ public interface StreamSinkApi {
     Call<Response<PageInfo<StreamSink>>> listSinks(@Query("inlongGroupId") String groupId,
             @Query("inlongStreamId") String streamId, @Query("sinkType") String sinkType);
 
+    @GET("sink/get/{id}")
+    Call<Response<StreamSink>> getSinkInfo(@Path("id") Integer sinkId);
+
 }

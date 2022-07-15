@@ -443,6 +443,15 @@ public class InnerInlongManagerClient {
     }
 
     /**
+     * Get detail information of data sink.
+     */
+    public StreamSink getSinkInfo(Integer sinkId) {
+        Response<StreamSink> response = executeHttpCall(streamSinkApi.getSinkInfo(sinkId));
+        assertRespSuccess(response);
+        return response.getData();
+    }
+
+    /**
      * Update the stream sink info.
      */
     public Pair<Boolean, String> updateSink(SinkRequest sinkRequest) {
