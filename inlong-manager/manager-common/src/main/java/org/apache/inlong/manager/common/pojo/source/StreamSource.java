@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -30,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -103,7 +103,7 @@ public abstract class StreamSource extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Properties for source")
-    private Map<String, Object> properties = Maps.newHashMap();
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
     public SourceRequest genSourceRequest() {
         return null;
