@@ -157,7 +157,7 @@ public class PulsarClientService {
             producerInfo = getProducerInfo(poolIndex, topic, inlongGroupId, inlongStreamId);
         } catch (Exception e) {
             producerInfo = null;
-            logger.error("Get producer failed! topic = {} ", topic, e);
+            logger.error("get producer failed! topic = " + topic, e);
             if (streamConfigLogMetric != null) {
                 streamConfigLogMetric.updateConfigLog(inlongGroupId,
                         inlongStreamId, StreamConfigLogMetric.CONFIG_LOG_PULSAR_PRODUCER,
@@ -304,12 +304,12 @@ public class PulsarClientService {
                             ConfigLogTypeEnum.ERROR, e.toString());
                 }
                 logger.error("create connection error in Pulsar sink, "
-                        + "maybe pulsar master set error, please re-check.url {}, ex: ", info.getKey(), e);
+                        + "maybe pulsar master set error, please re-check. url " + info.getKey(), e);
             } catch (Throwable e) {
                 callBack.handleCreateClientException(info.getKey());
                 logger.error("create connection error in pulsar sink, "
                         + "maybe pulsar master set error/shutdown in progress, please "
-                        + "re-check. url {}, ex: ", info.getKey(), e);
+                        + "re-check. url " + info.getKey(), e);
             }
         }
         if (pulsarClients.isEmpty()) {
@@ -454,12 +454,12 @@ public class PulsarClientService {
             } catch (PulsarClientException e) {
                 callBack.handleCreateClientException(url);
                 logger.error("create connnection error in pulsar sink, "
-                        + "maybe pulsar master set error, please re-check.url {}, ex: ", url, e);
+                        + "maybe pulsar master set error, please re-check.url " + url, e);
             } catch (Throwable e) {
                 callBack.handleCreateClientException(url);
                 logger.error("create connnection error in pulsar sink, "
                         + "maybe pulsar master set error/shutdown in progress, please "
-                        + "re-check. url {}, ex: ", url, e);
+                        + "re-check. url " + url, e);
             }
         }
     }
