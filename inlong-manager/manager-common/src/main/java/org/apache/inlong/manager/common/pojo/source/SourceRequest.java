@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,6 +30,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stream source request
@@ -88,5 +90,8 @@ public class SourceRequest {
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
     private List<StreamField> fieldList;
+
+    @ApiModelProperty("Other properties if needed")
+    private Map<String, Object> properties = Maps.newHashMap();
 
 }

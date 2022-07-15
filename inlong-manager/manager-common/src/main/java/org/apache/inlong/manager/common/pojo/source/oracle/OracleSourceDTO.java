@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Oracle source info
@@ -67,6 +68,9 @@ public class OracleSourceDTO {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
+    @ApiModelProperty("Properties for Oracle")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -81,6 +85,7 @@ public class OracleSourceDTO {
                 .tableName(request.getTableName())
                 .primaryKey(request.getPrimaryKey())
                 .scanStartupMode(request.getScanStartupMode())
+                .properties(request.getProperties())
                 .build();
     }
 

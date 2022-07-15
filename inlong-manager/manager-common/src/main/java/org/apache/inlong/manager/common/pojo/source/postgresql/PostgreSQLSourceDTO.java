@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 /**
  * PostgreSQL source info
@@ -68,6 +69,9 @@ public class PostgreSQLSourceDTO {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
+    @ApiModelProperty("Properties for PostgreSQL")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -82,6 +86,7 @@ public class PostgreSQLSourceDTO {
                 .tableNameList(request.getTableNameList())
                 .primaryKey(request.getPrimaryKey())
                 .decodingPluginName(request.getDecodingPluginName())
+                .properties(request.getProperties())
                 .build();
     }
 
