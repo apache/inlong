@@ -450,7 +450,7 @@ public class InlongStreamImpl implements InlongStream {
                 .filter(streamSink -> streamSink.getId().equals(sinkId))
                 .findAny()
                 // Try to get from db, if it doesn't exist in cache
-                .orElseGet(() -> managerClient.getSinkInfo(sinkId));
+                .orElseGet(() -> sinkClient.getSinkInfo(sinkId));
     }
 
     @Override

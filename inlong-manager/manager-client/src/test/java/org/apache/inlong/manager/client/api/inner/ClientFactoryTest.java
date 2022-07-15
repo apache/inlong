@@ -724,7 +724,7 @@ class ClientFactoryTest {
                                 ))
         );
 
-        StreamSink sinkInfo = innerInlongManagerClient.getSinkInfo(1);
+        StreamSink sinkInfo = sinkClient.getSinkInfo(1);
         Assertions.assertEquals(1, sinkInfo.getId());
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }

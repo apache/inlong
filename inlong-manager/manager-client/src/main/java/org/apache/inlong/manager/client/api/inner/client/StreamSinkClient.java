@@ -86,4 +86,13 @@ public class StreamSinkClient {
             return Pair.of(false, responseBody.getErrMsg());
         }
     }
+
+    /**
+     * Get detail information of data sink.
+     */
+    public StreamSink getSinkInfo(Integer sinkId) {
+        Response<StreamSink> response = ClientUtils.executeHttpCall(streamSinkApi.getSinkInfo(sinkId));
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
+    }
 }

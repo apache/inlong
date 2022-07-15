@@ -89,7 +89,6 @@ public class ClientUtils {
                 .build();
     }
 
-
     /**
      * Send http request.
      *
@@ -110,7 +109,6 @@ public class ClientUtils {
             throw new RuntimeException(String.format(REQUEST_FAILED_MSG, url, e.getMessage()), e);
         }
     }
-
 
     /**
      * Assert if the response is successful.
