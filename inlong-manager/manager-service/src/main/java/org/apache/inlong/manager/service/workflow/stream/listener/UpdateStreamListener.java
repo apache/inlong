@@ -15,59 +15,55 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
-import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * Update completed listener for inlong group
+ * The listener for the update InlongStream.
  */
-@Slf4j
-@Component
-public class GroupUpdateCompleteListener implements ProcessEventListener {
+@Service
+public class UpdateStreamListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.COMPLETE;
+        return ProcessEvent.CREATE;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String operator = context.getOperator();
-        GroupOperateType operateType = form.getGroupOperateType();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        Integer nextStatus;
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String operator = context.getOperator();
+        final GroupOperateType operateType = form.getGroupOperateType();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
         switch (operateType) {
-            case RESTART:
-                nextStatus = GroupStatus.RESTARTED.getCode();
-                break;
             case SUSPEND:
-                nextStatus = GroupStatus.SUSPENDED.getCode();
+                streamService.updateStatus(groupId, streamId, StreamStatus.SUSPENDING.getCode(), operator);
+                break;
+            case RESTART:
+                streamService.updateStatus(groupId, streamId, StreamStatus.RESTARTING.getCode(), operator);
                 break;
             case DELETE:
-                nextStatus = GroupStatus.DELETED.getCode();
+                streamService.updateStatus(groupId, streamId, StreamStatus.DELETING.getCode(), operator);
                 break;
             default:
-                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
+                break;
         }
-        // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), nextStatus, operator);
-        groupService.update(groupInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

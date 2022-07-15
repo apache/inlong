@@ -71,14 +71,10 @@ import static org.mockito.Mockito.when;
 public class WorkflowServiceImplTest extends ServiceBaseTest {
 
     public static final String OPERATOR = "admin";
-
     public static final String GROUP_ID = "test_group";
-
     public static final String STREAM_ID = "test_stream";
-
-    public static final String DATA_ENCODING = "UTF-8";
-
-    protected String subType = "default";
+    private static final String DATA_ENCODING = "UTF-8";
+    private final AtomicInteger tryTime = new AtomicInteger(0);
 
     @Autowired
     protected WorkflowServiceImpl workflowService;
@@ -95,13 +91,10 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     @Autowired
     protected InlongStreamService streamService;
 
-    protected ProcessName processName;
-
     protected String applicant;
-
-    protected GroupResourceProcessForm form;
-
-    protected final AtomicInteger tryTime = new AtomicInteger(0);
+    protected String subType = "default";
+    private ProcessName processName;
+    private GroupResourceProcessForm form;
 
     /**
      * Init inlong group form
@@ -230,7 +223,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
             }
 
             @Override
-            public ListenerResult listen(WorkflowContext context) throws Exception {
+            public ListenerResult listen(WorkflowContext context) {
                 int tryTimes = tryTime.addAndGet(1);
                 if (tryTimes % 2 == 1) {
                     throw new WorkflowListenerException();
@@ -242,7 +235,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testStartCreatePulsarWorkflow() throws Exception {
+    public void testStartCreatePulsarWorkflow() {
         initGroupForm(MQType.PULSAR.getType(), "test14" + subType);
         mockTaskListenerFactory();
         WorkflowContext context = processService.start(processName.name(), applicant, form);
@@ -251,7 +244,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         // This method temporarily fails the test, so comment it out first
         Assertions.assertSame(processResponse.getStatus(), ProcessStatus.PROCESSING);
         WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("initMQ");
+        WorkflowTask task = process.getTaskByName("InitMQ");
         Assertions.assertTrue(task instanceof ServiceTask);
         Assertions.assertEquals(2, task.getNameToListenerMap().size());
 
@@ -260,7 +253,7 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
         Assertions.assertTrue(listeners.get(1) instanceof CreatePulsarResourceTaskListener);
 
         Integer processId = processResponse.getId();
-        context = processService.continueProcess(processId, applicant, "continue Process");
+        context = processService.continueProcess(processId, applicant, "continue process");
         result = WorkflowBeanUtils.result(context);
         processResponse = result.getProcessInfo();
         Assertions.assertSame(processResponse.getStatus(), ProcessStatus.COMPLETED);

@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.workflow.group.listener;
 
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -32,39 +32,43 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Event listener for new group access, the initiator cancels the approval
+ * The listener of InlongGroup when created resources failed.
  */
 @Slf4j
 @Component
-public class GroupCancelProcessListener implements ProcessEventListener {
+public class InitGroupFailedListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupEntityMapper groupMapper;
+    private InlongGroupService groupService;
+    @Autowired
+    private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CANCEL;
+        return ProcessEvent.FAIL;
     }
 
+    /**
+     * After the process of creating InlongGroup resources is completed,
+     * modify the status of related InlongGroup and all InlongStream to [Failed]
+     * <p/>
+     * {@link InitGroupCompleteListener#listen}
+     */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewGroupProcessForm form = (NewGroupProcessForm) context.getProcessForm();
-        // After canceling the approval, the status becomes [Waiting to submit]
+        GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
+        log.info("begin to execute InitGroupFailedListener for groupId={}", groupId);
 
-        // Only the [Wait approval] status allowed the canceling operation
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
-        }
-        if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("current status was not allowed to cancel business");
-        }
+        // update inlong group status
+        String operator = context.getOperator();
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        groupService.update(form.getGroupInfo().genRequest(), operator);
 
-        // After canceling the approval, the status becomes [Waiting to submit]
-        String username = context.getOperator();
-        groupMapper.updateStatus(groupId, GroupStatus.TO_BE_SUBMIT.getCode(), username);
+        // update inlong stream status
+        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_FAILED.getCode(), operator);
 
+        log.info("success to execute InitGroupFailedListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 

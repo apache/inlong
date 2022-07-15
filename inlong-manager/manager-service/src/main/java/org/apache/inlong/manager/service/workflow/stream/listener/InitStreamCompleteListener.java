@@ -17,34 +17,41 @@
 
 package org.apache.inlong.manager.service.workflow.stream.listener;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Initialize the listener for inlong group information
+ * The listener of InlongStream when created resources successfully.
  */
-@Service
-public class StreamInitProcessListener implements ProcessEventListener {
+@Slf4j
+@Component
+public class InitStreamCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.COMPLETE;
     }
 
+    /**
+     * The creation process ends normally, modify the status of inlong group and other related info.
+     */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
@@ -52,11 +59,12 @@ public class StreamInitProcessListener implements ProcessEventListener {
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
         final String operator = context.getOperator();
-        InlongStreamInfo originStreamInfo = streamService.get(groupId, streamId);
-        if (originStreamInfo == null) {
-            throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
-        }
-        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_ING.getCode(), operator);
+
+        // Update status of other related configs
+        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        streamService.update(streamInfo.genRequest(), operator);
+        sourceService.updateStatus(groupId, streamId, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
+
         return ListenerResult.success();
     }
 

@@ -32,9 +32,9 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class NewConsumptionProcessForm extends BaseProcessForm {
+public class ApplyConsumptionProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "NewConsumptionProcessForm";
+    public static final String FORM_NAME = "ApplyConsumptionProcessForm";
 
     @ApiModelProperty(value = "Data consumption information")
     private ConsumptionInfo consumptionInfo;

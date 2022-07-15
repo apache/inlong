@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -30,28 +33,39 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Update failed listener for inlong group
+ * The listener for initial the InlongGroup information.
  */
 @Slf4j
 @Component
-public class GroupUpdateFailedListener implements ProcessEventListener {
+public class InitGroupListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.FAIL;
+        return ProcessEvent.CREATE;
     }
 
+    /**
+     * Begin to execute the InlongGroup workflow, init the workflow context, and update other info if needed.
+     */
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        String operator = context.getOperator();
+        String groupId = form.getInlongGroupId();
+        log.info("begin to execute InitGroupListener for groupId={}", groupId);
+
         InlongGroupInfo groupInfo = form.getGroupInfo();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), operator);
-        groupService.update(groupInfo.genRequest(), operator);
+        if (groupInfo == null) {
+            throw new BusinessException("inlong group info cannot be null for init group process");
+        }
+        if (CollectionUtils.isEmpty(form.getStreamInfos())) {
+            throw new BusinessException("inlong stream info list cannot be null for init group process");
+        }
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
+
+        log.info("success to execute InitGroupListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 

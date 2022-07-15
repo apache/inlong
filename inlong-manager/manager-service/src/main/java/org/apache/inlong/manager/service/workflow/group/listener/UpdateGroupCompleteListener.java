@@ -18,13 +18,11 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
-import org.apache.inlong.manager.common.enums.StreamStatus;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -34,16 +32,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Create group resources [process completion] event listener
+ * The listener of InlongGroup when update operates successfully.
  */
 @Slf4j
 @Component
-public class GroupCompleteProcessListener implements ProcessEventListener {
+public class UpdateGroupCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
     @Autowired
     private StreamSourceService sourceService;
 
@@ -52,24 +48,35 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
         return ProcessEvent.COMPLETE;
     }
 
-    /**
-     * After the process of creating inlong group resources is completed, modify the status of related
-     * inlong group and all inlong stream to [Configuration Successful] [Configuration Failed]
-     * <p/>{@link GroupFailedProcessListener#listen}
-     */
     @Override
-    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
+    public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        String applicant = context.getOperator();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        groupService.update(form.getGroupInfo().genRequest(), applicant);
+        GroupOperateType operateType = form.getGroupOperateType();
+        log.info("begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
 
-        // Update status of other related configs
-        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), applicant);
+        String operator = context.getOperator();
+        switch (operateType) {
+            case SUSPEND:
+                groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
+                break;
+            case RESTART:
+                groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+                break;
+            case DELETE:
+                groupService.updateStatus(groupId, GroupStatus.DELETED.getCode(), operator);
+                sourceService.logicDeleteAll(groupId, null, operator);
+                break;
+            default:
+                break;
+        }
 
+        // update inlong group status and other configs
+        groupService.update(form.getGroupInfo().genRequest(), operator);
+
+        log.info("success to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
         return ListenerResult.success();
     }
 

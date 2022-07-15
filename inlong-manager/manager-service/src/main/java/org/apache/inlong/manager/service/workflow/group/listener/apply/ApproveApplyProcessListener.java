@@ -15,14 +15,18 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.stream.listener;
+package org.apache.inlong.manager.service.workflow.group.listener.apply;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.workflow.ProcessName;
+import org.apache.inlong.manager.service.workflow.WorkflowService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -30,36 +34,44 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
- * Event listener for failed creation of inlong stream resource
+ * The listener that approves to apply for InlongGroup.
+ * <p/>
+ * After approval, start other follow-up processes.
  */
 @Slf4j
 @Component
-public class StreamFailedProcessListener implements ProcessEventListener {
+public class ApproveApplyProcessListener implements ProcessEventListener {
 
     @Autowired
+    private InlongGroupService groupService;
+    @Autowired
     private InlongStreamService streamService;
+    @Autowired
+    private WorkflowService workflowService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.FAIL;
+        return ProcessEvent.COMPLETE;
     }
 
-    /**
-     * The creation process ends abnormally, modify the status of inlong group and all inlong stream
-     * belong to the inlong group to [CONFIG_FAILED]
-     */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
-        InlongStreamInfo streamInfo = form.getStreamInfo();
-        final String groupId = streamInfo.getInlongGroupId();
-        final String streamId = streamInfo.getInlongStreamId();
-        final String username = context.getOperator();
+        ApplyGroupProcessForm form = (ApplyGroupProcessForm) context.getProcessForm();
+        String groupId = form.getInlongGroupId();
+        log.info("begin to execute ApproveApplyProcessListener for groupId={}", groupId);
 
-        // update inlong stream status
-        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), username);
+        InlongGroupInfo groupInfo = groupService.get(groupId);
+        GroupResourceProcessForm processForm = new GroupResourceProcessForm();
+        processForm.setGroupInfo(groupInfo);
+        String username = context.getOperator();
+        List<InlongStreamInfo> streamList = streamService.list(groupId);
+        processForm.setStreamInfos(streamList);
+        workflowService.start(ProcessName.CREATE_GROUP_RESOURCE, username, processForm);
 
+        log.info("success to execute ApproveApplyProcessListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 

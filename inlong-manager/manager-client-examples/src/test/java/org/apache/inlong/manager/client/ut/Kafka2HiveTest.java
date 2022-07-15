@@ -112,14 +112,14 @@ class Kafka2HiveTest extends BaseTest {
         initWorkflowResult.setProcessInfo(
                 ProcessResponse.builder()
                         .id(12)
-                        .name("NEW_GROUP_PROCESS")
-                        .displayName("New-Group")
-                        .type("New-Group")
+                        .name("APPLY_GROUP_PROCESS")
+                        .displayName("Apply-Group")
+                        .type("Apply-Group")
                         .applicant("admin")
                         .status(PROCESSING)
                         .startTime(new Date())
                         .formData(JsonUtils.parseTree(
-                                "{\"formName\":\"NewGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
+                                "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
                                         + "\"inlongGroupId\":\"test_group009\",\"name\":null,\"description\":null,"
                                         + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,"
                                         + "\"enableCreateResource\":1,\"lightweight\":1,"
@@ -148,8 +148,8 @@ class Kafka2HiveTest extends BaseTest {
                                 .id(12)
                                 .type("UserTask")
                                 .processId(12)
-                                .processName("NEW_GROUP_PROCESS")
-                                .processDisplayName("New-Group")
+                                .processName("APPLY_GROUP_PROCESS")
+                                .processDisplayName("Apply-Group")
                                 .name("ut_admin")
                                 .displayName("SystemAdmin")
                                 .applicant("admin")
@@ -170,14 +170,14 @@ class Kafka2HiveTest extends BaseTest {
         startWorkflowResult.setProcessInfo(
                 ProcessResponse.builder()
                         .id(12)
-                        .name("NEW_GROUP_PROCESS")
-                        .displayName("New-Group")
-                        .type("New-Group")
+                        .name("APPLY_GROUP_PROCESS")
+                        .displayName("Apply-Group")
+                        .type("Apply-Group")
                         .applicant("admin")
                         .status(ProcessStatus.COMPLETED)
                         .startTime(new Date())
                         .endTime(new Date())
-                        .formData("{\"formName\":\"NewGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
+                        .formData("{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
                                 + "\"id\":8,\"inlongGroupId\":\"test_group011\",\"name\":null,\"description\":null,"
                                 + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,\"enableCreateResource\":1,"
                                 + "\"lightweight\":1,\"inlongClusterTag\":\"default_cluster\","

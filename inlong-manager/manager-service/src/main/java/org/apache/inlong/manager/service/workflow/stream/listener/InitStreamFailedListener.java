@@ -17,8 +17,9 @@
 
 package org.apache.inlong.manager.service.workflow.stream.listener;
 
-import org.apache.inlong.manager.common.enums.GroupOperateType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.StreamStatus;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -27,43 +28,38 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Update listener for inlong stream
+ * The listener of InlongStream when created resources failed.
  */
-@Service
-public class StreamUpdateListener implements ProcessEventListener {
+@Slf4j
+@Component
+public class InitStreamFailedListener implements ProcessEventListener {
 
     @Autowired
     private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.FAIL;
     }
 
+    /**
+     * The creation process ends abnormally, modify the status of inlong group and all inlong stream
+     * belong to the inlong group to [CONFIG_FAILED]
+     */
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
         InlongStreamInfo streamInfo = form.getStreamInfo();
-        final String operator = context.getOperator();
-        final GroupOperateType operateType = form.getGroupOperateType();
         final String groupId = streamInfo.getInlongGroupId();
         final String streamId = streamInfo.getInlongStreamId();
-        switch (operateType) {
-            case SUSPEND:
-                streamService.updateStatus(groupId, streamId, StreamStatus.SUSPENDING.getCode(), operator);
-                break;
-            case RESTART:
-                streamService.updateStatus(groupId, streamId, StreamStatus.RESTARTING.getCode(), operator);
-                break;
-            case DELETE:
-                streamService.updateStatus(groupId, streamId, StreamStatus.DELETING.getCode(), operator);
-                break;
-            default:
-                break;
-        }
+        final String username = context.getOperator();
+
+        // update inlong stream status
+        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), username);
+
         return ListenerResult.success();
     }
 

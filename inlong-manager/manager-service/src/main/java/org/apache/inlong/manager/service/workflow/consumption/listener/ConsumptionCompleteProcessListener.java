@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -75,7 +75,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionProcessForm consumptionForm = (NewConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumptionProcessForm consumptionForm = (ApplyConsumptionProcessForm) context.getProcessForm();
 
         // Real-time query of consumption information
         Integer consumptionId = consumptionForm.getConsumptionInfo().getId();

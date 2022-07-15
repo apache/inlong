@@ -17,11 +17,8 @@
 
 package org.apache.inlong.manager.service.workflow.group.listener;
 
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupOperateType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -29,46 +26,35 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
- * Update listener for inlong group
+ * The listener of InlongGroup when update operates failed.
  */
-@Service
-public class GroupUpdateListener implements ProcessEventListener {
+@Slf4j
+@Component
+public class UpdateGroupFailedListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.FAIL;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = groupService.get(context.getProcessForm().getInlongGroupId());
-        GroupOperateType groupOperateType = form.getGroupOperateType();
-        String username = context.getOperator();
-        if (groupInfo != null) {
-            switch (groupOperateType) {
-                case SUSPEND:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), username);
-                    break;
-                case RESTART:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.RESTARTING.getCode(), username);
-                    break;
-                case DELETE:
-                    groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.DELETING.getCode(), username);
-                    break;
-                default:
-                    break;
-            }
-            form.setGroupInfo(groupInfo);
-        } else {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
-        }
+        String groupId = form.getInlongGroupId();
+        log.info("begin to execute UpdateGroupFailedListener for groupId={}", groupId);
+
+        // update inlong group status and other info
+        String operator = context.getOperator();
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_FAILED.getCode(), operator);
+        groupService.update(form.getGroupInfo().genRequest(), operator);
+
+        log.info("success to execute UpdateGroupFailedListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 

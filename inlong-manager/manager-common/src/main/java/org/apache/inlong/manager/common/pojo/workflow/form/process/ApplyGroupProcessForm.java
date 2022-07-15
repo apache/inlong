@@ -30,13 +30,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * New inlong group process form
+ * Apply inlong group process form
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class NewGroupProcessForm extends BaseProcessForm {
+public class ApplyGroupProcessForm extends BaseProcessForm {
 
-    public static final String FORM_NAME = "NewGroupProcessForm";
+    public static final String FORM_NAME = "ApplyGroupProcessForm";
 
     @ApiModelProperty(value = "Inlong group info", required = true)
     private InlongGroupInfo groupInfo;

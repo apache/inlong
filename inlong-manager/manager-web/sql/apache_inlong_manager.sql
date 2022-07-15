@@ -652,9 +652,9 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
 -- create default approver for new consumption and new inlong group
 INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
                                 `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
-VALUES ('NEW_CONSUMPTION_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
+VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
-       ('NEW_GROUP_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
+       ('APPLY_GROUP_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
         'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
 -- ----------------------------
