@@ -142,18 +142,17 @@ const getForm: GetStorageFormFieldsType = (
       label: i18n.t('components.AccessHelper.StorageMetaData.SQLServer.AllMigration'),
       name: 'allMigration',
       rules: [{ required: true }],
-      initialValue: 'true',
-      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      initialValue: true,
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         options: [
           {
             label: i18n.t('basic.Yes'),
-            value: 'true',
+            value: true,
           },
           {
             label: i18n.t('basic.No'),
-            value: 'false',
+            value: false,
           },
         ],
       },
