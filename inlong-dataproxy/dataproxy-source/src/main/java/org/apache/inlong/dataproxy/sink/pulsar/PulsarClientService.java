@@ -133,13 +133,13 @@ public class PulsarClientService {
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
         if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
-            logger.warn("Failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
+            logger.warn("failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
             return;
         }
         try {
             createConnection(callBack);
         } catch (FlumeException e) {
-            logger.error("Unable to create pulsar client: ", e);
+            logger.error("unable to create pulsar client: ", e);
             close();
         }
     }
@@ -187,7 +187,7 @@ public class PulsarClientService {
         TopicProducerInfo forCallBackP = producerInfo;
         Producer producer = producerInfo.getProducer(poolIndex);
         if (producer == null) {
-            logger.warn("Get producer is null! topic = {}", topic);
+            logger.warn("get producer is null! topic = {}", topic);
             checkAndResponse(event, inlongGroupId, inlongStreamId);
             sendMessageCallBack.handleMessageSendException(topic, es, new NotFoundException("producer is null"));
             return true;
@@ -258,7 +258,7 @@ public class PulsarClientService {
         String sequenceId = orderEvent.getHeaders().get(AttributeConstants.UNIQ_ID);
         if ("false".equals(orderEvent.getHeaders().get(AttributeConstants.MESSAGE_IS_ACK))) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Not need to rsp message: seqId = {}, inlongGroupId = {}, inlongStreamId = {}",
+                logger.debug("not need to rsp message: seqId = {}, inlongGroupId = {}, inlongStreamId = {}",
                         sequenceId, inlongGroupId, inlongStreamId);
             }
             return;
