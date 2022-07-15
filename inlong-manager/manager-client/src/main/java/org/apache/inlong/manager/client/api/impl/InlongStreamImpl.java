@@ -57,8 +57,6 @@ import java.util.stream.Collectors;
 @Data
 public class InlongStreamImpl implements InlongStream {
 
-//    private InnerInlongManagerClient managerClient;
-
     private InlongStreamClient streamClient;
 
     private StreamSourceClient sourceClient;
@@ -83,7 +81,6 @@ public class InlongStreamImpl implements InlongStream {
      * Constructor of InlongStreamImpl.
      */
     public InlongStreamImpl(InlongStreamInfo streamInfo, ClientConfiguration configuration) {
-//        this.managerClient = managerClient;
         this.inlongGroupId = streamInfo.getInlongGroupId();
         this.inlongStreamId = streamInfo.getInlongStreamId();
 
