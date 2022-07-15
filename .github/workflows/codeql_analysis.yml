@@ -61,11 +61,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build with Maven
-        run: |
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -X
-        env:
-          CI: false
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
 
       # Perform CodeQL Analysis
       - name: Perform CodeQL Analysis
