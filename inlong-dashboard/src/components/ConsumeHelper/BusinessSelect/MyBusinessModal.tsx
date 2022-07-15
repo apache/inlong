@@ -124,7 +124,7 @@ const Comp: React.FC<MyAccessModalProps> = ({ ...modalProps }) => {
   const pagination = {
     pageSize: 10,
     current: options.pageNum,
-    total: data?.totalSize,
+    total: data?.total,
   };
 
   return (
