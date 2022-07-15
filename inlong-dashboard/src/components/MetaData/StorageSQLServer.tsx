@@ -70,7 +70,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:sqlserver://127.0.0.1:1433;databaseName=db_name',
+        placeholder: 'jdbc:sqlserver://127.0.0.1:1433;database=db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
