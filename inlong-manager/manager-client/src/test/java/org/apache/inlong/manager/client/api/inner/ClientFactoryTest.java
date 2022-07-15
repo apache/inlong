@@ -26,6 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
+import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.InlongClusterClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
+import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.SinkType;
@@ -73,14 +79,17 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 /**
- * Unit test for {@link InnerInlongManagerClient}.
+ * Unit test for {@link ClientFactory}.
  */
 @Slf4j
-class InnerInlongManagerClientTest {
+class ClientFactoryTest {
 
     private static final int SERVICE_PORT = 8085;
     private static WireMockServer wireMockServer;
-    private static InnerInlongManagerClient innerInlongManagerClient;
+    private static InlongGroupClient groupClient;
+    private static InlongStreamClient streamClient;
+    private static StreamSinkClient sinkClient;
+    private static InlongClusterClient clusterClient;
 
     @BeforeAll
     static void setup() {
@@ -92,7 +101,12 @@ class InnerInlongManagerClientTest {
         ClientConfiguration configuration = new ClientConfiguration();
         configuration.setAuthentication(new DefaultAuthentication("admin", "inlong"));
         InlongClientImpl inlongClient = new InlongClientImpl(serviceUrl, configuration);
-        innerInlongManagerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
+        ClientFactory clientFactory = ClientUtils.getClientFactory(inlongClient.getConfiguration());
+        groupClient = clientFactory.getGroupClient();
+        streamClient = clientFactory.getStreamClient();
+        sinkClient = clientFactory.getSinkClient();
+        streamClient = clientFactory.getStreamClient();
+        clusterClient = clientFactory.getClusterClient();
     }
 
     @AfterAll
@@ -108,7 +122,7 @@ class InnerInlongManagerClientTest {
                                 okJson(JsonUtils.toJsonString(Response.success(true)))
                         )
         );
-        Boolean groupExists = innerInlongManagerClient.isGroupExists("123");
+        Boolean groupExists = groupClient.isGroupExists("123");
         Assertions.assertTrue(groupExists);
     }
 
@@ -136,7 +150,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        InlongGroupInfo groupInfo = innerInlongManagerClient.getGroupInfo("1");
+        InlongGroupInfo groupInfo = groupClient.getGroupInfo("1");
         Assertions.assertTrue(groupInfo instanceof InlongPulsarInfo);
         Assertions.assertEquals(JsonUtils.toJsonString(inlongGroupResponse), JsonUtils.toJsonString(groupInfo));
     }
@@ -168,7 +182,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
                 JsonUtils.toJsonString(listResponse.getList()));
     }
@@ -204,7 +218,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
                 JsonUtils.toJsonString(listResponse.getList()));
     }
@@ -242,7 +256,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
                 JsonUtils.toJsonString(listResponse.getList()));
     }
@@ -282,7 +296,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
                 JsonUtils.toJsonString(listResponse.getList()));
     }
@@ -354,7 +368,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
                 JsonUtils.toJsonString(listResponse.getList()));
     }
@@ -370,7 +384,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = innerInlongManagerClient.listGroups("keyword", 1, 1, 10);
+        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
         Assertions.assertNull(listResponse);
     }
 
@@ -383,7 +397,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        String groupId = innerInlongManagerClient.createGroup(new InlongPulsarRequest());
+        String groupId = groupClient.createGroup(new InlongPulsarRequest());
         Assertions.assertEquals("1111", groupId);
     }
 
@@ -396,7 +410,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        Pair<String, String> updateGroup = innerInlongManagerClient.updateGroup(new InlongPulsarRequest());
+        Pair<String, String> updateGroup = groupClient.updateGroup(new InlongPulsarRequest());
         Assertions.assertEquals("1111", updateGroup.getKey());
         Assertions.assertTrue(StringUtils.isBlank(updateGroup.getValue()));
     }
@@ -410,7 +424,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        Integer groupId = innerInlongManagerClient.createStreamInfo(new InlongStreamInfo());
+        Integer groupId = streamClient.createStreamInfo(new InlongStreamInfo());
         Assertions.assertEquals(11, groupId);
     }
 
@@ -426,7 +440,7 @@ class InnerInlongManagerClientTest {
         InlongStreamInfo streamInfo = new InlongStreamInfo();
         streamInfo.setInlongGroupId("123");
         streamInfo.setInlongStreamId("11");
-        Boolean groupExists = innerInlongManagerClient.isStreamExists(streamInfo);
+        Boolean groupExists = streamClient.isStreamExists(streamInfo);
 
         Assertions.assertTrue(groupExists);
     }
@@ -461,7 +475,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        InlongStreamInfo inlongStreamInfo = innerInlongManagerClient.getStreamInfo("123", "11");
+        InlongStreamInfo inlongStreamInfo = streamClient.getStreamInfo("123", "11");
         Assertions.assertNotNull(inlongStreamInfo);
     }
 
@@ -475,7 +489,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        InlongStreamInfo inlongStreamInfo = innerInlongManagerClient.getStreamInfo("123", "11");
+        InlongStreamInfo inlongStreamInfo = streamClient.getStreamInfo("123", "11");
         Assertions.assertNull(inlongStreamInfo);
     }
 
@@ -565,7 +579,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        List<InlongStreamInfo> streamInfos = innerInlongManagerClient.listStreamInfo("11");
+        List<InlongStreamInfo> streamInfos = streamClient.listStreamInfo("11");
         Assertions.assertEquals(JsonUtils.toJsonString(streamInfo), JsonUtils.toJsonString(streamInfos.get(0)));
     }
 
@@ -624,7 +638,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        List<StreamSink> sinks = innerInlongManagerClient.listSinks("11", "11");
+        List<StreamSink> sinks = sinkClient.listSinks("11", "11");
         Assertions.assertEquals(JsonUtils.toJsonString(sinkList), JsonUtils.toJsonString(sinks));
     }
 
@@ -640,7 +654,7 @@ class InnerInlongManagerClientTest {
         );
 
         RuntimeException exception = Assertions.assertThrows(IllegalArgumentException.class,
-                () -> innerInlongManagerClient.listSinks("", "11"));
+                () -> sinkClient.listSinks("", "11"));
         Assertions.assertTrue(exception.getMessage().contains("groupId should not empty"));
     }
 
@@ -655,7 +669,7 @@ class InnerInlongManagerClientTest {
                         )
         );
 
-        boolean isReset = innerInlongManagerClient.resetGroup(new InlongGroupResetRequest());
+        boolean isReset = groupClient.resetGroup(new InlongGroupResetRequest());
         Assertions.assertTrue(isReset);
     }
 
@@ -672,7 +686,7 @@ class InnerInlongManagerClientTest {
         ClusterRequest request = new PulsarClusterRequest();
         request.setName("pulsar");
         request.setClusterTags("test_cluster");
-        Integer clusterIndex = innerInlongManagerClient.saveCluster(request);
+        Integer clusterIndex = clusterClient.saveCluster(request);
         Assertions.assertEquals(1, (int) clusterIndex);
     }
 
@@ -710,7 +724,7 @@ class InnerInlongManagerClientTest {
                                 ))
         );
 
-        StreamSink sinkInfo = innerInlongManagerClient.getSinkInfo(1);
+        StreamSink sinkInfo = sinkClient.getSinkInfo(1);
         Assertions.assertEquals(1, sinkInfo.getId());
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
