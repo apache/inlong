@@ -47,10 +47,22 @@ public class ClientUtils {
 
     private static ClientFactory clientFactory;
 
+    /**
+     * Get factory for {@link org.apache.inlong.manager.client.api.inner.client}.
+     *
+     * @param configuration client configuration
+     * @return ClientFactory
+     */
     public static ClientFactory getClientFactory(ClientConfiguration configuration) {
         return Optional.ofNullable(clientFactory).orElse(new ClientFactory(configuration));
     }
 
+    /**
+     * Get retrofit to instantiate Client API.
+     *
+     * @param configuration client configuration
+     * @return Retrofit
+     */
     public static Retrofit createRetrofit(ClientConfiguration configuration) {
         String host = configuration.getBindHost();
         int port = configuration.getBindPort();
@@ -77,6 +89,14 @@ public class ClientUtils {
                 .build();
     }
 
+
+    /**
+     * Send http request.
+     *
+     * @param call http request
+     * @param <T> T
+     * @return T
+     */
     public static <T> T executeHttpCall(Call<T> call) {
         Request request = call.request();
         String url = request.url().encodedPath();
@@ -91,6 +111,12 @@ public class ClientUtils {
         }
     }
 
+
+    /**
+     * Assert if the response is successful.
+     *
+     * @param response response
+     */
     public static void assertRespSuccess(Response<?> response) {
         Preconditions.checkTrue(response.isSuccess(), String.format(REQUEST_FAILED_MSG, response.getErrMsg(), null));
     }
