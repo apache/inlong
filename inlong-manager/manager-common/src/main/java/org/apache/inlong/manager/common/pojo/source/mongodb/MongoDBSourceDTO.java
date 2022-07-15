@@ -59,7 +59,7 @@ public class MongoDBSourceDTO {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
-    @ApiModelProperty("Properties for MySQL")
+    @ApiModelProperty("Properties for MongoDB")
     private Map<String, Object> properties;
 
     /**
