@@ -201,6 +201,9 @@ public class ExtractNodeUtils {
             case EARLIEST:
                 startupMode = KafkaScanStartupMode.EARLIEST_OFFSET;
                 break;
+            case SPECIFIC:
+                startupMode = KafkaScanStartupMode.SPECIFIC_OFFSETS;
+                break;
             case LATEST:
             default:
                 startupMode = KafkaScanStartupMode.LATEST_OFFSET;
@@ -209,6 +212,7 @@ public class ExtractNodeUtils {
         String groupId = kafkaSource.getGroupId();
         Map<String, String> properties = kafkaSource.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        String partitionOffset = kafkaSource.getPartitionOffsets();
         return new KafkaExtractNode(id,
                 name,
                 fieldInfos,
@@ -219,7 +223,9 @@ public class ExtractNodeUtils {
                 format,
                 startupMode,
                 primaryKey,
-                groupId);
+                groupId,
+                partitionOffset
+        );
     }
 
     /**

@@ -58,11 +58,12 @@ public class KafkaSource extends StreamSource {
     private String byteSpeedLimit;
 
     @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
-    private String topicPartitionOffset;
+            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
+                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    private String partitionOffsets;
 
     @ApiModelProperty(value = "The strategy of auto offset reset",
-            notes = "including earliest, latest (the default), none")
+            notes = "including earliest, specific, latest (the default), none")
     private String autoOffsetReset;
 
     @ApiModelProperty("database pattern used for filter in canal format")

@@ -75,6 +75,9 @@ public class KafkaExtractNode extends ExtractNode implements Metadata, Serializa
     @JsonProperty("groupId")
     private String groupId;
 
+    @JsonProperty("scanSpecificOffsets")
+    private String scanSpecificOffsets;
+
     @JsonCreator
     public KafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -86,7 +89,8 @@ public class KafkaExtractNode extends ExtractNode implements Metadata, Serializa
             @Nonnull @JsonProperty("format") Format format,
             @JsonProperty("scanStartupMode") KafkaScanStartupMode kafkaScanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
-            @JsonProperty("groupId") String groupId) {
+            @JsonProperty("groupId") String groupId,
+            @JsonProperty("scanSpecificOffsets") String scanSpecificOffsets) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
@@ -94,6 +98,10 @@ public class KafkaExtractNode extends ExtractNode implements Metadata, Serializa
         this.kafkaScanStartupMode = Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
         this.primaryKey = primaryKey;
         this.groupId = groupId;
+        if (kafkaScanStartupMode == KafkaScanStartupMode.SPECIFIC_OFFSETS) {
+            Preconditions.checkArgument(StringUtils.isNotEmpty(scanSpecificOffsets), "scanSpecificOffsets is empty");
+            this.scanSpecificOffsets = scanSpecificOffsets;
+        }
     }
 
     /**
@@ -110,6 +118,7 @@ public class KafkaExtractNode extends ExtractNode implements Metadata, Serializa
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
                 options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+                options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
@@ -118,6 +127,7 @@ public class KafkaExtractNode extends ExtractNode implements Metadata, Serializa
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
             options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+            options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
