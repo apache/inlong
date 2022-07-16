@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.source;
 
+import org.apache.curator.shaded.com.google.common.collect.Maps;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
@@ -27,6 +28,8 @@ import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Map;
 
 /**
  * Stream source service test
@@ -50,6 +53,9 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         String sourceName = "stream_source_service_test";
         sourceInfo.setSourceName(sourceName);
         sourceInfo.setSourceType(SourceType.BINLOG.getType());
+        Map<String, Object> properties = Maps.newLinkedHashMap();
+        properties.put("append-mode", "true");
+        sourceInfo.setProperties(properties);
         return sourceService.save(sourceInfo, GLOBAL_OPERATOR);
     }
 
@@ -82,7 +88,7 @@ public class StreamSourceServiceTest extends ServiceBaseTest {
         MySQLBinlogSourceRequest request = CommonBeanUtils.copyProperties(binlogResponse,
                 MySQLBinlogSourceRequest::new);
         boolean result = sourceService.update(request, GLOBAL_OPERATOR);
-        Assertions.assertTrue(result);
+        Assertions.assertTrue("true".equals(binlogResponse.getProperties().get("append-mode")) && result);
 
         sourceService.delete(id, GLOBAL_OPERATOR);
     }

@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * SQLServer source info
@@ -70,6 +71,9 @@ public class SQLServerSourceDTO {
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
+    @ApiModelProperty("Properties for SQLServer")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -85,6 +89,7 @@ public class SQLServerSourceDTO {
                 .serverTimezone(request.getServerTimezone())
                 .allMigration(request.isAllMigration())
                 .primaryKey(request.getPrimaryKey())
+                .properties(request.getProperties())
                 .build();
     }
 

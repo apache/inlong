@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Binlog source info
@@ -118,6 +119,9 @@ public class MySQLBinlogSourceDTO {
     @ApiModelProperty("Directly read binlog from the specified offset position")
     private Integer specificOffsetPos;
 
+    @ApiModelProperty("Properties for MySQL")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -141,6 +145,7 @@ public class MySQLBinlogSourceDTO {
                 .primaryKey(request.getPrimaryKey())
                 .specificOffsetFile(request.getSpecificOffsetFile())
                 .specificOffsetPos(request.getSpecificOffsetPos())
+                .properties(request.getProperties())
                 .build();
     }
 

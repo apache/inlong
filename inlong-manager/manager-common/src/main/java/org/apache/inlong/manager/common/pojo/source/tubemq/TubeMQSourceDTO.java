@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -62,7 +63,10 @@ public class TubeMQSourceDTO {
      */
     @ApiModelProperty("Tid of the TubeMQ")
     private TreeSet<String> tid;
-    
+
+    @ApiModelProperty("Properties for TubeMQ")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -74,6 +78,7 @@ public class TubeMQSourceDTO {
                 .groupId(request.getGroupId())
                 .sessionKey(request.getSessionKey())
                 .tid(request.getTid())
+                .properties(request.getProperties())
                 .build();
     }
 

@@ -19,7 +19,6 @@ package org.apache.inlong.manager.service.sort.util;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -96,7 +95,7 @@ public class ExtractNodeUtils {
             case MONGODB:
                 return createExtractNode((MongoDBSource) sourceInfo);
             case TUBEMQ:
-                return createExtractNode((TubeMQSource)sourceInfo);
+                return createExtractNode((TubeMQSource) sourceInfo);
             default:
                 throw new IllegalArgumentException(
                         String.format("Unsupported sourceType=%s to create extractNode", sourceType));
@@ -132,13 +131,13 @@ public class ExtractNodeUtils {
         boolean incrementalSnapshotEnabled = true;
 
         // TODO Needs to be configurable for those parameters
-        Map<String, String> properties = Maps.newHashMap();
+        Map<String, String> properties = binlogSource.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         if (binlogSource.isAllMigration()) {
             // Unique properties when migrate all tables in database
             incrementalSnapshotEnabled = false;
             properties.put("migrate-all", "true");
         }
-        properties.put("append-mode", "true");
         if (StringUtils.isEmpty(primaryKey)) {
             incrementalSnapshotEnabled = false;
             properties.put("scan.incremental.snapshot.enabled", "false");
@@ -208,12 +207,13 @@ public class ExtractNodeUtils {
         }
         final String primaryKey = kafkaSource.getPrimaryKey();
         String groupId = kafkaSource.getGroupId();
-
+        Map<String, String> properties = kafkaSource.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new KafkaExtractNode(id,
                 name,
                 fieldInfos,
                 null,
-                Maps.newHashMap(),
+                properties,
                 topic,
                 bootstrapServers,
                 format,
@@ -268,12 +268,13 @@ public class ExtractNodeUtils {
         final String primaryKey = pulsarSource.getPrimaryKey();
         final String serviceUrl = pulsarSource.getServiceUrl();
         final String adminUrl = pulsarSource.getAdminUrl();
-
+        Map<String, String> properties = pulsarSource.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new PulsarExtractNode(id,
                 name,
                 fieldInfos,
                 null,
-                Maps.newHashMap(),
+                properties,
                 fullTopicName,
                 adminUrl,
                 serviceUrl,
@@ -295,7 +296,9 @@ public class ExtractNodeUtils {
         List<FieldInfo> fields = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        return new PostgresExtractNode(id, name, fields, null, null,
+        Map<String, String> properties = postgreSQLSource.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
+        return new PostgresExtractNode(id, name, fields, null, properties,
                 postgreSQLSource.getPrimaryKey(), postgreSQLSource.getTableNameList(),
                 postgreSQLSource.getHostname(), postgreSQLSource.getUsername(),
                 postgreSQLSource.getPassword(), postgreSQLSource.getDatabase(),
@@ -316,10 +319,10 @@ public class ExtractNodeUtils {
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
 
-        Map<String, String> properties = Maps.newHashMap();
         ScanStartUpMode scanStartupMode = StringUtils.isBlank(source.getScanStartupMode())
                 ? null : ScanStartUpMode.forName(source.getScanStartupMode());
-
+        Map<String, String> properties = source.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new OracleExtractNode(
                 name,
                 name,
@@ -351,7 +354,8 @@ public class ExtractNodeUtils {
                 .map(fieldInfo -> FieldInfoUtils.parseStreamFieldInfo(fieldInfo, name))
                 .collect(Collectors.toList());
 
-        Map<String, String> properties = Maps.newHashMap();
+        Map<String, String> properties = source.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new SqlServerExtractNode(
                 name,
                 name,
@@ -382,7 +386,8 @@ public class ExtractNodeUtils {
         List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        Map<String, String> properties = Maps.newHashMap();
+        Map<String, String> properties = source.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new MongoExtractNode(
                 name,
                 name,
@@ -409,13 +414,14 @@ public class ExtractNodeUtils {
         List<FieldInfo> fieldInfos = streamFields.stream()
                 .map(streamFieldInfo -> FieldInfoUtils.parseStreamFieldInfo(streamFieldInfo, name))
                 .collect(Collectors.toList());
-        Map<String, String> properties = Maps.newHashMap();
+        Map<String, String> properties = source.getProperties().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
         return new TubeMQExtractNode(
                 name,
                 name,
                 fieldInfos,
                 null,
-                properties, 
+                properties,
                 source.getMasterRpc(),
                 source.getTopic(),
                 source.getSerializationType(),
