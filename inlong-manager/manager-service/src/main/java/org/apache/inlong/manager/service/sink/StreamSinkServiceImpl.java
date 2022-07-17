@@ -24,19 +24,20 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -54,9 +55,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of sink service interface
@@ -75,6 +78,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+
+    // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
     private InlongStreamProcessOperation streamProcessOperation;
 
     @Override
@@ -122,7 +127,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         }
         String sinkType = entity.getSinkType();
         StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));
-        StreamSink streamSink = operation.getByEntity(entity);
+        StreamSink streamSink = operation.getFromEntity(entity);
         LOGGER.debug("success to get sink info by id={}", id);
         return streamSink;
     }
@@ -161,7 +166,21 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request) {
+    public Map<String, List<StreamSink>> getSinksMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos) {
+        String groupId = groupInfo.getInlongGroupId();
+        LOGGER.debug("begin to get sink map for groupId={}", groupId);
+
+        List<StreamSink> streamSinks = this.listSink(groupId, null);
+        Map<String, List<StreamSink>> result = streamSinks.stream()
+                .collect(Collectors.groupingBy(StreamSink::getInlongStreamId, HashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+
+        LOGGER.debug("success to get sink map, size={}, groupInfo={}", result.size(), groupInfo);
+        return result;
+    }
+
+    @Override
+    public PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -171,15 +190,15 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             SinkType sinkType = SinkType.forType(streamSink.getSinkType());
             sinkMap.computeIfAbsent(sinkType, k -> new Page<>()).add(streamSink);
         }
-        List<SinkListResponse> sinkListResponses = Lists.newArrayList();
+        List<StreamSink> responseList = Lists.newArrayList();
         for (Map.Entry<SinkType, Page<StreamSinkEntity>> entry : sinkMap.entrySet()) {
             SinkType sinkType = entry.getKey();
             StreamSinkOperator operation = operatorFactory.getInstance(sinkType);
-            PageInfo<? extends SinkListResponse> pageInfo = operation.getPageInfo(entry.getValue());
-            sinkListResponses.addAll(pageInfo.getList());
+            PageInfo<? extends StreamSink> pageInfo = operation.getPageInfo(entry.getValue());
+            responseList.addAll(pageInfo.getList());
         }
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageInfo<? extends SinkListResponse> pageInfo = PageInfo.of(sinkListResponses);
+        PageInfo<? extends StreamSink> pageInfo = PageInfo.of(responseList);
 
         LOGGER.debug("success to list sink page, result size {}", pageInfo.getSize());
         return pageInfo;
@@ -211,7 +230,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         List<SinkField> fields = request.getSinkFieldList();
         // Remove id in sinkField when save
         if (CollectionUtils.isNotEmpty(fields)) {
-            fields.stream().forEach(sinkField -> sinkField.setId(null));
+            fields.forEach(sinkField -> sinkField.setId(null));
         }
 
         StreamSinkOperator operation = operatorFactory.getInstance(SinkType.forType(sinkType));

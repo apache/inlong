@@ -19,6 +19,7 @@ package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceStreamInfo;
 import org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
@@ -128,5 +129,12 @@ public interface StreamSinkEntityMapper {
      * @return All id params
      */
     List<SortIdInfo> selectAllIdParams();
+
+    /**
+     * Select all streams for sort sdk.
+     *
+     * @return All stream info
+     */
+    List<SortSourceStreamInfo> selectAllStreams();
 
 }

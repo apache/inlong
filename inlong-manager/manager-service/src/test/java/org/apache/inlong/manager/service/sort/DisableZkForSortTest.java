@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.sort;
 
 import com.google.common.collect.Lists;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
@@ -122,7 +123,8 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
     //    @Test
     public void testCreateSortConfigInUpdateWorkflow() {
         InlongGroupInfo groupInfo = initGroupForm("PULSAR", "test20");
-        groupInfo.setEnableZookeeper(0);
+        groupInfo.setEnableZookeeper(InlongConstants.ENABLE_ZK);
+        groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
         groupService.update(groupInfo.genRequest(), OPERATOR);
 
@@ -143,7 +145,7 @@ public class DisableZkForSortTest extends WorkflowServiceImplTest {
         Assertions.assertTrue(task instanceof ServiceTask);
         Assertions.assertEquals(2, task.getNameToListenerMap().size());
         List<TaskEventListener> listeners = Lists.newArrayList(task.getNameToListenerMap().values());
-        Assertions.assertTrue(listeners.get(1) instanceof CreateSortConfigListener);
+        Assertions.assertEquals(2, listeners.size());
         ProcessForm currentProcessForm = context.getProcessForm();
         InlongGroupInfo curGroupRequest = ((GroupResourceProcessForm) currentProcessForm).getGroupInfo();
         Assertions.assertEquals(1, curGroupRequest.getExtList().size());

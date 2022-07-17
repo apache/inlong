@@ -26,20 +26,20 @@ import i18n from '@/i18n';
 import request from '@/utils/request';
 
 export interface Props extends ModalProps {
-  tagId: number;
+  clusterTag: string;
 }
 
-const Comp: React.FC<Props> = ({ tagId, ...modalProps }) => {
+const Comp: React.FC<Props> = ({ clusterTag, ...modalProps }) => {
   const [form] = useForm();
 
   const onOk = async () => {
     const values = await form.validateFields();
     const submitData = {
-      tagId,
-      ...values,
+      clusterTag,
+      bindClusters: values.clusters,
     };
     await request({
-      url: '/cluster/tag/bind',
+      url: '/cluster/bindTag',
       method: 'POST',
       data: submitData,
     });
@@ -73,15 +73,14 @@ const Comp: React.FC<Props> = ({ tagId, ...modalProps }) => {
                 keyword,
                 pageNum: 1,
                 pageSize: 20,
-                type: '',
               },
             }),
             requestParams: {
               formatResult: result =>
                 result?.list?.map(item => ({
                   ...item,
-                  label: item.clusterTag,
-                  value: item.clusterTag,
+                  label: `${item.name} (${item.type})`,
+                  value: item.id,
                 })),
             },
           },

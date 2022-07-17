@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Event listener of create hive table for one inlong stream
+ * Event listener of operate sink resources for one inlong stream,
+ * such as create or update Hive table, Kafka topics, ES indices, etc.
  */
 @Service
 @Slf4j

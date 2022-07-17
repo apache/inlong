@@ -147,26 +147,10 @@ public class JobManager extends AbstractDaemon {
         }
         String jobId = profile.get(JOB_ID);
         if (singleJob) {
-            profile.set(JOB_INSTANCE_ID, jobId);
+            profile.set(JOB_INSTANCE_ID, AgentUtils.getSingleJobId(JOB_ID_PREFIX, jobId));
         } else {
             profile.set(JOB_INSTANCE_ID, AgentUtils.getUniqId(JOB_ID_PREFIX, jobId, index.incrementAndGet()));
         }
-        LOGGER.info("submit job profile {}", profile.toJsonStr());
-        getJobConfDb().storeJobFirstTime(profile);
-        addJob(new Job(profile));
-        return true;
-    }
-
-    /**
-     * add sql job profile
-     *
-     * @param profile job profile.
-     */
-    public boolean submitSqlJobProfile(JobProfile profile) {
-        if (isJobValid(profile)) {
-            return false;
-        }
-        profile.set(JOB_INSTANCE_ID, SQL_JOB_ID);
         LOGGER.info("submit job profile {}", profile.toJsonStr());
         getJobConfDb().storeJobFirstTime(profile);
         addJob(new Job(profile));

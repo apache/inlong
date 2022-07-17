@@ -17,9 +17,7 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.common.pojo.sdk.CacheZone;
-
-import java.util.Map;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 
 /**
  * Sort source service.
@@ -27,11 +25,12 @@ import java.util.Map;
 public interface SortSourceService {
 
     /**
-     * Get cache zones by cluster name and task name.
+     * Get {@link SortSourceConfigResponse} by cluster name and task name.
      *
      * @param clusterName Target cluster name.
      * @param taskName Target task name.
+     * @param md5 Last update Md5.
      * @return SortSourceConfigResponse
      */
-    Map<String, CacheZone> getCacheZones(String clusterName, String taskName);
+    SortSourceConfigResponse getSourceConfig(String clusterName, String taskName, String md5);
 }

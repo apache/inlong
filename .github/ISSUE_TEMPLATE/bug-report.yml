@@ -18,7 +18,7 @@
 name: '🐛 Bug Report'
 title: '[Bug]'
 description: Problems and issues with code of Apache InLong
-labels: [ 'bug' ]
+labels: [ 'type/bug' ]
 body:
   - type: markdown
     attributes:

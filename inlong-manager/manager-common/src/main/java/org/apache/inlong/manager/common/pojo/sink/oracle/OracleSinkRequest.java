@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Oracle sink info
+ * Oracle sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Oracle sink info")
+@ApiModel(value = "Oracle sink request")
 @JsonTypeDefine(value = SinkType.SINK_ORACLE)
 public class OracleSinkRequest extends SinkRequest {
 

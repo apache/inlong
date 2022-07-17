@@ -92,14 +92,12 @@ public class ConfigJetty implements Closeable {
                 TaskTypeEnum taskType = TaskTypeEnum
                         .getTaskType(jobProfile.getInt(JOB_SOURCE_TYPE));
                 switch (taskType) {
-                    case SQL:
-                        jobManager.submitSqlJobProfile(jobProfile);
-                        break;
                     case FILE:
                         jobManager.submitFileJobProfile(jobProfile);
                         break;
                     case KAFKA:
                     case BINLOG:
+                    case SQL:
                         jobManager.submitJobProfile(jobProfile, true);
                         break;
                     default:

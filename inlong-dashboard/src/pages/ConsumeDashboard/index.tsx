@@ -85,7 +85,7 @@ const Comp: React.FC = () => {
   const pagination = {
     pageSize: options.pageSize,
     current: options.pageNum,
-    total: data?.totalSize,
+    total: data?.total,
   };
 
   const dashboardList = dashCardList.map(item => ({

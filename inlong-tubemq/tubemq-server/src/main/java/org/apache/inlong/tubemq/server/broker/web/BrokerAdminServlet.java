@@ -210,7 +210,8 @@ public class BrokerAdminServlet extends AbstractWebHandler {
                         .append(regTime).append(",\"isFilterConsume\":")
                         .append(ifFilterConsume);
             }
-            strBuff.append(",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
+            strBuff.append(",\"receivedFrom\":\"").append(entry.getValue().getAddrRcvFrom())
+                    .append("\",\"qryPriorityId\":").append(entry.getValue().getQryPriorityId())
                     .append(",\"curDataLimitInM\":").append(entry.getValue().getCurFlowCtrlLimitSize())
                     .append(",\"curFreqLimit\":").append(entry.getValue().getCurFlowCtrlFreqLimit())
                     .append(",\"totalSentSec\":").append(entry.getValue().getSentMsgSize())
@@ -777,7 +778,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         // get the maximum query turns
         if (!WebParameterUtils.getIntParamValue(req,
                 WebFieldDef.MAXRETRYCOUNT, false,
-                2, 1, 5, sBuffer, result)) {
+                2, 1, 30, sBuffer, result)) {
             WebParameterUtils.buildFailResult(sBuffer, result.getErrMsg());
             return;
         }
@@ -853,7 +854,7 @@ public class BrokerAdminServlet extends AbstractWebHandler {
         filterCodes.add(groupName);
         // build consumer node information
         ConsumerNodeInfo consumerNodeInfo = new ConsumerNodeInfo(broker.getStoreManager(),
-                "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "");
+                "offsetConsumer", filterCodes, "", System.currentTimeMillis(), "", "");
         // query records from storage
         int qryRetryCount = 0;
         long itemInitOffset = requestOffset;

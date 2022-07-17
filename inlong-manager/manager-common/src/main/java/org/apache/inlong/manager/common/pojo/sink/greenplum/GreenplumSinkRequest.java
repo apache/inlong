@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Greenplum sink info
+ * Greenplum sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Greenplum sink info")
+@ApiModel(value = "Greenplum sink request")
 @JsonTypeDefine(value = SinkType.SINK_GREENPLUM)
 public class GreenplumSinkRequest extends SinkRequest {
 

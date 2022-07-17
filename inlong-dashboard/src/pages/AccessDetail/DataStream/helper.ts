@@ -20,50 +20,7 @@
 // Convert form data into interface submission data format
 export const valuesToData = (values, inlongGroupId) => {
   const array = values.map(item => {
-    const {
-      inlongStreamId,
-      predefinedFields = [],
-      rowTypeFields = [],
-      dataSourceType,
-      dataSourcesConfig = [],
-      streamSink = [],
-      ...rest
-    } = item;
-    const output = {} as any;
-    if (dataSourceType !== 'AUTO_PUSH') {
-      output.sourceInfo = dataSourcesConfig.map(k => {
-        return {
-          ...k,
-          sourceType: dataSourceType,
-          inlongGroupId,
-          inlongStreamId,
-        };
-      });
-    } else {
-      output.sourceInfo = [
-        {
-          sourceType: dataSourceType,
-          sourceName: inlongStreamId,
-          inlongGroupId,
-          inlongStreamId,
-        },
-      ];
-    }
-
-    output.sinkInfo = streamSink.reduce((acc, type) => {
-      if (!type) return acc;
-
-      const data = rest[`streamSink${type}`] || [];
-      delete rest[`streamSink${type}`];
-      const formatData = data.map(ds => ({
-        ...ds,
-        inlongGroupId,
-        inlongStreamId,
-        sinkType: type,
-      }));
-
-      return acc.concat(formatData);
-    }, []);
+    const { inlongStreamId, predefinedFields = [], rowTypeFields = [], version, ...rest } = item;
 
     const fieldList = predefinedFields.concat(rowTypeFields).map((item, idx) => ({
       ...item,
@@ -72,14 +29,14 @@ export const valuesToData = (values, inlongGroupId) => {
       isPredefinedField: idx < predefinedFields.length ? 1 : 0,
     }));
 
-    output.streamInfo = {
+    const output = {
       ...rest,
       inlongGroupId,
       inlongStreamId,
-      dataSourceType,
+      version,
     };
 
-    if (fieldList?.length) output.streamInfo.fieldList = fieldList;
+    if (fieldList?.length) output.fieldList = fieldList;
 
     return output;
   });

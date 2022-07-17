@@ -71,7 +71,7 @@ public class GroupApproveProcessListener implements ProcessEventListener {
             case NORMAL:
                 createGroupResource(context, groupInfo);
                 break;
-            case LIGHT:
+            case LIGHTWEIGHT:
                 createLightGroupResource(context, groupInfo);
                 break;
             default:

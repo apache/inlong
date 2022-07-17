@@ -26,6 +26,9 @@ import { StorageIceberg } from './StorageIceberg';
 import { StorageEs } from './StorageEs';
 import { StorageGreenplum } from './StorageGreenplum';
 import { StorageMySQL } from './StorageMySQL';
+import { StorageOracle } from './StorageOracle';
+import { StoragePostgreSQL } from './StoragePostgreSQL';
+import { StorageSQLServer } from './StorageSQLServer';
 
 export interface StoragesType {
   label: string;
@@ -77,5 +80,20 @@ export const Storages: StoragesType[] = [
     label: 'MySQL',
     value: 'MYSQL',
     ...StorageMySQL,
+  },
+  {
+    label: 'Oracle',
+    value: 'ORACLE',
+    ...StorageOracle,
+  },
+  {
+    label: 'PostgreSQL',
+    value: 'POSTGRES',
+    ...StoragePostgreSQL,
+  },
+  {
+    label: 'SQLServer',
+    value: 'SQLSERVER',
+    ...StorageSQLServer,
   },
 ];

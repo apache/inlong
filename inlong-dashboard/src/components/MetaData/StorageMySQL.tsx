@@ -29,21 +29,25 @@ import { sourceDataFields } from './SourceDataFields';
 
 // mysqlFieldTypes
 const mysqlFieldTypes = [
-  'string',
-  'varchar',
-  'char',
-  'tinyint',
-  'smallint',
-  'int',
-  'bigint',
-  'float',
-  'double',
-  'decimal',
-  'numeric',
-  'boolean',
-  'binary',
-  'timestamp',
-  'date',
+  'TINYINT',
+  'SMALLINT',
+  'MEDIUMINT',
+  'INT',
+  'FLOAT',
+  'BIGINT',
+  'DOUBLE',
+  'NUMERIC',
+  'DECIMAL',
+  'BOOLEAN',
+  'DATE',
+  'TIME',
+  'DATETIME',
+  'CHAR',
+  'VARCHAR',
+  'TEXT',
+  'BINARY',
+  'VARBINARY',
+  'BLOB',
   // 'interval',
 ].map(item => ({
   label: item,
@@ -70,6 +74,16 @@ const getForm: GetStorageFormFieldsType = (
       type: 'input',
       label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.TableName'),
       name: 'tableName',
+      rules: [{ required: true }],
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+      },
+      _inTable: true,
+    },
+    {
+      type: 'input',
+      label: i18n.t('components.AccessHelper.StorageMetaData.Greenplum.PrimaryKey'),
+      name: 'primaryKey',
       rules: [{ required: true }],
       props: {
         disabled: isEdit && [110, 130].includes(currentValues?.status),
@@ -118,30 +132,6 @@ const getForm: GetStorageFormFieldsType = (
           maxWidth: 500,
         },
       },
-    },
-    {
-      name: 'flushInterval',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FlushInterval'),
-      initialValue: 1,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FlushIntervalUnit'),
-    },
-    {
-      name: 'retryTime',
-      type: 'inputnumber',
-      label: i18n.t('components.AccessHelper.StorageMetaData.MySQL.RetryTimes'),
-      initialValue: 3,
-      props: {
-        min: 1,
-        disabled: isEdit && [110, 130].includes(currentValues?.status),
-      },
-      rules: [{ required: true }],
-      suffix: i18n.t('components.AccessHelper.StorageMetaData.MySQL.RetryTimesUnit'),
     },
     {
       type: (
@@ -219,7 +209,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
         })),
       }),
       visible: (text, record) =>
-        ['bigint', 'date', 'timestamp'].includes(record.fieldType as string),
+        ['BIGINT', 'DATE', 'TIMESTAMP'].includes(record.fieldType as string),
     },
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.MySQL.FieldDescription'),

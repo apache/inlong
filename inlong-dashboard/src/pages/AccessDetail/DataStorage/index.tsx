@@ -51,12 +51,12 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp = ({ inlongGroupId }: Props, ref) => {
+const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const [options, setOptions] = useState({
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: 'HIVE',
+    sinkType: Storages[0].value,
   });
 
   const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
@@ -86,7 +86,6 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
         pageNum: 1,
         pageSize: 1000,
         inlongGroupId,
-        sinkType: options.sinkType,
       },
     },
     {
@@ -208,16 +207,19 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
-        render: (text, record) => (
-          <>
-            <Button type="link" onClick={() => onEdit(record)}>
-              {i18n.t('basic.Edit')}
-            </Button>
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
-        ),
+        render: (text, record) =>
+          readonly ? (
+            '-'
+          ) : (
+            <>
+              <Button type="link" onClick={() => onEdit(record)}>
+                {i18n.t('basic.Edit')}
+              </Button>
+              <Button type="link" onClick={() => onDelete(record)}>
+                {i18n.t('basic.Delete')}
+              </Button>
+            </>
+          ),
       } as any,
     ]);
 
@@ -229,9 +231,11 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            {i18n.t('pages.AccessDetail.DataStorage.New')}
-          </Button>
+          !readonly && (
+            <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
+              {i18n.t('pages.AccessDetail.DataStorage.New')}
+            </Button>
+          )
         }
         table={{
           columns,

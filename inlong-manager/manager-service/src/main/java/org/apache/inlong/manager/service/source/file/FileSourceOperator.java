@@ -18,27 +18,22 @@
 package org.apache.inlong.manager.service.source.file;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
-import org.apache.inlong.manager.common.pojo.source.file.FileSourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Supplier;
+import java.util.List;
 
 /**
  * File source operator, such as get or set file source info.
@@ -50,17 +45,18 @@ public class FileSourceOperator extends AbstractSourceOperator {
     private ObjectMapper objectMapper;
 
     @Override
-    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, FileSourceListResponse::new));
+    public Boolean accept(SourceType sourceType) {
+        return SourceType.FILE == sourceType;
+    }
+
+    @Override
+    protected String getSourceType() {
+        return SourceType.SOURCE_FILE;
     }
 
     @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         FileSourceRequest sourceRequest = (FileSourceRequest) request;
-
         try {
             CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
             FileSourceDTO dto = FileSourceDTO.getFromRequest(sourceRequest);
@@ -71,32 +67,19 @@ public class FileSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
-    protected String getSourceType() {
-        return SourceType.SOURCE_FILE;
-    }
-
-    @Override
-    protected StreamSource getSource() {
-        return new FileSource();
-    }
-
-    @Override
-    public Boolean accept(SourceType sourceType) {
-        return sourceType == SourceType.FILE;
-    }
-
-    @Override
-    public <T> T getFromEntity(StreamSourceEntity entity, Supplier<T> target) {
-        T result = target.get();
+    public StreamSource getFromEntity(StreamSourceEntity entity) {
+        FileSource source = new FileSource();
         if (entity == null) {
-            return result;
+            return source;
         }
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
+
         FileSourceDTO dto = FileSourceDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(entity, result, true);
-        CommonBeanUtils.copyProperties(dto, result, true);
-        return result;
+        CommonBeanUtils.copyProperties(entity, source, true);
+        CommonBeanUtils.copyProperties(dto, source, true);
+
+        List<StreamField> sourceFields = super.getSourceFields(entity.getId());
+        source.setFieldList(sourceFields);
+        return source;
     }
+
 }

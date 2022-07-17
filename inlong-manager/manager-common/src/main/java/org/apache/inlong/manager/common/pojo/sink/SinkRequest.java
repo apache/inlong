@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.common.pojo.sink;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Request of sink
+ * Stream sink request
  */
 @Data
-@ApiModel("Request of sink")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
-public class SinkRequest {
+@ApiModel("Stream sink request")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
+public abstract class SinkRequest {
 
     @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")

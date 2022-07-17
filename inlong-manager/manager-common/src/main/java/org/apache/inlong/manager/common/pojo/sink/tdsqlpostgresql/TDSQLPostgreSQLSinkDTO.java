@@ -81,14 +81,14 @@ public class TDSQLPostgreSQLSinkDTO {
     }
 
     /**
-     * Get TDSQLPostgres sink info from JSON string
+     * Get TDSQLPostgreSQL sink info from JSON string
      */
     public static TDSQLPostgreSQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, TDSQLPostgreSQLSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch tdsqlpostgres sink info failed from json params: " + extParams, e);
+            LOGGER.error("fetch tdsql postgresql sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
     }

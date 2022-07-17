@@ -81,14 +81,14 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: data
-          {{- if .Values.volumes.persistence }}
+          {{- if .Values.mysql.volumes.persistence }}
           persistentVolumeClaim:
             claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-{{ .Values.mysql.volumes.name }}
           {{- else }}
           emptyDir: {}
           {{- end }}
         - name: sql
-          {{- if .Values.volumes.persistence }}
+          {{- if .Values.mysql.volumes.persistence }}
           persistentVolumeClaim:
             claimName: {{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-{{ .Values.mysql.volumes.name }}
           {{- else }}
