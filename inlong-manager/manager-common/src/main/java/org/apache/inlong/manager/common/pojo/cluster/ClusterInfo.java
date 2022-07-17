@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 
@@ -36,7 +35,7 @@ import java.util.Date;
 @AllArgsConstructor
 @ApiModel("Inlong cluster info")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "type")
-public class ClusterInfo {
+public abstract class ClusterInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -83,8 +82,6 @@ public class ClusterInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    public ClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, ClusterRequest::new);
-    }
+    public abstract ClusterRequest genRequest();
 
 }

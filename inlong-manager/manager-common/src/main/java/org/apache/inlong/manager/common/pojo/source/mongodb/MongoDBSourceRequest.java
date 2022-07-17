@@ -27,32 +27,32 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the MongoDB source
+ * MongoDB source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of MongoDB source")
+@ApiModel(value = "MongoDB source request")
 @JsonTypeDefine(value = SourceType.SOURCE_MONGODB)
 public class MongoDBSourceRequest extends SourceRequest {
 
-    @ApiModelProperty("MongoDB primaryKey")
-    private String primaryKey;
-
-    @ApiModelProperty("MongoDB hosts")
+    @ApiModelProperty("Hosts of the MongoDB server")
     private String hosts;
 
-    @ApiModelProperty("MongoDB username")
+    @ApiModelProperty("Username of the MongoDB server")
     private String username;
 
-    @ApiModelProperty("MongoDB password")
+    @ApiModelProperty("Password of the MongoDB server")
     private String password;
 
-    @ApiModelProperty("MongoDB database")
+    @ApiModelProperty("MongoDB database name")
     private String database;
 
-    @ApiModelProperty("MongoDB collection")
+    @ApiModelProperty("MongoDB collection name")
     private String collection;
+
+    @ApiModelProperty("Primary key must be shared by all tables")
+    private String primaryKey;
 
     public MongoDBSourceRequest() {
         this.setSourceType(SourceType.MONGODB.toString());

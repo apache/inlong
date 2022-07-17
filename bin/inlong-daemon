@@ -74,10 +74,10 @@ start_inlong_audit() {
     mysql -h${spring_datasource_hostname} -P${spring_datasource_port} -u${spring_datasource_username} -p${spring_datasource_password} <sql/apache_inlong_audit.sql
   fi
   echo "start audit proxy"
-  if [ $mq_type == "pulsar" ]; then
+  if [ "${mq_type}" = "pulsar" ]; then
     bash +x ./bin/proxy-start.sh pulsar
   fi
-  if [ $mq_type == "tubemq" ]; then
+  if [ "${mq_type}" = "tubemq" ]; then
     bash +x ./bin/proxy-start.sh tube
   fi
   echo "start audit store"
@@ -105,7 +105,7 @@ start_inlong_manager() {
 
 start_inlong_dashboard() {
   echo "start dashboard"
-  if [[ "$manager_server_hostname" == "localhost" || "$manager_server_hostname" == "127.0.0.1" ]]; then
+  if [[ "${manager_server_hostname}" = "localhost" || "${manager_server_hostname}" = "127.0.0.1" ]]; then
     manager_server_hostname=$local_ip
   fi
   docker run -d --name dashboard -e MANAGER_API_ADDRESS=${local_ip}:${manager_server_port} -p ${dashboard_mapping_port}:80 ${dashboard_docker_image}
@@ -115,10 +115,10 @@ start_inlong_dataproxy() {
   init_compo
   echo "start dataproxy"
   cd $INLONG_HOME/inlong-dataproxy
-  if [ $mq_type == "pulsar" ]; then
+  if [ "${mq_type}" = "pulsar" ]; then
     bash +x ./bin/dataproxy-start.sh pulsar
   fi
-  if [ $mq_type == "tubemq" ]; then
+  if [ "${mq_type}" = "tubemq" ]; then
     bash +x ./bin/dataproxy-start.sh tube
   fi
   # wait to start
@@ -195,7 +195,7 @@ stop_inlong_all() {
   stop_inlong_manager
 }
 
-if [[ "$COMMAND" == start || "$COMMAND" == stop ]]; then
+if [[ "${COMMAND}" = start || "${COMMAND}" = stop ]]; then
   case $SERVICE in
   manager | dashboard | dataproxy | agent | audit)
     ${COMMAND}_inlong_${SERVICE}

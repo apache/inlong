@@ -198,4 +198,15 @@
         from inlong_cluster
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAllClusters"
+            resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceClusterInfo">
+        select name,
+               type,
+               cluster_tags,
+               ext_tag,
+               ext_params
+        from inlong_cluster
+        where is_deleted = 0
+    </select>
 </mapper>

@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the TDSQLPostgreSQL sink info
+ * TDSQLPostgreSQL sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the TDSQLPostgres sink info")
+@ApiModel(value = "TDSQLPostgreSQL sink request")
 @JsonTypeDefine(value = SinkType.SINK_TDSQLPOSTGRESQL)
 public class TDSQLPostgreSQLSinkRequest extends SinkRequest {
 

@@ -20,12 +20,17 @@ package org.apache.inlong.manager.service.source;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 
-import java.util.function.Supplier;
+import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface of the source operator
@@ -53,17 +58,29 @@ public interface StreamSourceOperator {
      * @param entity get field value from the entity
      * @return source info
      */
-    StreamSource getByEntity(StreamSourceEntity entity);
+    StreamSource getFromEntity(StreamSourceEntity entity);
 
     /**
-     * Get the target from the given entity.
+     * Get stream source field list by the given source id.
      *
-     * @param entity get field value from the entity
-     * @param target encapsulate value to the target
-     * @param <T> target type
-     * @return target after encapsulating.
+     * @param sourceId source id
+     * @return stream field list
      */
-    <T> T getFromEntity(StreamSourceEntity entity, Supplier<T> target);
+    List<StreamField> getSourceFields(@NotNull Integer sourceId);
+
+    /**
+     * Get the StreamSource Map by the inlong group info and inlong stream info list.
+     *
+     * @param groupInfo inlong group info
+     * @param streamInfos inlong stream info list
+     * @param streamSources stream source list
+     * @return map of StreamSource list, key-inlongStreamId, value-StreamSourceList
+     * @apiNote The MQ source which was used in InlongGroup must implement the method.
+     */
+    default Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos, List<StreamSource> streamSources) {
+        return new HashMap<>();
+    }
 
     /**
      * Get source list response from the given source entity page.
@@ -71,7 +88,7 @@ public interface StreamSourceOperator {
      * @param entityPage given entity page
      * @return source list response
      */
-    PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage);
+    PageInfo<? extends StreamSource> getPageInfo(Page<StreamSourceEntity> entityPage);
 
     /**
      * Update the source info.

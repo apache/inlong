@@ -28,13 +28,13 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the file source
+ * File source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = SourceType.SOURCE_FILE)
-@ApiModel(value = "Request of the file source")
+@ApiModel(value = "File source request")
 public class FileSourceRequest extends SourceRequest {
 
     @ApiModelProperty(value = "Agent IP address", required = true)

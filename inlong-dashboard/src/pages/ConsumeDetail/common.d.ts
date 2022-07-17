@@ -22,7 +22,6 @@ import React from 'react';
 export interface CommonInterface {
   id: number;
   readonly?: boolean;
-  isActive?: boolean;
-  // extraRef of Tab
-  extraRef?: React.RefObject<HTMLDivElement>;
+  isCreate?: boolean;
+  ref?: React.RefObject<unknown>;
 }

@@ -198,6 +198,13 @@ public class AgentUtils {
     }
 
     /**
+     * Get job id, such as "job_1"
+     */
+    public static String getSingleJobId(String prefix, String id) {
+        return prefix + id;
+    }
+
+    /**
      * Sleep millisecond
      */
     public static void silenceSleepInMs(long millisecond) {

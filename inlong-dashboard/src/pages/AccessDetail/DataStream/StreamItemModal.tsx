@@ -94,16 +94,15 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
   const [form] = useForm();
   const onOk = async () => {
     const values = {
-      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId'], record),
+      ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'version'], record),
       ...(await form.validateFields()),
     };
 
-    const data = valuesToData(values ? [values] : [], inlongGroupId);
-    const submitData = data.map(item => pickObject(['streamInfo'], item));
+    const submitData = valuesToData(values ? [values] : [], inlongGroupId);
     await request({
       url: '/stream/update',
       method: 'POST',
-      data: submitData?.[0]?.streamInfo,
+      data: submitData?.[0],
     });
     await modalProps?.onOk(values);
     message.success(i18n.t('basic.OperatingSuccess'));

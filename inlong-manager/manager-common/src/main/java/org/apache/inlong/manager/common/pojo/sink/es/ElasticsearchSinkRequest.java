@@ -23,32 +23,29 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
-import java.util.List;
-
 /**
- * Request of the Elasticsearch sink.
+ * Elasticsearch sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Elasticsearch sink info")
+@ApiModel(value = "Elasticsearch sink request")
 @JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
 public class ElasticsearchSinkRequest extends SinkRequest {
 
-    @ApiModelProperty("Elasticsearch Host")
+    @ApiModelProperty("Host of the Elasticsearch server")
     private String host;
 
-    @ApiModelProperty("Elasticsearch Port")
+    @ApiModelProperty("Port of the Elasticsearch server")
     private Integer port;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Elasticsearch server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Elasticsearch server")
     private String password;
 
     @ApiModelProperty("Elasticsearch index name")
@@ -63,6 +60,9 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
 
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
+
     @ApiModelProperty("Document Type")
     private String documentType;
 
@@ -71,8 +71,5 @@ public class ElasticsearchSinkRequest extends SinkRequest {
 
     @ApiModelProperty("version")
     private Integer version;
-
-    @ApiModelProperty("Sink filed info")
-    private List<SinkField> fieldList;
 
 }

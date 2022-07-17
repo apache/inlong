@@ -17,59 +17,82 @@
  * under the License.
  */
 
-import React from 'react';
 import { genBasicFields } from '@/components/ConsumeHelper';
 import i18n from '@/i18n';
 
-export const getFormContent = ({ editing, initialValues }) =>
-  genBasicFields(
-    [
-      {
-        type: 'text',
-        label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
-        name: 'consumerGroupId',
-        rules: [{ required: true }],
-      },
-      'consumerGroupName',
-      'inCharges',
-      'masterUrl',
-      'inlongGroupId',
-      'topic',
-      'filterEnabled',
-      'inlongStreamId',
-      'mqExtInfo.isDlq',
-      'mqExtInfo.deadLetterTopic',
-      'mqExtInfo.isRlq',
-      'mqExtInfo.retryLetterTopic',
-    ],
-    initialValues,
-  ).map(item => {
-    const obj = { ...item };
-    if (typeof obj.suffix !== 'string') {
-      delete obj.suffix;
-    }
-    delete obj.extra;
-    if (!editing) {
-      if (typeof obj.type === 'string') {
-        obj.type = 'text';
-      }
-      if (obj.name === 'inCharges') {
-        obj.type = <span>{initialValues?.inCharges?.join(', ')}</span>;
-      }
-    }
+export const getFormContent = ({ editing, initialValues, isCreate }) => {
+  const keys = [
+    !isCreate && {
+      type: 'text',
+      label: i18n.t('pages.ConsumeDetail.Info.config.ConsumerGroupID'),
+      name: 'consumerGroupId',
+      rules: [{ required: true }],
+    },
+    'consumerGroupName',
+    'inCharges',
+    !isCreate && 'masterUrl',
+    'inlongGroupId',
+    'topic',
+    'filterEnabled',
+    'inlongStreamId',
+    'mqExtInfo.isDlq',
+    'mqExtInfo.deadLetterTopic',
+    'mqExtInfo.isRlq',
+    'mqExtInfo.retryLetterTopic',
+  ].filter(Boolean);
 
-    if (
-      [
+  return isCreate
+    ? genBasicFields(keys, initialValues).map(item => {
+        return item;
+      })
+    : genBasicFields(keys, initialValues).map(item => ({
+        ...item,
+        type: transType(editing, item, initialValues),
+        suffix:
+          typeof item.suffix === 'object' && !editing
+            ? {
+                ...item.suffix,
+                type: 'text',
+              }
+            : item.suffix,
+        extra: null,
+      }));
+};
+
+function transType(editing: boolean, conf, initialValues) {
+  const arr = [
+    {
+      name: [
         'consumerGroupId',
         'consumerGroupName',
         'inlongGroupId',
         'topic',
         'filterEnabled',
         'inlongStreamId',
-      ].includes(obj.name as string)
-    ) {
-      obj.type = 'text';
-    }
+      ],
+      as: 'text',
+      active: true,
+    },
+    {
+      name: [
+        'inCharges',
+        'mqExtInfo.isDlq',
+        'mqExtInfo.deadLetterTopic',
+        'mqExtInfo.isRlq',
+        'mqExtInfo.retryLetterTopic',
+      ],
+      as: 'text',
+      active: !editing,
+    },
+  ].reduce((acc, cur) => {
+    return acc.concat(Array.isArray(cur.name) ? cur.name.map(name => ({ ...cur, name })) : cur);
+  }, []);
 
-    return obj;
-  });
+  const map = new Map(arr.map(item => [item.name, item]));
+  if (map.has(conf.name)) {
+    const item = map.get(conf.name);
+    return item.active ? item.as : conf.type;
+  }
+
+  return conf.type;
+}

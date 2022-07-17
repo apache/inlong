@@ -33,34 +33,34 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * Request of the Hive sink info
+ * Hive sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Hive sink info")
+@ApiModel(value = "Hive sink request")
 @JsonTypeDefine(value = SinkType.SINK_HIVE)
 public class HiveSinkRequest extends SinkRequest {
 
-    @NotBlank(message = "jdbcUrl cannot be null")
+    @NotBlank(message = "jdbcUrl cannot be blank")
     @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Hive server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Hive server")
     private String password;
 
-    @NotBlank(message = "dbName cannot be null")
+    @NotBlank(message = "dbName cannot be blank")
     @ApiModelProperty("Target database name")
     private String dbName;
 
-    @NotBlank(message = "tableName cannot be null")
+    @NotBlank(message = "tableName cannot be blank")
     @ApiModelProperty("Target table name")
     private String tableName;
 
-    @NotBlank(message = "dataPath cannot be null")
+    @NotBlank(message = "dataPath cannot be blank")
     @ApiModelProperty("Data path, such as: hdfs://ip:port/user/hive/warehouse/test.db")
     private String dataPath;
 
@@ -85,7 +85,7 @@ public class HiveSinkRequest extends SinkRequest {
     @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of Hive on HDFS, must include hive-site.xml")
+    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
 }

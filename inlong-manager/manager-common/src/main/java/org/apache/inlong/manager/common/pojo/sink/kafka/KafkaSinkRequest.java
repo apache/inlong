@@ -28,12 +28,12 @@ import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of the Kafka sink info
+ * Kafka sink request.
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the Kafka sink info")
+@ApiModel(value = "Kafka sink request")
 @JsonTypeDefine(value = SinkType.SINK_KAFKA)
 public class KafkaSinkRequest extends SinkRequest {
 

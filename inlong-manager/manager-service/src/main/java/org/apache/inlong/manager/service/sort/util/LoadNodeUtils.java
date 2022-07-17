@@ -27,19 +27,19 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
-import org.apache.inlong.manager.common.pojo.sink.dlc.DLCIcebergSink;
+import org.apache.inlong.manager.common.pojo.sink.dlciceberg.DLCIcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HivePartitionField;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
-import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
+import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.constant.IcebergConstant.CatalogType;
@@ -99,17 +99,17 @@ public class LoadNodeUtils {
             case HBASE:
                 return createLoadNode((HBaseSink) streamSink);
             case POSTGRES:
-                return createLoadNode((PostgresSink) streamSink);
+                return createLoadNode((PostgreSQLSink) streamSink);
             case CLICKHOUSE:
                 return createLoadNode((ClickHouseSink) streamSink);
             case ICEBERG:
                 return createLoadNode((IcebergSink) streamSink);
             case SQLSERVER:
-                return createLoadNode((SqlServerSink) streamSink);
+                return createLoadNode((SQLServerSink) streamSink);
             case ELASTICSEARCH:
                 return createLoadNode((ElasticsearchSink) streamSink);
             case HDFS:
-                return createLoadNode((HdfsSink) streamSink);
+                return createLoadNode((HDFSSink) streamSink);
             case GREENPLUM:
                 return createLoadNode((GreenplumSink) streamSink);
             case MYSQL:
@@ -255,9 +255,9 @@ public class LoadNodeUtils {
     /**
      * Create load node of PostgreSQL.
      */
-    public static PostgresLoadNode createLoadNode(PostgresSink postgresSink) {
-        List<SinkField> fieldList = postgresSink.getSinkFieldList();
-        String name = postgresSink.getSinkName();
+    public static PostgresLoadNode createLoadNode(PostgreSQLSink postgreSQLSink) {
+        List<SinkField> fieldList = postgreSQLSink.getSinkFieldList();
+        String name = postgreSQLSink.getSinkName();
         List<FieldInfo> fields = fieldList.stream()
                 .map(sinkField -> FieldInfoUtils.parseSinkFieldInfo(sinkField, name))
                 .collect(Collectors.toList());
@@ -272,11 +272,11 @@ public class LoadNodeUtils {
                 null,
                 1,
                 null,
-                postgresSink.getJdbcUrl(),
-                postgresSink.getUsername(),
-                postgresSink.getPassword(),
-                postgresSink.getDbName() + "." + postgresSink.getTableName(),
-                postgresSink.getPrimaryKey()
+                postgreSQLSink.getJdbcUrl(),
+                postgreSQLSink.getUsername(),
+                postgreSQLSink.getPassword(),
+                postgreSQLSink.getDbName() + "." + postgreSQLSink.getTableName(),
+                postgreSQLSink.getPrimaryKey()
         );
     }
 
@@ -341,9 +341,9 @@ public class LoadNodeUtils {
     }
 
     /**
-     * Create load node of SqlServer.
+     * Create load node of SQLServer.
      */
-    public static SqlServerLoadNode createLoadNode(SqlServerSink sqlServerSink) {
+    public static SqlServerLoadNode createLoadNode(SQLServerSink sqlServerSink) {
         final String id = sqlServerSink.getSinkName();
         final String name = sqlServerSink.getSinkName();
         final List<SinkField> fieldList = sqlServerSink.getSinkFieldList();
@@ -408,7 +408,7 @@ public class LoadNodeUtils {
     /**
      * Create load node of HDFS.
      */
-    public static FileSystemLoadNode createLoadNode(HdfsSink hdfsSink) {
+    public static FileSystemLoadNode createLoadNode(HDFSSink hdfsSink) {
         String id = hdfsSink.getSinkName();
         String name = hdfsSink.getSinkName();
         List<SinkField> fieldList = hdfsSink.getSinkFieldList();

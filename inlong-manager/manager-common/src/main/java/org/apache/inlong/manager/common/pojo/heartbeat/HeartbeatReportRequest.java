@@ -25,10 +25,10 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
- * Request of heartbeat report
+ * Heartbeat report request
  */
 @Data
-@ApiModel("Request of heartbeat report")
+@ApiModel("Heartbeat report request")
 public class HeartbeatReportRequest {
 
     @NotBlank

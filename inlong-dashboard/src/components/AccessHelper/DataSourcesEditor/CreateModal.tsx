@@ -67,8 +67,26 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
     [type],
   );
 
+  const { data, run: getData } = useRequest(
+    id => ({
+      url: `/source/get/${id}`,
+      params: {
+        sourceType: type,
+      },
+    }),
+    {
+      manual: true,
+      formatResult: result => toFormVals(result),
+      onSuccess: result => {
+        form.setFieldsValue(result);
+        setCurrentValues(result);
+      },
+    },
+  );
+
   const onOk = async () => {
     const values = await form.validateFields();
+    if (data) values.version = data.version;
     modalProps?.onOk(toSubmitVals(values));
   };
 
@@ -86,23 +104,6 @@ const Comp: React.FC<Props> = ({ type, id, content = [], record, ...modalProps }
       setCurrentValues({});
     }
   }, [modalProps.visible]);
-
-  const { run: getData } = useRequest(
-    id => ({
-      url: `/source/get/${id}`,
-      params: {
-        sourceType: type,
-      },
-    }),
-    {
-      manual: true,
-      formatResult: result => toFormVals(result),
-      onSuccess: result => {
-        form.setFieldsValue(result);
-        setCurrentValues(result);
-      },
-    },
-  );
 
   const getCreateFormContent = useMemo(
     () => currentValues => {

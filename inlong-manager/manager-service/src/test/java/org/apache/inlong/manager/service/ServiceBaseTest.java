@@ -23,14 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * Test class for base test service.
  */
 @SpringBootApplication
 @SpringBootTest(classes = ServiceBaseTest.class)
-@EnableWebMvc
 public class ServiceBaseTest extends BaseTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBaseTest.class);

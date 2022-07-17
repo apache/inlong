@@ -39,7 +39,6 @@
             <groupId>org.apache.inlong</groupId>
             <artifactId>manager-dao</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

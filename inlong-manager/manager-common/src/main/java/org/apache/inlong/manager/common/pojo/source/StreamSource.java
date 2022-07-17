@@ -19,7 +19,6 @@ package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -30,6 +29,8 @@ import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Stream source info, including source name, agent ip, etc.
@@ -39,7 +40,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
 
@@ -100,6 +101,9 @@ public abstract class StreamSource extends StreamNode {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty("Properties for source")
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
     public SourceRequest genSourceRequest() {
         return null;

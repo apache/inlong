@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Event listener of operate sink resources, such as create or update Hive table, Kafka topics, ES indices, etc.
+ * Event listener of operate sink resources,
+ * such as create or update Hive table, Kafka topics, ES indices, etc.
  */
 @Slf4j
 @Service

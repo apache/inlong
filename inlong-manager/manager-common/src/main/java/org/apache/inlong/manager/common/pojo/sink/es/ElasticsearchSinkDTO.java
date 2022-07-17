@@ -24,10 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -42,16 +45,16 @@ public class ElasticsearchSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Elasticsearch Host")
+    @ApiModelProperty("Host of the Elasticsearch server")
     private String host;
 
-    @ApiModelProperty("Elasticsearch Port")
+    @ApiModelProperty("Port of the Elasticsearch server")
     private Integer port;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Elasticsearch server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Elasticsearch server")
     private String password;
 
     @ApiModelProperty("Elasticsearch index name")
@@ -66,6 +69,9 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Write max retry times, default is 3")
     private Integer retryTimes;
 
+    @ApiModelProperty("Key field names, separate with commas")
+    private String keyFieldNames;
+
     @ApiModelProperty("Document Type")
     private String documentType;
 
@@ -75,17 +81,26 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("version")
     private Integer version;
 
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
     @ApiModelProperty("Properties for elasticsearch")
     private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
      */
-    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) {
+    public static ElasticsearchSinkDTO getFromRequest(ElasticsearchSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
+        }
         return ElasticsearchSinkDTO.builder()
                 .host(request.getHost())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .indexName(request.getIndexName())
                 .flushInterval(request.getFlushInterval())
                 .flushRecord(request.getFlushRecord())
@@ -93,6 +108,7 @@ public class ElasticsearchSinkDTO {
                 .documentType(request.getDocumentType())
                 .primaryKey(request.getPrimaryKey())
                 .version(request.getVersion())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -103,7 +119,7 @@ public class ElasticsearchSinkDTO {
     public static ElasticsearchSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
         }
@@ -112,6 +128,14 @@ public class ElasticsearchSinkDTO {
     public static String getElasticSearchIndexName(ElasticsearchSinkDTO esInfo,
             List<ElasticsearchFieldInfo> fieldList) {
         return esInfo.getIndexName();
+    }
+
+    private ElasticsearchSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
+        }
+        return this;
     }
 
 }
