@@ -109,8 +109,8 @@ public class PulsarClusterProducer implements LifecycleAware {
         this.context = context.getProducerContext();
         this.state = LifecycleState.IDLE;
         this.cacheClusterName = config.getClusterName();
-        this.tenant = config.getParams().getOrDefault(KEY_TENANT, "pulsar");
-        this.namespace = config.getParams().getOrDefault(KEY_NAMESPACE, "inlong");
+        this.tenant = config.getParams().get(KEY_TENANT);
+        this.namespace = config.getParams().get(KEY_NAMESPACE);
     }
 
     /**
@@ -219,14 +219,13 @@ public class PulsarClusterProducer implements LifecycleAware {
     public boolean send(DispatchProfile event) {
         try {
             // topic
-            String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
-            if (baseTopic == null) {
+            String producerTopic = this.getProducerTopic(event);
+            if (producerTopic == null) {
                 sinkContext.addSendResultMetric(event, event.getUid(), false, 0);
                 event.fail();
                 return false;
             }
             // get producer
-            String producerTopic = tenant + '/' + namespace + '/' + baseTopic;
             Producer<byte[]> producer = this.producerMap.get(producerTopic);
             if (producer == null) {
                 try {
@@ -280,6 +279,27 @@ public class PulsarClusterProducer implements LifecycleAware {
             sinkContext.processSendFail(event, event.getUid(), 0);
             return false;
         }
+    }
+
+    /**
+     * getProducerTopic
+     * @param event
+     * @return
+     */
+    private String getProducerTopic(DispatchProfile event) {
+        String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
+        if (baseTopic == null) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        if (tenant != null) {
+            builder.append(tenant).append("/");
+        }
+        if (namespace != null) {
+            builder.append(namespace).append("/");
+        }
+        builder.append(baseTopic);
+        return builder.toString();
     }
 
     /**

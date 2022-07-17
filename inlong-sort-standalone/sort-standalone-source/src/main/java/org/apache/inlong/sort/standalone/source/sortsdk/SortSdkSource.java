@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -229,7 +230,9 @@ public final class SortSdkSource extends AbstractSource
      * @return
      */
     private Map<String, String> getSortClientConfigParameters() {
-        Map<String, String> sortSdkParams = CommonPropertiesHolder.getContext().getSubProperties(SORT_SDK_PREFIX);
+        Map<String, String> sortSdkParams = new HashMap<>();
+        Map<String, String> commonParams = CommonPropertiesHolder.getContext().getSubProperties(SORT_SDK_PREFIX);
+        sortSdkParams.putAll(commonParams);
         SortTaskConfig taskConfig = SortClusterConfigHolder.getTaskConfig(taskName);
         if (taskConfig != null) {
             Map<String, String> sinkParams = taskConfig.getSinkParams();

@@ -76,13 +76,13 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     }
 
     private boolean initFetcher(InLongTopicFetcher fetcher, InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equals(inLongTopic.getTopicType())) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("create fetcher topic is pulsar {}", inLongTopic);
             return fetcher.init(pulsarClients.get(inLongTopic.getInLongCluster().getClusterId()));
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("create fetcher topic is kafka {}", inLongTopic);
             return fetcher.init(inLongTopic.getInLongCluster().getBootstraps());
-        } else if (InlongTopicTypeEnum.TUBE.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("create fetcher topic is tube {}", inLongTopic);
             return fetcher.init(tubeFactories.get(inLongTopic.getInLongCluster().getClusterId()));
         } else {
@@ -130,13 +130,13 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
      * @return {@link InLongTopicFetcher}
      */
     private InLongTopicFetcher createInLongTopicFetcher(InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equals(inLongTopic.getTopicType())) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is pulsar {}", inLongTopic);
             return new InLongPulsarFetcherImpl(inLongTopic, context);
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is kafka {}", inLongTopic);
             return new InLongKafkaFetcherImpl(inLongTopic, context);
-        } else if (InlongTopicTypeEnum.TUBE.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is tube {}", inLongTopic);
             return new InLongTubeFetcherImpl(inLongTopic, context);
         } else {
@@ -345,13 +345,13 @@ public class InLongTopicManagerImpl extends InLongTopicManager {
     }
 
     private void onlineTopic(InLongTopic inLongTopic) {
-        if (InlongTopicTypeEnum.PULSAR.getName().equals(inLongTopic.getTopicType())) {
+        if (InlongTopicTypeEnum.PULSAR.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is pulsar:{}", inLongTopic);
             onlinePulsarTopic(inLongTopic);
-        } else if (InlongTopicTypeEnum.KAFKA.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.KAFKA.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is kafka:{}", inLongTopic);
             onlineKafkaTopic(inLongTopic);
-        } else if (InlongTopicTypeEnum.TUBE.getName().equals(inLongTopic.getTopicType())) {
+        } else if (InlongTopicTypeEnum.TUBE.getName().equalsIgnoreCase(inLongTopic.getTopicType())) {
             logger.info("the topic is tube:{}", inLongTopic);
             onlineTubeTopic(inLongTopic);
         } else {
