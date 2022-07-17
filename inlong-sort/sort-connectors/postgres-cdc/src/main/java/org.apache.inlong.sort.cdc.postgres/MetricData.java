@@ -23,6 +23,9 @@ import org.apache.flink.metrics.Meter;
 import org.apache.flink.metrics.MeterView;
 import org.apache.flink.metrics.MetricGroup;
 
+/**
+ * A collection class for handling metrics
+ */
 public class MetricData {
 
     private final MetricGroup metricGroup;
