@@ -202,25 +202,43 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .filter(cluster -> SUPPORTED_MQ_TYPE.contains(cluster.getType()))
                 .collect(Collectors.groupingBy(SortSourceClusterInfo::getClusterTags));
 
+        // group clusters by name.
+        Map<String, SortSourceClusterInfo> name2ClusterInfos = clusterInfos.stream()
+                .collect(Collectors.toMap(SortSourceClusterInfo::getName, info -> info, (g1, g2) -> g1));
+
         // Prepare CacheZones for each cluster and task
         Map<String, Map<String, String>> newMd5Map = new ConcurrentHashMap<>();
         Map<String, Map<String, CacheZoneConfig>> newConfigMap = new ConcurrentHashMap<>();
-        groupMap.forEach((cluster, task2Group) -> {
+        groupMap.forEach((clusterName, task2Group) -> {
 
+            // if there is no matched cluster name, just skip
+            if (!name2ClusterInfos.containsKey(clusterName)) {
+                return;
+            }
+            // find valid mq cluster list
+            String clusterTag = name2ClusterInfos.get(clusterName).getClusterTags();
+            final Map<String, List<SortSourceClusterInfo>> validClusterInfos = new ConcurrentHashMap<>();
+            if (allTag2ClusterInfos.containsKey(clusterTag)) {
+                validClusterInfos.put(clusterTag, allTag2ClusterInfos.get(clusterTag));
+            } else {
+                validClusterInfos.putAll(allTag2ClusterInfos);
+            }
+
+            // prepare
             Map<String, CacheZoneConfig> task2Config = new ConcurrentHashMap<>();
             Map<String, String> task2Md5 = new ConcurrentHashMap<>();
 
             task2Group.forEach((task, groupList) -> {
                 Map<String, CacheZone> cacheZones;
                 try {
-                    cacheZones = this.getCacheZones(groupList, allId2GroupInfos, allTag2ClusterInfos);
+                    cacheZones = this.getCacheZones(groupList, allId2GroupInfos, validClusterInfos);
                 } catch (Throwable t) {
-                    LOGGER.error("fail to get cacheZones of cluster {}, task {}", cluster, task);
+                    LOGGER.error("fail to get cacheZones of clusterName {}, task {}", clusterName, task);
                     return;
                 }
                 CacheZoneConfig config = CacheZoneConfig.builder()
                         .cacheZones(cacheZones)
-                        .sortClusterName(cluster)
+                        .sortClusterName(clusterName)
                         .sortTaskId(task)
                         .build();
                 String jsonStr = GSON.toJson(config);
@@ -229,8 +247,8 @@ public class SortSourceServiceImpl implements SortSourceService {
                 task2Md5.put(task, md5);
             });
 
-            newConfigMap.put(cluster, task2Config);
-            newMd5Map.put(cluster, task2Md5);
+            newConfigMap.put(clusterName, task2Config);
+            newMd5Map.put(clusterName, task2Md5);
         });
 
         sortSourceConfigMap = newConfigMap;
