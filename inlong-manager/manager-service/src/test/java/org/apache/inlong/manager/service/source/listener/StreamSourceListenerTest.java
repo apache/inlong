@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.source.listener;
 
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
@@ -28,97 +29,98 @@ import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
-import org.apache.inlong.manager.service.workflow.WorkflowServiceImplTest;
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.core.ProcessService;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
 import org.apache.inlong.manager.workflow.util.WorkflowBeanUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Test class for operate binlog source, such as frozen or restart.
+ * Test class for operate StreamSource, such as frozen or restart.
  */
-public class DataSourceListenerTest extends WorkflowServiceImplTest {
+public class StreamSourceListenerTest extends ServiceBaseTest {
 
-    public GroupResourceProcessForm form;
+    private static final String GROUP_ID = "test-source-group-id";
+    private static final String STREAM_ID = "test-source-stream-id";
 
-    public InlongGroupInfo groupInfo;
     @Autowired
-    private StreamSourceService streamSourceService;
+    private ProcessService processService;
+    @Autowired
+    private StreamSourceService sourceService;
 
-    @BeforeEach
-    public void init() {
-        subType = "data_source";
-    }
-
-    public Integer createBinlogSource(InlongGroupInfo groupInfo) {
-        final InlongStreamInfo stream = createStreamInfo(groupInfo);
-        MySQLBinlogSourceRequest sourceRequest = new MySQLBinlogSourceRequest();
-        sourceRequest.setInlongGroupId(stream.getInlongGroupId());
-        sourceRequest.setInlongStreamId(stream.getInlongStreamId());
-        sourceRequest.setSourceName("binlog-collect");
-        return streamSourceService.save(sourceRequest, OPERATOR);
-    }
+    private InlongGroupInfo groupInfo;
 
     /**
      * There will be concurrency problems in the overall operation,This method temporarily fails the test
      */
-    //@Test
-    public void testFrozenSource() {
-        groupInfo = initGroupForm("PULSAR", "test1");
-        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
+    // @Test
+    public void testAllOperate() {
+        groupInfo = createInlongGroup(GROUP_ID, MQType.MQ_PULSAR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_ING.getCode(), GLOBAL_OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.CONFIG_SUCCESSFUL.getCode(), GLOBAL_OPERATOR);
+        groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
 
-        final int sourceId = createBinlogSource(groupInfo);
-        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
-                SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
+        Integer sourceId = this.createBinlogSource(groupInfo);
+        testFrozenSource(sourceId);
+        testRestartSource(sourceId);
+    }
 
-        form = new GroupResourceProcessForm();
+    private Integer createBinlogSource(InlongGroupInfo groupInfo) {
+        InlongStreamInfo stream = createStreamInfo(groupInfo, STREAM_ID);
+        MySQLBinlogSourceRequest sourceRequest = new MySQLBinlogSourceRequest();
+        sourceRequest.setInlongGroupId(stream.getInlongGroupId());
+        sourceRequest.setInlongStreamId(stream.getInlongStreamId());
+        sourceRequest.setSourceName("binlog-collect");
+        return sourceService.save(sourceRequest, GLOBAL_OPERATOR);
+    }
+
+    private void testFrozenSource(Integer sourceId) {
+        sourceService.updateStatus(GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
+
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.SUSPEND);
-        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.SUSPEND_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("stopSource");
+        WorkflowTask task = process.getTaskByName("StopSource");
         Assertions.assertTrue(task instanceof ServiceTask);
-        StreamSource streamSource = streamSourceService.get(sourceId);
+
+        StreamSource streamSource = sourceService.get(sourceId);
         Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_FROZEN);
     }
 
-    // @Test
-    public void testRestartSource() {
-        // testFrozenSource();
-        groupInfo = initGroupForm("PULSAR", "test2");
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_SUCCESSFUL.getCode(), OPERATOR);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDING.getCode(), OPERATOR);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.SUSPENDED.getCode(), OPERATOR);
-        groupService.update(groupInfo.genRequest(), OPERATOR);
+    private void testRestartSource(Integer sourceId) {
+        groupService.updateStatus(GROUP_ID, GroupStatus.SUSPENDING.getCode(), GLOBAL_OPERATOR);
+        groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
+        groupService.updateStatus(GROUP_ID, GroupStatus.SUSPENDED.getCode(), GLOBAL_OPERATOR);
+        groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
 
-        final int sourceId = createBinlogSource(groupInfo);
-        streamSourceService.updateStatus(groupInfo.getInlongGroupId(), null,
-                SourceStatus.SOURCE_NORMAL.getCode(), OPERATOR);
+        sourceService.updateStatus(GROUP_ID, null, SourceStatus.SOURCE_NORMAL.getCode(), GLOBAL_OPERATOR);
 
-        form = new GroupResourceProcessForm();
+        GroupResourceProcessForm form = new GroupResourceProcessForm();
         form.setGroupInfo(groupInfo);
         form.setGroupOperateType(GroupOperateType.RESTART);
-        WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), applicant, form);
+        WorkflowContext context = processService.start(ProcessName.RESTART_GROUP_PROCESS.name(), GLOBAL_OPERATOR, form);
         WorkflowResult result = WorkflowBeanUtils.result(context);
         ProcessResponse response = result.getProcessInfo();
         Assertions.assertSame(response.getStatus(), ProcessStatus.COMPLETED);
 
         WorkflowProcess process = context.getProcess();
-        WorkflowTask task = process.getTaskByName("restartSource");
+        WorkflowTask task = process.getTaskByName("RestartSource");
         Assertions.assertTrue(task instanceof ServiceTask);
+
+        StreamSource streamSource = sourceService.get(sourceId);
+        Assertions.assertSame(SourceStatus.forCode(streamSource.getStatus()), SourceStatus.TO_BE_ISSUED_RETRY);
     }
 
 }

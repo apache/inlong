@@ -46,8 +46,7 @@ public enum ErrorCodeEnum {
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
 
-    OPT_NOT_ALLOWED_BY_STATUS(1021,
-            "The current inlong group status does not allow adding/modifying/deleting related info"),
+    OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
     MQ_TYPE_NOT_SUPPORTED(1022, "MQ type '%s' not supported"),
     MQ_TYPE_NOT_SAME(1023, "Expected MQ type is '%s', but found '%s'"),
