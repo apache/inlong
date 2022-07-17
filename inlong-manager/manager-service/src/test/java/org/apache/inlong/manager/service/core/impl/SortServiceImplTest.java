@@ -163,7 +163,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     public void testClusterErrorClusterName() {
         SortClusterResponse response = sortService.getClusterConfig("errCluster", "");
         System.out.println(response.toString());
-        Assertions.assertEquals(-101, response.getCode());
+        Assertions.assertEquals(0, response.getCode());
         Assertions.assertNull(response.getMd5());
         Assertions.assertNull(response.getData());
         Assertions.assertNotNull(response.getMsg());

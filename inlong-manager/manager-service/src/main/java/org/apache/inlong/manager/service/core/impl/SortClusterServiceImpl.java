@@ -40,7 +40,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -229,6 +229,7 @@ public class SortClusterServiceImpl implements SortClusterService {
                     SortSinkInfo sinkParams = taskSinkParamMap.get(task.getDataNodeName());
                     return this.getTaskConfig(taskName, type, idParams, sinkParams);
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return SortClusterConfig.builder()
@@ -255,10 +256,10 @@ public class SortClusterServiceImpl implements SortClusterService {
             List<SortIdInfo> idParams,
             SortSinkInfo sinkParams) {
 
-        Optional.ofNullable(idParams)
-                .orElseThrow(() -> new IllegalStateException(("There is no any id params of task " + taskName)));
-        Optional.ofNullable(sinkParams)
-                .orElseThrow(() -> new IllegalStateException("There is no any sink params of task " + taskName));
+        // return null if id params or sink params are empty.
+        if (idParams == null || sinkParams == null) {
+            return null;
+        }
 
         if (!type.equalsIgnoreCase(sinkParams.getType())) {
             throw new IllegalArgumentException(
