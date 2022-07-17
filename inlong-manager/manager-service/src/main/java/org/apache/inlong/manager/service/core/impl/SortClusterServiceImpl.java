@@ -125,13 +125,13 @@ public class SortClusterServiceImpl implements SortClusterService {
                     .build();
         }
 
-        // there is no config
+        // there is no config, but still return success.
         if (sortClusterConfigMap.get(clusterName) == null) {
             String errMsg = "There is not config for cluster " + clusterName;
             LOGGER.info(errMsg);
             return SortClusterResponse.builder()
                     .msg(errMsg)
-                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
+                    .code(RESPONSE_CODE_SUCCESS)
                     .build();
         }
 
