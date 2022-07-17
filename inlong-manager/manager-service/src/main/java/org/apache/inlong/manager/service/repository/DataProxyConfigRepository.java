@@ -21,6 +21,7 @@ import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
@@ -33,19 +34,27 @@ import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
+import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.ClusterSetMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +72,14 @@ import javax.annotation.PostConstruct;
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
 
-    private static final String KEY_SECOND_CLUSTER_TAG = "second_cluster_tag";
-    private static final String KEY_SECOND_TOPIC = "second_topic";
+    public static final String KEY_SECOND_CLUSTER_TAG = "second_cluster_tag";
+    public static final String KEY_SECOND_TOPIC = "second_topic";
+    public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
+    public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
+    public static final String KEY_SORT_CONSUEMER_GROUP = "defaultSortConsumerGroup";
+    public static final String KEY_SINK_NAME = "defaultSinkName";
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
@@ -84,7 +97,11 @@ public class DataProxyConfigRepository implements IRepository {
     @Autowired
     private ClusterSetMapper clusterSetMapper;
     @Autowired
+    private InlongClusterEntityMapper clusterMapper;
+    @Autowired
     private InlongGroupEntityMapper inlongGroupMapper;
+    @Autowired
+    private StreamSinkEntityMapper streamSinkMapper;
 
     @PostConstruct
     public void initialize() {
@@ -96,6 +113,70 @@ public class DataProxyConfigRepository implements IRepository {
         } catch (Throwable t) {
             LOGGER.error("Initialize DataProxyConfigRepository error", t);
         }
+    }
+
+    /**
+     * get clusterSetMapper
+     * @return the clusterSetMapper
+     */
+    public ClusterSetMapper getClusterSetMapper() {
+        return clusterSetMapper;
+    }
+
+    /**
+     * set clusterSetMapper
+     * @param clusterSetMapper the clusterSetMapper to set
+     */
+    public void setClusterSetMapper(ClusterSetMapper clusterSetMapper) {
+        this.clusterSetMapper = clusterSetMapper;
+    }
+
+    /**
+     * get clusterMapper
+     * @return the clusterMapper
+     */
+    public InlongClusterEntityMapper getClusterMapper() {
+        return clusterMapper;
+    }
+
+    /**
+     * set clusterMapper
+     * @param clusterMapper the clusterMapper to set
+     */
+    public void setClusterMapper(InlongClusterEntityMapper clusterMapper) {
+        this.clusterMapper = clusterMapper;
+    }
+
+    /**
+     * get inlongGroupMapper
+     * @return the inlongGroupMapper
+     */
+    public InlongGroupEntityMapper getInlongGroupMapper() {
+        return inlongGroupMapper;
+    }
+
+    /**
+     * set inlongGroupMapper
+     * @param inlongGroupMapper the inlongGroupMapper to set
+     */
+    public void setInlongGroupMapper(InlongGroupEntityMapper inlongGroupMapper) {
+        this.inlongGroupMapper = inlongGroupMapper;
+    }
+
+    /**
+     * get streamSinkMapper
+     * @return the streamSinkMapper
+     */
+    public StreamSinkEntityMapper getStreamSinkMapper() {
+        return streamSinkMapper;
+    }
+
+    /**
+     * set streamSinkMapper
+     * @param streamSinkMapper the streamSinkMapper to set
+     */
+    public void setStreamSinkMapper(StreamSinkEntityMapper streamSinkMapper) {
+        this.streamSinkMapper = streamSinkMapper;
     }
 
     /**
@@ -194,7 +275,7 @@ public class DataProxyConfigRepository implements IRepository {
                 Map<String, String> groupParams = gson.fromJson(extParams, HashMap.class);
                 return groupParams;
             } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error("Fail to parse ext error:{},params:{}", e.getMessage(), extParams, e);
             }
         }
         return new HashMap<>();
@@ -386,11 +467,111 @@ public class DataProxyConfigRepository implements IRepository {
      */
     public String changeClusterTag(String inlongGroupId, String clusterTag,
             String topic) {
-        // select
-        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
-        if (oldGroup == null) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        try {
+            // select
+            InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+            if (oldGroup == null) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+            }
+            String oldClusterTag = oldGroup.getInlongClusterTag();
+            if (StringUtils.equals(oldClusterTag, clusterTag)) {
+                return "Cluster tag is same.";
+            }
+            // prepare group
+            final InlongGroupEntity newGroup = this.prepareClusterTagGroup(oldGroup, clusterTag, topic);
+            // load cluster
+            Map<String, InlongClusterEntity> clusterMap = new HashMap<>();
+            ClusterPageRequest clusterRequest = new ClusterPageRequest();
+            List<InlongClusterEntity> clusters = clusterMapper.selectByCondition(clusterRequest);
+            clusters.forEach((v) -> {
+                clusterMap.put(v.getName(), v);
+            });
+            // prepare stream sink
+            SinkPageRequest request = new SinkPageRequest();
+            request.setInlongGroupId(inlongGroupId);
+            List<StreamSinkEntity> streamSinks = streamSinkMapper.selectByCondition(request);
+            List<StreamSinkEntity> newStreamSinks = new ArrayList<>();
+            for (StreamSinkEntity streamSink : streamSinks) {
+                String clusterName = streamSink.getInlongClusterName();
+                InlongClusterEntity cluster = clusterMap.get(clusterName);
+                if (cluster == null) {
+                    continue;
+                }
+                if (!StringUtils.equals(oldClusterTag, cluster.getClusterTags())) {
+                    continue;
+                }
+                String clusterType = cluster.getType();
+                // find the cluster of same cluster tag and sink type, and add new stream sink
+                StreamSinkEntity newStreamSink = this.createNewStreamSink(clusters, clusterType, clusterTag,
+                        streamSink);
+                if (newStreamSink != null) {
+                    newStreamSinks.add(newStreamSink);
+                }
+            }
+            // update
+            newStreamSinks.forEach((v) -> {
+                streamSinkMapper.insert(v);
+            });
+            inlongGroupMapper.updateByIdentifierSelective(newGroup);
+            return inlongGroupId;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return e.getMessage();
         }
+    }
+
+    /**
+     * createNewStreamSink
+     */
+    private StreamSinkEntity createNewStreamSink(List<InlongClusterEntity> clusters, String clusterType,
+            String clusterTag, StreamSinkEntity srcStreamSink) {
+        for (InlongClusterEntity v : clusters) {
+            if (StringUtils.equals(clusterType, v.getType())
+                    && StringUtils.equals(clusterTag, v.getClusterTags())) {
+                String newExtParams = v.getExtParams();
+                Gson gson = new Gson();
+                JsonObject extParams = gson.fromJson(newExtParams, JsonObject.class);
+                if (extParams.has(KEY_SINK_NAME) && extParams.has(KEY_SORT_TASK_NAME)
+                        && extParams.has(KEY_DATA_NODE_NAME) && extParams.has(KEY_SORT_CONSUEMER_GROUP)) {
+                    final String sinkName = extParams.get(KEY_SINK_NAME).getAsString();
+                    final String sortTaskName = extParams.get(KEY_SORT_TASK_NAME).getAsString();
+                    final String dataNodeName = extParams.get(KEY_DATA_NODE_NAME).getAsString();
+                    final String sortConsumerGroup = extParams.get(KEY_SORT_CONSUEMER_GROUP).getAsString();
+                    StreamSinkEntity newStreamSink = copyStreamSink(srcStreamSink);
+                    newStreamSink.setInlongClusterName(v.getName());
+                    newStreamSink.setSinkName(sinkName);
+                    newStreamSink.setSortTaskName(sortTaskName);
+                    newStreamSink.setDataNodeName(dataNodeName);
+                    newStreamSink.setSortConsumerGroup(sortConsumerGroup);
+                    return newStreamSink;
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * copyStreamSink
+     */
+    private StreamSinkEntity copyStreamSink(StreamSinkEntity streamSink) {
+        try {
+            StreamSinkEntity streamSinkDest = new StreamSinkEntity();
+            BeanUtils.copyProperties(streamSinkDest, streamSink);
+            streamSinkDest.setId(null);
+            streamSinkDest.setModifyTime(new Date(System.currentTimeMillis()));
+            return streamSinkDest;
+        } catch (Exception e) {
+            LOGGER.error("Fail to copy stream sink:{}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * prepareClusterTagGroup
+     */
+    private InlongGroupEntity prepareClusterTagGroup(InlongGroupEntity oldGroup, String clusterTag, String topic)
+            throws IllegalAccessException, InvocationTargetException {
         // parse ext_params
         String extParams = oldGroup.getExtParams();
         if (StringUtils.isEmpty(extParams)) {
@@ -402,13 +583,16 @@ public class DataProxyConfigRepository implements IRepository {
         // change cluster tag
         extParamsObj.addProperty(KEY_SECOND_CLUSTER_TAG, oldGroup.getInlongClusterTag());
         extParamsObj.addProperty(KEY_SECOND_TOPIC, oldGroup.getMqResource());
-        oldGroup.setInlongClusterTag(clusterTag);
-        oldGroup.setMqResource(topic);
+        // copy properties
+        InlongGroupEntity newGroup = new InlongGroupEntity();
+        BeanUtils.copyProperties(newGroup, oldGroup);
+        newGroup.setId(null);
+        // change properties
+        newGroup.setInlongClusterTag(clusterTag);
+        newGroup.setMqResource(topic);
         String newExtParams = extParamsObj.toString();
-        oldGroup.setExtParams(newExtParams);
-        // update
-        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
-        return inlongGroupId;
+        newGroup.setExtParams(newExtParams);
+        return newGroup;
     }
 
     /**
@@ -423,17 +607,48 @@ public class DataProxyConfigRepository implements IRepository {
         // parse ext_params
         String extParams = oldGroup.getExtParams();
         if (StringUtils.isEmpty(extParams)) {
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
+            return inlongGroupId;
         }
         // parse json
         Gson gson = new Gson();
         JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        if (!extParamsObj.has(KEY_SECOND_CLUSTER_TAG)) {
+            return inlongGroupId;
+        }
+        final String oldClusterTag = extParamsObj.get(KEY_SECOND_CLUSTER_TAG).getAsString();
         extParamsObj.remove(KEY_SECOND_CLUSTER_TAG);
         extParamsObj.remove(KEY_SECOND_TOPIC);
         String newExtParams = extParamsObj.toString();
         oldGroup.setExtParams(newExtParams);
-        // update
+        // update group
         inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+
+        // load cluster
+        Map<String, InlongClusterEntity> clusterMap = new HashMap<>();
+        ClusterPageRequest clusterRequest = new ClusterPageRequest();
+        List<InlongClusterEntity> clusters = clusterMapper.selectByCondition(clusterRequest);
+        clusters.forEach((v) -> {
+            clusterMap.put(v.getName(), v);
+        });
+        // prepare stream sink
+        SinkPageRequest request = new SinkPageRequest();
+        request.setInlongGroupId(inlongGroupId);
+        List<StreamSinkEntity> streamSinks = streamSinkMapper.selectByCondition(request);
+        List<StreamSinkEntity> deleteStreamSinks = new ArrayList<>();
+        for (StreamSinkEntity streamSink : streamSinks) {
+            String clusterName = streamSink.getInlongClusterName();
+            InlongClusterEntity cluster = clusterMap.get(clusterName);
+            if (cluster == null) {
+                continue;
+            }
+            if (StringUtils.equals(oldClusterTag, cluster.getClusterTags())) {
+                deleteStreamSinks.add(streamSink);
+            }
+        }
+        // delete old stream sink
+        deleteStreamSinks.forEach((v) -> {
+            streamSinkMapper.deleteByPrimaryKey(v.getId());
+        });
         return inlongGroupId;
     }
 }
