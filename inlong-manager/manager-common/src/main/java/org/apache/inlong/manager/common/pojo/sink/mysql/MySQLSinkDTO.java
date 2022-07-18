@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.sink.mysql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,4 +91,64 @@ public class MySQLSinkDTO {
         }
     }
 
+    /**
+     * Get PostgreSQL table info
+     */
+    public static MySQLTableInfo getTableInfo(MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
+        MySQLTableInfo tableInfo = new MySQLTableInfo();
+        String dbName = getDbNameFromUrl(mySQLSink.getJdbcUrl());
+        tableInfo.setDbName(dbName);
+        tableInfo.setTableName(mySQLSink.getTableName());
+        tableInfo.setPrimaryKey(mySQLSink.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
+    }
+
+    /**
+     * Get DbName from jdbcUrl
+     *
+     * @param jdbcUrl
+     * @return
+     */
+    public static String getDbNameFromUrl(String jdbcUrl) {
+        String database = null;
+
+        if (Strings.isNullOrEmpty(jdbcUrl)) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+
+        jdbcUrl = jdbcUrl.toLowerCase();
+        if (jdbcUrl.startsWith("jdbc:impala")) {
+            jdbcUrl = jdbcUrl.replace(":impala", "");
+        }
+
+        int pos1 = 0;
+        if (!jdbcUrl.startsWith("jdbc:")
+                || (pos1 = jdbcUrl.indexOf(':', 5)) == -1) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+
+        String connUri = jdbcUrl.substring(pos1 + 1);
+        int pos = 0;
+        if (connUri.startsWith("//")) {
+            if ((pos = connUri.indexOf('/', 2)) != -1) {
+                database = connUri.substring(pos + 1);
+            }
+        } else {
+            database = connUri;
+        }
+
+        if (database.contains("?")) {
+            database = database.substring(0, database.indexOf("?"));
+        }
+
+        if (database.contains(";")) {
+            database = database.substring(0, database.indexOf(";"));
+        }
+
+        if (Strings.isNullOrEmpty(database)) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+        return database;
+    }
 }
