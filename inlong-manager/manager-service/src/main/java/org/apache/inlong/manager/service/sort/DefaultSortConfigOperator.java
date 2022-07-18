@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -81,12 +82,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
 
         GroupInfo configInfo;
         // if the mode of inlong group is LIGHTWEIGHT, means not using any MQ as a cached source
-        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
-            configInfo = this.getLightweightGroupInfo(groupInfo, streamInfos);
-        } else {
-            configInfo = this.getNormalGroupInfo(groupInfo, streamInfos);
-        }
-
+        configInfo = getGroupInfo(groupInfo, streamInfos);
         String dataflow = OBJECT_MAPPER.writeValueAsString(configInfo);
         if (isStream) {
             this.addToStreamExt(streamInfos, dataflow);
@@ -99,7 +95,7 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         }
     }
 
-    private GroupInfo getLightweightGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
+    private GroupInfo getGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
         // get source info
         Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
         // get sink info
@@ -114,12 +110,16 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         List<StreamInfo> sortStreamInfos = new ArrayList<>();
         for (InlongStreamInfo inlongStream : streamInfoList) {
             String streamId = inlongStream.getInlongStreamId();
-
+            Map<String, StreamField> constantFieldMap = new HashMap<>();
+            inlongStream.getSourceList()
+                    .forEach(s -> parseConstantFieldMap(s.getSourceName(), s.getFieldList(), constantFieldMap));
             List<TransformResponse> transformResponseList = transformMap.get(streamId);
+            transformResponseList
+                    .forEach(s -> parseConstantFieldMap(s.getTransformName(), s.getFieldList(), constantFieldMap));
             List<Node> nodes = this.createNodesForStream(sourceMap.get(streamId),
-                    transformResponseList, sinkMap.get(streamId));
-            StreamInfo streamInfo = new StreamInfo(streamId, nodes,
-                    NodeRelationUtils.createNodeRelationsForStream(inlongStream));
+                    transformResponseList, sinkMap.get(streamId), constantFieldMap);
+            List<NodeRelation> relations = NodeRelationUtils.createNodeRelationsForStream(inlongStream);
+            StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
             sortStreamInfos.add(streamInfo);
 
             // rebuild joinerNode relation
@@ -130,44 +130,30 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
     }
 
     /**
-     * Get Sort GroupInfo of normal inlong group.
+     * Get constant field from stream fields
      *
-     * @see org.apache.inlong.sort.protocol.GroupInfo
+     * @param nodeId The node id
+     * @param fields The stream fields
+     * @param constantFieldMap The constant field map
      */
-    private GroupInfo getNormalGroupInfo(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfoList) {
-        // get source info
-        Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
-        // get sink info
-        Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo, streamInfoList);
-
-        // create StreamInfo for Sort protocol
-        List<StreamInfo> sortStreamInfos = new ArrayList<>();
-        for (InlongStreamInfo inlongStream : streamInfoList) {
-            String streamId = inlongStream.getInlongStreamId();
-            List<StreamSource> sources = sourceMap.get(streamId);
-            List<StreamSink> sinks = sinkMap.get(streamId);
-            StreamInfo sortStream = new StreamInfo(streamId,
-                    this.createNodesForStream(sources, sinks),
-                    this.createNodeRelationsForStream(sources, sinks));
-            sortStreamInfos.add(sortStream);
+    private void parseConstantFieldMap(String nodeId, List<StreamField> fields,
+            Map<String, StreamField> constantFieldMap) {
+        if (fields != null && !fields.isEmpty()) {
+            for (StreamField field : fields) {
+                if (field.getFieldValue() != null) {
+                    constantFieldMap.put(String.format("%s-%s", nodeId, field.getFieldName()), field);
+                }
+            }
         }
-
-        return new GroupInfo(groupInfo.getInlongGroupId(), sortStreamInfos);
-    }
-
-    private List<Node> createNodesForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
-        List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(ExtractNodeUtils.createExtractNodes(sources));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
-        return nodes;
     }
 
     private List<Node> createNodesForStream(List<StreamSource> sourceInfos,
-            List<TransformResponse> transformResponses, List<StreamSink> streamSinks) {
+            List<TransformResponse> transformResponses, List<StreamSink> streamSinks,
+            Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = Lists.newArrayList();
         nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceInfos));
-        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
+        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks, constantFieldMap));
         return nodes;
     }
 
