@@ -324,6 +324,7 @@ manager:
       -XX:-UseAdaptiveSizePolicy
     ACTIVE_PROFILE: "prod"
     PLUGINS_URL: "default"
+    FLINK_PARALLELISM: 1
 
 audit:
   component: "audit"
