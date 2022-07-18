@@ -15,33 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.enums;
+package org.apache.inlong.common.heartbeat;
 
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public enum ComponentTypeEnum {
+import java.util.Map;
 
-    Agent("Agent"),
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class GroupHeartbeat {
 
-    DataProxy("DataProxy"),
+    private String inlongGroupId;
 
-    Cache("Cache"),
+    private String status;
 
-    Sort("Sort");
-
-    @Getter
-    private final String name;
-
-    ComponentTypeEnum(String name) {
-        this.name = name;
-    }
-
-    public static ComponentTypeEnum forName(String name) {
-        for (ComponentTypeEnum componentType : values()) {
-            if (componentType.getName().equals(name)) {
-                return componentType;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupport componentName for Inlong:%s", name));
-    }
+    private Map<String, String> metric;
 }

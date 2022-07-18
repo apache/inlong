@@ -698,7 +698,7 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong group id: to facilitate related inlong group',
     `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
     `status`          varchar(64)  NOT NULL COMMENT 'status',
-    `form_data`       text COMMENT 'form information',
+    `form_data`       mediumtext COMMENT 'form information',
     `start_time`      datetime     NOT NULL COMMENT 'start time',
     `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
     `ext_params`      text COMMENT 'Extended information-json',

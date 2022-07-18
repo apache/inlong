@@ -57,7 +57,7 @@ import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_LOCAL_UUID_OPEN;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_ENABLE_OOM_EXIT;
-import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_LOCAL_IP;
+import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_LOCAL_IP;
 
 /**
  * Agent utils

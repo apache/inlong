@@ -240,6 +240,7 @@ public class InlongGroupProcessOperation {
                 throw ex;
             }
             groupService.delete(groupId, operator);
+            workflowDeleteService.deleteProcessAndTask(groupId);
         });
         return groupId;
     }
@@ -255,6 +256,7 @@ public class InlongGroupProcessOperation {
             LOGGER.error("exception while delete process, groupId = {}, operator = {}", groupId, operator, ex);
             throw ex;
         }
+        workflowDeleteService.deleteProcessAndTask(groupId);
         return groupService.delete(groupId, operator);
     }
 

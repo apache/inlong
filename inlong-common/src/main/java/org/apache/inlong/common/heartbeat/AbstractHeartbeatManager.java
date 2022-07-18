@@ -15,33 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.common.enums;
+package org.apache.inlong.common.heartbeat;
 
-import lombok.Getter;
+/**
+ * Manipulate heartbeat in components
+ */
+public interface AbstractHeartbeatManager {
 
-public enum ComponentTypeEnum {
-
-    Agent("Agent"),
-
-    DataProxy("DataProxy"),
-
-    Cache("Cache"),
-
-    Sort("Sort");
-
-    @Getter
-    private final String name;
-
-    ComponentTypeEnum(String name) {
-        this.name = name;
-    }
-
-    public static ComponentTypeEnum forName(String name) {
-        for (ComponentTypeEnum componentType : values()) {
-            if (componentType.getName().equals(name)) {
-                return componentType;
-            }
-        }
-        throw new IllegalArgumentException(String.format("Unsupport componentName for Inlong:%s", name));
-    }
+    /**
+     * Report heartbeat msg
+     *
+     * @param heartbeat
+     */
+    void reportHeartbeat(HeartbeatMsg heartbeat);
 }

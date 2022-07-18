@@ -90,6 +90,10 @@ public class ConfigConstants {
     public static final String L5_ID_KEY = "l5id";
     public static final String SET_KEY = "set";
     public static final String CLUSTER_ID_KEY = "clusterId";
+    public static final String MANAGER_HOST = "manager.hosts";
+    public static final String PROXY_CLUSTER_NAME = "proxy.cluster.name";
+    public static final String PROXY_LOCAL_HOST = "proxy.local.host";
+    public static final String CONFIG_CHECK_INTERVAL = "configCheckInterval";
 
     public static final String DECODER_BODY = "body";
     public static final String DECODER_TOPICKEY = "topic_key";
@@ -121,5 +125,6 @@ public class ConfigConstants {
     public static final String MANAGER_PATH = "/api/inlong/manager/openapi";
     public static final String MANAGER_GET_CONFIG_PATH = "/dataproxy/getConfig";
     public static final String MANAGER_GET_ALL_CONFIG_PATH = "/dataproxy/getAllConfig";
+    public static final String MANAGER_HEARTBEAT_REPORT = "/heartbeat/report";
 
 }
