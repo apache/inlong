@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.workflow.consumption;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
@@ -28,10 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * New consumption process detail handler
+ * Apply consumption process handler
  */
 @Component
-public class NewConsumptionProcessDetailHandler implements ProcessDetailHandler {
+public class ApplyConsumptionProcessHandler implements ProcessDetailHandler {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -41,7 +41,7 @@ public class NewConsumptionProcessDetailHandler implements ProcessDetailHandler 
     @Override
     public ProcessDetailResponse handle(ProcessDetailResponse processResponse) {
         WorkflowProcess process = processDefinitionService.getByName(processResponse.getWorkflow().getName());
-        NewConsumptionProcessForm processForm = WorkflowFormParserUtils
+        ApplyConsumptionProcessForm processForm = WorkflowFormParserUtils
                 .parseProcessForm(objectMapper, processResponse.getProcessInfo().getFormData().toString(), process);
         if (processForm == null) {
             return processResponse;

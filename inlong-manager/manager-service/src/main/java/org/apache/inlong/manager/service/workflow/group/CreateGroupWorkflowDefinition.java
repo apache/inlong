@@ -21,9 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupCompleteProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupFailedProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupInitProcessListener;
+import org.apache.inlong.manager.service.workflow.group.listener.InitGroupCompleteListener;
+import org.apache.inlong.manager.service.workflow.group.listener.InitGroupFailedListener;
+import org.apache.inlong.manager.service.workflow.group.listener.InitGroupListener;
 import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
@@ -41,61 +41,61 @@ import org.springframework.stereotype.Component;
 public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupInitProcessListener groupInitProcessListener;
+    private InitGroupListener initGroupListener;
     @Autowired
-    private GroupCompleteProcessListener groupCompleteProcessListener;
+    private InitGroupCompleteListener initGroupCompleteListener;
     @Autowired
-    private GroupFailedProcessListener groupFailedProcessListener;
+    private InitGroupFailedListener initGroupFailedListener;
     @Autowired
     private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
-
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupInitProcessListener);
-        process.addListener(groupCompleteProcessListener);
-        process.addListener(groupFailedProcessListener);
-
-        process.setType("Group Resource Creation");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(GroupResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
+        // Set up the listener
+        process.addListener(initGroupListener);
+        process.addListener(initGroupCompleteListener);
+        process.addListener(initGroupFailedListener);
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        // init MQ
+        // Init MQ
         ServiceTask initMQTask = new ServiceTask();
-        initMQTask.setName("initMQ");
+        initMQTask.setName("InitMQ");
         initMQTask.setDisplayName("Group-InitMQ");
         initMQTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
         initMQTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initMQTask);
 
-        // init Sink
+        // Init Sink
         ServiceTask initSinkTask = new ServiceTask();
-        initSinkTask.setName("initSink");
+        initSinkTask.setName("InitSink");
         initSinkTask.setDisplayName("Group-InitSink");
         initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
         initSinkTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSinkTask);
 
-        // init Sort
+        // Init Sort
         ServiceTask initSortTask = new ServiceTask();
-        initSortTask.setName("initSort");
+        initSortTask.setName("InitSort");
         initSortTask.setDisplayName("Group-InitSort");
         initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
         initSortTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(initSortTask);
 
-        // init Source
+        // Init Source
         ServiceTask initSourceTask = new ServiceTask();
-        initSourceTask.setName("initSource");
+        initSourceTask.setName("InitSource");
         initSourceTask.setDisplayName("Group-InitSource");
         initSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
         initSourceTask.addListenerProvider(groupTaskListenerFactory);

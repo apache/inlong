@@ -19,12 +19,12 @@ package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateCompleteListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateFailedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupUpdateListener;
+import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupCompleteListener;
+import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupFailedListener;
+import org.apache.inlong.manager.service.workflow.group.listener.UpdateGroupListener;
+import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -34,18 +34,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Delete workflow definitions for inlong group
+ * Delete workflow definition for inlong group
  */
 @Slf4j
 @Component
 public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupUpdateListener groupUpdateListener;
+    private UpdateGroupListener updateGroupListener;
     @Autowired
-    private GroupUpdateCompleteListener groupUpdateCompleteListener;
+    private UpdateGroupCompleteListener updateGroupCompleteListener;
     @Autowired
-    private GroupUpdateFailedListener groupUpdateFailedListener;
+    private UpdateGroupFailedListener updateGroupFailedListener;
     @Autowired
     private GroupTaskListenerFactory groupTaskListenerFactory;
 
@@ -53,39 +53,41 @@ public class DeleteGroupWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(groupUpdateListener);
-        process.addListener(groupUpdateCompleteListener);
-        process.addListener(groupUpdateFailedListener);
-        process.setType("Group Resource Delete");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(GroupResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
+        // Set up the listener
+        process.addListener(updateGroupListener);
+        process.addListener(updateGroupCompleteListener);
+        process.addListener(updateGroupFailedListener);
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        //delete datasource
+        // Delete Source
         ServiceTask deleteDataSourceTask = new ServiceTask();
-        deleteDataSourceTask.setName("deleteSource");
+        deleteDataSourceTask.setName("DeleteSource");
         deleteDataSourceTask.setDisplayName("Group-DeleteSource");
         deleteDataSourceTask.addServiceTaskType(ServiceTaskType.DELETE_SOURCE);
         deleteDataSourceTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(deleteDataSourceTask);
 
-        //delete MQ
+        // Delete MQ
         ServiceTask deleteMqTask = new ServiceTask();
-        deleteMqTask.setName("deleteMQ");
+        deleteMqTask.setName("DeleteMQ");
         deleteMqTask.setDisplayName("Group-DeleteMQ");
         deleteMqTask.addServiceTaskType(ServiceTaskType.DELETE_MQ);
         deleteMqTask.addListenerProvider(groupTaskListenerFactory);
         process.addTask(deleteMqTask);
 
-        //delete sort
+        // Delete Sort
         ServiceTask deleteSortTask = new ServiceTask();
-        deleteSortTask.setName("deleteSort");
+        deleteSortTask.setName("DeleteSort");
         deleteSortTask.setDisplayName("Group-DeleteSort");
         deleteSortTask.addServiceTaskType(ServiceTaskType.DELETE_SORT);
         deleteSortTask.addListenerProvider(groupTaskListenerFactory);

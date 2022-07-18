@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener.light;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -33,35 +30,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Listener of light group complete.
+ * The listener of InlongStream when update operates failed.
  */
 @Slf4j
 @Component
-public class LightGroupCompleteListener implements ProcessEventListener {
+public class UpdateStreamFailedListener implements ProcessEventListener {
 
     @Autowired
-    private InlongGroupService groupService;
-    @Autowired
     private InlongStreamService streamService;
-    @Autowired
-    private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.COMPLETE;
+        return ProcessEvent.FAIL;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
-        final String groupId = form.getGroupInfo().getInlongGroupId();
-        final String applicant = context.getOperator();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        groupService.update(form.getGroupInfo().genRequest(), applicant);
-        // Update status of other related configs
-        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), applicant);
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String operator = context.getOperator();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        streamService.updateStatus(groupId, streamId, StreamStatus.CONFIG_FAILED.getCode(), operator);
+        streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

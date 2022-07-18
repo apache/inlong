@@ -22,9 +22,9 @@ import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourc
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.listener.StreamTaskListenerFactory;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamCompleteProcessListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamFailedProcessListener;
-import org.apache.inlong.manager.service.workflow.stream.listener.StreamInitProcessListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.InitStreamCompleteListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.InitStreamFailedListener;
+import org.apache.inlong.manager.service.workflow.stream.listener.InitStreamListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -41,61 +41,61 @@ import org.springframework.stereotype.Component;
 public class CreateStreamWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private StreamInitProcessListener streamInitProcessListener;
+    private InitStreamListener initStreamListener;
     @Autowired
-    private StreamFailedProcessListener streamFailedProcessListener;
+    private InitStreamCompleteListener initStreamCompleteListener;
     @Autowired
-    private StreamCompleteProcessListener streamCompleteProcessListener;
+    private InitStreamFailedListener initStreamFailedListener;
     @Autowired
     private StreamTaskListenerFactory streamTaskListenerFactory;
 
     @Override
     public WorkflowProcess defineProcess() {
-
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.addListener(streamInitProcessListener);
-        process.addListener(streamFailedProcessListener);
-        process.addListener(streamCompleteProcessListener);
-
-        process.setType("Stream Resource Creation");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
         process.setFormClass(StreamResourceProcessForm.class);
         process.setVersion(1);
         process.setHidden(1);
 
+        // Set up the listener
+        process.addListener(initStreamListener);
+        process.addListener(initStreamFailedListener);
+        process.addListener(initStreamCompleteListener);
+
         // Start node
         StartEvent startEvent = new StartEvent();
         process.setStartEvent(startEvent);
 
-        // init MQ
+        // Init MQ
         ServiceTask initMQTask = new ServiceTask();
-        initMQTask.setName("initMQ");
+        initMQTask.setName("InitMQ");
         initMQTask.setDisplayName("Stream-InitMQ");
         initMQTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
         initMQTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initMQTask);
 
-        // init Sink
+        // Init Sink
         ServiceTask initSinkTask = new ServiceTask();
-        initSinkTask.setName("initSink");
+        initSinkTask.setName("InitSink");
         initSinkTask.setDisplayName("Stream-InitSink");
         initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
         initSinkTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initSinkTask);
 
-        // init Sort
+        // Init Sort
         ServiceTask initSortTask = new ServiceTask();
-        initSortTask.setName("initSort");
+        initSortTask.setName("InitSort");
         initSortTask.setDisplayName("Stream-InitSort");
         initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
         initSortTask.addListenerProvider(streamTaskListenerFactory);
         process.addTask(initSortTask);
 
-        // init Source
+        // Init Source
         ServiceTask initSourceTask = new ServiceTask();
-        initSourceTask.setName("initSource");
+        initSourceTask.setName("InitSource");
         initSourceTask.setDisplayName("Stream-InitSource");
         initSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
         initSourceTask.addListenerProvider(streamTaskListenerFactory);

@@ -26,7 +26,9 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Form of create lightweight inlong group resource
@@ -57,4 +59,13 @@ public class LightGroupResourceProcessForm extends BaseProcessForm {
     public String getInlongGroupId() {
         return groupInfo.getInlongGroupId();
     }
+
+    @Override
+    public Map<String, Object> showInList() {
+        Map<String, Object> show = new HashMap<>();
+        show.put("inlongGroupId", groupInfo.getInlongGroupId());
+        show.put("groupOperateType", this.groupOperateType);
+        return show;
+    }
+
 }

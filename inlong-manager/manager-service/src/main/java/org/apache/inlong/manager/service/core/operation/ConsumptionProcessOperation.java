@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionPulsarInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionPulsarEntity;
@@ -52,15 +52,15 @@ public class ConsumptionProcessOperation {
                 "current status not allow start workflow");
 
         consumptionInfo.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
-        boolean isSuccess = consumptionService.update(consumptionInfo,operator);
+        boolean isSuccess = consumptionService.update(consumptionInfo, operator);
         Preconditions.checkTrue(isSuccess, "update consumption failed");
 
-        return workflowService.start(ProcessName.NEW_CONSUMPTION_PROCESS, operator,
-                genNewConsumptionProcessForm(consumptionInfo));
+        return workflowService.start(ProcessName.APPLY_CONSUMPTION_PROCESS, operator,
+                genConsumptionProcessForm(consumptionInfo));
     }
 
-    private NewConsumptionProcessForm genNewConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
-        NewConsumptionProcessForm form = new NewConsumptionProcessForm();
+    private ApplyConsumptionProcessForm genConsumptionProcessForm(ConsumptionInfo consumptionInfo) {
+        ApplyConsumptionProcessForm form = new ApplyConsumptionProcessForm();
         Integer id = consumptionInfo.getId();
         MQType mqType = MQType.forType(consumptionInfo.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {

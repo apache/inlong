@@ -18,13 +18,15 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -34,11 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Create group resources [process completion] event listener
+ * The listener of InlongGroup when created resources successfully.
  */
 @Slf4j
 @Component
-public class GroupCompleteProcessListener implements ProcessEventListener {
+public class InitGroupCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
@@ -53,23 +55,32 @@ public class GroupCompleteProcessListener implements ProcessEventListener {
     }
 
     /**
-     * After the process of creating inlong group resources is completed, modify the status of related
-     * inlong group and all inlong stream to [Configuration Successful] [Configuration Failed]
-     * <p/>{@link GroupFailedProcessListener#listen}
+     * After the process of creating InlongGroup resources is completed,
+     * modify the status of related InlongGroup to [Successful]
+     * <p/>
+     * {@link InitGroupFailedListener#listen}
      */
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
-        String applicant = context.getOperator();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        groupService.update(form.getGroupInfo().genRequest(), applicant);
+        log.info("begin to execute InitGroupCompleteListener for groupId={}", groupId);
 
-        // Update status of other related configs
-        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), applicant);
-        sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), applicant);
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        String operator = context.getOperator();
+        // update inlong group status and other info
+        groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        groupService.update(groupInfo.genRequest(), operator);
 
+        // update status of other related configs
+        streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);
+        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+            sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+        } else {
+            sourceService.updateStatus(groupId, null, SourceStatus.TO_BE_ISSUED_ADD.getCode(), operator);
+        }
+
+        log.info("success to execute InitGroupCompleteListener for groupId={}", groupId);
         return ListenerResult.success();
     }
 

@@ -18,15 +18,15 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.GroupCancelProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.approve.GroupAfterApprovedListener;
-import org.apache.inlong.manager.service.workflow.group.listener.approve.GroupRejectProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.approve.GroupApproveProcessListener;
+import org.apache.inlong.manager.service.workflow.group.listener.apply.AfterApprovedTaskListener;
+import org.apache.inlong.manager.service.workflow.group.listener.apply.ApproveApplyProcessListener;
+import org.apache.inlong.manager.service.workflow.group.listener.apply.CancelApplyProcessListener;
+import org.apache.inlong.manager.service.workflow.group.listener.apply.RejectApplyProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;
@@ -40,16 +40,16 @@ import java.util.List;
  * New inlong group process definition
  */
 @Component
-public class NewGroupWorkflowDefinition implements WorkflowDefinition {
+public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Autowired
-    private GroupAfterApprovedListener groupAfterApprovedListener;
+    private CancelApplyProcessListener cancelApplyProcessListener;
     @Autowired
-    private GroupCancelProcessListener groupCancelProcessListener;
+    private RejectApplyProcessListener rejectApplyProcessListener;
     @Autowired
-    private GroupRejectProcessListener approveRejectProcessListener;
+    private ApproveApplyProcessListener approveApplyProcessListener;
     @Autowired
-    private GroupApproveProcessListener groupApproveProcessListener;
+    private AfterApprovedTaskListener afterApprovedTaskListener;
     @Autowired
     private WorkflowApproverService workflowApproverService;
 
@@ -57,18 +57,18 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Configuration process
         WorkflowProcess process = new WorkflowProcess();
-        process.setType(getProcessName().getDisplayName());
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(NewGroupProcessForm.class);
+        process.setFormClass(ApplyGroupProcessForm.class);
         process.setVersion(1);
 
         // Set up the listener
-        process.addListener(groupCancelProcessListener);
-        process.addListener(approveRejectProcessListener);
+        process.addListener(cancelApplyProcessListener);
+        process.addListener(rejectApplyProcessListener);
         // Initiate the process of creating inlong group resources, and set the inlong group status
         // to [Configuration Successful]/[Configuration Failed] according to its completion
-        process.addListener(groupApproveProcessListener);
+        process.addListener(approveApplyProcessListener);
 
         // Start node
         StartEvent startEvent = new StartEvent();
@@ -84,12 +84,13 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
         adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
-        adminUserTask.addListener(groupAfterApprovedListener);
+        adminUserTask.addListener(afterApprovedTaskListener);
         process.addTask(adminUserTask);
 
-        // Configuration order relation
-        startEvent.addNext(adminUserTask);
         // If you need another approval process, you can add it here
+
+        // Configuration the tasks order
+        startEvent.addNext(adminUserTask);
         adminUserTask.addNext(endEvent);
 
         return process;
@@ -97,7 +98,7 @@ public class NewGroupWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.NEW_GROUP_PROCESS;
+        return ProcessName.APPLY_GROUP_PROCESS;
     }
 
     /**

@@ -15,17 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow.group.listener.light;
+package org.apache.inlong.manager.service.workflow.stream.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -34,41 +30,45 @@ import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
- * Listener of light group init.
+ * The listener of InlongStream when update operates successfully.
  */
 @Slf4j
 @Component
-public class LightGroupInitListener implements ProcessEventListener {
-
-    @Autowired
-    private InlongGroupService groupService;
+public class UpdateStreamCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongStreamService streamService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.CREATE;
+        return ProcessEvent.COMPLETE;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
-        LightGroupResourceProcessForm form = (LightGroupResourceProcessForm) context.getProcessForm();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        if (groupInfo == null) {
-            throw new WorkflowListenerException(ErrorCodeEnum.GROUP_NOT_FOUND.getMessage());
+        StreamResourceProcessForm form = (StreamResourceProcessForm) context.getProcessForm();
+        final InlongStreamInfo streamInfo = form.getStreamInfo();
+        final String operator = context.getOperator();
+        final GroupOperateType operateType = form.getGroupOperateType();
+        final String groupId = streamInfo.getInlongGroupId();
+        final String streamId = streamInfo.getInlongStreamId();
+        StreamStatus status;
+        switch (operateType) {
+            case RESTART:
+                status = StreamStatus.RESTARTED;
+                break;
+            case SUSPEND:
+                status = StreamStatus.SUSPENDED;
+                break;
+            case DELETE:
+                status = StreamStatus.DELETED;
+                break;
+            default:
+                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
         }
-        final String groupId = groupInfo.getInlongGroupId();
-        final int status = GroupStatus.CONFIG_ING.getCode();
-        final String username = context.getOperator();
-        groupService.updateStatus(groupInfo.getInlongGroupId(), status, username);
-        if (CollectionUtils.isEmpty(form.getStreamInfos())) {
-            List<InlongStreamInfo> streamInfos = streamService.list(groupId);
-            form.setStreamInfos(streamInfos);
-        }
+        streamService.updateStatus(groupId, streamId, status.getCode(), operator);
+        streamService.update(streamInfo.genRequest(), operator);
         return ListenerResult.success();
     }
 

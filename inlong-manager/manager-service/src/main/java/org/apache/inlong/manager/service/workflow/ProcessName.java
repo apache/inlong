@@ -23,72 +23,72 @@ package org.apache.inlong.manager.service.workflow;
 public enum ProcessName {
 
     /**
-     * New inlong group application process
+     * Apply inlong group process
      */
-    NEW_GROUP_PROCESS("New-Group"),
+    APPLY_GROUP_PROCESS("Apply-Group"),
 
     /**
-     * Startup inlong group application process
+     * Create inlong group resources process
      */
     CREATE_GROUP_RESOURCE("Create-Group"),
 
     /**
-     * Suspend inlong group application process
+     * Suspend inlong group process
      */
     SUSPEND_GROUP_PROCESS("Suspend-Group"),
 
     /**
-     * Restart inlong group application process
+     * Restart inlong group process
      */
     RESTART_GROUP_PROCESS("Restart-Group"),
 
     /**
-     * Delete inlong group application process
+     * Delete inlong group process
      */
     DELETE_GROUP_PROCESS("Delete-Group"),
 
     /**
-     * Startup lightweight inlong group application process
+     * Startup lightweight inlong group process
      */
     CREATE_LIGHT_GROUP_PROCESS("Create-Light-Group"),
 
     /**
-     * Suspend lightweight inlong group application process
+     * Suspend lightweight inlong group process
      */
     SUSPEND_LIGHT_GROUP_PROCESS("Suspend-Light-Group"),
 
     /**
-     * Restart lightweight inlong group application process
+     * Restart lightweight inlong group process
      */
     RESTART_LIGHT_GROUP_PROCESS("Restart-Light-Group"),
 
     /**
-     * Delete lightweight inlong group application process
+     * Delete lightweight inlong group process
      */
     DELETE_LIGHT_GROUP_PROCESS("Delete-Light-Group"),
 
     /**
-     * New consumption application process
+     * Apply consumption process
      */
-    NEW_CONSUMPTION_PROCESS("New-Consumption"),
+    APPLY_CONSUMPTION_PROCESS("Apply-Consumption"),
 
     /**
-     * Startup single stream process
+     * Create inlong stream process
      */
     CREATE_STREAM_RESOURCE("Create-Stream"),
 
     /**
-     * Suspend single stream process
+     * Suspend inlong stream process
      */
     SUSPEND_STREAM_RESOURCE("Suspend-Stream"),
 
     /**
-     * Restart single stream process
+     * Restart inlong stream process
      */
     RESTART_STREAM_RESOURCE("Restart-Stream"),
 
     /**
-     * Delete single stream process
+     * Delete inlong stream process
      */
     DELETE_STREAM_RESOURCE("Delete-Stream");
 

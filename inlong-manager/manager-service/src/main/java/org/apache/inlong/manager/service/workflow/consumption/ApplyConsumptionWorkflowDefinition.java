@@ -17,15 +17,12 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
+import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCancelProcessListener;
@@ -40,11 +37,15 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * New data consumption workflow definition
  */
 @Component
-public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
+public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     public static final String UT_ADMINT_NAME = "ut_admin";
     public static final String UT_GROUP_OWNER_NAME = "ut_biz_owner";
@@ -65,7 +66,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     private WorkflowApproverService workflowApproverService;
 
     @Autowired
-    private NewConsumptionProcessDetailHandler newConsumptionProcessDetailHandler;
+    private ApplyConsumptionProcessHandler applyConsumptionProcessHandler;
 
     @Autowired
     private InlongGroupService groupService;
@@ -74,12 +75,12 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
     public WorkflowProcess defineProcess() {
         // Define process information
         WorkflowProcess process = new WorkflowProcess();
-        process.setType("Data Consumption Resource Creation");
         process.setName(getProcessName().name());
+        process.setType(getProcessName().getDisplayName());
         process.setDisplayName(getProcessName().getDisplayName());
-        process.setFormClass(NewConsumptionProcessForm.class);
+        process.setFormClass(ApplyConsumptionProcessForm.class);
         process.setVersion(1);
-        process.setProcessDetailHandler(newConsumptionProcessDetailHandler);
+        process.setProcessDetailHandler(applyConsumptionProcessHandler);
 
         // Start node
         StartEvent startEvent = new StartEvent();
@@ -93,7 +94,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
         UserTask groupOwnerUserTask = new UserTask();
         groupOwnerUserTask.setName(UT_GROUP_OWNER_NAME);
         groupOwnerUserTask.setDisplayName("Group Approval");
-        groupOwnerUserTask.setApproverAssign(this::bizOwnerUserTaskApprover);
+        groupOwnerUserTask.setApproverAssign(this::groupOwnerUserTaskApprover);
         process.addTask(groupOwnerUserTask);
 
         // System administrator approval
@@ -123,8 +124,8 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
                 new WorkflowApproverFilterContext());
     }
 
-    private List<String> bizOwnerUserTaskApprover(WorkflowContext context) {
-        NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
+    private List<String> groupOwnerUserTaskApprover(WorkflowContext context) {
+        ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
         if (groupInfo == null || groupInfo.getInCharges() == null) {
             return Collections.emptyList();
@@ -135,7 +136,7 @@ public class NewConsumptionWorkflowDefinition implements WorkflowDefinition {
 
     @Override
     public ProcessName getProcessName() {
-        return ProcessName.NEW_CONSUMPTION_PROCESS;
+        return ProcessName.APPLY_CONSUMPTION_PROCESS;
     }
 
 }

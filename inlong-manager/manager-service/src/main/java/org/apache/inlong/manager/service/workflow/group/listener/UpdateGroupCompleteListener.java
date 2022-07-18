@@ -18,10 +18,12 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -30,28 +32,51 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Update failed listener for inlong group
+ * The listener of InlongGroup when update operates successfully.
  */
 @Slf4j
 @Component
-public class GroupUpdateFailedListener implements ProcessEventListener {
+public class UpdateGroupCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
+    @Autowired
+    private StreamSourceService sourceService;
 
     @Override
     public ProcessEvent event() {
-        return ProcessEvent.FAIL;
+        return ProcessEvent.COMPLETE;
     }
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
+        String groupId = form.getInlongGroupId();
+        GroupOperateType operateType = form.getGroupOperateType();
+        log.info("begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
+
         String operator = context.getOperator();
-        InlongGroupInfo groupInfo = form.getGroupInfo();
-        // Update inlong group status and other info
-        groupService.updateStatus(groupInfo.getInlongGroupId(), GroupStatus.CONFIG_FAILED.getCode(), operator);
-        groupService.update(groupInfo.genRequest(), operator);
+        switch (operateType) {
+            case SUSPEND:
+                groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
+                break;
+            case RESTART:
+                groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+                break;
+            case DELETE:
+                groupService.updateStatus(groupId, GroupStatus.DELETED.getCode(), operator);
+                sourceService.logicDeleteAll(groupId, null, operator);
+                break;
+            default:
+                break;
+        }
+
+        // update inlong group status and other configs
+        groupService.update(form.getGroupInfo().genRequest(), operator);
+
+        log.info("success to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
         return ListenerResult.success();
     }
 
