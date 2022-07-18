@@ -98,9 +98,9 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * Constructor
      * 
-     * @param workerName
-     * @param config
-     * @param context
+     * @param workerName Worker name
+     * @param config Cache cluster configuration
+     * @param context Sink context
      */
     public PulsarClusterProducer(String workerName, CacheClusterConfig config, PulsarZoneSinkContext context) {
         this.workerName = workerName;
@@ -160,7 +160,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getPulsarCompressionType
      * 
-     * @return CompressionType
+     * @return CompressionType LZ4/NONE/ZLIB/ZSTD/SNAPPY
      */
     private CompressionType getPulsarCompressionType() {
         String type = this.context.getString(KEY_COMPRESSIONTYPE, CompressionType.SNAPPY.name());
@@ -204,7 +204,7 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * getLifecycleState
      * 
-     * @return
+     * @return LifecycleState state
      */
     @Override
     public LifecycleState getLifecycleState() {
@@ -212,9 +212,10 @@ public class PulsarClusterProducer implements LifecycleAware {
     }
 
     /**
-     * send
+     * send DispatchProfile
      * 
-     * @param event
+     * @param event DispatchProfile
+     * @return boolean sendResult
      */
     public boolean send(DispatchProfile event) {
         try {
@@ -283,8 +284,9 @@ public class PulsarClusterProducer implements LifecycleAware {
 
     /**
      * getProducerTopic
-     * @param event
-     * @return
+     * 
+     * @param event DispatchProfile
+     * @return String Full topic name
      */
     private String getProducerTopic(DispatchProfile event) {
         String baseTopic = sinkContext.getIdTopicHolder().getTopic(event.getUid());
@@ -305,8 +307,8 @@ public class PulsarClusterProducer implements LifecycleAware {
     /**
      * encodeCacheMessageHeaders
      * 
-     * @param  event
-     * @return       Map
+     * @param  event DispatchProfile
+     * @return Map cache message headers
      */
     public Map<String, String> encodeCacheMessageHeaders(DispatchProfile event) {
         Map<String, String> headers = new HashMap<>();

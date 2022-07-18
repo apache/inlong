@@ -227,7 +227,7 @@ public final class SortSdkSource extends AbstractSource
 
     /**
      * getSortClientConfigParameters
-     * @return
+     * @return Map
      */
     private Map<String, String> getSortClientConfigParameters() {
         Map<String, String> sortSdkParams = new HashMap<>();

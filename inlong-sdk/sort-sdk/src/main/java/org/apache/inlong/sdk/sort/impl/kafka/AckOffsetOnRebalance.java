@@ -45,7 +45,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-        logger.debug("*- in ralance:onPartitionsRevoked");
+        logger.debug("execute Rebalance:onPartitionsRevoked");
         collection.forEach((v) -> {
             logger.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
         });
@@ -53,7 +53,7 @@ public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
-        logger.debug("*- in ralance:onPartitionsAssigned  ");
+        logger.debug("execute onPartitionsAssigned");
         collection.forEach((v) -> {
             logger.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
         });
