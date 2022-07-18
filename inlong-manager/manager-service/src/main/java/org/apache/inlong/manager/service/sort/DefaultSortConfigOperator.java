@@ -138,11 +138,12 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
      */
     private void parseConstantFieldMap(String nodeId, List<StreamField> fields,
             Map<String, StreamField> constantFieldMap) {
-        if (fields != null && !fields.isEmpty()) {
-            for (StreamField field : fields) {
-                if (field.getFieldValue() != null) {
-                    constantFieldMap.put(String.format("%s-%s", nodeId, field.getFieldName()), field);
-                }
+        if (CollectionUtils.isEmpty(fields)) {
+            return;
+        }
+        for (StreamField field : fields) {
+            if (field.getFieldValue() != null) {
+                constantFieldMap.put(String.format("%s-%s", nodeId, field.getFieldName()), field);
             }
         }
     }

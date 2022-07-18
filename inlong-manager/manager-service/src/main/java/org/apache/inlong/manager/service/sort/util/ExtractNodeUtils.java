@@ -391,6 +391,13 @@ public class ExtractNodeUtils {
         );
     }
 
+    /**
+     * Parse FieldInfos
+     *
+     * @param streamFields The stream fields
+     * @param nodeId The node id
+     * @return FieldInfo list
+     */
     private static List<FieldInfo> parseFieldInfos(List<StreamField> streamFields, String nodeId) {
         // Filter constant fields
         return streamFields.stream().filter(s -> s.getFieldValue() == null)
@@ -398,6 +405,12 @@ public class ExtractNodeUtils {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Parse properties
+     *
+     * @param properties The properties with string key and object value
+     * @return The properties with string key and string value
+     */
     private static Map<String, String> parseProperties(Map<String, Object> properties) {
         return properties.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()));
