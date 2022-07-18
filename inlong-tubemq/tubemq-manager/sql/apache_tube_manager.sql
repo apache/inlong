@@ -39,7 +39,7 @@ CREATE TABLE `broker` (
                           `region_id` bigint DEFAULT NULL,
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `UKciq4ve8cnogwy80elee1am518` (`broker_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for cluster
@@ -54,7 +54,7 @@ CREATE TABLE `cluster` (
                            `reload_broker_size` int NOT NULL,
                            PRIMARY KEY (`cluster_id`),
                            UNIQUE KEY `UKjo595af4i3co2onpspedgxcrs` (`cluster_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for create_topic_task
@@ -72,7 +72,7 @@ CREATE TABLE `create_topic_task` (
                                      `token` varchar(255) DEFAULT NULL,
                                      `topic_name` varchar(255) DEFAULT NULL,
                                      PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for master
@@ -87,7 +87,7 @@ CREATE TABLE `master` (
                           `token` varchar(255) DEFAULT NULL,
                           `web_port` int NOT NULL,
                           PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for region
@@ -104,7 +104,7 @@ CREATE TABLE `region` (
                           `region_id` bigint DEFAULT NULL,
                           PRIMARY KEY (`id`),
                           UNIQUE KEY `UK6bb56v767cxs5iujj2k08f1ic` (`cluster_id`,`region_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Table structure for topic
@@ -142,6 +142,6 @@ CREATE TABLE `topic` (
                          `topology_name` varchar(255) DEFAULT NULL,
                          `username` varchar(32) NOT NULL,
                          PRIMARY KEY (`business_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
