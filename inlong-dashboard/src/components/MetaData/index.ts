@@ -29,6 +29,7 @@ import { StorageMySQL } from './StorageMySQL';
 import { StorageOracle } from './StorageOracle';
 import { StoragePostgreSQL } from './StoragePostgreSQL';
 import { StorageSQLServer } from './StorageSQLServer';
+import { StorageTDSQLPostgreSQL } from './StorageTDSQLPostgreSQL';
 
 export interface StoragesType {
   label: string;
@@ -95,5 +96,10 @@ export const Storages: StoragesType[] = [
     label: 'SQLServer',
     value: 'SQLSERVER',
     ...StorageSQLServer,
+  },
+  {
+    label: 'TDSQLPostgreSQL',
+    value: 'TDSQLPOSTGRESQL',
+    ...StorageTDSQLPostgreSQL,
   },
 ];
