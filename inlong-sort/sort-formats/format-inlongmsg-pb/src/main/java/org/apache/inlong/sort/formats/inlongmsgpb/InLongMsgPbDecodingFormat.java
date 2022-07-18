@@ -54,6 +54,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * InLongMsg pb format decoding format.
+ */
 public class InLongMsgPbDecodingFormat implements DecodingFormat<DeserializationSchema<RowData>> {
 
     private static final Logger log = LoggerFactory.getLogger(InLongMsgPbDecodingFormat.class);
@@ -206,16 +209,16 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     // --------------------------------------------------------------------------------------------
 
     enum ReadableMetadata {
-        DS(
-                "ds",
+        CREATE_TIME(
+                "create-time",
                 DataTypes.STRING(),
                 new MetadataConverter() {
                     private static final long serialVersionUID = 1L;
 
                     @Override
                     public Object read(ProxySdk.MessageObj body) {
-                        String ds = DateFormatUtils.format(body.getMsgTime(), "yyyyMMddHH");
-                        return StringData.fromString(ds);
+                        String createTime = DateFormatUtils.format(body.getMsgTime(), "yyyyMMddHH");
+                        return StringData.fromString(createTime);
                     }
                 });
 

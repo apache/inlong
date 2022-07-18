@@ -34,6 +34,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * InLongMsg pb format deserialization schema.
+ * Used to deserialize {@link MessageObj} msg.
+ */
 public class InLongMsgPbDeserializationSchema implements DeserializationSchema<RowData> {
 
     /** Inner {@link DeserializationSchema} to deserialize {@link InLongMsg} inner packaged
