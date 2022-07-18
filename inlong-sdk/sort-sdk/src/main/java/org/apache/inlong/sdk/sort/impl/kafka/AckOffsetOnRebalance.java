@@ -19,10 +19,6 @@
 
 package org.apache.inlong.sdk.sort.impl.kafka;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -30,32 +26,36 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class AckOffsetOnRebalance implements ConsumerRebalanceListener {
 
     private final Logger logger = LoggerFactory.getLogger(AckOffsetOnRebalance.class);
+    private final String clusterId;
     private final KafkaConsumer<byte[], byte[]> consumer;
     private final ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap;
 
-    public AckOffsetOnRebalance(KafkaConsumer<byte[], byte[]> consumer,
+    public AckOffsetOnRebalance(String clusterId, KafkaConsumer<byte[], byte[]> consumer,
             ConcurrentHashMap<TopicPartition, OffsetAndMetadata> commitOffsetMap) {
+        this.clusterId = clusterId;
         this.consumer = consumer;
         this.commitOffsetMap = commitOffsetMap;
     }
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> collection) {
-        logger.debug("*- in ralance:onPartitionsRevoked");
-        while (!commitOffsetMap.isEmpty()) {
-            consumer.commitSync(commitOffsetMap);
-        }
+        logger.debug("execute Rebalance:onPartitionsRevoked");
+        collection.forEach((v) -> {
+            logger.info("clusterId:{},onPartitionsRevoked:{}", clusterId, v.toString());
+        });
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> collection) {
-        logger.debug("*- in ralance:onPartitionsAssigned  ");
-        Map<TopicPartition, OffsetAndMetadata> committed = consumer.committed(new HashSet<>(collection));
-        for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : committed.entrySet()) {
-            consumer.seek(entry.getKey(), entry.getValue().offset());
-        }
+        logger.debug("execute onPartitionsAssigned");
+        collection.forEach((v) -> {
+            logger.info("clusterId:{},onPartitionsAssigned:{}", clusterId, v.toString());
+        });
     }
 }
