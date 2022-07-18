@@ -48,10 +48,10 @@ public class GroupIdPropertiesHolder extends PropertiesConfigHolder {
         super.loadFromFileToHolder();
         try {
             Map<String, String> tmpGroupIdMappingProperties =
-                    new HashMap<String, String>();
+                    new HashMap<>();
             Map<String, Map<String, String>> tmpStreamIdMappingProperties =
-                    new HashMap<String, Map<String, String>>();
-            Map<String, String> tmpGroupIdEnableMappingProperties = new HashMap<String, String>();
+                    new HashMap<>();
+            Map<String, String> tmpGroupIdEnableMappingProperties = new HashMap<>();
             for (Map.Entry<String, String> entry : super.getHolder().entrySet()) {
                 String[] sArray = StringUtils.split(entry.getKey(), GROUPID_VALUE_SPLITTER);
                 if (sArray.length != 3) {

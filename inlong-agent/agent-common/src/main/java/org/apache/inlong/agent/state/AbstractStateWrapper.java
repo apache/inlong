@@ -30,6 +30,7 @@ public abstract class AbstractStateWrapper implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStateWrapper.class);
 
     private final Map<Pair<State, State>, StateCallback> callBacks = new HashMap<>();
+
     private volatile State currentState = State.ACCEPTED;
 
     public AbstractStateWrapper() {
@@ -86,6 +87,10 @@ public abstract class AbstractStateWrapper implements Runnable {
     public boolean isFatal() {
         State tmpState = currentState;
         return State.FATAL.equals(tmpState) || State.KILLED.equals(tmpState);
+    }
+
+    public State getCurrentState() {
+        return currentState;
     }
 
 }

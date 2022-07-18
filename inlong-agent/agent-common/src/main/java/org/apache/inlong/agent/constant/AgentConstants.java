@@ -167,6 +167,7 @@ public class AgentConstants {
     public static final int DEFAULT_JOB_NUMBER_LIMIT = 15;
 
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
+    public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
 

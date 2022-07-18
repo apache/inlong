@@ -161,42 +161,44 @@ public class JobProfileDto {
     /**
      * convert DataConfig to TriggerProfile
      */
-    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfigs) {
-        if (!dataConfigs.isValid()) {
-            throw new IllegalArgumentException("input dataConfig" + dataConfigs + "is invalid please check");
+    public static TriggerProfile convertToTriggerProfile(DataConfig dataConfig) {
+        if (!dataConfig.isValid()) {
+            throw new IllegalArgumentException("input dataConfig" + dataConfig + "is invalid please check");
         }
 
         JobProfileDto profileDto = new JobProfileDto();
-        Proxy proxy = getProxy(dataConfigs);
+        Proxy proxy = getProxy(dataConfig);
         profileDto.setProxy(proxy);
         Job job = new Job();
 
         // common attribute
-        job.setId(String.valueOf(dataConfigs.getTaskId()));
+        job.setId(String.valueOf(dataConfig.getTaskId()));
+        job.setGroupId(dataConfig.getInlongGroupId());
+        job.setStreamId(dataConfig.getInlongStreamId());
         job.setChannel(DEFAULT_CHANNEL);
-        job.setIp(dataConfigs.getIp());
-        job.setOp(dataConfigs.getOp());
-        job.setDeliveryTime(dataConfigs.getDeliveryTime());
-        job.setUuid(dataConfigs.getUuid());
+        job.setIp(dataConfig.getIp());
+        job.setOp(dataConfig.getOp());
+        job.setDeliveryTime(dataConfig.getDeliveryTime());
+        job.setUuid(dataConfig.getUuid());
         job.setSink(DEFAULT_DATAPROXY_SINK);
-        job.setVersion(dataConfigs.getVersion());
-        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfigs.getTaskType());
+        job.setVersion(dataConfig.getVersion());
+        TaskTypeEnum taskType = TaskTypeEnum.getTaskType(dataConfig.getTaskType());
         switch (requireNonNull(taskType)) {
             case SQL:
             case BINLOG:
-                BinlogJob binlogJob = getBinlogJob(dataConfigs);
+                BinlogJob binlogJob = getBinlogJob(dataConfig);
                 job.setBinlogJob(binlogJob);
                 job.setSource(BINLOG_SOURCE);
                 profileDto.setJob(job);
                 break;
             case FILE:
-                FileJob fileJob = getFileJob(dataConfigs);
+                FileJob fileJob = getFileJob(dataConfig);
                 job.setFileJob(fileJob);
                 job.setSource(DEFAULT_SOURCE);
                 profileDto.setJob(job);
                 break;
             case KAFKA:
-                KafkaJob kafkaJob = getKafkaJob(dataConfigs);
+                KafkaJob kafkaJob = getKafkaJob(dataConfig);
                 job.setKafkaJob(kafkaJob);
                 job.setSource(KAFKA_SOURCE);
                 profileDto.setJob(job);
@@ -210,6 +212,8 @@ public class JobProfileDto {
     public static class Job {
 
         private String id;
+        private String groupId;
+        private String streamId;
         private String ip;
         private String retry;
         private String source;
