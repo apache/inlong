@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.workflow.group.listener;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.GroupStatus;
-import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -58,10 +57,10 @@ public class InitGroupListener implements ProcessEventListener {
 
         InlongGroupInfo groupInfo = form.getGroupInfo();
         if (groupInfo == null) {
-            throw new BusinessException("inlong group info cannot be null for init group process");
+            throw new WorkflowListenerException("inlong group info cannot be null for init group process");
         }
         if (CollectionUtils.isEmpty(form.getStreamInfos())) {
-            throw new BusinessException("inlong stream info list cannot be null for init group process");
+            throw new WorkflowListenerException("inlong stream info list cannot be null for init group process");
         }
         groupService.updateStatus(groupId, GroupStatus.CONFIG_ING.getCode(), context.getOperator());
 
