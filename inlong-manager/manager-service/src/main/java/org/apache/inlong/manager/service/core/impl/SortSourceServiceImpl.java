@@ -224,7 +224,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 validClusterInfos.putAll(allTag2ClusterInfos);
             }
 
-            // prepare
+            // prepare the new config and md5
             Map<String, CacheZoneConfig> task2Config = new ConcurrentHashMap<>();
             Map<String, String> task2Md5 = new ConcurrentHashMap<>();
 
