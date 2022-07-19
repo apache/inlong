@@ -382,6 +382,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.curator:curator-client:2.13.0 - Curator Client (https://curator.apache.org/curator-client), (The Apache Software License, Version 2.0)
   org.apache.curator:curator-framework:2.12.0 - Curator Framework (https://curator.apache.org/curator-framework), (The Apache Software License, Version 2.0)
   org.apache.curator:curator-recipes:2.12.0 - Curator Recipes (https://curator.apache.org/curator-recipes), (The Apache Software License, Version 2.0)
+  com.squareup.retrofit2:converter-jackson:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
   com.alibaba:druid:1.2.6 -  druid (https://github.com/alibaba/druid/tree/1.2.6), (Apache 2)
   com.alibaba:druid-spring-boot-starter:1.2.6 - druid-spring-boot-starter (https://github.com/alibaba/druid/tree/1.2.6/druid-spring-boot-starter), (Apache 2)
   org.elasticsearch:elasticsearch:6.8.23 - server (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
@@ -510,8 +511,7 @@ The text of each license is the standard Apache 2.0 license.
   io.netty:netty-transport-native-unix-common:4.1.72.Final - Netty/Transport/Native/Unix/Common (https://github.com/netty/netty/tree/netty-4.1.72.Final), (Apache License, Version 2.0)
   io.netty:netty-tcnative-classes:2.0.46.Final - Netty/TomcatNative [OpenSSL - Classes] (https://github.com/netty/netty-tcnative/tree/netty-tcnative-parent-2.0.46.Final), (Apache 2.0)
   com.nimbusds:nimbus-jose-jwt:7.9 - Nimbus JOSE+JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt), (The Apache Software License, Version 2.0)
-  com.squareup.retrofit2:converter-jackson:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
-  com.squareup.retrofit2:retrofit:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
+  org.objenesis:objenesis:3.2 - Objenesis (http://objenesis.org/objenesis), (Apache License, Version 2.0)
   com.squareup.okhttp:okhttp:2.7.5 - OkHttp (https://github.com/square/okhttp/tree/parent-2.7.5/okhttp), (Apache 2.0)
   com.squareup.okhttp3:okhttp:3.14.9 - OkHttp (https://github.com/square/okhttp/tree/parent-3.14.9/okhttp), (Apache 2.0)
   com.squareup.okio:okio:1.17.2 - Okio (https://github.com/square/okio/tree/okio-parent-1.17.2/okio), (Apache 2.0)
@@ -527,6 +527,7 @@ The text of each license is the standard Apache 2.0 license.
   org.apache.pulsar:pulsar-transaction-common:2.8.1 - Pulsar Transaction :: Common (https://github.com/apache/pulsar/tree/v2.8.1/pulsar-transaction/common), (Apache License, Version 2.0)
   org.elasticsearch.plugin:rank-eval-client:6.8.23 - rank-eval (https://github.com/elastic/elasticsearch), (The Apache Software License, Version 2.0)
   org.reflections:reflections:0.10.2 - Reflections (https://github.com/ronmamo/reflections/tree/0.10.2), (The Apache Software License, Version 2.0;  WTFPL)
+  com.squareup.retrofit2:retrofit:2.9.0 - Retrofit (https://github.com/square/retrofit) (Apache License, Version 2.0)
   org.apache.shiro:shiro-cache:1.8.0 - Apache Shiro Cache (https://shiro.apache.org/caching.html), (Apache License, Version 2.0)
   org.apache.shiro:shiro-config-core:1.8.0 - Apache Shiro :: Config :: Core (https://shiro.apache.org/), (Apache License, Version 2.0)
   org.apache.shiro:shiro-config-ogdl:1.8.0 - Apache Shiro :: Config :: Ogdl (https://shiro.apache.org/), (Apache License, Version 2.0)
@@ -591,7 +592,6 @@ The text of each license is the standard Apache 2.0 license.
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
-  org.objenesis:objenesis:3.2 - Objenesis (http://objenesis.org/objenesis), (Apache License, Version 2.0)
 
 ========================================================================
 Apache 2.0 License
