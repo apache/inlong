@@ -48,8 +48,8 @@ public class InLongMsgPbOptions {
                     .withDescription("Specify the decompress type of inlong pb message. \n"
                             + "The default type is Gzip");
 
-    public static final ConfigOption<Boolean> IGNORE_TAILING_UNMAPPABLE =
-            ConfigOptions.key("ignore-tailing-unmappable")
+    public static final ConfigOption<Boolean> IGNORE_TRAILING_UNMAPPABLE =
+            ConfigOptions.key("ignore-trailing-unmappable")
                     .booleanType()
                     .defaultValue(true)
                     .withDescription("Allows the case that real size exceeds the expected size.\n "

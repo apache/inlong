@@ -38,7 +38,7 @@ import java.util.Set;
 import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.DECOMPRESS_TYPE;
 import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_PARSE_ERRORS;
 import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.INNER_FORMAT;
-import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TAILING_UNMAPPABLE;
+import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.IGNORE_TRAILING_UNMAPPABLE;
 import static org.apache.inlong.sort.formats.inlongmsgpb.InLongMsgPbOptions.validateDecodingFormatOptions;
 
 /**
@@ -66,10 +66,10 @@ public final class InLongMsgPbFormatFactory
         DecodingFormat<DeserializationSchema<RowData>> innerFormat =
                 innerFactory.createDecodingFormat(context, new DelegatingConfiguration(allOptions, innerFormatPrefix));
         boolean ignoreErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
-        boolean ignoreTailingUnmappable = formatOptions.get(IGNORE_TAILING_UNMAPPABLE);
+        boolean ignoreTrailingUnmappable = formatOptions.get(IGNORE_TRAILING_UNMAPPABLE);
         String decompressType = formatOptions.get(DECOMPRESS_TYPE);
         return new InLongMsgPbDecodingFormat(innerFormat, innerFormatMetaPrefix,
-                ignoreErrors, ignoreTailingUnmappable, decompressType);
+                ignoreErrors, ignoreTrailingUnmappable, decompressType);
     }
 
     @Override
@@ -95,7 +95,7 @@ public final class InLongMsgPbFormatFactory
     public Set<ConfigOption<?>> optionalOptions() {
         Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IGNORE_PARSE_ERRORS);
-        options.add(IGNORE_TAILING_UNMAPPABLE);
+        options.add(IGNORE_TRAILING_UNMAPPABLE);
         return options;
     }
 }

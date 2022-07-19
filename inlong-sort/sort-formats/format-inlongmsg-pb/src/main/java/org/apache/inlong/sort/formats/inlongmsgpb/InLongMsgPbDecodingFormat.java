@@ -71,19 +71,19 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
 
     private final String decompressType;
 
-    private final boolean ignoreTailingUnmappable;
+    private final boolean ignoreTrailingUnmappable;
 
     public InLongMsgPbDecodingFormat(
             DecodingFormat<DeserializationSchema<RowData>> innerDecodingFormat,
             String innerFormatMetaPrefix,
             boolean ignoreErrors,
-            boolean ignoreTailingUnmappable,
+            boolean ignoreTrailingUnmappable,
             String decompressType) {
         this.innerDecodingFormat = innerDecodingFormat;
         this.innerFormatMetaPrefix =  innerFormatMetaPrefix;
         this.metadataKeys = Collections.emptyList();
         this.ignoreErrors = ignoreErrors;
-        this.ignoreTailingUnmappable = ignoreTailingUnmappable;
+        this.ignoreTrailingUnmappable = ignoreTrailingUnmappable;
         this.decompressType = decompressType;
     }
 
@@ -114,8 +114,8 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
 
         DeserializationSchema<RowData> innerSchema =
                 innerDecodingFormat.createRuntimeDecoder(context, physicalDataType);
-        if (innerSchema instanceof CsvRowDataDeserializationSchema && ignoreTailingUnmappable) {
-            this.makeCsvInnerFormatIgnoreTailingUnmappable(innerSchema);
+        if (innerSchema instanceof CsvRowDataDeserializationSchema && ignoreTrailingUnmappable) {
+            this.makeCsvInnerFormatIgnoreTrailingUnmappable(innerSchema);
         }
         return new InLongMsgPbDeserializationSchema(
                 innerSchema,
@@ -184,7 +184,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
     /**
      * Use reflection to make csv format ignore tailing unmappable.
      */
-    private void makeCsvInnerFormatIgnoreTailingUnmappable(DeserializationSchema<RowData> innerSchema) {
+    private void makeCsvInnerFormatIgnoreTrailingUnmappable(DeserializationSchema<RowData> innerSchema) {
         try {
             Field readerField = CsvRowDataDeserializationSchema.class.getDeclaredField("objectReader");
             readerField.setAccessible(true);
@@ -200,7 +200,7 @@ public class InLongMsgPbDecodingFormat implements DecodingFormat<Deserialization
                     .with(oldSchema);
             readerField.set(innerSchema, newReader);
         } catch (Throwable t) {
-            log.error("failed to make csv inner format to ignore tailing unmappable, ex is ", t);
+            log.error("failed to make csv inner format to ignore trailing unmappable, ex is ", t);
         }
     }
 
