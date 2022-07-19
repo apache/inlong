@@ -76,10 +76,9 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # build
       - name: Build with Maven
         run: |
-          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+          mvn --batch-mode --update-snapshots -e -V clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         env:
           CI: false
 
