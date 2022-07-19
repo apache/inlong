@@ -41,8 +41,7 @@ import java.util.stream.Collectors;
  */
 public class TimeBasedFilterInterceptor implements Interceptor {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(TimeBasedFilterInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(TimeBasedFilterInterceptor.class);
     private final long startTime;
     private final long stopTime;
 
@@ -86,6 +85,10 @@ public class TimeBasedFilterInterceptor implements Interceptor {
         // no-op
     }
 
+    /**
+     * Builder of {@link TimeBasedFilterInterceptor}.
+     * Should be configured before build called.
+     */
     public static class Builder implements Interceptor.Builder  {
 
         private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
