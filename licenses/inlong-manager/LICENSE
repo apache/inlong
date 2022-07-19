@@ -591,7 +591,7 @@ The text of each license is the standard Apache 2.0 license.
   xml-apis:xml-apis:1.4.01 - XML Commons External Components XML APIs (http://xml.apache.org/commons/components/external/), (The Apache Software License, Version 2.0), (Apache 2.0, The SAX License, The W3C License)
   org.apache.zookeeper:zookeeper:3.6.3 - Apache ZooKeeper - Server (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-server), (Apache License, Version 2.0)
   org.apache.zookeeper:zookeeper-jute:3.6.3 - Apache ZooKeeper - Jute (https://github.com/apache/zookeeper/tree/release-3.6.3/zookeeper-jute), (Apache License, Version 2.0)
-
+  org.objenesis:objenesis:3.2 - Objenesis (http://objenesis.org/objenesis), (Apache License, Version 2.0)
 
 ========================================================================
 Apache 2.0 License
