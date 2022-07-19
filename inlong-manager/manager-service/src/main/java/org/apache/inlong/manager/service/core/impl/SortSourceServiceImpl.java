@@ -272,8 +272,8 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // Group them by back up cluster tag if both 2nd tag and 2nd topic exist.
         Map<String, List<SortSourceGroupInfo>> backupTag2GroupInfos = groupInfoStream.stream()
-                .filter(group -> group.getBackUpClusterTag() != null && group.getBackUpTopic() != null)
-                .collect(Collectors.groupingBy(SortSourceGroupInfo::getBackUpClusterTag));
+                .filter(group -> group.getBackupClusterTag() != null && group.getBackupTopic() != null)
+                .collect(Collectors.groupingBy(SortSourceGroupInfo::getBackupClusterTag));
 
         // get cache zone list.
         List<CacheZone> firstTagCacheZoneList =
@@ -364,7 +364,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             String namespace,
             boolean isBackupTag) {
 
-        String topic = isBackupTag ? groupInfo.getBackUpTopic() : groupInfo.getTopic();
+        String topic = isBackupTag ? groupInfo.getBackupTopic() : groupInfo.getTopic();
         StringBuilder fullTopic = new StringBuilder();
         Optional.ofNullable(tenant).ifPresent(t -> fullTopic.append(t).append("/"));
         Optional.ofNullable(namespace).ifPresent(n -> fullTopic.append(n).append("/"));

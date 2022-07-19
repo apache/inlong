@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 public class SortSourceGroupInfo {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceGroupInfo.class);
-    private static final String KEY_BACK_UP_CLUSTER_TAG = "back_up_cluster_tag";
-    private static final String KEY_BACK_UP_TOPIC = "back_up_topic";
+    private static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
+    private static final String KEY_BACKUP_TOPIC = "backup_topic";
 
     private static final long serialVersionUID = 1L;
     String groupId;
@@ -52,11 +52,11 @@ public class SortSourceGroupInfo {
         return extParamsMap;
     }
 
-    public String getBackUpClusterTag() {
-        return getExtParamsMap().get(KEY_BACK_UP_CLUSTER_TAG);
+    public String getBackupClusterTag() {
+        return getExtParamsMap().get(KEY_BACKUP_CLUSTER_TAG);
     }
 
-    public String getBackUpTopic() {
-        return getExtParamsMap().get(KEY_BACK_UP_TOPIC);
+    public String getBackupTopic() {
+        return getExtParamsMap().get(KEY_BACKUP_TOPIC);
     }
 }
