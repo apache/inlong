@@ -37,14 +37,6 @@ import java.util.List;
  * Inlong cluster service layer interface
  */
 public interface InlongClusterService {
- 
-    /**
-     * Get user info by user name
-     *
-     * @param username username
-     * @return user info
-     */
-    UserEntity getByName(String username);
 
     /**
      * Save cluster tag.

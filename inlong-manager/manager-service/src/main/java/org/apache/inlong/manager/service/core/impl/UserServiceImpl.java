@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     private UserEntityMapper userMapper;
 
     @Override
-    public UserEntity getByName(String username) {
+    public UserEntity getByUsername(String username) {
         UserEntityExample example = new UserEntityExample();
         example.createCriteria().andNameEqualTo(username);
         List<UserEntity> list = userMapper.selectByExample(example);
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
     public UserInfo getById(Integer userId, String currentUser) {
         Preconditions.checkNotNull(userId, "User id should not be empty");
         UserEntity entity = userMapper.selectByPrimaryKey(userId);
-        UserEntity curUser = getByName(currentUser);
+        UserEntity curUser = getByUsername(currentUser);
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
         Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode())
                         || Objects.equals(entity.getName(), currentUser),
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean create(UserInfo userInfo) {
         String username = userInfo.getUsername();
-        UserEntity userExists = getByName(username);
+        UserEntity userExists = getByUsername(username);
         Preconditions.checkNull(userExists, "username [" + username + "] already exists");
 
         UserEntity entity = new UserEntity();
@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(userInfo.getId(), "user id should not be null");
 
         // Whether the current user is an administrator
-        UserEntity currentUserEntity = getByName(currentUser);
+        UserEntity currentUserEntity = getByUsername(currentUser);
         Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to update users");
         Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode())
@@ -154,7 +154,7 @@ public class UserServiceImpl implements UserService {
                 "Administrators cannot be set himself as ordinary users");
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
-        UserEntity userExist = getByName(userInfo.getUsername());
+        UserEntity userExist = getByUsername(userInfo.getUsername());
         Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName()),
                 "username [" + userInfo.getUsername() + "] already exists");
         Integer validDays = DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate());
@@ -174,8 +174,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Integer updatePassword(PasswordChangeRequest request, String currentUser) {
         String username = request.getName();
-        UserEntity entity = getByName(username);
-        UserEntity curUser = getByName(currentUser);
+        UserEntity entity = getByUsername(username);
+        UserEntity curUser = getByUsername(currentUser);
         Preconditions.checkNotNull(entity, "User [" + username + "] not exists");
         Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode())
                         || Objects.equals(username, currentUser),
@@ -195,7 +195,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(userId, "User id should not be empty");
 
         // Whether the current user is an administrator
-        UserEntity curUser = getByName(currentUser);
+        UserEntity curUser = getByUsername(currentUser);
         UserEntity entity = userMapper.selectByPrimaryKey(userId);
         Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to delete users");

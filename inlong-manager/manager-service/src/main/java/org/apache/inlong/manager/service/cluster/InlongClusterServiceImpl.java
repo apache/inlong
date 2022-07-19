@@ -58,13 +58,12 @@ import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterTagEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.UserEntity;
-import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterTagEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
-import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
+import org.apache.inlong.manager.service.core.UserService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,15 +106,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     @Lazy
     private DataProxyConfigRepository proxyRepository;
     @Autowired
-    private UserEntityMapper userMapper;
-
-    @Override
-    public UserEntity getByName(String username) {
-        UserEntityExample example = new UserEntityExample();
-        example.createCriteria().andNameEqualTo(username);
-        List<UserEntity> list = userMapper.selectByExample(example);
-        return list.isEmpty() ? null : list.get(0);
-    }
+    private UserService userService;
 
     @Override
     public Integer saveTag(ClusterTagRequest request, String operator) {
@@ -753,7 +744,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
      * Whether current user is in charge.
      */
     private boolean isInCharge(String[] inChargesArr, String currentUser) {
-        UserEntity curUser = getByName(currentUser);
+        UserEntity curUser = userService.getByUsername(currentUser);
         for (String inCharge : inChargesArr) {
             if (Objects.equals(inCharge, currentUser) || curUser.getAccountType()
                     .equals(UserTypeEnum.ADMIN.getCode())) {

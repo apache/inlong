@@ -35,7 +35,7 @@ public interface UserService {
      * @param username username
      * @return user info
      */
-    UserEntity getByName(String username);
+    UserEntity getByUsername(String username);
 
     /**
      * Get user info by user id

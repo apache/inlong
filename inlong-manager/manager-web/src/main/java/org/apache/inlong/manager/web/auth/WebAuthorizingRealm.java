@@ -54,7 +54,7 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
             throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) authenticationToken;
         String username = upToken.getUsername();
-        UserEntity userEntity = userService.getByName(username);
+        UserEntity userEntity = userService.getByUsername(username);
         Preconditions.checkNotNull(userEntity, "User doesn't exist");
         Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");
         UserDetail userDetail = new UserDetail();
