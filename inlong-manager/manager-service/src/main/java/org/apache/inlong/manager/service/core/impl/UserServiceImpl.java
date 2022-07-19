@@ -149,8 +149,8 @@ public class UserServiceImpl implements UserService {
         UserEntity currentUserEntity = getByName(currentUser);
         Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to update users");
-        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode()) &&
-                        Objects.equals(userInfo.getUsername(), currentUser),
+        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode())
+                        && Objects.equals(userInfo.getUsername(), currentUser),
                 "Administrators cannot be set himself as ordinary users");
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
@@ -158,8 +158,8 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName()),
                 "username [" + userInfo.getUsername() + "] already exists");
         Integer validDays = DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate());
-        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode()) &&
-                        (userInfo.getValidDays() > validDays),
+        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode())
+                        && (userInfo.getValidDays() > validDays),
                 "Operator is not allowed to add valid days as ordinary users");
 
         // update password
