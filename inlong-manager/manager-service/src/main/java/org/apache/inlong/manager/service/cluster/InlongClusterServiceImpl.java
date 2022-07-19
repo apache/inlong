@@ -754,15 +754,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
      */
     private boolean isInCharge(String[] inChargesArr, String currentUser) {
         UserEntity curUser = getByName(currentUser);
-        boolean isInCharge = false;
         for (String inCharge : inChargesArr) {
             if (Objects.equals(inCharge, currentUser) || curUser.getAccountType()
                     .equals(UserTypeEnum.ADMIN.getCode())) {
-                isInCharge = true;
-                break;
+                return true;
             }
         }
-        return isInCharge;
+        return false;
     }
 
 }
