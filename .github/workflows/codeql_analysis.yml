@@ -63,7 +63,7 @@ jobs:
 
       - name: Build with Maven
         run: |
-          mvn --batch-mode -e -V clean install -DskipTests
+          mvn --batch-mode --update-snapshots -e -V clean package -DskipTests
         env:
           CI: false
 
