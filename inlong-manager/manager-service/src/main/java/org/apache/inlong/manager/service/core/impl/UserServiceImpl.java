@@ -43,13 +43,11 @@ import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 
 /**
  * User service layer implementation
