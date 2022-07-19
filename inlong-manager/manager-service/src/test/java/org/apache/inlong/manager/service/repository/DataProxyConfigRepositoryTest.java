@@ -154,7 +154,7 @@ public class DataProxyConfigRepositoryTest {
     }
 
     @Test
-    public void testRemoveSecondClusterTag() {
+    public void testRemoveBackupClusterTag() {
         final DataProxyConfigRepository repository = new DataProxyConfigRepository();
         // group
         InlongGroupEntityMapper groupMapper = this.mockGroupMapper();
@@ -183,7 +183,7 @@ public class DataProxyConfigRepositoryTest {
         streamSinks.add(clsSink);
         repository.setStreamSinkMapper(streamSinkMapper);
         // test
-        String inlongGroupId = repository.removeSecondClusterTag(INLONG_GROUP_ID);
+        String inlongGroupId = repository.removeBackupClusterTag(INLONG_GROUP_ID);
         assertEquals(INLONG_GROUP_ID, inlongGroupId);
     }
 }

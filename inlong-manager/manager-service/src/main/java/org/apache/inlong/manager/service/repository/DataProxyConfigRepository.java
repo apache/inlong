@@ -260,8 +260,8 @@ public class DataProxyConfigRepository implements IRepository {
             }
             Map<String, String> groupParams = this.getExtParams(groupIdObj.getExtParams());
             Map<String, String> streamParams = this.getExtParams(streamIdObj.getExtParams());
-            this.parseFirstTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
-            this.parseSecondTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
+            this.parseMasterTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
+            this.parseBackupTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
         }
         return inlongIdMap;
     }
@@ -284,9 +284,9 @@ public class DataProxyConfigRepository implements IRepository {
     }
 
     /**
-     * parseFirstTopic
+     * parseMasterTopic
      */
-    private void parseFirstTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+    private void parseMasterTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
             Map<String, String> groupParams, Map<String, String> streamParams,
             Map<String, List<InLongIdObject>> inlongIdMap) {
         // choose topic
@@ -321,20 +321,20 @@ public class DataProxyConfigRepository implements IRepository {
     }
 
     /**
-     * parseSecondTopic
+     * parseBackupTopic
      */
-    private void parseSecondTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+    private void parseBackupTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
             Map<String, String> groupParams, Map<String, String> streamParams,
             Map<String, List<InLongIdObject>> inlongIdMap) {
         Map<String, String> params = new HashMap<>();
         params.putAll(groupParams);
         params.putAll(streamParams);
-        // find second cluster tag
+        // find backup cluster tag
         String clusterTag = params.get(KEY_BACKUP_CLUSTER_TAG);
         if (StringUtils.isEmpty(clusterTag)) {
             return;
         }
-        // find second topic
+        // find backup topic
         String groupTopic = groupParams.get(KEY_BACKUP_TOPIC);
         String streamTopic = streamParams.get(KEY_BACKUP_TOPIC);
         String finalTopic = null;
@@ -598,9 +598,9 @@ public class DataProxyConfigRepository implements IRepository {
     }
 
     /**
-     * removeSecondClusterTag
+     * removeBackupClusterTag
      */
-    public String removeSecondClusterTag(String inlongGroupId) {
+    public String removeBackupClusterTag(String inlongGroupId) {
         // select
         InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
         if (oldGroup == null) {

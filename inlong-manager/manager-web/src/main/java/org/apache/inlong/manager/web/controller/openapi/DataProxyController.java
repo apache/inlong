@@ -99,12 +99,12 @@ public class DataProxyController {
     }
 
     /**
-     * removeSecondClusterTag
+     * removeBackupClusterTag
      */
-    @RequestMapping(value = "/removeSecondClusterTag", method = RequestMethod.PUT)
-    @ApiOperation(value = "remove second cluster tag and topic of a inlong group id.")
-    public Response<String> removeSecondClusterTag(@RequestParam String inlongGroupId) {
-        String result = dataProxyConfigRepository.removeSecondClusterTag(inlongGroupId);
+    @RequestMapping(value = "/removeBackupClusterTag", method = RequestMethod.PUT)
+    @ApiOperation(value = "remove backup cluster tag and topic of a inlong group id.")
+    public Response<String> removeBackupClusterTag(@RequestParam String inlongGroupId) {
+        String result = dataProxyConfigRepository.removeBackupClusterTag(inlongGroupId);
         return Response.success(result);
     }
 
