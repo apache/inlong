@@ -103,7 +103,6 @@ public class TimeBasedFilterInterceptor implements Interceptor {
 
         @Override
         public Interceptor build() {
-            logger.info("creating TimeBasedFilterInterceptor.");
             return new TimeBasedFilterInterceptor(startTime, stopTime);
         }
 
