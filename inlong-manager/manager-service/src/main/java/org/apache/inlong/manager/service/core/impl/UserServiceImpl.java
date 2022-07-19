@@ -48,6 +48,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 
 /**
  * User service layer implementation
@@ -68,10 +70,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo getById(Integer userId) {
+    public UserInfo getById(Integer userId, String currentUser) {
         Preconditions.checkNotNull(userId, "User id should not be empty");
         UserEntity entity = userMapper.selectByPrimaryKey(userId);
+        UserEntity curUser = getByName(currentUser);
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
+        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode())
+                        || Objects.equals(entity.getName(), currentUser),
+                "current user does not have permission to get other users info");
 
         UserInfo result = new UserInfo();
         result.setId(entity.getId());
@@ -142,10 +148,19 @@ public class UserServiceImpl implements UserService {
         // Whether the current user is an administrator
         UserEntity currentUserEntity = getByName(currentUser);
         Preconditions.checkTrue(currentUserEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
-                "current user is not a manager and does not have permission to update users");
-
+                "Current user is not a manager and does not have permission to update users");
+        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode()) &&
+                        Objects.equals(userInfo.getUsername(), currentUser),
+                "Administrators cannot be set himself as ordinary users");
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
+        UserEntity userExist = getByName(userInfo.getUsername());
+        Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName()),
+                "username [" + userInfo.getUsername() + "] already exists");
+        Integer validDays = DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate());
+        Preconditions.checkFalse(userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode()) &&
+                        (userInfo.getValidDays() > validDays),
+                "Operator is not allowed to add valid days as ordinary users");
 
         // update password
         entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
@@ -157,11 +172,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Integer updatePassword(PasswordChangeRequest request) {
+    public Integer updatePassword(PasswordChangeRequest request, String currentUser) {
         String username = request.getName();
         UserEntity entity = getByName(username);
+        UserEntity curUser = getByName(currentUser);
         Preconditions.checkNotNull(entity, "User [" + username + "] not exists");
-
+        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode())
+                        || Objects.equals(username, currentUser),
+                "Current user does not have permission to update other users password");
         String oldPassword = request.getOldPassword();
         String oldPasswordMd = MD5Utils.encrypt(oldPassword);
         Preconditions.checkTrue(oldPasswordMd.equals(entity.getPassword()), "Old password is wrong");
@@ -177,10 +195,12 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(userId, "User id should not be empty");
 
         // Whether the current user is an administrator
-        UserEntity entity = getByName(currentUser);
-        Preconditions.checkTrue(entity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
-                "current user is not a manager and does not have permission to delete users");
-
+        UserEntity curUser = getByName(currentUser);
+        UserEntity entity = userMapper.selectByPrimaryKey(userId);
+        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+                "Current user is not a manager and does not have permission to delete users");
+        Preconditions.checkTrue(!Objects.equals(entity.getName(), currentUser),
+                "Current user does not have permission to delete himself");
         userMapper.deleteByPrimaryKey(userId);
         log.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;

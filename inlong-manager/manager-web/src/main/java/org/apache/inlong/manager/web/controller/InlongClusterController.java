@@ -72,7 +72,8 @@ public class InlongClusterController {
     @ApiOperation(value = "Get cluster tag by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterTagResponse> getTag(@PathVariable Integer id) {
-        return Response.success(clusterService.getTag(id));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(clusterService.getTag(id, currentUser));
     }
 
     @PostMapping(value = "/cluster/tag/list")
@@ -112,7 +113,8 @@ public class InlongClusterController {
     @ApiOperation(value = "Get cluster by id")
     @ApiImplicitParam(name = "id", value = "Cluster ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterInfo> get(@PathVariable Integer id) {
-        return Response.success(clusterService.get(id));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(clusterService.get(id, currentUser));
     }
 
     @PostMapping(value = "/cluster/list")
@@ -158,13 +160,15 @@ public class InlongClusterController {
     @ApiOperation(value = "Get cluster node by id")
     @ApiImplicitParam(name = "id", value = "Cluster node ID", dataTypeClass = Integer.class, required = true)
     public Response<ClusterNodeResponse> getNode(@PathVariable Integer id) {
-        return Response.success(clusterService.getNode(id));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(clusterService.getNode(id, currentUser));
     }
 
     @PostMapping(value = "/cluster/node/list")
     @ApiOperation(value = "List cluster nodes")
     public Response<PageInfo<ClusterNodeResponse>> listNode(@RequestBody ClusterPageRequest request) {
-        return Response.success(clusterService.listNode(request));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(clusterService.listNode(request, currentUser));
     }
 
     @RequestMapping(value = "/cluster/node/update", method = RequestMethod.POST)

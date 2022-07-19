@@ -118,7 +118,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
-        return clusterService.listNode(request);
+        return clusterService.listNode(request, "admin");
     }
 
     /**

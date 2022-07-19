@@ -43,7 +43,7 @@ public interface UserService {
      * @param userId user id
      * @return user info
      */
-    UserInfo getById(Integer userId);
+    UserInfo getById(Integer userId, String currentUser);
 
     /**
      * Create user
@@ -68,7 +68,7 @@ public interface UserService {
      * @param request request
      * @return rows updated
      */
-    Integer updatePassword(PasswordChangeRequest request);
+    Integer updatePassword(PasswordChangeRequest request, String currentUser);
 
     /**
      * Delete user by user id

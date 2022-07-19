@@ -67,12 +67,13 @@ public class UserController {
     @GetMapping("/user/get/{id}")
     @ApiOperation(value = "Get user info")
     public Response<UserInfo> getById(@PathVariable Integer id) {
-        return Response.success(userService.getById(id));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(userService.getById(id, currentUser));
     }
 
     @PostMapping("/user/update")
     @ApiOperation(value = "Update user info")
-    public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
+    public Response<Integer> update(@RequestBody UserInfo userInfo) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(userService.update(userInfo, currentUser));
     }
@@ -80,7 +81,8 @@ public class UserController {
     @PostMapping("/user/updatePassword")
     @ApiOperation(value = "Update user password")
     public Response<Integer> updatePassword(@RequestBody PasswordChangeRequest request) {
-        return Response.success(userService.updatePassword(request));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(userService.updatePassword(request, currentUser));
     }
 
     @GetMapping("/user/listAllUsers")

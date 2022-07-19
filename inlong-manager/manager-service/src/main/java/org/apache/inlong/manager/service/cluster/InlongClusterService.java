@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.manager.dao.entity.UserEntity;
 
 import java.util.List;
 
@@ -36,6 +37,14 @@ import java.util.List;
  * Inlong cluster service layer interface
  */
 public interface InlongClusterService {
+ 
+    /**
+     * Get user info by user name
+     *
+     * @param username username
+     * @return user info
+     */
+    UserEntity getByName(String username);
 
     /**
      * Save cluster tag.
@@ -50,9 +59,10 @@ public interface InlongClusterService {
      * Get cluster tag by id.
      *
      * @param id cluster tag id
+     * @param currentUser current operator
      * @return cluster tag info
      */
-    ClusterTagResponse getTag(Integer id);
+    ClusterTagResponse getTag(Integer id, String currentUser);
 
     /**
      * Paging query cluster tags according to conditions.
@@ -93,9 +103,10 @@ public interface InlongClusterService {
      * Get cluster info by id.
      *
      * @param id cluster id
+     * @param currentUser current operator
      * @return cluster info
      */
-    ClusterInfo get(Integer id);
+    ClusterInfo get(Integer id, String currentUser);
 
     /**
      * Get one cluster by the cluster tag, cluster name and cluster type.
@@ -156,17 +167,19 @@ public interface InlongClusterService {
      * Get cluster node info by id.
      *
      * @param id cluster id
+     * @param currentUser current operator
      * @return cluster info
      */
-    ClusterNodeResponse getNode(Integer id);
+    ClusterNodeResponse getNode(Integer id, String currentUser);
 
     /**
      * Paging query cluster nodes according to conditions.
      *
      * @param request page request conditions
+     * @param currentUser current operator
      * @return cluster node list
      */
-    PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request);
+    PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser);
 
     /**
      * Query node IP list by cluster type
