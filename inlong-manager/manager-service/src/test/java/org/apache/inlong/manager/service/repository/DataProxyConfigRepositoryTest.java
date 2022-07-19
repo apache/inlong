@@ -162,8 +162,8 @@ public class DataProxyConfigRepositoryTest {
         groupEntity.setInlongClusterTag(CLUSTER_TAG_NEW);
         groupEntity.setMqResource(TOPIC_NEW);
         groupEntity.setExtParams(
-                String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", DataProxyConfigRepository.KEY_SECOND_CLUSTER_TAG,
-                        CLUSTER_TAG_OLD, DataProxyConfigRepository.KEY_SECOND_TOPIC, TOPIC_OLD));
+                String.format("{\"%s\":\"%s\",\"%s\":\"%s\"}", DataProxyConfigRepository.KEY_BACKUP_CLUSTER_TAG,
+                        CLUSTER_TAG_OLD, DataProxyConfigRepository.KEY_BACKUP_TOPIC, TOPIC_OLD));
         repository.setInlongGroupMapper(groupMapper);
         // cluster
         repository.setClusterMapper(this.mockClusterMapper());

@@ -76,8 +76,8 @@ public class DataProxyConfigRepository implements IRepository {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
 
-    public static final String KEY_SECOND_CLUSTER_TAG = "second_cluster_tag";
-    public static final String KEY_SECOND_TOPIC = "second_topic";
+    public static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
+    public static final String KEY_BACKUP_TOPIC = "backup_topic";
     public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
     public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
     public static final String KEY_SORT_CONSUEMER_GROUP = "defaultSortConsumerGroup";
@@ -330,13 +330,13 @@ public class DataProxyConfigRepository implements IRepository {
         params.putAll(groupParams);
         params.putAll(streamParams);
         // find second cluster tag
-        String clusterTag = params.get(KEY_SECOND_CLUSTER_TAG);
+        String clusterTag = params.get(KEY_BACKUP_CLUSTER_TAG);
         if (StringUtils.isEmpty(clusterTag)) {
             return;
         }
         // find second topic
-        String groupTopic = groupParams.get(KEY_SECOND_TOPIC);
-        String streamTopic = streamParams.get(KEY_SECOND_TOPIC);
+        String groupTopic = groupParams.get(KEY_BACKUP_TOPIC);
+        String streamTopic = streamParams.get(KEY_BACKUP_TOPIC);
         String finalTopic = null;
         if (StringUtils.isEmpty(groupTopic)) {
             // both empty then ignore
@@ -583,8 +583,8 @@ public class DataProxyConfigRepository implements IRepository {
         Gson gson = new Gson();
         JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
         // change cluster tag
-        extParamsObj.addProperty(KEY_SECOND_CLUSTER_TAG, oldGroup.getInlongClusterTag());
-        extParamsObj.addProperty(KEY_SECOND_TOPIC, oldGroup.getMqResource());
+        extParamsObj.addProperty(KEY_BACKUP_CLUSTER_TAG, oldGroup.getInlongClusterTag());
+        extParamsObj.addProperty(KEY_BACKUP_TOPIC, oldGroup.getMqResource());
         // copy properties
         InlongGroupEntity newGroup = new InlongGroupEntity();
         BeanUtils.copyProperties(newGroup, oldGroup);
@@ -614,12 +614,12 @@ public class DataProxyConfigRepository implements IRepository {
         // parse json
         Gson gson = new Gson();
         JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
-        if (!extParamsObj.has(KEY_SECOND_CLUSTER_TAG)) {
+        if (!extParamsObj.has(KEY_BACKUP_CLUSTER_TAG)) {
             return inlongGroupId;
         }
-        final String oldClusterTag = extParamsObj.get(KEY_SECOND_CLUSTER_TAG).getAsString();
-        extParamsObj.remove(KEY_SECOND_CLUSTER_TAG);
-        extParamsObj.remove(KEY_SECOND_TOPIC);
+        final String oldClusterTag = extParamsObj.get(KEY_BACKUP_CLUSTER_TAG).getAsString();
+        extParamsObj.remove(KEY_BACKUP_CLUSTER_TAG);
+        extParamsObj.remove(KEY_BACKUP_TOPIC);
         String newExtParams = extParamsObj.toString();
         oldGroup.setExtParams(newExtParams);
         // update group
