@@ -72,7 +72,9 @@ public class MySQLResourceOperator implements SinkResourceOperator {
     }
 
     /**
-     * Create MySQL table
+     * Create MySQL table by SinkInfo.
+     *
+     * @param sinkInfo {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
         LOG.info("begin to create MySQL table for sinkId={}", sinkInfo.getId());

@@ -21,6 +21,9 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * MySQL table info.
+ */
 @Data
 public class MySQLTableInfo {
 

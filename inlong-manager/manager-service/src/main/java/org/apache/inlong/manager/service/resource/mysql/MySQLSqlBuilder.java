@@ -17,7 +17,6 @@
 
 package org.apache.inlong.manager.service.resource.mysql;
 
-import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLTableInfo;
@@ -27,22 +26,37 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builder the SQL string for MySQL
+ */
 public class MySQLSqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSqlBuilder.class);
 
     /**
-     * Build check database exists SQL
+     * build SQL to check whether the database exists.
      *
-     * @param dbName
-     * @return
+     * @param dbName mysql database name
+     * @return the check database sql string
      */
     public static String getCheckDatabase(String dbName) {
-        String sql = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '" + dbName + "'";
-        LOGGER.info("check database sql: {}", sql);
-        return sql;
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT schema_name ")
+                .append(" FROM information_schema.schemata ")
+                .append("WHERE schema_name = '")
+                .append(dbName)
+                .append("';");
+        LOGGER.info("check database sql: {}", sqlBuilder);
+        return sqlBuilder.toString();
     }
 
+    /**
+     * build SQL to check whether the table exists.
+     *
+     * @param dbName    mysql database name
+     * @param tableName mysql table name
+     * @return the check table sql string
+     */
     public static String getCheckTable(String dbName, String tableName) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("select table_schema,table_name ")
@@ -55,6 +69,14 @@ public class MySQLSqlBuilder {
         return sqlBuilder.toString();
     }
 
+    /**
+     * build SQL to check whether the column exists.
+     *
+     * @param dbName     mysql database name
+     * @param tableName  mysql table name
+     * @param columnName mysql column name
+     * @return the check column sql string
+     */
     public static String getCheckColumn(String dbName, String tableName, String columnName) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("SELECT COLUMN_NAME,COLUMN_TYPE,COLUMN_COMMENT ")
@@ -72,8 +94,8 @@ public class MySQLSqlBuilder {
     /**
      * Build create database SQL
      *
-     * @param dbName
-     * @return
+     * @param dbName mysql database name
+     * @return the create database sql string
      */
     public static String buildCreateDbSql(String dbName) {
         String sql = "CREATE DATABASE " + dbName;
@@ -82,15 +104,14 @@ public class MySQLSqlBuilder {
     }
 
     /**
-     * Build create table SQL
+     * Build create table SQL by MySQLTableInfo
      *
-     * @param table
-     * @return
+     * @param table mysql table info {@link MySQLTableInfo}
+     * @return the create table sql String
      */
     public static String buildCreateTableSql(MySQLTableInfo table) {
         StringBuilder sql = new StringBuilder();
         // Support _ beginning with underscore
-        String dbTableName = table.getTableName();
         sql.append("CREATE TABLE ").append(table.getDbName())
                 .append(".")
                 .append(table.getTableName());
@@ -98,17 +119,17 @@ public class MySQLSqlBuilder {
         // Construct columns and partition columns
         sql.append(buildCreateColumnsSql(table));
 
-        if (Strings.isNullOrEmpty(table.getEngine())) {
+        if (StringUtils.isEmpty(table.getEngine())) {
             sql.append(" ENGINE=InnoDB ");
         } else {
-            sql.append(" ENGINE=");
-            sql.append(table.getEngine());
-            sql.append(" ");
+            sql.append(" ENGINE=")
+                    .append(table.getEngine())
+                    .append(" ");
         }
-        if (!Strings.isNullOrEmpty(table.getCharset())) {
-            sql.append(" DEFAULT CHARSET=");
-            sql.append(table.getCharset());
-            sql.append(" ");
+        if (!StringUtils.isEmpty(table.getCharset())) {
+            sql.append(" DEFAULT CHARSET=")
+                    .append(table.getCharset())
+                    .append(" ");
         }
 
         LOGGER.info("create table sql: {}", sql);
@@ -116,25 +137,27 @@ public class MySQLSqlBuilder {
     }
 
     /**
-     * Build add column SQL
+     * Build add columns SQL
      *
-     * @param tableName
-     * @param columnList
-     * @return
+     * @param tableName  mysql table name
+     * @param columnList mysql column list {@link List}
+     * @return add column sql string list
      */
     public static List<String> buildAddColumnsSql(String dbName, String tableName,
                                                   List<MySQLColumnInfo> columnList) {
         List<String> columnInfoList = getColumnsInfo(columnList);
         List<String> resultList = new ArrayList<>();
+        StringBuilder sqlBuilder = new StringBuilder();
         for (String columnInfo : columnInfoList) {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("ALTER TABLE ");
-            sqlBuilder.append(dbName);
-            sqlBuilder.append(".");
-            sqlBuilder.append(tableName);
-            sqlBuilder.append(" ADD COLUMN ");
-            sqlBuilder.append(columnInfo);
+            sqlBuilder.append("ALTER TABLE ")
+                    .append(dbName)
+                    .append(".")
+                    .append(tableName)
+                    .append(" ADD COLUMN ")
+                    .append(columnInfo)
+                    .append(";");
             resultList.add(sqlBuilder.toString());
+            sqlBuilder.delete(0, sqlBuilder.length());
         }
 
         LOGGER.info("add columns sql={}", resultList);
@@ -144,41 +167,46 @@ public class MySQLSqlBuilder {
     /**
      * Build create column SQL
      *
-     * @param table
-     * @return
+     * @param table mysql table info {@link MySQLTableInfo}
+     * @return create column sub sql string
      */
     private static String buildCreateColumnsSql(MySQLTableInfo table) {
         StringBuilder sql = new StringBuilder();
         sql.append(" (");
         List<String> columnList = getColumnsInfo(table.getColumns());
         sql.append(StringUtils.join(columnList, ","));
-        if (!Strings.isNullOrEmpty(table.getPrimaryKey())) {
-            sql.append(", PRIMARY KEY (");
-            sql.append(table.getPrimaryKey());
-            sql.append(")");
+        if (!StringUtils.isEmpty(table.getPrimaryKey())) {
+            sql.append(", PRIMARY KEY (")
+                    .append(table.getPrimaryKey())
+                    .append(")");
         }
         sql.append(") ");
-        LOGGER.info("create columns sql={}", sql.toString());
+        LOGGER.info("create columns sql={}", sql);
         return sql.toString();
     }
 
     /**
-     * Build column info
+     * Build column info by MySQLColumnInfo list
+     *
+     * @param columns mysql column info {@link MySQLColumnInfo} list
+     * @return the sql list
      */
     private static List<String> getColumnsInfo(List<MySQLColumnInfo> columns) {
         List<String> columnList = new ArrayList<>();
         for (MySQLColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
             StringBuilder columnBuilder = new StringBuilder();
-            columnBuilder.append(columnInfo.getColName())
+            columnBuilder.append("`")
+                    .append(columnInfo.getColName())
+                    .append("`")
                     .append(" ")
                     .append(columnInfo.getDataType());
-            if (!Strings.isNullOrEmpty(columnInfo.getComment())) {
+            if (!StringUtils.isEmpty(columnInfo.getComment())) {
                 columnBuilder.append(" COMMENT '")
                         .append(columnInfo.getComment())
                         .append("'");
             }
-            columnBuilder.append(" ;");
+            columnBuilder.append(" ");
             columnList.add(columnBuilder.toString());
         }
         return columnList;
@@ -186,6 +214,10 @@ public class MySQLSqlBuilder {
 
     /**
      * Build query table SQL
+     *
+     * @param dbName    mysql database name
+     * @param tableName mysql table name
+     * @return desc table sql string
      */
     public static String buildDescTableSql(String dbName, String tableName) {
         StringBuilder sql = new StringBuilder();
