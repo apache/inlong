@@ -22,7 +22,7 @@ import org.apache.flink.annotation.Internal;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
-/** INLONG Options for HBase. */
+/** InLong Options for HBase. */
 @Internal
 public class InLongOptions {
 
