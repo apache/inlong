@@ -29,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
-import org.apache.inlong.manager.dao.entity.UserEntity;
 
 import java.util.List;
 
