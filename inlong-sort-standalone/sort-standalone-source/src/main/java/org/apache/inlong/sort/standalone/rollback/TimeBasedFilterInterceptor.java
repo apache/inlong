@@ -53,7 +53,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
 
     @Override
     public void initialize() {
-        //no-op
+        // no-op
     }
 
     @Override
@@ -83,7 +83,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
 
     @Override
     public void close() {
-        //no-op
+        // no-op
     }
 
     public static class Builder implements Interceptor.Builder  {
