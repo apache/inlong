@@ -100,6 +100,7 @@ public class MySQLSinkDTO {
 
     /**
      * Get MySQL table info
+     *
      * @param mySQLSink MySQL sink dto,{@link MySQLSinkDTO}
      * @param columnList MySQL column info list,{@link MySQLColumnInfo}
      * @return {@link MySQLTableInfo}
@@ -117,7 +118,7 @@ public class MySQLSinkDTO {
     /**
      * Get DbName from jdbcUrl
      *
-     * @param jdbcUrl  mysql JDBC url, such as jdbc:mysql://host:port/database
+     * @param jdbcUrl  MySQL JDBC url, such as jdbc:mysql://host:port/database
      * @return database name
      */
     public static String getDbNameFromUrl(String jdbcUrl) {

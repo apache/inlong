@@ -31,7 +31,7 @@ public class MySQLTableInfo {
 
     private String tableName;
 
-    private String tableDesc;
+    private String comment;
 
     private String primaryKey;
 

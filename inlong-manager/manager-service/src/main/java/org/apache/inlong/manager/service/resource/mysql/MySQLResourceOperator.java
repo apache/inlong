@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MySQL's resource operator
+ * MySQL's resource operator.
  */
 @Service
 public class MySQLResourceOperator implements SinkResourceOperator {
@@ -86,8 +86,8 @@ public class MySQLResourceOperator implements SinkResourceOperator {
         List<MySQLColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
             MySQLColumnInfo columnInfo = new MySQLColumnInfo();
-            columnInfo.setColName(field.getFieldName());
-            columnInfo.setDataType(field.getFieldType());
+            columnInfo.setName(field.getFieldName());
+            columnInfo.setType(field.getFieldType());
             columnInfo.setComment(field.getFieldComment());
             columnList.add(columnInfo);
         }

@@ -45,8 +45,8 @@ public class MySQLJdbcUtils {
     /**
      * Get MySQL connection from the url and user.
      *
-     * @param url      jdbc url, such as jdbc:mysql://host:port/database
-     * @param user     Username for JDBC URL
+     * @param url jdbc url, such as jdbc:mysql://host:port/database
+     * @param user Username for JDBC URL
      * @param password User password
      * @return {@link Connection}
      * @throws Exception on get connection error
@@ -75,9 +75,9 @@ public class MySQLJdbcUtils {
     /**
      * Execute SQL command on MySQL.
      *
-     * @param conn jdbc Connection  {@link Connection}
-     * @param sql  SQL string to be executed
-     * @throws Exception on execute sql error
+     * @param conn JDBC Connection  {@link Connection}
+     * @param sql SQL string to be executed
+     * @throws Exception on execute SQL error
      */
     public static void executeSql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
@@ -88,10 +88,10 @@ public class MySQLJdbcUtils {
     /**
      * Execute query SQL on MySQL.
      *
-     * @param conn jdbc Connection  {@link Connection}
-     * @param sql  SQL string to be executed
+     * @param conn JDBC Connection  {@link Connection}
+     * @param sql SQL string to be executed
      * @return {@link ResultSet}
-     * @throws Exception on execute query sql error
+     * @throws Exception on execute query SQL error
      */
     public static ResultSet executeQuerySql(Connection conn, String sql)
             throws Exception {
@@ -103,9 +103,9 @@ public class MySQLJdbcUtils {
     /**
      * Execute batch query SQL on MySQL.
      *
-     * @param conn jdbc Connection  {@link Connection}
+     * @param conn JDBC Connection  {@link Connection}
      * @param sqls SQL string to be executed
-     * @throws Exception on get execute sql batch error
+     * @throws Exception on get execute SQL batch error
      */
     public static void executeSqlBatch(Connection conn, List<String> sqls)
             throws Exception {
@@ -119,7 +119,7 @@ public class MySQLJdbcUtils {
     /**
      * Create MySQL database
      *
-     * @param conn   jdbc Connection  {@link Connection}
+     * @param conn JDBC Connection  {@link Connection}
      * @param dbName database name
      * @throws Exception on create database error
      */
@@ -141,8 +141,8 @@ public class MySQLJdbcUtils {
     /**
      * Create MySQL table by MySQLTableInfo
      *
-     * @param conn      jdbc Connection  {@link Connection}
-     * @param tableInfo mysql table info  {@link MySQLTableInfo}
+     * @param conn JDBC Connection  {@link Connection}
+     * @param tableInfo MySQL table info  {@link MySQLTableInfo}
      * @throws Exception on create table error
      */
     public static void createTable(Connection conn, MySQLTableInfo tableInfo)
@@ -157,11 +157,11 @@ public class MySQLJdbcUtils {
     }
 
     /**
-     * check tables from the MySQL information_schema.
+     * Check tables from the MySQL information_schema.
      *
-     * @param conn      jdbc Connection  {@link Connection}
-     * @param dbName    mysql database name
-     * @param tableName mysql table name
+     * @param conn JDBC Connection  {@link Connection}
+     * @param dbName MySQL database name
+     * @param tableName MySQL table name
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
@@ -180,12 +180,12 @@ public class MySQLJdbcUtils {
     }
 
     /**
-     * check whether the column exists in the table.
+     * Check whether the column exists in the table.
      *
-     * @param conn      jdbc Connection  {@link Connection}
-     * @param dbName    mysql database name
-     * @param tableName mysql table name
-     * @param column    mysql table column name
+     * @param conn JDBC Connection  {@link Connection}
+     * @param dbName MySQL database name
+     * @param tableName MySQL table name
+     * @param column MySQL table column name
      * @return true if column exist in the table, otherwise false
      * @throws Exception on check column exist error
      */
@@ -207,9 +207,9 @@ public class MySQLJdbcUtils {
     /**
      * Query all columns of the tableName.
      *
-     * @param conn      jdbc Connection  {@link Connection}
-     * @param dbName    mysql database name
-     * @param tableName mysql table name
+     * @param conn JDBC Connection  {@link Connection}
+     * @param dbName MySQL database name
+     * @param tableName MySQL table name
      * @return {@link List}
      * @throws Exception on get columns error
      */
@@ -221,8 +221,8 @@ public class MySQLJdbcUtils {
         List<MySQLColumnInfo> columnList = new ArrayList<>();
         while (rs.next()) {
             MySQLColumnInfo columnInfo = new MySQLColumnInfo();
-            columnInfo.setColName(rs.getString(1));
-            columnInfo.setDataType(rs.getString(2));
+            columnInfo.setName(rs.getString(1));
+            columnInfo.setType(rs.getString(2));
             columnInfo.setComment(rs.getString(3));
             columnList.add(columnInfo);
         }
@@ -232,10 +232,10 @@ public class MySQLJdbcUtils {
     /**
      * Add columns for MySQL table.
      *
-     * @param conn      jdbc Connection  {@link Connection}
-     * @param dbName    mysql database name
-     * @param tableName mysql table name
-     * @param columns   mysql columns to be added
+     * @param conn JDBC Connection  {@link Connection}
+     * @param dbName MySQL database name
+     * @param tableName MySQL table name
+     * @param columns MySQL columns to be added
      * @throws Exception on add columns error
      */
     public static void addColumns(Connection conn, String dbName, String tableName, List<MySQLColumnInfo> columns)
@@ -243,7 +243,7 @@ public class MySQLJdbcUtils {
         List<MySQLColumnInfo> columnInfos = Lists.newArrayList();
 
         for (MySQLColumnInfo columnInfo : columns) {
-            if (!checkColumnExist(conn, dbName, tableName, columnInfo.getColName())) {
+            if (!checkColumnExist(conn, dbName, tableName, columnInfo.getName())) {
                 columnInfos.add(columnInfo);
             }
         }

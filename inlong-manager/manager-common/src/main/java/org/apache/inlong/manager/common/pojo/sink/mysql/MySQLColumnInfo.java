@@ -29,9 +29,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class MySQLColumnInfo {
 
-    private String colName;
+    private String name;
 
-    private String dataType;
+    private String type;
 
     private String comment;
 }
