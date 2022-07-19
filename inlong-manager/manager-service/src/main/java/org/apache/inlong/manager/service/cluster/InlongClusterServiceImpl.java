@@ -475,12 +475,13 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
     @Override
     public PageInfo<ClusterNodeResponse> listNode(ClusterPageRequest request, String currentUser) {
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Preconditions.checkNotNull(request.getParentId(), "Cluster id cannot be empty");
-        InlongClusterEntity cluster = clusterMapper.selectById(request.getParentId());
+        Integer parentId = request.getParentId();
+        Preconditions.checkNotNull(parentId, "Cluster id cannot be empty");
+        InlongClusterEntity cluster = clusterMapper.selectById(parentId);
         String[] inChargesArr = cluster.getInCharges().split(",");
         Preconditions.checkTrue(isInCharge(inChargesArr, currentUser),
                 "Current user does not have permission to get cluster node list");
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
                 clusterNodeMapper.selectByCondition(request);
         List<ClusterNodeResponse> nodeList = CommonBeanUtils.copyListProperties(entityPage, ClusterNodeResponse::new);
