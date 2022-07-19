@@ -48,6 +48,7 @@ public class TimeBasedFilterInterceptor implements Interceptor {
     public TimeBasedFilterInterceptor(long startTime, long stopTime) {
         this.startTime = startTime;
         this.stopTime = stopTime;
+        logger.info("create TimeBasedFilterInterceptor successfully.");
     }
 
     @Override
