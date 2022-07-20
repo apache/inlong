@@ -47,7 +47,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
-  static final String FACTORY_IDENTIFIER = "iceberg";
+  static final String FACTORY_IDENTIFIER = "iceberg-inlong";
 
   private static final ConfigOption<String> CATALOG_NAME =
       ConfigOptions.key("catalog-name")
