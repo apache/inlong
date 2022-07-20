@@ -17,12 +17,14 @@
 
 package org.apache.inlong.manager.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Parameter verification tools
@@ -124,11 +126,19 @@ public class Preconditions {
     }
 
     /**
-     * Whether a string is in a separated string
+     * Whether a target string is in a string separated by the separator.
+     *
+     * @param target target string, such as "foo"
+     * @param separatedStr separated string, such as "boo,and,foo"
+     * @param separator separator of separatedStr, such as ","
+     * @return true if target in separatedStr
      */
-    public static boolean isOriginStrInTargetStr(String targetStr, String originStr, String separator) {
-        Set<String> strSet = Arrays.stream(targetStr.split(separator)).collect(Collectors.toSet());
-        return strSet.contains(originStr);
+    public static boolean inSeparatedString(String target, String separatedStr, String separator) {
+        if (StringUtils.isBlank(target) || StringUtils.isBlank(separatedStr)) {
+            return false;
+        }
+        Set<String> set = new HashSet<>(Arrays.asList(separatedStr.split(separator)));
+        return set.contains(target);
     }
 
 }

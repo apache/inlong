@@ -143,10 +143,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster tag not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        UserEntity curUser = userService.getByUsername(currentUser);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(entity.getInCharges(),
-                currentUser, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(currentUser);
+        boolean isInCharge = Preconditions.inSeparatedString(currentUser, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster tag");
 
         ClusterTagResponse response = CommonBeanUtils.copyProperties(entity, ClusterTagResponse::new);
@@ -181,10 +180,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.warn("inlong cluster tag was not exist for id={}", id);
             return true;
         }
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(exist.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster tag");
 
         // if the cluster tag was changed, need to check whether the new tag already exists
@@ -233,10 +231,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster tag not found by id={}", id);
             return false;
         }
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(exist.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster tag");
 
         // check if there are some InlongGroups that uses this tag
@@ -290,10 +287,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        UserEntity curUser = userService.getByUsername(currentUser);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(entity.getInCharges(),
-                currentUser, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(currentUser);
+        boolean isInCharge = Preconditions.inSeparatedString(currentUser, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster info");
 
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(entity.getType());
@@ -356,10 +352,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(entity.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster info");
 
         InlongClusterOperator instance = clusterOperatorFactory.getInstance(request.getType());
@@ -375,10 +370,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String clusterTag = request.getClusterTag();
         Preconditions.checkNotNull(clusterTag, "cluster tag cannot be empty");
         InlongClusterTagEntity exist = clusterTagMapper.selectByTag(clusterTag);
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(exist.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to bind or unbind cluster tag");
         Date now = new Date();
         if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
@@ -414,10 +408,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.error("inlong cluster not found by id={}, or was already deleted", id);
             return false;
         }
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(entity.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, entity.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster info");
 
         List<InlongClusterNodeEntity> nodeEntities = clusterNodeMapper.selectByParentId(id);
@@ -470,10 +463,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
-        UserEntity curUser = userService.getByUsername(currentUser);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(cluster.getInCharges(),
-                currentUser, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(currentUser);
+        boolean isInCharge = Preconditions.inSeparatedString(currentUser, cluster.getInCharges(),
+                InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster node");
         ClusterNodeResponse clusterNodeResponse = CommonBeanUtils.copyProperties(entity, ClusterNodeResponse::new);
         LOGGER.debug("success to get inlong cluster node by id={}", id);
@@ -485,10 +478,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         Integer parentId = request.getParentId();
         Preconditions.checkNotNull(parentId, "Cluster id cannot be empty");
         InlongClusterEntity cluster = clusterMapper.selectById(parentId);
-        UserEntity curUser = userService.getByUsername(currentUser);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(cluster.getInCharges(),
-                currentUser, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(currentUser);
+        boolean isInCharge = Preconditions.inSeparatedString(currentUser, cluster.getInCharges(),
+                InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to get cluster node list");
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongClusterNodeEntity> entityPage = (Page<InlongClusterNodeEntity>)
@@ -541,10 +534,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(cluster.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, cluster.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to update cluster node");
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setParentId(request.getParentId());
@@ -564,10 +556,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             return false;
         }
         InlongClusterEntity cluster = clusterMapper.selectById(entity.getParentId());
-        UserEntity curUser = userService.getByUsername(operator);
-        boolean isInCharge = Preconditions.isOriginStrInTargetStr(cluster.getInCharges(),
-                operator, InlongConstants.COMMA);
-        Preconditions.checkTrue(isInCharge || curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
+        UserEntity userEntity = userService.getByUsername(operator);
+        boolean isInCharge = Preconditions.inSeparatedString(operator, cluster.getInCharges(), InlongConstants.COMMA);
+        Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to delete cluster node");
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
