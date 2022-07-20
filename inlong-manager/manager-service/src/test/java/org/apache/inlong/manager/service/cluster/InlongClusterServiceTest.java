@@ -18,15 +18,18 @@
 package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -212,12 +215,15 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port2);
         Assertions.assertNotNull(nodeId2);
 
-        // Get the data proxy cluster ip list, the first port should is p1, second port is p2
-        ClusterPageRequest request = new ClusterPageRequest();
-        request.setName(clusterName);
-        request.setClusterTag(clusterTag);
-        request.setExtTag(extTag);
-        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(request);
+        // create an inlong group which use the clusterTag
+        String inlongGroupId = "test_cluster_tag_group";
+        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.MQ_PULSAR);
+        inlongGroup.setInlongClusterTag(clusterTag);
+        groupService.update(inlongGroup.genRequest(), GLOBAL_OPERATOR);
+
+        // get the data proxy nodes, the first port should is p1, second port is p2
+        DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId);
+        List<DataProxyNodeInfo> ipList = nodeResponse.getNodeList();
         Assertions.assertEquals(ipList.size(), 2);
         Assertions.assertEquals(port1, ipList.get(0).getPort());
         Assertions.assertEquals(port2, ipList.get(1).getPort());

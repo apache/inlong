@@ -17,14 +17,39 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
+import lombok.Data;
+
+import java.util.List;
+
 /**
- * IRepository
+ * DataProxy node response, used for DataProxy SDK.
  */
-public interface IRepository {
+@Data
+public class DataProxyNodeResponse {
 
-    long DEFAULT_HEARTBEAT_INTERVAL_MS = 60000;
-    String SEPARATOR = "&";
-    String KEY_VALUE_SEPARATOR = "=";
+    /**
+     * DataProxy cluster id
+     */
+    private Integer clusterId;
 
-    void reload();
+    /**
+     * Is the DataProxy cluster an intranet? 0: no, 1: yes
+     */
+    private Integer isIntranet;
+
+    /**
+     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
+     */
+    private Integer isSwitch;
+
+    /**
+     * Load of the DataProxy cluster, default is 20
+     */
+    private Integer load = 20;
+
+    /**
+     * List of the cluster node
+     */
+    private List<DataProxyNodeInfo> nodeList;
+
 }

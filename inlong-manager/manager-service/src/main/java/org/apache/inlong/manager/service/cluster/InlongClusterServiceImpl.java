@@ -28,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -46,7 +48,6 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterDTO;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
@@ -511,32 +512,52 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     }
 
     @Override
-    public List<DataProxyNodeInfo> getDataProxyNodeList(ClusterPageRequest request) {
-        LOGGER.debug("begin to list data proxy node for request={}", request);
-
-        request.setType(ClusterType.DATA_PROXY);
-        List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
-        Preconditions.checkNotEmpty(clusterList,
-                "data proxy node not found by request=" + request);
-
-        List<DataProxyNodeInfo> responseList = new ArrayList<>();
-        for (InlongClusterEntity cluster : clusterList) {
-            Integer clusterId = cluster.getId();
-            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(clusterId);
-            for (InlongClusterNodeEntity nodeEntity : nodeList) {
-                DataProxyNodeInfo response = new DataProxyNodeInfo();
-                response.setId(nodeEntity.getId());
-                response.setParentId(clusterId);
-                response.setIp(nodeEntity.getIp());
-                response.setPort(nodeEntity.getPort());
-                responseList.add(response);
-            }
+    public DataProxyNodeResponse getDataProxyNodes(String inlongGroupId) {
+        LOGGER.debug("begin to get data proxy nodes for inlongGroupId={}", inlongGroupId);
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(inlongGroupId);
+        if (groupEntity == null) {
+            String msg = "inlong group not exists for inlongGroupId=" + inlongGroupId;
+            LOGGER.debug(msg);
+            throw new BusinessException(msg);
         }
+
+        String clusterTag = groupEntity.getInlongClusterTag();
+        if (StringUtils.isBlank(clusterTag)) {
+            String msg = "not found any cluster tag for inlongGroupId=" + inlongGroupId;
+            LOGGER.debug(msg);
+            throw new BusinessException(msg);
+        }
+
+        List<InlongClusterEntity> clusterList = clusterMapper.selectByKey(clusterTag, null, ClusterType.DATA_PROXY);
+        if (CollectionUtils.isEmpty(clusterList)) {
+            String msg = "not found any data proxy cluster for inlongGroupId=" + inlongGroupId
+                    + " and clusterTag=" + clusterTag;
+            LOGGER.debug(msg);
+            throw new BusinessException(msg);
+        }
+
+        // if more than one data proxy cluster, currently takes first
+        // TODO consider the data proxy load and re-balance
+        InlongClusterEntity clusterEntity = clusterList.get(0);
+        Integer clusterId = clusterEntity.getId();
+        List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(clusterId);
+        List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
+        for (InlongClusterNodeEntity nodeEntity : nodeList) {
+            DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
+            nodeInfo.setId(nodeEntity.getId());
+            nodeInfo.setIp(nodeEntity.getIp());
+            nodeInfo.setPort(nodeEntity.getPort());
+            nodeInfos.add(nodeInfo);
+        }
+
+        DataProxyNodeResponse response = new DataProxyNodeResponse();
+        response.setClusterId(clusterId);
+        response.setNodeList(nodeInfos);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("success to list data proxy node for request={}", request);
+            LOGGER.debug("success to get data proxy nodes for inlongGroupId={}, result={}", inlongGroupId, response);
         }
-        return responseList;
+        return response;
     }
 
     @Override
@@ -552,7 +573,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
         DataProxyConfig result = new DataProxyConfig();
         if (CollectionUtils.isEmpty(clusterList)) {
-            LOGGER.warn("GetDPConfig: data proxy cluster not found by tag={} name={}", clusterTag, clusterName);
+            LOGGER.warn("GetDPConfig: not found data proxy cluster by tag={} name={}", clusterTag, clusterName);
             return result;
         }
 
@@ -567,7 +588,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         List<InlongGroupBriefInfo> groupList = groupMapper.selectBriefList(groupRequest);
         if (CollectionUtils.isEmpty(groupList)) {
-            LOGGER.warn("GetDPConfig: no inlong group found with success status by cluster tags={}", clusterTagList);
+            LOGGER.warn("GetDPConfig: not found inlong group with success status by cluster tags={}", clusterTagList);
             return result;
         }
 
@@ -586,7 +607,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     List<InlongClusterEntity> pulsarClusters = clusterMapper.selectByKey(realClusterTag, null,
                             ClusterType.PULSAR);
                     if (CollectionUtils.isEmpty(pulsarClusters)) {
-                        LOGGER.error("GetDPConfig: pulsar cluster not found by cluster tag={}", realClusterTag);
+                        LOGGER.error("GetDPConfig: not found pulsar cluster by cluster tag={}", realClusterTag);
                         continue;
                     }
 
