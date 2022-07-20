@@ -111,7 +111,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     public void testSourceErrorClusterName() {
         SortSourceConfigResponse response = sortService.getSourceConfig("errCluster", "errTask", "");
         System.out.println(response.toString());
-        Assertions.assertEquals(-101, response.getCode());
+        Assertions.assertEquals(0, response.getCode());
         Assertions.assertNull(response.getMd5());
         Assertions.assertNull(response.getData());
         Assertions.assertNotNull(response.getMsg());
