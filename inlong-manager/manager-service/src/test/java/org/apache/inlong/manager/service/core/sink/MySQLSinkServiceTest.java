@@ -109,7 +109,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:mysql://192.168.161.114:3306/test01";
+        String url = "jdbc:mysql://localhost:3306/test01";
         String user = "inlong";
         String password = "mysql";
         String dbName = "test01";
