@@ -21,15 +21,15 @@ import lombok.Getter;
 
 public enum ComponentTypeEnum {
 
-    Agent("Agent"),
+    Agent("AGENT"),
 
-    DataProxy("DataProxy"),
+    DataProxy("DATA_PROXY"),
 
-    Cache("Cache"),
+    Cache("CACHE"),
 
-    Sort("Sort"),
+    Sort("SORT"),
 
-    SDK("Sdk");
+    SDK("SDK");
 
     @Getter
     private final String name;
