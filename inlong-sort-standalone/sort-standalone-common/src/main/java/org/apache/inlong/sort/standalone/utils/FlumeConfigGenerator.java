@@ -33,8 +33,8 @@ public class FlumeConfigGenerator {
     public static final String KEY_SORT_CHANNEL_TYPE = "sortChannel.type";
     public static final String KEY_SORT_SINK_TYPE = "sortSink.type";
     public static final String KEY_SORT_SOURCE_TYPE = "sortSource.type";
-    public static final String KEY_SDK_START_TIME = "start-time";
-    public static final String KEY_SDK_STOP_TIME = "stop-time";
+    public static final String KEY_SDK_START_TIME = "start.time";
+    public static final String KEY_SDK_STOP_TIME = "stop.time";
 
     public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
