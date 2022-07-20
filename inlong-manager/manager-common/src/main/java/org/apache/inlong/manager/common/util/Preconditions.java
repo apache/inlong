@@ -17,9 +17,12 @@
 
 package org.apache.inlong.manager.common.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Parameter verification tools
@@ -118,6 +121,14 @@ public class Preconditions {
         if (!condition) {
             throw new IllegalArgumentException(errMsg);
         }
+    }
+
+    /**
+     * Whether a string is in a separated string
+     */
+    public static boolean isOriginStrInTargetStr(String targetStr, String originStr, String separator) {
+        Set<String> strSet = Arrays.stream(targetStr.split(separator)).collect(Collectors.toSet());
+        return strSet.contains(originStr);
     }
 
 }
