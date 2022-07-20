@@ -112,7 +112,8 @@ public class KafkaLoadNode extends LoadNode implements Metadata, Serializable {
         }
         if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
-                options.put("connector", "kafka");
+                options.put("connector", "kafka-inlong");
+                options.put("sink.ignore.changelog", "true");
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put("connector", "upsert-kafka");
