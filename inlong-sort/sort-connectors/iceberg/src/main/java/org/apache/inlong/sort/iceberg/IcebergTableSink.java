@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
+import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DataStreamSinkProvider;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -33,10 +34,19 @@ import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
+
   private final TableLoader tableLoader;
   private final TableSchema tableSchema;
+
+  private final CatalogTable catalogTable;
 
   private boolean overwrite = false;
 
@@ -44,11 +54,13 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
     this.tableLoader = toCopy.tableLoader;
     this.tableSchema = toCopy.tableSchema;
     this.overwrite = toCopy.overwrite;
+    this.catalogTable = toCopy.catalogTable;
   }
 
-  public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema) {
+  public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
     this.tableLoader = tableLoader;
     this.tableSchema = tableSchema;
+    this.catalogTable = catalogTable;
   }
 
   @Override
@@ -75,11 +87,18 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
 
   @Override
   public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-    ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-    for (RowKind kind : requestedMode.getContainedKinds()) {
-      builder.addContainedKind(kind);
+    if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
+            .get(ICEBERG_IGNORE_ALL_CHANGELOG)) {
+      LOG.warn("Iceberg sink receive all changelog record. "
+              + "Regard any other record as insert-only record.");
+      return ChangelogMode.all();
+    } else {
+      ChangelogMode.Builder builder = ChangelogMode.newBuilder();
+      for (RowKind kind : requestedMode.getContainedKinds()) {
+        builder.addContainedKind(kind);
+      }
+      return builder.build();
     }
-    return builder.build();
   }
 
   @Override

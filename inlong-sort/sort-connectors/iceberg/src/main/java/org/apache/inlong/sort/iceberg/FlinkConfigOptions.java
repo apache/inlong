@@ -40,5 +40,10 @@ public class FlinkConfigOptions {
           .defaultValue(100)
           .withDescription("Sets max infer parallelism for source operator.");
 
+  public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG =
+          ConfigOptions.key("sink.ignore.changelog")
+                  .booleanType()
+                  .defaultValue(false)
+                  .withDescription("Regard upsert delete as insert kind.");
 
 }
