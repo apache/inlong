@@ -21,6 +21,7 @@ package org.apache.inlong.sort.iceberg;
 
 import java.util.List;
 import java.util.Map;
+
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.catalog.CatalogTable;
@@ -41,78 +42,78 @@ import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_A
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IcebergTableSink.class);
 
-  private final TableLoader tableLoader;
-  private final TableSchema tableSchema;
+    private final TableLoader tableLoader;
+    private final TableSchema tableSchema;
 
-  private final CatalogTable catalogTable;
+    private final CatalogTable catalogTable;
 
-  private boolean overwrite = false;
+    private boolean overwrite = false;
 
-  private IcebergTableSink(IcebergTableSink toCopy) {
-    this.tableLoader = toCopy.tableLoader;
-    this.tableSchema = toCopy.tableSchema;
-    this.overwrite = toCopy.overwrite;
-    this.catalogTable = toCopy.catalogTable;
-  }
-
-  public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
-    this.tableLoader = tableLoader;
-    this.tableSchema = tableSchema;
-    this.catalogTable = catalogTable;
-  }
-
-  @Override
-  public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
-    Preconditions.checkState(!overwrite || context.isBounded(),
-        "Unbounded data stream doesn't support overwrite operation.");
-
-    List<String> equalityColumns = tableSchema.getPrimaryKey()
-        .map(UniqueConstraint::getColumns)
-        .orElseGet(ImmutableList::of);
-
-    return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
-        .tableLoader(tableLoader)
-        .tableSchema(tableSchema)
-        .equalityFieldColumns(equalityColumns)
-        .overwrite(overwrite)
-        .append();
-  }
-
-  @Override
-  public void applyStaticPartition(Map<String, String> partition) {
-    // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
-  }
-
-  @Override
-  public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-    if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
-            .get(ICEBERG_IGNORE_ALL_CHANGELOG)) {
-      LOG.warn("Iceberg sink receive all changelog record. "
-              + "Regard any other record as insert-only record.");
-      return ChangelogMode.all();
-    } else {
-      ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-      for (RowKind kind : requestedMode.getContainedKinds()) {
-        builder.addContainedKind(kind);
-      }
-      return builder.build();
+    private IcebergTableSink(IcebergTableSink toCopy) {
+        this.tableLoader = toCopy.tableLoader;
+        this.tableSchema = toCopy.tableSchema;
+        this.overwrite = toCopy.overwrite;
+        this.catalogTable = toCopy.catalogTable;
     }
-  }
 
-  @Override
-  public DynamicTableSink copy() {
-    return new IcebergTableSink(this);
-  }
+    public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema, CatalogTable catalogTable) {
+        this.tableLoader = tableLoader;
+        this.tableSchema = tableSchema;
+        this.catalogTable = catalogTable;
+    }
 
-  @Override
-  public String asSummaryString() {
-    return "Iceberg table sink";
-  }
+    @Override
+    public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
+        Preconditions.checkState(!overwrite || context.isBounded(),
+                "Unbounded data stream doesn't support overwrite operation.");
 
-  @Override
-  public void applyOverwrite(boolean newOverwrite) {
-    this.overwrite = newOverwrite;
-  }
+        List<String> equalityColumns = tableSchema.getPrimaryKey()
+                .map(UniqueConstraint::getColumns)
+                .orElseGet(ImmutableList::of);
+
+        return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
+                .tableLoader(tableLoader)
+                .tableSchema(tableSchema)
+                .equalityFieldColumns(equalityColumns)
+                .overwrite(overwrite)
+                .append();
+    }
+
+    @Override
+    public void applyStaticPartition(Map<String, String> partition) {
+        // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
+    }
+
+    @Override
+    public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
+        if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
+                .get(ICEBERG_IGNORE_ALL_CHANGELOG)) {
+            LOG.warn("Iceberg sink receive all changelog record. "
+                    + "Regard any other record as insert-only record.");
+            return ChangelogMode.all();
+        } else {
+            ChangelogMode.Builder builder = ChangelogMode.newBuilder();
+            for (RowKind kind : requestedMode.getContainedKinds()) {
+                builder.addContainedKind(kind);
+            }
+            return builder.build();
+        }
+    }
+
+    @Override
+    public DynamicTableSink copy() {
+        return new IcebergTableSink(this);
+    }
+
+    @Override
+    public String asSummaryString() {
+        return "Iceberg table sink";
+    }
+
+    @Override
+    public void applyOverwrite(boolean newOverwrite) {
+        this.overwrite = newOverwrite;
+    }
 }
