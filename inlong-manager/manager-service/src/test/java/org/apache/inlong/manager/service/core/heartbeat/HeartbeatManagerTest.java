@@ -67,6 +67,14 @@ public class HeartbeatManagerTest extends ServiceBaseTest {
         InlongClusterNodeEntity clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
         Assertions.assertTrue(clusterNode != null);
         Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.NORMAL.getStatus());
+        heartbeatManager.getHeartbeats().invalidateAll();
+        Thread.sleep(1000);
+        clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
+        log.debug(JsonUtils.toJsonString(clusterNode));
+        Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.HEARTBEAT_TIMEOUT.getStatus());
+        heartbeatManager.reportHeartbeat(msg);
+        clusterNode = clusterNodeMapper.selectByUniqueKey(nodeRequest);
+        Assertions.assertTrue(clusterNode.getStatus() == NodeStatus.NORMAL.getStatus());
     }
 
     private HeartbeatMsg createHeartbeatMsg() {

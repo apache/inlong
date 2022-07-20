@@ -75,6 +75,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private StreamSinkFieldEntityMapper sinkFieldMapper;
     @Autowired
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
+
     private InlongStreamProcessOperation streamProcessOperation;
 
     @Override

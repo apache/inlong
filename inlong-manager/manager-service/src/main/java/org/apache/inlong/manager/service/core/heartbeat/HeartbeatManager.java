@@ -21,6 +21,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalCause;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.heartbeat.AbstractHeartbeatManager;
@@ -48,8 +49,10 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HeartbeatManager implements AbstractHeartbeatManager {
 
+    @Getter
     private Cache<ComponentHeartbeat, HeartbeatMsg> heartbeats;
 
+    @Getter
     private LoadingCache<ComponentHeartbeat, ClusterInfo> clusterInfos;
 
     @Autowired
@@ -63,7 +66,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         long expireTime = heartbeatInterval() * 2;
         heartbeats = Caffeine.newBuilder()
                 .expireAfterAccess(expireTime, TimeUnit.SECONDS)
-                .evictionListener((ComponentHeartbeat k, HeartbeatMsg v, RemovalCause c) -> {
+                .removalListener((ComponentHeartbeat k, HeartbeatMsg v, RemovalCause c) -> {
                     evictClusterNode(v);
                 }).build();
 
@@ -97,6 +100,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     }
 
     private void evictClusterNode(HeartbeatMsg heartbeat) {
+        log.debug("evict cluster node");
         ComponentHeartbeat componentHeartbeat = heartbeat.componentHeartbeat();
         ClusterInfo clusterInfo = clusterInfos.getIfPresent(componentHeartbeat);
         if (clusterInfo == null) {
