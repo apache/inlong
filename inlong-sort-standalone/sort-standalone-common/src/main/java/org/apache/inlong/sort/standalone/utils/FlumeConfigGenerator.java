@@ -33,8 +33,8 @@ public class FlumeConfigGenerator {
     public static final String KEY_SORT_CHANNEL_TYPE = "sortChannel.type";
     public static final String KEY_SORT_SINK_TYPE = "sortSink.type";
     public static final String KEY_SORT_SOURCE_TYPE = "sortSource.type";
-    public static final String KEY_SDK_START_TIME = "start.time";
-    public static final String KEY_SDK_STOP_TIME = "stop.time";
+    public static final String KEY_SDK_START_TIME = "sortSdk.startTime";
+    public static final String KEY_SDK_STOP_TIME = "sortSdk.stopTime";
 
     public static Map<String, String> generateFlumeConfiguration(SortTaskConfig taskConfig) {
         Map<String, String> flumeConf = new HashMap<>();
@@ -50,9 +50,11 @@ public class FlumeConfigGenerator {
     }
 
     /**
-     * appendChannels
+     * append channels config
      *
-     * @param flumeConf
+     * @param flumeConf final config of flume
+     * @param name sort task name
+     * @param sinkParams sink params of this task
      */
     private static void appendChannels(Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
         StringBuilder builder = new StringBuilder();
@@ -68,11 +70,11 @@ public class FlumeConfigGenerator {
     }
 
     /**
-     * appendCommon
+     * appendCommon config
      *
-     * @param flumeConf
-     * @param prefix
-     * @param componentParams
+     * @param flumeConf final config of flume
+     * @param prefix prefix of common properties
+     * @param componentParams common properties
      */
     private static void appendCommon(
             Map<String, String> flumeConf,
@@ -99,9 +101,11 @@ public class FlumeConfigGenerator {
     }
 
     /**
-     * appendSinks
+     * append sink config
      *
-     * @param flumeConf
+     * @param flumeConf final config of flume
+     * @param name sort task name
+     * @param sinkParams sink params of this task
      */
     private static void appendSinks(Map<String, String> flumeConf, String name, Map<String, String> sinkParams) {
         // sinks
@@ -125,9 +129,11 @@ public class FlumeConfigGenerator {
     }
 
     /**
-     * appendSources
+     * append source config
      *
-     * @param flumeConf
+     * @param flumeConf final config of flume
+     * @param name sort task name
+     * @param sinkParams sink params of this task
      */
     private static void appendSources(
             Map<String, String> flumeConf,
