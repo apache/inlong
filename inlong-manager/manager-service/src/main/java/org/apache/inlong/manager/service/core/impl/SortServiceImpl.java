@@ -29,16 +29,16 @@ import org.springframework.stereotype.Service;
 /**
  * Sort service implementation.
  */
-@Service
 @Lazy
+@Service
 public class SortServiceImpl implements SortService {
 
-    @Autowired
     @Lazy
+    @Autowired
     private SortSourceService sortSourceService;
 
-    @Autowired
     @Lazy
+    @Autowired
     private SortClusterService sortClusterService;
 
     @Override
