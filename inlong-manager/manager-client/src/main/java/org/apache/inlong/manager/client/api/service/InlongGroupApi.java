@@ -19,7 +19,7 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
@@ -40,7 +40,7 @@ public interface InlongGroupApi {
     Call<Response<Object>> getGroupInfo(@Path("id") String id);
 
     @POST("group/list")
-    Call<Response<PageInfo<InlongGroupListResponse>>> listGroups(@Body InlongGroupPageRequest request);
+    Call<Response<PageInfo<InlongGroupBriefInfo>>> listGroups(@Body InlongGroupPageRequest request);
 
     @POST("group/save")
     Call<Response<String>> createGroup(@Body InlongGroupRequest request);

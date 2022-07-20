@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.group;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
@@ -54,12 +54,12 @@ public interface InlongGroupService {
     InlongGroupInfo get(String groupId);
 
     /**
-     * Page query inlong group list.
+     * Paging query inlong group brief info list
      *
      * @param request pagination query request
      * @return group list
      */
-    PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request);
+    PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request);
 
     /**
      * Modify group information

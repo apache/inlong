@@ -96,10 +96,13 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "Name of followers, separated by commas")
     private String followers;
 
+    @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

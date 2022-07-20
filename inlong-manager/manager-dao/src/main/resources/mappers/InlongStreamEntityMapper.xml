@@ -260,7 +260,8 @@
         from inlong_stream stream, inlong_group grp
         <where>
             stream.is_deleted = 0
-            and stream.inlong_group_id = grp.inlong_group_id and grp.is_deleted = 0
+            and stream.inlong_group_id = grp.inlong_group_id
+            and grp.is_deleted = 0
             <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
                 and stream.inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             </if>

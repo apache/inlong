@@ -27,7 +27,7 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -97,7 +97,7 @@ public class DescribeCommand extends AbstractCommand {
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(group);
-                PageInfo<InlongGroupListResponse> pageInfo = groupClient.listGroups(pageRequest);
+                PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 PrintUtils.print(pageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

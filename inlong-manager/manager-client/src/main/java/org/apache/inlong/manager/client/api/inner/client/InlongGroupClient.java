@@ -25,8 +25,8 @@ import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
@@ -86,6 +86,7 @@ public class InlongGroupClient {
             JSONObject groupInfoJson = JsonUtils.parseObject(
                     JsonUtils.toJsonString(JsonUtils.toJsonString(responseBody.getData())),
                     JSONObject.class);
+            assert groupInfoJson != null;
             if (groupInfoJson.has(MQ_FIELD_OLD) && !groupInfoJson.has(MQ_FIELD)) {
                 groupInfoJson.put(MQ_FIELD, groupInfoJson.get(MQ_FIELD_OLD));
             }
@@ -102,7 +103,7 @@ public class InlongGroupClient {
     /**
      * Get inlong group list.
      */
-    public PageInfo<InlongGroupListResponse> listGroups(String keyword, int status, int pageNum, int pageSize) {
+    public PageInfo<InlongGroupBriefInfo> listGroups(String keyword, int status, int pageNum, int pageSize) {
         InlongGroupPageRequest request = InlongGroupPageRequest.builder()
                 .keyword(keyword)
                 .status(status)
@@ -110,9 +111,8 @@ public class InlongGroupClient {
         request.setPageNum(pageNum <= 0 ? 1 : pageNum);
         request.setPageSize(pageSize);
 
-        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = ClientUtils.executeHttpCall(
+        Response<PageInfo<InlongGroupBriefInfo>> pageInfoResponse = ClientUtils.executeHttpCall(
                 inlongGroupApi.listGroups(request));
-
         if (pageInfoResponse.isSuccess()) {
             return pageInfoResponse.getData();
         }
@@ -126,14 +126,14 @@ public class InlongGroupClient {
     /**
      * List inlong group by the page request
      *
-     * @param pageRequest The pageRequest
+     * @param pageRequest page request
      * @return Response encapsulate of inlong group list
      */
-    public PageInfo<InlongGroupListResponse> listGroups(InlongGroupPageRequest pageRequest) {
-        Response<PageInfo<InlongGroupListResponse>> pageInfoResponse = ClientUtils.executeHttpCall(
+    public PageInfo<InlongGroupBriefInfo> listGroups(InlongGroupPageRequest pageRequest) {
+        Response<PageInfo<InlongGroupBriefInfo>> response = ClientUtils.executeHttpCall(
                 inlongGroupApi.listGroups(pageRequest));
-        ClientUtils.assertRespSuccess(pageInfoResponse);
-        return pageInfoResponse.getData();
+        ClientUtils.assertRespSuccess(response);
+        return response.getData();
     }
 
     /**
