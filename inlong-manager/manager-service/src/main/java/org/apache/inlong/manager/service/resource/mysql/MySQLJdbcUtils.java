@@ -61,14 +61,14 @@ public class MySQLJdbcUtils {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get mysql connection error, please check mysql jdbc url, username or password!";
+            String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
         if (conn == null) {
-            throw new Exception("get mysql connection failed, please contact administrator");
+            throw new Exception("get MySQL connection failed, please contact administrator.");
         }
-        LOG.info("get mysql connection success, url={}", url);
+        LOG.info("get MySQL connection success, url={}", url);
         return conn;
     }
 
@@ -83,6 +83,7 @@ public class MySQLJdbcUtils {
         Statement stmt = conn.createStatement();
         LOG.info("execute sql [{}] success !", sql);
         stmt.execute(sql);
+        stmt.close();
     }
 
     /**
@@ -113,6 +114,7 @@ public class MySQLJdbcUtils {
         for (String entry : sqls) {
             stmt.execute(entry);
         }
+        stmt.close();
         LOG.info("execute sql [{}] success! ", sqls);
     }
 
@@ -176,6 +178,7 @@ public class MySQLJdbcUtils {
                 return true;
             }
         }
+        resultSet.close();
         return result;
     }
 
@@ -201,6 +204,7 @@ public class MySQLJdbcUtils {
                 return true;
             }
         }
+        resultSet.close();
         return result;
     }
 
@@ -226,6 +230,7 @@ public class MySQLJdbcUtils {
             columnInfo.setComment(rs.getString(3));
             columnList.add(columnInfo);
         }
+        rs.close();
         return columnList;
     }
 
