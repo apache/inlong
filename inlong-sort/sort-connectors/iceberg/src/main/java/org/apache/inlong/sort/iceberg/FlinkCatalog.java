@@ -508,7 +508,8 @@ public class FlinkCatalog extends AbstractCatalog {
 
     private static void commitChanges(Table table, String setLocation, String setSnapshotId,
             String pickSnapshotId, Map<String, String> setProperties) {
-        // don't allow setting the snapshot and picking a commit at the same time because order is ambiguous and choosing
+        // don't allow setting the snapshot and picking a commit
+        // at the same time because order is ambiguous and choosing
         // one order leads to different results
         Preconditions.checkArgument(setSnapshotId == null || pickSnapshotId == null,
                 "Cannot set the current snapshot ID and cherry-pick snapshot changes");
