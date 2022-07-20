@@ -58,6 +58,9 @@ public class UserInfo {
     @ApiModelProperty(value = "password", required = true)
     private String password;
 
+    @ApiModelProperty(value = "newPassword")
+    private String newPassword;
+
     @ApiModelProperty("secret key")
     private String secretKey;
 

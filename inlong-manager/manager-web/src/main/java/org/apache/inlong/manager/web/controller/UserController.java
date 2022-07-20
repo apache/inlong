@@ -21,7 +21,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
@@ -73,16 +72,9 @@ public class UserController {
 
     @PostMapping("/user/update")
     @ApiOperation(value = "Update user info")
-    public Response<Integer> update(@RequestBody UserInfo userInfo) {
+    public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(userService.update(userInfo, currentUser));
-    }
-
-    @PostMapping("/user/updatePassword")
-    @ApiOperation(value = "Update user password")
-    public Response<Integer> updatePassword(@RequestBody PasswordChangeRequest request) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
-        return Response.success(userService.updatePassword(request, currentUser));
     }
 
     @GetMapping("/user/listAllUsers")

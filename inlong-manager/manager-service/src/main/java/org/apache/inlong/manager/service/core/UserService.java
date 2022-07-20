@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
@@ -61,14 +60,6 @@ public interface UserService {
      * @return rows updated
      */
     int update(UserInfo userInfo, String currentUser);
-
-    /**
-     * Change password, need to check whether old password is correct
-     *
-     * @param request request
-     * @return rows updated
-     */
-    Integer updatePassword(PasswordChangeRequest request, String currentUser);
 
     /**
      * Delete user by user id
