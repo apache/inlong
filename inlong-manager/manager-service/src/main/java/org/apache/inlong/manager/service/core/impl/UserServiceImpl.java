@@ -155,7 +155,8 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
         UserEntity userExist = getByUsername(userInfo.getUsername());
-        Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName()),
+        Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName())
+                && !Objects.equals(userExist.getId(), entity.getId()),
                 "username [" + userInfo.getUsername() + "] already exists");
 
         if (!isAdmin) {
