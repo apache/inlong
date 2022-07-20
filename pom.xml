@@ -251,7 +251,7 @@
         <dlc.client.version>1.1</dlc.client.version>
         <esri-geometry-api.version>2.0.0</esri-geometry-api.version>
         <HikariCP.version>4.0.3</HikariCP.version>
-
+        <caffeine.version>2.9.3</caffeine.version>
         <kafka.clients.version>3.0.0</kafka.clients.version>
     </properties>
 
@@ -1556,6 +1556,11 @@
                 <groupId>com.qcloud</groupId>
                 <artifactId>dlc-data-catalog-metastore-client</artifactId>
                 <version>${dlc.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

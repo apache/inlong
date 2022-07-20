@@ -56,7 +56,7 @@
         <foreach collection="list" index="index" item="item" open="" close="" separator=",">
             (#{component,jdbcType=VARCHAR}, #{instance,jdbcType=VARCHAR},
             #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.inlongStreamId,jdbcType=VARCHAR},
-            #{item.statusHeartbeat,jdbcType=LONGVARCHAR}, #{item.metricHeartbeat,jdbcType=LONGVARCHAR},
+            #{item.status,jdbcType=LONGVARCHAR}, #{item.metric,jdbcType=LONGVARCHAR},
             #{reportTime,jdbcType=BIGINT})
         </foreach>
         ON DUPLICATE KEY UPDATE

@@ -28,4 +28,13 @@ public interface AbstractHeartbeatManager {
      * @param heartbeat
      */
     void reportHeartbeat(HeartbeatMsg heartbeat);
+
+    /**
+     * Default heartbeat interval is 5 s
+     *
+     * @return
+     */
+    default int heartbeatInterval() {
+        return 5;
+    }
 }

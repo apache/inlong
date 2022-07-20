@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.inlong.common.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeat;
 import org.apache.inlong.manager.dao.entity.StreamHeartbeatEntity;
 import org.springframework.stereotype.Repository;
 

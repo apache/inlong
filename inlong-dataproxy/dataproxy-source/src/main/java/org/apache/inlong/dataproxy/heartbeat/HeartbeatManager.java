@@ -53,12 +53,15 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
     public HeartbeatManager() {
         httpClient = constructHttpClient();
         gson = new GsonBuilder().create();
+    }
+
+    public void start() {
         Thread reportHeartbeatThread = new Thread(() -> {
             while (true) {
                 HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
                 reportHeartbeat(heartbeatMsg);
                 try {
-                    SECONDS.sleep(10);
+                    SECONDS.sleep(heartbeatInterval());
                 } catch (InterruptedException ex) {
                     log.error("", ex);
                 }

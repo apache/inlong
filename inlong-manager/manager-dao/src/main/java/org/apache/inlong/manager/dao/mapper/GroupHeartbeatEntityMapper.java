@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeat;
+import org.apache.inlong.common.heartbeat.GroupHeartbeat;
 import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
 import org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity;
 import org.springframework.stereotype.Repository;

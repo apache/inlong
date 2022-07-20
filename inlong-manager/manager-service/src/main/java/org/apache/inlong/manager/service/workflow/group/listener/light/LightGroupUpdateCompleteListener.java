@@ -22,7 +22,6 @@ import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.LightGroupResourceProcessForm;
-import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
@@ -41,8 +40,6 @@ public class LightGroupUpdateCompleteListener implements ProcessEventListener {
 
     @Autowired
     private InlongGroupService groupService;
-    @Autowired
-    private InlongStreamService streamService;
     @Autowired
     private StreamSourceService sourceService;
 

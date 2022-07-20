@@ -27,7 +27,9 @@ public enum ComponentTypeEnum {
 
     Cache("Cache"),
 
-    Sort("Sort");
+    Sort("Sort"),
+
+    SDK("Sdk");
 
     @Getter
     private final String name;
