@@ -197,7 +197,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                 .get(KAFKA_IGNORE_ALL_CHANGELOG)) {
             LOG.warn("Kafka sink receive all changelog record. "
                     + "Regard any other record as insert-only record.");
-            return ChangelogMode.insertOnly();
+            return ChangelogMode.all();
         }
         return valueEncodingFormat.getChangelogMode();
     }
