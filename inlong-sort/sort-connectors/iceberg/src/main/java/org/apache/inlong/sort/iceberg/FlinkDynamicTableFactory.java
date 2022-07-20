@@ -46,6 +46,13 @@ import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 
+/**
+ * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.1
+ *
+ * <p>
+ * Factory for creating configured instances of {@link IcebergTableSource} and {@link
+ * IcebergTableSink}.We modify KafkaDynamicTableSink to support append-mode .</p>
+ */
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
   static final String FACTORY_IDENTIFIER = "iceberg-inlong";
 
