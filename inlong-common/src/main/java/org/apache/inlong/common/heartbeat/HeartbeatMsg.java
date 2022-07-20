@@ -54,6 +54,16 @@ public class HeartbeatMsg {
     private Long reportTime;
 
     /**
+     * Name of cluster
+     */
+    private String clusterName = "default";
+
+    /**
+     * Tag of cluster, split by ','
+     */
+    private String clusterTag;
+
+    /**
      * Heartbeat msg of group if exists
      */
     private List<GroupHeartbeat> groupHeartbeats;
@@ -62,4 +72,8 @@ public class HeartbeatMsg {
      * Heartbeat msg of stream if exists
      */
     private List<StreamHeartbeat> streamHeartbeats;
+
+    public ComponentHeartbeat componentHeartbeat() {
+        return new ComponentHeartbeat(clusterName, ip, port, componentType);
+    }
 }

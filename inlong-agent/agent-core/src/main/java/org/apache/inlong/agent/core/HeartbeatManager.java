@@ -43,9 +43,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
@@ -109,7 +109,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                     }
                     int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
                             DEFAULT_AGENT_HEARTBEAT_INTERVAL);
-                    TimeUnit.SECONDS.sleep(heartbeatInterval);
+                    SECONDS.sleep(heartbeatInterval);
                 } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);
@@ -124,9 +124,7 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
                 try {
                     HeartbeatMsg heartbeat = buildHeartbeatMsg();
                     reportHeartbeat(heartbeat);
-                    int heartbeatInterval = conf.getInt(AGENT_HEARTBEAT_INTERVAL,
-                            DEFAULT_AGENT_HEARTBEAT_INTERVAL);
-                    TimeUnit.SECONDS.sleep(heartbeatInterval);
+                    SECONDS.sleep(heartbeatInterval());
                 } catch (Throwable ex) {
                     LOGGER.error("error caught", ex);
                     ThreadUtils.threadThrowableHandler(Thread.currentThread(), ex);

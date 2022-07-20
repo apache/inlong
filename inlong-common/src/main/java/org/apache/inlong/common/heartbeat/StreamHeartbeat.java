@@ -22,8 +22,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -36,6 +34,6 @@ public class StreamHeartbeat {
 
     private String status;
 
-    private Map<String, String> metric;
+    private String metric;
 
 }

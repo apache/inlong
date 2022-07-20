@@ -51,8 +51,8 @@
         values
         <foreach collection="list" index="index" item="item" open="" close="" separator=",">
             (#{component,jdbcType=VARCHAR}, #{instance,jdbcType=VARCHAR},
-            #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.statusHeartbeat,jdbcType=LONGVARCHAR},
-            #{item.metricHeartbeat,jdbcType=LONGVARCHAR}, #{reportTime,jdbcType=BIGINT})
+            #{item.inlongGroupId,jdbcType=VARCHAR}, #{item.status,jdbcType=LONGVARCHAR},
+            #{item.metric,jdbcType=LONGVARCHAR}, #{reportTime,jdbcType=BIGINT})
         </foreach>
         ON DUPLICATE KEY UPDATE
         status_heartbeat = values(status_heartbeat),

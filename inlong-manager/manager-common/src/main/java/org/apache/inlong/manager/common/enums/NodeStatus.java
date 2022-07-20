@@ -15,29 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.heartbeat;
+package org.apache.inlong.manager.common.enums;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
+import org.apache.inlong.manager.common.exceptions.WorkflowException;
 
 /**
- * Inlong stream heartbeat info
+ * Status enum of cluster node
  */
-@Data
-@ApiModel("Inlong stream heartbeat info")
-public class StreamHeartbeat {
+public enum NodeStatus {
 
-    @ApiModelProperty(value = "Inlong group id")
-    private String inlongGroupId;
+    NORMAL(1),
 
-    @ApiModelProperty(value = "Inlong stream id")
-    private String inlongStreamId;
+    HEARTBEAT_TIMEOUT(2);
 
-    @ApiModelProperty(value = "Status heartbeat info")
-    private String statusHeartbeat;
+    int status;
 
-    @ApiModelProperty(value = "Metric heartbeat info")
-    private String metricHeartbeat;
+    NodeStatus(int status) {
+        this.status = status;
+    }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public NodeStatus fromStatus(int status) {
+        switch (status) {
+            case 1:
+                return NORMAL;
+            case 2:
+                return HEARTBEAT_TIMEOUT;
+            default:
+                throw new WorkflowException("unknown status: " + status);
+        }
+    }
 }
