@@ -66,9 +66,9 @@ public class InitGroupCompleteListener implements ProcessEventListener {
         String groupId = form.getInlongGroupId();
         log.info("begin to execute InitGroupCompleteListener for groupId={}", groupId);
 
+        // update inlong group status and other info
         InlongGroupInfo groupInfo = form.getGroupInfo();
         String operator = context.getOperator();
-        // update inlong group status and other info
         groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
         groupService.update(groupInfo.genRequest(), operator);
 

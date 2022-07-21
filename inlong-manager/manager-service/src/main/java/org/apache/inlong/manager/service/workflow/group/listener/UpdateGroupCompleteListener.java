@@ -18,9 +18,11 @@
 package org.apache.inlong.manager.service.workflow.group.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -49,35 +51,55 @@ public class UpdateGroupCompleteListener implements ProcessEventListener {
     }
 
     @Override
-    public ListenerResult listen(WorkflowContext context) throws Exception {
+    public ListenerResult listen(WorkflowContext context) {
         GroupResourceProcessForm form = (GroupResourceProcessForm) context.getProcessForm();
         String groupId = form.getInlongGroupId();
         GroupOperateType operateType = form.getGroupOperateType();
         log.info("begin to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
 
+        // update inlong group status and other configs
         String operator = context.getOperator();
         switch (operateType) {
             case SUSPEND:
                 groupService.updateStatus(groupId, GroupStatus.SUSPENDED.getCode(), operator);
-                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
                 break;
             case RESTART:
                 groupService.updateStatus(groupId, GroupStatus.RESTARTED.getCode(), operator);
-                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
                 break;
             case DELETE:
                 groupService.updateStatus(groupId, GroupStatus.DELETED.getCode(), operator);
-                sourceService.logicDeleteAll(groupId, null, operator);
                 break;
             default:
+                log.warn("Unsupported operate={} for inlong group", operateType);
                 break;
         }
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        groupService.update(groupInfo.genRequest(), operator);
 
-        // update inlong group status and other configs
-        groupService.update(form.getGroupInfo().genRequest(), operator);
+        // if the inlong group is lightweight mode, the stream source needs to be processed.
+        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+            changeSource4Lightweight(groupId, operateType, operator);
+        }
 
         log.info("success to execute UpdateGroupCompleteListener for groupId={}, operateType={}", groupId, operateType);
         return ListenerResult.success();
+    }
+
+    private void changeSource4Lightweight(String groupId, GroupOperateType operateType, String operator) {
+        switch (operateType) {
+            case SUSPEND:
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_FROZEN.getCode(), operator);
+                break;
+            case RESTART:
+                sourceService.updateStatus(groupId, null, SourceStatus.SOURCE_NORMAL.getCode(), operator);
+                break;
+            case DELETE:
+                sourceService.logicDeleteAll(groupId, null, operator);
+                break;
+            default:
+                log.warn("Unsupported operate={} for inlong group", operateType);
+                break;
+        }
     }
 
 }

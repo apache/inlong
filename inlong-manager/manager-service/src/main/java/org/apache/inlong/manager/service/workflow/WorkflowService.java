@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;

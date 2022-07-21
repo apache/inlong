@@ -65,7 +65,7 @@ public class UpdateStreamCompleteListener implements ProcessEventListener {
                 status = StreamStatus.DELETED;
                 break;
             default:
-                throw new RuntimeException(String.format("Unsupported operation=%s for inlong group", operateType));
+                throw new RuntimeException(String.format("Unsupported operate=%s for inlong group", operateType));
         }
         streamService.updateStatus(groupId, streamId, status.getCode(), operator);
         streamService.update(streamInfo.genRequest(), operator);

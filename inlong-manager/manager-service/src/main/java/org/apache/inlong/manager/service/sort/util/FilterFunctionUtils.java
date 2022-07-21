@@ -76,8 +76,7 @@ public class FilterFunctionUtils {
             case STRING_REPLACER:
                 return Lists.newArrayList();
             default:
-                throw new UnsupportedOperationException(
-                        String.format("Unsupported transformType=%s", transformType));
+                throw new UnsupportedOperationException(String.format("Unsupported transformType=%s", transformType));
         }
     }
 
@@ -104,7 +103,7 @@ public class FilterFunctionUtils {
     /**
      * Parse filter strategy from TransformResponse and convert to the filter strategy of sort protocol
      *
-     * @param transformResponse The transform response that may contains filter operation
+     * @param transformResponse The transform response that may contain filter operation
      * @return The filter strategy, see {@link FilterStrategy}
      */
     public static FilterStrategy parseFilterStrategy(TransformResponse transformResponse) {
@@ -200,8 +199,7 @@ public class FilterFunctionUtils {
             case not_null:
                 return IsNotNullOperator.getInstance();
             default:
-                throw new IllegalArgumentException(
-                        String.format("Unsupported operateType=%s for inlong", operationType));
+                throw new IllegalArgumentException(String.format("Unsupported operateType=%s", operationType));
         }
     }
 }
