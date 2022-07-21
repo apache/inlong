@@ -181,6 +181,7 @@ public class AgentServiceImpl implements AgentService {
         List<StreamSourceEntity> needIssuedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
         entityList.addAll(needIssuedList);
 
+        // todo select by ip
         List<StreamSourceEntity> fileEntityList = sourceMapper.selectByStatusAndType(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
         for (StreamSourceEntity fileEntity : fileEntityList) {
@@ -237,7 +238,7 @@ public class AgentServiceImpl implements AgentService {
         request.setConfigName("DataSource:" + entity.getSourceName());
         request.setLogType(1);
         request.setLogInfo(String.format("StreamSource=%s init failed, please check!", entity));
-        request.setReportTime(new Date().getTime());
+        request.setReportTime(System.currentTimeMillis());
         streamConfigLogService.reportConfigLog(request);
     }
 
