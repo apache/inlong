@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumpt
 import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.service.workflow.ProcessName;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCancelProcessListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;

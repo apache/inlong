@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.workflow;
+package org.apache.inlong.manager.common.enums;
 
 /**
  * WorkflowProcess name
@@ -46,26 +46,6 @@ public enum ProcessName {
      * Delete inlong group process
      */
     DELETE_GROUP_PROCESS("Delete-Group"),
-
-    /**
-     * Startup lightweight inlong group process
-     */
-    CREATE_LIGHT_GROUP_PROCESS("Create-Light-Group"),
-
-    /**
-     * Suspend lightweight inlong group process
-     */
-    SUSPEND_LIGHT_GROUP_PROCESS("Suspend-Light-Group"),
-
-    /**
-     * Restart lightweight inlong group process
-     */
-    RESTART_LIGHT_GROUP_PROCESS("Restart-Light-Group"),
-
-    /**
-     * Delete lightweight inlong group process
-     */
-    DELETE_LIGHT_GROUP_PROCESS("Delete-Light-Group"),
 
     /**
      * Apply consumption process

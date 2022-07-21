@@ -21,7 +21,7 @@ import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterCont
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.service.workflow.ProcessName;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.apply.AfterApprovedTaskListener;
 import org.apache.inlong.manager.service.workflow.group.listener.apply.ApproveApplyProcessListener;

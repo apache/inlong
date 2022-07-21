@@ -78,7 +78,7 @@ public class UserTaskProcessor extends AbstractTaskProcessor<UserTask> {
     @Override
     public boolean create(UserTask userTask, WorkflowContext context) {
         List<String> approvers = userTask.getApproverAssign().assign(context);
-        Preconditions.checkNotEmpty(approvers, "cannot assign approvers for task: " + userTask.getDisplayName()
+        Preconditions.checkNotEmpty(approvers, "Cannot assign approvers for task: " + userTask.getDisplayName()
                 + ", as the approvers was empty");
 
         if (!userTask.isNeedAllApprove()) {
