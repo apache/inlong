@@ -59,33 +59,34 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KEY_FIELDS;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.KEY_FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.PROPERTIES_PREFIX;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.PROPS_BOOTSTRAP_SERVERS;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.PROPS_GROUP_ID;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SCAN_STARTUP_MODE;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SCAN_TOPIC_PARTITION_DISCOVERY;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SINK_PARTITIONER;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.SINK_SEMANTIC;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.StartupOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.TOPIC;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.TOPIC_PATTERN;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.VALUE_FIELDS_INCLUDE;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.VALUE_FORMAT;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.autoCompleteSchemaRegistrySubject;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.createKeyFormatProjection;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.createValueFormatProjection;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.getFlinkKafkaPartitioner;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.getKafkaProperties;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.getSinkSemantic;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.getStartupOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.validateTableSinkOptions;
-import static org.apache.inlong.sort.kafka.table.KafkaOptions.validateTableSourceOptions;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FIELDS_PREFIX;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.KEY_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPERTIES_PREFIX;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPS_BOOTSTRAP_SERVERS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.PROPS_GROUP_ID;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SCAN_STARTUP_MODE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SCAN_STARTUP_SPECIFIC_OFFSETS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SCAN_STARTUP_TIMESTAMP_MILLIS;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SCAN_TOPIC_PARTITION_DISCOVERY;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_PARTITIONER;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.SINK_SEMANTIC;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.StartupOptions;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.TOPIC;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.TOPIC_PATTERN;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FIELDS_INCLUDE;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.VALUE_FORMAT;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.autoCompleteSchemaRegistrySubject;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createKeyFormatProjection;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.createValueFormatProjection;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getFlinkKafkaPartitioner;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getKafkaProperties;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getSinkSemantic;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.getStartupOptions;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSinkOptions;
+import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
@@ -204,6 +205,7 @@ public class KafkaDynamicTableFactory
         options.add(SINK_PARTITIONER);
         options.add(SINK_SEMANTIC);
         options.add(SINK_PARALLELISM);
+        options.add(KAFKA_IGNORE_ALL_CHANGELOG);
         return options;
     }
 
