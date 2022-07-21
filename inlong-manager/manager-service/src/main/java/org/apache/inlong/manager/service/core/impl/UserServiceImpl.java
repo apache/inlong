@@ -107,11 +107,13 @@ public class UserServiceImpl implements UserService {
     public boolean create(UserInfo userInfo) {
         String username = userInfo.getUsername();
         UserEntity userExists = getByUsername(username);
+        String password = userInfo.getPassword();
         Preconditions.checkNull(userExists, "username [" + username + "] already exists");
+        Preconditions.checkTrue(StringUtils.isNotBlank(password), "password cannot be blank");
 
         UserEntity entity = new UserEntity();
         entity.setAccountType(userInfo.getType());
-        entity.setPassword(MD5Utils.encrypt(userInfo.getPassword()));
+        entity.setPassword(MD5Utils.encrypt(password));
         entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
         entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
         entity.setName(username);
@@ -156,7 +158,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
         UserEntity userExist = getByUsername(userInfo.getUsername());
         Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName())
-                && !Objects.equals(userExist.getId(), entity.getId()),
+                        && !Objects.equals(userExist.getId(), entity.getId()),
                 "username [" + userInfo.getUsername() + "] already exists");
 
         if (!isAdmin) {
@@ -170,8 +172,11 @@ public class UserServiceImpl implements UserService {
                     "Operator is not allowed to update account type as ordinary users");
         }
         // update password
-        String newPasswordMd5 = MD5Utils.encrypt(userInfo.getNewPassword());
-        entity.setPassword(newPasswordMd5);
+        String newPassword = userInfo.getNewPassword();
+        if (!StringUtils.isBlank(newPassword)) {
+            String newPasswordMd5 = MD5Utils.encrypt(userInfo.getNewPassword());
+            entity.setPassword(newPasswordMd5);
+        }
         entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
         entity.setAccountType(userInfo.getType());
         entity.setName(userInfo.getUsername());

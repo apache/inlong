@@ -54,8 +54,7 @@ public class UserInfo {
     @ApiModelProperty(value = "username", required = true)
     private String username;
 
-    @NotBlank(message = "password cannot be blank")
-    @ApiModelProperty(value = "password", required = true)
+    @ApiModelProperty(value = "password")
     private String password;
 
     @ApiModelProperty(value = "newPassword")
