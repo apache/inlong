@@ -484,7 +484,8 @@
             resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceStreamInfo">
         select inlong_cluster_name as sortClusterName,
                sort_task_name,
-               inlong_group_id as groupId
+               inlong_group_id as groupId,
+               ext_params
         from stream_sink
         where is_deleted = 0
     </select>

@@ -173,13 +173,13 @@ public class SortSourceServiceImpl implements SortSourceService {
     private void reloadAllSourceConfig() {
 
         // get all streams.
-        List<SortSourceStreamInfo> allStreamInfos = streamSinkEntityMapper.selectAllStreams();
+        List<SortSourceStreamInfo> allStreamInfos = streamSinkEntityMapper.selectAllStreams().stream()
+                .filter(dto -> dto.getSortClusterName() != null && dto.getSortTaskName() != null)
+                .collect(Collectors.toList());
 
         // convert to Map<clusterName, Map<taskName, List<groupId>>> format.
         Map<String, Map<String, List<String>>> groupMap = new ConcurrentHashMap<>();
-        allStreamInfos.stream()
-                .filter(dto -> dto.getSortClusterName() != null && dto.getSortTaskName() != null)
-                .forEach(stream -> {
+        allStreamInfos.forEach(stream -> {
                     Map<String, List<String>> task2groupsMap =
                             groupMap.computeIfAbsent(stream.getSortClusterName(), k -> new ConcurrentHashMap<>());
                     List<String> groupIdList =
@@ -229,9 +229,16 @@ public class SortSourceServiceImpl implements SortSourceService {
             Map<String, String> task2Md5 = new ConcurrentHashMap<>();
 
             task2Group.forEach((task, groupList) -> {
+                // get topic properties under this cluster and task, group them by group id.
+                Map<String, Map<String, String>> group2topicProp = allStreamInfos.stream()
+                        .filter(stream -> stream.getSortTaskName().equals(task)
+                                && stream.getSortClusterName().equals(clusterName))
+                        .collect(Collectors.toMap(SortSourceStreamInfo::getGroupId,
+                                SortSourceStreamInfo::getExtParamsMap));
+
                 Map<String, CacheZone> cacheZones;
                 try {
-                    cacheZones = this.getCacheZones(groupList, allId2GroupInfos, validClusterInfos);
+                    cacheZones = this.getCacheZones(groupList, allId2GroupInfos, validClusterInfos, group2topicProp);
                 } catch (Throwable t) {
                     LOGGER.error("fail to get cacheZones of clusterName {}, task {}", clusterName, task);
                     return;
@@ -258,7 +265,8 @@ public class SortSourceServiceImpl implements SortSourceService {
     private Map<String, CacheZone> getCacheZones(
             List<String> groupIdList,
             Map<String, SortSourceGroupInfo> allId2GroupInfos,
-            Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos) {
+            Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos,
+            Map<String, Map<String, String>> group2topicProp) {
 
         // stream of group info if group id exists.
         List<SortSourceGroupInfo> groupInfoStream = groupIdList.stream()
@@ -277,9 +285,9 @@ public class SortSourceServiceImpl implements SortSourceService {
 
         // get cache zone list.
         List<CacheZone> firstTagCacheZoneList =
-                this.getCacheZoneListByTag(tag2GroupInfos, allTag2ClusterInfos, false);
+                this.getCacheZoneListByTag(tag2GroupInfos, allTag2ClusterInfos, group2topicProp, false);
         List<CacheZone> backupTagCacheZoneList =
-                this.getCacheZoneListByTag(backupTag2GroupInfos, allTag2ClusterInfos, true);
+                this.getCacheZoneListByTag(backupTag2GroupInfos, allTag2ClusterInfos, group2topicProp, true);
 
         // combine two cache zone list, and group by cache zone name.
         Map<String, CacheZone> cacheZones = Stream.of(firstTagCacheZoneList, backupTagCacheZoneList)
@@ -298,6 +306,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     private List<CacheZone> getCacheZoneListByTag(
             Map<String, List<SortSourceGroupInfo>> tag2GroupInfos,
             Map<String, List<SortSourceClusterInfo>> allTag2ClusterInfos,
+            Map<String, Map<String, String>> group2topicProp,
             boolean isBackupTag) {
 
         // Tags of groups
@@ -318,7 +327,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                             .map(cluster -> {
                                 CacheZone zone = null;
                                 try {
-                                    zone = this.getCacheZone(groups, cluster, isBackupTag);
+                                    zone = this.getCacheZone(groups, cluster, group2topicProp, isBackupTag);
                                 } catch (IllegalStateException e) {
                                     LOGGER.error("fail to init cache zone for cluster " + cluster, e);
                                 }
@@ -333,6 +342,7 @@ public class SortSourceServiceImpl implements SortSourceService {
     private CacheZone getCacheZone(
             List<SortSourceGroupInfo> groups,
             SortSourceClusterInfo cluster,
+            Map<String, Map<String, String>> group2topicProp,
             boolean isBackupTag) {
 
         // get basic Cache zone fields
@@ -345,7 +355,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         String authentication = Optional.ofNullable(param.get(KEY_AUTH)).orElse("");
 
         List<Topic> topics = groups.stream()
-                .map(groupInfo -> getTopic(groupInfo, tenant, namespace, isBackupTag))
+                .map(groupInfo -> getTopic(groupInfo, tenant, namespace,
+                        group2topicProp.get(groupInfo.getGroupId()), isBackupTag))
                 .collect(Collectors.toList());
 
         return CacheZone.builder()
@@ -362,6 +373,7 @@ public class SortSourceServiceImpl implements SortSourceService {
             SortSourceGroupInfo groupInfo,
             String tenant,
             String namespace,
+            Map<String, String> topicProperties,
             boolean isBackupTag) {
 
         String topic = isBackupTag ? groupInfo.getBackupTopic() : groupInfo.getTopic();
@@ -371,7 +383,7 @@ public class SortSourceServiceImpl implements SortSourceService {
         fullTopic.append(topic);
         return Topic.builder()
                 .topic(fullTopic.toString())
-                .topicProperties(groupInfo.getExtParamsMap())
+                .topicProperties(topicProperties)
                 .build();
     }
 
