@@ -81,7 +81,7 @@ jobs:
           CI: false
 
       - name: Unit test with Maven
-        run: mvn --batch-mode --update-snapshots -e -V test
+        run: mvn --batch-mode --update-snapshots -e -V -T 1C test
         env:
           CI: false
 
