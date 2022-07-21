@@ -17,17 +17,17 @@
 
 package org.apache.inlong.manager.web.auth.impl;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import javax.servlet.Filter;
 import org.apache.inlong.manager.common.auth.InlongShiro;
 import org.apache.inlong.manager.service.core.UserService;
-import org.apache.inlong.manager.web.auth.AuthenticationFilter;
-import org.apache.inlong.manager.web.auth.WebAuthorizingRealm;
+import org.apache.inlong.manager.web.auth.openapi.OpenAPIAuthenticatingRealm;
+import org.apache.inlong.manager.web.auth.openapi.OpenAPIFilter;
+import org.apache.inlong.manager.web.auth.web.AuthenticationFilter;
+import org.apache.inlong.manager.web.auth.web.WebAuthorizingRealm;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
@@ -37,6 +37,13 @@ import org.apache.shiro.web.session.mgt.WebSessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.Filter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Inlong shiro service layer implementation.
@@ -54,8 +61,12 @@ public class InlongShiroImpl implements InlongShiro {
     }
 
     @Override
-    public AuthorizingRealm getShiroRealm() {
-        return new WebAuthorizingRealm(userService);
+    public Collection<Realm> getShiroRealms() {
+        AuthorizingRealm webRealm = new WebAuthorizingRealm(userService);
+        webRealm.setCredentialsMatcher(getCredentialsMatcher());
+        Realm apiRealm = new OpenAPIAuthenticatingRealm(userService);
+        List<Realm> realms = Arrays.asList(webRealm, apiRealm);
+        return realms;
     }
 
     @Override
@@ -77,7 +88,8 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
-        filters.put("authc", new AuthenticationFilter());
+        filters.put("authWeb", new AuthenticationFilter());
+        filters.put("authAPI", new OpenAPIFilter());
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
         // login, register request
@@ -91,9 +103,9 @@ public class InlongShiroImpl implements InlongShiro {
         pathDefinitions.put("/swagger-resources", "anon");
 
         // openapi
-        pathDefinitions.put("/openapi/**/*", "anon");
+        pathDefinitions.put("/openapi/**/*", "authAPI");
 
-        pathDefinitions.put("/**", "authc");
+        pathDefinitions.put("/**", "authWeb");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
         return shiroFilterFactoryBean;

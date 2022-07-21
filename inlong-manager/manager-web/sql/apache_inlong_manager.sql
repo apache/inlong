@@ -598,9 +598,9 @@ CREATE TABLE IF NOT EXISTS `user`
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
 
 -- create default admin user, username is 'admin', password is 'inlong'
-INSERT INTO `user` (name, password, account_type, due_date, create_time, update_time, create_by, update_by)
-VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', 0, '2099-12-31 23:59:59',
-        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'inlong_init', 'inlong_init');
+INSERT INTO `user` (name, password, secret_key, account_type, due_date, create_time, update_time, create_by, update_by, encrypt_version)
+VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0', 0, '2099-12-31 23:59:59',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'inlong_init', 'inlong_init', 1);
 
 -- ----------------------------
 -- Table structure for user_role

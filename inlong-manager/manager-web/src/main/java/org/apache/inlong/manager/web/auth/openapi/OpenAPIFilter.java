@@ -15,9 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.auth;
+package org.apache.inlong.manager.web.auth.openapi;
 
-import java.io.IOException;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -26,47 +33,37 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.Base64;
 
 /**
  * Filter of authentication.
  */
 @Slf4j
-public class AuthenticationFilter implements Filter {
+public class OpenAPIFilter implements Filter {
 
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
+    public static final String BASIC_AUTH_HEADER = "Authorization";
+    public static final String BASIC_AUTH_PREFIX = "Basic";
+    public static final String BASIC_AUTH_SEPARATOR = " ";
+    public static final String BASIC_AUTH_JOINER = ":";
 
-    public AuthenticationFilter() {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIFilter.class);
+
+    public OpenAPIFilter() {
     }
 
     @Override
     public void init(FilterConfig filterConfig) {
     }
 
+    @SneakyThrows
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-
         Subject subject = SecurityUtils.getSubject();
-        if (subject.isAuthenticated()) {
-            UserDetail loginUserDetail = (UserDetail) subject.getPrincipal();
-            doFilter(servletRequest, servletResponse, filterChain, loginUserDetail);
-            return;
-        }
-
         try {
-            UsernamePasswordToken token = getPasswordToken(servletRequest);
+            SecretToken token = parseBasicAuth(httpServletRequest);
             subject.login(token);
         } catch (Exception ex) {
             LOGGER.error("login error, msg: {}", ex.getMessage());
@@ -80,25 +77,42 @@ public class AuthenticationFilter implements Filter {
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        doFilter(servletRequest, servletResponse, filterChain, (UserDetail) subject.getPrincipal());
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain,
-            UserDetail userDetail) throws IOException, ServletException {
-        LoginUserUtils.setUserLoginInfo(userDetail);
-        try {
-            filterChain.doFilter(servletRequest, servletResponse);
-        } finally {
-            LoginUserUtils.removeUserLoginInfo();
+    private SecretToken parseBasicAuth(HttpServletRequest servletRequest) throws Exception {
+        String basicAuth = servletRequest.getHeader(BASIC_AUTH_HEADER);
+        if (StringUtils.isBlank(basicAuth)) {
+            log.error("basic auth is empty");
+            return null;
         }
-    }
 
-    private UsernamePasswordToken getPasswordToken(ServletRequest servletRequest) {
-        String username = servletRequest.getParameter(USERNAME);
-        String password = servletRequest.getParameter(PASSWORD);
-        Preconditions.checkNotNull(username, "please input username");
-        Preconditions.checkNotNull(password, "please input password");
-        return new UsernamePasswordToken(username, password);
+        // Basic auth string must be "Basic Base64(ID:Secret)"
+        String[] parts = basicAuth.split(BASIC_AUTH_SEPARATOR);
+        if (parts.length != 2) {
+            log.error("parts size error: {}", parts);
+            return null;
+        }
+        if (!parts[0].equals(BASIC_AUTH_PREFIX)) {
+            log.error("prefix error: {}", parts[0]);
+            return null;
+        }
+
+        String joinedPair = new String(Base64.getDecoder().decode(parts[1]));
+        String[] pair = joinedPair.split(BASIC_AUTH_JOINER);
+        if (pair.length != 2) {
+            log.error("pair format error: {}", pair);
+            return null;
+        }
+
+        String secretId = pair[0];
+        String secretKey = pair[1];
+        if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
+            log.error("invalid id = {} or key = {}", secretId, secretKey);
+            return null;
+        }
+
+        return new SecretToken(secretId, secretKey);
     }
 
     @Override

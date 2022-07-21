@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.auth;
+package org.apache.inlong.manager.web.auth.web;
 
 import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;

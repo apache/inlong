@@ -276,6 +276,7 @@ public class ConfigManager {
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
+                httpGet.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
 
                 // request with post
                 CloseableHttpResponse response = httpClient.execute(httpGet);

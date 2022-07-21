@@ -17,19 +17,19 @@
 
 package org.apache.inlong.manager.web.auth;
 
-import javax.annotation.Resource;
 import org.apache.inlong.manager.common.auth.InlongShiro;
-import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
-import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Resource;
+import java.util.Collection;
 
 /**
  * Inlong hiro config.
@@ -41,17 +41,14 @@ public class ShiroConfig {
     private InlongShiro inLongShiro;
 
     @Bean
-    public AuthorizingRealm shiroRealm(HashedCredentialsMatcher matcher) {
-        AuthorizingRealm authorizingRealm = inLongShiro.getShiroRealm();
-        authorizingRealm.setCredentialsMatcher(matcher);
-        return authorizingRealm;
+    public Collection<Realm> shiroRealms() {
+        return inLongShiro.getShiroRealms();
     }
 
     @Bean
-    public WebSecurityManager securityManager(@Qualifier("hashedCredentialsMatcher")
-            HashedCredentialsMatcher matcher) {
+    public WebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inLongShiro.getWebSecurityManager();
-        securityManager.setRealm(shiroRealm(matcher));
+        securityManager.setRealms(shiroRealms());
         return securityManager;
     }
 
@@ -60,13 +57,6 @@ public class ShiroConfig {
         DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inLongShiro.getWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
-    }
-
-    @Bean(name = "hashedCredentialsMatcher")
-    public HashedCredentialsMatcher hashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = (HashedCredentialsMatcher) inLongShiro
-                .getCredentialsMatcher();
-        return hashedCredentialsMatcher;
     }
 
     /**
@@ -83,6 +73,6 @@ public class ShiroConfig {
      */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
-        return inLongShiro.getAuthorizationAttributeSourceAdvisor(securityManager(hashedCredentialsMatcher()));
+        return inLongShiro.getAuthorizationAttributeSourceAdvisor(securityManager());
     }
 }

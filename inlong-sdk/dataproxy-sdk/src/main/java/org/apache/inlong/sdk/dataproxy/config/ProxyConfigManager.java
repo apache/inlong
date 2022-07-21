@@ -45,6 +45,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
@@ -67,7 +68,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -729,14 +729,9 @@ public class ProxyConfigManager extends Thread {
             LOGGER.info("Request url : " + url + ", localManagerIps : " + localManagerIps);
             try {
                 httpPost = new HttpPost(url);
-                if (this.clientConfig.isNeedAuthentication()) {
-                    long timestamp = System.currentTimeMillis();
-                    int nonce = new SecureRandom(String.valueOf(timestamp).getBytes()).nextInt(Integer.MAX_VALUE);
-                    httpPost.setHeader(REQUEST_HEADER_AUTHORIZATION,
-                            Utils.getAuthorizenInfo(clientConfig.getUserName(),
-                                    clientConfig.getSecretKey(), timestamp, nonce));
-                }
-
+                httpPost.addHeader(REQUEST_HEADER_AUTHORIZATION,
+                        BasicAuth.genBasicAuthCredential(clientConfig.getApiSecretId(),
+                                clientConfig.getApiSecretKey()));
                 StringEntity se = getEntity(params);
                 httpPost.setEntity(se);
                 HttpResponse response = httpClient.execute(httpPost);

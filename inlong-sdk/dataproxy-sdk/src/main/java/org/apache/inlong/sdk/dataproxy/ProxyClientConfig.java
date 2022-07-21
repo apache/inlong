@@ -18,10 +18,12 @@
 
 package org.apache.inlong.sdk.dataproxy;
 
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
 import org.apache.inlong.sdk.dataproxy.network.Utils;
 
+@Data
 public class ProxyClientConfig {
 
     private int aliveConnections;
@@ -48,6 +50,8 @@ public class ProxyClientConfig {
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
     private int maxTimeoutCnt = ConfigConstants.MAX_TIMEOUT_CNT;
+    private String apiSecretId;
+    private String apiSecretKey;
 
     private boolean enableSaveManagerVIps = true;
 
@@ -93,7 +97,8 @@ public class ProxyClientConfig {
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String groupId, String netTag) throws ProxysdkException {
+            int managerPort, String groupId, String netTag, String apiSecretId, String apiSecretKey)
+            throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
         }
@@ -119,6 +124,8 @@ public class ProxyClientConfig {
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
         this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
         this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
+        this.apiSecretId = apiSecretId;
+        this.apiSecretKey = apiSecretKey;
     }
 
     public String getTlsServerCertFilePathAndName() {

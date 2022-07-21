@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
             String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
             String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
-            String secretKey = RandomStringUtils.randomAlphanumeric(8);
+            String secretKey = RandomStringUtils.randomAlphanumeric(16);
             Integer encryptVersion = AESUtils.getCurrentVersion(null);
             entity.setEncryptVersion(encryptVersion);
             entity.setPublicKey(AESUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));

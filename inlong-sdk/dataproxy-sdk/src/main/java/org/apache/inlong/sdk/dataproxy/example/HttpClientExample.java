@@ -18,12 +18,13 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.HttpProxySender;
 import org.apache.inlong.sdk.dataproxy.network.ProxysdkException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class HttpClientExample {
 
@@ -70,7 +71,7 @@ public class HttpClientExample {
         try {
             proxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
                     Integer.valueOf(inLongManagerPort),
-                    dataProxyGroup, netTag);
+                    dataProxyGroup, netTag, "test", "123456");
             proxyConfig.setGroupId(dataProxyGroup);
             proxyConfig.setConfStoreBasePath(configBasePath);
             proxyConfig.setReadProxyIPFromLocal(isReadProxyIPFromLocal);
