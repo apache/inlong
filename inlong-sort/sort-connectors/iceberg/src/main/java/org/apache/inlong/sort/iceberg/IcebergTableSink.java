@@ -19,9 +19,6 @@
 
 package org.apache.inlong.sort.iceberg;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.catalog.CatalogTable;
@@ -37,6 +34,9 @@ import org.apache.iceberg.flink.sink.FlinkSink;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
 

@@ -19,13 +19,6 @@
 
 package org.apache.inlong.sort.iceberg;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import org.apache.flink.configuration.GlobalConfiguration;
 import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.table.catalog.Catalog;
@@ -39,6 +32,13 @@ import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.base.Strings;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
+
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A Flink Catalog factory implementation that creates {@link FlinkCatalog}.
@@ -54,7 +54,7 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
  *   <li><code>base-namespace</code> - a base namespace as the prefix for all databases (Hadoop catalog only)</li>
  *   <li><code>cache-enabled</code> - whether to enable catalog cache</li>
  * </ul>
- * <p>
+ * </p>
  * To use a custom catalog that is not a Hive or Hadoop catalog, extend this class and override
  * {@link #createCatalogLoader(String, Map, Configuration)}.
  */
@@ -112,6 +112,27 @@ public class FlinkCatalogFactory implements CatalogFactory {
         }
     }
 
+    private static Configuration mergeHiveConf(Configuration hadoopConf, String hiveConfDir) {
+        Configuration newConf = new Configuration(hadoopConf);
+        if (!Strings.isNullOrEmpty(hiveConfDir)) {
+            Preconditions.checkState(Files.exists(Paths.get(hiveConfDir, "hive-site.xml")),
+                    "There should be a hive-site.xml file under the directory %s", hiveConfDir);
+            newConf.addResource(new Path(hiveConfDir, "hive-site.xml"));
+        } else {
+            // If don't provide the hive-site.xml path explicitly, it will try to load resource from classpath. If still
+            // couldn't load the configuration file, then it will throw exception in HiveCatalog.
+            URL configFile = CatalogLoader.class.getClassLoader().getResource("hive-site.xml");
+            if (configFile != null) {
+                newConf.addResource(configFile);
+            }
+        }
+        return newConf;
+    }
+
+    public static Configuration clusterHadoopConf() {
+        return HadoopUtils.getHadoopConfiguration(GlobalConfiguration.loadConfiguration());
+    }
+
     @Override
     public Map<String, String> requiredContext() {
         Map<String, String> context = Maps.newHashMap();
@@ -141,26 +162,5 @@ public class FlinkCatalogFactory implements CatalogFactory {
 
         boolean cacheEnabled = Boolean.parseBoolean(properties.getOrDefault(CACHE_ENABLED, "true"));
         return new FlinkCatalog(name, defaultDatabase, baseNamespace, catalogLoader, cacheEnabled);
-    }
-
-    private static Configuration mergeHiveConf(Configuration hadoopConf, String hiveConfDir) {
-        Configuration newConf = new Configuration(hadoopConf);
-        if (!Strings.isNullOrEmpty(hiveConfDir)) {
-            Preconditions.checkState(Files.exists(Paths.get(hiveConfDir, "hive-site.xml")),
-                    "There should be a hive-site.xml file under the directory %s", hiveConfDir);
-            newConf.addResource(new Path(hiveConfDir, "hive-site.xml"));
-        } else {
-            // If don't provide the hive-site.xml path explicitly, it will try to load resource from classpath. If still
-            // couldn't load the configuration file, then it will throw exception in HiveCatalog.
-            URL configFile = CatalogLoader.class.getClassLoader().getResource("hive-site.xml");
-            if (configFile != null) {
-                newConf.addResource(configFile);
-            }
-        }
-        return newConf;
-    }
-
-    public static Configuration clusterHadoopConf() {
-        return HadoopUtils.getHadoopConfiguration(GlobalConfiguration.loadConfiguration());
     }
 }

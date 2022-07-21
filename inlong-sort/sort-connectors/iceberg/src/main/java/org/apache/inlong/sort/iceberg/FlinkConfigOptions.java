@@ -24,26 +24,24 @@ import org.apache.flink.configuration.ConfigOptions;
 
 public class FlinkConfigOptions {
 
-  private FlinkConfigOptions() {
-  }
+    public static final ConfigOption<Boolean> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM =
+            ConfigOptions.key("table.exec.iceberg.infer-source-parallelism")
+                    .booleanType()
+                    .defaultValue(true)
+                    .withDescription("If is false, parallelism of source are set by config.\n"
+                            + "If is true, source parallelism is inferred according to splits number.\n");
+    public static final ConfigOption<Integer> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM_MAX =
+            ConfigOptions.key("table.exec.iceberg.infer-source-parallelism.max")
+                    .intType()
+                    .defaultValue(100)
+                    .withDescription("Sets max infer parallelism for source operator.");
+    public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG =
+            ConfigOptions.key("sink.ignore.changelog")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Regard upsert delete as insert kind.");
 
-  public static final ConfigOption<Boolean> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM =
-      ConfigOptions.key("table.exec.iceberg.infer-source-parallelism")
-          .booleanType()
-          .defaultValue(true)
-          .withDescription("If is false, parallelism of source are set by config.\n"
-                  + "If is true, source parallelism is inferred according to splits number.\n");
-
-  public static final ConfigOption<Integer> TABLE_EXEC_ICEBERG_INFER_SOURCE_PARALLELISM_MAX =
-      ConfigOptions.key("table.exec.iceberg.infer-source-parallelism.max")
-          .intType()
-          .defaultValue(100)
-          .withDescription("Sets max infer parallelism for source operator.");
-
-  public static final ConfigOption<Boolean> ICEBERG_IGNORE_ALL_CHANGELOG =
-          ConfigOptions.key("sink.ignore.changelog")
-                  .booleanType()
-                  .defaultValue(false)
-                  .withDescription("Regard upsert delete as insert kind.");
+    private FlinkConfigOptions() {
+    }
 
 }
