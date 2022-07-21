@@ -31,7 +31,7 @@ import org.apache.shiro.realm.AuthenticatingRealm;
 import java.util.Date;
 
 /**
- * Web user authorization.
+ * Open api client authorization.
  */
 @Slf4j
 public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
@@ -43,7 +43,7 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
     }
 
     /**
-     * Login authentication
+     * Get open api authentication info
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)

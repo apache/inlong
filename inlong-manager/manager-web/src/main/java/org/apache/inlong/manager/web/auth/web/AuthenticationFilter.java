@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Filter of authentication.
+ * Filter of web user authentication.
  */
 @Slf4j
 public class AuthenticationFilter implements Filter {

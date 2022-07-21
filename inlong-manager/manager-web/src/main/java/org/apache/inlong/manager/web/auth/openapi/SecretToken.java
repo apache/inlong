@@ -21,6 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.shiro.authc.AuthenticationToken;
 
+/**
+ * Authentication token for open api client
+ */
 @Data
 @AllArgsConstructor
 public class SecretToken implements AuthenticationToken {

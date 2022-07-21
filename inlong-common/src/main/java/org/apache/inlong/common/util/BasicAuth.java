@@ -3,6 +3,9 @@ package org.apache.inlong.common.util;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * Basic authentication utility
+ */
 public class BasicAuth {
 
     /**

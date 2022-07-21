@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.Base64;
 
 /**
- * Filter of authentication.
+ * Filter of open api authentication.
  */
 @Slf4j
 public class OpenAPIFilter implements Filter {
