@@ -22,6 +22,8 @@ package org.apache.inlong.manager.common.consts;
  */
 public class InlongConstants {
 
+    public static final String COMMA = ",";
+
     public static final Integer UN_DELETED = 0;
     public static final Integer IS_DELETED = 1;
 

@@ -114,11 +114,12 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * List cluster nodes by page.
      */
-    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword) {
+    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword, Integer parentId) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
-        return clusterService.listNode(request);
+        request.setParentId(parentId);
+        return clusterService.listNode(request, "admin");
     }
 
     /**
@@ -174,7 +175,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId);
 
         // list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip);
+        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip, id);
         Assertions.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
