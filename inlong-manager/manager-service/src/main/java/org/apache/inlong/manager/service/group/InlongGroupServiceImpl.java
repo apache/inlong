@@ -29,10 +29,10 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
@@ -167,7 +167,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request) {
+    public PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
             LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
@@ -175,12 +175,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
-        List<InlongGroupListResponse> groupResponseList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupListResponse::new);
+        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
+                InlongGroupBriefInfo::new);
 
-        // need to list all related sources
-        if (request.isListSources() && CollectionUtils.isNotEmpty(groupResponseList)) {
-            Set<String> groupIds = groupResponseList.stream().map(InlongGroupListResponse::getInlongGroupId)
+        // list all related sources
+        if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
+            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
                     .collect(Collectors.toSet());
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
             Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
@@ -190,12 +190,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 StreamSource source = operation.getFromEntity(sourceEntity);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });
-            groupResponseList.forEach(group -> {
+            briefInfos.forEach(group -> {
                 List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
                 group.setStreamSources(sources);
             });
         }
-        PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupResponseList);
+        PageInfo<InlongGroupBriefInfo> page = new PageInfo<>(briefInfos);
         page.setTotal(entityPage.getTotal());
         LOGGER.debug("success to list inlong group for {}", request);
         return page;

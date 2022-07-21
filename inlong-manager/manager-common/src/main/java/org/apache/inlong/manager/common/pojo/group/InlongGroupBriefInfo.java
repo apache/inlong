@@ -20,14 +20,22 @@ package org.apache.inlong.manager.common.pojo.group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Inlong group brief info
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel("Inlong group brief info")
 public class InlongGroupBriefInfo {
 
@@ -49,7 +57,25 @@ public class InlongGroupBriefInfo {
     @ApiModelProperty(value = "Inlong cluster tag")
     private String inlongClusterTag;
 
+    @ApiModelProperty(value = "Name of responsible person, separated by commas")
+    private String inCharges;
+
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Name of creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Stream sources in the inlong group")
+    private List<StreamSource> streamSources;
 
 }

@@ -295,7 +295,7 @@ public class InlongGroupProcessOperation {
         ApplyGroupProcessForm form = new ApplyGroupProcessForm();
         InlongGroupInfo groupInfo = groupService.get(groupId);
         form.setGroupInfo(groupInfo);
-        List<InlongStreamBriefInfo> infoList = streamService.getBriefList(groupInfo.getInlongGroupId());
+        List<InlongStreamBriefInfo> infoList = streamService.listBriefWithSink(groupInfo.getInlongGroupId());
         form.setStreamInfoList(infoList);
         return form;
     }

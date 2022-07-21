@@ -31,7 +31,7 @@ import org.apache.inlong.manager.client.cli.pojo.SourceInfo;
 import org.apache.inlong.manager.client.cli.pojo.StreamInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
@@ -113,7 +113,7 @@ public class ListCommand extends AbstractCommand {
                 ClientUtils.initClientFactory();
                 InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
 
-                PageInfo<InlongGroupListResponse> groupPageInfo = groupClient.listGroups(pageRequest);
+                PageInfo<InlongGroupBriefInfo> groupPageInfo = groupClient.listGroups(pageRequest);
                 PrintUtils.print(groupPageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());

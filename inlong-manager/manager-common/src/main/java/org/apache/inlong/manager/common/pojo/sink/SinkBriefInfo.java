@@ -15,47 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.stream;
+package org.apache.inlong.manager.common.pojo.sink;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
-
 /**
- * Inlong stream list
+ * Sink brief info
  */
 @Data
-@ApiModel("Inlong stream list")
-public class InlongStreamListResponse {
+@ApiModel("Sink brief info")
+public class SinkBriefInfo {
 
-    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Inlong group id")
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @ApiModelProperty(value = "Inlong stream id")
+    @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @ApiModelProperty(value = "Inlong stream name")
-    private String name;
+    @ApiModelProperty("Sink type, such as HIVE")
+    private String sinkType;
 
-    @ApiModelProperty(value = "Data type, TEXT, KEY-VALUE, PB, BON")
-    private String dataType;
+    @ApiModelProperty("Sink name, unique in one stream")
+    private String sinkName;
 
-    @ApiModelProperty(value = "Sink type list")
-    private List<String> sinkTypeList;
+    @ApiModelProperty("Sink cluster ID")
+    private Integer clusterId;
 
-    @ApiModelProperty(value = "Status")
-    private Integer status;
-
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
+    @ApiModelProperty("Sink cluster URL")
+    private String clusterUrl;
 
 }

@@ -110,7 +110,7 @@
         </where>
     </select>
     <select id="selectSummary"
-            resultType="org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse">
+            resultType="org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo">
         select s.id,
                s.inlong_group_id,
                s.inlong_stream_id,

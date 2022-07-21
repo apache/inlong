@@ -32,7 +32,7 @@ import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
@@ -154,13 +154,11 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     }
 
     @Override
-    public List<SinkBriefResponse> listBrief(String groupId, String streamId) {
+    public List<SinkBriefInfo> listBrief(String groupId, String streamId) {
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
 
-        // Query all sink information and encapsulate it in the result set
-        List<SinkBriefResponse> summaryList = sinkMapper.selectSummary(groupId, streamId);
-
+        List<SinkBriefInfo> summaryList = sinkMapper.selectSummary(groupId, streamId);
         LOGGER.debug("success to list sink summary by groupId=" + groupId + ", streamId=" + streamId);
         return summaryList;
     }

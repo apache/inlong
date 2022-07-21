@@ -56,7 +56,10 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
         entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(operator);
-        entity.setCreateTime(new Date());
+        entity.setModifier(operator);
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
 
         groupMapper.insert(entity);
         return groupId;

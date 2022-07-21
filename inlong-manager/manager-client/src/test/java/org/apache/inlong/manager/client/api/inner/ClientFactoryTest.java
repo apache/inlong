@@ -37,9 +37,9 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
@@ -157,8 +157,8 @@ class ClientFactoryTest {
 
     @Test
     void testListGroup4AutoPushSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -178,19 +178,19 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/api/inlong/manager/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4BinlogSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -214,19 +214,19 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/api/inlong/manager/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4FileSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -252,19 +252,19 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/api/inlong/manager/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
     void testListGroup4KafkaSource() {
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .streamSources(
@@ -292,13 +292,13 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/api/inlong/manager/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses))))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
@@ -350,8 +350,8 @@ class ClientFactoryTest {
                         .primaryKey("primaryKey")
                         .build()
         );
-        List<InlongGroupListResponse> groupListResponses = Lists.newArrayList(
-                InlongGroupListResponse.builder()
+        List<InlongGroupBriefInfo> groupBriefInfos = Lists.newArrayList(
+                InlongGroupBriefInfo.builder()
                         .id(1)
                         .inlongGroupId("1")
                         .name("name")
@@ -363,14 +363,14 @@ class ClientFactoryTest {
         stubFor(
                 post(urlMatching("/api/inlong/manager/group/list.*"))
                         .willReturn(
-                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupListResponses)))
+                                okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos)))
                                 )
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertEquals(JsonUtils.toJsonString(groupListResponses),
-                JsonUtils.toJsonString(listResponse.getList()));
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertEquals(JsonUtils.toJsonString(groupBriefInfos),
+                JsonUtils.toJsonString(pageInfo.getList()));
     }
 
     @Test
@@ -384,8 +384,8 @@ class ClientFactoryTest {
                         )
         );
 
-        PageInfo<InlongGroupListResponse> listResponse = groupClient.listGroups("keyword", 1, 1, 10);
-        Assertions.assertNull(listResponse);
+        PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups("keyword", 1, 1, 10);
+        Assertions.assertNull(pageInfo);
     }
 
     @Test
