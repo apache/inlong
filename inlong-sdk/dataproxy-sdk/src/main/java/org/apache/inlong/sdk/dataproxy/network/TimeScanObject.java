@@ -21,9 +21,6 @@ package org.apache.inlong.sdk.dataproxy.network;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Created by jesseyzhou on 2017/11/2.
- */
 public class TimeScanObject {
 
     private AtomicInteger count = new AtomicInteger(0);

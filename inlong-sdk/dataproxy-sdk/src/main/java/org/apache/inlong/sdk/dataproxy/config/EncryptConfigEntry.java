@@ -27,9 +27,6 @@ import java.net.URLEncoder;
 import java.security.interfaces.RSAPublicKey;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Created by lamberliu on 2016/5/13.
- */
 public class EncryptConfigEntry implements java.io.Serializable {
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptConfigEntry.class);
