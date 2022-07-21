@@ -86,7 +86,7 @@ import java.util.stream.Collectors;
  * The mapping between Flink database and Iceberg namespace:
  * Supplying a base namespace for a given catalog, so if you have a catalog that supports a 2-level namespace, you
  * would supply the first level in the catalog configuration and the second level would be exposed as Flink databases.
- * <p>
+ * </p>
  * The Iceberg table manages its partitions by itself. The partition of the Iceberg table is independent of the
  * partition of Flink.
  */
