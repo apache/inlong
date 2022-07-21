@@ -24,7 +24,11 @@ project (TubeMQ)
 
 find_package(Protobuf REQUIRED)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall -Werror -Wno-error=class-memaccess -Wsign-compare -Wfloat-equal -fno-strict-aliasing -fPIC -DASIO_STANDALONE")
+if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0.0)
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall -Werror -Wsign-compare -Wfloat-equal -fno-strict-aliasing -fPIC -DASIO_STANDALONE")
+else ()
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall -Werror -Wno-error=class-memaccess -Wsign-compare -Wfloat-equal -fno-strict-aliasing -fPIC -DASIO_STANDALONE")
+endif ()
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/proto)
 
