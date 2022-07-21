@@ -73,9 +73,9 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userMapper.selectByPrimaryKey(userId);
         UserEntity curUser = getByUsername(currentUser);
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
-        Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode())
+        Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
                         || Objects.equals(entity.getName(), currentUser),
-                "current user does not have permission to get other users info");
+                "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
         result.setId(entity.getId());
@@ -141,48 +141,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int update(UserInfo userInfo, String currentUser) {
-        Preconditions.checkNotNull(userInfo, "user info should not be null");
-        Preconditions.checkNotNull(userInfo.getId(), "user id should not be null");
+    public int update(UserInfo updateUser, String currentUser) {
+        log.debug("begin to update user info={} by {}", updateUser, currentUser);
+        Preconditions.checkNotNull(updateUser, "Userinfo cannot be null");
+        Preconditions.checkNotNull(updateUser.getId(), "User id cannot be null");
 
-        // Whether the current user is an administrator
-        UserEntity userEntity = getByUsername(currentUser);
-        boolean isAdmin = userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode());
-        Preconditions.checkTrue(isAdmin || Objects.equals(userInfo.getUsername(), currentUser),
-                "Current user is not a manager and does not have permission to update users");
-        Preconditions.checkFalse(isAdmin && userInfo.getType().equals(UserTypeEnum.OPERATOR.getCode())
-                        && Objects.equals(userInfo.getUsername(), currentUser),
-                "Administrators cannot be set himself as ordinary users");
+        // Whether the current user is a manager
+        UserEntity currentUserEntity = getByUsername(currentUser);
+        boolean isAdmin = Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
+        Preconditions.checkTrue(isAdmin || Objects.equals(updateUser.getUsername(), currentUser),
+                "You are not a manager and do not have permission to update other users");
 
-        UserEntity entity = userMapper.selectByPrimaryKey(userInfo.getId());
-        Preconditions.checkNotNull(entity, "User not exists with id " + userInfo.getId());
-        UserEntity userExist = getByUsername(userInfo.getUsername());
-        Preconditions.checkTrue(Objects.equals(userExist.getName(), entity.getName())
-                        && !Objects.equals(userExist.getId(), entity.getId()),
-                "username [" + userInfo.getUsername() + "] already exists");
+        // manager cannot set himself as an ordinary
+        boolean managerToOrdinary = isAdmin
+                && Objects.equals(UserTypeEnum.OPERATOR.getCode(), updateUser.getType())
+                && Objects.equals(currentUser, updateUser.getUsername());
+        Preconditions.checkFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
 
+        // target username must not exist
+        UserEntity updateUserEntity = userMapper.selectByPrimaryKey(updateUser.getId());
+        Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + updateUser.getId());
+        UserEntity targetUserEntity = getByUsername(updateUser.getUsername());
+        Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
+                        && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
+                "Username [" + updateUser.getUsername() + "] already exists");
+
+        // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
-            String oldPassword = userInfo.getPassword();
+            String oldPassword = updateUser.getPassword();
             String oldPasswordMd = MD5Utils.encrypt(oldPassword);
-            Preconditions.checkTrue(oldPasswordMd.equals(entity.getPassword()), "Old password is wrong");
-            Integer validDays = DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate());
-            Preconditions.checkFalse((userInfo.getValidDays() > validDays),
-                    "Operator is not allowed to add valid days as ordinary users");
-            Preconditions.checkTrue(Objects.equals(entity.getAccountType(), userInfo.getType()),
-                    "Operator is not allowed to update account type as ordinary users");
+            Preconditions.checkTrue(oldPasswordMd.equals(updateUserEntity.getPassword()), "Old password is wrong");
+            Integer validDays = DateUtils.getValidDays(updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
+            Preconditions.checkTrue((updateUser.getValidDays() <= validDays),
+                    "Ordinary users are not allowed to add valid days");
+            Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), updateUser.getType()),
+                    "Ordinary users are not allowed to update account type");
         }
-        // update password
-        String newPassword = userInfo.getNewPassword();
-        if (!StringUtils.isBlank(newPassword)) {
-            String newPasswordMd5 = MD5Utils.encrypt(userInfo.getNewPassword());
-            entity.setPassword(newPasswordMd5);
-        }
-        entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
-        entity.setAccountType(userInfo.getType());
-        entity.setName(userInfo.getUsername());
 
-        log.debug("success to update user info={}", userInfo);
-        return userMapper.updateByPrimaryKeySelective(entity);
+        // update password
+        if (!StringUtils.isBlank(updateUser.getNewPassword())) {
+            String newPasswordMd5 = MD5Utils.encrypt(updateUser.getNewPassword());
+            updateUserEntity.setPassword(newPasswordMd5);
+        }
+        updateUserEntity.setDueDate(DateUtils.getExpirationDate(updateUser.getValidDays()));
+        updateUserEntity.setAccountType(updateUser.getType());
+        updateUserEntity.setName(updateUser.getUsername());
+
+        log.debug("success to update user info={} by {}", updateUser, currentUser);
+        return userMapper.updateByPrimaryKeySelective(updateUserEntity);
     }
 
     @Override
@@ -197,6 +203,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
         userMapper.deleteByPrimaryKey(userId);
+
         log.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
     }
@@ -213,12 +220,11 @@ public class UserServiceImpl implements UserService {
         Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByExample(example);
         List<UserDetailListVO> detailList = CommonBeanUtils.copyListProperties(entityPage, UserDetailListVO::new);
         // Check whether the user account has expired
-        detailList.forEach(
-                entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
+        detailList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
         PageInfo<UserDetailListVO> page = new PageInfo<>(detailList);
         page.setTotal(entityPage.getTotal());
 
-        log.debug("success to list all user, result size={}", page.getTotal());
+        log.debug("success to list users, result size={}", page.getTotal());
         return page;
     }
 
