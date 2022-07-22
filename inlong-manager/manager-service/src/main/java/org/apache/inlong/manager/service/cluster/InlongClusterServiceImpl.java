@@ -630,7 +630,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 .build();
         List<InlongClusterEntity> clusterEntityList = clusterMapper.selectByCondition(request);
         DataProxyConfig result = new DataProxyConfig();
-        if (CollectionUtils.isEmpty(clusterList)) {
+        if (CollectionUtils.isEmpty(clusterEntityList)) {
             LOGGER.warn("GetDPConfig: not found data proxy cluster by tag={} name={}", clusterTag, clusterName);
             return result;
         }
