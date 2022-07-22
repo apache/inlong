@@ -43,9 +43,9 @@ public class DefaultMessageSender implements MessageSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMessageSender.class);
     private static final long DEFAULT_SEND_TIMEOUT = 100;
     private static final TimeUnit DEFAULT_SEND_TIMEUNIT = TimeUnit.MILLISECONDS;
-    private static final ConcurrentHashMap<Integer, DefaultMessageSender> cacheSender =
+    private static final ConcurrentHashMap<Integer, DefaultMessageSender> CACHE_SENDER =
             new ConcurrentHashMap<>();
-    private static final AtomicBoolean ManagerFetcherThreadStarted = new AtomicBoolean(false);
+    private static final AtomicBoolean MANAGER_FETCHER_THREAD_STARTED = new AtomicBoolean(false);
     private static ManagerFetcherThread managerFetcherThread;
     private final Sender sender;
     private final SequentialID idGenerator;
@@ -74,7 +74,7 @@ public class DefaultMessageSender implements MessageSender {
 
         if (configure.isEnableSaveManagerVIps()
                 && configure.isLocalVisit()
-                && ManagerFetcherThreadStarted.compareAndSet(false, true)) {
+                && MANAGER_FETCHER_THREAD_STARTED.compareAndSet(false, true)) {
             managerFetcherThread = new ManagerFetcherThread(configure);
             managerFetcherThread.start();
         }
@@ -105,13 +105,13 @@ public class DefaultMessageSender implements MessageSender {
                 Utils.getLocalIp(), null);
         proxyConfigManager.setGroupId(configure.getGroupId());
         ProxyConfigEntry entry = proxyConfigManager.getGroupIdConfigure();
-        DefaultMessageSender sender = cacheSender.get(entry.getClusterId());
+        DefaultMessageSender sender = CACHE_SENDER.get(entry.getClusterId());
         if (sender != null) {
             return sender;
         } else {
             DefaultMessageSender tmpMessageSender =
                     new DefaultMessageSender(configure, selfDefineFactory);
-            cacheSender.put(entry.getClusterId(), tmpMessageSender);
+            CACHE_SENDER.put(entry.getClusterId(), tmpMessageSender);
             return tmpMessageSender;
         }
     }
@@ -120,10 +120,10 @@ public class DefaultMessageSender implements MessageSender {
      * finally clean up
      */
     public static void finallyCleanup() {
-        for (DefaultMessageSender sender : cacheSender.values()) {
+        for (DefaultMessageSender sender : CACHE_SENDER.values()) {
             sender.close();
         }
-        cacheSender.clear();
+        CACHE_SENDER.clear();
     }
 
     public boolean isSupportLF() {
@@ -599,13 +599,13 @@ public class DefaultMessageSender implements MessageSender {
     private void shutdownInternalThreads() {
         indexCol.shutDown();
         managerFetcherThread.shutdown();
-        ManagerFetcherThreadStarted.set(false);
+        MANAGER_FETCHER_THREAD_STARTED.set(false);
     }
 
     public void close() {
         LOGGER.info("ready to close resources, may need five minutes !");
         if (sender.getClusterId() != -1) {
-            cacheSender.remove(sender.getClusterId());
+            CACHE_SENDER.remove(sender.getClusterId());
         }
         sender.close();
         shutdownInternalThreads();
