@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -54,6 +55,7 @@ public class SourceListResponse {
     private String sourceName;
 
     @ApiModelProperty("Data Serialization, support: csv, json, canal, avro, etc")
+    @Builder.Default
     private String serializationType = "none";
 
     @ApiModelProperty("Data node name")

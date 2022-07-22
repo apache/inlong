@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.source.oracle;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
@@ -42,6 +43,7 @@ public class OracleSourceListResponse extends SourceListResponse {
     private String hostname;
 
     @ApiModelProperty("Exposed port of the DB server")
+    @Builder.Default
     private Integer port = 1521;
 
     @ApiModelProperty("Username of the DB server")
@@ -66,6 +68,7 @@ public class OracleSourceListResponse extends SourceListResponse {
     private String primaryKey;
 
     @ApiModelProperty("Need transfer total database")
+    @Builder.Default
     private boolean allMigration = false;
 
     public OracleSourceListResponse() {

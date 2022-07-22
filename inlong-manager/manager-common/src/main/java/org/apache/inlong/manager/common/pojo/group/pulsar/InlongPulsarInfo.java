@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.group.pulsar;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -52,36 +53,47 @@ public class InlongPulsarInfo extends InlongGroupInfo {
 
     @ApiModelProperty(value = "Queue model, parallel: multiple partitions, high throughput, out-of-order messages;"
             + "serial: single partition, low throughput, and orderly messages")
+    @Builder.Default
     private String queueModule = "parallel";
 
     @ApiModelProperty("The number of partitions of Topic, 1-20")
+    @Builder.Default
     private int partitionNum = 3;
 
     @ApiModelProperty(value = "Ledger's number of writable nodes")
+    @Builder.Default
     private Integer ensemble = 3;
 
     @ApiModelProperty(value = "Ledger's number of copies")
+    @Builder.Default
     private Integer writeQuorum = 3;
 
     @ApiModelProperty(value = "Number of responses requested")
+    @Builder.Default
     private Integer ackQuorum = 2;
 
     @ApiModelProperty(value = "Message time-to-live duration")
+    @Builder.Default
     private Integer ttl = 24;
 
     @ApiModelProperty(value = "The unit of message's time-to-live duration")
+    @Builder.Default
     private String ttlUnit = "hours";
 
     @ApiModelProperty(value = "Message storage time")
+    @Builder.Default
     private Integer retentionTime = 72;
 
     @ApiModelProperty(value = "The unit of the message storage time")
+    @Builder.Default
     private String retentionTimeUnit = "hours";
 
     @ApiModelProperty(value = "Message size")
+    @Builder.Default
     private Integer retentionSize = -1;
 
     @ApiModelProperty(value = "The unit of message size")
+    @Builder.Default
     private String retentionSizeUnit = "MB";
 
     public InlongPulsarInfo() {

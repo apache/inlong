@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.source.pulsar;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -62,9 +63,11 @@ public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Configure the Source's startup mode. "
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @Builder.Default
     private String scanStartupMode = "earliest";
 
-    private boolean isInlongComponent = false;
+    @Builder.Default
+    private boolean isInLongComponent = false;
 
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR.getType());
