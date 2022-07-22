@@ -66,12 +66,17 @@ spec:
               count={{ .Values.mysql.replicas }}
               for i in $(seq 0 $(expr $count - 1))
               do
-                replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
-                host="$replica.{{ template "inlong.mysql.hostname" . }}"
-                port={{ .Values.mysql.port }}
+                {{- if .Values.external.mysql.enabled }}
+                    host={{ .Values.external.mysql.hostname }}
+                    port={{ .Values.external.mysql.port }}
+                {{- else }}
+                    replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
+                    host="$replica.{{ template "inlong.mysql.hostname" . }}"
+                    port={{ .Values.mysql.port }}
+                {{- end }}
                 until nc -z $host $port 2>/dev/null
                 do
-                  echo "waiting for $replica to be ready"
+                  echo "waiting for host:$host port:$port to be ready"
                   sleep 3
                 done
               done
