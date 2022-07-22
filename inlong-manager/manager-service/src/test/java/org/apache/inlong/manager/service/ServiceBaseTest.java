@@ -90,11 +90,10 @@ public class ServiceBaseTest extends BaseTest {
         groupInfo.setInCharges(GLOBAL_OPERATOR);
         groupInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         groupService.save(groupInfo.genRequest(), GLOBAL_OPERATOR);
-        InlongGroupInfo entity = groupService.get(inlongGroupId);
-        groupInfo.setVersion(entity.getVersion());
+        InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
         groupService.updateStatus(inlongGroupId, GroupStatus.TO_BE_APPROVAL.getCode(), GLOBAL_OPERATOR);
         groupService.updateStatus(inlongGroupId, GroupStatus.APPROVE_PASSED.getCode(), GLOBAL_OPERATOR);
-        groupService.update(groupInfo.genRequest(), GLOBAL_OPERATOR);
+        groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
         return groupInfo;
     }

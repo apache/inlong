@@ -223,8 +223,9 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // create an inlong group which use the clusterTag
         String inlongGroupId = "test_cluster_tag_group";
         InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.MQ_PULSAR);
-        inlongGroup.setInlongClusterTag(clusterTag);
-        groupService.update(inlongGroup.genRequest(), GLOBAL_OPERATOR);
+        InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
+        updateGroupInfo.setInlongClusterTag(clusterTag);
+        groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
 
         // get the data proxy nodes, the first port should is p1, second port is p2
         DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId);
