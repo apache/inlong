@@ -121,13 +121,8 @@ public class ElasticsearchSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
-    }
-
-    public static String getElasticSearchIndexName(ElasticsearchSinkDTO esInfo,
-            List<ElasticsearchFieldInfo> fieldList) {
-        return esInfo.getIndexName();
     }
 
     private ElasticsearchSinkDTO decryptPassword() throws Exception {

@@ -26,8 +26,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.util.Map;
@@ -42,7 +40,6 @@ import java.util.Map;
 public class DLCIcebergSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(DLCIcebergSinkDTO.class);
 
     @ApiModelProperty("Catalog URI of the DLCIceberg server")
     private String catalogUri;
@@ -84,8 +81,7 @@ public class DLCIcebergSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, DLCIcebergSinkDTO.class);
         } catch (Exception e) {
-            LOGGER.error("fetch DLCIceberg sink info failed from json params: " + extParams, e);
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

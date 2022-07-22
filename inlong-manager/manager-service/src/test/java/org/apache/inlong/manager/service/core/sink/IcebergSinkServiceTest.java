@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Iceberg sink service test..
+ * Iceberg stream sink service test.
  */
 public class IcebergSinkServiceTest extends ServiceBaseTest {
 
