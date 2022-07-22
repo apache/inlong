@@ -84,13 +84,13 @@ public class LoadNodeUtils {
     /**
      * Create nodes of data load.
      */
-    public static List<LoadNode> createLoadNodes(List<StreamSink> streamSinks,
-            Map<String, StreamField> constantFieldMap) {
+    public static List<LoadNode> createLoadNodes(List<StreamSink> streamSinks, Map<String, StreamField> fieldMap) {
         if (CollectionUtils.isEmpty(streamSinks)) {
             return Lists.newArrayList();
         }
         return streamSinks.stream()
-                .map(s -> LoadNodeUtils.createLoadNode(s, constantFieldMap)).collect(Collectors.toList());
+                .map(sink -> LoadNodeUtils.createLoadNode(sink, fieldMap))
+                .collect(Collectors.toList());
     }
 
     /**

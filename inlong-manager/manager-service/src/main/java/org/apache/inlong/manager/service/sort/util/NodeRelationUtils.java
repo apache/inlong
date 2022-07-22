@@ -64,9 +64,8 @@ public class NodeRelationUtils {
     /**
      * Create node relation for the given stream
      */
-    public static List<NodeRelation> createNodeRelationsForStream(InlongStreamInfo streamInfo) {
-        String tempView = streamInfo.getExtParams();
-        if (StringUtils.isEmpty(tempView)) {
+    public static List<NodeRelation> createNodeRelations(InlongStreamInfo streamInfo) {
+        if (StringUtils.isEmpty(streamInfo.getExtParams())) {
             log.warn("stream node relation is empty for {}", streamInfo);
             return Lists.newArrayList();
         }
@@ -77,6 +76,18 @@ public class NodeRelationUtils {
                         Lists.newArrayList(nodeRelation.getInputNodes()),
                         Lists.newArrayList(nodeRelation.getOutputNodes())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Create node relation from the given sources and sinks
+     */
+    public static List<NodeRelation> createNodeRelations(List<StreamSource> sources, List<StreamSink> sinks) {
+        NodeRelation relation = new NodeRelation();
+        List<String> inputs = sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
+        List<String> outputs = sinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
+        relation.setInputs(inputs);
+        relation.setOutputs(outputs);
+        return Lists.newArrayList(relation);
     }
 
     /**
@@ -110,7 +121,6 @@ public class NodeRelationUtils {
                 String nodeName = outputs.get(0);
                 if (joinNodes.get(nodeName) != null) {
                     TransformDefinition transformDefinition = transformTypeMap.get(nodeName);
-                    TransformNode transformNode = joinNodes.get(nodeName);
                     joinRelations.add(getNodeRelation((JoinerDefinition) transformDefinition, relation));
                     shipIterator.remove();
                 }
