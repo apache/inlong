@@ -50,8 +50,8 @@ public class ProxyClientConfig {
     private String tlsServerCertFilePathAndName;
     private String tlsServerKey;
     private int maxTimeoutCnt = ConfigConstants.MAX_TIMEOUT_CNT;
-    private String apiSecretId;
-    private String apiSecretKey;
+    private String authSecretId;
+    private String authSecretKey;
 
     private boolean enableSaveManagerVIps = true;
 
@@ -97,7 +97,7 @@ public class ProxyClientConfig {
 
     /*pay attention to the last url parameter ip*/
     public ProxyClientConfig(String localHost, boolean isLocalVisit, String managerIp,
-            int managerPort, String groupId, String netTag, String apiSecretId, String apiSecretKey)
+            int managerPort, String groupId, String netTag, String authSecretId, String authSecretKey)
             throws ProxysdkException {
         if (Utils.isBlank(localHost)) {
             throw new ProxysdkException("localHost is blank!");
@@ -124,8 +124,8 @@ public class ProxyClientConfig {
         this.proxyUpdateMaxRetry = ConfigConstants.PROXY_UPDATE_MAX_RETRY;
         this.connectTimeoutMillis = ConfigConstants.DEFAULT_CONNECT_TIMEOUT_MILLIS;
         this.setRequestTimeoutMillis(ConfigConstants.DEFAULT_SEND_BUFFER_SIZE);
-        this.apiSecretId = apiSecretId;
-        this.apiSecretKey = apiSecretKey;
+        this.authSecretId = authSecretId;
+        this.authSecretKey = authSecretKey;
     }
 
     public String getTlsServerCertFilePathAndName() {

@@ -38,23 +38,23 @@ import java.util.Collection;
 public class ShiroConfig {
 
     @Resource
-    private InlongShiro inLongShiro;
+    private InlongShiro inlongShiro;
 
     @Bean
     public Collection<Realm> shiroRealms() {
-        return inLongShiro.getShiroRealms();
+        return inlongShiro.getShiroRealms();
     }
 
     @Bean
     public WebSecurityManager securityManager() {
-        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inLongShiro.getWebSecurityManager();
+        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) inlongShiro.getWebSecurityManager();
         securityManager.setRealms(shiroRealms());
         return securityManager;
     }
 
     @Bean
     public DefaultWebSessionManager sessionManager() {
-        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inLongShiro.getWebSessionManager();
+        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager) inlongShiro.getWebSessionManager();
         sessionManager.setGlobalSessionTimeout(1000 * 60 * 60);
         return sessionManager;
     }
@@ -64,7 +64,7 @@ public class ShiroConfig {
      */
     @Bean
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = inLongShiro.getShiroFilter(securityManager);
+        ShiroFilterFactoryBean shiroFilterFactoryBean = inlongShiro.getShiroFilter(securityManager);
         return shiroFilterFactoryBean;
     }
 
@@ -73,6 +73,6 @@ public class ShiroConfig {
      */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor() {
-        return inLongShiro.getAuthorizationAttributeSourceAdvisor(securityManager());
+        return inlongShiro.getAuthorizationAttributeSourceAdvisor(securityManager());
     }
 }
