@@ -63,17 +63,16 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |-
-              count={{ .Values.mysql.replicas }}
+              count={{ template "inlong.mysql.count" . }}
               for i in $(seq 0 $(expr $count - 1))
               do
                 {{- if .Values.external.mysql.enabled }}
-                  host={{ .Values.external.mysql.hostname }}
-                  port={{ .Values.external.mysql.port }}
+                host="{{ template "inlong.mysql.hostname" . }}"
                 {{- else }}
-                  replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
-                  host="$replica.{{ template "inlong.mysql.hostname" . }}"
-                  port={{ .Values.mysql.port }}
+                replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
+                host="$replica.{{ template "inlong.mysql.hostname" . }}"
                 {{- end }}
+                port={{ template "inlong.mysql.port" . }}
                 until nc -z $host $port 2>/dev/null
                 do
                   echo "waiting for host:$host port:$port to be ready"
