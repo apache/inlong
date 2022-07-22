@@ -20,6 +20,7 @@ package org.apache.inlong.manager.web.auth.openapi;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.inlong.common.util.BasicAuth;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -41,11 +42,6 @@ import java.util.Base64;
  */
 @Slf4j
 public class OpenAPIFilter implements Filter {
-
-    public static final String BASIC_AUTH_HEADER = "Authorization";
-    public static final String BASIC_AUTH_PREFIX = "Basic";
-    public static final String BASIC_AUTH_SEPARATOR = " ";
-    public static final String BASIC_AUTH_JOINER = ":";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPIFilter.class);
 
@@ -81,25 +77,25 @@ public class OpenAPIFilter implements Filter {
     }
 
     private SecretToken parseBasicAuth(HttpServletRequest servletRequest) throws Exception {
-        String basicAuth = servletRequest.getHeader(BASIC_AUTH_HEADER);
+        String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
             log.error("basic auth is empty");
             return null;
         }
 
         // Basic auth string must be "Basic Base64(ID:Secret)"
-        String[] parts = basicAuth.split(BASIC_AUTH_SEPARATOR);
+        String[] parts = basicAuth.split(BasicAuth.BASIC_AUTH_SEPARATOR);
         if (parts.length != 2) {
             log.error("parts size error: {}", parts);
             return null;
         }
-        if (!parts[0].equals(BASIC_AUTH_PREFIX)) {
+        if (!parts[0].equals(BasicAuth.BASIC_AUTH_PREFIX)) {
             log.error("prefix error: {}", parts[0]);
             return null;
         }
 
         String joinedPair = new String(Base64.getDecoder().decode(parts[1]));
-        String[] pair = joinedPair.split(BASIC_AUTH_JOINER);
+        String[] pair = joinedPair.split(BasicAuth.BASIC_AUTH_JOINER);
         if (pair.length != 2) {
             log.error("pair format error: {}", pair);
             return null;

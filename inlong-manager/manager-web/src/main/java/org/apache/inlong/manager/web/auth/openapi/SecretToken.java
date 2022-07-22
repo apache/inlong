@@ -28,12 +28,12 @@ import org.apache.shiro.authc.AuthenticationToken;
 @AllArgsConstructor
 public class SecretToken implements AuthenticationToken {
 
-    private String secretID;
+    private String secretId;
     private String secretKey;
 
     @Override
     public Object getPrincipal() {
-        return secretID;
+        return secretId;
     }
 
     @Override

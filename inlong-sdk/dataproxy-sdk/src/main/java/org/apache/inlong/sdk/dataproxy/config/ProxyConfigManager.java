@@ -77,8 +77,6 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.REQUEST_HEADER_AUTHORIZATION;
-
 /**
  * This thread requests dataproxy-host list from manager, including these functions:
  * 1. request dataproxy-host, support retry
@@ -729,7 +727,7 @@ public class ProxyConfigManager extends Thread {
             LOGGER.info("Request url : " + url + ", localManagerIps : " + localManagerIps);
             try {
                 httpPost = new HttpPost(url);
-                httpPost.addHeader(REQUEST_HEADER_AUTHORIZATION,
+                httpPost.addHeader(BasicAuth.BASIC_AUTH_HEADER,
                         BasicAuth.genBasicAuthCredential(clientConfig.getAuthSecretId(),
                                 clientConfig.getAuthSecretKey()));
                 StringEntity se = getEntity(params);

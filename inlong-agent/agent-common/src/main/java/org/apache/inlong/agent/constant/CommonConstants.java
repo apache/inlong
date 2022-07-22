@@ -160,6 +160,4 @@ public class CommonConstants {
 
     public static final String KEY_METRICS_INDEX = "metricsIndex";
 
-    public static final String HTTP_AUTH_HEADER = "Authorization";
-
 }

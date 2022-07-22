@@ -49,7 +49,7 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
             throws AuthenticationException {
         SecretToken upToken = (SecretToken) authenticationToken;
-        String username = upToken.getSecretID();
+        String username = upToken.getSecretId();
         UserEntity userEntity = userService.getByUsername(username);
         Preconditions.checkNotNull(userEntity, "User doesn't exist");
         Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");

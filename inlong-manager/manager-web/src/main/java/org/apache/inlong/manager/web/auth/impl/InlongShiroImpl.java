@@ -52,6 +52,9 @@ import java.util.Map;
 @Component
 public class InlongShiroImpl implements InlongShiro {
 
+    private static final String FILTER_NAME_WEB = "authWeb";
+    private static final String FILTER_NAME_API = "authAPI";
+
     @Autowired
     private UserService userService;
 
@@ -88,8 +91,8 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
-        filters.put("authWeb", new AuthenticationFilter());
-        filters.put("authAPI", new OpenAPIFilter());
+        filters.put(FILTER_NAME_WEB, new AuthenticationFilter());
+        filters.put(FILTER_NAME_API, new OpenAPIFilter());
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
         // login, register request
@@ -103,9 +106,10 @@ public class InlongShiroImpl implements InlongShiro {
         pathDefinitions.put("/swagger-resources", "anon");
 
         // openapi
-        pathDefinitions.put("/openapi/**/*", "authAPI");
+        pathDefinitions.put("/openapi/**/*", FILTER_NAME_API);
 
-        pathDefinitions.put("/**", "authWeb");
+        // other web
+        pathDefinitions.put("/**", FILTER_NAME_WEB);
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(pathDefinitions);
         return shiroFilterFactoryBean;
