@@ -80,6 +80,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -204,7 +205,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(oldClusterTag, null, null);
             if (CollectionUtils.isNotEmpty(clusterEntities)) {
                 clusterEntities.forEach(entity -> {
-                    HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                    Set<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(InlongConstants.COMMA));
                     tagSet.remove(oldClusterTag);
                     tagSet.add(newClusterTag);
                     String updateTags = Joiner.on(",").join(tagSet);
@@ -379,7 +380,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
             request.getBindClusters().forEach(id -> {
                 InlongClusterEntity entity = clusterMapper.selectById(id);
-                HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+                Set<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(InlongConstants.COMMA));
                 tagSet.add(clusterTag);
                 String updateTags = Joiner.on(",").join(tagSet);
                 InlongClusterEntity updateEntity = new InlongClusterEntity();
@@ -627,17 +628,17 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 .name(clusterName)
                 .type(ClusterType.DATA_PROXY)
                 .build();
-        List<InlongClusterEntity> clusterList = clusterMapper.selectByCondition(request);
+        List<InlongClusterEntity> clusterEntityList = clusterMapper.selectByCondition(request);
         DataProxyConfig result = new DataProxyConfig();
-        if (CollectionUtils.isEmpty(clusterList)) {
+        if (CollectionUtils.isEmpty(clusterEntityList)) {
             LOGGER.warn("GetDPConfig: not found data proxy cluster by tag={} name={}", clusterTag, clusterName);
             return result;
         }
 
         // get all inlong groups which was successful and belongs to this data proxy cluster
-        List<String> clusterTagList = clusterList.stream()
-                .map(InlongClusterEntity::getClusterTags)
-                .collect(Collectors.toList());
+        Set<String> tagSet = new HashSet<>(16);
+        clusterEntityList.forEach(e -> tagSet.addAll(Arrays.asList(e.getClusterTags().split(InlongConstants.COMMA))));
+        List<String> clusterTagList = new ArrayList<>(tagSet);
         InlongGroupPageRequest groupRequest = InlongGroupPageRequest.builder()
                 .status(GroupStatus.CONFIG_SUCCESSFUL.getCode())
                 .clusterTagList(clusterTagList)
@@ -749,7 +750,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
      * Remove cluster tag from the given cluster entity.
      */
     private void removeClusterTag(InlongClusterEntity entity, String clusterTag, String operator, Date modifyTime) {
-        HashSet<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(","));
+        Set<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(InlongConstants.COMMA));
         tagSet.remove(clusterTag);
         String updateTags = Joiner.on(",").join(tagSet);
         entity.setClusterTags(updateTags);
