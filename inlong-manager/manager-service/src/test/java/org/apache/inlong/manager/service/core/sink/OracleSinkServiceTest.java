@@ -127,7 +127,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
 
         try {
             Connection connection = OracleJdbcUtils.getConnection(url, username, password);
-            OracleTableInfo tableInfo = bulidTestMySQLTableInfo(username, tableName);
+            OracleTableInfo tableInfo = bulidTestOracleTableInfo(username, tableName);
             OracleJdbcUtils.createTable(connection, tableInfo);
             List<OracleColumnInfo> addColumns = buildAddColumns();
             OracleJdbcUtils.addColumns(connection, tableName, addColumns);
@@ -141,7 +141,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Build add MySQL column info.
+     * Build add Oracle column info.
      *
      * @return {@link List}
      */
@@ -161,13 +161,13 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Build test mysql table info.
+     * Build test Oracle table info.
      *
-     * @param userName MySQL database name
-     * @param tableName MySQL table name
+     * @param userName Oracle database name
+     * @param tableName Oracle table name
      * @return {@link OracleTableInfo}
      */
-    private OracleTableInfo bulidTestMySQLTableInfo(String userName, String tableName) {
+    private OracleTableInfo bulidTestOracleTableInfo(String userName, String tableName) {
         OracleTableInfo oracleTableInfo = new OracleTableInfo();
         oracleTableInfo.setTableName(tableName);
         List<OracleColumnInfo> columnInfos = new ArrayList<>();
