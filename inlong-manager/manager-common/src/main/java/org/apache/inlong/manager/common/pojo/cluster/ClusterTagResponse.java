@@ -58,7 +58,7 @@ public class ClusterTagResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    @ApiModelProperty(value = "Version information of current data record")
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
 }

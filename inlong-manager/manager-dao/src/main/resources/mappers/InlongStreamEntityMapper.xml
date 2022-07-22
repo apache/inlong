@@ -51,8 +51,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , inlong_group_id, inlong_stream_id, name, description, mq_resource,
+        id, inlong_group_id, inlong_stream_id, name, description, mq_resource,
         data_type, data_encoding, data_separator, data_escape_char, sync_send,
         daily_records, daily_storage, peak_records, max_length, storage_period, ext_params,
         status, previous_status, is_deleted, creator, modifier, create_time, modify_time, version
@@ -265,7 +264,7 @@
         stream.description, stream.mq_resource, stream.data_type, stream.data_encoding,
         stream.data_separator, stream.data_escape_char, stream.sync_send, stream.daily_records,
         stream.daily_storage, stream.peak_records, stream.max_length, stream.storage_period,
-        stream.status, stream.creator, stream.modifier, stream.create_time, stream.modify_time
+        stream.status, stream.creator, stream.modifier, stream.create_time, stream.modify_time, stream.version
         from inlong_stream stream, inlong_group grp
         <where>
             stream.is_deleted = 0

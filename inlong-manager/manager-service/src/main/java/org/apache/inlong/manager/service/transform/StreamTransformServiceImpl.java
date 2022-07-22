@@ -57,7 +57,6 @@ import java.util.stream.Collectors;
 public class StreamTransformServiceImpl implements StreamTransformService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamTransformServiceImpl.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     protected StreamTransformEntityMapper transformMapper;
@@ -86,7 +85,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
-        transformEntity.setVersion(1);
+        transformEntity.setVersion(InlongConstants.INITIAL_VERSION);
         transformEntity.setCreator(operator);
         transformEntity.setModifier(operator);
         Date now = new Date();
@@ -144,9 +143,12 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             LOGGER.error("transform not found by id={}", transformRequest.getId());
             throw new BusinessException(ErrorCodeEnum.TRANSFORM_NOT_FOUND);
         }
+        String errMsg = String.format("transform has already updated with groupId=%s,streamId=%s,name=%s,curVersion=%s",
+                transformRequest.getInlongGroupId(), transformRequest.getInlongStreamId(),
+                transformRequest.getTransformName(), transformRequest.getVersion());
         if (!exist.getVersion().equals(transformRequest.getVersion())) {
-            LOGGER.warn("transform information has already updated, please reload transform information and update.");
-            throw new BusinessException(ErrorCodeEnum.TRAMSFORM_UPDATE_FAILED);
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(transformRequest,
                 StreamTransformEntity::new);
@@ -154,9 +156,9 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         transformEntity.setVersion(transformEntity.getVersion() + 1);
         transformEntity.setModifyTime(new Date());
         int isSuccess = transformMapper.updateByIdSelective(transformEntity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("transform information has already updated, please reload transform information and update.");
-            throw new BusinessException(ErrorCodeEnum.TRAMSFORM_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         updateFieldOpt(transformEntity, transformRequest.getFieldList());
         return true;
@@ -183,7 +185,13 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
                 entity.setModifyTime(now);
-                transformMapper.updateByIdSelective(entity);
+                int isSuccess = transformMapper.updateByIdSelective(entity);
+                if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+                    LOGGER.error("transform has already updated with groupId={},streamId={},name={},curVersion={}",
+                            entity.getInlongGroupId(), entity.getInlongStreamId(),
+                            entity.getTransformName(), entity.getVersion());
+                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                }
                 transformFieldMapper.deleteAll(id);
             }
         }

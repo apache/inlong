@@ -24,6 +24,10 @@ public class InlongConstants {
 
     public static final String COMMA = ",";
 
+    public static final Integer UPDATE_SUCCESS = 1;
+
+    public static final Integer INITIAL_VERSION = 1;
+
     public static final Integer UN_DELETED = 0;
     public static final Integer IS_DELETED = 1;
 

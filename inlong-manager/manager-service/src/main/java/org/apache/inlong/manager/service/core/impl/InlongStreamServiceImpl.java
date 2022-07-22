@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +74,6 @@ import java.util.stream.Collectors;
 public class InlongStreamServiceImpl implements InlongStreamService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongStreamServiceImpl.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private InlongStreamEntityMapper streamMapper;
@@ -115,7 +115,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(operator);
         streamEntity.setCreateTime(new Date());
-        streamEntity.setVersion(1);
+        streamEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
@@ -295,9 +295,11 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
-        if (!streamEntity.getVersion().equals(request.getVersion())) {
-            LOGGER.warn("stream information has already updated, please reload stream information and update.");
-            throw new BusinessException(ErrorCodeEnum.STREAM_UPDATE_FAILED);
+        String errMsg = String.format("stream has already updated with group id=%s, stream id=%s, current version=%s",
+                streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), request.getVersion());
+        if (!Objects.equals(streamEntity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // Check whether the current inlong group status supports modification
         this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, request);
@@ -305,9 +307,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
         int isSuccess = streamMapper.updateByIdentifierSelective(streamEntity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("stream information has already updated, please reload stream information and update.");
-            throw new BusinessException(ErrorCodeEnum.STREAM_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // Update field information
         updateField(groupId, streamId, request.getFieldList());
@@ -351,8 +353,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        streamMapper.updateByPrimaryKey(entity);
-
+        int isSuccess = streamMapper.updateByPrimaryKey(entity);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("stream has already updated with group id={}, stream id={}, current version={}",
+                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // Logically delete the associated field table
         LOGGER.debug("begin to delete inlong stream field, streamId={}", streamId);
         streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);

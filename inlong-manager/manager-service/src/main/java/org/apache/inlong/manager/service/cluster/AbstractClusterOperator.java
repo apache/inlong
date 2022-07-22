@@ -38,7 +38,7 @@ import java.util.Date;
 public abstract class AbstractClusterOperator implements InlongClusterOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClusterOperator.class);
-    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     protected InlongClusterEntityMapper clusterMapper;
 
@@ -55,7 +55,7 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterMapper.insert(entity);
 
         return entity.getId();
@@ -78,9 +78,10 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         int isSuccess = clusterMapper.updateByIdSelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("cluster information has already updated, please reload cluster information and update.");
-            throw new BusinessException(ErrorCodeEnum.CLUSTER_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("cluster has already updated with name={}, type={}, current version={}", request.getName(),
+                    request.getType(), request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }
 

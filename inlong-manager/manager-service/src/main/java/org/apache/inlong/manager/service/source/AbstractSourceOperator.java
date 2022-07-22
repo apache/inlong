@@ -52,7 +52,6 @@ import java.util.Objects;
 public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperator.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
@@ -78,7 +77,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
         } else {
@@ -90,7 +89,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         // get the ext params
         setTargetEntity(request, entity);
@@ -122,9 +121,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
-        if (!entity.getVersion().equals(request.getVersion())) {
-            LOGGER.warn("source information has already updated, please reload source information and update.");
-            throw new BusinessException(ErrorCodeEnum.SOURCE_UPDATE_FAILED);
+        String errMsg = String.format("source has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSourceName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         // Source type cannot be changed
@@ -168,9 +169,9 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             }
         }
         int isSuccess = sourceMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("source information has already updated, please reload source information and update.");
-            throw new BusinessException(ErrorCodeEnum.SOURCE_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.warn(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());

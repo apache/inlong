@@ -86,7 +86,7 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "Extended information for MQ")
     private ConsumptionMqExtBase mqExtInfo;
 
-    @ApiModelProperty(value = "Version information of current data record")
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
     @JsonIgnore

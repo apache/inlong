@@ -83,8 +83,6 @@ public class ConsumptionServiceImpl implements ConsumptionService {
 
     private static final String PREFIX_RLQ = "rlq"; // prefix of the Topic of the retry letter queue
 
-    private static final Integer UPDATE_SUCCESS = 1;
-
     @Autowired
     private InlongGroupEntityMapper groupMapper;
     @Autowired
@@ -255,17 +253,17 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(exists, "consumption not exist with id " + consumptionId);
         Preconditions.checkTrue(exists.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the consumption");
-
+        String errMsg = String.format("consumption information has already updated, id=%s, current version=%s",
+                exists.getId(), info.getVersion());
+        if (!Objects.equals(exists.getVersion(), info.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         ConsumptionEntity entity = new ConsumptionEntity();
         Date now = new Date();
         CommonBeanUtils.copyProperties(info, entity, true);
         entity.setModifier(operator);
         entity.setModifyTime(now);
-        if (!entity.getVersion().equals(info.getVersion())) {
-            LOGGER.warn(
-                    "consumption information has already updated, please reload consumption information and update.");
-            throw new BusinessException(ErrorCodeEnum.CONSUMPTION_UPDATE_FAILED);
-        }
         // Modify Pulsar consumption info
         MQType mqType = MQType.forType(info.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -319,10 +317,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
             consumptionPulsarMapper.updateByConsumptionId(pulsarEntity);
         }
         int isSuccess = consumptionMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn(
-                    "consumption information has already updated, please reload consumption information and update.");
-            throw new BusinessException(ErrorCodeEnum.CONSUMPTION_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         return true;
     }
@@ -386,7 +383,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         if (info.getId() != null) {
             consumptionMapper.updateByPrimaryKey(entity);

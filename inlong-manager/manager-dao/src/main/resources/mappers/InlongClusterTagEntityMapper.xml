@@ -34,8 +34,7 @@
         <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id
-        , cluster_tag, ext_params, in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
+        id, cluster_tag, ext_params, in_charges, status, is_deleted, creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -91,7 +90,7 @@
             modify_time = #{modifyTime,jdbcType=TIMESTAMP},
             version     = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
-        and version #{version,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByPrimaryKeySelective"
             parameterType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">

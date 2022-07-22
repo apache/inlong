@@ -68,7 +68,6 @@ import java.util.stream.Collectors;
 public class StreamSinkServiceImpl implements StreamSinkService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSinkServiceImpl.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private SinkOperatorFactory operatorFactory;
@@ -276,9 +275,10 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("sink information has already updated, please reload sink information and update.");
-            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("sink information has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         sinkFieldMapper.logicDeleteAll(id);
 

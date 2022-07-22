@@ -42,7 +42,7 @@ import java.util.Date;
 public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGroupOperator.class);
-    private static final Integer UPDATE_SUCCESS = 1;
+
     @Autowired
     protected InlongGroupEntityMapper groupMapper;
 
@@ -66,7 +66,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         groupMapper.insert(entity);
         return groupId;
@@ -91,9 +91,10 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         int isSuccess = groupMapper.updateByIdentifierSelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("inlong group has already updated, please reload inlong group and update.");
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("inlong group has already updated with group id={}, current version={}",
+                    request.getInlongGroupId(), request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
     }
 

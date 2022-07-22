@@ -23,6 +23,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
@@ -60,7 +61,6 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     private UserEntityMapper userMapper;
@@ -88,6 +88,7 @@ public class UserServiceImpl implements UserService {
         result.setUsername(entity.getName());
         result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
+        result.setVersion(entity.getVersion());
 
         if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
@@ -140,7 +141,7 @@ public class UserServiceImpl implements UserService {
         }
 
         entity.setCreateTime(new Date());
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
         log.debug("success to create user info={}", userInfo);
@@ -172,6 +173,12 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
                         && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
                 "Username [" + updateUser.getUsername() + "] already exists");
+        String errMsg = String.format("user has already updated with username=%s, current version",
+                updateUser.getUsername(), updateUser.getVersion());
+        if (!Objects.equals(updateUserEntity.getVersion(), updateUser.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
@@ -185,11 +192,6 @@ public class UserServiceImpl implements UserService {
                     "Ordinary users are not allowed to update account type");
         }
 
-        if (!updateUserEntity.getVersion().equals(updateUser.getVersion())) {
-            LOGGER.warn("user information has already updated, please reload user information and update.");
-            throw new BusinessException(ErrorCodeEnum.USER_UPDATE_FAILED);
-        }
-
         // update password
         if (!StringUtils.isBlank(updateUser.getNewPassword())) {
             String newPasswordMd5 = MD5Utils.encrypt(updateUser.getNewPassword());
@@ -200,9 +202,9 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setName(updateUser.getUsername());
 
         int isSuccess = userMapper.updateByPrimaryKeySelective(updateUserEntity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("user information has already updated, please reload user information and update.");
-            throw new BusinessException(ErrorCodeEnum.USER_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.warn(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         log.debug("success to update user info={} by {}", updateUser, currentUser);
         return isSuccess;

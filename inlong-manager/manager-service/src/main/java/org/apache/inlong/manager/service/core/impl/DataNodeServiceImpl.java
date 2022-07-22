@@ -51,8 +51,6 @@ public class DataNodeServiceImpl implements DataNodeService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataNodeServiceImpl.class);
 
-    private static final Integer UPDATE_SUCCESS = 1;
-
     @Autowired
     private DataNodeEntityMapper dataNodeMapper;
 
@@ -75,7 +73,7 @@ public class DataNodeServiceImpl implements DataNodeService {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         dataNodeMapper.insert(entity);
 
         LOGGER.debug("success to save data node={}", request);
@@ -123,16 +121,18 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
-        if (!entity.getVersion().equals(request.getVersion())) {
-            LOGGER.warn("data node information has already updated, please reload data node information and update.");
-            throw new BusinessException(ErrorCodeEnum.DATA_NODE_UPDATE_FAILED);
+        String errMsg = String.format("data node has already updated with data node name=%s, type=%s, current version=%s",
+                entity.getName(), entity.getType(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
         int isSuccess = dataNodeMapper.updateById(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("data node information has already updated, please reload data node information and update.");
-            throw new BusinessException(ErrorCodeEnum.DATA_NODE_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         LOGGER.info("success to update data node={}", request);
         return true;
@@ -148,7 +148,12 @@ public class DataNodeServiceImpl implements DataNodeService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        dataNodeMapper.updateById(entity);
+        int isSuccess = dataNodeMapper.updateById(entity);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("data node has already updated, data node name={}, type={}, current version ={}",
+                    entity.getName(), entity.getType(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         LOGGER.info("success to delete data node by id={}", id);
         return true;
     }

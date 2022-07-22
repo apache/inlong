@@ -61,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -213,9 +214,10 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-        if (!entity.getVersion().equals(request.getVersion())) {
-            LOGGER.warn("inlong group has already updated, please reload inlong group and update.");
-            throw new BusinessException(ErrorCodeEnum.GROUP_UPDATE_FAILED);
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.warn("inlong group has already updated with group id={}, curversion={}", request.getInlongGroupId(),
+                    request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);

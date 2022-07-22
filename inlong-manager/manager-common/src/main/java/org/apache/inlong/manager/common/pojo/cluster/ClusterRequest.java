@@ -72,7 +72,7 @@ public abstract class ClusterRequest {
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
 
-    @ApiModelProperty(value = "Version information of current data record")
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
 }

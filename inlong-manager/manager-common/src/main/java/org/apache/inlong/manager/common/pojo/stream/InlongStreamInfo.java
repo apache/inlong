@@ -129,7 +129,7 @@ public class InlongStreamInfo {
     @ApiModelProperty("Stream sink infos")
     private List<StreamSink> sinkList = new ArrayList<>();
 
-    @ApiModelProperty(value = "Version information of current data record")
+    @ApiModelProperty(value = "Version number")
     private Integer version;
 
     public InlongStreamResponse genResponse() {

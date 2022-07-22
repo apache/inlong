@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Default operation of stream sink.
@@ -49,7 +50,6 @@ import java.util.List;
 public abstract class AbstractSinkOperator implements StreamSinkOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSinkOperator.class);
-    private static final Integer UPDATE_SUCCESS = 1;
 
     @Autowired
     protected ObjectMapper objectMapper;
@@ -83,7 +83,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         // get the ext params
         setTargetEntity(request, entity);
@@ -112,9 +112,12 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     public void updateOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
-        if (!entity.getVersion().equals(request.getVersion())) {
-            LOGGER.warn("sink information has already updated, please reload sink information and update.");
-            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+
+        String errMsg = String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
@@ -123,9 +126,9 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
         int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != UPDATE_SUCCESS) {
-            LOGGER.warn("sink information has already updated, please reload sink information and update.");
-            throw new BusinessException(ErrorCodeEnum.SINK_UPDATE_FAILED);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
