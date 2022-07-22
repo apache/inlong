@@ -24,7 +24,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -41,6 +45,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.sdk.dataproxy.ConfigConstants;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
 import org.apache.inlong.sdk.dataproxy.network.ClientMgr;
@@ -306,8 +312,6 @@ public class ProxyConfigManager extends Thread {
             if (proxyEntry.getSize() != 0) {
                 /* Initialize the current proxy information list first. */
                 clientManager.setLoadThreshold(proxyEntry.getLoad());
-                clientManager.setGroupIdNum(proxyEntry.getGroupIdNum());
-                clientManager.setStreamIdMap(proxyEntry.getStreamIdNumMap());
 
                 List<HostInfo> newProxyInfoList = new ArrayList<HostInfo>();
                 for (Map.Entry<String, HostInfo> entry : proxyEntry.getHostMap().entrySet()) {
@@ -503,7 +507,12 @@ public class ProxyConfigManager extends Thread {
         List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
         params.add(new BasicNameValuePair("operation", "query"));
         params.add(new BasicNameValuePair("username", userName));
-        JsonObject pubKeyConf = requestConfiguration(pubKeyUrl, params);
+        String returnStr = requestConfiguration(pubKeyUrl, params);
+        if (Utils.isBlank(returnStr)) {
+            logger.info("No public key information returned from manager");
+            return null;
+        }
+        JsonObject pubKeyConf = jsonParser.parse(returnStr).getAsJsonObject();
         if (pubKeyConf == null) {
             logger.info("No public key information returned from manager");
             return null;
@@ -550,11 +559,6 @@ public class ProxyConfigManager extends Thread {
             throw new Exception("Read local proxyList File failure by " + filePath + ", reason is " + e.getCause());
         }
 
-        int groupIdNum = 0;
-        if (localProxyAddrJson.has("bsn")) {
-            groupIdNum = localProxyAddrJson.get("bsn").getAsInt();
-        }
-
         int load = ConfigConstants.LOAD_THRESHOLD;
         if (localProxyAddrJson.has("load")) {
             int inLoad = localProxyAddrJson.get("load").getAsInt();
@@ -564,15 +568,13 @@ public class ProxyConfigManager extends Thread {
         proxyEntry.setGroupId(clientConfig.getGroupId());
         boolean isInterVisit = checkValidProxy(filePath, localProxyAddrJson);
         proxyEntry.setInterVisit(isInterVisit);
-        Map<String, HostInfo> hostMap = getHostInfoMap(
-                localProxyAddrJson);
+        Map<String, HostInfo> hostMap = getHostInfoMap(localProxyAddrJson);
         proxyEntry.setHostMap(hostMap);
         proxyEntry.setSwitchStat(0);
         Map<String, Integer> streamIdMap = getStreamIdMap(localProxyAddrJson);
-        proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
         proxyEntry.setLoad(load);
         if (localProxyAddrJson.has("clusterId")) {
-            proxyEntry.setClusterId(localProxyAddrJson.get("clusterId").getAsString());
+            proxyEntry.setClusterId(Integer.parseInt(String.valueOf(localProxyAddrJson.get("clusterId"))));
         }
         return proxyEntry;
     }
@@ -653,79 +655,63 @@ public class ProxyConfigManager extends Thread {
         params.add(new BasicNameValuePair("ip", this.localIP));
         logger.info("Begin to get configure from manager {}, param is {}", url, params);
 
-        JsonObject jsonRes = requestConfiguration(url, params);
-        if (jsonRes == null) {
+        String resultStr = requestConfiguration(url, params);
+        ProxyClusterConfig clusterConfig = gson.fromJson(resultStr, ProxyClusterConfig.class);
+        if (clusterConfig == null || !clusterConfig.isSuccess() || clusterConfig.getData() == null) {
             return null;
         }
 
-        Map<String, HostInfo> hostMap = formatHostInfoMap(
-                jsonRes);
-
-        if (hostMap == null) {
+        DataProxyNodeResponse proxyCluster = clusterConfig.getData();
+        List<DataProxyNodeInfo> nodeList = proxyCluster.getNodeList();
+        if (CollectionUtils.isEmpty(nodeList)) {
+            logger.error("dataproxy nodeList is empty!");
             return null;
         }
-        int groupIdNum = 0;
-        if (jsonRes.has("bsn")) {
-            groupIdNum = jsonRes.get("bsn").getAsInt();
+        Map<String, HostInfo> hostMap = formatHostInfoMap(nodeList);
+        if (MapUtils.isEmpty(hostMap)) {
+            return null;
+        }
+
+        int clusterId = -1;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getClusterId())) {
+            clusterId = proxyCluster.getClusterId();
         }
         int load = ConfigConstants.LOAD_THRESHOLD;
-        if (jsonRes.has("load")) {
-            int inLoad = jsonRes.get("load").getAsInt();
-            load = inLoad > 200 ? 200 : (Math.max(inLoad, 0));
+        if (ObjectUtils.isNotEmpty(proxyCluster.getLoad())) {
+            load = proxyCluster.getLoad() > 200 ? 200 : (Math.max(proxyCluster.getLoad(), 0));
         }
+        boolean isIntranet = true;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
+            isIntranet = proxyCluster.getIsIntranet() == 1 ? true : false;
+        }
+        int isSwitch = 0;
+        if (ObjectUtils.isNotEmpty(proxyCluster.getIsSwitch())) {
+            isSwitch = proxyCluster.getIsSwitch();
+        }
+
         ProxyConfigEntry proxyEntry = new ProxyConfigEntry();
+        proxyEntry.setClusterId(clusterId);
         proxyEntry.setGroupId(clientConfig.getGroupId());
-        proxyEntry.setInterVisit(true);
+        proxyEntry.setInterVisit(isIntranet);
         proxyEntry.setHostMap(hostMap);
-        proxyEntry.setSwitchStat(0);
-        Map<String, Integer> streamIdMap = getStreamIdMap(jsonRes);
-        proxyEntry.setGroupIdNumAndStreamIdNumMap(groupIdNum, streamIdMap);
+        proxyEntry.setSwitchStat(isSwitch);
         proxyEntry.setLoad(load);
-        if (jsonRes.has("data")) {
-            JsonArray data = jsonRes.getAsJsonArray("data");
-            if (data != null) {
-                String id = data.get(0).getAsJsonObject().get("id").getAsString();
-                proxyEntry.setClusterId(id);
-            }
-        }
+        proxyEntry.setSize(nodeList.size());
         return proxyEntry;
     }
 
-    private Map<String, HostInfo> formatHostInfoMap(JsonObject jsonRes) {
-        Map<String, HostInfo> hostMap = new HashMap<String, HostInfo>();
-        JsonArray jsonHostList = jsonRes.getAsJsonArray("data");
-        if (jsonHostList == null) {
-            logger.info("Parse proxyList failure: address field is not exist for response from manager!");
-            return null;
-        }
-        for (int i = 0; i < jsonHostList.size(); i++) {
-            JsonObject jsonItem = jsonHostList.get(i).getAsJsonObject();
-            if (jsonItem != null) {
-                if (!jsonItem.has("port")) {
-                    logger.error("Parse proxyList failure: port field is not exist in address("
-                            + i + ") for response from manager!");
-                    return null;
-                }
-                int port = jsonItem.get("port").getAsInt();
-                if (port <= 0) {
-                    logger.info("Parse proxyList failure: port value <= 0 in address("
-                            + i + ") for response from manager!");
-                    return null;
-                }
-                if (!jsonItem.has("ip")) {
-                    logger.error("Parse proxyList failure: host field is not exist in address("
-                            + i + ") for response from manager!");
-                    return null;
-                }
-                String hostItem = jsonItem.get("ip").getAsString();
-                if (Utils.isBlank(hostItem)) {
-                    logger.error("Parse proxyList failure: host value is blank in address("
-                            + i + ") for response from manager!");
-                    return null;
-                }
-                String refId = hostItem + ":" + String.valueOf(port);
-                hostMap.put(refId, new HostInfo(refId, hostItem, port));
+    private Map<String, HostInfo> formatHostInfoMap(List<DataProxyNodeInfo> nodeList) {
+        Map<String, HostInfo> hostMap = new HashMap<>();
+        for (DataProxyNodeInfo proxy : nodeList) {
+            if (ObjectUtils.isEmpty(proxy.getId()) || StringUtils.isEmpty(proxy.getIp()) || ObjectUtils
+                    .isEmpty(proxy.getPort()) || proxy.getPort() < 0) {
+                logger.error("invalid proxy node, id:{}, ip:{}, port:{}", proxy.getId(), proxy.getIp(),
+                        proxy.getPort());
+                continue;
             }
+            String refId = proxy.getIp() + ":" + proxy.getPort();
+            hostMap.put(refId, new HostInfo(refId, proxy.getIp(), proxy.getPort()));
+
         }
         if (hostMap.isEmpty()) {
             logger.error("Parse proxyList failure: address is empty for response from manager!");
@@ -768,7 +754,7 @@ public class ProxyConfigManager extends Thread {
     }
 
     /* Request new configurations from Manager. */
-    private JsonObject requestConfiguration(String url, List<BasicNameValuePair> params) {
+    private String requestConfiguration(String url, List<BasicNameValuePair> params) {
         if (Utils.isBlank(url)) {
             logger.error("request url is null");
             return null;
@@ -822,8 +808,7 @@ public class ProxyConfigManager extends Thread {
                 returnStr = EntityUtils.toString(response.getEntity());
                 if (Utils.isNotBlank(returnStr) && response.getStatusLine().getStatusCode() == 200) {
                     logger.info("Get configure from manager is " + returnStr);
-                    JsonObject jsonRes = jsonParser.parse(returnStr).getAsJsonObject();
-                    return jsonRes;
+                    return returnStr;
                 }
 
                 if (!clientConfig.isLocalVisit()) {
