@@ -24,14 +24,22 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
 
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
+import java.util.Objects;
+
 public class ProxyConfigManagerTest {
 
-    private final String localFile = ProxyConfigManagerTest.class.getClassLoader().getResource("./proxylist.json")
-            .getPath();
+    private final String localFile = Paths.get(
+            Objects.requireNonNull(this.getClass().getClassLoader().getResource("proxylist.json")).toURI())
+            .toString();
     private final ProxyClientConfig clientConfig = PowerMockito.mock(ProxyClientConfig.class);
     private final ClientMgr clientMgr = PowerMockito.mock(ClientMgr.class);
     private final ProxyConfigManager proxyConfigManager = new ProxyConfigManager(clientConfig, "127.0.0.1",
             clientMgr);
+
+    public ProxyConfigManagerTest() throws URISyntaxException {
+    }
 
     @Test
     public void testProxyConfigParse() throws Exception {
