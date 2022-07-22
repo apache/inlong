@@ -488,23 +488,6 @@ CREATE TABLE IF NOT EXISTS `stream_sink`
   DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink table';
 
 -- ----------------------------
--- Table structure for stream_sink_ext
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `stream_sink_ext`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
-    `sink_type`   varchar(20)  NOT NULL COMMENT 'Sink type, including: HDFS, HIVE, etc.',
-    `sink_id`     int(11)      NOT NULL COMMENT 'Sink id',
-    `key_name`    varchar(256) NOT NULL COMMENT 'Configuration item name',
-    `key_value`   text                  DEFAULT NULL COMMENT 'The value of the configuration item',
-    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`id`),
-    KEY `sink_id_index` (`sink_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Stream sink extension table';
-
--- ----------------------------
 -- Table structure for stream_source_field
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `stream_source_field`
