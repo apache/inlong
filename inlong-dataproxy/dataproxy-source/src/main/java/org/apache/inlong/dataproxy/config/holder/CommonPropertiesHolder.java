@@ -17,12 +17,12 @@
 
 package org.apache.inlong.dataproxy.config.holder;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.loader.ClassResourceCommonPropertiesLoader;
 import org.apache.inlong.dataproxy.config.loader.CommonPropertiesLoader;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

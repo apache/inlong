@@ -21,10 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.transform.DeleteTransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -86,7 +87,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         Date now = new Date();
         transformEntity.setCreateTime(now);
         transformEntity.setModifyTime(now);
-        transformEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        transformEntity.setIsDeleted(InlongConstants.UN_DELETED);
         transformMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, transformRequest.getFieldList());
         return transformEntity.getId();
@@ -126,7 +127,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public boolean update(TransformRequest transformRequest, String operator) {
+    public Boolean update(TransformRequest transformRequest, String operator) {
         log.info("begin to update transform info: {}", transformRequest);
         this.checkParams(transformRequest);
         // Check whether the transform can be modified
@@ -146,15 +147,20 @@ public class StreamTransformServiceImpl implements StreamTransformService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public boolean delete(String groupId, String streamId, String transformName, String operator) {
-        log.info("begin to logic delete transform by groupId={} streamId={}, transformName={}", groupId, streamId,
-                transformName);
+    public Boolean delete(DeleteTransformRequest request, String operator) {
+        log.info("begin to logic delete transform for request={}", request);
+        Preconditions.checkNotNull(request, "delete request of transform cannot be null");
+
+        String groupId = request.getInlongGroupId();
+        String streamId = request.getInlongStreamId();
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
         Preconditions.checkNotNull(streamId, ErrorCodeEnum.STREAM_ID_IS_EMPTY.getMessage());
         groupCheckService.checkGroupStatus(groupId, operator);
-        Date now = new Date();
-        List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId, transformName);
+
+        List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId,
+                request.getTransformName());
         if (CollectionUtils.isNotEmpty(entityList)) {
+            Date now = new Date();
             for (StreamTransformEntity entity : entityList) {
                 Integer id = entity.getId();
                 entity.setVersion(entity.getVersion() + 1);
@@ -165,8 +171,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
                 transformFieldMapper.deleteAll(id);
             }
         }
-        log.info("success to logic delete transform by groupId={}, streamId={}, transformName={}", groupId, streamId,
-                transformName);
+        log.info("success to logic delete transform for request={} by user={}", request, operator);
         return true;
     }
 
@@ -221,7 +226,7 @@ public class StreamTransformServiceImpl implements StreamTransformService {
             fieldEntity.setRankNum(fieldInfo.getId());
             fieldEntity.setTransformId(transformId);
             fieldEntity.setTransformType(transformType);
-            fieldEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+            fieldEntity.setIsDeleted(InlongConstants.UN_DELETED);
             entityList.add(fieldEntity);
         }
 

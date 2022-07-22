@@ -19,38 +19,32 @@
 -->
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper
-        namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
-    <select id="selectProxyCluster"
-            resultType="org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster">
-        select name as cluster_name, cluster_tag, ext_tag, ext_params
+<mapper namespace="org.apache.inlong.manager.dao.mapper.ClusterSetMapper">
+    <select id="selectProxyCluster" resultType="org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster">
+        select name as cluster_name, cluster_tags, ext_tag, ext_params
         from inlong_cluster
         where type = 'DATA_PROXY'
           and is_deleted = '0'
     </select>
-    <select id="selectCacheCluster"
-            resultType="org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster">
+    <select id="selectCacheCluster" resultType="org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster">
         select name as cluster_name,
                type,
-               cluster_tag,
+               cluster_tags,
                ext_tag,
                ext_params
         from inlong_cluster
         where type in ('PULSAR', 'KAFKA', 'TUBE')
           and is_deleted = '0'
     </select>
-    <select id="selectInlongGroupId"
-            resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId">
+    <select id="selectInlongGroupId" resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId">
         select inlong_group_id,
-               inlong_cluster_tag as
-                                     cluster_tag,
+               inlong_cluster_tag as cluster_tag,
                mq_resource        as topic,
                ext_params
         from inlong_group
         where is_deleted = 0
     </select>
-    <select id="selectInlongStreamId"
-            resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId">
+    <select id="selectInlongStreamId" resultType="org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId">
         select inlong_group_id,
                inlong_stream_id,
                mq_resource as topic,

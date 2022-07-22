@@ -58,7 +58,7 @@ const getFilterFormContent = defaultValues => [
   },
 ];
 
-const Comp = ({ inlongGroupId }: Props, ref) => {
+const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
   const [options, setOptions] = useState({
     // keyword: '',
     pageSize: defaultSize,
@@ -109,7 +109,7 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
 
   const onDelete = ({ id }) => {
     Modal.confirm({
-      title: i18n.t('pages.AccessDetail.DataSources.DeletConfirm'),
+      title: i18n.t('pages.AccessDetail.DataSources.DeleteConfirm'),
       onOk: async () => {
         await request({
           url: `/source/delete/${id}`,
@@ -162,16 +162,19 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
       {
         title: i18n.t('basic.Operating'),
         dataIndex: 'action',
-        render: (text, record) => (
-          <>
-            <Button type="link" onClick={() => onEdit(record)}>
-              {i18n.t('basic.Edit')}
-            </Button>
-            <Button type="link" onClick={() => onDelete(record)}>
-              {i18n.t('basic.Delete')}
-            </Button>
-          </>
-        ),
+        render: (text, record) =>
+          readonly ? (
+            '-'
+          ) : (
+            <>
+              <Button type="link" onClick={() => onEdit(record)}>
+                {i18n.t('basic.Edit')}
+              </Button>
+              <Button type="link" onClick={() => onDelete(record)}>
+                {i18n.t('basic.Delete')}
+              </Button>
+            </>
+          ),
       } as any,
     ]);
 
@@ -191,7 +194,6 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
               pageNum: 1,
               pageSize: 1000,
               inlongGroupId,
-              dataSourceType: options.sourceType,
             },
           },
           requestParams: {
@@ -216,9 +218,11 @@ const Comp = ({ inlongGroupId }: Props, ref) => {
           onFilter,
         }}
         suffix={
-          <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
-            {i18n.t('pages.AccessDetail.DataSources.Create')}
-          </Button>
+          !readonly && (
+            <Button type="primary" onClick={() => setCreateModal({ visible: true })}>
+              {i18n.t('pages.AccessDetail.DataSources.Create')}
+            </Button>
+          )
         }
         table={{
           columns,

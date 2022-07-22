@@ -21,7 +21,10 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.DataSeparator;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -35,9 +38,14 @@ public class InlongStreamRequest {
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id")
     private String inlongGroupId;
 
+    @NotBlank(message = "inlongStreamId cannot be blank")
+    @Length(min = 4, max = 100, message = "inlongStreamId length must be between 4 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{4,100}$",
+            message = "inlongStreamId only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty(value = "Inlong stream id")
     private String inlongStreamId;
 

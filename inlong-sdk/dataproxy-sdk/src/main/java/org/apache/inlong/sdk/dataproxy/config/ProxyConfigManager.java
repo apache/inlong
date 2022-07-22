@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -59,7 +60,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -492,24 +492,7 @@ public class ProxyConfigManager extends Thread {
             hostInfoMd5.append(";");
         }
 
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("{}, {}", e.toString(), e.getStackTrace());
-        }
-        try {
-            md.update(hostInfoMd5.toString().getBytes("utf8"), 0, hostInfoMd5.toString().length());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        byte[] mdbytes = md.digest();
-        // convert the byte to hex format method 1
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < mdbytes.length; i++) {
-            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        return sb.toString();
+        return DigestUtils.md5Hex(hostInfoMd5.toString());
     }
 
     private EncryptConfigEntry requestPubKey(String pubKeyUrl, String userName, boolean needGet) {
@@ -666,7 +649,7 @@ public class ProxyConfigManager extends Thread {
 
     public ProxyConfigEntry requestProxyList(String url) {
         ArrayList<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-        params.add(new BasicNameValuePair("netTag", clientConfig.getNetTag()));
+        params.add(new BasicNameValuePair("extTag", clientConfig.getNetTag()));
         params.add(new BasicNameValuePair("ip", this.localIP));
         logger.info("Begin to get configure from manager {}, param is {}", url, params);
 

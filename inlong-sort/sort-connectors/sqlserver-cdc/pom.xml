@@ -69,6 +69,13 @@
                             </artifactSet>
                             <filters>
                                 <filter>
+                                    <artifact>org.apache.inlong:sort-connector-*</artifact>
+                                    <includes>
+                                        <include>org/apache/inlong/**</include>
+                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
+                                    </includes>
+                                </filter>
+                                <filter>
                                     <artifact>org.apache.kafka:*</artifact>
                                     <excludes>
                                         <exclude>kafka/kafka-version.properties</exclude>

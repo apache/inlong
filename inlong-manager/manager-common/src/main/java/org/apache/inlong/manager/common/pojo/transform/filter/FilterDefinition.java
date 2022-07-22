@@ -77,7 +77,7 @@ public class FilterDefinition extends TransformDefinition {
         /**
          * If target value is constant, set targetConstant, or set targetField if not;
          */
-        private boolean isConstant;
+        private boolean constant;
 
         private StreamField targetField;
 

@@ -447,7 +447,7 @@ public abstract class AbsTopicDeployMapperImpl implements TopicDeployMapper {
     }
 
     @Override
-    public Set<String> getConfiguredTopicSet() {
+    public Set<String> getDeployedTopicSet() {
         return new HashSet<>(topicName2RecordCache.keySet());
     }
 

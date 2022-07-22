@@ -18,69 +18,49 @@
 package org.apache.inlong.audit.service.consume;
 
 import com.google.gson.Gson;
+
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
-import org.apache.inlong.audit.db.entities.AuditDataPo;
-import org.apache.inlong.audit.db.entities.ESDataPo;
 import org.apache.inlong.audit.protocol.AuditData;
-import org.apache.inlong.audit.service.ElasticsearchService;
+import org.apache.inlong.audit.service.InsertData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.util.List;
 
 public abstract class BaseConsume {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BaseConsume.class);
+
     private final Gson gson = new Gson();
 
-    protected AuditDataDao auditDataDao;
-    protected ElasticsearchService esService;
+    protected List<InsertData> insertServiceList;
     protected StoreConfig storeConfig;
     protected MessageQueueConfig mqConfig;
 
-    public BaseConsume(AuditDataDao auditDataDao, ElasticsearchService esService, StoreConfig storeConfig,
+    public BaseConsume(List<InsertData> insertServiceList, StoreConfig storeConfig,
             MessageQueueConfig mqConfig) {
-        this.auditDataDao = auditDataDao;
-        this.esService = esService;
+        this.insertServiceList = insertServiceList;
         this.storeConfig = storeConfig;
         this.mqConfig = mqConfig;
     }
 
     public abstract void start();
 
+    /**
+     * handleMessage
+     * @param body
+     * @throws Exception
+     */
     protected void handleMessage(String body) throws Exception {
         AuditData msgBody = gson.fromJson(body, AuditData.class);
-        if (storeConfig.isMysqlStore()) {
-            AuditDataPo po = new AuditDataPo();
-            po.setIp(msgBody.getIp());
-            po.setThreadId(msgBody.getThreadId());
-            po.setDockerId(msgBody.getDockerId());
-            po.setPacketId(msgBody.getPacketId());
-            po.setSdkTs(new Date(msgBody.getSdkTs()));
-            po.setLogTs(new Date(msgBody.getLogTs()));
-            po.setAuditId(msgBody.getAuditId());
-            po.setCount(msgBody.getCount());
-            po.setDelay(msgBody.getDelay());
-            po.setInlongGroupId(msgBody.getInlongGroupId());
-            po.setInlongStreamId(msgBody.getInlongStreamId());
-            po.setSize(msgBody.getSize());
-            auditDataDao.insert(po);
-        }
-        if (storeConfig.isElasticsearchStore()) {
-            ESDataPo esPo = new ESDataPo();
-            esPo.setIp(msgBody.getIp());
-            esPo.setThreadId(msgBody.getThreadId());
-            esPo.setDockerId(msgBody.getDockerId());
-            esPo.setSdkTs(new Date(msgBody.getSdkTs()).getTime());
-            esPo.setLogTs(new Date(msgBody.getLogTs()));
-            esPo.setAuditId(msgBody.getAuditId());
-            esPo.setCount(msgBody.getCount());
-            esPo.setDelay(msgBody.getDelay());
-            esPo.setInlongGroupId(msgBody.getInlongGroupId());
-            esPo.setInlongStreamId(msgBody.getInlongStreamId());
-            esPo.setSize(msgBody.getSize());
-            esPo.setPacketId(msgBody.getPacketId());
-            esService.insertData(esPo);
-        }
+        this.insertServiceList.forEach((service) -> {
+            try {
+                service.insert(msgBody);
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
+        });
     }
 
 }

@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test class for creat inlong stream.
+ * Unit test for {@link InlongStreamImpl}
  */
 public class InlongStreamImplTest {
 

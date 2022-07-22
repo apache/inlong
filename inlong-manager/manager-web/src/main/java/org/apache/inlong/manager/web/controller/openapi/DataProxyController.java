@@ -23,44 +23,37 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * Data proxy controller.
  */
 @RestController
 @RequestMapping("/openapi")
-@Api(tags = "Open-DataProxy-Config")
+@Api(tags = "Open-DataProxy-API")
 public class DataProxyController {
 
     @Autowired
+    @Lazy
     private InlongClusterService clusterService;
+    @Autowired
+    private DataProxyConfigRepository dataProxyConfigRepository;
 
-    /**
-     * Support GET and POST methods,
-     * POST is used for DataProxy requests,
-     * GET is used for quick lookup of IP lists (e.g. via browser requests).
-     */
-    @RequestMapping(value = "/dataproxy/getIpList", method = {RequestMethod.GET, RequestMethod.POST})
-    @ApiOperation(value = "Get data proxy ip list by cluster name")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
-            @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
-    })
-    public Response<List<DataProxyNodeInfo>> getIpList(
-            @RequestParam(required = false) String clusterTag,
-            @RequestParam(required = false) String clusterName) {
-        return Response.success(clusterService.getDataProxyNodeList(clusterTag, clusterName));
+    @GetMapping(value = "/dataproxy/getIpList/{inlongGroupId}")
+    @ApiOperation(value = "Get data proxy IP list by InlongGroupId")
+    public Response<DataProxyNodeResponse> getIpList(@PathVariable String inlongGroupId) {
+        return Response.success(clusterService.getDataProxyNodes(inlongGroupId));
     }
 
     @GetMapping("/dataproxy/getConfig")
@@ -74,7 +67,7 @@ public class DataProxyController {
             @RequestParam(required = true) String clusterName) {
         DataProxyConfig config = clusterService.getDataProxyConfig(clusterTag, clusterName);
         if (CollectionUtils.isEmpty(config.getMqClusterList()) || CollectionUtils.isEmpty(config.getTopicList())) {
-            return Response.fail("failed to get mq clusters or topics");
+            return Response.fail("Failed to get MQ Cluster or Topic, make sure Cluster registered or Topic existed.");
         }
         return Response.success(config);
     }
@@ -87,6 +80,21 @@ public class DataProxyController {
     })
     public String getAllConfig(@RequestParam String clusterName, @RequestParam(required = false) String md5) {
         return clusterService.getAllConfig(clusterName, md5);
+    }
+
+    @RequestMapping(value = "/changeClusterTag", method = RequestMethod.PUT)
+    @ApiOperation(value = "Change cluster tag and topic for inlong group id")
+    public Response<String> changeClusterTag(@RequestParam String inlongGroupId, @RequestParam String clusterTag,
+            @RequestParam String topic) {
+        String result = dataProxyConfigRepository.changeClusterTag(inlongGroupId, clusterTag, topic);
+        return Response.success(result);
+    }
+
+    @RequestMapping(value = "/removeBackupClusterTag", method = RequestMethod.PUT)
+    @ApiOperation(value = "Remove backup cluster tag and topic for inlong group id")
+    public Response<String> removeBackupClusterTag(@RequestParam String inlongGroupId) {
+        String result = dataProxyConfigRepository.removeBackupClusterTag(inlongGroupId);
+        return Response.success(result);
     }
 
 }

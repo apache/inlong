@@ -29,8 +29,8 @@ import org.apache.inlong.manager.client.api.inner.InnerGroupContext;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.util.AssertUtils;
 import org.apache.inlong.manager.common.util.JsonUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.io.Serializable;
 import java.util.List;
@@ -75,7 +75,7 @@ public class InlongGroupContext implements Serializable {
 
     public InlongGroupContext(InnerGroupContext groupContext) {
         InlongGroupInfo groupInfo = groupContext.getGroupInfo();
-        AssertUtils.notNull(groupInfo);
+        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         this.groupId = groupInfo.getInlongGroupId();
         this.groupName = groupInfo.getName();
         this.groupInfo = groupInfo;

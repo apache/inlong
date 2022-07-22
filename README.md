@@ -21,8 +21,8 @@
 
 
 # Apache InLong
-[![Build Status](https://travis-ci.org/apache/incubator-inlong.svg?branch=master)](https://github.com/apache/incubator-inlong/actions)
-[![CodeCov](https://codecov.io/gh/apache/incubator-inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/incubator-inlong)
+[![Build Status](https://travis-ci.org/apache/inlong.svg?branch=master)](https://github.com/apache/inlong/actions)
+[![CodeCov](https://codecov.io/gh/apache/inlong/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/inlong)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.inlong/inlong/badge.svg)](http://search.maven.org/#search%7Cga%7C1%7Corg.apache.inlong)
 [![GitHub release](https://img.shields.io/badge/release-download-orange.svg)](https://inlong.apache.org/download/main)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
@@ -39,14 +39,14 @@
 - [License](#license)
 
 # What is Apache InLong?
-[Apache InLong](https://inlong.apache.org)(incubating) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
+[Apache InLong](https://inlong.apache.org) is a one-stop integration framework for massive data that provides automatic, secure and reliable data transmission capabilities. InLong supports both batch and stream data processing at the same time, which offers great power to build data analysis, modeling and other real-time  applications based on streaming data.
 
 InLong (应龙) is a divine beast in Chinese mythology who guides the river into the sea, and it is regarded as a metaphor of the InLong system for reporting data streams.
 
 InLong was originally built at Tencent, which has served online businesses for more than 8 years, to support massive data (data scale of more than 80 trillion pieces of data per day) reporting services in big data scenarios. The entire platform has integrated 5 modules:  Ingestion, Convergence, Caching, Sorting, and Management, so that the business only needs to provide data sources, data service quality, data landing clusters and data landing formats, that is, the data can be continuously pushed from the source to the target cluster, which greatly meets the data reporting service requirements in the business big data scenario.
 
-For getting more information, please visit our project documentation at https://inlong.apache.org/
-<img src="https://github.com/apache/incubator-inlong-website/blob/master/static/img/inlong-structure-en.png" align="center" alt="Apache InLong"/>
+For getting more information, please visit our project documentation at https://inlong.apache.org/.
+![inlong-structure-en.png](https://github.com/apache/inlong-website/blob/master/static/img/inlong-structure-en.png)
 
 
 ## Features
@@ -103,12 +103,12 @@ Requirements:
 
 Compile and install:
 ```
-$ mvn clean install -DskipTests
+mvn clean install -DskipTests
 ```
 (Optional) Compile using docker image:
 ```
-$ docker pull maven:3.6-openjdk-8
-$ docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install -DskipTests
+docker pull maven:3.6-openjdk-8
+docker run -v `pwd`:/inlong  -w /inlong maven:3.6-openjdk-8 mvn clean install -DskipTests
 ```
 after compile successfully, you could find distribution file at `inlong-distribution/target`.
 
@@ -125,7 +125,7 @@ after compile successfully, you could find distribution file at `inlong-distribu
 - [Dashboard Plugin extends a Data Node page](https://inlong.apache.org/docs/next/design_and_concept/how_to_write_plugin_dashboard)
 
 ## Contribute to InLong
-- Report any issue on [GitHub Issue](https://github.com/apache/incubator-inlong/issues)
+- Report any issue on [GitHub Issue](https://github.com/apache/inlong/issues)
 - Code pull request according to [How to contribute](https://inlong.apache.org/community/how-to-contribute).
 
 ## Contact Us
@@ -137,7 +137,7 @@ after compile successfully, you could find distribution file at `inlong-distribu
 
 ## Documentation
 - Home page: https://inlong.apache.org/
-- Issues: https://github.com/apache/incubator-inlong/issues
+- Issues: https://github.com/apache/inlong/issues
 
 ## License
 © Contributors Licensed under an [Apache-2.0](LICENSE) license.

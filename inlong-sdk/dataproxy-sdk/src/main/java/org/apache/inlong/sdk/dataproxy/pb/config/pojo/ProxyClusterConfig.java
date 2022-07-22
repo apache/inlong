@@ -161,7 +161,17 @@ public class ProxyClusterConfig {
      * @return
      */
     public static String generateMd5(ProxyClusterConfig config) {
-        String md5 = DigestUtils.md2Hex(JSON.toJSONString(config));
-        return md5;
+        return DigestUtils.md5Hex(JSON.toJSONString(config));
     }
+
+    /**
+     * generateMd5
+     * 
+     * @param  configList
+     * @return
+     */
+    public static String generateMd5(List<ProxyClusterConfig> configList) {
+        return DigestUtils.md5Hex(JSON.toJSONString(configList));
+    }
+
 }

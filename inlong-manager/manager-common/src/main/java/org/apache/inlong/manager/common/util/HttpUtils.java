@@ -19,6 +19,16 @@ package org.apache.inlong.manager.common.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -26,30 +36,23 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 /**
  * HTTP utils
  */
-@Component
 @Slf4j
 public class HttpUtils {
 
-    private static final Gson gson = new GsonBuilder().create(); // thread safe
-    @Autowired
-    private RestTemplate restTemplate;
+    private static final Gson GSON = new GsonBuilder().create(); // thread safe
 
+    /**
+     * Check whether the host and port can connect
+     *
+     * @param host target host address
+     * @param port target port
+     * @param connectTimeout connect timeout
+     * @param timeUnit time unit of timeout
+     * @return true if connect successfully, false if connect failed
+     */
     public static boolean checkConnectivity(String host, int port, int connectTimeout, TimeUnit timeUnit) {
         InetSocketAddress socketAddress = new InetSocketAddress(host, port);
         Socket socket = new Socket();
@@ -69,17 +72,15 @@ public class HttpUtils {
     }
 
     /**
-     * Send an HTTP request
+     * Send an HTTP request by the given rest template.
      */
-    public <T> T request(String url, HttpMethod method, String param, HttpHeaders header, Class<T> cls)
-            throws Exception {
-        // Set request header parameters
+    public static <T> T request(RestTemplate restTemplate, String url, HttpMethod method,
+            String param, HttpHeaders header, Class<T> cls) throws Exception {
         ResponseEntity<String> exchange;
         try {
             HttpEntity<String> request = new HttpEntity<>(param, header);
-            log.debug("send http request to {}, param {}", url, param);
+            log.debug("send request to {}, param {}", url, param);
             exchange = restTemplate.exchange(url, method, request, String.class);
-
             String body = exchange.getBody();
             HttpStatus statusCode = exchange.getStatusCode();
             if (!statusCode.is2xxSuccessful()) {
@@ -87,9 +88,9 @@ public class HttpUtils {
             }
 
             log.debug("response from {}, status code {}", url, statusCode);
-            return gson.fromJson(exchange.getBody(), cls);
+            return GSON.fromJson(exchange.getBody(), cls);
         } catch (RestClientException e) {
-            log.error(" do request for {} exception {} ", url, e.getMessage());
+            log.error("request for {} exception {} ", url, e.getMessage());
             throw e;
         }
     }
@@ -97,31 +98,28 @@ public class HttpUtils {
     /**
      * Send an HTTP request
      */
-    public <T> T request(String url, HttpMethod httpMethod, Object requestBody, HttpHeaders header,
-            ParameterizedTypeReference<T> typeReference) {
+    public <T> T request(RestTemplate restTemplate, String url, HttpMethod httpMethod, Object requestBody,
+            HttpHeaders header, ParameterizedTypeReference<T> typeReference) {
         if (log.isDebugEnabled()) {
-            log.debug("call {}, request body {}", url, gson.toJson(requestBody));
+            log.debug("begin request to {} by request body {}", url, GSON.toJson(requestBody));
         }
 
         HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, header);
         ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, requestEntity, typeReference);
 
-        if (log.isDebugEnabled()) {
-            log.debug("call {}, status code {}", url, response.getStatusCode());
-        }
-
+        log.debug("success request to {}, status code {}", url, response.getStatusCode());
         Preconditions.checkTrue(response.getStatusCode().is2xxSuccessful(), "Request failed");
         return response.getBody();
     }
 
-    public <T> T postRequest(String url, Object params, HttpHeaders header,
+    public <T> T postRequest(RestTemplate restTemplate, String url, Object params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
-        return request(url, HttpMethod.POST, params, header, typeReference);
+        return request(restTemplate, url, HttpMethod.POST, params, header, typeReference);
     }
 
-    public <T> T getRequest(String url, Map<String, Object> params, HttpHeaders header,
+    public <T> T getRequest(RestTemplate restTemplate, String url, Map<String, Object> params, HttpHeaders header,
             ParameterizedTypeReference<T> typeReference) {
-        return request(buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
+        return request(restTemplate, buildUrlWithQueryParam(url, params), HttpMethod.GET, null, header, typeReference);
     }
 
     private String buildUrlWithQueryParam(String url, Map<String, Object> params) {

@@ -19,7 +19,7 @@
 
 -->
 
-## Contributing to Apache InLong(incubating)
+## Contributing to Apache InLong
 
 We would love for you to contribute to Apache InLong and make it even better!
 Please check the [Contribution Guide for Apache InLong](https://inlong.apache.org/community/how-to-contribute)

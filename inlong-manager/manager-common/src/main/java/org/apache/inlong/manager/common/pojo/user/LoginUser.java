@@ -21,6 +21,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * Login user and password
  */
@@ -28,9 +30,11 @@ import lombok.Data;
 @ApiModel("Login user and password")
 public class LoginUser {
 
-    @ApiModelProperty("username")
+    @NotBlank
+    @ApiModelProperty(value = "username", required = true)
     private String username;
 
-    @ApiModelProperty("password")
+    @NotBlank
+    @ApiModelProperty(value = "password", required = true)
     private String password;
 }

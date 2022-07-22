@@ -52,6 +52,16 @@ public interface InlongStream {
     Map<String, StreamSink> getSinks();
 
     /**
+     * Get detail info of data sink by id.
+     */
+    StreamSink getSinkInfoById(Integer sinkId);
+
+    /**
+     * Get detail info of data sink by name.
+     */
+    StreamSink getSinkInfoByName(String sinkName);
+
+    /**
      * Return data transform node defined in stream(split,string replace etc)
      * key is transform name which must be unique within one stream scope.
      */

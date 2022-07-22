@@ -36,10 +36,6 @@ public interface QueueOperateListener extends TaskEventListener {
             return ListenerResult.success();
         }
 
-        @Override
-        public boolean async() {
-            return false;
-        }
     };
 
 }

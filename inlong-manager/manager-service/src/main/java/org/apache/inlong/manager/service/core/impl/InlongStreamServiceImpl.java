@@ -22,23 +22,18 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamRequest;
-import org.apache.inlong.manager.common.pojo.stream.FullStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamApproveRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamPageRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -148,6 +143,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         List<InlongStreamExtEntity> extEntities = streamExtMapper.selectByRelatedId(groupId, streamId);
         List<InlongStreamExtInfo> exts = CommonBeanUtils.copyListProperties(extEntities, InlongStreamExtInfo::new);
         streamInfo.setExtList(exts);
+        List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+        streamInfo.setSinkList(sinkList);
         LOGGER.info("success to get inlong stream for groupId={}", groupId);
         return streamInfo;
     }
@@ -175,6 +172,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             streamInfo.setFieldList(fieldInfos);
             List<InlongStreamExtInfo> extInfos = extInfoMap.get(streamId);
             streamInfo.setExtList(extInfos);
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+            streamInfo.setSinkList(sinkList);
         });
         return streamList;
     }
@@ -199,39 +198,80 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public PageInfo<InlongStreamListResponse> listByCondition(InlongStreamPageRequest request) {
+    public PageInfo<InlongStreamBriefInfo> listBrief(InlongStreamPageRequest request) {
         LOGGER.debug("begin to list inlong stream page by {}", request);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamListResponse> streamList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongStreamListResponse::new);
+        List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
+                InlongStreamBriefInfo::new);
 
-        // Filter out inlong streams that do not have this sink type (only one of each inlong stream can be created)
-        String groupId = request.getInlongGroupId();
-        String sinkType = request.getSinkType();
-        if (StringUtils.isNotEmpty(sinkType)) {
-            List<String> streamIdList = streamList.stream().map(InlongStreamListResponse::getInlongStreamId)
-                    .distinct().collect(Collectors.toList());
-            List<String> resultList = sinkService.getExistsStreamIdList(groupId, sinkType, streamIdList);
-            streamList.removeIf(entity -> resultList.contains(entity.getInlongStreamId()));
-        }
-
-        // Query all stream sink targets corresponding to each inlong stream according to streamId
-        if (request.getNeedSinkList() == 1) {
-            streamList.forEach(stream -> {
-                String streamId = stream.getInlongStreamId();
-                List<String> sinkTypeList = sinkService.getSinkTypeList(groupId, streamId);
-                stream.setSinkTypeList(sinkTypeList);
-            });
-        }
-
-        // Encapsulate the paging query results into the PageInfo object to obtain related paging information
-        PageInfo<InlongStreamListResponse> page = new PageInfo<>(streamList);
+        PageInfo<InlongStreamBriefInfo> page = new PageInfo<>(streamList);
         page.setTotal(streamList.size());
 
-        LOGGER.debug("success to list inlong stream info for groupId={}", groupId);
+        LOGGER.debug("success to list inlong stream info for groupId={}", request.getInlongGroupId());
         return page;
+    }
+
+    @Override
+    public PageInfo<InlongStreamInfo> listAll(InlongStreamPageRequest request) {
+        LOGGER.debug("begin to list full inlong stream page by {}", request);
+        Preconditions.checkNotNull(request, "request is empty");
+        String groupId = request.getInlongGroupId();
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+        InlongGroupEntity groupEntity = groupMapper.selectByGroupId(groupId);
+        Preconditions.checkNotNull(groupEntity, "inlong group not found by groupId=" + groupId);
+
+        // the person in charge of the inlong group has the authority of all inlong streams,
+        // so do not filter by in charge person
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
+        List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
+
+        // Convert and encapsulate the paged results
+        for (InlongStreamInfo streamInfo : streamInfoList) {
+            // Set the field information of the inlong stream
+            String streamId = streamInfo.getInlongStreamId();
+            List<StreamField> streamFields = getStreamFields(groupId, streamId);
+            streamInfo.setFieldList(streamFields);
+            List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
+                    streamExtMapper.selectByRelatedId(groupId, streamId), InlongStreamExtInfo::new);
+            streamInfo.setExtList(streamExtInfos);
+
+            // query all valid stream sources
+            List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
+            streamInfo.setSourceList(sourceList);
+
+            // query all valid stream sinks and its extended info, field info
+            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
+            streamInfo.setSinkList(sinkList);
+        }
+
+        PageInfo<InlongStreamInfo> pageInfo = new PageInfo<>(streamInfoList);
+        pageInfo.setTotal(pageInfo.getTotal());
+
+        LOGGER.debug("success to list full inlong stream info by {}", request);
+        return pageInfo;
+    }
+
+    @Override
+    public List<InlongStreamBriefInfo> listBriefWithSink(String groupId) {
+        LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
+        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
+
+        List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
+        List<InlongStreamBriefInfo> briefInfoList = CommonBeanUtils
+                .copyListProperties(entityList, InlongStreamBriefInfo::new);
+
+        // query stream sinks based on groupId and streamId
+        for (InlongStreamBriefInfo briefInfo : briefInfoList) {
+            String streamId = briefInfo.getInlongStreamId();
+            List<SinkBriefInfo> sinkList = sinkService.listBrief(groupId, streamId);
+            briefInfo.setSinkList(sinkList);
+        }
+
+        LOGGER.info("success to get inlong stream brief list for groupId={}", groupId);
+        return briefInfoList;
     }
 
     @Transactional(rollbackFor = Throwable.class)
@@ -347,148 +387,6 @@ public class InlongStreamServiceImpl implements InlongStreamService {
     }
 
     @Override
-    public List<InlongStreamBriefInfo> getBriefList(String groupId) {
-        LOGGER.debug("begin to get inlong stream brief list by groupId={}", groupId);
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-
-        List<InlongStreamEntity> entityList = streamMapper.selectByGroupId(groupId);
-        List<InlongStreamBriefInfo> briefInfoList = CommonBeanUtils
-                .copyListProperties(entityList, InlongStreamBriefInfo::new);
-
-        // Query stream sinks based on groupId and streamId
-        for (InlongStreamBriefInfo briefInfo : briefInfoList) {
-            String streamId = briefInfo.getInlongStreamId();
-            List<SinkBriefResponse> sinkList = sinkService.listBrief(groupId, streamId);
-            briefInfo.setSinkList(sinkList);
-        }
-
-        LOGGER.info("success to get inlong stream brief list for groupId={}", groupId);
-        return briefInfoList;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public boolean saveAll(FullStreamRequest fullStreamRequest, String operator) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to save all stream page info: {}", fullStreamRequest);
-        }
-        Preconditions.checkNotNull(fullStreamRequest, "fullStreamRequest is empty");
-        InlongStreamRequest streamRequest = fullStreamRequest.getStreamInfo();
-        Preconditions.checkNotNull(streamRequest, "inlong stream info is empty");
-
-        // Save inlong stream
-        save(streamRequest, operator);
-
-        // Save source info
-        if (CollectionUtils.isNotEmpty(fullStreamRequest.getSourceInfo())) {
-            for (SourceRequest source : fullStreamRequest.getSourceInfo()) {
-                sourceService.save(source, operator);
-            }
-        }
-
-        // Save sink info
-        if (CollectionUtils.isNotEmpty(fullStreamRequest.getSinkInfo())) {
-            for (SinkRequest sinkInfo : fullStreamRequest.getSinkInfo()) {
-                sinkService.save(sinkInfo, operator);
-            }
-        }
-
-        LOGGER.info("success to save all stream page info");
-        return true;
-    }
-
-    @Transactional(rollbackFor = Throwable.class)
-    @Override
-    public boolean batchSaveAll(List<FullStreamRequest> fullStreamRequestList, String operator) {
-        if (CollectionUtils.isEmpty(fullStreamRequestList)) {
-            return true;
-        }
-        LOGGER.info("begin to batch save all stream page info, batch size={}", fullStreamRequestList.size());
-
-        // Check if it can be added
-        InlongStreamRequest firstStream = fullStreamRequestList.get(0).getStreamInfo();
-        Preconditions.checkNotNull(firstStream, "inlong stream info is empty");
-        String groupId = firstStream.getInlongGroupId();
-        this.checkGroupStatusIsTemp(groupId);
-
-        // This bulk save is only used when creating or editing inlong group after approval is rejected.
-        // To ensure data consistency, you need to physically delete all associated data and then add
-        // Note: There may be records with the same groupId and streamId in the historical data,
-        // and the ones with is_deleted=0 should be deleted
-        streamMapper.deleteAllByGroupId(groupId);
-
-        for (FullStreamRequest pageInfo : fullStreamRequestList) {
-            // Delete the inlong stream extensions and fields corresponding to groupId and streamId
-            InlongStreamRequest streamInfo = pageInfo.getStreamInfo();
-            String streamId = streamInfo.getInlongStreamId();
-            streamFieldMapper.deleteAllByIdentifier(groupId, streamId);
-            streamExtMapper.deleteAllByRelatedId(groupId, streamId);
-            //  Delete all stream source
-            sourceService.deleteAll(groupId, streamId, operator);
-            // Delete all stream sink
-            sinkService.deleteAll(groupId, streamId, operator);
-            // Save the inlong stream of this batch
-            this.saveAll(pageInfo, operator);
-        }
-        LOGGER.info("success to batch save all stream page info");
-        return true;
-    }
-
-    @Override
-    public PageInfo<FullStreamResponse> listAllWithGroupId(InlongStreamPageRequest request) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("begin to list full inlong stream page by {}", request);
-        }
-        Preconditions.checkNotNull(request, "request is empty");
-        Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-
-        // 1. Query all valid data sources under groupId
-        String groupId = request.getInlongGroupId();
-        // The person in charge of the inlong group has the authority of all inlong streams
-        InlongGroupEntity inlongGroupEntity = groupMapper.selectByGroupId(groupId);
-        Preconditions.checkNotNull(inlongGroupEntity, "inlong group not found by groupId=" + groupId);
-
-        String inCharges = inlongGroupEntity.getInCharges();
-        request.setInCharges(inCharges);
-
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        Page<InlongStreamEntity> page = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
-        List<InlongStreamInfo> streamInfoList = CommonBeanUtils.copyListProperties(page, InlongStreamInfo::new);
-
-        // Convert and encapsulate the paged results
-        List<FullStreamResponse> responseList = new ArrayList<>(streamInfoList.size());
-        for (InlongStreamInfo streamInfo : streamInfoList) {
-            // Set the field information of the inlong stream
-            String streamId = streamInfo.getInlongStreamId();
-            List<StreamField> streamFields = getStreamFields(groupId, streamId);
-            streamInfo.setFieldList(streamFields);
-            List<InlongStreamExtInfo> streamExtInfos = CommonBeanUtils.copyListProperties(
-                    streamExtMapper.selectByRelatedId(groupId, streamId), InlongStreamExtInfo::new);
-            streamInfo.setExtList(streamExtInfos);
-
-            FullStreamResponse pageInfo = new FullStreamResponse();
-            pageInfo.setStreamInfo(streamInfo);
-
-            // Query stream sources information
-            List<StreamSource> sourceList = sourceService.listSource(groupId, streamId);
-            pageInfo.setSourceInfo(sourceList);
-
-            // Query various stream sinks and its extended information, field information
-            List<StreamSink> sinkList = sinkService.listSink(groupId, streamId);
-            pageInfo.setSinkInfo(sinkList);
-
-            // Add a single result to the paginated list
-            responseList.add(pageInfo);
-        }
-
-        PageInfo<FullStreamResponse> pageInfo = new PageInfo<>(responseList);
-        pageInfo.setTotal(pageInfo.getTotal());
-
-        LOGGER.debug("success to list full inlong stream info");
-        return pageInfo;
-    }
-
-    @Override
     public int selectCountByGroupId(String groupId) {
         LOGGER.debug("begin to get count by groupId={}", groupId);
         if (StringUtils.isEmpty(groupId)) {
@@ -565,7 +463,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setMaxLength(1000);
 
         streamEntity.setStatus(StreamStatus.CONFIG_SUCCESSFUL.getCode());
-        streamEntity.setIsDeleted(GlobalConstants.UN_DELETED);
+        streamEntity.setIsDeleted(InlongConstants.UN_DELETED);
         streamEntity.setCreator(operator);
         streamEntity.setModifier(operator);
         Date now = new Date();
@@ -610,7 +508,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamFieldEntity entity : list) {
             entity.setInlongGroupId(groupId);
             entity.setInlongStreamId(streamId);
-            entity.setIsDeleted(GlobalConstants.UN_DELETED);
+            entity.setIsDeleted(InlongConstants.UN_DELETED);
         }
         streamFieldMapper.insertAll(list);
     }

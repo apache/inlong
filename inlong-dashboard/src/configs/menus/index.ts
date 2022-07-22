@@ -35,8 +35,17 @@ const menus: MenuItemType[] = [
     name: i18n.t('configs.menus.DataConsumption'),
   },
   {
-    path: '/clusters',
     name: i18n.t('configs.menus.Clusters'),
+    children: [
+      {
+        path: '/clusters',
+        name: i18n.t('configs.menus.Clusters'),
+      },
+      {
+        path: '/clusterTags',
+        name: i18n.t('configs.menus.ClusterTags'),
+      },
+    ],
   },
   {
     path: '/audit',

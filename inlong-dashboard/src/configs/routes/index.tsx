@@ -60,7 +60,7 @@ const routes: RouteProps[] = [
     childRoutes: [
       {
         path: '/create',
-        component: () => import('@/pages/ConsumeCreate'),
+        component: () => import('@/pages/ConsumeDetail'),
         exact: true,
       },
       {
@@ -114,6 +114,11 @@ const routes: RouteProps[] = [
         exact: true,
       },
     ],
+  },
+  {
+    path: '/clusterTags',
+    component: () => import('@/pages/ClusterTags'),
+    exact: true,
   },
   {
     component: () => import('@/pages/Error/404'),

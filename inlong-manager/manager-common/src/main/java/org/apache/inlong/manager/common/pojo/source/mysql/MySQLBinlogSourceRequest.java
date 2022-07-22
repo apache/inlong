@@ -28,12 +28,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request info of the mysql binlog source
+ * MySQL binlog source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the mysql binlog source")
+@ApiModel(value = "MySQL binlog source request")
 @JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
 public class MySQLBinlogSourceRequest extends SourceRequest {
 
@@ -46,8 +46,8 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
     @ApiModelProperty("Hostname of the DB server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port = 3306;
+    @ApiModelProperty("Port of the DB server")
+    private Integer port = 3306;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
     private Integer serverId = 0;
@@ -106,6 +106,12 @@ public class MySQLBinlogSourceRequest extends SourceRequest {
 
     @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
+
+    @ApiModelProperty("Directly read binlog from the specified offset filename")
+    private String specificOffsetFile;
+
+    @ApiModelProperty("Directly read binlog from the specified offset position")
+    private Integer specificOffsetPos;
 
     public MySQLBinlogSourceRequest() {
         this.setSourceType(SourceType.BINLOG.toString());

@@ -21,6 +21,7 @@ package org.apache.inlong.sort.parser.impl;
 import com.google.common.base.Preconditions;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.inlong.sort.function.RegexpReplaceFirstFunction;
+import org.apache.inlong.sort.function.RegexpReplaceFunction;
 import org.apache.inlong.sort.parser.Parser;
 import org.apache.inlong.sort.parser.result.FlinkSqlParseResult;
 import org.apache.inlong.sort.parser.result.ParseResult;
@@ -49,13 +50,6 @@ public class NativeFlinkSqlParser implements Parser {
     }
 
     /**
-     * Register udf
-     */
-    private void registerUDF() {
-        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
-    }
-
-    /**
      * Get a instance of NativeFlinkSqlParser
      *
      * @param tableEnv The tableEnv,it is the execution environment of flink sql
@@ -66,6 +60,13 @@ public class NativeFlinkSqlParser implements Parser {
         return new NativeFlinkSqlParser(tableEnv, statements);
     }
 
+    /**
+     * Register udf
+     */
+    private void registerUDF() {
+        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE_FIRST", RegexpReplaceFirstFunction.class);
+        tableEnv.createTemporarySystemFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
+    }
 
     /**
      * parse flink sql script file
@@ -86,8 +87,8 @@ public class NativeFlinkSqlParser implements Parser {
                 createTableSqls.add(statement);
             } else if (statement.toUpperCase(Locale.ROOT).startsWith("INSERT INTO")) {
                 insertSqls.add(statement);
-            } else {
-                throw new IllegalArgumentException("not support sql: " + statement);
+            } else if (!statement.isEmpty()) {
+                log.warn("Not support sql statement: " + statement);
             }
         }
         return new FlinkSqlParseResult(tableEnv, createTableSqls, insertSqls);

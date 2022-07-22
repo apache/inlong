@@ -19,7 +19,7 @@ package org.apache.inlong.sort.standalone.metrics;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.inlong.common.metric.MetricItem;
 import org.apache.inlong.common.metric.MetricItemMBean;
 import org.apache.inlong.common.metric.MetricItemSetMBean;

@@ -54,7 +54,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         Map<String, String> map = new HashMap<>();
         return new MySqlExtractNode("1", "mysql_input", fields,
             null, map, "age",
-            Collections.singletonList("user"), "localhost", "root", "Eminem@123456",
+            Collections.singletonList("user"), "localhost", "root", "888888",
             "test", null, null,
             true, null);
     }
@@ -72,7 +72,7 @@ public class ElasticsearchSqlParseTest extends AbstractTestBase {
         return new ElasticsearchLoadNode("2", "kafka_output", fields, relations, null, null,
             2, null,
             "test", "http://localhost:9200",
-            "my_admin", "my_password", null, "age", 7);
+            "elastic", "my_password", null, "age", 7);
     }
 
     private NodeRelation buildNodeRelation(List<Node> inputs, List<Node> outputs) {

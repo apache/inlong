@@ -42,13 +42,13 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_CLICKHOUSE)
 public class ClickHouseSink extends StreamSink {
 
-    @ApiModelProperty("ClickHouse JDBC URL")
+    @ApiModelProperty("JDBC URL of the ClickHouse server")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the ClickHouse server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the ClickHouse server")
     private String password;
 
     @ApiModelProperty("Target database name")
@@ -78,6 +78,18 @@ public class ClickHouseSink extends StreamSink {
 
     @ApiModelProperty("Key field names, separate with commas")
     private String keyFieldNames;
+
+    @ApiModelProperty("ClickHouse table engine, support MergeTree Mem and so on")
+    private String engine;
+
+    @ApiModelProperty("Table partition information")
+    private String partitionBy;
+
+    @ApiModelProperty("Table order information")
+    private String orderBy;
+
+    @ApiModelProperty("Table primary key")
+    private String primaryKey;
 
     public ClickHouseSink() {
         this.setSinkType(SinkType.SINK_CLICKHOUSE);

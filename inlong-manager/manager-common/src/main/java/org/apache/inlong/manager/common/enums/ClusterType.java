@@ -17,33 +17,13 @@
 
 package org.apache.inlong.manager.common.enums;
 
-import org.apache.inlong.manager.common.exceptions.BusinessException;
-
 /**
- * Enum of cluster type.
+ * Constant of cluster type.
  */
-public enum ClusterType {
+public class ClusterType {
 
-    TUBE,
-    PULSAR,
-    DATA_PROXY,
-
-    ;
-
-    public static final String CLS_TUBE = "TUBE";
-    public static final String CLS_PULSAR = "PULSAR";
-    public static final String CLS_DATA_PROXY = "DATA_PROXY";
-
-    /**
-     * Get the SinkType enum via the given sinkType string
-     */
-    public static ClusterType forType(String type) {
-        for (ClusterType clsType : values()) {
-            if (clsType.name().equals(type)) {
-                return clsType;
-            }
-        }
-        throw new BusinessException(String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORTED.getMessage(), type));
-    }
+    public static final String TUBE = "TUBE";
+    public static final String PULSAR = "PULSAR";
+    public static final String DATA_PROXY = "DATA_PROXY";
 
 }

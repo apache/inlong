@@ -41,7 +41,7 @@ const Comp: React.FC = () => {
       name: 'password',
       rules: [
         { required: true, message: t('pages.Login.PasswordCanNotBeBlank') },
-        { pattern: /^[a-z_\d]+$/, message: t('pages.Login.OnlyLowercaseWords') },
+        { pattern: /^[0-9a-z_-]+$/, message: t('pages.Login.PasswordRules') },
       ],
     },
   ];

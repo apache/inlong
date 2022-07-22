@@ -53,7 +53,7 @@ const BasicLayout: React.FC = props => {
     const firstPathname = `/${pathname.slice(1).split('/')?.[0]}`;
     const select = breadcrumbMap.get(firstPathname);
     if (select) {
-      setOpenKeys((select as MenuDataItem)['pro_layout_parentKeys']);
+      // setOpenKeys((select as MenuDataItem)['pro_layout_parentKeys']);
       setSelectedKeys([(select as MenuDataItem)['key'] as string]);
     }
   }, [breadcrumbMap, pathname]);

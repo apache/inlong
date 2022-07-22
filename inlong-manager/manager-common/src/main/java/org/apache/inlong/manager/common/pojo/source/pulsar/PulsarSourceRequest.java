@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of pulsar source info
+ * Pulsar source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the kafka source info")
+@ApiModel(value = "Pulsar source request")
 @JsonTypeDefine(value = SourceType.SOURCE_PULSAR)
 public class PulsarSourceRequest extends SourceRequest {
 

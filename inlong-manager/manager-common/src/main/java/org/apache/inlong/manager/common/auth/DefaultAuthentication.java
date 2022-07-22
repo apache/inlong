@@ -20,7 +20,7 @@ package org.apache.inlong.manager.common.auth;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.util.AssertUtils;
+import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.Map;
 
@@ -31,17 +31,16 @@ import java.util.Map;
 public class DefaultAuthentication implements Authentication {
 
     public static final String USERNAME = "username";
-
     public static final String PASSWORD = "password";
 
     @Getter
-    protected String userName;
+    protected String username;
 
     @Getter
     protected String password;
 
-    public DefaultAuthentication(String userName, String password) {
-        this.userName = userName;
+    public DefaultAuthentication(String username, String password) {
+        this.username = username;
         this.password = password;
     }
 
@@ -52,15 +51,15 @@ public class DefaultAuthentication implements Authentication {
 
     @Override
     public void configure(Map<String, String> properties) {
-        AssertUtils.notEmpty(properties, "Properties should not be empty when init DefaultAuthentication");
-        this.userName = properties.get(USERNAME);
+        Preconditions.checkNotEmpty(properties, "Properties cannot be empty when init DefaultAuthentication");
+        this.username = properties.get(USERNAME);
         this.password = properties.get(PASSWORD);
     }
 
     @Override
     public String toString() {
         ObjectNode objectNode = OBJECT_MAPPER.createObjectNode();
-        objectNode.put(USERNAME, this.getUserName());
+        objectNode.put(USERNAME, this.getUsername());
         objectNode.put(PASSWORD, this.getPassword());
         return objectNode.toString();
     }

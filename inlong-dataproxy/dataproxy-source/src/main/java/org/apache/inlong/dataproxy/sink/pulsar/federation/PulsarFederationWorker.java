@@ -20,7 +20,7 @@ package org.apache.inlong.dataproxy.sink.pulsar.federation;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Event;
 import org.apache.flume.lifecycle.LifecycleState;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;

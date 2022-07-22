@@ -17,14 +17,21 @@
 
 package org.apache.inlong.agent.db;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.inlong.agent.AgentBaseTestsHelper;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.common.db.CommandEntity;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_ID_PREFIX;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_INSTANCE_ID;
 
 public class TestRocksDbImp {
 
@@ -35,6 +42,12 @@ public class TestRocksDbImp {
     public static void setup() throws Exception {
         helper = new AgentBaseTestsHelper(TestRocksDbImp.class.getName()).setupAgentHome();
         db = new RocksDbImp();
+    }
+
+    @AfterClass
+    public static void teardown() throws IOException {
+        db.close();
+        helper.teardownAgentHome();
     }
 
     @Test
@@ -102,10 +115,15 @@ public class TestRocksDbImp {
         Assert.assertEquals("searchKey1", entityResult.getKey());
     }
 
-    @AfterClass
-    public static void teardown() throws IOException {
-        db.close();
-        helper.teardownAgentHome();
+    @Test
+    public void testBinlogJobStore() {
+        JobProfile jobProfile = JobProfile.parseJsonFile("binlogJob.json");
+        JobProfileDb jobDb = new JobProfileDb(db);
+        String jobId = jobProfile.get(JOB_ID);
+        jobProfile.set(JOB_INSTANCE_ID, AgentUtils.getSingleJobId(JOB_ID_PREFIX, jobId));
+        jobDb.storeJobFirstTime(jobProfile);
+        List<JobProfile> restarts = jobDb.getRestartJobs();
+        Assert.assertEquals(1, restarts.size());
     }
 
 }

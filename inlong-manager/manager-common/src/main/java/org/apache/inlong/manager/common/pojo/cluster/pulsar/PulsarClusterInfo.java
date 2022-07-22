@@ -23,7 +23,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
@@ -33,18 +33,19 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.CLS_PULSAR)
+@JsonTypeDefine(value = ClusterType.PULSAR)
 @ApiModel("Inlong cluster info for Pulsar")
-public class PulsarClusterInfo extends InlongClusterInfo {
+public class PulsarClusterInfo extends ClusterInfo {
 
-    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080")
+    @ApiModelProperty(value = "Pulsar admin URL, such as: http://127.0.0.1:8080",
+            notes = "Pulsar service URL is the 'url' field of the cluster")
     private String adminUrl;
 
-    @ApiModelProperty(value = "Pulsar tenant")
-    private String tenant;
+    @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    private String tenant = "public";
 
     public PulsarClusterInfo() {
-        this.setType(ClusterType.CLS_PULSAR);
+        this.setType(ClusterType.PULSAR);
     }
 
     @Override

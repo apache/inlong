@@ -42,7 +42,7 @@ public class HBaseSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Namespace")
+    @ApiModelProperty("Target namespace")
     private String namespace;
 
     @ApiModelProperty("Target table name")

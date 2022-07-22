@@ -17,8 +17,8 @@
 
 package org.apache.inlong.dataproxy.metrics.audit;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.audit.AuditImp;

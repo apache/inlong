@@ -20,8 +20,8 @@ package org.apache.inlong.sort.standalone.metrics.audit;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Event;
 import org.apache.inlong.audit.AuditImp;

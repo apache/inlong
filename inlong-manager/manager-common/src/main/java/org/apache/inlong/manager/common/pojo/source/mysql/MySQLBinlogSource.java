@@ -42,17 +42,17 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SourceType.SOURCE_BINLOG)
 public class MySQLBinlogSource extends StreamSource {
 
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the MySQL server")
     private String user;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the MySQL server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the MySQL server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port;
+    @ApiModelProperty("Port of the MySQL server")
+    private Integer port;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
     private Integer serverId = 0;
@@ -90,8 +90,14 @@ public class MySQLBinlogSource extends StreamSource {
     @ApiModelProperty("Need transfer total database")
     private boolean allMigration;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
+
+    @ApiModelProperty("Directly read binlog from the specified offset filename")
+    private String specificOffsetFile;
+
+    @ApiModelProperty("Directly read binlog from the specified offset position")
+    private Integer specificOffsetPos;
 
     public MySQLBinlogSource() {
         this.setSourceType(SourceType.BINLOG.name());
@@ -101,5 +107,4 @@ public class MySQLBinlogSource extends StreamSource {
     public SourceRequest genSourceRequest() {
         return CommonBeanUtils.copyProperties(this, MySQLBinlogSourceRequest::new);
     }
-
 }

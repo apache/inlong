@@ -20,45 +20,54 @@ package org.apache.inlong.manager.common.pojo.transform;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
- * Request of transform
+ * Stream transform request
  */
 @Data
-@ApiModel("Request of stream transform")
+@ApiModel("Stream transform request")
 public class TransformRequest {
 
-    private int id;
+    @NotNull(groups = UpdateValidation.class)
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @NotNull
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull
+    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull
+    @NotBlank(message = "transformName cannot be blank")
+    @Length(min = 1, max = 100, message = "transformName length must be between 1 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+            message = "transformName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Transform name, unique in one stream")
     private String transformName;
 
-    @NotNull
+    @NotBlank(message = "transformType cannot be blank")
     @ApiModelProperty("Transform type, including: splitter, filter, joiner, etc.")
     private String transformType;
 
-    @NotNull
+    @NotBlank(message = "preNodeNames cannot be blank")
     @ApiModelProperty("Pre node names of transform in this stream, join by ','")
-    private String preNodeNames = "";
+    private String preNodeNames;
 
-    @NotNull
+    @NotBlank(message = "postNodeNames cannot be blank")
     @ApiModelProperty("Post node names of transform in this stream, join by ','")
-    private String postNodeNames = "";
+    private String postNodeNames;
 
-    @NotNull
+    @NotBlank(message = "transformDefinition cannot be blank")
     @ApiModelProperty("Transform definition in json type")
     private String transformDefinition;
 

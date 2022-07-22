@@ -516,7 +516,7 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
      */
     @Override
     public RegisterResponseM2C consumerRegisterC2M(RegisterRequestC2M request,
-                                                   final String rmtAddress,
+                                                   String rmtAddress,
                                                    boolean overtls) throws Exception {
         // #lizard forgives
         ProcessResult result = new ProcessResult();
@@ -552,13 +552,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-        paramCheckResult = PBParameterUtils.checkConsumerTopicList(request.getTopicListList(), strBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
+                request.getTopicListList(), result, strBuffer)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> reqTopicSet = (Set<String>) result.getRetData();
         String requiredParts = request.hasRequiredPartition() ? request.getRequiredPartition() : "";
         ConsumeType csmType = (request.hasRequireBound() && request.getRequireBound())
                 ? ConsumeType.CONSUME_BAND : ConsumeType.CONSUME_NORMAL;
@@ -592,7 +592,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName,
                         reqTopicSet, reqTopicConditions, csmType,
-                        sessionKey, sessionTime, sourceCount, isSelectBig, requiredPartMap);
+                        sessionKey, sessionTime, sourceCount,
+                        isSelectBig, requiredPartMap, rmtAddress);
         paramCheckResult =
                 PBParameterUtils.checkConsumerInputInfo(inConsumerInfo,
                         masterConfig, defMetaDataService, brokerRunManager, strBuffer);
@@ -1234,15 +1235,13 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
             return builder.build();
         }
         final String groupName = (String) paramCheckResult.checkData;
-        paramCheckResult =
-                PBParameterUtils.checkConsumerTopicList(
-                        request.getTopicListList(), sBuffer);
-        if (!paramCheckResult.result) {
-            builder.setErrCode(paramCheckResult.errCode);
-            builder.setErrMsg(paramCheckResult.errMsg);
+        if (!PBParameterUtils.checkConsumerTopicList(defMetaDataService.getDeployedTopicSet(),
+                request.getTopicListList(), result, sBuffer)) {
+            builder.setErrCode(result.getErrCode());
+            builder.setErrMsg(result.getErrMsg());
             return builder.build();
         }
-        final Set<String> reqTopicSet = (Set<String>) paramCheckResult.checkData;
+        final Set<String> reqTopicSet = (Set<String>) result.getRetData();
         final Map<String, TreeSet<String>> reqTopicConditions =
                 DataConverterUtil.convertTopicConditions(request.getTopicConditionList());
         int sourceCount = request.getSourceCount();
@@ -1271,7 +1270,8 @@ public class TMaster extends HasThread implements MasterService, Stoppable {
         ConsumerInfo inConsumerInfo =
                 new ConsumerInfo(consumerId, overtls, groupName, csmType,
                         sourceCount, nodeId, reqTopicSet, reqTopicConditions,
-                        opsTaskInfo.getCsmFromMaxOffsetCtrlId(), clientSyncInfo);
+                        opsTaskInfo.getCsmFromMaxOffsetCtrlId(), clientSyncInfo,
+                        rmtAddress);
         // need removed for authorize center begin
         if (!this.defMetaDataService
                 .isConsumeTargetAuthorized(consumerId, groupName,

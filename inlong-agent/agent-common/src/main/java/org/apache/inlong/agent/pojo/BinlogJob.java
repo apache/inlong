@@ -39,8 +39,11 @@ public class BinlogJob {
 
     @Data
     public static class Offset {
-        private  String intervalMs;
-        private  String filename;
+
+        private String intervalMs;
+        private String filename;
+        private String specificOffsetFile;
+        private String specificOffsetPos;
     }
 
     @Data
@@ -61,16 +64,18 @@ public class BinlogJob {
         private  String password;
         private  String hostname;
         private  String port;
-        private  String includeSchema;
+        private String includeSchema;
 
-        private  String databaseWhiteList;
-        private  String tableWhiteList;
-        private  String serverTimezone;
-        private  String intervalMs;
-        private  String offsetFilename;
-        private  String historyFilename;
-        private  String snapshotMode;
-        private  String monitoredDdl;
+        private String databaseWhiteList;
+        private String tableWhiteList;
+        private String serverTimezone;
+        private String intervalMs;
+        private String offsetFilename;
+        private String historyFilename;
+        private String snapshotMode;
+        private String monitoredDdl;
+        private String specificOffsetFile;
+        private String specificOffsetPos;
     }
 
 }

@@ -56,7 +56,6 @@
         status, previous_status, is_deleted, creator, modifier, create_time, modify_time
     </sql>
 
-
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongStreamEntity">
         insert into inlong_stream (id, inlong_group_id, inlong_stream_id,
@@ -261,7 +260,8 @@
         from inlong_stream stream, inlong_group grp
         <where>
             stream.is_deleted = 0
-            and stream.inlong_group_id = grp.inlong_group_id and grp.is_deleted = 0
+            and stream.inlong_group_id = grp.inlong_group_id
+            and grp.is_deleted = 0
             <if test="request.inlongGroupId != null and request.inlongGroupId != ''">
                 and stream.inlong_group_id = #{request.inlongGroupId, jdbcType=VARCHAR}
             </if>
@@ -422,7 +422,7 @@
     </update>
     <update id="logicDeleteDlqOrRlq">
         update inlong_stream
-        set is_deleted = 1,
+        set is_deleted = id,
             modifier   = #{operator, jdbcType=VARCHAR}
         where inlong_group_id = #{groupId, jdbcType=VARCHAR}
           and inlong_stream_id = #{streamId, jdbcType=VARCHAR}

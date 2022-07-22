@@ -23,7 +23,7 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -81,9 +81,9 @@ public class BaseExample {
         pulsarInfo.setMqResource(namespace);
 
         // set enable zk, create resource, lightweight mode, and cluster tag
-        pulsarInfo.setEnableZookeeper(0);
-        pulsarInfo.setEnableCreateResource(1);
-        pulsarInfo.setLightweight(0);
+        pulsarInfo.setEnableZookeeper(InlongConstants.DISABLE_ZK);
+        pulsarInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
+        pulsarInfo.setLightweight(InlongConstants.NORMAL_MODE);
         pulsarInfo.setInlongClusterTag("default_cluster");
 
         pulsarInfo.setDailyRecords(10000000);
@@ -111,7 +111,7 @@ public class BaseExample {
         streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
         streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
         // if you need strictly order for data, set to 1
-        streamInfo.setSyncSend(GlobalConstants.SYNC_SEND);
+        streamInfo.setSyncSend(InlongConstants.SYNC_SEND);
         streamInfo.setMqResource(this.getTopic());
         return streamInfo;
     }

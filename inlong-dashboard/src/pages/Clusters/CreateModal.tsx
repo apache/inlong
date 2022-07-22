@@ -35,7 +35,7 @@ export interface Props extends ModalProps {
 const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
   const [form] = useForm();
 
-  const { run: getData } = useRequest(
+  const { data: savedData, run: getData } = useRequest(
     id => ({
       url: `/cluster/get/${id}`,
     }),
@@ -43,7 +43,8 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       manual: true,
       formatResult: result => ({
         ...result,
-        inCharges: result.inCharges.split(','),
+        inCharges: result.inCharges?.split(','),
+        clusterTags: result.clusterTags?.split(','),
       }),
       onSuccess: result => {
         form.setFieldsValue(result);
@@ -58,10 +59,11 @@ const Comp: React.FC<Props> = ({ type, id, ...modalProps }) => {
       ...values,
       type,
       inCharges: values.inCharges?.join(','),
+      clusterTags: values.clusterTags?.join(','),
     };
     if (isUpdate) {
       submitData.id = id;
-      // submitData.version = data?.version;
+      submitData.version = savedData?.version;
     }
     await request({
       url: `/cluster/${isUpdate ? 'update' : 'save'}`,

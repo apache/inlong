@@ -64,6 +64,16 @@ public class BinlogSnapshotBase implements SnapshotBase {
     public void load() {
         try {
             if (!file.exists()) {
+                // if parentDir not exist, create first
+                File parentDir = file.getParentFile();
+                if (parentDir == null) {
+                    log.info("no parent dir, file:{}", file.getAbsolutePath());
+                    return;
+                }
+                if (!parentDir.exists()) {
+                    boolean success = parentDir.mkdirs();
+                    log.info("create dir {} result {}", parentDir, success);
+                }
                 file.createNewFile();
             }
             FileInputStream fis = new FileInputStream(file);

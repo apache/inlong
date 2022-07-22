@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.service.workflow;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
@@ -29,8 +30,8 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.TaskForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
 
 import java.util.List;
 
@@ -48,6 +49,16 @@ public interface WorkflowService {
      * @return result
      */
     WorkflowResult start(ProcessName process, String applicant, ProcessForm form);
+
+    /**
+     * Continue process when pending or failed
+     *
+     * @param processId Process id.
+     * @param operator Operator.
+     * @param remark Remarks information.
+     * @return Workflow result.
+     */
+    WorkflowResult continueProcess(Integer processId, String operator, String remark);
 
     /**
      * Cancellation process application

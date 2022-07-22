@@ -228,8 +228,8 @@ When you decide to contribute, you should follow these steps:
 
 1. Develop the chart locally and verify your changes.
 2. Don't forget to bump up the version in [Chart.yaml](Chart.yaml).
-3. Feel free to make a [Pull Request](https://github.com/apache/incubator-inlong/compare)!
-4. Finally, you can view the status of the [lint and test workflow](https://github.com/apache/incubator-inlong/actions/workflows/ci_chart_test.yml).
+3. Feel free to make a [Pull Request](https://github.com/apache/inlong/compare)!
+4. Finally, you can view the status of the [lint and test workflow](https://github.com/apache/inlong/actions/workflows/ci_chart_test.yml).
    > In this workflow, changes between your branch and the master branch will be checked and listed.
    > All changed charts will be linted, validated, installed and tested.
 
@@ -237,4 +237,4 @@ When you decide to contribute, you should follow these steps:
 
 We've done our best to make these charts as seamless as possible, but occasionally there are circumstances beyond our control.
 We've collected tips and tricks for troubleshooting common issues.
-Please examine these first before raising an [issue](https://github.com/apache/incubator-inlong/issues/new/choose), and feel free to make a [Pull Request](https://github.com/apache/incubator-inlong/compare)!
+Please examine these first before raising an [issue](https://github.com/apache/inlong/issues/new/choose), and feel free to make a [Pull Request](https://github.com/apache/inlong/compare)!

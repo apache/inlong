@@ -17,6 +17,7 @@
 
 package org.apache.inlong.audit.service;
 
+import org.apache.inlong.audit.config.ClickHouseConfig;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
 import org.apache.inlong.audit.db.dao.AuditDataDao;
@@ -28,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AuditMsgConsumerServer implements InitializingBean {
@@ -41,16 +45,19 @@ public class AuditMsgConsumerServer implements InitializingBean {
     private ElasticsearchService esService;
     @Autowired
     private StoreConfig storeConfig;
+    @Autowired
+    private ClickHouseConfig chConfig;
 
     /**
      * Initializing bean
      */
     public void afterPropertiesSet() {
-        BaseConsume mqConsume;
+        BaseConsume mqConsume = null;
+        List<InsertData> insertServiceList = this.getInsertServiceList();
         if (mqConfig.isPulsar()) {
-            mqConsume = new PulsarConsume(auditDataDao, esService, storeConfig, mqConfig);
+            mqConsume = new PulsarConsume(insertServiceList, storeConfig, mqConfig);
         } else if (mqConfig.isTube()) {
-            mqConsume = new TubeConsume(auditDataDao, esService, storeConfig, mqConfig);
+            mqConsume = new TubeConsume(insertServiceList, storeConfig, mqConfig);
         } else {
             LOG.error("unkown MessageQueue {}", mqConfig.getMqType());
             return;
@@ -59,12 +66,24 @@ public class AuditMsgConsumerServer implements InitializingBean {
         if (storeConfig.isElasticsearchStore()) {
             esService.startTimerRoutine();
         }
-
-        if (mqConsume != null) {
-            mqConsume.start();
-        } else {
-            LOG.error("fail to auditMsgConsumerServer");
-        }
+        mqConsume.start();
     }
 
+    /**
+     * getInsertServiceList
+     * @return
+     */
+    private List<InsertData> getInsertServiceList() {
+        List<InsertData> insertServiceList = new ArrayList<>();
+        if (storeConfig.isMysqlStore()) {
+            insertServiceList.add(new MySqlService(auditDataDao));
+        }
+        if (storeConfig.isElasticsearchStore()) {
+            insertServiceList.add(esService);
+        }
+        if (storeConfig.isClickHouseStore()) {
+            insertServiceList.add(new ClickHouseService(chConfig));
+        }
+        return insertServiceList;
+    }
 }

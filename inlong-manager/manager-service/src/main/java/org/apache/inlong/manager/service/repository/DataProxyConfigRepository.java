@@ -19,6 +19,9 @@ package org.apache.inlong.manager.service.repository;
 
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
@@ -29,18 +32,30 @@ import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.dataproxy.CacheCluster;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
+import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.ClusterSetMapper;
+import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,17 +65,28 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.PostConstruct;
+
 /**
  * DataProxyConfigRepository
  */
+@Lazy
 @Repository(value = "dataProxyConfigRepository")
 public class DataProxyConfigRepository implements IRepository {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
+
+    public static final String KEY_BACKUP_CLUSTER_TAG = "backup_cluster_tag";
+    public static final String KEY_BACKUP_TOPIC = "backup_topic";
+    public static final String KEY_SORT_TASK_NAME = "defaultSortTaskName";
+    public static final String KEY_DATA_NODE_NAME = "defaultDataNodeName";
+    public static final String KEY_SORT_CONSUEMER_GROUP = "defaultSortConsumerGroup";
+    public static final String KEY_SINK_NAME = "defaultSinkName";
 
     public static final Splitter.MapSplitter MAP_SPLITTER = Splitter.on(SEPARATOR).trimResults()
             .withKeyValueSeparator(KEY_VALUE_SEPARATOR);
     public static final String CACHE_CLUSTER_PRODUCER_TAG = "producer";
     public static final String CACHE_CLUSTER_CONSUMER_TAG = "consumer";
-    private static final Logger LOGGER = LoggerFactory.getLogger(DataProxyConfigRepository.class);
     private static final Gson gson = new Gson();
 
     // key: proxyClusterName, value: jsonString
@@ -72,6 +98,12 @@ public class DataProxyConfigRepository implements IRepository {
 
     @Autowired
     private ClusterSetMapper clusterSetMapper;
+    @Autowired
+    private InlongClusterEntityMapper clusterMapper;
+    @Autowired
+    private InlongGroupEntityMapper inlongGroupMapper;
+    @Autowired
+    private StreamSinkEntityMapper streamSinkMapper;
 
     @PostConstruct
     public void initialize() {
@@ -83,6 +115,70 @@ public class DataProxyConfigRepository implements IRepository {
         } catch (Throwable t) {
             LOGGER.error("Initialize DataProxyConfigRepository error", t);
         }
+    }
+
+    /**
+     * get clusterSetMapper
+     * @return the clusterSetMapper
+     */
+    public ClusterSetMapper getClusterSetMapper() {
+        return clusterSetMapper;
+    }
+
+    /**
+     * set clusterSetMapper
+     * @param clusterSetMapper the clusterSetMapper to set
+     */
+    public void setClusterSetMapper(ClusterSetMapper clusterSetMapper) {
+        this.clusterSetMapper = clusterSetMapper;
+    }
+
+    /**
+     * get clusterMapper
+     * @return the clusterMapper
+     */
+    public InlongClusterEntityMapper getClusterMapper() {
+        return clusterMapper;
+    }
+
+    /**
+     * set clusterMapper
+     * @param clusterMapper the clusterMapper to set
+     */
+    public void setClusterMapper(InlongClusterEntityMapper clusterMapper) {
+        this.clusterMapper = clusterMapper;
+    }
+
+    /**
+     * get inlongGroupMapper
+     * @return the inlongGroupMapper
+     */
+    public InlongGroupEntityMapper getInlongGroupMapper() {
+        return inlongGroupMapper;
+    }
+
+    /**
+     * set inlongGroupMapper
+     * @param inlongGroupMapper the inlongGroupMapper to set
+     */
+    public void setInlongGroupMapper(InlongGroupEntityMapper inlongGroupMapper) {
+        this.inlongGroupMapper = inlongGroupMapper;
+    }
+
+    /**
+     * get streamSinkMapper
+     * @return the streamSinkMapper
+     */
+    public StreamSinkEntityMapper getStreamSinkMapper() {
+        return streamSinkMapper;
+    }
+
+    /**
+     * set streamSinkMapper
+     * @param streamSinkMapper the streamSinkMapper to set
+     */
+    public void setStreamSinkMapper(StreamSinkEntityMapper streamSinkMapper) {
+        this.streamSinkMapper = streamSinkMapper;
     }
 
     /**
@@ -140,7 +236,7 @@ public class DataProxyConfigRepository implements IRepository {
             Map<String, String> tagMap = MAP_SPLITTER.split(cacheCluster.getExtTag());
             String producerTag = tagMap.getOrDefault(CACHE_CLUSTER_PRODUCER_TAG, Boolean.TRUE.toString());
             if (StringUtils.equalsIgnoreCase(producerTag, Boolean.TRUE.toString())) {
-                cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTag(), k -> new HashMap<>())
+                cacheClusterMap.computeIfAbsent(cacheCluster.getClusterTags(), k -> new HashMap<>())
                         .computeIfAbsent(cacheCluster.getExtTag(), k -> new ArrayList<>()).add(cacheCluster);
             }
         }
@@ -150,7 +246,6 @@ public class DataProxyConfigRepository implements IRepository {
     /**
      * reloadInlongId
      */
-    @SuppressWarnings("unchecked")
     private Map<String, List<InLongIdObject>> reloadInlongId() {
         // parse group
         Map<String, InlongGroupId> groupIdMap = new HashMap<>();
@@ -163,53 +258,108 @@ public class DataProxyConfigRepository implements IRepository {
             if (groupId == null) {
                 continue;
             }
-            // choose topic
-            String groupTopic = groupIdObj.getTopic();
-            String streamTopic = streamIdObj.getTopic();
-            String finalTopic = null;
-            if (StringUtils.isEmpty(groupTopic)) {
-                // both empty then ignore
-                if (StringUtils.isEmpty(streamTopic)) {
-                    continue;
-                } else {
-                    finalTopic = streamTopic;
-                }
-            } else {
-                if (StringUtils.isEmpty(streamTopic)) {
-                    finalTopic = groupTopic;
-                } else {
-                    // Pulsar: namespace+topic
-                    finalTopic = groupTopic + "/" + streamTopic;
-                }
-            }
-            // concat id
-            InLongIdObject obj = new InLongIdObject();
-            String inlongId = groupId + "." + streamIdObj.getInlongStreamId();
-            obj.setInlongId(inlongId);
-            obj.setTopic(finalTopic);
-            Map<String, String> params = new HashMap<>();
-            obj.setParams(params);
-            // parse group extparams
-            if (!StringUtils.isEmpty(groupIdObj.getExtParams())) {
-                try {
-                    Map<String, String> groupParams = gson.fromJson(groupIdObj.getExtParams(), Map.class);
-                    params.putAll(groupParams);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            // parse stream extparams
-            if (!StringUtils.isEmpty(streamIdObj.getExtParams())) {
-                try {
-                    Map<String, String> streamParams = gson.fromJson(streamIdObj.getExtParams(), Map.class);
-                    params.putAll(streamParams);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
+            Map<String, String> groupParams = this.getExtParams(groupIdObj.getExtParams());
+            Map<String, String> streamParams = this.getExtParams(streamIdObj.getExtParams());
+            this.parseMasterTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
+            this.parseBackupTopic(groupIdObj, streamIdObj, groupParams, streamParams, inlongIdMap);
         }
         return inlongIdMap;
+    }
+
+    /**
+     * getExtParams
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, String> getExtParams(String extParams) {
+        // parse extparams
+        if (!StringUtils.isEmpty(extParams)) {
+            try {
+                Map<String, String> groupParams = gson.fromJson(extParams, HashMap.class);
+                return groupParams;
+            } catch (Exception e) {
+                LOGGER.error("Fail to parse ext error:{},params:{}", e.getMessage(), extParams, e);
+            }
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     * parseMasterTopic
+     */
+    private void parseMasterTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+            Map<String, String> groupParams, Map<String, String> streamParams,
+            Map<String, List<InLongIdObject>> inlongIdMap) {
+        // choose topic
+        String groupTopic = groupIdObj.getTopic();
+        String streamTopic = streamIdObj.getTopic();
+        String finalTopic = null;
+        if (StringUtils.isEmpty(groupTopic)) {
+            // both empty then ignore
+            if (StringUtils.isEmpty(streamTopic)) {
+                return;
+            } else {
+                finalTopic = streamTopic;
+            }
+        } else {
+            if (StringUtils.isEmpty(streamTopic)) {
+                finalTopic = groupTopic;
+            } else {
+                // Pulsar: namespace+topic
+                finalTopic = groupTopic + "/" + streamTopic;
+            }
+        }
+        // concat id
+        InLongIdObject obj = new InLongIdObject();
+        String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
+        obj.setInlongId(inlongId);
+        obj.setTopic(finalTopic);
+        Map<String, String> params = new HashMap<>();
+        params.putAll(groupParams);
+        params.putAll(streamParams);
+        obj.setParams(params);
+        inlongIdMap.computeIfAbsent(groupIdObj.getClusterTag(), k -> new ArrayList<>()).add(obj);
+    }
+
+    /**
+     * parseBackupTopic
+     */
+    private void parseBackupTopic(InlongGroupId groupIdObj, InlongStreamId streamIdObj,
+            Map<String, String> groupParams, Map<String, String> streamParams,
+            Map<String, List<InLongIdObject>> inlongIdMap) {
+        Map<String, String> params = new HashMap<>();
+        params.putAll(groupParams);
+        params.putAll(streamParams);
+        // find backup cluster tag
+        String clusterTag = params.get(KEY_BACKUP_CLUSTER_TAG);
+        if (StringUtils.isEmpty(clusterTag)) {
+            return;
+        }
+        // find backup topic
+        String groupTopic = groupParams.get(KEY_BACKUP_TOPIC);
+        String streamTopic = streamParams.get(KEY_BACKUP_TOPIC);
+        String finalTopic = null;
+        if (StringUtils.isEmpty(groupTopic)) {
+            // both empty then ignore
+            if (StringUtils.isEmpty(streamTopic)) {
+                return;
+            } else {
+                finalTopic = streamTopic;
+            }
+        } else {
+            if (StringUtils.isEmpty(streamTopic)) {
+                finalTopic = groupTopic;
+            } else {
+                // Pulsar: namespace+topic
+                finalTopic = groupTopic + "/" + streamTopic;
+            }
+        }
+        // concat id
+        InLongIdObject obj = new InLongIdObject();
+        String inlongId = streamIdObj.getInlongGroupId() + "." + streamIdObj.getInlongStreamId();
+        obj.setInlongId(inlongId);
+        obj.setTopic(finalTopic);
+        obj.setParams(params);
+        inlongIdMap.computeIfAbsent(clusterTag, k -> new ArrayList<>()).add(obj);
     }
 
     /**
@@ -312,5 +462,195 @@ public class DataProxyConfigRepository implements IRepository {
      */
     public String getProxyConfigJson(String clusterName) {
         return this.proxyConfigJson.get(clusterName);
+    }
+
+    /**
+     * changeClusterTag
+     */
+    public String changeClusterTag(String inlongGroupId, String clusterTag,
+            String topic) {
+        try {
+            // select
+            InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+            if (oldGroup == null) {
+                throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+            }
+            String oldClusterTag = oldGroup.getInlongClusterTag();
+            if (StringUtils.equals(oldClusterTag, clusterTag)) {
+                return "Cluster tag is same.";
+            }
+            // prepare group
+            final InlongGroupEntity newGroup = this.prepareClusterTagGroup(oldGroup, clusterTag, topic);
+            // load cluster
+            Map<String, InlongClusterEntity> clusterMap = new HashMap<>();
+            ClusterPageRequest clusterRequest = new ClusterPageRequest();
+            List<InlongClusterEntity> clusters = clusterMapper.selectByCondition(clusterRequest);
+            clusters.forEach((v) -> {
+                clusterMap.put(v.getName(), v);
+            });
+            // prepare stream sink
+            SinkPageRequest request = new SinkPageRequest();
+            request.setInlongGroupId(inlongGroupId);
+            List<StreamSinkEntity> streamSinks = streamSinkMapper.selectByCondition(request);
+            List<StreamSinkEntity> newStreamSinks = new ArrayList<>();
+            for (StreamSinkEntity streamSink : streamSinks) {
+                String clusterName = streamSink.getInlongClusterName();
+                InlongClusterEntity cluster = clusterMap.get(clusterName);
+                if (cluster == null) {
+                    continue;
+                }
+                if (!StringUtils.equals(oldClusterTag, cluster.getClusterTags())) {
+                    continue;
+                }
+                String clusterType = cluster.getType();
+                // find the cluster of same cluster tag and sink type, and add new stream sink
+                StreamSinkEntity newStreamSink = this.createNewStreamSink(clusters, clusterType, clusterTag,
+                        streamSink);
+                if (newStreamSink != null) {
+                    newStreamSinks.add(newStreamSink);
+                }
+            }
+            // update
+            newStreamSinks.forEach((v) -> {
+                streamSinkMapper.insert(v);
+            });
+            inlongGroupMapper.updateByIdentifierSelective(newGroup);
+            return inlongGroupId;
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            return e.getMessage();
+        }
+    }
+
+    /**
+     * createNewStreamSink
+     */
+    private StreamSinkEntity createNewStreamSink(List<InlongClusterEntity> clusters, String clusterType,
+            String clusterTag, StreamSinkEntity srcStreamSink) {
+        for (InlongClusterEntity v : clusters) {
+            if (StringUtils.equals(clusterType, v.getType())
+                    && StringUtils.equals(clusterTag, v.getClusterTags())) {
+                String newExtParams = v.getExtParams();
+                Gson gson = new Gson();
+                JsonObject extParams = gson.fromJson(newExtParams, JsonObject.class);
+                if (extParams.has(KEY_SINK_NAME) && extParams.has(KEY_SORT_TASK_NAME)
+                        && extParams.has(KEY_DATA_NODE_NAME) && extParams.has(KEY_SORT_CONSUEMER_GROUP)) {
+                    final String sinkName = extParams.get(KEY_SINK_NAME).getAsString();
+                    final String sortTaskName = extParams.get(KEY_SORT_TASK_NAME).getAsString();
+                    final String dataNodeName = extParams.get(KEY_DATA_NODE_NAME).getAsString();
+                    final String sortConsumerGroup = extParams.get(KEY_SORT_CONSUEMER_GROUP).getAsString();
+                    StreamSinkEntity newStreamSink = copyStreamSink(srcStreamSink);
+                    newStreamSink.setInlongClusterName(v.getName());
+                    newStreamSink.setSinkName(sinkName);
+                    newStreamSink.setSortTaskName(sortTaskName);
+                    newStreamSink.setDataNodeName(dataNodeName);
+                    newStreamSink.setSortConsumerGroup(sortConsumerGroup);
+                    return newStreamSink;
+                }
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * copyStreamSink
+     */
+    private StreamSinkEntity copyStreamSink(StreamSinkEntity streamSink) {
+        try {
+            StreamSinkEntity streamSinkDest = new StreamSinkEntity();
+            BeanUtils.copyProperties(streamSinkDest, streamSink);
+            streamSinkDest.setId(null);
+            streamSinkDest.setModifyTime(new Date(System.currentTimeMillis()));
+            return streamSinkDest;
+        } catch (Exception e) {
+            LOGGER.error("Fail to copy stream sink:{}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * prepareClusterTagGroup
+     */
+    private InlongGroupEntity prepareClusterTagGroup(InlongGroupEntity oldGroup, String clusterTag, String topic)
+            throws IllegalAccessException, InvocationTargetException {
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            extParams = "{}";
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        // change cluster tag
+        extParamsObj.addProperty(KEY_BACKUP_CLUSTER_TAG, oldGroup.getInlongClusterTag());
+        extParamsObj.addProperty(KEY_BACKUP_TOPIC, oldGroup.getMqResource());
+        // copy properties
+        InlongGroupEntity newGroup = new InlongGroupEntity();
+        BeanUtils.copyProperties(newGroup, oldGroup);
+        newGroup.setId(null);
+        // change properties
+        newGroup.setInlongClusterTag(clusterTag);
+        newGroup.setMqResource(topic);
+        String newExtParams = extParamsObj.toString();
+        newGroup.setExtParams(newExtParams);
+        return newGroup;
+    }
+
+    /**
+     * removeBackupClusterTag
+     */
+    public String removeBackupClusterTag(String inlongGroupId) {
+        // select
+        InlongGroupEntity oldGroup = inlongGroupMapper.selectByGroupId(inlongGroupId);
+        if (oldGroup == null) {
+            throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
+        }
+        // parse ext_params
+        String extParams = oldGroup.getExtParams();
+        if (StringUtils.isEmpty(extParams)) {
+            return inlongGroupId;
+        }
+        // parse json
+        Gson gson = new Gson();
+        JsonObject extParamsObj = gson.fromJson(extParams, JsonObject.class);
+        if (!extParamsObj.has(KEY_BACKUP_CLUSTER_TAG)) {
+            return inlongGroupId;
+        }
+        final String oldClusterTag = extParamsObj.get(KEY_BACKUP_CLUSTER_TAG).getAsString();
+        extParamsObj.remove(KEY_BACKUP_CLUSTER_TAG);
+        extParamsObj.remove(KEY_BACKUP_TOPIC);
+        String newExtParams = extParamsObj.toString();
+        oldGroup.setExtParams(newExtParams);
+        // update group
+        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+
+        // load cluster
+        Map<String, InlongClusterEntity> clusterMap = new HashMap<>();
+        ClusterPageRequest clusterRequest = new ClusterPageRequest();
+        List<InlongClusterEntity> clusters = clusterMapper.selectByCondition(clusterRequest);
+        clusters.forEach((v) -> {
+            clusterMap.put(v.getName(), v);
+        });
+        // prepare stream sink
+        SinkPageRequest request = new SinkPageRequest();
+        request.setInlongGroupId(inlongGroupId);
+        List<StreamSinkEntity> streamSinks = streamSinkMapper.selectByCondition(request);
+        List<StreamSinkEntity> deleteStreamSinks = new ArrayList<>();
+        for (StreamSinkEntity streamSink : streamSinks) {
+            String clusterName = streamSink.getInlongClusterName();
+            InlongClusterEntity cluster = clusterMap.get(clusterName);
+            if (cluster == null) {
+                continue;
+            }
+            if (StringUtils.equals(oldClusterTag, cluster.getClusterTags())) {
+                deleteStreamSinks.add(streamSink);
+            }
+        }
+        // delete old stream sink
+        deleteStreamSinks.forEach((v) -> {
+            streamSinkMapper.deleteByPrimaryKey(v.getId());
+        });
+        return inlongGroupId;
     }
 }

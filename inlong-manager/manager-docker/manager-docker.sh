@@ -26,12 +26,18 @@ if [ -f "${ACTIVE_PROFILE}" ]; then
 fi
 
 conf_file="${file_path}"/conf/application-"${ACTIVE_PROFILE}".properties
+flink_conf_file="${file_path}"/plugins/flink-sort-plugin.properties
 
-# replace the configuration
+# application-prod/dev.properties
 sed -i "s/spring.profiles.active=.*$/spring.profiles.active=${ACTIVE_PROFILE}/g" "${file_path}"/conf/application.properties
 sed -i "s/127.0.0.1:3306/${JDBC_URL}/g" "${conf_file}"
 sed -i "s/datasource.druid.username=.*$/datasource.druid.username=${USERNAME}/g" "${conf_file}"
 sed -i "s/datasource.druid.password=.*$/datasource.druid.password=${PASSWORD}/g" "${conf_file}"
+# flink-sort-plugin.properties
+sed -i "s/flink.rest.address=.*$/flink.rest.address=${FLINK_HOST}/g" "${flink_conf_file}"
+sed -i "s/flink.rest.port=.*$/flink.rest.port=${FLINK_PORT}/g" "${flink_conf_file}"
+sed -i "s/flink.parallelism=.*$/flink.parallelism=${FLINK_PARALLELISM}/g" "${flink_conf_file}"
+sed -i "s/metrics.audit.proxy.hosts=.*$/metrics.audit.proxy.hosts=${AUDIT_PROXY_URL}/g" "${flink_conf_file}"
 
 # startup the application
 JAVA_OPTS="-Dspring.profiles.active=${ACTIVE_PROFILE}"

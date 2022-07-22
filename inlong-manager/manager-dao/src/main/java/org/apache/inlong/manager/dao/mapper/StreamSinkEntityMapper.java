@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortIdInfo;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceStreamInfo;
+import org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -55,7 +58,7 @@ public interface StreamSinkEntityMapper {
     /**
      * Query the sink summary from the given groupId and streamId
      */
-    List<SinkBriefResponse> selectSummary(@Param("groupId") String groupId,
+    List<SinkBriefInfo> selectSummary(@Param("groupId") String groupId,
             @Param("streamId") String streamId);
 
     /**
@@ -112,5 +115,26 @@ public interface StreamSinkEntityMapper {
     int updateStatus(StreamSinkEntity entity);
 
     int deleteByPrimaryKey(Integer id);
+
+    /**
+     * Select all tasks for sort-standalone
+     *
+     * @return All tasks
+     */
+    List<SortTaskInfo> selectAllTasks();
+
+    /**
+     * Select all id params for sort-standalone
+     *
+     * @return All id params
+     */
+    List<SortIdInfo> selectAllIdParams();
+
+    /**
+     * Select all streams for sort sdk.
+     *
+     * @return All stream info
+     */
+    List<SortSourceStreamInfo> selectAllStreams();
 
 }

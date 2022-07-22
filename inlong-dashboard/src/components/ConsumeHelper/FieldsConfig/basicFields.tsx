@@ -38,7 +38,7 @@ export default (
       rules: [
         { required: true },
         {
-          pattern: /^[a-z_\d]+$/,
+          pattern: /^[0-9a-z_\d]+$/,
           message: i18n.t(
             'components.ConsumeHelper.FieldsConfig.basicFields.ConsumerGroupNameRules',
           ),

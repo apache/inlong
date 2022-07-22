@@ -19,9 +19,9 @@ package org.apache.inlong.sort.standalone.sink.elasticsearch;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.http.HttpHost;
@@ -228,28 +228,26 @@ public class EsSinkContext extends SinkContext {
         fillInlongId(currentRecord, dimensions);
         dimensions.put(SortMetricItem.KEY_SINK_ID, this.getSinkName());
         dimensions.put(SortMetricItem.KEY_SINK_DATA_ID, bid);
+        final long currentTime = System.currentTimeMillis();
         long msgTime = currentRecord.getRawLogTime();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
         dimensions.put(SortMetricItem.KEY_MESSAGE_TIME, String.valueOf(auditFormatTime));
         SortMetricItem metricItem = this.getMetricItemSet().findMetricItem(dimensions);
-        long count = 1;
-        long size = currentRecord.getBody().length;
         if (result) {
-            metricItem.sendSuccessCount.addAndGet(count);
-            metricItem.sendSuccessSize.addAndGet(size);
+            metricItem.sendSuccessCount.incrementAndGet();
+            metricItem.sendSuccessSize.addAndGet(currentRecord.getBody().length);
             AuditUtils.add(AuditUtils.AUDIT_ID_SEND_SUCCESS, currentRecord);
             if (sendTime > 0) {
-                long currentTime = System.currentTimeMillis();
                 long sinkDuration = currentTime - sendTime;
-                long nodeDuration = currentTime - NumberUtils.toLong(Constants.HEADER_KEY_SOURCE_TIME, msgTime);
-                long wholeDuration = currentTime - msgTime;
-                metricItem.sinkDuration.addAndGet(sinkDuration * count);
-                metricItem.nodeDuration.addAndGet(nodeDuration * count);
-                metricItem.wholeDuration.addAndGet(wholeDuration * count);
+                long nodeDuration = currentTime - currentRecord.getFetchTime();
+                long wholeDuration = currentTime - currentRecord.getRawLogTime();
+                metricItem.sinkDuration.addAndGet(sinkDuration);
+                metricItem.nodeDuration.addAndGet(nodeDuration);
+                metricItem.wholeDuration.addAndGet(wholeDuration);
             }
         } else {
-            metricItem.sendFailCount.addAndGet(count);
-            metricItem.sendFailSize.addAndGet(size);
+            metricItem.sendFailCount.incrementAndGet();
+            metricItem.sendFailSize.addAndGet(currentRecord.getBody().length);
         }
     }
 

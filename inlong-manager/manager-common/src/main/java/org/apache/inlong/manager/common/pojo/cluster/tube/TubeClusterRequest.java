@@ -18,11 +18,12 @@
 package org.apache.inlong.manager.common.pojo.cluster.tube;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
@@ -31,14 +32,16 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.CLS_TUBE)
+@JsonTypeDefine(value = ClusterType.TUBE)
 @ApiModel("Inlong cluster request for Tube")
-public class TubeClusterRequest extends InlongClusterRequest {
+public class TubeClusterRequest extends ClusterRequest {
 
-    // no field
+    @ApiModelProperty(value = "Master Web URL http://120.0.0.1:8080",
+            notes = "Tube master RPC URL is the 'url' field of the cluster")
+    private String masterWebUrl;
 
     public TubeClusterRequest() {
-        this.setType(ClusterType.CLS_TUBE);
+        this.setType(ClusterType.TUBE);
     }
 
 }

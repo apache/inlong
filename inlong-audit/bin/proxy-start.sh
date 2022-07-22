@@ -18,11 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-base_dir=$(
-  cd $(dirname $0)
-  cd ..
+
+BASE_DIR=$(
+  # shellcheck disable=SC2164
+  cd "$(dirname "$0")"
+  cd ../
   pwd
 )
+
+# Enter the root directory path
+# shellcheck disable=SC2164
+cd "$BASE_DIR"
 
 error() {
   local msg=$1
@@ -31,13 +37,13 @@ error() {
   echo "Error: $msg" >&2
 
   if [ -n "$exit_code" ]; then
-    exit $exit_code
+    exit "$exit_code"
   fi
 }
 
-prepare_file=conf/server.properties
-if [ ! -f "$prepare_file" ]; then
-  touch "$prepare_file"
+PREPARE_FILE=${BASE_DIR}/conf/server.properties
+if [ ! -f "$PREPARE_FILE" ]; then
+  touch "$PREPARE_FILE"
 fi
 
 MQ_TYPE=pulsar
@@ -46,15 +52,14 @@ if [ -n "$1" ]; then
 fi
 
 CONFIG_FILE="audit-proxy-${MQ_TYPE}.conf"
-CONFIG_FILE_WITH_COFING_PATH="conf/${CONFIG_FILE}"
-CONFIG_FILE_WITH_PATH="${base_dir}/conf/${CONFIG_FILE}"
-LOG_DIR="${base_dir}/logs"
+CONFIG_FILE_WITH_PATH="${BASE_DIR}/conf/${CONFIG_FILE}"
+LOG_DIR="${BASE_DIR}/logs"
 
 if [ ! -d "${LOG_DIR}" ]; then
-  mkdir ${LOG_DIR}
+  mkdir "${LOG_DIR}"
 fi
 if [ -f "$CONFIG_FILE_WITH_PATH" ]; then
-  nohup bash +x bin/audit-proxy agent --conf conf/ -f "${CONFIG_FILE_WITH_COFING_PATH}" -n agent1 --no-reload-conf 1>${LOG_DIR}/proxy.log 2>${LOG_DIR}/proxy-error.log &
+  nohup bash +x "${BASE_DIR}"/bin/audit-proxy agent --conf "${BASE_DIR}"/conf/ -f "${CONFIG_FILE_WITH_PATH}" -n agent1 --no-reload-conf 1>"${LOG_DIR}"/proxy.log 2>"${LOG_DIR}"/proxy-error.log &
 else
-  error "${CONFIG_FILE_WITH_PATH} is not exist! start failed!" 1
+  error "${CONFIG_FILE_WITH_PATH} is not exist, start failed!" 1
 fi

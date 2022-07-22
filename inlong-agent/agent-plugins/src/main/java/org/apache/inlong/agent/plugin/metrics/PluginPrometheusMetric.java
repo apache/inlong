@@ -23,8 +23,8 @@ import io.prometheus.client.Counter;
 
 public class PluginPrometheusMetric implements PluginMetric {
 
+    // agent-metrics
     public static final String AGENT_PLUGIN_METRICS_PREFIX = "inlong_agent_plugin_";
-
     public static final String READ_NUM_COUNTER_NAME = "read_num_count";
     public static final String SEND_NUM_COUNTER_NAME = "send_num_count";
     public static final String READ_FAILED_NUM_COUNTER_NAME = "read_failed_num_count";
@@ -32,43 +32,39 @@ public class PluginPrometheusMetric implements PluginMetric {
     public static final String READ_SUCCESS_NUM_COUNTER_NAME = "read_success_num_count";
     public static final String SEND_SUCCESS_NUM_COUNTER_NAME = "send_success_num_count";
 
-    private final String tagName;
-
+    // agent-counters
     private static final Counter READ_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_NUM_COUNTER_NAME)
             .help("The total number of reads.")
             .labelNames("tag")
             .register();
-
     private static final Counter SEND_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_NUM_COUNTER_NAME)
             .help("The total number of sends.")
             .labelNames("tag")
             .register();
-
     private static final Counter READ_FAILED_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_FAILED_NUM_COUNTER_NAME)
             .help("The total number of failed reads.")
             .labelNames("tag")
             .register();
-
     private static final Counter SEND_FAILED_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_FAILED_NUM_COUNTER_NAME)
             .help("The total number of failed sends.")
             .labelNames("tag")
             .register();
-
     private static final Counter READ_SUCCESS_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_SUCCESS_NUM_COUNTER_NAME)
             .help("The total number of successful reads.")
             .labelNames("tag")
             .register();
-
     private static final Counter SEND_SUCCESS_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_SUCCESS_NUM_COUNTER_NAME)
             .help("The total number of successful sends.")
             .labelNames("tag")
             .register();
+
+    private String tagName;
 
     public PluginPrometheusMetric(String tagName) {
         this.tagName = tagName;

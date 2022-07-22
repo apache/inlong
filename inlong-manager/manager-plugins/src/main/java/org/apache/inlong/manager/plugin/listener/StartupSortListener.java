@@ -21,11 +21,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -65,6 +66,15 @@ public class StartupSortListener implements SortOperateListener {
         }
 
         GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
+        List<InlongStreamInfo> streamInfos = groupResourceForm.getStreamInfos();
+        int sinkCount = streamInfos.stream()
+                .map(s -> s.getSinkList() == null ? 0 : s.getSinkList().size())
+                .reduce(0, Integer::sum);
+        if (sinkCount == 0) {
+            log.warn("not any sink configured for group {}, skip launching sort job", groupId);
+            return ListenerResult.success();
+        }
+
         InlongGroupInfo inlongGroupInfo = groupResourceForm.getGroupInfo();
         List<InlongGroupExtInfo> extList = inlongGroupInfo.getExtList();
         log.info("inlong group ext info: {}", extList);
@@ -73,7 +83,7 @@ public class StartupSortListener implements SortOperateListener {
                 && StringUtils.isNotEmpty(v.getKeyValue())).collect(Collectors.toMap(
                 InlongGroupExtInfo::getKeyName,
                 InlongGroupExtInfo::getKeyValue));
-        String sortExt = kvConf.get(InlongGroupSettings.SORT_PROPERTIES);
+        String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);
         if (StringUtils.isNotEmpty(sortExt)) {
             Map<String, String> result = OBJECT_MAPPER.convertValue(OBJECT_MAPPER.readTree(sortExt),
                     new TypeReference<Map<String, String>>() {
@@ -81,8 +91,8 @@ public class StartupSortListener implements SortOperateListener {
             kvConf.putAll(result);
         }
 
-        String dataFlows = kvConf.get(InlongGroupSettings.DATA_FLOW);
-        if (StringUtils.isEmpty(dataFlows)) {
+        String dataflow = kvConf.get(InlongConstants.DATAFLOW);
+        if (StringUtils.isEmpty(dataflow)) {
             String message = String.format("dataflow is empty for groupId [%s]", groupId);
             log.error(message);
             return ListenerResult.fail(message);
@@ -91,7 +101,7 @@ public class StartupSortListener implements SortOperateListener {
         FlinkInfo flinkInfo = new FlinkInfo();
         String jobName = Constants.INLONG + context.getProcessForm().getInlongGroupId();
         flinkInfo.setJobName(jobName);
-        String sortUrl = kvConf.get(InlongGroupSettings.SORT_URL);
+        String sortUrl = kvConf.get(InlongConstants.SORT_URL);
         flinkInfo.setEndpoint(sortUrl);
         flinkInfo.setInlongStreamInfoList(groupResourceForm.getStreamInfos());
 
@@ -99,7 +109,7 @@ public class StartupSortListener implements SortOperateListener {
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
 
         try {
-            flinkOperation.genPath(flinkInfo, dataFlows);
+            flinkOperation.genPath(flinkInfo, dataflow);
             flinkOperation.start(flinkInfo);
             log.info("job submit success, jobId is [{}]", flinkInfo.getJobId());
         } catch (Exception e) {
@@ -113,7 +123,7 @@ public class StartupSortListener implements SortOperateListener {
             return ListenerResult.fail(message + e.getMessage());
         }
 
-        saveInfo(groupId, InlongGroupSettings.SORT_JOB_ID, flinkInfo.getJobId(), extList);
+        saveInfo(groupId, InlongConstants.SORT_JOB_ID, flinkInfo.getJobId(), extList);
         flinkOperation.pollJobStatus(flinkInfo);
         return ListenerResult.success();
     }
@@ -129,8 +139,4 @@ public class StartupSortListener implements SortOperateListener {
         extInfoList.add(extInfo);
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
 }

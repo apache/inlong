@@ -22,6 +22,21 @@ import { Button } from 'antd';
 import dayjs from 'dayjs';
 import i18n from '@/i18n';
 
+export const timeStaticsDimList = [
+  {
+    label: i18n.t('pages.AccessDetail.Audit.Min'),
+    value: 'MINUTE',
+  },
+  {
+    label: i18n.t('pages.AccessDetail.Audit.Hour'),
+    value: 'HOUR',
+  },
+  {
+    label: i18n.t('pages.AccessDetail.Audit.Day'),
+    value: 'DAY',
+  },
+];
+
 export const auditList = ['Agent', 'DataProxy', 'Sort'].reduce((acc, item, index) => {
   return acc.concat([
     {
@@ -114,6 +129,16 @@ export const getFormContent = (inlongGroupId, initialValues, onSearch, onDataStr
     props: {
       allowClear: false,
       format: 'YYYY-MM-DD',
+    },
+  },
+  {
+    type: 'select',
+    label: i18n.t('pages.AccessDetail.Audit.TimeStaticsDim'),
+    name: 'timeStaticsDim',
+    initialValue: initialValues.timeStaticsDim,
+    props: {
+      dropdownMatchSelectWidth: false,
+      options: timeStaticsDimList,
     },
   },
   {

@@ -22,6 +22,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.apache.commons.collections.SetUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -51,7 +52,6 @@ import org.apache.inlong.tubemq.client.producer.MessageSentResult;
 import org.apache.inlong.tubemq.corebase.Message;
 import org.apache.inlong.tubemq.corebase.TErrCodeConstants;
 import org.apache.inlong.tubemq.corerpc.exception.OverflowException;
-import org.apache.pulsar.shade.org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,14 +259,16 @@ public class TubeSink extends AbstractSink implements Configurable {
      * @throws FlumeException if an RPC client connection could not be opened
      */
     private void initCreateConnection() throws FlumeException {
-//        synchronized (tubeSessionLock) {
+        // check the TubeMQ address
+        if (masterHostAndPortLists == null || masterHostAndPortLists.isEmpty()) {
+            logger.warn("Failed to get TubeMQ Cluster, make sure register TubeMQ to manager successfully.");
+            return;
+        }
         // if already connected, just skip
         if (sessionFactories != null) {
             return;
         }
         sessionFactories = new HashMap<>();
-        Preconditions.checkState(masterHostAndPortLists != null && !masterHostAndPortLists.isEmpty(),
-                "No tube service url specified");
         for (String masterUrl : masterHostAndPortLists) {
             createConnection(masterUrl);
         }

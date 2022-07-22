@@ -20,13 +20,15 @@ package org.apache.inlong.manager.service.workflow.listener;
 import com.google.common.collect.Lists;
 import lombok.Data;
 import org.apache.commons.collections.MapUtils;
-import org.apache.inlong.manager.common.pojo.workflow.form.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.mq.CreatePulsarSubscriptionTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarTopicTaskListener;
-import org.apache.inlong.manager.service.mq.PulsarTopicSelector;
+import org.apache.inlong.manager.service.mq.DeletePulsarTopicTaskListener;
+import org.apache.inlong.manager.service.mq.PulsarTopicCreateSelector;
+import org.apache.inlong.manager.service.mq.PulsarTopicDeleteSelector;
 import org.apache.inlong.manager.service.resource.StreamSinkResourceListener;
-import org.apache.inlong.manager.service.sort.CreateStreamSortConfigListener;
+import org.apache.inlong.manager.service.sort.StreamSortConfigListener;
 import org.apache.inlong.manager.service.sort.ZookeeperEnabledSelector;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
@@ -65,7 +67,9 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     @Autowired
     private CreatePulsarSubscriptionTaskListener createPulsarSubscriptionTaskListener;
     @Autowired
-    private CreateStreamSortConfigListener createSortConfigListener;
+    private DeletePulsarTopicTaskListener deletePulsarTopicTaskListener;
+    @Autowired
+    private StreamSortConfigListener streamSortConfigListener;
     @Autowired
     private StreamSinkResourceListener sinkResourceListener;
 
@@ -73,10 +77,11 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     public void init() {
         sourceOperateListeners = new LinkedHashMap<>();
         queueOperateListeners = new LinkedHashMap<>();
-        queueOperateListeners.put(createPulsarTopicTaskListener, new PulsarTopicSelector());
-        queueOperateListeners.put(createPulsarSubscriptionTaskListener, new PulsarTopicSelector());
+        queueOperateListeners.put(createPulsarTopicTaskListener, new PulsarTopicCreateSelector());
+        queueOperateListeners.put(createPulsarSubscriptionTaskListener, new PulsarTopicCreateSelector());
+        queueOperateListeners.put(deletePulsarTopicTaskListener, new PulsarTopicDeleteSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(createSortConfigListener, new ZookeeperEnabledSelector());
+        sortOperateListeners.put(streamSortConfigListener, new ZookeeperEnabledSelector());
         sinkOperateListeners = new LinkedHashMap<>();
         sinkOperateListeners.put(sinkResourceListener, context -> {
             ProcessForm processForm = context.getProcessForm();
@@ -88,6 +93,7 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     public Iterable get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType) {
         switch (serviceTaskType) {
             case INIT_MQ:
+            case DELETE_MQ:
                 List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
                 return Lists.newArrayList(queueOperateListeners);
             case INIT_SORT:

@@ -18,16 +18,20 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-base_dir=$(
-  cd $(dirname $0)
-  cd ..
+
+BASE_DIR=$(
+  # shellcheck disable=SC2164
+  cd "$(dirname "$0")"
   pwd
 )
 
-LOG_PATH="${base_dir}/logs"
+# Enter the root directory path
+# shellcheck disable=SC2164
+cd "$BASE_DIR"
+cd ../
 
 PID=$(ps -ef | grep "audit-store" | grep -v grep | awk '{ print $2}')
-LOG_DIR="${base_dir}/logs"
+LOG_DIR="${BASE_DIR}/logs"
 
 if [ -n "$PID" ]; then
  echo "Application has already started."
@@ -45,7 +49,7 @@ else
 fi
 
 if [ ! -d "${LOG_DIR}" ]; then
-  mkdir ${LOG_DIR}
+  mkdir "${LOG_DIR}"
 fi
 
 JAVA_OPTS="-server -XX:SurvivorRatio=2 -XX:+UseParallelGC"
@@ -57,18 +61,20 @@ else
 fi
 JAVA_OPTS="${JAVA_OPTS} ${HEAP_OPTS}"
 
-SERVERJAR=`ls -lt ${base_dir}/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}'`
+# shellcheck disable=SC2010
+SERVER_JAR=$(ls -lt "${BASE_DIR}"/lib |grep audit-store | head -2 | tail -1 | awk '{print $NF}')
 
-nohup $JAVA $JAVA_OPTS -Daudit.log.path=$LOG_PATH -Dloader.path="$base_dir/conf,$base_dir/lib/" -jar "$base_dir/lib/$SERVERJAR"  1>${LOG_DIR}/store.log 2>${LOG_DIR}/store-error.log &
+nohup "$JAVA" "$JAVA_OPTS" -Daudit.log.path="$LOG_DIR" -Dloader.path="$BASE_DIR/conf,$BASE_DIR/lib/" -jar "$BASE_DIR/lib/$SERVER_JAR"  1>"${LOG_DIR}"/store.log  2>"${LOG_DIR}"/store-error.log &
 
-PIDFILE="$base_dir/bin/PID"
+PID_FILE="$BASE_DIR/bin/PID"
 
-PID=$(ps -ef | grep "$base_dir" | grep -v grep | awk '{ print $2}')
+# shellcheck disable=SC2009
+PID=$(ps -ef | grep "$BASE_DIR" | grep -v grep | awk '{ print $2}')
 
 sleep 3
 
 if [ -n "$PID" ]; then
-  echo -n $PID > "$PIDFILE"
+  echo -n "$PID" > "$PID_FILE"
   echo "Application started."
   exit 0
 else

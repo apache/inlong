@@ -25,7 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.enums.FilterStrategy;
 import org.apache.inlong.sort.protocol.node.LoadNode;
 import org.apache.inlong.sort.protocol.node.format.AvroFormat;
@@ -40,8 +42,10 @@ import org.apache.inlong.sort.protocol.transformation.FilterFunction;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Kafka load node using kafka connectors provided by flink
@@ -50,7 +54,7 @@ import java.util.Map;
 @JsonTypeName("kafkaLoad")
 @Data
 @NoArgsConstructor
-public class KafkaLoadNode extends LoadNode implements Serializable {
+public class KafkaLoadNode extends LoadNode implements Metadata, Serializable {
 
 
     private static final long serialVersionUID = -558158965060708408L;
@@ -108,7 +112,8 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
         }
         if (format instanceof JsonFormat || format instanceof AvroFormat || format instanceof CsvFormat) {
             if (StringUtils.isEmpty(this.primaryKey)) {
-                options.put("connector", "kafka");
+                options.put("connector", "kafka-inlong");
+                options.put("sink.ignore.changelog", "true");
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put("connector", "upsert-kafka");
@@ -121,5 +126,64 @@ public class KafkaLoadNode extends LoadNode implements Serializable {
             throw new IllegalArgumentException("kafka load Node format is IllegalArgument");
         }
         return options;
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "value.table";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "value.database";
+                break;
+            case SQL_TYPE:
+                metadataKey = "value.sql-type";
+                break;
+            case PK_NAMES:
+                metadataKey = "value.pk-names";
+                break;
+            case TS:
+                metadataKey = "value.ingestion-timestamp";
+                break;
+            case OP_TS:
+                metadataKey = "value.event-timestamp";
+                break;
+            case OP_TYPE:
+                metadataKey = "value.op-type";
+                break;
+            case DATA:
+                metadataKey = "value.data";
+                break;
+            case IS_DDL:
+                metadataKey = "value.is-ddl";
+                break;
+            case MYSQL_TYPE:
+                metadataKey = "value.mysql-type";
+                break;
+            case BATCH_ID:
+                metadataKey = "value.batch-id";
+                break;
+            case UPDATE_BEFORE:
+                metadataKey = "value.update-before";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return false;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
+                MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE, MetaField.DATA);
     }
 }

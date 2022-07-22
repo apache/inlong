@@ -21,12 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.mq.util.PulsarOperator;
@@ -72,7 +72,7 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
         final String streamId = streamInfo.getInlongStreamId();
 
         String clusterTag = groupInfo.getInlongClusterTag();
-        InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_PULSAR);
+        ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.PULSAR);
         PulsarClusterInfo pulsarCluster = (PulsarClusterInfo) clusterInfo;
         try (PulsarAdmin pulsarAdmin = PulsarUtils.getPulsarAdmin(pulsarCluster)) {
             // Query data sink info based on groupId and streamId
@@ -113,11 +113,6 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
 
         log.info("success to create pulsar subscription for groupId={}, streamId={}", groupId, streamId);
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

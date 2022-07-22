@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * File source information data transfer object
@@ -53,11 +54,15 @@ public class FileSourceDTO {
             + "Null or blank means from current timestamp")
     private String timeOffset;
 
+    @ApiModelProperty("Properties for File")
+    private Map<String, Object> properties;
+
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
                 .ip(fileSourceRequest.getIp())
                 .pattern(fileSourceRequest.getPattern())
                 .timeOffset(fileSourceRequest.getTimeOffset())
+                .properties(fileSourceRequest.getProperties())
                 .build();
     }
 

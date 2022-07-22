@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.group;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -41,7 +40,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group info")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "mqType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "mqType")
 public abstract class InlongGroupInfo {
 
     @ApiModelProperty(value = "Primary key")
@@ -97,10 +96,13 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "Name of followers, separated by commas")
     private String followers;
 
+    @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -116,7 +118,6 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty("Authentication info, will transfer into extList")
     private Authentication authentication;
 
-    @JsonIgnore
     @ApiModelProperty("Sort configuration, will transfer into extList")
     private BaseSortConf sortConf;
 

@@ -109,6 +109,10 @@
                     <artifactId>javassist</artifactId>
                     <groupId>org.javassist</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>swagger-annotations</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -132,6 +136,11 @@
         <dependency>
             <artifactId>guava</artifactId>
             <groupId>com.google.guava</groupId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -157,6 +166,7 @@
                 </includes>
             </resource>
         </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -197,8 +207,12 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeGroupIds>junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest</excludeGroupIds>
-                            <excludeArtifactIds>spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,manager-test,assertj-core,jsonassert</excludeArtifactIds>
+                            <excludeGroupIds>
+                                junit,org.powermock,org.junit.jupiter,org.opentest4j,org.junit.platform,org.xmlunit,org.hamcrest,org.mockito,org.apiguardian,com.h2database
+                            </excludeGroupIds>
+                            <excludeArtifactIds>
+                                manager-test,spring-test,spring-boot-test,spring-boot-starter-test,spring-boot-test-autoconfigure,assertj-core,jsonassert,h2-functions-4-mysql
+                            </excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>

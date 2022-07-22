@@ -37,9 +37,4 @@ public class MockRestartSortListener implements SortOperateListener {
         return ListenerResult.success("Mock restart sort success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

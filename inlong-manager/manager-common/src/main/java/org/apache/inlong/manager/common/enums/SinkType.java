@@ -34,6 +34,7 @@ public enum SinkType {
     MYSQL,
     ORACLE,
     TDSQLPOSTGRESQL,
+    DLCICEBERG,
 
     ;
 
@@ -50,6 +51,7 @@ public enum SinkType {
     public static final String SINK_MYSQL = "MYSQL";
     public static final String SINK_ORACLE = "ORACLE";
     public static final String SINK_TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
+    public static final String SINK_DLCICEBERG = "DLCICEBERG";
 
     /**
      * Get the SinkType enum via the given sinkType string

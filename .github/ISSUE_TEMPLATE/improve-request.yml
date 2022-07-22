@@ -18,7 +18,7 @@
 name: '👍 Improve Request'
 title: "[Improve]"
 description: Suggest an idea for Apache InLong
-labels: [ "improve" ]
+labels: [ "type/improve" ]
 body:
   - type: markdown
     attributes:

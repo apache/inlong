@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/openapi/dbCollector")
-@Api(tags = "DBCollector Config")
+@Api(tags = "Open-DBCollector-API")
 @Deprecated
 public class DBCollectorController {
 

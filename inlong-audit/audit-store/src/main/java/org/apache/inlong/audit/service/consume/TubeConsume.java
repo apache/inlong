@@ -18,12 +18,12 @@
 package org.apache.inlong.audit.service.consume;
 
 import com.google.common.base.Preconditions;
+
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.audit.config.MessageQueueConfig;
 import org.apache.inlong.audit.config.StoreConfig;
-import org.apache.inlong.audit.db.dao.AuditDataDao;
-import org.apache.inlong.audit.service.ElasticsearchService;
+import org.apache.inlong.audit.service.InsertData;
 import org.apache.inlong.tubemq.client.config.ConsumerConfig;
 import org.apache.inlong.tubemq.client.consumer.ConsumePosition;
 import org.apache.inlong.tubemq.client.consumer.ConsumerResult;
@@ -46,9 +46,15 @@ public class TubeConsume extends BaseConsume {
     private String topic;
     private int fetchThreadCnt = 4;
 
-    public TubeConsume(AuditDataDao auditDataDao, ElasticsearchService esService, StoreConfig storeConfig,
+    /**
+     * Constructor
+     * @param insertServiceList
+     * @param storeConfig
+     * @param mqConfig
+     */
+    public TubeConsume(List<InsertData> insertServiceList, StoreConfig storeConfig,
             MessageQueueConfig mqConfig) {
-        super(auditDataDao, esService, storeConfig, mqConfig);
+        super(insertServiceList, storeConfig, mqConfig);
     }
 
     @Override

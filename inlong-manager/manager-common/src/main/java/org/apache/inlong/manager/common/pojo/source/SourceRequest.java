@@ -18,38 +18,48 @@
 package org.apache.inlong.manager.common.pojo.source;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Request info of source
+ * Stream source request
  */
 @Data
-@ApiModel("Request of source")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sourceType")
+@ApiModel("Stream source request")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sourceType")
 public class SourceRequest {
 
+    @NotNull(groups = UpdateValidation.class)
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @NotNull(message = "inlongGroupId cannot be null")
+    @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
-    @NotNull(message = "inlongStreamId cannot be null")
+    @NotBlank(message = "inlongStreamId cannot be blank")
     @ApiModelProperty("Inlong stream id")
     private String inlongStreamId;
 
-    @NotNull(message = "sourceType cannot be null")
+    @NotBlank(message = "sourceType cannot be blank")
     @ApiModelProperty("Source type, including: FILE, KAFKA, etc.")
     private String sourceType;
 
-    @NotNull(message = "sourceName cannot be null")
+    @NotBlank(message = "sourceName cannot be blank")
+    @Length(min = 1, max = 100, message = "sourceName length must be between 1 and 100")
+    @Pattern(regexp = "^[a-z0-9_-]{1,100}$",
+            message = "sourceName only supports lowercase letters, numbers, '-', or '_'")
     @ApiModelProperty("Source name, unique in one stream")
     private String sourceName;
 
@@ -80,5 +90,8 @@ public class SourceRequest {
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
     private List<StreamField> fieldList;
+
+    @ApiModelProperty("Other properties if needed")
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
 }

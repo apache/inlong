@@ -18,22 +18,33 @@
  */
 
 import React, { useState, useMemo, useRef } from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Button, Card, message, Steps, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { PageContainer } from '@/components/PageContainer';
-import { useParams, useRequest } from '@/hooks';
+import { parse } from 'qs';
+import { PageContainer, FooterToolbar } from '@/components/PageContainer';
+import { useParams, useRequest, useSet, useHistory, useLocation } from '@/hooks';
+import request from '@/utils/request';
 import Info from './Info';
 
 const Comp: React.FC = () => {
   const { t } = useTranslation();
-  const id = +useParams<{ id: string }>().id;
+  const history = useHistory();
+  const location = useLocation();
+  const _id = +useParams<{ id: string }>().id;
+
+  const qs = parse(location.search.slice(1));
+
+  const [current, setCurrent] = useState(+qs.step || 0);
+  const [, { add: addOpened, has: hasOpened }] = useSet([current]);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [id, setId] = useState(_id);
+  const childRef = useRef(null);
+  const [isCreate] = useState(location.pathname.indexOf('/consume/create') === 0);
 
   const { data } = useRequest(`/consumption/get/${id}`, {
     ready: !!id,
     refreshDeps: [id],
   });
-
-  const extraRef = useRef<HTMLDivElement>();
 
   const isReadonly = useMemo(() => [11, 20, 22].includes(data?.status), [data]);
 
@@ -48,30 +59,118 @@ const Comp: React.FC = () => {
     [t],
   );
 
-  const [actived, setActived] = useState(list[0].value);
+  const onOk = async current => {
+    const onOk = childRef?.current?.onOk;
+    setConfirmLoading(true);
+    try {
+      const result = onOk && (await onOk());
+      if (current === 0) {
+        setId(result);
+        history.push({
+          search: `?id=${result}&step=1`,
+        });
+      }
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
+
+  const onSubmit = async () => {
+    await request({
+      url: `/consumption/startProcess/${id}`,
+      method: 'POST',
+      data,
+    });
+    message.success(t('basic.OperatingSuccess'));
+    history.push('/consume');
+  };
+
+  const Footer = () => (
+    <Space style={{ display: 'flex', justifyContent: 'center' }}>
+      {current > 0 && (
+        <Button onClick={() => setCurrent(current - 1)}>{t('pages.ConsumeCreate.Prev')}</Button>
+      )}
+      {current !== list.length - 1 && (
+        <Button
+          type="primary"
+          loading={confirmLoading}
+          onClick={async () => {
+            await onOk(current);
+            const newCurrent = current + 1;
+            setCurrent(newCurrent);
+            if (!hasOpened(newCurrent)) addOpened(newCurrent);
+          }}
+        >
+          {t('pages.ConsumeCreate.Next')}
+        </Button>
+      )}
+      {current === list.length - 1 && (
+        <Button
+          type="primary"
+          onClick={async () => {
+            await onOk(current);
+            await onSubmit();
+          }}
+        >
+          {t('pages.ConsumeCreate.Submit')}
+        </Button>
+      )}
+      <Button onClick={() => history.push('/consume')}>{t('pages.ConsumeCreate.Back')}</Button>
+    </Space>
+  );
+
+  const Div = isCreate ? Card : Tabs;
 
   return (
     <PageContainer
       breadcrumb={[
-        { name: `${t('pages.ConsumeDetail.ConsumptionDetails')}${data?.consumerGroupId}` },
+        {
+          name: isCreate
+            ? t('pages.ConsumeCreate.NewConsume')
+            : `${t('pages.ConsumeDetail.ConsumptionDetails')}${data?.id}`,
+        },
       ]}
+      useDefaultContainer={!isCreate}
     >
-      <Tabs
-        activeKey={actived}
-        onChange={val => setActived(val)}
-        tabBarExtraContent={<div ref={extraRef} />}
-      >
-        {list.map(({ content: Content, ...item }) => (
-          <Tabs.TabPane tab={item.label} key={item.value}>
-            <Content
-              id={id}
-              isActive={actived === item.value}
-              readonly={isReadonly}
-              extraRef={extraRef}
-            />
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+      {isCreate && (
+        <Steps
+          current={current}
+          size="small"
+          style={{ marginBottom: 20, width: 600 }}
+          onChange={c => setCurrent(c)}
+        >
+          {list.map(item => (
+            <Steps.Step key={item.label} title={item.label} />
+          ))}
+        </Steps>
+      )}
+
+      <Div>
+        {list.map(({ content: Content, ...item }, index) => {
+          // Lazy load the content of the step, and at the same time make the loaded useCache content not destroy
+          const child =
+            !isCreate || hasOpened(index) ? (
+              <Content
+                id={id}
+                readonly={isReadonly}
+                isCreate={isCreate}
+                ref={index === current ? childRef : null}
+              />
+            ) : null;
+
+          return isCreate ? (
+            <div key={item.label} style={{ display: `${index === current ? 'block' : 'none'}` }}>
+              {child}
+            </div>
+          ) : (
+            <Tabs.TabPane tab={item.label} key={item.value}>
+              {child}
+            </Tabs.TabPane>
+          );
+        })}
+      </Div>
+
+      {isCreate && <FooterToolbar extra={<Footer />} />}
     </PageContainer>
   );
 };

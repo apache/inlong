@@ -272,7 +272,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         if (profile == null) {
             return;
         }
-        agentManager.getJobManager().submitSqlJobProfile(profile);
+        agentManager.getJobManager().submitJobProfile(profile, true);
     }
 
     /**

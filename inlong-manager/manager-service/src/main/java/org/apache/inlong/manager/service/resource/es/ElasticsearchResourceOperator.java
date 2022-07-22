@@ -19,7 +19,7 @@ package org.apache.inlong.manager.service.resource.es;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Elasticsearch resource operator
+ * Elasticsearch's resource operator
  */
 @Service
 public class ElasticsearchResourceOperator implements SinkResourceOperator {
@@ -55,20 +55,17 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
         return SinkType.ELASTICSEARCH == sinkType;
     }
 
-    /**
-     * Create ES index according to the groupId and ES config
-     */
     @Override
     public void createSinkResource(SinkInfo sinkInfo) {
         if (sinkInfo == null) {
-            LOGGER.warn("sink info was null, skip to create resource");
+            LOGGER.warn("sink info was null, skip to create es resource");
             return;
         }
 
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
             LOGGER.warn("sink resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
-        } else if (GlobalConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
+        } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
             LOGGER.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
             return;
         }
@@ -77,11 +74,11 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
     }
 
     private void createIndex(SinkInfo sinkInfo) {
-        LOGGER.info("begin to create ES Index for sinkId={}", sinkInfo.getId());
+        LOGGER.info("begin to create es index for sinkId={}", sinkInfo.getId());
 
         List<StreamSinkFieldEntity> sinkList = sinkFieldMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(sinkList)) {
-            LOGGER.warn("no es fields found, skip to create index for sinkId={}", sinkInfo.getId());
+            LOGGER.warn("no es fields found, skip to create es index for sinkId={}", sinkInfo.getId());
         }
 
         // set fields
@@ -101,7 +98,7 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             ElasticsearchApi client = new ElasticsearchApi();
             client.setEsConfig(config);
 
-            String indexName = ElasticsearchSinkDTO.getElasticSearchIndexName(esInfo, fieldList);
+            String indexName = esInfo.getIndexName();
             boolean indexExists = client.indexExists(indexName);
 
             // 3. index not exists, create it
@@ -113,11 +110,11 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
             }
 
             // 5. update the sink status to success
-            String info = "success to create Elasticsearch resource";
+            String info = "success to create es resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOGGER.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            String errMsg = "create Elasticsearch index failed: " + e.getMessage();
+            String errMsg = "Create Elasticsearch index failed: " + e.getMessage();
             LOGGER.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
@@ -125,20 +122,20 @@ public class ElasticsearchResourceOperator implements SinkResourceOperator {
     }
 
     public List<ElasticsearchFieldInfo> getElasticsearchFieldFromSink(List<StreamSinkFieldEntity> sinkList) {
-        List<ElasticsearchFieldInfo> fieldList = new ArrayList<>();
-        for (StreamSinkFieldEntity entry : sinkList) {
-            ElasticsearchFieldInfo fieldInfo = new ElasticsearchFieldInfo();
-            fieldInfo.setName(entry.getFieldName());
-            fieldInfo.setType(entry.getFieldType());
-            fieldInfo.setFormat(entry.getFieldFormat());
+        List<ElasticsearchFieldInfo> esFieldList = new ArrayList<>();
+        for (StreamSinkFieldEntity fieldEntity : sinkList) {
+            ElasticsearchFieldInfo esFieldInfo = new ElasticsearchFieldInfo();
+            esFieldInfo.setName(fieldEntity.getFieldName());
+            esFieldInfo.setType(fieldEntity.getFieldType());
+            esFieldInfo.setFormat(fieldEntity.getFieldFormat());
             ElasticsearchFieldInfo fieldExtParams =
-                    ElasticsearchFieldInfo.getFromJson(entry.getExtParams());
-            fieldInfo.setScalingFactor(fieldExtParams.getScalingFactor());
-            fieldInfo.setAnalyzer(fieldExtParams.getAnalyzer());
-            fieldInfo.setSearchAnalyzer(fieldExtParams.getSearchAnalyzer());
-            fieldList.add(fieldInfo);
+                    ElasticsearchFieldInfo.getFromJson(fieldEntity.getExtParams());
+            esFieldInfo.setScalingFactor(fieldExtParams.getScalingFactor());
+            esFieldInfo.setAnalyzer(fieldExtParams.getAnalyzer());
+            esFieldInfo.setSearchAnalyzer(fieldExtParams.getSearchAnalyzer());
+            esFieldList.add(esFieldInfo);
         }
-        return fieldList;
+        return esFieldList;
     }
 
 }

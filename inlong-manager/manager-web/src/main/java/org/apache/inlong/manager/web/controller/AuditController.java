@@ -19,30 +19,29 @@ package org.apache.inlong.manager.web.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.io.IOException;
-import java.util.List;
-import javax.validation.Valid;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
 import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Audit controller.
  */
 @RestController
-@RequestMapping("/audit")
-@Api(tags = "Audit")
+@Api(tags = "Audit-API")
 public class AuditController {
 
     @Autowired
     private AuditService auditService;
 
-    @GetMapping(value = "/list")
+    @GetMapping(value = "/audit/list")
     @ApiOperation(value = "Query audit list according to conditions")
     public Response<List<AuditVO>> listByCondition(@Valid AuditRequest request) throws IOException {
         return Response.success(auditService.listByCondition(request));

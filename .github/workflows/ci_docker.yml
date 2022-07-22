@@ -21,12 +21,18 @@ on:
   push:
     paths:
       - '.github/workflows/ci_docker.yml'
-      - '**/Dockerfile'
-      - 'inlong-agent/agent-docker/**'
-      - 'inlong-audit/audit-docker/**'
-      - 'inlong-dataproxy/dataproxy-docker/**'
-      - 'inlong-manager/manager-docker/**'
-      - 'inlong-tubemq/tubemq-docker/**'
+      - '**/pom.xml'
+      - 'inlong-agent/**'
+      - 'inlong-audit/**'
+      - 'inlong-common/**'
+      - 'inlong-dashboard/**'
+      - 'inlong-dataproxy/**'
+      - 'inlong-distribution/**'
+      - 'inlong-manager/**'
+      - 'inlong-sdk/**'
+      - 'inlong-sort/**'
+      - 'inlong-sort-standalone/**'
+      - 'inlong-tubemq/**'
       - '!**.md'
 
   pull_request:
@@ -39,10 +45,6 @@ on:
       - 'inlong-manager/manager-docker/**'
       - 'inlong-tubemq/tubemq-docker/**'
       - '!**.md'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
-  cancel-in-progress: true
 
 jobs:
   docker:
@@ -73,36 +75,52 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build Docker images
-        run: mvn --batch-mode --update-snapshots -e -V clean package -DskipTests -Pdocker
+        run: mvn --batch-mode --update-snapshots -e -V -T 1C clean package -DskipTests -Pdocker
         env:
           CI: false
 
-      # Check if only the workflow file is changed.
-      - name: Check workflow diff
-        id: check-workflow-diff
-        uses: apache/pulsar-test-infra/diff-only@master
-        with:
-          args: .github/workflows/ci_docker.yml
-
-      # If the changes are being pushed to the master branch or a branch like 'release-1.0.0', this step will output true.
       - name: Match branch
-        id: match-branch
+        id: match
         if: |
           success()
           && github.event_name == 'push'
           && github.repository_owner == 'apache'
         run: |
-          if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} || ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "::set-output name=match::true"
+          if [[ ${{ github.ref_name }} == ${{ github.event.repository.default_branch }} ]]; then
+            echo "::set-output name=match_master::true"
+          elif [[ ${{ github.ref_name }} =~ ^release-[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::set-output name=match_release::true"
           fi
 
-      - name: Push Docker images to Docker Hub
+      # Publish x86 Docker images when the changes are being pushed to the master branch or a release branch like 'release-1.0.0'.
+      - name: Push x86 Docker images to Docker Hub
         if: |
-          success()
-          && steps.check-workflow-diff.outputs.changed_only == 'no'
-          && steps.match-branch.outputs.match == 'true'
+          steps.match.outputs.match_master == 'true'
+          || steps.match.outputs.match_release == 'true'
         working-directory: docker
-        run: bash +x publish.sh
+        run: |
+          bash +x publish-by-arch.sh --tag --publish
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Publish aarch64 Docker images when the changes are being pushed to a release branch like 'release-1.0.0'.
+      - name: Push aarch64 Docker images to Docker Hub
+        if: ${{ steps.match.outputs.match_release == 'true' }}
+        working-directory: docker
+        run: |
+          bash +x build-docker-images.sh --buildx aarch64
+          bash +x publish-by-arch.sh --tag --arch aarch64 --publish
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Push manifest after publishing aarch64 Docker images.
+      - name: Push manifest to Docker Hub
+        if: ${{ steps.match.outputs.match_release == 'true' }}
+        working-directory: docker
+        run: |
+          bash +x publish-by-arch.sh --manifest
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

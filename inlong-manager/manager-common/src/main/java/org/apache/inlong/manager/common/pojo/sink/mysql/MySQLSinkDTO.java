@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.sink.mysql;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,6 +44,7 @@ import java.util.Map;
 public class MySQLSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
 
     @ApiModelProperty("MySQL JDBC URL, such as jdbc:mysql://host:port/database")
@@ -64,6 +67,9 @@ public class MySQLSinkDTO {
 
     /**
      * Get the dto instance from the request
+     *
+     * @param request MySQLSinkRequest
+     * @return {@link MySQLSinkDTO}
      */
     public static MySQLSinkDTO getFromRequest(MySQLSinkRequest request) {
         return MySQLSinkDTO.builder()
@@ -78,6 +84,9 @@ public class MySQLSinkDTO {
 
     /**
      * Get MySQL sink info from JSON string
+     *
+     * @param extParams string ext params
+     * @return {@link MySQLSinkDTO}
      */
     public static MySQLSinkDTO getFromJson(@NotNull String extParams) {
         try {
@@ -89,4 +98,68 @@ public class MySQLSinkDTO {
         }
     }
 
+    /**
+     * Get MySQL table info
+     *
+     * @param mySQLSink MySQL sink dto,{@link MySQLSinkDTO}
+     * @param columnList MySQL column info list,{@link MySQLColumnInfo}
+     * @return {@link MySQLTableInfo}
+     */
+    public static MySQLTableInfo getTableInfo(MySQLSinkDTO mySQLSink, List<MySQLColumnInfo> columnList) {
+        MySQLTableInfo tableInfo = new MySQLTableInfo();
+        String dbName = getDbNameFromUrl(mySQLSink.getJdbcUrl());
+        tableInfo.setDbName(dbName);
+        tableInfo.setTableName(mySQLSink.getTableName());
+        tableInfo.setPrimaryKey(mySQLSink.getPrimaryKey());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
+    }
+
+    /**
+     * Get DbName from jdbcUrl
+     *
+     * @param jdbcUrl  MySQL JDBC url, such as jdbc:mysql://host:port/database
+     * @return database name
+     */
+    public static String getDbNameFromUrl(String jdbcUrl) {
+        String database = null;
+
+        if (Strings.isNullOrEmpty(jdbcUrl)) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+
+        jdbcUrl = jdbcUrl.toLowerCase();
+        if (jdbcUrl.startsWith("jdbc:impala")) {
+            jdbcUrl = jdbcUrl.replace(":impala", "");
+        }
+
+        int pos1;
+        if (!jdbcUrl.startsWith("jdbc:")
+                || (pos1 = jdbcUrl.indexOf(':', 5)) == -1) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+
+        String connUri = jdbcUrl.substring(pos1 + 1);
+        int pos;
+        if (connUri.startsWith("//")) {
+            if ((pos = connUri.indexOf('/', 2)) != -1) {
+                database = connUri.substring(pos + 1);
+            }
+        } else {
+            database = connUri;
+        }
+
+        if (database.contains("?")) {
+            database = database.substring(0, database.indexOf("?"));
+        }
+
+        if (database.contains(";")) {
+            database = database.substring(0, database.indexOf(";"));
+        }
+
+        if (Strings.isNullOrEmpty(database)) {
+            throw new IllegalArgumentException("Invalid JDBC url.");
+        }
+        return database;
+    }
 }

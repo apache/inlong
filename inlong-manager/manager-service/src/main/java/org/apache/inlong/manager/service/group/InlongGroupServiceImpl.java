@@ -29,14 +29,14 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -46,8 +46,8 @@ import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongGroupExtEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
-import org.apache.inlong.manager.service.source.SourceOperationFactory;
-import org.apache.inlong.manager.service.source.StreamSourceOperation;
+import org.apache.inlong.manager.service.source.SourceOperatorFactory;
+import org.apache.inlong.manager.service.source.StreamSourceOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +55,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +68,7 @@ import java.util.stream.Collectors;
  * Inlong group service layer implementation
  */
 @Service
+@Validated
 public class InlongGroupServiceImpl implements InlongGroupService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongGroupServiceImpl.class);
@@ -81,7 +83,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     @Autowired
     private StreamSourceEntityMapper streamSourceMapper;
     @Autowired
-    private SourceOperationFactory sourceOperationFactory;
+    private SourceOperatorFactory sourceOperatorFactory;
     @Autowired
     private InlongStreamService streamService;
 
@@ -125,7 +127,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     public String save(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to save inlong group={} by user={}", request, operator);
         Preconditions.checkNotNull(request, "inlong group request cannot be empty");
-        request.checkParams();
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -166,7 +167,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request) {
+    public PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
             LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
@@ -174,29 +175,27 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
-        List<InlongGroupListResponse> groupResponseList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupListResponse::new);
+        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
+                InlongGroupBriefInfo::new);
 
-        // need to list all related sources
-        if (request.isListSources() && CollectionUtils.isNotEmpty(groupResponseList)) {
-            Set<String> groupIds = groupResponseList.stream().map(InlongGroupListResponse::getInlongGroupId)
+        // list all related sources
+        if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
+            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
                     .collect(Collectors.toSet());
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
-            Map<String, List<SourceListResponse>> sourceMap = Maps.newHashMap();
+            Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
             sourceEntities.forEach(sourceEntity -> {
                 SourceType sourceType = SourceType.forType(sourceEntity.getSourceType());
-                StreamSourceOperation operation = sourceOperationFactory.getInstance(sourceType);
-                SourceListResponse sourceListResponse = operation.getFromEntity(sourceEntity, SourceListResponse::new);
-                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList())
-                        .add(sourceListResponse);
+                StreamSourceOperator operation = sourceOperatorFactory.getInstance(sourceType);
+                StreamSource source = operation.getFromEntity(sourceEntity);
+                sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });
-            groupResponseList.forEach(group -> {
-                List<SourceListResponse> sourceListResponses = sourceMap.getOrDefault(group.getInlongGroupId(),
-                        Lists.newArrayList());
-                group.setSourceResponses(sourceListResponses);
+            briefInfos.forEach(group -> {
+                List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
+                group.setStreamSources(sources);
             });
         }
-        PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupResponseList);
+        PageInfo<InlongGroupBriefInfo> page = new PageInfo<>(briefInfos);
         page.setTotal(entityPage.getTotal());
         LOGGER.debug("success to list inlong group for {}", request);
         return page;
@@ -207,8 +206,6 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             propagation = Propagation.REQUIRES_NEW)
     public String update(InlongGroupRequest request, String operator) {
         LOGGER.debug("begin to update inlong group={} by user={}", request, operator);
-        Preconditions.checkNotNull(request, "inlong group request cannot be empty");
-        request.checkParams();
 
         String groupId = request.getInlongGroupId();
         InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
@@ -350,30 +347,23 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public boolean updateAfterApprove(InlongGroupApproveRequest approveInfo, String operator) {
-        LOGGER.debug("begin to update inlong group after approve={}", approveInfo);
+    public void updateAfterApprove(InlongGroupApproveRequest approveRequest, String operator) {
+        LOGGER.debug("begin to update inlong group after approve={}", approveRequest);
+        String groupId = approveRequest.getInlongGroupId();
 
-        // Save the dataSchema, Topic and other information of the inlong group
-        Preconditions.checkNotNull(approveInfo, "InlongGroupApproveRequest is empty");
-        String groupId = approveInfo.getInlongGroupId();
-        Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-        String mqType = approveInfo.getMqType();
-        Preconditions.checkNotNull(mqType, "MQ type cannot by empty");
-
-        // Update status to [GROUP_APPROVE_PASSED]
+        // update status to [GROUP_APPROVE_PASSED]
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
 
         // update other info for inlong group after approve
-        if (StringUtils.isNotBlank(approveInfo.getInlongClusterTag())) {
+        if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
             InlongGroupEntity entity = new InlongGroupEntity();
-            entity.setInlongGroupId(approveInfo.getInlongGroupId());
-            entity.setInlongClusterTag(approveInfo.getInlongClusterTag());
+            entity.setInlongGroupId(approveRequest.getInlongGroupId());
+            entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setModifier(operator);
             groupMapper.updateByIdentifierSelective(entity);
         }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);
-        return true;
     }
 
     @Override

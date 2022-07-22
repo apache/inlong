@@ -102,7 +102,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
     : [
         {
           type: 'select',
-          label: 'Cluster',
+          label: i18n.t('pages.ApprovalDetail.AccessConfig.BindClusterTag'),
           name: ['inlongClusterTag'],
           rules: [{ required: true }],
           props: {
@@ -110,7 +110,7 @@ export const getFormContent = ({ isViwer, formData, suffixContent, noExtraForm, 
             options: {
               requestAuto: isFinished,
               requestService: {
-                url: '/cluster/list',
+                url: '/cluster/tag/list',
                 method: 'POST',
                 data: {
                   pageNum: 1,

@@ -86,7 +86,7 @@ public class TestEsSinkContext {
         headers.put(Constants.HEADER_KEY_MSG_TIME, String.valueOf(System.currentTimeMillis()));
         headers.put(Constants.HEADER_KEY_SOURCE_IP, "127.0.0.1");
         byte[] body = content.getBytes(Charset.defaultCharset());
-        return new ProfileEvent(body, headers, null);
+        return new ProfileEvent(headers, body);
     }
 
     /**

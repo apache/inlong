@@ -40,6 +40,7 @@
         <module>sort-connectors</module>
         <module>sort-core</module>
         <module>sort-dist</module>
+        <module>sort-end-to-end-tests</module>
     </modules>
     <properties>
         <debezium.version>1.5.4.Final</debezium.version>
@@ -47,6 +48,7 @@
         <rat.basedir>${basedir}</rat.basedir>
         <hbase.version>2.2.3</hbase.version>
         <dlc.hive.version>2.3.7</dlc.hive.version>
+        <iceberg.hive.version>2.3.7</iceberg.hive.version>
     </properties>
     <dependencyManagement>
         <dependencies>

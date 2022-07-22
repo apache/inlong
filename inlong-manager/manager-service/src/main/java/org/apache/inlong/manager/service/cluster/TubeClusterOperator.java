@@ -17,17 +17,22 @@
 
 package org.apache.inlong.manager.service.cluster;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterDTO;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.service.group.InlongNoneMqOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,6 +43,9 @@ public class TubeClusterOperator extends AbstractClusterOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InlongNoneMqOperator.class);
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     public Boolean accept(String clusterType) {
         return getClusterType().equals(clusterType);
@@ -45,20 +53,36 @@ public class TubeClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.CLS_TUBE;
+        return ClusterType.TUBE;
     }
 
     @Override
-    protected void setTargetEntity(InlongClusterRequest request, InlongClusterEntity targetEntity) {
-        LOGGER.info("do nothing for tube cluster in set target entity");
+    protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
+            TubeClusterRequest tubeRequest = (TubeClusterRequest) request;
+            CommonBeanUtils.copyProperties(tubeRequest, targetEntity, true);
+            try {
+                TubeClusterDTO dto = objectMapper.convertValue(tubeRequest, TubeClusterDTO.class);
+                targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
+                LOGGER.info("success to set entity for tube cluster");
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            }
     }
 
     @Override
-    public InlongClusterInfo getFromEntity(InlongClusterEntity entity) {
+    public ClusterInfo getFromEntity(InlongClusterEntity entity) {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
-        return CommonBeanUtils.copyProperties(entity, TubeClusterInfo::new);
+        TubeClusterInfo tubeClusterInfo = new TubeClusterInfo();
+        CommonBeanUtils.copyProperties(entity, tubeClusterInfo);
+        if (StringUtils.isNotBlank(entity.getExtParams())) {
+            TubeClusterDTO dto = TubeClusterDTO.getFromJson(entity.getExtParams());
+            CommonBeanUtils.copyProperties(dto, tubeClusterInfo);
+        }
+
+        LOGGER.info("success to get tube cluster info from entity");
+        return tubeClusterInfo;
     }
 
 }

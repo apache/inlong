@@ -20,8 +20,10 @@ package org.apache.inlong.audit.service;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.apache.inlong.audit.config.ElasticsearchConfig;
 import org.apache.inlong.audit.db.entities.ESDataPo;
+import org.apache.inlong.audit.protocol.AuditData;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -55,7 +57,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class ElasticsearchService implements AutoCloseable {
+public class ElasticsearchService implements InsertData, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchService.class);
 
@@ -71,6 +73,7 @@ public class ElasticsearchService implements AutoCloseable {
 
     public void startTimerRoutine() {
         timerService.scheduleAtFixedRate((new Runnable() {
+
             @Override
             public void run() {
                 try {
@@ -82,6 +85,7 @@ public class ElasticsearchService implements AutoCloseable {
         }), 1, 1, TimeUnit.DAYS);
 
         timerService.scheduleWithFixedDelay((new Runnable() {
+
             @Override
             public void run() {
                 try {
@@ -312,7 +316,26 @@ public class ElasticsearchService implements AutoCloseable {
         builder.endObject();
         return builder;
     }
+
+    /**
+     * insert
+     * @param msgBody
+     */
+    @Override
+    public void insert(AuditData msgBody) {
+        ESDataPo esPo = new ESDataPo();
+        esPo.setIp(msgBody.getIp());
+        esPo.setThreadId(msgBody.getThreadId());
+        esPo.setDockerId(msgBody.getDockerId());
+        esPo.setSdkTs(new Date(msgBody.getSdkTs()).getTime());
+        esPo.setLogTs(new Date(msgBody.getLogTs()));
+        esPo.setAuditId(msgBody.getAuditId());
+        esPo.setCount(msgBody.getCount());
+        esPo.setDelay(msgBody.getDelay());
+        esPo.setInlongGroupId(msgBody.getInlongGroupId());
+        esPo.setInlongStreamId(msgBody.getInlongStreamId());
+        esPo.setSize(msgBody.getSize());
+        esPo.setPacketId(msgBody.getPacketId());
+        this.insertData(esPo);
+    }
 }
-
-
-

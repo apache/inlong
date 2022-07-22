@@ -19,10 +19,10 @@ package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -37,10 +37,10 @@ public interface InlongGroupApi {
     Call<Response<Boolean>> isGroupExists(@Path("id") String id);
 
     @GET("group/get/{id}")
-    Call<Response<InlongGroupInfo>> getGroupInfo(@Path("id") String id);
+    Call<Response<Object>> getGroupInfo(@Path("id") String id);
 
     @POST("group/list")
-    Call<Response<PageInfo<InlongGroupListResponse>>> listGroups(@Body InlongGroupPageRequest request);
+    Call<Response<PageInfo<InlongGroupBriefInfo>>> listGroups(@Body InlongGroupPageRequest request);
 
     @POST("group/save")
     Call<Response<String>> createGroup(@Body InlongGroupRequest request);
@@ -69,4 +69,6 @@ public interface InlongGroupApi {
     @DELETE("group/delete/{id}")
     Call<Response<Boolean>> deleteGroup(@Path("id") String id);
 
+    @POST("group/reset")
+    Call<Response<Boolean>> resetGroup(@Body InlongGroupResetRequest request);
 }

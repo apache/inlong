@@ -52,10 +52,6 @@ on:
       - 'inlong-tubemq/**'
       - '!**.md'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
   build:
     name: Build
@@ -81,7 +77,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -e -V clean install -DskipTests
+        run: |
+          mvn --batch-mode --update-snapshots -e -V -T 1C clean install -DskipTests -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
         env:
           CI: false
 

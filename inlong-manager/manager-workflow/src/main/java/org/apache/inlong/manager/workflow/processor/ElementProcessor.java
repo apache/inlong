@@ -35,7 +35,7 @@ public interface ElementProcessor<T extends Element> {
     /**
      * Execute the logic of the current component
      */
-    void create(T element, WorkflowContext context);
+    boolean create(T element, WorkflowContext context);
 
     /**
      * Whether to wait for user action

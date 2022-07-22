@@ -118,6 +118,6 @@ public interface TopicDeployMapper extends AbstractMapper {
 
     Map<String/* topicName */, Map<Integer, String>> getTopicBrokerInfo(Set<String> topicNameSet);
 
-    Set<String> getConfiguredTopicSet();
+    Set<String> getDeployedTopicSet();
 
 }

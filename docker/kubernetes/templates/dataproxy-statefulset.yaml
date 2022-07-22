@@ -97,4 +97,26 @@ spec:
           ports:
             - name: {{ .Values.dataproxy.component }}-port
               containerPort: 46801
+          volumeMounts:
+          - name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-{{ .Values.dataproxy.volumes.name }}
+            mountPath: /opt/inlong-dataproxy/data
+      volumes:
+      {{- if not .Values.dataproxy.volumes.persistence }}
+      - name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-{{ .Values.dataproxy.volumes.name }}
+        emptyDir: {}
+      {{- end }}
       restartPolicy: Always
+  # Create pvc for dataproxy
+  {{- if .Values.dataproxy.volumes.persistence }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ template "inlong.fullname" . }}-{{ .Values.dataproxy.component }}-{{ .Values.dataproxy.volumes.name }}
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.dataproxy.volumes.size }}
+        {{- if .Values.dataproxy.volumes.storageClassName }}
+        storageClassName: "{{ .Values.dataproxy.volumes.storageClassName }}"
+        {{- end }}
+  {{- end }}

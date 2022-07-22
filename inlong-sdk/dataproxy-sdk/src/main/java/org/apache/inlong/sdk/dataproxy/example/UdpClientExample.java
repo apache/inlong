@@ -18,9 +18,6 @@
 
 package org.apache.inlong.sdk.dataproxy.example;
 
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
-import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -31,16 +28,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
-
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Random;
 import org.apache.inlong.sdk.dataproxy.codec.EncodeObject;
 import org.apache.inlong.sdk.dataproxy.config.EncryptConfigEntry;
 import org.apache.inlong.sdk.dataproxy.config.EncryptInfo;
@@ -51,11 +38,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.Snappy;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_COMPRESS;
+import static org.apache.inlong.sdk.dataproxy.ConfigConstants.FLAG_ALLOW_ENCRYPT;
+
 public class UdpClientExample {
 
     private static final Logger logger = LoggerFactory.getLogger(UdpClientExample.class);
 
     private static SequentialID idGenerator = new SequentialID(Utils.getLocalIp());
+
+    private static SecureRandom random = new SecureRandom();
 
     public static void main(String[] args) {
         long sentCount = 10;
@@ -90,6 +92,16 @@ public class UdpClientExample {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getRandomString(int length) {
+        StringBuilder sb = new StringBuilder();
+        String string = "i am bus test client!";
+        for (int i = 0; i < length; i++) {
+            int number = random.nextInt(string.length());
+            sb.append(string.charAt(number));
+        }
+        return sb.toString();
     }
 
     public boolean sendUdpMessage(Channel channel, String ip, int port, ByteBuf msg) {
@@ -187,9 +199,9 @@ public class UdpClientExample {
                         }
                         EncryptInfo encryptInfo = encryptEntry.getRsaEncryptInfo();
                         endAttr = endAttr + "_userName=" + object.getUserName() + "&_encyVersion="
-                                + encryptInfo.getVersion() + "&_encyDesKey="
+                                + encryptInfo.getVersion() + "&_encyAesKey="
                                 + encryptInfo.getRsaEncryptedKey();
-                        body = EncryptUtil.desEncrypt(body, encryptInfo.getDesKey());
+                        body = EncryptUtil.aesEncrypt(body, encryptInfo.getAesKey());
                     }
                 }
                 if (!object.isGroupIdTransfer()) {
@@ -280,15 +292,5 @@ public class UdpClientExample {
             logger.error("Connection has exception e = {}", e);
         }
         return channel;
-    }
-
-    public static String getRandomString(int length) {
-        StringBuffer sb = new StringBuffer();
-        String string = "i am bus test client!";
-        for (int i = 0; i < length; i++) {
-            int number = new Random().nextInt(string.length());
-            sb.append(string.charAt(number));
-        }
-        return sb.toString();
     }
 }

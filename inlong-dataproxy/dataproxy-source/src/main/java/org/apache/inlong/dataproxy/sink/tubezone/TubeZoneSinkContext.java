@@ -17,7 +17,7 @@
 
 package org.apache.inlong.dataproxy.sink.tubezone;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
 import org.apache.inlong.dataproxy.config.RemoteConfigManager;

@@ -20,11 +20,11 @@ package org.apache.inlong.manager.service.resource;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.inlong.manager.common.enums.GlobalConstants;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.StreamResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Event listener of create hive table for one inlong stream
+ * Event listener of operate sink resources for one inlong stream,
+ * such as create or update Hive table, Kafka topics, ES indices, etc.
  */
 @Service
 @Slf4j
@@ -63,14 +64,12 @@ public class StreamSinkResourceListener implements SinkOperateListener {
 
         List<SinkInfo> sinkInfos = sinkEntityMapper.selectAllConfig(groupId, Lists.newArrayList(streamId));
         List<SinkInfo> needCreateResources = sinkInfos.stream()
-                .filter(sinkInfo -> GlobalConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
+                .filter(sinkInfo -> InlongConstants.ENABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource()))
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(needCreateResources)) {
-            String result =
-                    "sink resources have been created for group [" + groupId + "] and stream [" + streamId + "]";
-            log.info(result);
-            return ListenerResult.success(result);
+            log.info("sink resources have been created for group [" + groupId + "] and stream [" + streamId + "]");
+            return ListenerResult.success();
         }
 
         for (SinkInfo sinkInfo : needCreateResources) {
@@ -78,14 +77,8 @@ public class StreamSinkResourceListener implements SinkOperateListener {
             SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
             resourceOperator.createSinkResource(sinkInfo);
         }
-        String result = "success to create sink resources for group [" + groupId + "] and stream [" + streamId + "]";
-        log.info(result);
-        return ListenerResult.success(result);
-    }
-
-    @Override
-    public boolean async() {
-        return false;
+        log.info("success to create sink resources for group [" + groupId + "] and stream [" + streamId + "]");
+        return ListenerResult.success();
     }
 
 }

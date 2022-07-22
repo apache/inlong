@@ -20,8 +20,8 @@ package org.apache.inlong.manager.service.cluster;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
@@ -44,16 +44,16 @@ public class DataProxyClusterOperator extends AbstractClusterOperator {
 
     @Override
     public String getClusterType() {
-        return ClusterType.CLS_DATA_PROXY;
+        return ClusterType.DATA_PROXY;
     }
 
     @Override
-    protected void setTargetEntity(InlongClusterRequest request, InlongClusterEntity targetEntity) {
+    protected void setTargetEntity(ClusterRequest request, InlongClusterEntity targetEntity) {
         LOGGER.info("do nothing for data proxy cluster in set target entity");
     }
 
     @Override
-    public InlongClusterInfo getFromEntity(InlongClusterEntity entity) {
+    public ClusterInfo getFromEntity(InlongClusterEntity entity) {
         if (entity == null) {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }

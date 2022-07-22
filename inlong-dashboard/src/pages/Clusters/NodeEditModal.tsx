@@ -40,10 +40,6 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
     }),
     {
       manual: true,
-      formatResult: result => ({
-        ...result,
-        // inCharges: result.inCharges.split(','),
-      }),
       onSuccess: result => {
         form.setFieldsValue(result);
       },
@@ -57,10 +53,10 @@ const NodeEditModal: React.FC<NodeEditModalProps> = ({ id, type, clusterId, ...m
       ...values,
       type,
       parentId: savedData?.parentId || clusterId,
-      // inCharges: values.inCharges?.join(','),
     };
     if (isUpdate) {
       submitData.id = id;
+      submitData.version = savedData?.version;
     }
     await request({
       url: `/cluster/node/${isUpdate ? 'update' : 'save'}`,

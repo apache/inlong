@@ -25,7 +25,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;

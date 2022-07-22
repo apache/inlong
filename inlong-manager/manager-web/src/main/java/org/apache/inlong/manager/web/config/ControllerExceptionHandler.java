@@ -51,7 +51,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleConstraintViolationException(HttpServletRequest request,
             ConstraintViolationException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
@@ -67,13 +67,13 @@ public class ControllerExceptionHandler {
     public Response<String> handleMethodArgumentNotValidException(HttpServletRequest request,
             MethodArgumentNotValidException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
         BindingResult result = e.getBindingResult();
         result.getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(":")
+                error -> builder.append(error.getField()).append(": ")
                         .append(error.getDefaultMessage()).append(System.lineSeparator())
         );
 
@@ -87,7 +87,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = IllegalArgumentException.class)
     public Response<String> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
@@ -95,12 +95,12 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = BindException.class)
     public Response<String> handleBindExceptionHandler(HttpServletRequest request, BindException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
 
         StringBuilder builder = new StringBuilder();
         e.getBindingResult().getFieldErrors().forEach(
-                error -> builder.append(error.getField()).append(":")
+                error -> builder.append(error.getField()).append(": ")
                         .append(error.getDefaultMessage()).append(System.lineSeparator())
         );
         return Response.fail(builder.toString());
@@ -110,7 +110,7 @@ public class ControllerExceptionHandler {
     public Response<String> handleHttpMessageConversionExceptionHandler(HttpServletRequest request,
             HttpMessageConversionException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("http message convert exception! pls check params");
     }
@@ -118,7 +118,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = WorkflowException.class)
     public Response<String> handleWorkflowException(HttpServletRequest request, WorkflowException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
@@ -126,7 +126,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = BusinessException.class)
     public Response<String> handleBusinessExceptionHandler(HttpServletRequest request, BusinessException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(e.getMessage());
     }
@@ -140,16 +140,16 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(value = UnauthorizedException.class)
     public Response<String> handleUnauthorizedException(HttpServletRequest request, AuthorizationException e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail(String.format("Current user [%s] has no permission to access URL",
-                (userDetail != null ? userDetail.getUserName() : "")));
+                (userDetail != null ? userDetail.getUsername() : "")));
     }
 
     @ExceptionHandler(Exception.class)
     public Response<String> handle(HttpServletRequest request, Exception e) {
         UserDetail userDetail = LoginUserUtils.getLoginUserDetail();
-        String username = userDetail != null ? userDetail.getUserName() : "";
+        String username = userDetail != null ? userDetail.getUsername() : "";
         log.error(String.format(ERROR_MSG, request.getRequestURI(), username), e);
         return Response.fail("There was an error in the service..."
                 + "Please try again later! "

@@ -20,12 +20,11 @@ package org.apache.inlong.manager.service.mq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.cluster.InlongClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
-import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.mq.util.TubeMQOperator;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -45,8 +44,6 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
     private InlongClusterService clusterService;
     @Autowired
     private TubeMQOperator tubeMQOperator;
-    @Autowired
-    private InlongGroupService groupService;
 
     @Override
     public TaskEvent event() {
@@ -62,18 +59,13 @@ public class CreateTubeTopicTaskListener implements QueueOperateListener {
         try {
             InlongGroupInfo groupInfo = form.getGroupInfo();
             String clusterTag = groupInfo.getInlongClusterTag();
-            InlongClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.CLS_TUBE);
+            ClusterInfo clusterInfo = clusterService.getOne(clusterTag, null, ClusterType.TUBE);
             tubeMQOperator.createTopic((TubeClusterInfo) clusterInfo, groupInfo.getMqResource(), context.getOperator());
             log.info("finish to create tube topic for groupId={}", groupId);
         } catch (Exception e) {
             log.error("create tube topic for groupId={} error, exception {} ", groupId, e.getMessage(), e);
         }
         return ListenerResult.success();
-    }
-
-    @Override
-    public boolean async() {
-        return false;
     }
 
 }

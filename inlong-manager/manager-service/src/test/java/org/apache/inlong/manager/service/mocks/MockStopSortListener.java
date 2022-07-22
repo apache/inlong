@@ -37,9 +37,4 @@ public class MockStopSortListener implements SortOperateListener {
         return ListenerResult.success("Mock stop sort success");
     }
 
-    @Override
-    public boolean async() {
-        return false;
-    }
-
 }

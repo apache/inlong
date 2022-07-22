@@ -20,7 +20,6 @@ package org.apache.inlong.manager.common.pojo.sink;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
@@ -50,7 +49,7 @@ import java.util.Map;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel("Stream sink info")
-@JsonTypeInfo(use = Id.NAME, visible = true, property = "sinkType")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, visible = true, property = "sinkType")
 public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty("Sink id")

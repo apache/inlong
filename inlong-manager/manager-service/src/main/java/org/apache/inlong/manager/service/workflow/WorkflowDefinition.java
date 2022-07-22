@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.workflow;
 
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 
 /**

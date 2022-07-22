@@ -27,12 +27,12 @@ import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
 
 /**
- * Request of DataProxy SDK source
+ * AutoPush(DataProxy SDK) source request
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(value = "Request of the binlog source info")
+@ApiModel(value = "Auto push source request")
 @JsonTypeDefine(value = SourceType.SOURCE_AUTO_PUSH)
 public class AutoPushSourceRequest extends SourceRequest {
 

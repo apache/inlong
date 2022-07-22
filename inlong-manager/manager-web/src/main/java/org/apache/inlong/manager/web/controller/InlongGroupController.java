@@ -24,11 +24,13 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
@@ -36,7 +38,9 @@ import org.apache.inlong.manager.service.core.operation.InlongGroupProcessOperat
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,7 +50,6 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong group control layer
  */
 @RestController
-@RequestMapping("/group")
 @Api(tags = "Inlong-Group-API")
 public class InlongGroupController {
 
@@ -55,115 +58,119 @@ public class InlongGroupController {
     @Autowired
     private InlongGroupProcessOperation groupProcessOperation;
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/save", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.CREATE)
-    @ApiOperation(value = "Save inlong group info")
-    public Response<String> save(@RequestBody InlongGroupRequest groupRequest) {
-        groupRequest.checkParams();
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+    @ApiOperation(value = "Save inlong group")
+    public Response<String> save(@Validated @RequestBody InlongGroupRequest groupRequest) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.save(groupRequest, operator));
     }
 
-    @RequestMapping(value = "/get/{groupId}", method = RequestMethod.GET)
-    @ApiOperation(value = "Get inlong group info")
+    @RequestMapping(value = "/group/get/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Get inlong group")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<InlongGroupInfo> get(@PathVariable String groupId) {
         return Response.success(groupService.get(groupId));
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/list", method = RequestMethod.POST)
     @ApiOperation(value = "Get inlong group list by paginating")
-    public Response<PageInfo<InlongGroupListResponse>> listByCondition(@RequestBody InlongGroupPageRequest request) {
-        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUserName());
-        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.Admin.name()));
-        return Response.success(groupService.listByPage(request));
+    public Response<PageInfo<InlongGroupBriefInfo>> listBrief(@RequestBody InlongGroupPageRequest request) {
+        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUsername());
+        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserTypeEnum.ADMIN.name()));
+        return Response.success(groupService.listBrief(request));
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/update", method = RequestMethod.POST)
     @OperationLog(operation = OperationType.UPDATE)
-    @ApiOperation(value = "Update inlong group info")
-    public Response<String> update(@RequestBody InlongGroupRequest groupRequest) {
-        groupRequest.checkParams();
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+    @ApiOperation(value = "Update inlong group")
+    public Response<String> update(@Validated(UpdateValidation.class) @RequestBody InlongGroupRequest groupRequest) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.update(groupRequest, operator));
     }
 
-    @RequestMapping(value = "/exist/{groupId}", method = RequestMethod.GET)
-    @ApiOperation(value = "Is exists of the inlong group id")
+    @RequestMapping(value = "/group/exist/{groupId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Is the inlong group id exists")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> exist(@PathVariable String groupId) {
         return Response.success(groupService.exist(groupId));
     }
 
-    @RequestMapping(value = "/countByStatus", method = RequestMethod.GET)
+    @RequestMapping(value = "/group/countByStatus", method = RequestMethod.GET)
     @ApiOperation(value = "Count inlong group status for current user")
     public Response<InlongGroupCountResponse> countGroupByUser() {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupService.countGroupByUser(operator));
     }
 
-    @RequestMapping(value = "startProcess/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/startProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Start inlong approval process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> startProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.startProcess(groupId, operator));
     }
 
-    @RequestMapping(value = "suspendProcess/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/suspendProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> suspendProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.suspendProcess(groupId, operator));
     }
 
-    @RequestMapping(value = "restartProcess/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/restartProcess/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<WorkflowResult> restartProcess(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.restartProcess(groupId, operator));
     }
 
-    @RequestMapping(value = "/delete/{groupId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/group/delete/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<Boolean> delete(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.deleteProcess(groupId, operator));
     }
 
-    @RequestMapping(value = "suspendProcessAsync/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/suspendProcessAsync/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Suspend inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<String> suspendProcessAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.suspendProcessAsync(groupId, operator));
     }
 
-    @RequestMapping(value = "restartProcessAsync/{groupId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/group/restartProcessAsync/{groupId}", method = RequestMethod.POST)
     @ApiOperation(value = "Restart inlong group process")
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class)
     public Response<String> restartProcessAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.restartProcessAsync(groupId, operator));
     }
 
-    @RequestMapping(value = "/deleteAsync/{groupId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/group/deleteAsync/{groupId}", method = RequestMethod.DELETE)
     @ApiOperation(value = "Delete inlong group info")
     @OperationLog(operation = OperationType.DELETE)
     @ApiImplicitParam(name = "groupId", value = "Inlong group id", dataTypeClass = String.class, required = true)
     public Response<String> deleteAsync(@PathVariable String groupId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUserName();
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(groupProcessOperation.deleteProcessAsync(groupId, operator));
     }
 
-    @RequestMapping(value = "getTopic/{groupId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/group/getTopic/{groupId}", method = RequestMethod.GET)
     @ApiOperation(value = "Get topic info")
     public Response<InlongGroupTopicInfo> getTopic(@PathVariable String groupId) {
         return Response.success(groupService.getTopic(groupId));
     }
 
+    @PostMapping(value = "/group/reset")
+    @ApiOperation(value = "Reset group status when group is in CONFIG_ING|SUSPENDING|RESTARTING|DELETING")
+    public Response<Boolean> reset(@RequestBody @Validated InlongGroupResetRequest request) {
+        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(groupProcessOperation.resetGroupStatus(request, operator));
+    }
 }

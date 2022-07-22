@@ -24,12 +24,9 @@ import org.apache.inlong.manager.common.exceptions.WorkflowException;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.definition.Element;
-import org.apache.inlong.manager.workflow.definition.NextableElement;
-import org.apache.inlong.manager.workflow.definition.SkippableElement;
 import org.apache.inlong.manager.workflow.processor.ElementProcessor;
 import org.apache.inlong.manager.workflow.processor.EndEventProcessor;
 import org.apache.inlong.manager.workflow.processor.ServiceTaskProcessor;
-import org.apache.inlong.manager.workflow.processor.SkipableElementProcessor;
 import org.apache.inlong.manager.workflow.processor.StartEventProcessor;
 import org.apache.inlong.manager.workflow.processor.UserTaskProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,13 +79,10 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
         ElementProcessor processor = this.getProcessor(element.getClass());
         context.setCurrentElement(element);
 
-        // If the current component needs to be skipped, proceed directly to the next one
-        if (isSkipCurrentElement(element, context)) {
-            executeSkipAndNext(element, context);
+        if (!processor.create(element, context)) {
             return;
         }
 
-        processor.create(element, context);
         if (processor.pendingForAction(context)) {
             return;
         }
@@ -100,42 +94,9 @@ public class ProcessorExecutorImpl implements ProcessorExecutor {
     public void executeComplete(Element element, WorkflowContext context) {
         ElementProcessor processor = this.getProcessor(element.getClass());
         context.setCurrentElement(element);
-        boolean completed = processor.complete(context);
-        if (!completed) {
+        if (!processor.complete(context)) {
             return;
         }
-        List<Element> nextElements = processor.next(element, context);
-        for (Element next : nextElements) {
-            executeStart(next, context);
-        }
-    }
-
-    private boolean isSkipCurrentElement(Element element, WorkflowContext context) {
-        return (element instanceof SkippableElement) && ((SkippableElement) element).isSkip(context);
-    }
-
-    private void executeSkipAndNext(Element element, WorkflowContext context) {
-        if (!(element instanceof SkippableElement)) {
-            throw new WorkflowException("element not instance of skip element " + element.getDisplayName());
-        }
-
-        if (!(element instanceof NextableElement)) {
-            throw new WorkflowException("element not instance of nextable element " + element.getDisplayName());
-        }
-
-        ElementProcessor processor = this.getProcessor(element.getClass());
-
-        if (!(processor instanceof SkipableElementProcessor)) {
-            throw new WorkflowException(
-                    "element processor not instance of skip processor " + element.getDisplayName());
-        }
-
-        // Execute skip logic
-        SkipableElementProcessor skipableProcessor = (SkipableElementProcessor) processor;
-        skipableProcessor.skip(element, context);
-
-        // Execute next
-        context.getActionContext().setAction(((NextableElement) element).defaultNextAction());
         List<Element> nextElements = processor.next(element, context);
         for (Element next : nextElements) {
             executeStart(next, context);

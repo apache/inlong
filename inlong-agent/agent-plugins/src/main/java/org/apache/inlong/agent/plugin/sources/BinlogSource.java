@@ -20,18 +20,18 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
-import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 
 /**
  * binlog source, split binlog source job into multi readers
@@ -40,25 +40,19 @@ public class BinlogSource implements Source {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinlogSource.class);
     private static final String BINLOG_SOURCE_TAG_NAME = "BinlogSourceMetric";
-    private static AtomicLong metricsIndex = new AtomicLong(0);
-    private final SourceMetrics sourceMetrics;
 
     public BinlogSource() {
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
-                    BINLOG_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
-        } else {
-            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
-                    BINLOG_SOURCE_TAG_NAME, metricsIndex.incrementAndGet()));
-        }
     }
 
     @Override
     public List<Reader> split(JobProfile conf) {
+        String inlongGroupId = conf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        String inlongStreamId = conf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+        String metricTagName = BINLOG_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         Reader binlogReader = new BinlogReader();
         List<Reader> readerList = new ArrayList<>();
         readerList.add(binlogReader);
-        sourceMetrics.incSourceSuccessCount();
+        GlobalMetrics.incSourceSuccessCount(metricTagName);
         return readerList;
     }
 

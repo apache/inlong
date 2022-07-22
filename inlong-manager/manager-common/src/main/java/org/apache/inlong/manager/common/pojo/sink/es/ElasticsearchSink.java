@@ -19,9 +19,11 @@ package org.apache.inlong.manager.common.pojo.sink.es;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -32,22 +34,24 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
  * Elasticsearch sink info
  */
 @Data
+@SuperBuilder
+@AllArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @ApiModel(value = "Elasticsearch sink info")
 @JsonTypeDefine(value = SinkType.SINK_ELASTICSEARCH)
 public class ElasticsearchSink extends StreamSink {
 
-    @ApiModelProperty("Elasticsearch Host")
+    @ApiModelProperty("Host of the Elasticsearch server")
     private String host;
 
-    @ApiModelProperty("Elasticsearch Port")
+    @ApiModelProperty("Port of the Elasticsearch server")
     private Integer port;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Elasticsearch server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Elasticsearch server")
     private String password;
 
     @ApiModelProperty("Elasticsearch index name")

@@ -185,6 +185,14 @@
         order by modify_time desc
         limit 100
     </select>
+    <select id="selectByClusterTag" resultType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
+        select
+        <include refid="Base_Column_List"/>
+        from inlong_group
+        where is_deleted = 0
+        and inlong_cluster_tag = #{inlongClusterTag, jdbcType=VARCHAR}
+        limit 10
+    </select>
 
     <update id="updateByPrimaryKey" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
@@ -296,4 +304,14 @@
         from inlong_group
         where id = #{id,jdbcType=INTEGER}
     </delete>
+
+    <select id="selectAllGroups" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceGroupInfo">
+        select inlong_group_id as groupId,
+               inlong_cluster_tag as clusterTag,
+               mq_resource as topic,
+               ext_params as extParams,
+               mq_type as mqType
+        from inlong_group
+        where is_deleted = 0
+    </select>
 </mapper>

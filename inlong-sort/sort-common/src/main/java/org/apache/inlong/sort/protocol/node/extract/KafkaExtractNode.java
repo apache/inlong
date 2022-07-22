@@ -24,7 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonCreator;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonTypeName;
+import org.apache.inlong.common.enums.MetaField;
 import org.apache.inlong.sort.protocol.FieldInfo;
+import org.apache.inlong.sort.protocol.Metadata;
 import org.apache.inlong.sort.protocol.constant.KafkaConstant;
 import org.apache.inlong.sort.protocol.enums.KafkaScanStartupMode;
 import org.apache.inlong.sort.protocol.node.ExtractNode;
@@ -39,8 +41,10 @@ import org.apache.inlong.sort.protocol.transformation.WatermarkField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Kafka extract node for extract data from kafka
@@ -48,7 +52,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeName("kafkaExtract")
 @Data
-public class KafkaExtractNode extends ExtractNode implements Serializable {
+public class KafkaExtractNode extends ExtractNode implements Metadata, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -71,6 +75,9 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @JsonProperty("groupId")
     private String groupId;
 
+    @JsonProperty("scanSpecificOffsets")
+    private String scanSpecificOffsets;
+
     @JsonCreator
     public KafkaExtractNode(@JsonProperty("id") String id,
             @JsonProperty("name") String name,
@@ -82,7 +89,8 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             @Nonnull @JsonProperty("format") Format format,
             @JsonProperty("scanStartupMode") KafkaScanStartupMode kafkaScanStartupMode,
             @JsonProperty("primaryKey") String primaryKey,
-            @JsonProperty("groupId") String groupId) {
+            @JsonProperty("groupId") String groupId,
+            @JsonProperty("scanSpecificOffsets") String scanSpecificOffsets) {
         super(id, name, fields, watermarkField, properties);
         this.topic = Preconditions.checkNotNull(topic, "kafka topic is empty");
         this.bootstrapServers = Preconditions.checkNotNull(bootstrapServers, "kafka bootstrapServers is empty");
@@ -90,6 +98,10 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
         this.kafkaScanStartupMode = Preconditions.checkNotNull(kafkaScanStartupMode, "kafka scanStartupMode is empty");
         this.primaryKey = primaryKey;
         this.groupId = groupId;
+        if (kafkaScanStartupMode == KafkaScanStartupMode.SPECIFIC_OFFSETS) {
+            Preconditions.checkArgument(StringUtils.isNotEmpty(scanSpecificOffsets), "scanSpecificOffsets is empty");
+            this.scanSpecificOffsets = scanSpecificOffsets;
+        }
     }
 
     /**
@@ -106,6 +118,9 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
             if (StringUtils.isEmpty(this.primaryKey)) {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
                 options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+                if (StringUtils.isNotEmpty(scanSpecificOffsets)) {
+                    options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
+                }
                 options.putAll(format.generateOptions(false));
             } else {
                 options.put(KafkaConstant.CONNECTOR, KafkaConstant.UPSERT_KAFKA);
@@ -114,6 +129,7 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
         } else if (format instanceof CanalJsonFormat || format instanceof DebeziumJsonFormat) {
             options.put(KafkaConstant.CONNECTOR, KafkaConstant.KAFKA);
             options.put(KafkaConstant.SCAN_STARTUP_MODE, kafkaScanStartupMode.getValue());
+            options.put(KafkaConstant.SCAN_STARTUP_SPECIFIC_OFFSETS, scanSpecificOffsets);
             options.putAll(format.generateOptions(false));
         } else {
             throw new IllegalArgumentException("kafka extract node format is IllegalArgument");
@@ -137,5 +153,61 @@ public class KafkaExtractNode extends ExtractNode implements Serializable {
     @Override
     public List<FieldInfo> getPartitionFields() {
         return super.getPartitionFields();
+    }
+
+    @Override
+    public String getMetadataKey(MetaField metaField) {
+        String metadataKey;
+        switch (metaField) {
+            case TABLE_NAME:
+                metadataKey = "value.table";
+                break;
+            case DATABASE_NAME:
+                metadataKey = "value.database";
+                break;
+            case SQL_TYPE:
+                metadataKey = "value.sql-type";
+                break;
+            case PK_NAMES:
+                metadataKey = "value.pk-names";
+                break;
+            case TS:
+                metadataKey = "value.ingestion-timestamp";
+                break;
+            case OP_TS:
+                metadataKey = "value.event-timestamp";
+                break;
+            case OP_TYPE:
+                metadataKey = "value.op-type";
+                break;
+            case IS_DDL:
+                metadataKey = "value.is-ddl";
+                break;
+            case MYSQL_TYPE:
+                metadataKey = "value.mysql-type";
+                break;
+            case BATCH_ID:
+                metadataKey = "value.batch-id";
+                break;
+            case UPDATE_BEFORE:
+                metadataKey = "value.update-before";
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupport meta field for %s: %s",
+                        this.getClass().getSimpleName(), metaField));
+        }
+        return metadataKey;
+    }
+
+    @Override
+    public boolean isVirtual(MetaField metaField) {
+        return false;
+    }
+
+    @Override
+    public Set<MetaField> supportedMetaFields() {
+        return EnumSet.of(MetaField.PROCESS_TIME, MetaField.TABLE_NAME, MetaField.OP_TYPE, MetaField.DATABASE_NAME,
+                MetaField.SQL_TYPE, MetaField.PK_NAMES, MetaField.TS, MetaField.OP_TS, MetaField.IS_DDL,
+                MetaField.MYSQL_TYPE, MetaField.BATCH_ID, MetaField.UPDATE_BEFORE);
     }
 }

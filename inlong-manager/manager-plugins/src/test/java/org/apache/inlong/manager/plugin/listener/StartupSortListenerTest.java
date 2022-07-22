@@ -18,10 +18,10 @@
 package org.apache.inlong.manager.plugin.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.settings.InlongGroupSettings;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.junit.jupiter.api.Test;
 
@@ -48,12 +48,12 @@ public class StartupSortListenerTest {
 
         List<InlongGroupExtInfo> inlongGroupExtInfos = new ArrayList<>();
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
-        inlongGroupExtInfo1.setKeyName(InlongGroupSettings.SORT_URL);
+        inlongGroupExtInfo1.setKeyName(InlongConstants.SORT_URL);
         inlongGroupExtInfo1.setKeyValue("127.0.0.1:8085");
         inlongGroupExtInfos.add(inlongGroupExtInfo1);
 
         InlongGroupExtInfo inlongGroupExtInfo2 = new InlongGroupExtInfo();
-        inlongGroupExtInfo2.setKeyName(InlongGroupSettings.SORT_PROPERTIES);
+        inlongGroupExtInfo2.setKeyName(InlongConstants.SORT_PROPERTIES);
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, String> sortProperties = new HashMap<>(16);
         String sortStr = objectMapper.writeValueAsString(sortProperties);
@@ -61,7 +61,7 @@ public class StartupSortListenerTest {
         inlongGroupExtInfos.add(inlongGroupExtInfo2);
 
         InlongGroupExtInfo inlongGroupExtInfo5 = new InlongGroupExtInfo();
-        inlongGroupExtInfo5.setKeyName(InlongGroupSettings.DATA_FLOW);
+        inlongGroupExtInfo5.setKeyName(InlongConstants.DATAFLOW);
         inlongGroupExtInfo5.setKeyValue("{\"streamId\":{\n"
                 + "    \"id\": 1,\n"
                 + "    \"source_info\":\n"

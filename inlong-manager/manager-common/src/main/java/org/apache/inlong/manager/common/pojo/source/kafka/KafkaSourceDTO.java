@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * kafka source information data transfer object.
@@ -58,8 +59,9 @@ public class KafkaSourceDTO {
     private String byteSpeedLimit;
 
     @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
-    private String topicPartitionOffset;
+            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
+                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    private String partitionOffsets;
 
     /**
      * The strategy of auto offset reset.
@@ -88,6 +90,9 @@ public class KafkaSourceDTO {
     @ApiModelProperty("Field needed when serializationType is csv,json,avro")
     private String primaryKey;
 
+    @ApiModelProperty("Properties for Kafka")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -98,7 +103,7 @@ public class KafkaSourceDTO {
                 .bootstrapServers(request.getBootstrapServers())
                 .recordSpeedLimit(request.getRecordSpeedLimit())
                 .byteSpeedLimit(request.getByteSpeedLimit())
-                .topicPartitionOffset(request.getTopicPartitionOffset())
+                .partitionOffsets(request.getPartitionOffsets())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
                 .databasePattern(request.getDatabasePattern())
@@ -106,6 +111,7 @@ public class KafkaSourceDTO {
                 .ignoreParseErrors(request.isIgnoreParseErrors())
                 .timestampFormatStandard(request.getTimestampFormatStandard())
                 .primaryKey(request.getPrimaryKey())
+                .properties(request.getProperties())
                 .build();
     }
 

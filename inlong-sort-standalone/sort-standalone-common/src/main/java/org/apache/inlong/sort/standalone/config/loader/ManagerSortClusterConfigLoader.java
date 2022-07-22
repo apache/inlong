@@ -19,7 +19,7 @@ package org.apache.inlong.sort.standalone.config.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Context;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;

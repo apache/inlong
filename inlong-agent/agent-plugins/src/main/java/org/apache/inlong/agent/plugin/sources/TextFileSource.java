@@ -20,13 +20,9 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.SourceJmxMetric;
-import org.apache.inlong.agent.plugin.metrics.SourceMetrics;
-import org.apache.inlong.agent.plugin.metrics.SourcePrometheusMetrics;
+import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
-import org.apache.inlong.agent.utils.AgentUtils;
-import org.apache.inlong.agent.utils.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +32,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.DEFAULT_PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.CommonConstants.POSITION_SUFFIX;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_GROUP_ID;
+import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STREAM_ID;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_LINE_FILTER;
 import static org.apache.inlong.agent.constant.JobConstants.DEFAULT_JOB_READ_WAIT_TIMEOUT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_LINE_FILTER_PATTERN;
@@ -47,28 +47,20 @@ import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOU
  */
 public class TextFileSource implements Source {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
-
-    private static final String TEXT_FILE_SOURCE_TAG_NAME = "AgentTextFileSourceMetric";
-
     // path + suffix
     public static final String MD5_SUFFIX = ".md5";
-
-    private final SourceMetrics sourceMetrics;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextFileSource.class);
+    private static final String TEXT_FILE_SOURCE_TAG_NAME = "AgentTextFileSourceMetric";
     private static AtomicLong metricsIndex = new AtomicLong(0);
 
     public TextFileSource() {
-        if (ConfigUtil.isPrometheusEnabled()) {
-            this.sourceMetrics = new SourcePrometheusMetrics(AgentUtils.getUniqId(
-                    TEXT_FILE_SOURCE_TAG_NAME,  metricsIndex.incrementAndGet()));
-        } else {
-            this.sourceMetrics = new SourceJmxMetric(AgentUtils.getUniqId(
-                    TEXT_FILE_SOURCE_TAG_NAME,  metricsIndex.incrementAndGet()));
-        }
     }
 
     @Override
     public List<Reader> split(JobProfile jobConf) {
+        String inlongGroupId = jobConf.get(PROXY_INLONG_GROUP_ID, DEFAULT_PROXY_INLONG_GROUP_ID);
+        String inlongStreamId = jobConf.get(PROXY_INLONG_STREAM_ID, DEFAULT_PROXY_INLONG_STREAM_ID);
+        String metricTagName = TEXT_FILE_SOURCE_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
         Collection<File> allFiles = PluginUtils.findSuitFiles(jobConf);
         List<Reader> result = new ArrayList<>();
         String filterPattern = jobConf.get(JOB_LINE_FILTER_PATTERN, DEFAULT_JOB_LINE_FILTER);
@@ -84,7 +76,7 @@ public class TextFileSource implements Source {
             result.add(textFileReader);
         }
         // increment the count of successful sources
-        sourceMetrics.incSourceSuccessCount();
+        GlobalMetrics.incSourceSuccessCount(metricTagName);
         return result;
     }
 
