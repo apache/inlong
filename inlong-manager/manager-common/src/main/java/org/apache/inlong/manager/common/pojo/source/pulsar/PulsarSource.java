@@ -67,7 +67,7 @@ public class PulsarSource extends StreamSource {
     private String scanStartupMode = "earliest";
 
     @Builder.Default
-    private boolean isInLongComponent = false;
+    private boolean isInlongComponent = false;
 
     public PulsarSource() {
         this.setSourceType(SourceType.PULSAR.getType());
