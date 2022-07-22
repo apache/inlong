@@ -121,7 +121,7 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
-        String errMsg = String.format("data node has already updated with data node name=%s, type=%s, current version=%s",
+        String errMsg = String.format("data node has already updated with name=%s, type=%s, current version=%s",
                 entity.getName(), entity.getType(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);

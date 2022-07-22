@@ -203,7 +203,7 @@ public class UserServiceImpl implements UserService {
 
         int isSuccess = userMapper.updateByPrimaryKeySelective(updateUserEntity);
         if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.warn(errMsg);
+            LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         log.debug("success to update user info={} by {}", updateUser, currentUser);

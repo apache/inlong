@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -215,7 +216,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.warn("inlong group has already updated with group id={}, curversion={}", request.getInlongGroupId(),
+            LOGGER.error("inlong group has already updated with group id={}, curversion={}", request.getInlongGroupId(),
                     request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -298,7 +299,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setIsDeleted(entity.getId());
         entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
-        groupMapper.updateByIdentifierSelective(entity);
+        int isSuccess = groupMapper.updateByIdentifierSelective(entity);
+        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+            LOGGER.error("inlong group has already updated with group id={}, current version={}",
+                    entity.getInlongGroupId(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);

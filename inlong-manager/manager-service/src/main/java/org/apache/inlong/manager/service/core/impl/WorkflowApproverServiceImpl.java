@@ -137,9 +137,12 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
         WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(config.getId());
         Preconditions.checkNotNull(entity, "not exist with id:" + config.getId());
-        if (!entity.getVersion().equals(config.getVersion())) {
-            LOGGER.warn("workflow approver information has already updated, please reload information and update.");
-            throw new BusinessException(ErrorCodeEnum.WORKFLOW_UPDATE_FAILED);
+        String errMsg = String.format(
+                "approver information has already updated with id=%s, processName=%s, taskName=%s, current version",
+                config.getId(), config.getProcessName(), config.getTaskName(), config.getVersion());
+        if (!Objects.equals(entity.getVersion(), config.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         WorkflowApproverEntity update = new WorkflowApproverEntity();
         update.setId(config.getId());
@@ -150,7 +153,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         update.setFilterValue(config.getFilterValue());
 
         int success = this.workflowApproverMapper.updateByPrimaryKeySelective(update);
-        Preconditions.checkTrue(success == 1, "update failed");
+        Preconditions.checkTrue(success == InlongConstants.UPDATE_SUCCESS, errMsg);
     }
 
     @Override
