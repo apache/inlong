@@ -45,7 +45,7 @@ public class SortSourceStreamInfo {
                 Gson gson = new Gson();
                 extParamsMap = gson.fromJson(extParams, Map.class);
             } catch (Throwable t) {
-                LOGGER.error(t.getMessage(), t);
+                LOGGER.error("fail to parse source stream ext params", t);
                 extParamsMap = new ConcurrentHashMap<>();
             }
         }
