@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,13 +24,14 @@ import java.util.Map;
  * InLongId
  */
 public class InLongIdObject {
+
     private String inlongId;
     private String topic;
     private Map<String, String> params = new HashMap<>();
 
     /**
      * get inlongId
-     * 
+     *
      * @return the inlongId
      */
     public String getInlongId() {
@@ -39,7 +40,7 @@ public class InLongIdObject {
 
     /**
      * set inlongId
-     * 
+     *
      * @param inlongId the inlongId to set
      */
     public void setInlongId(String inlongId) {
@@ -48,7 +49,7 @@ public class InLongIdObject {
 
     /**
      * get topic
-     * 
+     *
      * @return the topic
      */
     public String getTopic() {
@@ -57,7 +58,7 @@ public class InLongIdObject {
 
     /**
      * set topic
-     * 
+     *
      * @param topic the topic to set
      */
     public void setTopic(String topic) {
@@ -66,7 +67,7 @@ public class InLongIdObject {
 
     /**
      * get params
-     * 
+     *
      * @return the params
      */
     public Map<String, String> getParams() {
@@ -75,7 +76,7 @@ public class InLongIdObject {
 
     /**
      * set params
-     * 
+     *
      * @param params the params to set
      */
     public void setParams(Map<String, String> params) {

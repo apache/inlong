@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,10 +17,10 @@
 
 package org.apache.inlong.common.pojo.dataproxy;
 
-import java.util.TimerTask;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.TimerTask;
 
 /**
  * RepositoryTimerTask
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class RepositoryTimerTask<T extends IRepository> extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryTimerTask.class);
-    private T repository;
+    private final T repository;
 
     public RepositoryTimerTask(T repository) {
         this.repository = repository;
@@ -39,7 +39,7 @@ public class RepositoryTimerTask<T extends IRepository> extends TimerTask {
         try {
             repository.reload();
         } catch (Throwable e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("reload repository timer task error: ", e);
         }
     }
 }

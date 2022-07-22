@@ -15,32 +15,29 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.pojo.dataproxy;
+package org.apache.inlong.common.pojo.dataproxy;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
  * Data proxy node info.
  */
 @Data
-@ApiModel("DataProxy node info")
 public class DataProxyNodeInfo {
 
-    @ApiModelProperty(value = "Cluster id")
+    /**
+     * DataProxy node id
+     */
     private Integer id;
 
-    @ApiModelProperty(value = "Parent cluster id")
-    private Integer parentId;
-
-    @ApiModelProperty(value = "Node IP")
+    /**
+     * Node IP
+     */
     private String ip;
 
-    @ApiModelProperty(value = "Node port")
+    /**
+     * Node port
+     */
     private Integer port;
-
-    @ApiModelProperty(value = "Cluster ip type, default: all")
-    private String netTag;
 
 }

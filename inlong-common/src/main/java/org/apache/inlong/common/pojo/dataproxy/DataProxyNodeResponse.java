@@ -15,25 +15,41 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.dao.entity;
+package org.apache.inlong.common.pojo.dataproxy;
 
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * Stream sink ext entity, including key name, key value, etc.
+ * DataProxy node response, used for DataProxy SDK.
  */
 @Data
-public class StreamSinkExtEntity implements Serializable {
+public class DataProxyNodeResponse {
 
-    private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String sinkType;
-    private Integer sinkId;
-    private String keyName;
-    private String keyValue;
-    private Integer isDeleted;
-    private Date modifyTime;
+    /**
+     * DataProxy cluster id
+     */
+    private Integer clusterId;
+
+    /**
+     * Is the DataProxy cluster an intranet? 0: no, 1: yes
+     */
+    private Integer isIntranet;
+
+    /**
+     * Is the DataProxy cluster in a switch status? 0: no, 1: yes
+     */
+    private Integer isSwitch;
+
+    /**
+     * Load of the DataProxy cluster, default is 20
+     */
+    private Integer load = 20;
+
+    /**
+     * List of the cluster node
+     */
+    private List<DataProxyNodeInfo> nodeList;
 
 }
