@@ -37,51 +37,51 @@ import retrofit2.http.Path;
 
 public interface InlongClusterApi {
 
-    @POST("/cluster/tag/save")
+    @POST("cluster/tag/save")
     Call<Response<Integer>> saveTag(@Body ClusterTagRequest request);
 
-    @GET("/cluster/tag/get/{id}")
+    @GET("cluster/tag/get/{id}")
     Call<Response<ClusterTagResponse>> getTag(@Path("id") Integer id);
 
-    @POST("/cluster/tag/list")
+    @POST("cluster/tag/list")
     Call<Response<PageInfo<ClusterTagResponse>>> listTag(@Body ClusterTagPageRequest request);
 
-    @POST("/cluster/tag/update")
+    @POST("cluster/tag/update")
     Call<Response<Boolean>> updateTag(@Body ClusterTagRequest request);
 
-    @DELETE("/cluster/tag/delete/{id}")
+    @DELETE("cluster/tag/delete/{id}")
     Call<Response<Boolean>> deleteTag(@Path("id") Integer id);
 
     @POST("cluster/save")
     Call<Response<Integer>> save(@Body ClusterRequest request);
 
-    @GET("/cluster/get/{id}")
+    @GET("cluster/get/{id}")
     Call<Response<ClusterInfo>> get(@Path("id") Integer id);
 
-    @POST("/cluster/list")
+    @POST("cluster/list")
     Call<Response<ClusterInfo>> list(@Body ClusterPageRequest request);
 
-    @POST("/cluster/update")
+    @POST("cluster/update")
     Call<Response<Boolean>> update(@Body ClusterRequest request);
 
-    @POST("/cluster/bindTag")
+    @POST("cluster/bindTag")
     Call<Response<Boolean>> bindTag(@Body BindTagRequest request);
 
-    @DELETE("/cluster/delete/{id}")
+    @DELETE("cluster/delete/{id}")
     Call<Response<Boolean>> delete(@Path("id") Integer id);
 
-    @POST("/cluster/node/save")
+    @POST("cluster/node/save")
     Call<Response<Integer>> saveNode(@Body ClusterNodeRequest request);
 
-    @GET("/cluster/node/get/{id}")
+    @GET("cluster/node/get/{id}")
     Call<Response<ClusterNodeResponse>> getNode(@Path("id") Integer id);
 
-    @POST("/cluster/node/list")
+    @POST("cluster/node/list")
     Call<Response<PageInfo<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
 
-    @POST("/cluster/node/update")
+    @POST("cluster/node/update")
     Call<Response<Boolean>> updateNode(@Body ClusterNodeRequest request);
 
-    @DELETE("/cluster/node/delete/{id}")
+    @DELETE("cluster/node/delete/{id}")
     Call<Response<Boolean>> deleteNode(@Path("id") Integer id);
 }
