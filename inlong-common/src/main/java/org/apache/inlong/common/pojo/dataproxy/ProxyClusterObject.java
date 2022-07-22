@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,6 +24,7 @@ import java.util.List;
  * DataProxyCluster
  */
 public class ProxyClusterObject {
+
     private String name;
     private String setName;
     private String zone;
@@ -34,7 +35,7 @@ public class ProxyClusterObject {
 
     /**
      * get name
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -43,7 +44,7 @@ public class ProxyClusterObject {
 
     /**
      * set name
-     * 
+     *
      * @param name the name to set
      */
     public void setName(String name) {
@@ -52,7 +53,7 @@ public class ProxyClusterObject {
 
     /**
      * get setName
-     * 
+     *
      * @return the setName
      */
     public String getSetName() {
@@ -61,7 +62,7 @@ public class ProxyClusterObject {
 
     /**
      * set setName
-     * 
+     *
      * @param setName the setName to set
      */
     public void setSetName(String setName) {
@@ -70,7 +71,7 @@ public class ProxyClusterObject {
 
     /**
      * get zone
-     * 
+     *
      * @return the zone
      */
     public String getZone() {
@@ -79,7 +80,7 @@ public class ProxyClusterObject {
 
     /**
      * set zone
-     * 
+     *
      * @param zone the zone to set
      */
     public void setZone(String zone) {
@@ -88,7 +89,7 @@ public class ProxyClusterObject {
 
     /**
      * get channels
-     * 
+     *
      * @return the channels
      */
     public List<ProxyChannel> getChannels() {
@@ -97,7 +98,7 @@ public class ProxyClusterObject {
 
     /**
      * set channels
-     * 
+     *
      * @param channels the channels to set
      */
     public void setChannels(List<ProxyChannel> channels) {
@@ -106,7 +107,7 @@ public class ProxyClusterObject {
 
     /**
      * get inlongIds
-     * 
+     *
      * @return the inlongIds
      */
     public List<InLongIdObject> getInlongIds() {
@@ -115,7 +116,7 @@ public class ProxyClusterObject {
 
     /**
      * set inlongIds
-     * 
+     *
      * @param inlongIds the inlongIds to set
      */
     public void setInlongIds(List<InLongIdObject> inlongIds) {
@@ -124,7 +125,7 @@ public class ProxyClusterObject {
 
     /**
      * get sources
-     * 
+     *
      * @return the sources
      */
     public List<ProxySource> getSources() {
@@ -133,7 +134,7 @@ public class ProxyClusterObject {
 
     /**
      * set sources
-     * 
+     *
      * @param sources the sources to set
      */
     public void setSources(List<ProxySource> sources) {
@@ -142,7 +143,7 @@ public class ProxyClusterObject {
 
     /**
      * get sinks
-     * 
+     *
      * @return the sinks
      */
     public List<ProxySink> getSinks() {
@@ -151,7 +152,7 @@ public class ProxyClusterObject {
 
     /**
      * set sinks
-     * 
+     *
      * @param sinks the sinks to set
      */
     public void setSinks(List<ProxySink> sinks) {

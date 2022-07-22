@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.BindTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
@@ -28,7 +29,6 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
 
 import java.util.List;
 
@@ -199,12 +199,12 @@ public interface InlongClusterService {
     Boolean deleteNode(Integer id, String operator);
 
     /**
-     * Query data proxy nodes by the given cluster tag and name.
+     * Query data proxy nodes by the given inlong group id.
      *
-     * @param request request params
-     * @return data proxy node list
+     * @param inlongGroupId inlong group id
+     * @return data proxy node response
      */
-    List<DataProxyNodeInfo> getDataProxyNodeList(ClusterPageRequest request);
+    DataProxyNodeResponse getDataProxyNodes(String inlongGroupId);
 
     /**
      * Get the configuration of DataProxy through the cluster name to which DataProxy belongs.

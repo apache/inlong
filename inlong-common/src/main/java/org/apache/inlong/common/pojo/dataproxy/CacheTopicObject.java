@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,12 +21,13 @@ package org.apache.inlong.common.pojo.dataproxy;
  * CacheTopic
  */
 public class CacheTopicObject {
+
     private String topic;
     private Integer partitionNum;
 
     /**
      * get topic
-     * 
+     *
      * @return the topic
      */
     public String getTopic() {
@@ -35,7 +36,7 @@ public class CacheTopicObject {
 
     /**
      * set topic
-     * 
+     *
      * @param topic the topic to set
      */
     public void setTopic(String topic) {
@@ -44,7 +45,7 @@ public class CacheTopicObject {
 
     /**
      * get partitionNum
-     * 
+     *
      * @return the partitionNum
      */
     public Integer getPartitionNum() {
@@ -53,7 +54,7 @@ public class CacheTopicObject {
 
     /**
      * set partitionNum
-     * 
+     *
      * @param partitionNum the partitionNum to set
      */
     public void setPartitionNum(Integer partitionNum) {

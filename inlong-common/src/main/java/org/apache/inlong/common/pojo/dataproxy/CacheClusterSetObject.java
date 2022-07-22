@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,6 +24,7 @@ import java.util.List;
  * CacheClusterSet
  */
 public class CacheClusterSetObject {
+
     private String setName;
     private String type;
     private List<CacheClusterObject> cacheClusters = new ArrayList<>();
@@ -31,7 +32,7 @@ public class CacheClusterSetObject {
 
     /**
      * get setName
-     * 
+     *
      * @return the setName
      */
     public String getSetName() {
@@ -40,7 +41,7 @@ public class CacheClusterSetObject {
 
     /**
      * set setName
-     * 
+     *
      * @param setName the setName to set
      */
     public void setSetName(String setName) {
@@ -49,7 +50,7 @@ public class CacheClusterSetObject {
 
     /**
      * get type
-     * 
+     *
      * @return the type
      */
     public String getType() {
@@ -58,7 +59,7 @@ public class CacheClusterSetObject {
 
     /**
      * set type
-     * 
+     *
      * @param type the type to set
      */
     public void setType(String type) {
@@ -67,7 +68,7 @@ public class CacheClusterSetObject {
 
     /**
      * get cacheClusters
-     * 
+     *
      * @return the cacheClusters
      */
     public List<CacheClusterObject> getCacheClusters() {
@@ -76,7 +77,7 @@ public class CacheClusterSetObject {
 
     /**
      * set cacheClusters
-     * 
+     *
      * @param cacheClusters the cacheClusters to set
      */
     public void setCacheClusters(List<CacheClusterObject> cacheClusters) {
@@ -85,7 +86,7 @@ public class CacheClusterSetObject {
 
     /**
      * get topics
-     * 
+     *
      * @return the topics
      */
     public List<CacheTopicObject> getTopics() {
@@ -94,7 +95,7 @@ public class CacheClusterSetObject {
 
     /**
      * set topics
-     * 
+     *
      * @param topics the topics to set
      */
     public void setTopics(List<CacheTopicObject> topics) {
