@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultMessageSender implements MessageSender {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultMessageSender.class);
     private static final long DEFAULT_SEND_TIMEOUT = 100;
     private static final TimeUnit DEFAULT_SEND_TIMEUNIT = TimeUnit.MILLISECONDS;
     private static final ConcurrentHashMap<Integer, DefaultMessageSender> cacheSender =
@@ -496,7 +496,7 @@ public class DefaultMessageSender implements MessageSender {
                 storeIndex.put(key, cnt);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -603,7 +603,7 @@ public class DefaultMessageSender implements MessageSender {
     }
 
     public void close() {
-        logger.info("ready to close resources, may need five minutes !");
+        LOGGER.info("ready to close resources, may need five minutes !");
         if (sender.getClusterId() != -1) {
             cacheSender.remove(sender.getClusterId());
         }
