@@ -41,10 +41,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
-import static org.apache.inlong.agent.constant.FetcherConstants.API_AUTH_SECRET_ID;
-import static org.apache.inlong.agent.constant.FetcherConstants.API_AUTH_SECRET_KEY;
 
 /**
  * proxy client
@@ -121,8 +121,8 @@ public class SenderManager {
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
                 CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
-        apiSecretId = conf.get(API_AUTH_SECRET_ID);
-        apiSecretKey = conf.get(API_AUTH_SECRET_KEY);
+        apiSecretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        apiSecretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
 
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;

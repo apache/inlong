@@ -34,8 +34,8 @@ public class AuthUtils {
      */
     public static String genBasicAuth() {
         Map<String, String> properties = ConfigManager.getInstance().getCommonProperties();
-        String secretId = properties.get(ConfigConstants.HTTP_AUTH_SECRET_ID);
-        String secretKey = properties.get(ConfigConstants.HTTP_AUTH_SECRET_KEY);
+        String secretId = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_ID);
+        String secretKey = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_KEY);
         if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
             LOG.error("secretId or secretKey missing");
             return null;

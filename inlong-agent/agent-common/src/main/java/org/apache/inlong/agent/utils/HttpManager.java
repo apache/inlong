@@ -37,9 +37,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_APPLICATION_JSON;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_HTTP_SUCCESS_CODE;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_REQUEST_TIMEOUT;
-import static org.apache.inlong.agent.constant.FetcherConstants.API_AUTH_SECRET_ID;
-import static org.apache.inlong.agent.constant.FetcherConstants.API_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT;
 
 /**
@@ -62,8 +62,8 @@ public class HttpManager {
     public HttpManager(AgentConfiguration conf) {
         httpClient = constructHttpClient(conf.getInt(AGENT_MANAGER_REQUEST_TIMEOUT,
                 DEFAULT_AGENT_MANAGER_REQUEST_TIMEOUT));
-        secretId = conf.get(API_AUTH_SECRET_ID);
-        secretKey = conf.get(API_AUTH_SECRET_KEY);
+        secretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        secretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
     }
 
     /**
