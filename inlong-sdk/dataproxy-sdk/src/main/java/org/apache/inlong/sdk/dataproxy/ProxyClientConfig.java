@@ -100,8 +100,11 @@ public class ProxyClientConfig {
         if (Utils.isBlank(managerIp)) {
             throw new IllegalArgumentException("managerIp is Blank!");
         }
+        if (Utils.isBlank(groupId)) {
+            throw new ProxysdkException("groupId is blank!");
+        }
         this.proxyIPServiceURL =
-                "http://" + managerIp + ":" + managerPort + "/api/inlong/manager/openapi/dataproxy/getIpList";
+                "http://" + managerIp + ":" + managerPort + ConfigConstants.MANAGER_DATAPROXY_API + groupId;
         this.groupId = groupId;
         this.netTag = netTag;
         this.isLocalVisit = isLocalVisit;
