@@ -59,4 +59,3 @@ public class ClusterNodeRequest {
     private Integer version;
 
 }
-

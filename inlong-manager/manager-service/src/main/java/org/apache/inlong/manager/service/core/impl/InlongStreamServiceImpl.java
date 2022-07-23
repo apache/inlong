@@ -295,7 +295,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
-        String errMsg = String.format("stream has already updated with group id=%s, stream id=%s, current version=%s",
+        String errMsg = String.format("stream has already updated with group id=%s, stream id=%s, curVersion=%s",
                 streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), request.getVersion());
         if (!Objects.equals(streamEntity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
@@ -306,8 +306,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
-        int isSuccess = streamMapper.updateByIdentifierSelective(streamEntity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = streamMapper.updateByIdentifierSelective(streamEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -353,9 +353,9 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int isSuccess = streamMapper.updateByPrimaryKey(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.error("stream has already updated with group id={}, stream id={}, current version={}",
+        int rowCount = streamMapper.updateByPrimaryKey(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("stream has already updated with group id={}, stream id={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

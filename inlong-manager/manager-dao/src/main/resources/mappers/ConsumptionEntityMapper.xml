@@ -128,7 +128,7 @@
             <if test="version != null">
                 version,
             </if>
-            </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 #{id, jdbcType=INTEGER},
@@ -242,8 +242,8 @@
             is_deleted       = #{isDeleted, jdbcType=INTEGER},
             version          = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
-        and is_deleted = 0
-        and version = #{version, jdbcType=INTEGER}
+          and is_deleted = 0
+          and version = #{version, jdbcType=INTEGER}
     </update>
 
     <select id="listByQuery"

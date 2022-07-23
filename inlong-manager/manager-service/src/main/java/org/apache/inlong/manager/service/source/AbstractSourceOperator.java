@@ -168,8 +168,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     break;
             }
         }
-        int isSuccess = sourceMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.warn(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

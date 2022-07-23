@@ -90,9 +90,9 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        int isSuccess = groupMapper.updateByIdentifierSelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.error("inlong group has already updated with group id={}, current version={}",
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
                     request.getInlongGroupId(), request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

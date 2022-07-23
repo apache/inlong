@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
@@ -56,7 +55,6 @@ import java.util.Objects;
 /**
  * User service layer implementation
  */
-@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -101,12 +99,12 @@ public class UserServiceImpl implements UserService {
                 result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
             } catch (Exception e) {
                 String errMsg = String.format("decryption error: %s", e.getMessage());
-                log.error(errMsg, e);
+                LOGGER.error(errMsg, e);
                 throw new BusinessException(errMsg);
             }
         }
 
-        log.debug("success to get user info by id={}", userId);
+        LOGGER.debug("success to get user info by id={}", userId);
         return result;
     }
 
@@ -136,7 +134,7 @@ public class UserServiceImpl implements UserService {
             entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
-            log.error(errMsg, e);
+            LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
 
@@ -144,13 +142,13 @@ public class UserServiceImpl implements UserService {
         entity.setVersion(InlongConstants.INITIAL_VERSION);
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
-        log.debug("success to create user info={}", userInfo);
+        LOGGER.debug("success to create user info={}", userInfo);
         return true;
     }
 
     @Override
     public int update(UserInfo updateUser, String currentUser) {
-        log.debug("begin to update user info={} by {}", updateUser, currentUser);
+        LOGGER.debug("begin to update user info={} by {}", updateUser, currentUser);
         Preconditions.checkNotNull(updateUser, "Userinfo cannot be null");
         Preconditions.checkNotNull(updateUser.getId(), "User id cannot be null");
 
@@ -173,7 +171,7 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
                         && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
                 "Username [" + updateUser.getUsername() + "] already exists");
-        String errMsg = String.format("user has already updated with username=%s, current version",
+        String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
                 updateUser.getUsername(), updateUser.getVersion());
         if (!Objects.equals(updateUserEntity.getVersion(), updateUser.getVersion())) {
             LOGGER.error(errMsg);
@@ -201,13 +199,13 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setAccountType(updateUser.getType());
         updateUserEntity.setName(updateUser.getUsername());
 
-        int isSuccess = userMapper.updateByPrimaryKeySelective(updateUserEntity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        log.debug("success to update user info={} by {}", updateUser, currentUser);
-        return isSuccess;
+        LOGGER.debug("success to update user info={} by {}", updateUser, currentUser);
+        return updateUserEntity.getId();
     }
 
     @Override
@@ -223,7 +221,7 @@ public class UserServiceImpl implements UserService {
                 "Current user does not have permission to delete himself");
         userMapper.deleteByPrimaryKey(userId);
 
-        log.debug("success to delete user by id={}, current user={}", userId, currentUser);
+        LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
     }
 
@@ -243,7 +241,7 @@ public class UserServiceImpl implements UserService {
         PageInfo<UserDetailListVO> page = new PageInfo<>(detailList);
         page.setTotal(entityPage.getTotal());
 
-        log.debug("success to list users, result size={}", page.getTotal());
+        LOGGER.debug("success to list users, result size={}", page.getTotal());
         return page;
     }
 

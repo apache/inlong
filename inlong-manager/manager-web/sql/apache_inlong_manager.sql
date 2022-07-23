@@ -31,29 +31,29 @@ CREATE TABLE IF NOT EXISTS `inlong_group`
 (
     `id`                     int(11)      NOT NULL AUTO_INCREMENT COMMENT 'Incremental primary key',
     `inlong_group_id`        varchar(256) NOT NULL COMMENT 'Inlong group id, filled in by the user, undeleted ones cannot be repeated',
-    `name`                   varchar(128)      DEFAULT '' COMMENT 'Inlong group name, English, Chinese, numbers, etc',
-    `description`            varchar(256)      DEFAULT '' COMMENT 'Inlong group Introduction',
-    `mq_type`                varchar(20)       DEFAULT 'TUBE' COMMENT 'The message queue type, high throughput: TUBE, high consistency: PULSAR',
+    `name`                   varchar(128)          DEFAULT '' COMMENT 'Inlong group name, English, Chinese, numbers, etc',
+    `description`            varchar(256)          DEFAULT '' COMMENT 'Inlong group Introduction',
+    `mq_type`                varchar(20)           DEFAULT 'TUBE' COMMENT 'The message queue type, high throughput: TUBE, high consistency: PULSAR',
     `mq_resource`            varchar(128) NOT NULL COMMENT 'MQ resource, for Tube, its Topic, for Pulsar, its Namespace',
-    `daily_records`          int(11)           DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
-    `daily_storage`          int(11)           DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
-    `peak_records`           int(11)           DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
-    `max_length`             int(11)           DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
-    `enable_zookeeper`       tinyint(2)        DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
-    `enable_create_resource` tinyint(2)        DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
-    `lightweight`            tinyint(2)        DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
-    `inlong_cluster_tag`     varchar(128)      DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
-    `ext_params`             text              DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num',
+    `daily_records`          int(11)               DEFAULT '10' COMMENT 'Number of access records per day, unit: 10,000 records per day',
+    `daily_storage`          int(11)               DEFAULT '10' COMMENT 'Access size by day, unit: GB per day',
+    `peak_records`           int(11)               DEFAULT '1000' COMMENT 'Access peak per second, unit: records per second',
+    `max_length`             int(11)               DEFAULT '10240' COMMENT 'The maximum length of a single piece of data, unit: Byte',
+    `enable_zookeeper`       tinyint(2)            DEFAULT '0' COMMENT 'Whether to enable the zookeeper, 0-disable, 1-enable',
+    `enable_create_resource` tinyint(2)            DEFAULT '1' COMMENT 'Whether to enable create resource? 0-disable, 1-enable',
+    `lightweight`            tinyint(2)            DEFAULT '0' COMMENT 'Whether to use lightweight mode, 0-false, 1-true',
+    `inlong_cluster_tag`     varchar(128)          DEFAULT NULL COMMENT 'The cluster tag, which links to inlong_cluster table',
+    `ext_params`             text                  DEFAULT NULL COMMENT 'Extended params, will be saved as JSON string, such as queue_module, partition_num',
     `in_charges`             varchar(512) NOT NULL COMMENT 'Name of responsible person, separated by commas',
-    `followers`              varchar(512)      DEFAULT NULL COMMENT 'Name of followers, separated by commas',
-    `status`                 int(4)            DEFAULT '100' COMMENT 'Inlong group status',
-    `previous_status`        int(4)            DEFAULT '100' COMMENT 'Previous group status',
-    `is_deleted`             int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `followers`              varchar(512)          DEFAULT NULL COMMENT 'Name of followers, separated by commas',
+    `status`                 int(4)                DEFAULT '100' COMMENT 'Inlong group status',
+    `previous_status`        int(4)                DEFAULT '100' COMMENT 'Previous group status',
+    `is_deleted`             int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`                varchar(64)  NOT NULL COMMENT 'Creator name',
-    `modifier`               varchar(64)       DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`            timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`                int(11)           DEFAULT '1' COMMENT 'Version information of current data record',
+    `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_group` (`inlong_group_id`, `is_deleted`),
     INDEX group_status_deleted_index (`status`, `is_deleted`)
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_tag`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster_tag` (`cluster_tag`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster`
     `modifier`     varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`  timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`      int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`      int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster` (`name`, `type`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `inlong_cluster_node`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_cluster_node` (`parent_id`, `type`, `ip`, `port`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -167,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `data_node`
     `modifier`    varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time` timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`     int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_data_node` (`name`, `type`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -182,17 +182,17 @@ CREATE TABLE IF NOT EXISTS `consumption`
     `consumer_group`   varchar(256) NOT NULL COMMENT 'Consumer group',
     `in_charges`       varchar(512) NOT NULL COMMENT 'Person in charge of consumption',
     `inlong_group_id`  varchar(256) NOT NULL COMMENT 'Inlong group id',
-    `mq_type`          varchar(10)       DEFAULT 'TUBE' COMMENT 'Message queue type, high throughput: TUBE, high consistency: PULSAR',
+    `mq_type`          varchar(10)           DEFAULT 'TUBE' COMMENT 'Message queue type, high throughput: TUBE, high consistency: PULSAR',
     `topic`            varchar(256) NOT NULL COMMENT 'Consumption topic',
-    `filter_enabled`   int(2)            DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
-    `inlong_stream_id` varchar(256)      DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
+    `filter_enabled`   int(2)                DEFAULT '0' COMMENT 'Whether to filter, default 0, not filter consume',
+    `inlong_stream_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong stream ID for consumption, if filter_enable is 1, it cannot empty',
     `status`           int(4)       NOT NULL COMMENT 'Status: draft, pending approval, approval rejected, approval passed',
-    `is_deleted`       int(11)           DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
+    `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
     `creator`          varchar(64)  NOT NULL COMMENT 'creator',
-    `modifier`         varchar(64)       DEFAULT NULL COMMENT 'modifier',
-    `create_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`      timestamp    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`          int(11)           DEFAULT '1' COMMENT 'Version information of current data record',
+    `modifier`         varchar(64)           DEFAULT NULL COMMENT 'modifier',
+    `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Data consumption configuration table';
@@ -258,11 +258,11 @@ CREATE TABLE IF NOT EXISTS `inlong_stream`
     `status`           int(4)                DEFAULT '100' COMMENT 'Inlong stream status',
     `previous_status`  int(4)                DEFAULT '100' COMMENT 'Previous status',
     `is_deleted`       int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `creator`          varchar(64)           DEFAULT NULL COMMENT 'Creator name',
+    `creator`          varchar(64)  NOT NULL COMMENT 'Creator name',
     `modifier`         varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`          int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`          int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_inlong_stream` (`inlong_stream_id`, `inlong_group_id`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -489,7 +489,7 @@ CREATE TABLE IF NOT EXISTS `stream_sink`
     `modifier`               varchar(64)           DEFAULT NULL COMMENT 'Modifier name',
     `create_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `modify_time`            timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`                int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`                int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_sink_name` (`inlong_group_id`, `inlong_stream_id`, `sink_name`, `is_deleted`)
 ) ENGINE = InnoDB
@@ -515,7 +515,6 @@ CREATE TABLE IF NOT EXISTS `stream_source_field`
     `field_format`     varchar(50)  DEFAULT NULL COMMENT 'Field format, including: MICROSECONDS, MILLISECONDS, SECONDS, SQL, ISO_8601 and custom such as yyyy-MM-dd HH:mm:ss',
     `rank_num`         smallint(6)  DEFAULT '0' COMMENT 'Field order (front-end display field order)',
     `is_deleted`       int(11)      DEFAULT '0' COMMENT 'Whether to delete, 0: not deleted, > 0: deleted',
-    `version`          int(11)      DEFAULT '1' COMMENT 'Version information of current data record',
     PRIMARY KEY (`id`),
     KEY `source_id_index` (`source_id`)
 ) ENGINE = InnoDB
@@ -592,7 +591,7 @@ CREATE TABLE IF NOT EXISTS `user`
     `update_by`       varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
     `create_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
     `update_time`     datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `version`         int(11)               DEFAULT '1' COMMENT 'Version information of current data record',
+    `version`         int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_user_name` (`name`)
 ) ENGINE = InnoDB
@@ -629,15 +628,15 @@ CREATE TABLE IF NOT EXISTS `workflow_approver`
     `process_name`      varchar(256)  NOT NULL COMMENT 'Process name',
     `task_name`         varchar(256)  NOT NULL COMMENT 'Approval task name',
     `filter_key`        varchar(64)   NOT NULL COMMENT 'Filter condition KEY',
-    `filter_value`      varchar(256)       DEFAULT NULL COMMENT 'Filter matching value',
-    `filter_value_desc` varchar(256)       DEFAULT NULL COMMENT 'Filter value description',
+    `filter_value`      varchar(256)           DEFAULT NULL COMMENT 'Filter matching value',
+    `filter_value_desc` varchar(256)           DEFAULT NULL COMMENT 'Filter value description',
     `approvers`         varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
-    `creator`           varchar(64)   NOT NULL COMMENT 'Creator',
-    `modifier`          varchar(64)   NULL COMMENT 'Modifier',
-    `create_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`        int(11)            DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
-    `version`           int(11)            DEFAULT '1' COMMENT 'Version information of current data record',
+    `creator`           varchar(64)   NOT NULL COMMENT 'Creator name',
+    `modifier`          varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`           int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 ) ENGINE = InnoDB
@@ -675,7 +674,7 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
     `remark`               text COMMENT 'Execution result remark information',
     `exception`            text COMMENT 'Exception information',
     PRIMARY KEY (`id`),
-    INDEX group_status_index (`inlong_group_id`, `status`)
+    INDEX event_group_status_index (`inlong_group_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow event log table';
 
@@ -698,7 +697,7 @@ CREATE TABLE IF NOT EXISTS `workflow_process`
     `ext_params`      text COMMENT 'Extended information-json',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to hidden, 0: not hidden, 1: hidden',
     PRIMARY KEY (`id`),
-    INDEX group_status_index (`inlong_group_id`, `status`)
+    INDEX process_group_status_index (`inlong_group_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Workflow process table';
 

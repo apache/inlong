@@ -274,8 +274,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setIsDeleted(id);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("sink information has already updated with groupId={}, streamId={}, name={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

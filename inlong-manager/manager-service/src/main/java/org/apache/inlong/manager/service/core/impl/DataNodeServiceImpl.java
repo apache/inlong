@@ -121,7 +121,7 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
-        String errMsg = String.format("data node has already updated with name=%s, type=%s, current version=%s",
+        String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
                 entity.getName(), entity.getType(), request.getVersion());
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
@@ -129,8 +129,8 @@ public class DataNodeServiceImpl implements DataNodeService {
         }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
-        int isSuccess = dataNodeMapper.updateById(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = dataNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -148,8 +148,8 @@ public class DataNodeServiceImpl implements DataNodeService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int isSuccess = dataNodeMapper.updateById(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = dataNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("data node has already updated, data node name={}, type={}, current version ={}",
                     entity.getName(), entity.getType(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

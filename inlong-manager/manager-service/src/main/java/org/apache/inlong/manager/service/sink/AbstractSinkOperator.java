@@ -125,8 +125,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setStatus(SinkStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        int isSuccess = sinkMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

@@ -25,7 +25,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowProcessEntityMapper;
 import org.apache.inlong.manager.dao.mapper.WorkflowTaskEntityMapper;
 import org.apache.inlong.manager.service.ServiceBaseTest;
@@ -65,7 +64,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public static final String OPERATOR = "admin";
     public static final String GROUP_ID = "test_group";
     public static final String STREAM_ID = "test_stream";
-    private static final String DATA_ENCODING = "UTF-8";
 
     @Autowired
     protected WorkflowServiceImpl workflowService;
@@ -75,8 +73,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     protected InlongGroupService groupService;
     @Autowired
     protected GroupTaskListenerFactory taskListenerFactory;
-    @Autowired
-    protected InlongGroupEntityMapper groupEntityMapper;
     @Autowired
     protected WorkflowProcessEntityMapper processEntityMapper;
     @Autowired

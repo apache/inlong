@@ -17,7 +17,11 @@
 
 package org.apache.inlong.manager.common.enums;
 
+/**
+ * The error code enumeration.
+ */
 public enum ErrorCodeEnum {
+
     AUTHORIZATION_FAILED(2001, "Authentication failed"),
     INVALID_PARAMETER(2002, "The parameter is invalid"),
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
@@ -65,10 +69,8 @@ public enum ErrorCodeEnum {
             "The current inlong group status does not allow to modify the stream source type of the inlong stream"),
     STREAM_EXT_SAVE_FAILED(1207, "Failed to save/update inlong stream extension information"),
     STREAM_FIELD_SAVE_FAILED(1208, "Failed to save/update inlong stream field"),
-    STREAM_DELETE_HAS_SOURCE(1209,
-            "The inlong stream contains source info and is not allowed to be deleted"),
-    STREAM_DELETE_HAS_SINK(1210,
-            "The inlong stream contains data sink info and is not allowed to be deleted"),
+    STREAM_DELETE_HAS_SOURCE(1209, "The inlong stream contains source info and is not allowed to be deleted"),
+    STREAM_DELETE_HAS_SINK(1210, "The inlong stream contains data sink info and is not allowed to be deleted"),
 
     SOURCE_TYPE_IS_NULL(1300, "Source type is null"),
     SOURCE_TYPE_NOT_SUPPORT(1301, "Source type '%s' not support"),
@@ -115,6 +117,7 @@ public enum ErrorCodeEnum {
     PULSAR_DLQ_RLQ_ERROR(2606, "Wrong config for the RLQ and DLQ: RLQ was enabled, but the DLQ was disabled"),
     PULSAR_DLQ_DUPLICATED(2607, "DLQ topic already exists under the inlong group"),
     PULSAR_RLQ_DUPLICATED(2608, "RLQ topic already exists under the inlong group"),
+
     ;
 
     private final int code;

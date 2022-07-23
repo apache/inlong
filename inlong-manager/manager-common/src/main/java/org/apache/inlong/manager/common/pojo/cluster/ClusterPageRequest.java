@@ -68,5 +68,5 @@ public class ClusterPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Current user", hidden = true)
     private String currentUser;
-}
 
+}

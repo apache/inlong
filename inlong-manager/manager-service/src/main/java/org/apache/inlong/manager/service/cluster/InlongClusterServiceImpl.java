@@ -186,7 +186,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             LOGGER.warn("inlong cluster tag was not exist for id={}", id);
             return true;
         }
-        String errMsg = String.format("cluster tag has already updated with name=%s, current version=%s",
+        String errMsg = String.format("cluster tag has already updated with name=%s, curVersion=%s",
                 exist.getClusterTag(), request.getVersion());
         if (!Objects.equals(exist.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
@@ -231,8 +231,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         CommonBeanUtils.copyProperties(request, exist, true);
         exist.setModifier(operator);
         exist.setModifyTime(new Date());
-        int isSuccess = clusterTagMapper.updateById(exist);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = clusterTagMapper.updateById(exist);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -268,10 +268,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         exist.setIsDeleted(exist.getId());
         exist.setModifier(operator);
-        int isSuccess = clusterTagMapper.updateById(exist);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.error("cluster tag has already updated with name={}, current version={}", exist.getClusterTag(),
-                    exist.getVersion());
+        int rowCount = clusterTagMapper.updateById(exist);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("cluster tag has already updated with name={}, curVersion={}",
+                    exist.getClusterTag(), exist.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         LOGGER.info("success to delete cluster tag by id={}", id);
@@ -375,7 +375,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             throw new BusinessException(ErrorCodeEnum.CLUSTER_NOT_FOUND);
         }
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("cluster has already updated with name={}, type={}, current version={}",
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}",
                     request.getName(), request.getType(), request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -449,9 +449,9 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int isSuccess = clusterMapper.updateById(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.error("cluster has already updated with name={}, type={}, current version={}", entity.getName(),
+        int rowCount = clusterMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", entity.getName(),
                     entity.getType(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -581,8 +581,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setParentId(request.getParentId());
         entity.setModifier(operator);
-        int isSuccess = clusterNodeMapper.updateById(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = clusterNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.warn(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -605,8 +605,8 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 "Current user does not have permission to delete cluster node");
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        int isSuccess = clusterNodeMapper.updateById(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = clusterNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("cluster node has already updated with parentId={}, type={}, ip={}, port={}",
                     entity.getParentId(), entity.getType(), entity.getIp(), entity.getPort());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

@@ -216,8 +216,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
         if (!Objects.equals(entity.getVersion(), request.getVersion())) {
-            LOGGER.error("inlong group has already updated with group id={}, curversion={}", request.getInlongGroupId(),
-                    request.getVersion());
+            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
+                    groupId, request.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
         // check whether the current status can be modified
@@ -299,9 +299,9 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setIsDeleted(entity.getId());
         entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
-        int isSuccess = groupMapper.updateByIdentifierSelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
-            LOGGER.error("inlong group has already updated with group id={}, current version={}",
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

@@ -41,6 +41,8 @@ public class StreamSinkEntity implements Serializable {
     private String sortConsumerGroup;
     private Integer enableCreateResource;
 
+    // Another fields saved as JSON string in extParams
+    private String extParams;
     private String operateLog;
     private Integer status;
     private Integer previousStatus;
@@ -49,10 +51,6 @@ public class StreamSinkEntity implements Serializable {
     private String modifier;
     private Date createTime;
     private Date modifyTime;
-
-    // Another fields saved as JSON string in extParams
-    private String extParams;
-
     private Integer version;
 
 }

@@ -20,7 +20,6 @@ package org.apache.inlong.manager.service.repository;
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +39,7 @@ import org.apache.inlong.manager.common.pojo.dataproxy.InlongGroupId;
 import org.apache.inlong.manager.common.pojo.dataproxy.InlongStreamId;
 import org.apache.inlong.manager.common.pojo.dataproxy.ProxyCluster;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
@@ -54,9 +54,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,8 +65,6 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PostConstruct;
 
 /**
  * DataProxyConfigRepository
@@ -119,6 +118,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * get clusterSetMapper
+     *
      * @return the clusterSetMapper
      */
     public ClusterSetMapper getClusterSetMapper() {
@@ -127,6 +127,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * set clusterSetMapper
+     *
      * @param clusterSetMapper the clusterSetMapper to set
      */
     public void setClusterSetMapper(ClusterSetMapper clusterSetMapper) {
@@ -135,6 +136,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * get clusterMapper
+     *
      * @return the clusterMapper
      */
     public InlongClusterEntityMapper getClusterMapper() {
@@ -143,6 +145,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * set clusterMapper
+     *
      * @param clusterMapper the clusterMapper to set
      */
     public void setClusterMapper(InlongClusterEntityMapper clusterMapper) {
@@ -151,6 +154,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * get inlongGroupMapper
+     *
      * @return the inlongGroupMapper
      */
     public InlongGroupEntityMapper getInlongGroupMapper() {
@@ -159,6 +163,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * set inlongGroupMapper
+     *
      * @param inlongGroupMapper the inlongGroupMapper to set
      */
     public void setInlongGroupMapper(InlongGroupEntityMapper inlongGroupMapper) {
@@ -167,6 +172,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * get streamSinkMapper
+     *
      * @return the streamSinkMapper
      */
     public StreamSinkEntityMapper getStreamSinkMapper() {
@@ -175,6 +181,7 @@ public class DataProxyConfigRepository implements IRepository {
 
     /**
      * set streamSinkMapper
+     *
      * @param streamSinkMapper the streamSinkMapper to set
      */
     public void setStreamSinkMapper(StreamSinkEntityMapper streamSinkMapper) {
@@ -557,16 +564,11 @@ public class DataProxyConfigRepository implements IRepository {
      * copyStreamSink
      */
     private StreamSinkEntity copyStreamSink(StreamSinkEntity streamSink) {
-        try {
-            StreamSinkEntity streamSinkDest = new StreamSinkEntity();
-            BeanUtils.copyProperties(streamSinkDest, streamSink);
-            streamSinkDest.setId(null);
-            streamSinkDest.setModifyTime(new Date(System.currentTimeMillis()));
-            return streamSinkDest;
-        } catch (Exception e) {
-            LOGGER.error("Fail to copy stream sink:{}", e.getMessage(), e);
-            return null;
-        }
+        StreamSinkEntity streamSinkDest = new StreamSinkEntity();
+        CommonBeanUtils.copyProperties(streamSink, streamSinkDest);
+        streamSinkDest.setId(null);
+        streamSinkDest.setModifyTime(new Date());
+        return streamSinkDest;
     }
 
     /**

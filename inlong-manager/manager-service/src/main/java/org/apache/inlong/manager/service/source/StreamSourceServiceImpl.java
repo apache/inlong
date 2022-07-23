@@ -256,8 +256,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);
         entity.setModifyTime(new Date());
-        int isSuccess = sourceMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSourceName(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.dao.mapper;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.DaoBaseTest;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.junit.jupiter.api.Assertions;
@@ -35,7 +36,7 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
 
     @Test
     public void deleteByPrimaryKey() {
-        InlongGroupEntity entity = createHeartbeatEntity();
+        InlongGroupEntity entity = createGroupEntity();
         groupEntityMapper.insert(entity);
         groupEntityMapper.deleteByPrimaryKey(entity.getId());
         Assertions.assertNull(groupEntityMapper.selectByGroupId(entity.getInlongGroupId()));
@@ -43,18 +44,22 @@ public class InlongGroupEntityMapperTest extends DaoBaseTest {
 
     @Test
     public void selectByPrimaryKey() {
-        InlongGroupEntity entity = createHeartbeatEntity();
+        InlongGroupEntity entity = createGroupEntity();
         groupEntityMapper.insert(entity);
         Assertions.assertEquals(entity, groupEntityMapper.selectByPrimaryKey(entity.getId()));
     }
 
-    private InlongGroupEntity createHeartbeatEntity() {
+    private InlongGroupEntity createGroupEntity() {
         InlongGroupEntity entity = new InlongGroupEntity();
         entity.setInlongGroupId("test_group");
         entity.setMqResource("test_group");
         entity.setInCharges("admin");
         entity.setCreator("admin");
-        entity.setCreateTime(new Date());
+        entity.setModifier("admin");
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         return entity;
     }
 

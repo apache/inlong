@@ -138,7 +138,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(config.getId());
         Preconditions.checkNotNull(entity, "not exist with id:" + config.getId());
         String errMsg = String.format(
-                "approver information has already updated with id=%s, processName=%s, taskName=%s, current version",
+                "approver has already updated with id=%s, processName=%s, taskName=%s, curVersion=%s",
                 config.getId(), config.getProcessName(), config.getTaskName(), config.getVersion());
         if (!Objects.equals(entity.getVersion(), config.getVersion())) {
             LOGGER.error(errMsg);
@@ -153,7 +153,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         update.setFilterValue(config.getFilterValue());
 
         int success = this.workflowApproverMapper.updateByPrimaryKeySelective(update);
-        Preconditions.checkTrue(success == InlongConstants.UPDATE_SUCCESS, errMsg);
+        Preconditions.checkTrue(success == InlongConstants.AFFECTED_ONE_ROW, errMsg);
     }
 
     @Override

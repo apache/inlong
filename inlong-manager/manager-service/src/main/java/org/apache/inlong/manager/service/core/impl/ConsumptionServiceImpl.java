@@ -253,7 +253,7 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(exists, "consumption not exist with id " + consumptionId);
         Preconditions.checkTrue(exists.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the consumption");
-        String errMsg = String.format("consumption information has already updated, id=%s, current version=%s",
+        String errMsg = String.format("consumption information has already updated, id=%s, curVersion=%s",
                 exists.getId(), info.getVersion());
         if (!Objects.equals(exists.getVersion(), info.getVersion())) {
             LOGGER.error(errMsg);
@@ -313,11 +313,11 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.insertDlqOrRlq(groupId, topic, operator);
                 }
             }
-
             consumptionPulsarMapper.updateByConsumptionId(pulsarEntity);
         }
-        int isSuccess = consumptionMapper.updateByPrimaryKeySelective(entity);
-        if (isSuccess != InlongConstants.UPDATE_SUCCESS) {
+
+        int rowCount = consumptionMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
