@@ -46,4 +46,7 @@ public class ClusterTagRequest {
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

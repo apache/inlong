@@ -352,7 +352,7 @@ public class LoadNodeUtils {
                 elasticsearchSink.getPassword(),
                 elasticsearchSink.getDocumentType(),
                 elasticsearchSink.getPrimaryKey(),
-                elasticsearchSink.getVersion()
+                elasticsearchSink.getEsVersion()
         );
     }
 

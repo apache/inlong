@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Default operation of stream sink.
@@ -82,6 +83,7 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         // get the ext params
         setTargetEntity(request, entity);
@@ -110,13 +112,24 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     public void updateOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(request.getId());
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SINK_INFO_NOT_FOUND.getMessage());
+
+        String errMsg = String.format("sink has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSinkName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         CommonBeanUtils.copyProperties(request, entity, true);
         setTargetEntity(request, entity);
         entity.setPreviousStatus(entity.getStatus());
         entity.setStatus(SinkStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        sinkMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         boolean onlyAdd = SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(entity.getPreviousStatus());
         this.updateFieldOpt(onlyAdd, request);

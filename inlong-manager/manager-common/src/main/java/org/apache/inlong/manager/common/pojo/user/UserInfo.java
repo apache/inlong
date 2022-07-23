@@ -74,4 +74,7 @@ public class UserInfo {
     @ApiModelProperty(value = "valid days", required = true)
     private Integer validDays;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

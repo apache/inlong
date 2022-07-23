@@ -33,10 +33,11 @@
         <result column="modifier" jdbcType="VARCHAR" property="modifier"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime"/>
+        <result column="version" jdbcType="INTEGER" property="version"/>
     </resultMap>
     <sql id="Base_Column_List">
         id, parent_id, type, ip, port, ext_params, status, is_deleted,
-        creator, modifier, create_time, modify_time
+        creator, modifier, create_time, modify_time, version
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id"
@@ -44,11 +45,12 @@
         insert into inlong_cluster_node (id, parent_id, type,
                                          ip, port, ext_params,
                                          status, is_deleted, creator,
-                                         modifier, create_time, modify_time)
+                                         modifier, create_time, modify_time, version)
         values (#{id,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR},
                 #{ip,jdbcType=VARCHAR}, #{port,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR},
                 #{status,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
+                #{version,jdbcType=INTEGER})
     </insert>
 
     <select id="selectById" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -136,6 +138,9 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
+            <if test="version != null">
+                version = #{version,jdbcType=INTEGER} + 1,
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -151,8 +156,10 @@
             creator     = #{creator,jdbcType=VARCHAR},
             modifier    = #{modifier,jdbcType=VARCHAR},
             create_time = #{createTime,jdbcType=TIMESTAMP},
-            modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+            modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            version     = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
+        and version = #{version,jdbcType=INTEGER}
     </update>
 
     <delete id="deleteById" parameterType="java.lang.Integer">

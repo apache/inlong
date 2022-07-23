@@ -20,9 +20,10 @@ package org.apache.inlong.manager.service.core.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
@@ -40,6 +41,8 @@ import org.apache.inlong.manager.dao.entity.UserEntityExample;
 import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,9 +55,10 @@ import java.util.Objects;
 /**
  * User service layer implementation
  */
-@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserEntityMapper userMapper;
@@ -82,6 +86,7 @@ public class UserServiceImpl implements UserService {
         result.setUsername(entity.getName());
         result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
         result.setType(entity.getAccountType());
+        result.setVersion(entity.getVersion());
 
         if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
             try {
@@ -94,12 +99,12 @@ public class UserServiceImpl implements UserService {
                 result.setPublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
             } catch (Exception e) {
                 String errMsg = String.format("decryption error: %s", e.getMessage());
-                log.error(errMsg, e);
+                LOGGER.error(errMsg, e);
                 throw new BusinessException(errMsg);
             }
         }
 
-        log.debug("success to get user info by id={}", userId);
+        LOGGER.debug("success to get user info by id={}", userId);
         return result;
     }
 
@@ -129,20 +134,21 @@ public class UserServiceImpl implements UserService {
             entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
         } catch (Exception e) {
             String errMsg = String.format("generate rsa key error: %s", e.getMessage());
-            log.error(errMsg, e);
+            LOGGER.error(errMsg, e);
             throw new BusinessException(errMsg);
         }
 
         entity.setCreateTime(new Date());
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
-        log.debug("success to create user info={}", userInfo);
+        LOGGER.debug("success to create user info={}", userInfo);
         return true;
     }
 
     @Override
     public int update(UserInfo updateUser, String currentUser) {
-        log.debug("begin to update user info={} by {}", updateUser, currentUser);
+        LOGGER.debug("begin to update user info={} by {}", updateUser, currentUser);
         Preconditions.checkNotNull(updateUser, "Userinfo cannot be null");
         Preconditions.checkNotNull(updateUser.getId(), "User id cannot be null");
 
@@ -165,6 +171,12 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
                         && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
                 "Username [" + updateUser.getUsername() + "] already exists");
+        String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
+                updateUser.getUsername(), updateUser.getVersion());
+        if (!Objects.equals(updateUserEntity.getVersion(), updateUser.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
@@ -187,8 +199,13 @@ public class UserServiceImpl implements UserService {
         updateUserEntity.setAccountType(updateUser.getType());
         updateUserEntity.setName(updateUser.getUsername());
 
-        log.debug("success to update user info={} by {}", updateUser, currentUser);
-        return userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        int rowCount = userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
+        LOGGER.debug("success to update user info={} by {}", updateUser, currentUser);
+        return updateUserEntity.getId();
     }
 
     @Override
@@ -204,7 +221,7 @@ public class UserServiceImpl implements UserService {
                 "Current user does not have permission to delete himself");
         userMapper.deleteByPrimaryKey(userId);
 
-        log.debug("success to delete user by id={}, current user={}", userId, currentUser);
+        LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
     }
 
@@ -224,7 +241,7 @@ public class UserServiceImpl implements UserService {
         PageInfo<UserDetailListVO> page = new PageInfo<>(detailList);
         page.setTotal(entityPage.getTotal());
 
-        log.debug("success to list users, result size={}", page.getTotal());
+        LOGGER.debug("success to list users, result size={}", page.getTotal());
         return page;
     }
 

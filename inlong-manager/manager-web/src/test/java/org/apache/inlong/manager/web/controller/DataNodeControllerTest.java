@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.controller;
 
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
@@ -94,13 +95,14 @@ class DataNodeControllerTest extends WebBaseTest {
         nodeEntity.setCreateTime(new Date());
         nodeEntity.setModifyTime(new Date());
         nodeEntity.setInCharges("test");
+        nodeEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
         dataNodeEntityMapper.insert(nodeEntity);
 
         DataNodeRequest request = getDataNodeRequest();
         request.setId(nodeEntity.getId());
         request.setName("test447777");
-
+        request.setVersion(nodeEntity.getVersion());
         MvcResult mvcResult = postForSuccessMvcResult("/node/update", request);
 
         Boolean success = getResBodyObj(mvcResult, Boolean.class);

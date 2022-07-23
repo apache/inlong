@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
@@ -61,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -213,7 +215,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
+                    groupId, request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);
 
@@ -293,7 +299,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setIsDeleted(entity.getId());
         entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
-        groupMapper.updateByIdentifierSelective(entity);
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);

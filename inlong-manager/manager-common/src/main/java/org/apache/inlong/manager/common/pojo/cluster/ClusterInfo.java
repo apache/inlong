@@ -82,6 +82,9 @@ public abstract class ClusterInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
     public abstract ClusterRequest genRequest();
 
 }

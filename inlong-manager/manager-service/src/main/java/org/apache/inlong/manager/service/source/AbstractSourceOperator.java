@@ -52,6 +52,7 @@ import java.util.Objects;
 public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSourceOperator.class);
+
     @Autowired
     protected StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -76,7 +77,7 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
     @Transactional(rollbackFor = Throwable.class)
     public Integer saveOpt(SourceRequest request, Integer groupStatus, String operator) {
         StreamSourceEntity entity = CommonBeanUtils.copyProperties(request, StreamSourceEntity::new);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         if (GroupStatus.forCode(groupStatus).equals(GroupStatus.CONFIG_SUCCESSFUL)) {
             entity.setStatus(SourceStatus.TO_BE_ISSUED_ADD.getCode());
         } else {
@@ -88,6 +89,8 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
+
         // get the ext params
         setTargetEntity(request, entity);
         sourceMapper.insert(entity);
@@ -118,6 +121,12 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
             throw new BusinessException(String.format("source=%s is not allowed to update, "
                     + "please wait until its changed to final status or stop / frozen / delete it firstly", entity));
         }
+        String errMsg = String.format("source has already updated with groupId=%s, streamId=%s, name=%s, curVersion=%s",
+                request.getInlongGroupId(), request.getInlongStreamId(), request.getSourceName(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // Source type cannot be changed
         if (!Objects.equals(entity.getSourceType(), request.getSourceType())) {
@@ -139,7 +148,6 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
 
         // Setting updated parameters of stream source entity.
         setTargetEntity(request, entity);
-        entity.setVersion(entity.getVersion() + 1);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
 
@@ -160,8 +168,11 @@ public abstract class AbstractSourceOperator implements StreamSourceOperator {
                     break;
             }
         }
-
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.warn(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         updateFieldOpt(entity, request.getFieldList());
         LOGGER.info("success to update source of type={}", request.getSourceType());
     }

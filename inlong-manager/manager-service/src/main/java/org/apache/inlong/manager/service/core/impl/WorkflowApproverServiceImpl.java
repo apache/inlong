@@ -19,6 +19,8 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.workflow.FilterKey;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
@@ -32,6 +34,8 @@ import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.UserTask;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
 import org.apache.inlong.manager.workflow.definition.WorkflowTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +52,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class WorkflowApproverServiceImpl implements WorkflowApproverService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowApproverServiceImpl.class);
 
     @Autowired
     private WorkflowApproverEntityMapper workflowApproverMapper;
@@ -131,7 +137,13 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
         WorkflowApproverEntity entity = workflowApproverMapper.selectByPrimaryKey(config.getId());
         Preconditions.checkNotNull(entity, "not exist with id:" + config.getId());
-
+        String errMsg = String.format(
+                "approver has already updated with id=%s, processName=%s, taskName=%s, curVersion=%s",
+                config.getId(), config.getProcessName(), config.getTaskName(), config.getVersion());
+        if (!Objects.equals(entity.getVersion(), config.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         WorkflowApproverEntity update = new WorkflowApproverEntity();
         update.setId(config.getId());
         update.setModifyTime(new Date());
@@ -141,7 +153,7 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         update.setFilterValue(config.getFilterValue());
 
         int success = this.workflowApproverMapper.updateByPrimaryKeySelective(update);
-        Preconditions.checkTrue(success == 1, "update failed");
+        Preconditions.checkTrue(success == InlongConstants.AFFECTED_ONE_ROW, errMsg);
     }
 
     @Override

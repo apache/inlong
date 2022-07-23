@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -114,6 +115,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(operator);
         streamEntity.setCreateTime(new Date());
+        streamEntity.setVersion(InlongConstants.INITIAL_VERSION);
 
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
@@ -293,14 +295,22 @@ public class InlongStreamServiceImpl implements InlongStreamService {
             LOGGER.error("inlong stream not found by groupId={}, streamId={}", groupId, streamId);
             throw new BusinessException(ErrorCodeEnum.STREAM_NOT_FOUND);
         }
-
+        String errMsg = String.format("stream has already updated with group id=%s, stream id=%s, curVersion=%s",
+                streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), request.getVersion());
+        if (!Objects.equals(streamEntity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // Check whether the current inlong group status supports modification
         this.checkCanUpdate(inlongGroupEntity.getStatus(), streamEntity, request);
 
         CommonBeanUtils.copyProperties(request, streamEntity, true);
         streamEntity.setModifier(operator);
-        streamMapper.updateByIdentifierSelective(streamEntity);
-
+        int rowCount = streamMapper.updateByIdentifierSelective(streamEntity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // Update field information
         updateField(groupId, streamId, request.getFieldList());
         // Update extension info
@@ -343,8 +353,12 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        streamMapper.updateByPrimaryKey(entity);
-
+        int rowCount = streamMapper.updateByPrimaryKey(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("stream has already updated with group id={}, stream id={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // Logically delete the associated field table
         LOGGER.debug("begin to delete inlong stream field, streamId={}", streamId);
         streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);

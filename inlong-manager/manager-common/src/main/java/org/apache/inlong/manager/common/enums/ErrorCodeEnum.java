@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.common.enums;
 
+/**
+ * The error code enumeration.
+ */
 public enum ErrorCodeEnum {
+
     AUTHORIZATION_FAILED(2001, "Authentication failed"),
     INVALID_PARAMETER(2002, "The parameter is invalid"),
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
+    CONFIG_EXPIRED(2005, "The config has expired, please refresh the page or re-fetch the data and try again"),
 
     ID_IS_EMPTY(101, "Primary key is empty"),
     GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),
@@ -99,6 +104,7 @@ public enum ErrorCodeEnum {
 
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
+    TRANSFORM_NOT_FOUND(1502, "Transform does not exist"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

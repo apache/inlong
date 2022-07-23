@@ -52,8 +52,8 @@ public class ConsumptionProcessOperation {
                 "current status not allow start workflow");
 
         consumptionInfo.setStatus(ConsumptionStatus.WAIT_APPROVE.getStatus());
-        boolean isSuccess = consumptionService.update(consumptionInfo, operator);
-        Preconditions.checkTrue(isSuccess, "update consumption failed");
+        boolean rowCount = consumptionService.update(consumptionInfo, operator);
+        Preconditions.checkTrue(rowCount, "update consumption failed");
 
         return workflowService.start(ProcessName.APPLY_CONSUMPTION_PROCESS, operator,
                 genConsumptionProcessForm(consumptionInfo));

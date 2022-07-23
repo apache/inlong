@@ -64,7 +64,6 @@ public class WorkflowServiceImplTest extends ServiceBaseTest {
     public static final String OPERATOR = "admin";
     public static final String GROUP_ID = "test_group";
     public static final String STREAM_ID = "test_stream";
-    private static final String DATA_ENCODING = "UTF-8";
 
     @Autowired
     protected WorkflowServiceImpl workflowService;

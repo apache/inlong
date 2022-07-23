@@ -19,13 +19,17 @@ package org.apache.inlong.manager.service.group;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +40,8 @@ import java.util.Date;
  * Default operator of inlong group.
  */
 public abstract class AbstractGroupOperator implements InlongGroupOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGroupOperator.class);
 
     @Autowired
     protected InlongGroupEntityMapper groupMapper;
@@ -60,6 +66,7 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         groupMapper.insert(entity);
         return groupId;
@@ -83,7 +90,12 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        groupMapper.updateByIdentifierSelective(entity);
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                    request.getInlongGroupId(), request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     @Override

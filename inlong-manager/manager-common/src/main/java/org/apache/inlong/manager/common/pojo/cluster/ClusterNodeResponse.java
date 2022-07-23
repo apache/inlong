@@ -64,4 +64,7 @@ public class ClusterNodeResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

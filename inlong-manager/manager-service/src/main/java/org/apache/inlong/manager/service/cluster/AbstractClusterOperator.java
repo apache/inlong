@@ -18,10 +18,14 @@
 package org.apache.inlong.manager.service.cluster;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,8 @@ import java.util.Date;
  * Default operator of inlong cluster.
  */
 public abstract class AbstractClusterOperator implements InlongClusterOperator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractClusterOperator.class);
 
     @Autowired
     protected InlongClusterEntityMapper clusterMapper;
@@ -49,6 +55,7 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         entity.setCreateTime(now);
         entity.setModifyTime(now);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterMapper.insert(entity);
 
         return entity.getId();
@@ -70,7 +77,12 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);
         entity.setModifyTime(new Date());
-        clusterMapper.updateByIdSelective(entity);
+        int rowCount = clusterMapper.updateByIdSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", request.getName(),
+                    request.getType(), request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
 }
