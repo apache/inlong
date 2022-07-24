@@ -99,7 +99,7 @@ public class InlongPulsarOperator extends AbstractGroupOperator {
             InlongPulsarDTO dto = InlongPulsarDTO.getFromRequest(pulsarRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
         LOGGER.info("success set entity for inlong group with Pulsar");
     }
