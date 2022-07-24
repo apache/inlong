@@ -42,9 +42,9 @@ public class OracleSqlBuilder {
         sqlBuilder.append("SELECT COUNT(*) FROM ALL_TABLES WHERE OWNER = UPPER('")
                 .append(userName)
                 .append("') ")
-                .append("AND TABLE_NAME = UPPER('")
+                .append("AND TABLE_NAME = '")
                 .append(tableName)
-                .append("') ");
+                .append("' ");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -59,11 +59,11 @@ public class OracleSqlBuilder {
     public static String getCheckColumn(String tableName, String columnName) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("SELECT count(1) ")
-                .append(" from  USER_TAB_COLUMNS where TABLE_NAME= UPPER('")
+                .append(" from  USER_TAB_COLUMNS where TABLE_NAME= '")
                 .append(tableName)
-                .append("') and COLUMN_NAME = UPPER('")
+                .append("' and COLUMN_NAME = '")
                 .append(columnName)
-                .append("') ");
+                .append("' ");
         LOGGER.info("check table sql: {}", sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -79,8 +79,9 @@ public class OracleSqlBuilder {
         StringBuilder createSql = new StringBuilder();
         // Support _ beginning with underscore
         createSql.append("CREATE TABLE ").append(table.getUserName())
-                .append(".")
-                .append(table.getTableName());
+                .append(".\"")
+                .append(table.getTableName())
+                .append("\"");
         // Construct columns and partition columns
         createSql.append(buildCreateColumnsSql(table));
         sqls.add(createSql.toString());
@@ -101,11 +102,11 @@ public class OracleSqlBuilder {
 
         for (OracleColumnInfo columnInfo : columnList) {
             StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("ALTER TABLE ")
+            sqlBuilder.append("ALTER TABLE \"")
                     .append(tableName)
-                    .append(" ADD ")
+                    .append("\" ADD \"")
                     .append(columnInfo.getName())
-                    .append(" ")
+                    .append("\" ")
                     .append(columnInfo.getType())
                     .append(" ");
             resultList.add(sqlBuilder.toString());
@@ -142,8 +143,9 @@ public class OracleSqlBuilder {
         for (OracleColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
             StringBuilder columnBuilder = new StringBuilder();
-            columnBuilder.append(columnInfo.getName())
-                    .append(" ")
+            columnBuilder.append("\"")
+                    .append(columnInfo.getName())
+                    .append("\" ")
                     .append(columnInfo.getType());
             columnList.add(columnBuilder.toString());
         }
@@ -155,11 +157,11 @@ public class OracleSqlBuilder {
         for (OracleColumnInfo columnInfo : columns) {
             if (StringUtils.isNoneBlank(columnInfo.getComment())) {
                 StringBuilder commSql = new StringBuilder();
-                commSql.append("COMMENT ON COLUMN ")
+                commSql.append("COMMENT ON COLUMN \"")
                         .append(tableName)
-                        .append(".")
+                        .append("\".\"")
                         .append(columnInfo.getName())
-                        .append(" IS '")
+                        .append("\" IS '")
                         .append(columnInfo.getComment())
                         .append("' ");
                 commentList.add(commSql.toString());
@@ -179,9 +181,9 @@ public class OracleSqlBuilder {
         sql.append("SELECT A.COLUMN_NAME,A.DATA_TYPE,B.COMMENTS ")
                 .append(" FROM USER_TAB_COLUMNS A LEFT JOIN USER_COL_COMMENTS B ")
                 .append("  ON A.TABLE_NAME=B.TABLE_NAME AND A.COLUMN_NAME=B.COLUMN_NAME ")
-                .append("WHERE  A.TABLE_NAME = UPPER('")
+                .append("WHERE  A.TABLE_NAME = '")
                 .append(tableName)
-                .append("')  ORDER  BY A.COLUMN_ID ");
+                .append("'  ORDER  BY A.COLUMN_ID ");
         LOGGER.info("desc table sql={}", sql);
         return sql.toString();
     }

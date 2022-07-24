@@ -98,7 +98,7 @@ public class OracleResourceOperator implements SinkResourceOperator {
         try {
             conn = OracleJdbcUtils.getConnection(url, user, password);
 
-            //In Oracle, there is no need to consider whether the database exists
+            // In Oracle, there is no need to consider whether the database exists
             // 1.If table not exists, create it
             OracleJdbcUtils.createTable(conn, tableInfo);
             // 2. table exists, add columns - skip the exists columns

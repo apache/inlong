@@ -96,8 +96,9 @@ public class OracleJdbcUtils {
     public static ResultSet executeQuerySql(Connection conn, String sql)
             throws Exception {
         Statement stmt = conn.createStatement();
+        ResultSet resultSet = stmt.executeQuery(sql);
         LOG.info("execute sql [{}] success !", sql);
-        return stmt.executeQuery(sql);
+        return resultSet;
     }
 
     /**
