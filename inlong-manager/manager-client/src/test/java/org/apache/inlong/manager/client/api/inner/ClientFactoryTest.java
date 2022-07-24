@@ -34,8 +34,16 @@ import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.SinkType;
+import org.apache.inlong.manager.common.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
@@ -691,6 +699,32 @@ class ClientFactoryTest {
     }
 
     @Test
+    void testGetCluster() {
+        ClusterInfo cluster = PulsarClusterInfo.builder()
+                .id(1)
+                .name("test_cluster")
+                .url("127.0.0.1")
+                .clusterTags("test_cluster_tag")
+                .type(ClusterType.PULSAR)
+                .adminUrl("http://127.0.0.1:8080")
+                .tenant("public")
+                .build();
+
+        stubFor(
+                get(urlMatching("/api/inlong/manager/cluster/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(cluster))
+                                )
+                        )
+        );
+
+        ClusterInfo clusterInfo = clusterClient.get(1);
+        Assertions.assertEquals(1, clusterInfo.getId());
+        Assertions.assertTrue(clusterInfo instanceof PulsarClusterInfo);
+    }
+
+    @Test
     void testGetMysqlSinkInfo() {
         StreamSink streamSink = MySQLSink.builder()
                 // mysql field
@@ -729,4 +763,91 @@ class ClientFactoryTest {
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
 
+    @Test
+    void testSaveClusterTag() {
+        stubFor(
+                post(urlMatching("/api/inlong/manager/cluster/tag/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        ClusterTagRequest request = new ClusterTagRequest();
+        request.setClusterTag("test_cluster");
+        Integer tagId = clusterClient.saveTag(request);
+        Assertions.assertEquals(1, tagId);
+    }
+
+    @Test
+    void testGetClusterTag() {
+        ClusterTagResponse tagResponse = ClusterTagResponse.builder()
+                .id(1)
+                .clusterTag("test_cluster")
+                .creator("admin")
+                .inCharges("admin")
+                .build();
+        stubFor(
+                get(urlMatching("/api/inlong/manager/cluster/tag/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(tagResponse))
+                                )
+                        )
+        );
+        ClusterTagResponse clusterTagInfo = clusterClient.getTag(1);
+        Assertions.assertNotNull(clusterTagInfo);
+    }
+
+    @Test
+    void testBindTag() {
+        stubFor(
+                post(urlMatching("/api/inlong/manager/cluster/bindTag.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(true))
+                                )
+                        )
+        );
+        BindTagRequest request = new BindTagRequest();
+        request.setClusterTag("test_cluster_tag");
+        Boolean isBind = clusterClient.bindTag(request);
+        Assertions.assertTrue(isBind);
+    }
+
+    @Test
+    void testSaveNode() {
+        stubFor(
+                post(urlMatching("/api/inlong/manager/cluster/node/save.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(1))
+                                )
+                        )
+        );
+        ClusterNodeRequest request = new ClusterNodeRequest();
+        request.setType(ClusterType.PULSAR);
+        Integer nodeId = clusterClient.saveNode(request);
+        Assertions.assertEquals(1, nodeId);
+    }
+
+    @Test
+    void testGetNode() {
+        ClusterNodeResponse response = ClusterNodeResponse.builder()
+                .id(1)
+                .type(ClusterType.DATA_PROXY)
+                .ip("127.0.0.1")
+                .port(46801)
+                .build();
+        stubFor(
+                get(urlMatching("/api/inlong/manager/cluster/node/get/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(response))
+                                )
+                        )
+        );
+        ClusterNodeResponse clientNode = clusterClient.getNode(1);
+        Assertions.assertEquals(1, clientNode.getId());
+    }
 }
