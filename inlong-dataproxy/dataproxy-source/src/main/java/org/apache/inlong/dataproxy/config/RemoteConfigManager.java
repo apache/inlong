@@ -192,6 +192,7 @@ public class RemoteConfigManager implements IRepository {
             LOGGER.info("start to request {} to get config info", url);
             httpGet = new HttpGet(url);
             httpGet.addHeader(HttpHeaders.CONNECTION, "close");
+            httpGet.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
 
             // request with get
             CloseableHttpResponse response = httpClient.execute(httpGet);

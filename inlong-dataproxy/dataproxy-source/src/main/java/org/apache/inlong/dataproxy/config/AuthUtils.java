@@ -17,46 +17,30 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.codec.digest.HmacUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.common.util.BasicAuth;
+import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class AuthUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthUtils.class);
 
-    public static String genAuthToken(final String userName, final String usrPassWord) {
-        long timestamp = System.currentTimeMillis();
-        int nonce =
-                new SecureRandom(StringUtils.getBytesUtf8(String.valueOf(timestamp)))
-                        .nextInt(Integer.MAX_VALUE);
-        String signature = getAuthSignature(userName, usrPassWord, timestamp, nonce);
-        return "manager" + " " + userName + " " + timestamp + " " + nonce + " " + signature;
-    }
-
-    private static String getAuthSignature(final String usrName,
-                                           final String usrPassWord,
-                                           long timestamp, int randomValue) {
-        Base64 base64 = new Base64();
-        StringBuilder sbuf = new StringBuilder(512);
-        byte[] baseStr =
-                base64.encode(HmacUtils.hmacSha1(usrPassWord,
-                        sbuf.append(usrName).append(timestamp).append(randomValue).toString()));
-        sbuf.delete(0, sbuf.length());
-        String signature = "";
-        try {
-            signature = URLEncoder.encode(new String(baseStr, StandardCharsets.UTF_8), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("exception caught", e);
+    /**
+     * Generate http basic auth credential from configured secretId and secretKey
+     */
+    public static String genBasicAuth() {
+        Map<String, String> properties = ConfigManager.getInstance().getCommonProperties();
+        String secretId = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_ID);
+        String secretKey = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_KEY);
+        if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
+            LOG.error("secretId or secretKey missing");
+            return null;
         }
-        return signature;
+        return BasicAuth.genBasicAuthCredential(secretId, secretKey);
     }
 
 }

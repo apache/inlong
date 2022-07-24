@@ -15,17 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.web.auth;
+package org.apache.inlong.manager.web.auth.web;
 
-import java.io.IOException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
@@ -36,8 +27,18 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
- * Filter of authentication.
+ * Filter of web user authentication.
  */
 @Slf4j
 public class AuthenticationFilter implements Filter {
