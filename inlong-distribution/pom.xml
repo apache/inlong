@@ -35,7 +35,7 @@
         <!-- Add all modules to support Maven Parallel builds -->
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-common</artifactId>
+            <artifactId>sort-sdk</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -48,7 +48,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sdk</artifactId>
+            <artifactId>dataproxy-sdk</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-tubemq</artifactId>
+            <artifactId>tubemq-all</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-audit</artifactId>
+            <artifactId>audit-release</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-dataproxy</artifactId>
+            <artifactId>dataproxy-docker</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -100,7 +100,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-agent</artifactId>
+            <artifactId>agent-release</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -113,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort</artifactId>
+            <artifactId>sort-dist</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -126,7 +126,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-sort-standalone</artifactId>
+            <artifactId>sort-standalone-dist</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
@@ -139,7 +139,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.inlong</groupId>
-            <artifactId>inlong-manager</artifactId>
+            <artifactId>manager-docker</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
