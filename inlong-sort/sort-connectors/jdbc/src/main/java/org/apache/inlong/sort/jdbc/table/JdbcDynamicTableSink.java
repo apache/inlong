@@ -1,19 +1,19 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.apache.inlong.sort.jdbc.table;
@@ -21,7 +21,6 @@ package org.apache.inlong.sort.jdbc.table;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.jdbc.JdbcExecutionOptions;
-import org.apache.flink.connector.jdbc.internal.GenericJdbcSinkFunction;
 import org.apache.flink.connector.jdbc.internal.options.JdbcDmlOptions;
 import org.apache.flink.connector.jdbc.internal.options.JdbcOptions;
 import org.apache.flink.table.api.TableSchema;
@@ -30,6 +29,7 @@ import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.SinkFunctionProvider;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.types.RowKind;
+import org.apache.inlong.sort.jdbc.internal.GenericJdbcSinkFunction;
 
 import java.util.Objects;
 
@@ -39,7 +39,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
  * A {@link DynamicTableSink} for JDBC.
- * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey. 
+ * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
  */
 @Internal
 public class JdbcDynamicTableSink implements DynamicTableSink {
@@ -49,6 +49,8 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
     private final JdbcDmlOptions dmlOptions;
     private final TableSchema tableSchema;
     private final String dialectName;
+
+    private final String inLongMetric;
     private final boolean appendMode;
 
     public JdbcDynamicTableSink(
@@ -56,13 +58,15 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
             JdbcExecutionOptions executionOptions,
             JdbcDmlOptions dmlOptions,
             TableSchema tableSchema,
-            boolean appendMode) {
+            boolean appendMode,
+            String inLongMetric) {
         this.jdbcOptions = jdbcOptions;
         this.executionOptions = executionOptions;
         this.dmlOptions = dmlOptions;
         this.tableSchema = tableSchema;
         this.dialectName = dmlOptions.getDialect().dialectName();
         this.appendMode = appendMode;
+        this.inLongMetric = inLongMetric;
     }
 
     @Override
@@ -94,14 +98,14 @@ public class JdbcDynamicTableSink implements DynamicTableSink {
         builder.setJdbcExecutionOptions(executionOptions);
         builder.setRowDataTypeInfo(rowDataTypeInformation);
         builder.setFieldDataTypes(tableSchema.getFieldDataTypes());
-
+        builder.setInLongMetric(inLongMetric);
         return SinkFunctionProvider.of(
                 new GenericJdbcSinkFunction<>(builder.build()), jdbcOptions.getParallelism());
     }
 
     @Override
     public DynamicTableSink copy() {
-        return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions, tableSchema, appendMode);
+        return new JdbcDynamicTableSink(jdbcOptions, executionOptions, dmlOptions, tableSchema, appendMode, inLongMetric);
     }
 
     @Override
