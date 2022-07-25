@@ -153,9 +153,7 @@
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted, jdbcType=INTEGER},
             </if>
-            <if test="version != null">
-                version = #{version, jdbcType=INTEGER} + 1,
-            </if>
+            version = #{version, jdbcType=INTEGER} + 1
         </set>
         where id = #{id, jdbcType=INTEGER}
         and is_deleted = 0

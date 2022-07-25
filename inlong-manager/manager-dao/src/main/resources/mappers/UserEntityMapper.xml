@@ -219,9 +219,7 @@
             <if test="updateBy != null">
                 update_by = #{updateBy,jdbcType=VARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}

@@ -285,9 +285,7 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and is_deleted = 0

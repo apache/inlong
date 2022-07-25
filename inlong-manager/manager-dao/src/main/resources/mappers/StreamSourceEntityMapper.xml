@@ -261,9 +261,6 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
-            </if>
             <if test="status != null">
                 status = #{status,jdbcType=INTEGER},
             </if>
@@ -279,6 +276,7 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
