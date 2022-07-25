@@ -91,9 +91,7 @@ public class DLCIcebergLoadNode extends LoadNode implements InlongMetric, Serial
     @Override
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
-        options.put("connector", "iceberg-inlong");
-        // for test sink.ignore.changelog
-        // options.put("sink.ignore.changelog", "true");
+        options.put("connector", "dlc-inlong");
         options.put("catalog-database", dbName);
         options.put("catalog-table", tableName);
         options.put("default-database", dbName);
