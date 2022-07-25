@@ -26,11 +26,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,9 +43,10 @@ import java.util.Map;
 public class OracleSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLSinkDTO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OracleSinkDTO.class);
 
-    @ApiModelProperty("Oracle JDBC URL, such as jdbc:oracle:thin://host:port/database")
+    @ApiModelProperty("Oracle JDBC URL,Such as jdbc:oracle:thin@host:port:sid "
+            + "or jdbc:oracle:thin@host:port/service_name")
     private String jdbcUrl;
 
     @ApiModelProperty("Username for JDBC URL")
@@ -88,5 +89,21 @@ public class OracleSinkDTO {
             LOGGER.error("fetch oracle sink info failed from json params: " + extParams, e);
             throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Get Oracle table info
+     *
+     * @param oracleSink Oracle sink dto,{@link OracleSinkDTO}
+     * @param columnList Oracle column info list,{@link OracleColumnInfo}
+     * @return {@link OracleTableInfo}
+     */
+    public static OracleTableInfo getTableInfo(OracleSinkDTO oracleSink, List<OracleColumnInfo> columnList) {
+        OracleTableInfo tableInfo = new OracleTableInfo();
+        tableInfo.setTableName(oracleSink.getTableName());
+        tableInfo.setPrimaryKey(oracleSink.getPrimaryKey());
+        tableInfo.setUserName(oracleSink.getUsername());
+        tableInfo.setColumns(columnList);
+        return tableInfo;
     }
 }
