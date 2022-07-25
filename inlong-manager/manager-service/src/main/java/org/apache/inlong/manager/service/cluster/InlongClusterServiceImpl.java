@@ -215,7 +215,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String updateTags = Joiner.on(",").join(tagSet);
                     entity.setClusterTags(updateTags);
                     entity.setModifier(operator);
-                    clusterMapper.updateByIdSelective(entity);
+                    int rowCount = clusterMapper.updateByIdSelective(entity);
+                    if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                        LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}",
+                                entity.getName(), entity.getType(), entity.getVersion());
+                        throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                    }
                 });
             }
         }
@@ -401,7 +406,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 updateEntity.setId(id);
                 updateEntity.setClusterTags(updateTags);
                 updateEntity.setModifier(operator);
-                clusterMapper.updateByIdSelective(updateEntity);
+                int rowCount = clusterMapper.updateByIdSelective(updateEntity);
+                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                    LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}",
+                            updateEntity.getName(), updateEntity.getType(), updateEntity.getVersion());
+                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                }
             });
         }
 
@@ -784,7 +794,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         String updateTags = Joiner.on(",").join(tagSet);
         entity.setClusterTags(updateTags);
         entity.setModifier(operator);
-        clusterMapper.updateByIdSelective(entity);
+        int rowCount = clusterMapper.updateByIdSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", entity.getName(),
+                    entity.getType(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     /**

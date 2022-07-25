@@ -381,7 +381,12 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setModifier(operator);
 
         if (info.getId() != null) {
-            consumptionMapper.updateByPrimaryKey(entity);
+            int rowCount = consumptionMapper.updateByPrimaryKey(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+                        entity.getId(), entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
         } else {
             consumptionMapper.insert(entity);
         }

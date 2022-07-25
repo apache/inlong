@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.service.workflow.consumption.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
@@ -27,10 +30,10 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 /**
  * Added data consumption process cancellation event listener
@@ -38,6 +41,8 @@ import java.util.Date;
 @Slf4j
 @Component
 public class ConsumptionCancelProcessListener implements ProcessEventListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionCancelProcessListener.class);
 
     private final ConsumptionEntityMapper consumptionEntityMapper;
 
@@ -55,12 +60,14 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
         ApplyConsumptionProcessForm processForm = (ApplyConsumptionProcessForm) context.getProcessForm();
 
-        ConsumptionEntity update = new ConsumptionEntity();
-        update.setId(processForm.getConsumptionInfo().getId());
+        ConsumptionEntity update = consumptionEntityMapper.selectByPrimaryKey(processForm.getConsumptionInfo().getId());
         update.setStatus(ConsumptionStatus.CANCELED.getStatus());
-        update.setModifyTime(new Date());
-
-        consumptionEntityMapper.updateByPrimaryKeySelective(update);
+        int rowCount = consumptionEntityMapper.updateByPrimaryKeySelective(update);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+                    update.getId(), update.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         return ListenerResult.success("Application process is cancelled");
     }
 

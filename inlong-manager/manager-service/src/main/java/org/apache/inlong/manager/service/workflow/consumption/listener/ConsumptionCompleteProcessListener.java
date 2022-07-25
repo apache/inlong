@@ -22,7 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
@@ -43,11 +45,12 @@ import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
 import org.apache.pulsar.client.admin.PulsarAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +59,8 @@ import java.util.List;
 @Slf4j
 @Component
 public class ConsumptionCompleteProcessListener implements ProcessEventListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionCompleteProcessListener.class);
 
     @Autowired
     private InlongGroupEntityMapper groupMapper;
@@ -102,12 +107,15 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      * Update consumption after approve
      */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
-        ConsumptionEntity update = new ConsumptionEntity();
-        update.setId(consumptionId);
+        ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
         update.setStatus(ConsumptionStatus.APPROVED.getStatus());
         update.setConsumerGroup(consumerGroup);
-        update.setModifyTime(new Date());
-        consumptionMapper.updateByPrimaryKeySelective(update);
+        int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+                    update.getId(), update.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     /**

@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.group;
 
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeRequest;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class GroupServiceTest extends ServiceBaseTest {
     @Test
     void testUpdateAfterApproveFailByValid() {
         ConstraintViolationException exception = Assertions.assertThrows(ConstraintViolationException.class,
-                () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), ""));
+                () -> groupService.updateAfterApprove(new InlongGroupApproveRequest(), "", new InlongGroupEntity()));
 
         Assertions.assertTrue(exception.getMessage().contains("mqType cannot be blank"));
         Assertions.assertTrue(exception.getMessage().contains("inlongGroupId cannot be blank"));

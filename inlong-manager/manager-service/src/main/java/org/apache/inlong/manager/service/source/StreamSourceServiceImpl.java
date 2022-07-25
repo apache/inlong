@@ -53,7 +53,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,7 +254,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         entity.setPreviousStatus(curStatus.getCode());
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);
-        entity.setModifyTime(new Date());
         int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
@@ -319,7 +317,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         } else {
             nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
         }
-        Date now = new Date();
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
@@ -328,8 +325,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                 entity.setStatus(nextStatus);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
-                entity.setModifyTime(now);
-                sourceMapper.updateByPrimaryKeySelective(entity);
+                int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                    LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSourceName(),
+                            entity.getVersion());
+                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                }
             }
         }
 

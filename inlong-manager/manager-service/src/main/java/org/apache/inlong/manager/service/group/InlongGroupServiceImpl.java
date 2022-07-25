@@ -358,7 +358,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
-    public void updateAfterApprove(InlongGroupApproveRequest approveRequest, String operator) {
+    public void updateAfterApprove(InlongGroupApproveRequest approveRequest, String operator,
+            InlongGroupEntity entity) {
         LOGGER.debug("begin to update inlong group after approve={}", approveRequest);
         String groupId = approveRequest.getInlongGroupId();
 
@@ -367,11 +368,15 @@ public class InlongGroupServiceImpl implements InlongGroupService {
 
         // update other info for inlong group after approve
         if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
-            InlongGroupEntity entity = new InlongGroupEntity();
             entity.setInlongGroupId(approveRequest.getInlongGroupId());
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setModifier(operator);
-            groupMapper.updateByIdentifierSelective(entity);
+            int rowCount = groupMapper.updateByIdentifierSelective(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                        entity.getInlongGroupId(), entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
         }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);

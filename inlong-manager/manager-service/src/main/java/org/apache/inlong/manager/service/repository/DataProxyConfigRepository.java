@@ -31,6 +31,7 @@ import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
 import org.apache.inlong.common.pojo.dataproxy.ProxyClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
@@ -521,7 +522,12 @@ public class DataProxyConfigRepository implements IRepository {
             newStreamSinks.forEach((v) -> {
                 streamSinkMapper.insert(v);
             });
-            inlongGroupMapper.updateByIdentifierSelective(newGroup);
+            int rowCount = inlongGroupMapper.updateByIdentifierSelective(newGroup);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                        newGroup.getInlongGroupId(), newGroup.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
             return inlongGroupId;
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -625,8 +631,12 @@ public class DataProxyConfigRepository implements IRepository {
         String newExtParams = extParamsObj.toString();
         oldGroup.setExtParams(newExtParams);
         // update group
-        inlongGroupMapper.updateByIdentifierSelective(oldGroup);
-
+        int rowCount = inlongGroupMapper.updateByIdentifierSelective(oldGroup);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                    oldGroup.getInlongGroupId(), oldGroup.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // load cluster
         Map<String, InlongClusterEntity> clusterMap = new HashMap<>();
         ClusterPageRequest clusterRequest = new ClusterPageRequest();
