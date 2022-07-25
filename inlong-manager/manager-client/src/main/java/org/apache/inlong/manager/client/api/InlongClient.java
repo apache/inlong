@@ -60,6 +60,14 @@ public interface InlongClient {
     }
 
     /**
+     * Cluster Api for Inlong
+     *
+     * @return cluster Api
+     * @throws Exception
+     */
+    InlongCluster cluster() throws Exception;
+
+    /**
      * Create inlong group by the given group info
      *
      * @param groupInfo the group info

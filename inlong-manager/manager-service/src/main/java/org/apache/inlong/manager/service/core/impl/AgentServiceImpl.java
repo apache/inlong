@@ -22,7 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -33,14 +32,12 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
-import org.apache.inlong.manager.service.core.StreamConfigLogService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +73,6 @@ public class AgentServiceImpl implements AgentService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private StreamConfigLogService streamConfigLogService;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -129,7 +124,7 @@ public class AgentServiceImpl implements AgentService {
         int nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
 
         if (Constants.RESULT_FAIL == result) {
-            logFailedStreamSource(current);
+            LOGGER.warn("task failed for id =[{}]", taskId);
             nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
@@ -155,43 +150,23 @@ public class AgentServiceImpl implements AgentService {
         if (request == null || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
-
         final String agentIp = request.getAgentIp();
         final String uuid = request.getUuid();
+
+        List<StreamSourceEntity> tasks = Lists.newArrayList();
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<Integer> needAddStatusList;
-        if (PullJobTypeEnum.NEVER != PullJobTypeEnum.getPullJobType(request.getPullJobType())) {
-            needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
-                    SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
-        } else {
-            LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
-            needAddStatusList = Collections.singletonList(SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
-        }
-        List<String> sourceTypes = Lists.newArrayList(SourceType.BINLOG.getType(), SourceType.KAFKA.getType(),
-                SourceType.SQL.getType());
-        List<StreamSourceEntity> entityList = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
-                TASK_FETCH_SIZE);
+        List<StreamSourceEntity> nonFileTasks = fetchNonFileTasks(request);
+        tasks.addAll(nonFileTasks);
+
+        List<StreamSourceEntity> fileTasks = fetchFileTasks(request);
+        tasks.addAll(fileTasks);
 
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-        List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
-                SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
-                SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
-                SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
-        List<StreamSourceEntity> needIssuedList = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
-        entityList.addAll(needIssuedList);
-
-        // todo select by ip
-        List<StreamSourceEntity> fileEntityList = sourceMapper.selectByStatusAndType(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
-        for (StreamSourceEntity fileEntity : fileEntityList) {
-            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
-            if (agentIp.equals(fileSourceDTO.getIp())) {
-                entityList.add(fileEntity);
-            }
-        }
+        List<StreamSourceEntity> needIssuedTasks = fetchIssuedTasks(request);
+        tasks.addAll(needIssuedTasks);
 
         List<DataConfig> dataConfigs = Lists.newArrayList();
-        for (StreamSourceEntity entity : entityList) {
+        for (StreamSourceEntity entity : tasks) {
             // Change 20x to 30x
             int id = entity.getId();
             entity = sourceMapper.selectForAgentTask(id);
@@ -213,7 +188,7 @@ public class AgentServiceImpl implements AgentService {
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
 
         // Update agentIp and uuid for the added and active tasks
-        for (StreamSourceEntity entity : entityList) {
+        for (StreamSourceEntity entity : tasks) {
             if (StringUtils.isEmpty(entity.getAgentIp())) {
                 sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, false);
                 LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}]", agentIp, uuid, entity.getId());
@@ -223,22 +198,58 @@ public class AgentServiceImpl implements AgentService {
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
     }
 
-    /**
-     * If status of source is failed, record.
-     *
-     * @param entity
-     */
-    private void logFailedStreamSource(StreamSourceEntity entity) {
-        InlongStreamConfigLogRequest request = new InlongStreamConfigLogRequest();
-        request.setInlongGroupId(entity.getInlongGroupId());
-        request.setInlongStreamId(entity.getInlongStreamId());
-        request.setComponentName(ComponentTypeEnum.Agent.getName());
-        request.setIp(entity.getAgentIp());
-        request.setConfigName("DataSource:" + entity.getSourceName());
-        request.setLogType(1);
-        request.setLogInfo(String.format("StreamSource=%s init failed, please check!", entity));
-        request.setReportTime(System.currentTimeMillis());
-        streamConfigLogService.reportConfigLog(request);
+    private List<StreamSourceEntity> fetchNonFileTasks(TaskRequest taskRequest) {
+        List<Integer> needAddStatusList;
+        if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
+            LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
+            needAddStatusList = Collections.singletonList(SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
+        } else {
+            needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
+                    SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
+        }
+        List<String> sourceTypes = Lists.newArrayList(SourceType.BINLOG.getType(), SourceType.KAFKA.getType(),
+                SourceType.SQL.getType());
+        return sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes, TASK_FETCH_SIZE);
+    }
+
+    private List<StreamSourceEntity> fetchFileTasks(TaskRequest taskRequest) {
+        List<Integer> needAddStatusList;
+        if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
+            LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
+            needAddStatusList = Collections.singletonList(SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
+        } else {
+            needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
+                    SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
+        }
+        final String agentIp = taskRequest.getAgentIp();
+        final String agentClusterName = taskRequest.getClusterName();
+        List<StreamSourceEntity> fileEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
+                Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
+        List<StreamSourceEntity> attachedFileEntities = Lists.newArrayList();
+        for (StreamSourceEntity fileEntity : fileEntities) {
+            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
+            final String ip = fileSourceDTO.getIp();
+            final String clusterName = fileSourceDTO.getClusterName();
+            if (StringUtils.isNotBlank(agentIp) && agentIp.equals(ip)) {
+                attachedFileEntities.add(fileEntity);
+                continue;
+            }
+            //todo problems
+            if (StringUtils.isNotBlank(agentClusterName) && agentClusterName.equals(clusterName)) {
+                attachedFileEntities.add(fileEntity);
+            }
+        }
+        return attachedFileEntities;
+    }
+
+    private List<StreamSourceEntity> fetchIssuedTasks(TaskRequest taskRequest) {
+        final String agentIp = taskRequest.getAgentIp();
+        final String uuid = taskRequest.getUuid();
+        List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
+                SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
+                SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
+                SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
+        return sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
     }
 
     /**

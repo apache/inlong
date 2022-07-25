@@ -38,6 +38,9 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SourceType.SOURCE_FILE)
 public class FileSourceListResponse extends SourceListResponse {
 
+    @ApiModelProperty("Agent Cluster name")
+    private String clusterName;
+
     @ApiModelProperty("Agent IP address")
     private String ip;
 

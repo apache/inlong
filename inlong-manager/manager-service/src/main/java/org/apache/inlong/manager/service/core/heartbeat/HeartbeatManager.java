@@ -150,7 +150,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         log.debug("fetch cluster");
         final String clusterName = componentHeartbeat.getClusterName();
         final String type = componentHeartbeat.getComponentType();
-        List<InlongClusterEntity> entities = clusterMapper.selectByKey(null, clusterName, type);
+        final String clusterTag = componentHeartbeat.getClusterTag();
+        List<InlongClusterEntity> entities = clusterMapper.selectByKey(clusterTag, clusterName, type);
         if (CollectionUtils.isNotEmpty(entities)) {
             InlongClusterEntity cluster = entities.get(0);
             ClusterInfo clusterInfo = CommonBeanUtils.copyProperties(cluster, ClusterInfo::new);
@@ -159,6 +160,7 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         InlongClusterEntity cluster = new InlongClusterEntity();
         cluster.setName(clusterName);
         cluster.setType(type);
+        cluster.setClusterTags(clusterTag);
         cluster.setInCharges(UserRoleCode.ADMIN);
         cluster.setStatus(ClusterStatus.NORMAL.getStatus());
         cluster.setCreator(UserRoleCode.ADMIN);

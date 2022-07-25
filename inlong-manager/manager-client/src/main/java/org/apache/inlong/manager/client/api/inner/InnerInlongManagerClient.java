@@ -40,6 +40,9 @@ import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.common.auth.Authentication;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
@@ -140,6 +143,31 @@ public class InnerInlongManagerClient {
         Response<Integer> clusterIndexResponse = executeHttpCall(inlongClusterApi.save(request));
         assertRespSuccess(clusterIndexResponse);
         return clusterIndexResponse.getData();
+    }
+
+    /**
+     * Get component cluster by cluster id
+     *
+     * @param clusterIndex cluster index
+     * @return clusterInfo
+     */
+    public ClusterInfo getCluster(int clusterIndex) {
+        Response<ClusterInfo> clusterInfoResponse = executeHttpCall(inlongClusterApi.get(clusterIndex));
+        assertRespSuccess(clusterInfoResponse);
+        return clusterInfoResponse.getData();
+    }
+
+    /**
+     * List cluster nodes for Inlong
+     *
+     * @param request cluster list request
+     * @return cluster nodes
+     */
+    public List<ClusterNodeResponse> listClusterNodes(ClusterPageRequest request) {
+        Response<PageInfo<ClusterNodeResponse>> clusterNodeResponse = executeHttpCall(
+                inlongClusterApi.listNode(request));
+        assertRespSuccess(clusterNodeResponse);
+        return clusterNodeResponse.getData().getList();
     }
 
     /**

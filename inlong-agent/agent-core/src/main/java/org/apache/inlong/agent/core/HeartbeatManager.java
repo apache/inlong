@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HTTP_PORT;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_IP;
 import static org.apache.inlong.agent.constant.AgentConstants.DEFAULT_AGENT_HTTP_PORT;
@@ -183,10 +185,18 @@ public class HeartbeatManager extends AbstractDaemon implements AbstractHeartbea
         HeartbeatMsg heartbeatMsg = new HeartbeatMsg();
         final String agentIp = conf.get(AGENT_LOCAL_IP, DEFAULT_LOCAL_IP);
         final int agentPort = conf.getInt(AGENT_HTTP_PORT, DEFAULT_AGENT_HTTP_PORT);
+        final String clusterName = conf.get(AGENT_CLUSTER_NAME);
+        final String clusterTag = conf.get(AGENT_CLUSTER_TAG);
         heartbeatMsg.setIp(agentIp);
         heartbeatMsg.setPort(agentPort);
         heartbeatMsg.setComponentType(ComponentTypeEnum.Agent.getName());
         heartbeatMsg.setReportTime(System.currentTimeMillis());
+        if (StringUtils.isNotBlank(clusterName)) {
+            heartbeatMsg.setClusterName(clusterName);
+        }
+        if (StringUtils.isNotBlank(clusterTag)) {
+            heartbeatMsg.setClusterTag(clusterTag);
+        }
         Map<String, JobWrapper> jobWrapperMap = jobmanager.getJobs();
         List<GroupHeartbeat> groupHeartbeats = Lists.newArrayList();
         List<StreamHeartbeat> streamHeartbeats = Lists.newArrayList();

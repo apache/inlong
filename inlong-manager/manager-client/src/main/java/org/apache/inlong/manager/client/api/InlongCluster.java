@@ -15,28 +15,43 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.client.api.service;
+package org.apache.inlong.manager.client.api;
 
-import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
 
-public interface InlongClusterApi {
+import java.util.List;
 
-    @POST("cluster/save")
-    Call<Response<Integer>> save(@Body ClusterRequest request);
+public interface InlongCluster {
 
-    @POST("cluster/node/list")
-    Call<Response<PageInfo<ClusterNodeResponse>>> listNode(@Body ClusterPageRequest request);
+    /**
+     * List nodes by clusterName and clusterType
+     *
+     * @param clusterName cluster name
+     * @param clusterType cluster type
+     *  {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @return node list
+     */
+    List<ClusterNodeResponse> listNodes(String clusterName, String clusterType);
 
-    @GET("cluster/get/{id}")
-    Call<Response<ClusterInfo>> get(@Path("id") Integer id);
+    /**
+     * List nodes by clusterName, clusterType and tags
+     *
+     * @param clusterName cluster name
+     * @param clusterType cluster type
+     *  {@link org.apache.inlong.manager.common.enums.ClusterType}
+     * @param clusterTags cluster tags
+     * @return node list
+     */
+    List<ClusterNodeResponse> listNodes(String clusterName, String clusterType, List<String> clusterTags);
+
+    /**
+     * Save DATA_PROXY|PULSAR|TUBE cluster
+     *
+     * @param clusterRequest
+     * @return clusterInfo
+     */
+    ClusterInfo saveCluster(ClusterRequest clusterRequest);
+
 }

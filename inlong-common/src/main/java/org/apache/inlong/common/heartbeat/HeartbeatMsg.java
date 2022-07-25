@@ -74,6 +74,6 @@ public class HeartbeatMsg {
     private List<StreamHeartbeat> streamHeartbeats;
 
     public ComponentHeartbeat componentHeartbeat() {
-        return new ComponentHeartbeat(clusterName, ip, port, componentType);
+        return new ComponentHeartbeat(clusterName, ip, port, componentType, clusterTag);
     }
 }
