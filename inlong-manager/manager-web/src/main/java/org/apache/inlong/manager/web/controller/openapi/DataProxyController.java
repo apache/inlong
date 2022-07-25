@@ -18,19 +18,20 @@
 package org.apache.inlong.manager.web.controller.openapi;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.repository.DataProxyConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/openapi")
 @Api(tags = "Open-DataProxy-API")
+@Slf4j
 public class DataProxyController {
 
     @Autowired
@@ -50,36 +52,26 @@ public class DataProxyController {
     @Autowired
     private DataProxyConfigRepository dataProxyConfigRepository;
 
-    @GetMapping(value = "/dataproxy/getIpList/{inlongGroupId}")
+    @PostMapping(value = "/dataproxy/getIpList/{inlongGroupId}")
     @ApiOperation(value = "Get data proxy IP list by InlongGroupId")
     public Response<DataProxyNodeResponse> getIpList(@PathVariable String inlongGroupId) {
         return Response.success(clusterService.getDataProxyNodes(inlongGroupId));
     }
 
-    @GetMapping("/dataproxy/getConfig")
+    @PostMapping("/dataproxy/getConfig")
     @ApiOperation(value = "Get data proxy topic list")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterTag", value = "cluster tag", dataTypeClass = String.class),
-            @ApiImplicitParam(name = "clusterName", value = "cluster name", dataTypeClass = String.class)
-    })
-    public Response<DataProxyConfig> getConfig(
-            @RequestParam(required = false) String clusterTag,
-            @RequestParam(required = true) String clusterName) {
-        DataProxyConfig config = clusterService.getDataProxyConfig(clusterTag, clusterName);
+    public Response<DataProxyConfig> getConfig(@RequestBody DataProxyConfigRequest request) {
+        DataProxyConfig config = clusterService.getDataProxyConfig(request.getClusterTag(), request.getClusterName());
         if (CollectionUtils.isEmpty(config.getMqClusterList()) || CollectionUtils.isEmpty(config.getTopicList())) {
             return Response.fail("Failed to get MQ Cluster or Topic, make sure Cluster registered or Topic existed.");
         }
         return Response.success(config);
     }
 
-    @GetMapping("/dataproxy/getAllConfig")
+    @PostMapping("/dataproxy/getAllConfig")
     @ApiOperation(value = "Get all proxy config")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "clusterName", dataTypeClass = String.class, required = true),
-            @ApiImplicitParam(name = "md5", dataTypeClass = String.class, required = true)
-    })
-    public String getAllConfig(@RequestParam String clusterName, @RequestParam(required = false) String md5) {
-        return clusterService.getAllConfig(clusterName, md5);
+    public String getAllConfig(@RequestBody DataProxyConfigRequest request) {
+        return clusterService.getAllConfig(request.getClusterName(), request.getMd5());
     }
 
     @RequestMapping(value = "/changeClusterTag", method = RequestMethod.PUT)
