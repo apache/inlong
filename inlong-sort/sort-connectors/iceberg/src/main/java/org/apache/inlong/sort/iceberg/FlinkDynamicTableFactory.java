@@ -47,6 +47,8 @@ import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
+import static org.apache.inlong.sort.iceberg.FlinkConfigOptions.ICEBERG_IGNORE_ALL_CHANGELOG;
+
 /**
  * Copy from org.apache.iceberg.flink:iceberg-flink-runtime-1.13:0.13.1
  *
@@ -205,6 +207,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         Set<ConfigOption<?>> options = Sets.newHashSet();
         options.add(CATALOG_DATABASE);
         options.add(CATALOG_TABLE);
+        options.add(ICEBERG_IGNORE_ALL_CHANGELOG);
         return options;
     }
 
