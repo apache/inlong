@@ -77,7 +77,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -130,11 +129,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterTagEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterTagEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterTagMapper.insert(entity);
         LOGGER.info("success to save cluster tag={} by user={}", request, operator);
         return entity.getId();
@@ -212,7 +206,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
             this.assertNoInlongGroupExists(oldClusterTag);
 
             // update the associated cluster tag in inlong_cluster
-            Date now = new Date();
             List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(oldClusterTag, null, null);
             if (CollectionUtils.isNotEmpty(clusterEntities)) {
                 clusterEntities.forEach(entity -> {
@@ -222,7 +215,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                     String updateTags = Joiner.on(",").join(tagSet);
                     entity.setClusterTags(updateTags);
                     entity.setModifier(operator);
-                    entity.setModifyTime(now);
                     clusterMapper.updateByIdSelective(entity);
                 });
             }
@@ -230,7 +222,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         CommonBeanUtils.copyProperties(request, exist, true);
         exist.setModifier(operator);
-        exist.setModifyTime(new Date());
         int rowCount = clusterTagMapper.updateById(exist);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
@@ -258,11 +249,10 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         this.assertNoInlongGroupExists(clusterTag);
 
         // update the associated cluster tag in inlong_cluster
-        Date now = new Date();
         List<InlongClusterEntity> clusterEntities = clusterMapper.selectByKey(clusterTag, null, null);
         if (CollectionUtils.isNotEmpty(clusterEntities)) {
             clusterEntities.forEach(entity -> {
-                this.removeClusterTag(entity, clusterTag, operator, now);
+                this.removeClusterTag(entity, clusterTag, operator);
             });
         }
 
@@ -401,7 +391,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         boolean isInCharge = Preconditions.inSeparatedString(operator, exist.getInCharges(), InlongConstants.COMMA);
         Preconditions.checkTrue(isInCharge || userEntity.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user does not have permission to bind or unbind cluster tag");
-        Date now = new Date();
         if (CollectionUtils.isNotEmpty(request.getBindClusters())) {
             request.getBindClusters().forEach(id -> {
                 InlongClusterEntity entity = clusterMapper.selectById(id);
@@ -412,7 +401,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 updateEntity.setId(id);
                 updateEntity.setClusterTags(updateTags);
                 updateEntity.setModifier(operator);
-                entity.setModifyTime(now);
                 clusterMapper.updateByIdSelective(updateEntity);
             });
         }
@@ -420,7 +408,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         if (CollectionUtils.isNotEmpty(request.getUnbindClusters())) {
             request.getUnbindClusters().forEach(id -> {
                 InlongClusterEntity entity = clusterMapper.selectById(id);
-                this.removeClusterTag(entity, clusterTag, operator, now);
+                this.removeClusterTag(entity, clusterTag, operator);
             });
         }
         LOGGER.info("success to bind or unbind cluster tag {} by {}", request, operator);
@@ -476,11 +464,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         InlongClusterNodeEntity entity = CommonBeanUtils.copyProperties(request, InlongClusterNodeEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterNodeMapper.insert(entity);
 
         LOGGER.info("success to add inlong cluster node={}", request);
@@ -795,13 +778,12 @@ public class InlongClusterServiceImpl implements InlongClusterService {
     /**
      * Remove cluster tag from the given cluster entity.
      */
-    private void removeClusterTag(InlongClusterEntity entity, String clusterTag, String operator, Date modifyTime) {
+    private void removeClusterTag(InlongClusterEntity entity, String clusterTag, String operator) {
         Set<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(InlongConstants.COMMA));
         tagSet.remove(clusterTag);
         String updateTags = Joiner.on(",").join(tagSet);
         entity.setClusterTags(updateTags);
         entity.setModifier(operator);
-        entity.setModifyTime(modifyTime);
         clusterMapper.updateByIdSelective(entity);
     }
 

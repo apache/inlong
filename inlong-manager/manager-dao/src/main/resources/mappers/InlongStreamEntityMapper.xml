@@ -65,17 +65,14 @@
                                    data_escape_char, sync_send, daily_records,
                                    daily_storage, peak_records, max_length,
                                    storage_period, ext_params, status,
-                                   previous_status, is_deleted, creator,
-                                   modifier, create_time, modify_time, version)
+                                   previous_status, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
                 #{dataType,jdbcType=VARCHAR}, #{dataEncoding,jdbcType=VARCHAR}, #{dataSeparator,jdbcType=VARCHAR},
                 #{dataEscapeChar,jdbcType=VARCHAR}, #{syncSend,jdbcType=INTEGER}, #{dailyRecords,jdbcType=INTEGER},
                 #{dailyStorage,jdbcType=INTEGER}, #{peakRecords,jdbcType=INTEGER}, #{maxLength,jdbcType=INTEGER},
                 #{storagePeriod,jdbcType=INTEGER}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
-                #{modifier,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
-                #{version,jdbcType=INTEGER})
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.InlongStreamEntity">
@@ -138,23 +135,11 @@
             <if test="previousStatus != null">
                 previous_status,
             </if>
-            <if test="isDeleted != null">
-                is_deleted,
-            </if>
             <if test="creator != null">
                 creator,
             </if>
             <if test="modifier != null">
                 modifier,
-            </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="modifyTime != null">
-                modify_time,
-            </if>
-            <if test="version != null">
-                version,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -215,23 +200,11 @@
             <if test="previousStatus != null">
                 #{previousStatus,jdbcType=INTEGER},
             </if>
-            <if test="isDeleted != null">
-                #{isDeleted,jdbcType=INTEGER},
-            </if>
             <if test="creator != null">
                 #{creator,jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
                 #{modifier,jdbcType=VARCHAR},
-            </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="version != null">
-                #{version,jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -337,8 +310,6 @@
             is_deleted       = #{isDeleted, jdbcType=INTEGER},
             creator          = #{creator, jdbcType=VARCHAR},
             modifier         = #{modifier, jdbcType=VARCHAR},
-            create_time      = #{createTime, jdbcType=TIMESTAMP},
-            modify_time      = #{modifyTime, jdbcType=TIMESTAMP},
             version          = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
         and version = #{version, jdbcType=INTEGER}
@@ -409,15 +380,7 @@
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="version != null">
-                version = #{version, jdbcType=INTEGER} + 1,
-            </if>
+            version = #{version, jdbcType=INTEGER} + 1
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and inlong_stream_id = #{inlongStreamId, jdbcType=VARCHAR}

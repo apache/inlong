@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,13 +76,8 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
     public Integer saveOpt(SinkRequest request, String operator) {
         StreamSinkEntity entity = CommonBeanUtils.copyProperties(request, StreamSinkEntity::new);
         entity.setStatus(SinkStatus.NEW.getCode());
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         // get the ext params
         setTargetEntity(request, entity);
@@ -124,7 +118,6 @@ public abstract class AbstractSinkOperator implements StreamSinkOperator {
         entity.setPreviousStatus(entity.getStatus());
         entity.setStatus(SinkStatus.CONFIG_ING.getCode());
         entity.setModifier(operator);
-        entity.setModifyTime(new Date());
         int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);

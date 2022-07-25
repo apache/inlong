@@ -34,8 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
 /**
  * Default operator of inlong group.
  */
@@ -60,13 +58,8 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
 
         // after saving, the status is set to [GROUP_WAIT_SUBMIT]
         entity.setStatus(GroupStatus.TO_BE_SUBMIT.getCode());
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         groupMapper.insert(entity);
         return groupId;
@@ -89,7 +82,6 @@ public abstract class AbstractGroupOperator implements InlongGroupOperator {
         setTargetEntity(request, entity);
 
         entity.setModifier(operator);
-        entity.setModifyTime(new Date());
         int rowCount = groupMapper.updateByIdentifierSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("inlong group has already updated with group id={}, curVersion={}",

@@ -72,9 +72,8 @@
                                   lightweight, inlong_cluster_tag,
                                   ext_params, in_charges,
                                   followers, status,
-                                  previous_status, is_deleted,
-                                  creator, modifier,
-                                  create_time, modify_time, version)
+                                  previous_status, creator,
+                                  modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
                 #{mqType,jdbcType=VARCHAR}, #{mqResource,jdbcType=VARCHAR},
@@ -84,9 +83,8 @@
                 #{lightweight,jdbcType=INTEGER}, #{inlongClusterTag,jdbcType=VARCHAR},
                 #{extParams,jdbcType=LONGVARCHAR}, #{inCharges,jdbcType=VARCHAR},
                 #{followers,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
-                #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, #{version,jdbcType=INTEGER})
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR},
+                #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -220,8 +218,6 @@
             is_deleted             = #{isDeleted,jdbcType=INTEGER},
             creator                = #{creator,jdbcType=VARCHAR},
             modifier               = #{modifier,jdbcType=VARCHAR},
-            create_time            = #{createTime,jdbcType=TIMESTAMP},
-            modify_time            = #{modifyTime,jdbcType=TIMESTAMP},
             version                = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
@@ -289,9 +285,7 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where inlong_group_id = #{inlongGroupId, jdbcType=VARCHAR}
         and is_deleted = 0

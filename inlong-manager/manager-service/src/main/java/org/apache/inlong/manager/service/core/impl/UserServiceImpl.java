@@ -122,7 +122,9 @@ public class UserServiceImpl implements UserService {
         entity.setAccountType(userInfo.getType());
         entity.setPassword(MD5Utils.encrypt(password));
         entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
-        entity.setCreateBy(LoginUserUtils.getLoginUserDetail().getUsername());
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        entity.setCreateBy(currentUser);
+        entity.setUpdateBy(currentUser);
         entity.setName(username);
         try {
             Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
@@ -140,8 +142,6 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(errMsg);
         }
 
-        entity.setCreateTime(new Date());
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
         Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
 
         LOGGER.debug("success to create user info={}", userInfo);
@@ -170,8 +170,8 @@ public class UserServiceImpl implements UserService {
         UserEntity updateUserEntity = userMapper.selectByPrimaryKey(updateUser.getId());
         Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + updateUser.getId());
         UserEntity targetUserEntity = getByUsername(updateUser.getUsername());
-        Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
-                        && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
+        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
+                        || Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
                 "Username [" + updateUser.getUsername() + "] already exists");
         String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
                 updateUser.getUsername(), updateUser.getVersion());

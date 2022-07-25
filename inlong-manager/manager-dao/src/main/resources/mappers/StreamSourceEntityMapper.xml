@@ -55,17 +55,14 @@
                                    source_type, source_name, agent_ip,
                                    uuid, data_node_name, cluster_id,
                                    serialization_type, snapshot,
-                                   report_time, ext_params, version,
-                                   status, previous_status, is_deleted,
-                                   creator, modifier, create_time, modify_time)
+                                   report_time, ext_params, status,
+                                   previous_status, creator, modifier)
         values (#{id,jdbcType=INTEGER}, #{inlongGroupId,jdbcType=VARCHAR}, #{inlongStreamId,jdbcType=VARCHAR},
                 #{sourceType,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{agentIp,jdbcType=VARCHAR},
                 #{uuid,jdbcType=VARCHAR}, #{dataNodeName,jdbcType=VARCHAR}, #{clusterId,jdbcType=INTEGER},
                 #{serializationType,jdbcType=VARCHAR}, #{snapshot,jdbcType=LONGVARCHAR},
-                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{version,jdbcType=INTEGER},
-                #{status,jdbcType=INTEGER}, #{previousStatus,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER},
-                #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR},
-                #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP})
+                #{modifyTime,jdbcType=TIMESTAMP}, #{extParams,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+                #{previousStatus,jdbcType=INTEGER}, #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR})
     </insert>
 
     <select id="selectById" resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
@@ -264,9 +261,6 @@
             <if test="extParams != null">
                 ext_params = #{extParams,jdbcType=LONGVARCHAR},
             </if>
-            <if test="version != null">
-                version = #{version,jdbcType=INTEGER} + 1,
-            </if>
             <if test="status != null">
                 status = #{status,jdbcType=INTEGER},
             </if>
@@ -282,12 +276,7 @@
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
-            </if>
+            version = #{version,jdbcType=INTEGER} + 1
         </set>
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
@@ -311,9 +300,7 @@
             previous_status    = #{previousStatus,jdbcType=INTEGER},
             is_deleted         = #{isDeleted,jdbcType=INTEGER},
             creator            = #{creator,jdbcType=VARCHAR},
-            modifier           = #{modifier,jdbcType=VARCHAR},
-            create_time        = #{createTime,jdbcType=TIMESTAMP},
-            modify_time        = #{modifyTime,jdbcType=TIMESTAMP}
+            modifier           = #{modifier,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
         and version = #{version,jdbcType=INTEGER}
     </update>
