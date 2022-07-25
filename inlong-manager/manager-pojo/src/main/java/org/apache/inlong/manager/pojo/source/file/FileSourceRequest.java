@@ -37,6 +37,9 @@ import org.apache.inlong.manager.pojo.source.SourceRequest;
 @ApiModel(value = "File source request")
 public class FileSourceRequest extends SourceRequest {
 
+    @ApiModelProperty("Agent Cluster tag")
+    private String clusterTag;
+
     @ApiModelProperty(value = "Agent IP address", required = true)
     private String ip;
 

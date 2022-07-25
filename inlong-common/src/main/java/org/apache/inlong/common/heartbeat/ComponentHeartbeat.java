@@ -34,4 +34,6 @@ public class ComponentHeartbeat {
     private int port;
 
     private String componentType;
+
+    private String clusterTag;
 }

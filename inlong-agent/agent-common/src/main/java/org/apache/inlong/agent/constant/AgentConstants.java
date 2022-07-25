@@ -169,6 +169,9 @@ public class AgentConstants {
     public static final String AGENT_LOCAL_IP = "agent.local.ip";
     public static final String DEFAULT_LOCAL_IP = "127.0.0.1";
 
+    public static final String AGENT_CLUSTER_NAME = "agent.cluster.name";
+    public static final String AGENT_CLUSTER_TAG = "agent.cluster.tag";
+
     public static final String AGENT_LOCAL_UUID = "agent.local.uuid";
 
     public static final String AGENT_LOCAL_UUID_OPEN = "agent.local.uuid.open";
