@@ -53,6 +53,7 @@ public class SinkField {
     private String fieldComment;
 
     @ApiModelProperty("Is this field a meta field, 0: no, 1: yes")
+    @Builder.Default
     private Integer isMetaField = 0;
 
     @ApiModelProperty(value = "Meta field name")

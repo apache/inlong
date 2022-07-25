@@ -43,6 +43,7 @@ public class IcebergSinkDTO {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
     private String catalogType = "HIVE";
 
     @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")

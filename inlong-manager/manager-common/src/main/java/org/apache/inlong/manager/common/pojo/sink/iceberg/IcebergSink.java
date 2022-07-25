@@ -44,6 +44,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class IcebergSink extends StreamSink {
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
     private String catalogType = "HIVE";
 
     @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
@@ -65,7 +66,6 @@ public class IcebergSink extends StreamSink {
     private String fileFormat;
 
     @ApiModelProperty("Partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
-    @Builder.Default
     private String partitionType;
 
     @ApiModelProperty("Primary key")

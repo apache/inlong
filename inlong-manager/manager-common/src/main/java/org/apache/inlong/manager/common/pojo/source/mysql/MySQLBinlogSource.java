@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.source.mysql;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -55,6 +56,7 @@ public class MySQLBinlogSource extends StreamSource {
     private Integer port;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
+    @Builder.Default
     private Integer serverId = 0;
 
     @ApiModelProperty("Whether include schema, default is 'false'")
@@ -85,6 +87,7 @@ public class MySQLBinlogSource extends StreamSource {
     private String monitoredDdl;
 
     @ApiModelProperty("Timestamp standard for binlog: SQL, ISO_8601")
+    @Builder.Default
     private String timestampFormatStandard = "SQL";
 
     @ApiModelProperty("Need transfer total database")
