@@ -69,15 +69,11 @@
         insert into consumption (id, consumer_group, in_charges,
                                  inlong_group_id, mq_type, topic,
                                  filter_enabled, inlong_stream_id,
-                                 status, is_deleted,
-                                 creator, modifier,
-                                 create_time, modify_time, version)
+                                 status, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{consumerGroup, jdbcType=VARCHAR}, #{inCharges, jdbcType=VARCHAR},
                 #{inlongGroupId, jdbcType=VARCHAR}, #{mqType, jdbcType=VARCHAR}, #{topic, jdbcType=VARCHAR},
                 #{filterEnabled, jdbcType=INTEGER}, #{inlongStreamId, jdbcType=VARCHAR},
-                #{status, jdbcType=INTEGER}, #{isDeleted, jdbcType=INTEGER},
-                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR},
-                #{createTime, jdbcType=TIMESTAMP}, #{modifyTime, jdbcType=TIMESTAMP}, #{version, jdbcType=INTEGER})
+                #{status, jdbcType=INTEGER}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id"
             parameterType="org.apache.inlong.manager.dao.entity.ConsumptionEntity">
@@ -116,18 +112,6 @@
             <if test="modifier != null">
                 modifier,
             </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="modifyTime != null">
-                modify_time,
-            </if>
-            <if test="isDeleted != null">
-                is_deleted,
-            </if>
-            <if test="version != null">
-                version,
-            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -162,18 +146,6 @@
             </if>
             <if test="modifier != null">
                 #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="createTime != null">
-                #{createTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                #{modifyTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="isDeleted != null">
-                #{isDeleted, jdbcType=INTEGER},
-            </if>
-            <if test="version != null">
-                #{version, jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -211,12 +183,6 @@
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime, jdbcType=TIMESTAMP},
-            </if>
             <if test="version != null">
                 version = #{version, jdbcType=INTEGER} + 1,
             </if>
@@ -237,8 +203,6 @@
             status           = #{status, jdbcType=INTEGER},
             creator          = #{creator, jdbcType=VARCHAR},
             modifier         = #{modifier, jdbcType=VARCHAR},
-            create_time      = #{createTime, jdbcType=TIMESTAMP},
-            modify_time      = #{modifyTime, jdbcType=TIMESTAMP},
             is_deleted       = #{isDeleted, jdbcType=INTEGER},
             version          = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}

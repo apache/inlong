@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,11 +68,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
         dataNodeMapper.insert(entity);
 
         LOGGER.debug("success to save data node={}", request);

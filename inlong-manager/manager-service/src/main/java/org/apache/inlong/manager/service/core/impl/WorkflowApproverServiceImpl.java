@@ -40,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -102,9 +101,6 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
 
     @Override
     public void add(WorkflowApprover approver, String operator) {
-        Date now = new Date();
-        approver.setCreateTime(now);
-        approver.setModifyTime(now);
         approver.setModifier(operator);
         approver.setCreator(operator);
 
@@ -125,7 +121,6 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         Preconditions.checkEmpty(exist, "already exit the same config");
 
         WorkflowApproverEntity entity = CommonBeanUtils.copyProperties(approver, WorkflowApproverEntity::new);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
         int success = this.workflowApproverMapper.insert(entity);
         Preconditions.checkTrue(success == 1, "add failed");
     }
@@ -146,7 +141,6 @@ public class WorkflowApproverServiceImpl implements WorkflowApproverService {
         }
         WorkflowApproverEntity update = new WorkflowApproverEntity();
         update.setId(config.getId());
-        update.setModifyTime(new Date());
         update.setModifier(operator);
         update.setApprovers(config.getApprovers());
         update.setFilterKey(config.getFilterKey().name());

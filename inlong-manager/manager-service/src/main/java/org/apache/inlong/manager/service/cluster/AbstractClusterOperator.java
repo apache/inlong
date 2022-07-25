@@ -30,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-
 /**
  * Default operator of inlong cluster.
  */
@@ -51,11 +49,6 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
 
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterMapper.insert(entity);
 
         return entity.getId();
@@ -76,7 +69,6 @@ public abstract class AbstractClusterOperator implements InlongClusterOperator {
         // set the ext params
         this.setTargetEntity(request, entity);
         entity.setModifier(operator);
-        entity.setModifyTime(new Date());
         int rowCount = clusterMapper.updateByIdSelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error("cluster has already updated with name={}, type={}, curVersion={}", request.getName(),

@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -83,13 +82,8 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         }
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(request,
                 StreamTransformEntity::new);
-        transformEntity.setVersion(InlongConstants.INITIAL_VERSION);
         transformEntity.setCreator(operator);
         transformEntity.setModifier(operator);
-        Date now = new Date();
-        transformEntity.setCreateTime(now);
-        transformEntity.setModifyTime(now);
-        transformEntity.setIsDeleted(InlongConstants.UN_DELETED);
         transformMapper.insert(transformEntity);
         saveFieldOpt(transformEntity, request.getFieldList());
         return transformEntity.getId();
@@ -151,8 +145,6 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         StreamTransformEntity transformEntity = CommonBeanUtils.copyProperties(request,
                 StreamTransformEntity::new);
         transformEntity.setModifier(operator);
-        transformEntity.setVersion(transformEntity.getVersion() + 1);
-        transformEntity.setModifyTime(new Date());
         int rowCount = transformMapper.updateByIdSelective(transformEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(msg);
@@ -177,12 +169,10 @@ public class StreamTransformServiceImpl implements StreamTransformService {
         List<StreamTransformEntity> entityList = transformMapper.selectByRelatedId(groupId, streamId,
                 request.getTransformName());
         if (CollectionUtils.isNotEmpty(entityList)) {
-            Date now = new Date();
             for (StreamTransformEntity entity : entityList) {
                 Integer id = entity.getId();
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
-                entity.setModifyTime(now);
                 int rowCount = transformMapper.updateByIdSelective(entity);
                 if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
                     LOGGER.error("transform has already updated with groupId={}, streamId={}, name={}, curVersion={}",

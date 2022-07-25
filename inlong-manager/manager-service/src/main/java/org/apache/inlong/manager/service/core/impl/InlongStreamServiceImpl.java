@@ -60,7 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,8 +113,7 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         InlongStreamEntity streamEntity = CommonBeanUtils.copyProperties(request, InlongStreamEntity::new);
         streamEntity.setStatus(StreamStatus.NEW.getCode());
         streamEntity.setCreator(operator);
-        streamEntity.setCreateTime(new Date());
-        streamEntity.setVersion(InlongConstants.INITIAL_VERSION);
+        streamEntity.setModifier(operator);
 
         streamMapper.insertSelective(streamEntity);
         saveField(groupId, streamId, request.getFieldList());
@@ -477,12 +475,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         streamEntity.setMaxLength(1000);
 
         streamEntity.setStatus(StreamStatus.CONFIG_SUCCESSFUL.getCode());
-        streamEntity.setIsDeleted(InlongConstants.UN_DELETED);
         streamEntity.setCreator(operator);
         streamEntity.setModifier(operator);
-        Date now = new Date();
-        streamEntity.setCreateTime(now);
-        streamEntity.setModifyTime(now);
 
         streamMapper.insert(streamEntity);
     }

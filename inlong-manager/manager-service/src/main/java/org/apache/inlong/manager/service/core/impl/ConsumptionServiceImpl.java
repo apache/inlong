@@ -356,9 +356,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setFilterEnabled(0);
 
         entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setCreator(groupInfo.getCreator());
-        entity.setCreateTime(new Date());
+        String operator = groupInfo.getCreator();
+        entity.setCreator(operator);
+        entity.setModifier(operator);
 
         consumptionMapper.insert(entity);
 
@@ -377,13 +377,8 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
         entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
-        entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setVersion(InlongConstants.INITIAL_VERSION);
 
         if (info.getId() != null) {
             consumptionMapper.updateByPrimaryKey(entity);

@@ -48,21 +48,17 @@
     <delete id="deleteByPrimaryKey">
         update workflow_approver
         set is_deleted = id,
-            modify_time=now(),
             modifier=#{modifier, jdbcType=VARCHAR}
         where id = #{id, jdbcType=INTEGER}
     </delete>
     <insert id="insert"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
         insert into workflow_approver (id, process_name, task_name,
-                                 filter_key, filter_value, filter_value_desc, approvers,
-                                 creator, modifier, create_time,
-                                 modify_time, is_deleted, version)
+                                       filter_key, filter_value, filter_value_desc,
+                                       approvers, creator, modifier)
         values (#{id, jdbcType=INTEGER}, #{processName, jdbcType=VARCHAR}, #{taskName, jdbcType=VARCHAR},
                 #{filterKey, jdbcType=VARCHAR}, #{filterValue, jdbcType=VARCHAR}, #{filterValueDesc, jdbcType=VARCHAR},
-                #{approvers, jdbcType=VARCHAR},
-                #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR}, #{createTime, jdbcType=TIMESTAMP},
-                #{modifyTime, jdbcType=TIMESTAMP}, #{isDeleted, jdbcType=INTEGER}, #{version, jdbcType=INTEGER})
+                #{approvers, jdbcType=VARCHAR}, #{creator, jdbcType=VARCHAR}, #{modifier, jdbcType=VARCHAR})
     </insert>
     <insert id="insertSelective"
             parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
@@ -95,18 +91,6 @@
             <if test="modifier != null">
                 modifier,
             </if>
-            <if test="createTime != null">
-                create_time,
-            </if>
-            <if test="modifyTime != null">
-                modify_time,
-            </if>
-            <if test="isDeleted != null">
-                is_deleted,
-            </if>
-            <if test="version != null">
-                version,
-            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -135,18 +119,6 @@
             </if>
             <if test="modifier != null">
                 #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="createTime != null">
-                #{createTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                #{modifyTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="isDeleted != null">
-                #{isDeleted, jdbcType=INTEGER},
-            </if>
-            <if test="version != null">
-                #{version, jdbcType=INTEGER},
             </if>
         </trim>
     </insert>
@@ -178,12 +150,6 @@
             <if test="modifier != null">
                 modifier = #{modifier, jdbcType=VARCHAR},
             </if>
-            <if test="createTime != null">
-                create_time = #{createTime, jdbcType=TIMESTAMP},
-            </if>
-            <if test="modifyTime != null">
-                modify_time = #{modifyTime, jdbcType=TIMESTAMP},
-            </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted, jdbcType=INTEGER},
             </if>
@@ -205,8 +171,6 @@
             approvers    = #{approvers, jdbcType=VARCHAR},
             creator      = #{creator, jdbcType=VARCHAR},
             modifier     = #{modifier, jdbcType=VARCHAR},
-            create_time  = #{createTime, jdbcType=TIMESTAMP},
-            modify_time  = #{modifyTime, jdbcType=TIMESTAMP},
             is_deleted   = #{isDeleted, jdbcType=INTEGER},
             version      = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
