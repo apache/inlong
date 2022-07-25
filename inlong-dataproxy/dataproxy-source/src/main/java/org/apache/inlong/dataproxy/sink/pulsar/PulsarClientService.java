@@ -134,7 +134,7 @@ public class PulsarClientService {
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
         pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
-            logger.warn("no pulsar cluster urls on startup, new deployment or cluster not registered properly");
+            logger.warn("failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
             return;
         }
         try {
@@ -284,7 +284,6 @@ public class PulsarClientService {
      */
     private void createConnection(CreatePulsarClientCallBack callBack) throws FlumeException {
         if (!pulsarClients.isEmpty()) {
-            logger.info("pulsar clients may already be initialized by config updating thread");
             return;
         }
         logger.debug("number of pulsar cluster is {}", pulsarUrl2token.size());
