@@ -602,7 +602,7 @@ CREATE TABLE IF NOT EXISTS `user`
 -- create default admin user, username is 'admin', password is 'inlong'
 INSERT INTO `user` (name, password, secret_key, account_type, encrypt_version,
                     due_date, creator, modifier)
-VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0',
+VALUES ('admin', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0',
         0, 1, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
 
 -- ----------------------------

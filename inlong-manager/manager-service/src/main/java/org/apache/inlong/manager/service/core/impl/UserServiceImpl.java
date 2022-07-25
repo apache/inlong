@@ -32,9 +32,9 @@ import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.DateUtils;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
-import org.apache.inlong.manager.common.util.MD5Utils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.RSAUtils;
+import org.apache.inlong.manager.common.util.SHAUtils;
 import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity entity = new UserEntity();
         entity.setName(username);
-        entity.setPassword(MD5Utils.encrypt(password));
+        entity.setPassword(SHAUtils.encrypt(password));
         entity.setAccountType(request.getAccountType());
         entity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
         String currentUser = LoginUserUtils.getLoginUser().getName();
@@ -196,8 +196,8 @@ public class UserServiceImpl implements UserService {
         // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
             String oldPassword = request.getPassword();
-            String oldPasswordMd = MD5Utils.encrypt(oldPassword);
-            Preconditions.checkTrue(oldPasswordMd.equals(updateUserEntity.getPassword()), "Old password is wrong");
+            String oldPasswordHash = SHAUtils.encrypt(oldPassword);
+            Preconditions.checkTrue(oldPasswordHash.equals(updateUserEntity.getPassword()), "Old password is wrong");
             Integer validDays = DateUtils.getValidDays(updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
             Preconditions.checkTrue((request.getValidDays() <= validDays),
                     "Ordinary users are not allowed to add valid days");
@@ -207,8 +207,8 @@ public class UserServiceImpl implements UserService {
 
         // update password
         if (!StringUtils.isBlank(request.getNewPassword())) {
-            String newPasswordMd5 = MD5Utils.encrypt(request.getNewPassword());
-            updateUserEntity.setPassword(newPasswordMd5);
+            String newPasswordHash = SHAUtils.encrypt(request.getNewPassword());
+            updateUserEntity.setPassword(newPasswordHash);
         }
         updateUserEntity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
         updateUserEntity.setAccountType(request.getAccountType());

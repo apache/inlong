@@ -20,13 +20,13 @@ package org.apache.inlong.manager.common.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class MD5UtilsTest {
+public class SHAUtilsTest {
 
     @Test
     public void testIsLetterOrPattern() {
         String str1 = "test_str";
         String str2 = "test_str";
-        Assertions.assertEquals(MD5Utils.encrypt(str1), MD5Utils.encrypt(str2));
+        Assertions.assertEquals(SHAUtils.encrypt(str1), SHAUtils.encrypt(str2));
     }
 
 }

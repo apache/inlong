@@ -80,7 +80,7 @@ public class InlongShiroImpl implements InlongShiro {
     @Override
     public CredentialsMatcher getCredentialsMatcher() {
         HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        hashedCredentialsMatcher.setHashAlgorithmName("SHA-256");
         hashedCredentialsMatcher.setHashIterations(1024);
         return hashedCredentialsMatcher;
     }
