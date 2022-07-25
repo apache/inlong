@@ -26,7 +26,6 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -124,7 +123,7 @@ public interface InlongGroupService {
      */
     void updateAfterApprove(
             @Valid @NotNull(message = "approve request cannot be null") InlongGroupApproveRequest approveRequest,
-            String operator, InlongGroupEntity inlongGroupEntity);
+            String operator);
 
     /**
      * Save or update extended information

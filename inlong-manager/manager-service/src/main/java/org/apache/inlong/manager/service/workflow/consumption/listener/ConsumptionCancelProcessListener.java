@@ -30,8 +30,6 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.process.ProcessEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,9 +40,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsumptionCancelProcessListener implements ProcessEventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionCancelProcessListener.class);
-
-    private final ConsumptionEntityMapper consumptionEntityMapper;
+    @Autowired
+    private ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
     public ConsumptionCancelProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {
@@ -64,7 +61,7 @@ public class ConsumptionCancelProcessListener implements ProcessEventListener {
         update.setStatus(ConsumptionStatus.CANCELED.getStatus());
         int rowCount = consumptionEntityMapper.updateByPrimaryKeySelective(update);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+            log.error("consumption information has already updated, id={}, curVersion={}",
                     update.getId(), update.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }

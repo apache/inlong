@@ -42,7 +42,8 @@ public class ConsumptionRejectProcessListener implements ProcessEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionRejectProcessListener.class);
 
-    private final ConsumptionEntityMapper consumptionEntityMapper;
+    @Autowired
+    private ConsumptionEntityMapper consumptionEntityMapper;
 
     @Autowired
     public ConsumptionRejectProcessListener(ConsumptionEntityMapper consumptionEntityMapper) {

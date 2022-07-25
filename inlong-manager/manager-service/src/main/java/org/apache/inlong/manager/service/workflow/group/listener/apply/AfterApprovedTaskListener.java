@@ -18,11 +18,9 @@
 package org.apache.inlong.manager.service.workflow.group.listener.apply;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
@@ -32,8 +30,6 @@ import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 /**
  * The listener for modifying InlongGroup info after the application InlongGroup process is approved.
@@ -64,17 +60,8 @@ public class AfterApprovedTaskListener implements TaskEventListener {
         String groupId = approveInfo.getInlongGroupId();
         log.info("begin to execute AfterApprovedTaskListener for groupId={}", groupId);
 
-        // only the [TO_BE_APPROVAL] status allowed the passing operation
-        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
-        if (entity == null) {
-            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
-        }
-        if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
-            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
-        }
-
         // save the inlong group and other info after approval
-        groupService.updateAfterApprove(approveInfo, context.getOperator(), entity);
+        groupService.updateAfterApprove(approveInfo, context.getOperator());
         streamService.updateAfterApprove(form.getStreamApproveInfoList(), context.getOperator());
 
         log.info("success to execute AfterApprovedTaskListener for groupId={}", groupId);
