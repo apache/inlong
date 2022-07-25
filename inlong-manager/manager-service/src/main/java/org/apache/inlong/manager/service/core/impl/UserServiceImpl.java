@@ -168,8 +168,8 @@ public class UserServiceImpl implements UserService {
         UserEntity updateUserEntity = userMapper.selectByPrimaryKey(updateUser.getId());
         Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + updateUser.getId());
         UserEntity targetUserEntity = getByUsername(updateUser.getUsername());
-        Preconditions.checkTrue(Objects.equals(targetUserEntity.getName(), updateUserEntity.getName())
-                        && !Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
+        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
+                        || Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
                 "Username [" + updateUser.getUsername() + "] already exists");
         String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
                 updateUser.getUsername(), updateUser.getVersion());
