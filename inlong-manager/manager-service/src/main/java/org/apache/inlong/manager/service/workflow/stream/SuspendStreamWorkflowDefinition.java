@@ -73,16 +73,16 @@ public class SuspendStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask stopDataSourceTask = new ServiceTask();
         stopDataSourceTask.setName("StopSource");
         stopDataSourceTask.setDisplayName("Stream-StopSource");
-        stopDataSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopDataSourceTask.addListenerProvider(streamTaskListenerFactory);
+        stopDataSourceTask.setServiceTaskType(ServiceTaskType.STOP_SOURCE);
+        stopDataSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(stopDataSourceTask);
 
         // Stop Sort
         ServiceTask stopSortTask = new ServiceTask();
         stopSortTask.setName("StopSort");
         stopSortTask.setDisplayName("Stream-StopSort");
-        stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(streamTaskListenerFactory);
+        stopSortTask.setServiceTaskType(ServiceTaskType.STOP_SORT);
+        stopSortTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

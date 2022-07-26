@@ -73,16 +73,16 @@ public class RestartStreamWorkflowDefinition implements WorkflowDefinition {
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("RestartSort");
         restartSortTask.setDisplayName("Stream-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(streamTaskListenerFactory);
+        restartSortTask.setServiceTaskType(ServiceTaskType.RESTART_SORT);
+        restartSortTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(restartSortTask);
 
         // Restart Source
         ServiceTask restartDataSourceTask = new ServiceTask();
         restartDataSourceTask.setName("RestartSource");
         restartDataSourceTask.setDisplayName("Stream-RestartSource");
-        restartDataSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartDataSourceTask.addListenerProvider(streamTaskListenerFactory);
+        restartDataSourceTask.setServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartDataSourceTask.setListenerFactory(streamTaskListenerFactory);
         process.addTask(restartDataSourceTask);
 
         // End node

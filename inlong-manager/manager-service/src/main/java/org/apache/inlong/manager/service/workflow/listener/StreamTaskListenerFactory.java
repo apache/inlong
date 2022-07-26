@@ -18,7 +18,6 @@
 package org.apache.inlong.manager.service.workflow.listener;
 
 import com.google.common.collect.Lists;
-import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.service.mq.CreatePulsarSubscriptionTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarTopicTaskListener;
@@ -26,12 +25,13 @@ import org.apache.inlong.manager.service.mq.DeletePulsarTopicTaskListener;
 import org.apache.inlong.manager.service.resource.StreamSinkResourceListener;
 import org.apache.inlong.manager.service.sort.StreamSortConfigListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
+import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SinkOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginBinder;
 import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
@@ -43,16 +43,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-@Data
 @Component
-public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
+public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFactory {
 
     private List<SourceOperateListener> sourceOperateListeners;
-
     private List<QueueOperateListener> queueOperateListeners;
-
     private List<SortOperateListener> sortOperateListeners;
-
     private List<SinkOperateListener> sinkOperateListeners;
 
     @Autowired
@@ -80,8 +76,32 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     }
 
     @Override
-    public Iterable get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType) {
-        switch (serviceTaskType) {
+    public void acceptPlugin(Plugin plugin) {
+        if (!(plugin instanceof ProcessPlugin)) {
+            return;
+        }
+        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
+        List<SourceOperateListener> pluginSourceOperateListeners = processPlugin.createSourceOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginSourceOperateListeners)) {
+            sourceOperateListeners.addAll(processPlugin.createSourceOperateListeners());
+        }
+        List<QueueOperateListener> pluginQueueOperateListeners = processPlugin.createQueueOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginQueueOperateListeners)) {
+            queueOperateListeners.addAll(pluginQueueOperateListeners);
+        }
+        List<SortOperateListener> pluginSortOperateListeners = processPlugin.createSortOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginSortOperateListeners)) {
+            sortOperateListeners.addAll(pluginSortOperateListeners);
+        }
+        List<SinkOperateListener> pluginSinkOperateListeners = processPlugin.createSinkOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginSinkOperateListeners)) {
+            sinkOperateListeners.addAll(pluginSinkOperateListeners);
+        }
+    }
+
+    @Override
+    public List<? extends TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType taskType) {
+        switch (taskType) {
             case INIT_MQ:
             case DELETE_MQ:
                 List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
@@ -102,12 +122,22 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
                 List<SinkOperateListener> sinkOperateListeners = getSinkOperateListener(workflowContext);
                 return Lists.newArrayList(sinkOperateListeners);
             default:
-                throw new IllegalArgumentException(String.format("Unsupported ServiceTaskType %s", serviceTaskType));
+                throw new IllegalArgumentException(String.format("Unsupported ServiceTaskType %s", taskType));
         }
     }
 
     /**
-     * Get data source operate listener list.
+     * Clear the list of listeners.
+     */
+    public void clearListeners() {
+        sourceOperateListeners = new LinkedList<>();
+        queueOperateListeners = new LinkedList<>();
+        sortOperateListeners = new LinkedList<>();
+        sinkOperateListeners = new LinkedList<>();
+    }
+
+    /**
+     * Get stream source operate listener list.
      */
     public List<SourceOperateListener> getSourceOperateListener(WorkflowContext context) {
         List<SourceOperateListener> listeners = new ArrayList<>();
@@ -148,7 +178,7 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     /**
      * Get sink operate listener list.
      */
-    public List<SinkOperateListener> getSinkOperateListener(WorkflowContext context) {
+    private List<SinkOperateListener> getSinkOperateListener(WorkflowContext context) {
         List<SinkOperateListener> listeners = new ArrayList<>();
         for (SinkOperateListener listener : sinkOperateListeners) {
             if (listener != null && listener.accept(context)) {
@@ -158,27 +188,4 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
         return listeners;
     }
 
-    @Override
-    public void acceptPlugin(Plugin plugin) {
-        if (!(plugin instanceof ProcessPlugin)) {
-            return;
-        }
-        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
-        List<SourceOperateListener> pluginSourceOperateListeners = processPlugin.createSourceOperateListeners();
-        if (CollectionUtils.isNotEmpty(pluginSourceOperateListeners)) {
-            sourceOperateListeners.addAll(processPlugin.createSourceOperateListeners());
-        }
-        List<QueueOperateListener> pluginQueueOperateListeners = processPlugin.createQueueOperateListeners();
-        if (CollectionUtils.isNotEmpty(pluginQueueOperateListeners)) {
-            queueOperateListeners.addAll(pluginQueueOperateListeners);
-        }
-        List<SortOperateListener> pluginSortOperateListeners = processPlugin.createSortOperateListeners();
-        if (CollectionUtils.isNotEmpty(pluginSortOperateListeners)) {
-            sortOperateListeners.addAll(pluginSortOperateListeners);
-        }
-        List<SinkOperateListener> pluginSinkOperateListeners = processPlugin.createSinkOperateListeners();
-        if (CollectionUtils.isNotEmpty(pluginSinkOperateListeners)) {
-            sinkOperateListeners.addAll(pluginSinkOperateListeners);
-        }
-    }
 }

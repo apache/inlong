@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.enums.ProcessName;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.InitGroupCompleteListener;
 import org.apache.inlong.manager.service.workflow.group.listener.InitGroupFailedListener;
@@ -73,32 +73,32 @@ public class CreateGroupWorkflowDefinition implements WorkflowDefinition {
         ServiceTask initMQTask = new ServiceTask();
         initMQTask.setName("InitMQ");
         initMQTask.setDisplayName("Group-InitMQ");
-        initMQTask.addServiceTaskType(ServiceTaskType.INIT_MQ);
-        initMQTask.addListenerProvider(groupTaskListenerFactory);
+        initMQTask.setServiceTaskType(ServiceTaskType.INIT_MQ);
+        initMQTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initMQTask);
 
         // Init Sink
         ServiceTask initSinkTask = new ServiceTask();
         initSinkTask.setName("InitSink");
         initSinkTask.setDisplayName("Group-InitSink");
-        initSinkTask.addServiceTaskType(ServiceTaskType.INIT_SINK);
-        initSinkTask.addListenerProvider(groupTaskListenerFactory);
+        initSinkTask.setServiceTaskType(ServiceTaskType.INIT_SINK);
+        initSinkTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initSinkTask);
 
         // Init Sort
         ServiceTask initSortTask = new ServiceTask();
         initSortTask.setName("InitSort");
         initSortTask.setDisplayName("Group-InitSort");
-        initSortTask.addServiceTaskType(ServiceTaskType.INIT_SORT);
-        initSortTask.addListenerProvider(groupTaskListenerFactory);
+        initSortTask.setServiceTaskType(ServiceTaskType.INIT_SORT);
+        initSortTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initSortTask);
 
         // Init Source
         ServiceTask initSourceTask = new ServiceTask();
         initSourceTask.setName("InitSource");
         initSourceTask.setDisplayName("Group-InitSource");
-        initSourceTask.addServiceTaskType(ServiceTaskType.INIT_SOURCE);
-        initSourceTask.addListenerProvider(groupTaskListenerFactory);
+        initSourceTask.setServiceTaskType(ServiceTaskType.INIT_SOURCE);
+        initSourceTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(initSourceTask);
 
         // End node
