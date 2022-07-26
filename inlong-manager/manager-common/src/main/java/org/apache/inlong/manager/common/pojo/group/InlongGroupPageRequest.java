@@ -64,5 +64,6 @@ public class InlongGroupPageRequest extends PageRequest {
     private Boolean isAdminRole;
 
     @ApiModelProperty(value = "If list streamSource for group", hidden = true)
+    @Builder.Default
     private boolean listSources = false;
 }

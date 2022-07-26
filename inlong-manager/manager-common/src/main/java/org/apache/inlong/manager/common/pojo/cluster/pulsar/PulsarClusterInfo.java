@@ -19,6 +19,7 @@ package org.apache.inlong.manager.common.pojo.cluster.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -44,6 +45,7 @@ public class PulsarClusterInfo extends ClusterInfo {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    @Builder.Default
     private String tenant = "public";
 
     public PulsarClusterInfo() {

@@ -47,6 +47,7 @@ public class PulsarClusterDTO {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    @Builder.Default
     private String tenant = "public";
 
     /**

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.source.postgresql;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -54,6 +55,7 @@ public class PostgreSQLSource extends StreamSource {
     private String hostname;
 
     @ApiModelProperty("Port of the PostgreSQL server")
+    @Builder.Default
     private Integer port = 5432;
 
     @ApiModelProperty("Database name")

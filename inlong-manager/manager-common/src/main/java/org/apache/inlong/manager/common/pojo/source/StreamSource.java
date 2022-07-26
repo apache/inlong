@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -103,6 +104,7 @@ public abstract class StreamSource extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Properties for source")
+    @Builder.Default
     private Map<String, Object> properties = new LinkedHashMap<>();
 
     public SourceRequest genSourceRequest() {
