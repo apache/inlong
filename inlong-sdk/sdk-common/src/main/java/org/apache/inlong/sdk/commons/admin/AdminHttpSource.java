@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -83,7 +83,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * configure
-     * 
+     *
      * @param context
      */
     @Override
@@ -221,7 +221,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
         /**
          * doPost
-         * 
+         *
          * @param  request
          * @param  response
          * @throws IOException
@@ -236,15 +236,13 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
                 LOG.warn("Received bad request from client. ", ex);
                 sourceCounter.incrementEventReadFail();
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                        "Bad request from client. "
-                                + ex.getMessage());
+                        "Bad request from client. ");
                 return;
             } catch (Exception ex) {
                 LOG.warn("Deserializer threw unexpected exception. ", ex);
                 sourceCounter.incrementEventReadFail();
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Deserializer threw unexpected exception. "
-                                + ex.getMessage());
+                        "Deserializer threw unexpected exception. ");
                 return;
             }
             sourceCounter.incrementAppendBatchReceivedCount();
@@ -259,15 +257,13 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
                         + "capacity or make sure the sinks perform faster.", ex);
                 sourceCounter.incrementChannelWriteFail();
                 response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-                        "Error appending event to channel. Channel might be full."
-                                + ex.getMessage());
+                        "Error appending event to channel. Channel might be full.");
                 return;
             } catch (Exception ex) {
                 LOG.warn("Unexpected error appending event to channel. ", ex);
                 sourceCounter.incrementGenericProcessingFail();
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Unexpected error while appending event to channel. "
-                                + ex.getMessage());
+                        "Unexpected error while appending event to channel. ");
                 return;
             }
             response.setCharacterEncoding(request.getCharacterEncoding());
@@ -281,7 +277,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
         /**
          * doGet
-         * 
+         *
          * @param  request
          * @param  response
          * @throws IOException
@@ -295,7 +291,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * configureSsl
-     * 
+     *
      * @param context
      */
     @Override
@@ -309,7 +305,7 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
 
     /**
      * handleDeprecatedParameter
-     * 
+     *
      * @param context
      * @param newParam
      * @param oldParam

@@ -90,8 +90,7 @@ public class MessageFilter implements Filter {
             } else if (body.length() > maxMsgLength) {
                 LOG.warn("Received bad request from client. Body length is " + body.length());
                 code = StatusCode.EXCEED_LEN;
-                message = "Bad request from client. " + "Body length is " + body.length()
-                        + ",exceeding the limit:" + maxMsgLength;
+                message = "Bad request from client. " + "Body length is exceeding the limit:" + maxMsgLength;
             } else {
                 chain.doFilter(request, response);
             }
