@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class SHAUtilsTest {
 
     @Test
-    public void testIsLetterOrPattern() {
+    public void testSHADigest() {
         String str1 = "test_str";
         String str2 = "test_str";
         Assertions.assertEquals(SHAUtils.encrypt(str1), SHAUtils.encrypt(str2));

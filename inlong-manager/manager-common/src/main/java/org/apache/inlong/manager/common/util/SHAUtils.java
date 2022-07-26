@@ -31,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 @UtilityClass
 public class SHAUtils {
 
+    public static final String ALGORITHM_NAME = "SHA-256";
     private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
@@ -47,7 +48,7 @@ public class SHAUtils {
 
         String retString = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            MessageDigest md = MessageDigest.getInstance(ALGORITHM_NAME);
             md.update(source.getBytes(), 0, source.length());
             byte[] retBytes = md.digest();
 
@@ -72,7 +73,7 @@ public class SHAUtils {
      * @return SHA string after encrypt
      */
     public static String encrypt(String source) {
-        return new SimpleHash("SHA-256", source, null, 1024).toHex();
+        return new SimpleHash(ALGORITHM_NAME, source, null, 1024).toHex();
     }
 
 }
