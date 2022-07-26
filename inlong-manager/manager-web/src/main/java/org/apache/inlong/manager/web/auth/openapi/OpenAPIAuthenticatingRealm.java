@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.web.auth.openapi;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -50,12 +50,12 @@ public class OpenAPIAuthenticatingRealm extends AuthenticatingRealm {
             throws AuthenticationException {
         SecretToken upToken = (SecretToken) authenticationToken;
         String username = upToken.getSecretId();
-        UserEntity userEntity = userService.getByUsername(username);
-        Preconditions.checkNotNull(userEntity, "User doesn't exist");
-        Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");
+        UserInfo userInfo = userService.getByName(username);
+        Preconditions.checkNotNull(userInfo, "User doesn't exist");
+        Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "user has expired");
         try {
             String secretKey = new String(
-                    AESUtils.decryptAsString(userEntity.getSecretKey(), userEntity.getEncryptVersion()));
+                    AESUtils.decryptAsString(userInfo.getSecretKey(), userInfo.getEncryptVersion()));
             return new SimpleAuthenticationInfo(username, secretKey, getName());
         } catch (Exception e) {
             log.error("decrypt secret key fail: ", e);

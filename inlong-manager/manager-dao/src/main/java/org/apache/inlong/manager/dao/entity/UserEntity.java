@@ -38,9 +38,12 @@ public class UserEntity implements Serializable {
     private Integer encryptVersion;
     private Integer accountType;
     private Date dueDate;
+
+    private Integer status;
+    private Integer isDeleted;
+    private String creator;
+    private String modifier;
     private Date createTime;
-    private Date updateTime;
-    private String createBy;
-    private String updateBy;
+    private Date modifyTime;
     private Integer version;
 }

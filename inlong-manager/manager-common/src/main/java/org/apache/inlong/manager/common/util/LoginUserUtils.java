@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.common.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
+import org.apache.inlong.manager.common.pojo.user.UserInfo;
 
 /**
  * User info for login
@@ -29,15 +29,15 @@ public class LoginUserUtils {
     /**
      * ThreadLocal for user info
      */
-    private static final ThreadLocal<UserDetail> LOGIN_USER_DETAIL_TL = new ThreadLocal<>();
+    private static final ThreadLocal<UserInfo> LOGIN_USER_DETAIL_TL = new ThreadLocal<>();
 
-    public static UserDetail getLoginUserDetail() {
+    public static UserInfo getLoginUser() {
         return LOGIN_USER_DETAIL_TL.get();
     }
 
-    public static void setUserLoginInfo(UserDetail userDetail) {
-        log.debug("user login: {}", userDetail.getUsername());
-        LOGIN_USER_DETAIL_TL.set(userDetail);
+    public static void setUserLoginInfo(UserInfo userInfo) {
+        log.debug("user login: {}", userInfo.getName());
+        LOGIN_USER_DETAIL_TL.set(userInfo);
     }
 
     public static void removeUserLoginInfo() {

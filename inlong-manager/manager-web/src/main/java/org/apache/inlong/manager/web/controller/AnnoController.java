@@ -20,8 +20,8 @@ package org.apache.inlong.manager.web.controller;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.LoginUser;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
+import org.apache.inlong.manager.common.pojo.user.UserLoginRequest;
+import org.apache.inlong.manager.common.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.UserService;
@@ -44,28 +44,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnnoController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/anno/login")
-    public Response<String> login(@Validated @RequestBody LoginUser loginUser) {
-
+    public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken token = new UsernamePasswordToken(loginUser.getUsername(), loginUser.getPassword());
+        UsernamePasswordToken token = new UsernamePasswordToken(loginRequest.getUsername(), loginRequest.getPassword());
         subject.login(token);
-        LoginUserUtils.setUserLoginInfo((UserDetail) subject.getPrincipal());
+        LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
 
-        return Response.success("success");
+        return Response.success(true);
     }
 
-    @PostMapping("/anno/doRegister")
-    public Response<Boolean> doRegister(@Validated @RequestBody UserInfo userInfo) {
-        return Response.success(userService.create(userInfo));
+    @PostMapping("/anno/register")
+    public Response<Integer> register(@Validated @RequestBody UserRequest request) {
+        return Response.success(userService.save(request));
     }
 
     @GetMapping("/anno/logout")
-    public Response<String> logout() {
+    public Response<Boolean> logout() {
         SecurityUtils.getSubject().logout();
-        return Response.success("success");
+        return Response.success(true);
     }
 
 }

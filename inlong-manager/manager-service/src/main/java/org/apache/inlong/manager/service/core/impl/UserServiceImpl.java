@@ -26,9 +26,8 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
-import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
+import org.apache.inlong.manager.common.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.util.AESUtils;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.DateUtils;
@@ -37,8 +36,6 @@ import org.apache.inlong.manager.common.util.MD5Utils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.common.util.RSAUtils;
 import org.apache.inlong.manager.dao.entity.UserEntity;
-import org.apache.inlong.manager.dao.entity.UserEntityExample;
-import org.apache.inlong.manager.dao.entity.UserEntityExample.Criteria;
 import org.apache.inlong.manager.dao.mapper.UserEntityMapper;
 import org.apache.inlong.manager.service.core.UserService;
 import org.slf4j.Logger;
@@ -66,28 +63,58 @@ public class UserServiceImpl implements UserService {
     private UserEntityMapper userMapper;
 
     @Override
-    public UserEntity getByUsername(String username) {
-        UserEntityExample example = new UserEntityExample();
-        example.createCriteria().andNameEqualTo(username);
-        List<UserEntity> list = userMapper.selectByExample(example);
-        return list.isEmpty() ? null : list.get(0);
+    public Integer save(UserRequest request) {
+        String username = request.getName();
+        UserEntity userExists = userMapper.selectByName(username);
+        String password = request.getPassword();
+        Preconditions.checkNull(userExists, "username [" + username + "] already exists");
+        Preconditions.checkTrue(StringUtils.isNotBlank(password), "password cannot be blank");
+
+        UserEntity entity = new UserEntity();
+        entity.setName(username);
+        entity.setPassword(MD5Utils.encrypt(password));
+        entity.setAccountType(request.getAccountType());
+        entity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
+        String currentUser = LoginUserUtils.getLoginUser().getName();
+        entity.setCreator(currentUser);
+        entity.setModifier(currentUser);
+        try {
+            Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
+            String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
+            String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
+            String secretKey = RandomStringUtils.randomAlphanumeric(SECRET_KEY_SIZE);
+            Integer encryptVersion = AESUtils.getCurrentVersion(null);
+            entity.setEncryptVersion(encryptVersion);
+            entity.setPublicKey(AESUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setPrivateKey(AESUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+            entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
+        } catch (Exception e) {
+            String errMsg = String.format("generate rsa key error: %s", e.getMessage());
+            LOGGER.error(errMsg, e);
+            throw new BusinessException(errMsg);
+        }
+
+        Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
+        LOGGER.debug("success to create user info={}", request);
+        return entity.getId();
     }
 
     @Override
     public UserInfo getById(Integer userId, String currentUser) {
-        Preconditions.checkNotNull(userId, "User id should not be empty");
-        UserEntity entity = userMapper.selectByPrimaryKey(userId);
-        UserEntity curUser = getByUsername(currentUser);
+        Preconditions.checkNotNull(userId, "User id cannot be null");
+        UserEntity entity = userMapper.selectById(userId);
         Preconditions.checkNotNull(entity, "User not exists with id " + userId);
+
+        UserEntity curUser = userMapper.selectByName(currentUser);
         Preconditions.checkTrue(Objects.equals(UserTypeEnum.ADMIN.getCode(), curUser.getAccountType())
                         || Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to get other users' info");
 
         UserInfo result = new UserInfo();
         result.setId(entity.getId());
-        result.setUsername(entity.getName());
+        result.setName(entity.getName());
         result.setValidDays(DateUtils.getValidDays(entity.getCreateTime(), entity.getDueDate()));
-        result.setType(entity.getAccountType());
+        result.setAccountType(entity.getAccountType());
         result.setVersion(entity.getVersion());
 
         if (StringUtils.isNotBlank(entity.getSecretKey()) && StringUtils.isNotBlank(entity.getPublicKey())) {
@@ -111,102 +138,88 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean create(UserInfo userInfo) {
-        String username = userInfo.getUsername();
-        UserEntity userExists = getByUsername(username);
-        String password = userInfo.getPassword();
-        Preconditions.checkNull(userExists, "username [" + username + "] already exists");
-        Preconditions.checkTrue(StringUtils.isNotBlank(password), "password cannot be blank");
-
-        UserEntity entity = new UserEntity();
-        entity.setAccountType(userInfo.getType());
-        entity.setPassword(MD5Utils.encrypt(password));
-        entity.setDueDate(DateUtils.getExpirationDate(userInfo.getValidDays()));
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
-        entity.setCreateBy(currentUser);
-        entity.setUpdateBy(currentUser);
-        entity.setName(username);
-        try {
-            Map<String, String> keyPairs = RSAUtils.generateRSAKeyPairs();
-            String publicKey = keyPairs.get(RSAUtils.PUBLIC_KEY);
-            String privateKey = keyPairs.get(RSAUtils.PRIVATE_KEY);
-            String secretKey = RandomStringUtils.randomAlphanumeric(SECRET_KEY_SIZE);
-            Integer encryptVersion = AESUtils.getCurrentVersion(null);
-            entity.setEncryptVersion(encryptVersion);
-            entity.setPublicKey(AESUtils.encryptToString(publicKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
-            entity.setPrivateKey(AESUtils.encryptToString(privateKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
-            entity.setSecretKey(AESUtils.encryptToString(secretKey.getBytes(StandardCharsets.UTF_8), encryptVersion));
-        } catch (Exception e) {
-            String errMsg = String.format("generate rsa key error: %s", e.getMessage());
-            LOGGER.error(errMsg, e);
-            throw new BusinessException(errMsg);
-        }
-
-        Preconditions.checkTrue(userMapper.insert(entity) > 0, "Create user failed");
-
-        LOGGER.debug("success to create user info={}", userInfo);
-        return true;
+    public UserInfo getByName(String name) {
+        Preconditions.checkNotNull(name, "User name cannot be null");
+        UserEntity entity = userMapper.selectByName(name);
+        return CommonBeanUtils.copyProperties(entity, UserInfo::new);
     }
 
     @Override
-    public int update(UserInfo updateUser, String currentUser) {
-        LOGGER.debug("begin to update user info={} by {}", updateUser, currentUser);
-        Preconditions.checkNotNull(updateUser, "Userinfo cannot be null");
-        Preconditions.checkNotNull(updateUser.getId(), "User id cannot be null");
+    public PageInfo<UserInfo> list(UserRequest request) {
+        PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByCondition(request);
+        List<UserInfo> userList = CommonBeanUtils.copyListProperties(entityPage, UserInfo::new);
+
+        // Check whether the user account has expired
+        userList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
+        PageInfo<UserInfo> page = new PageInfo<>(userList);
+        page.setTotal(entityPage.getTotal());
+
+        LOGGER.debug("success to list users for request={}, result size={}", request, page.getTotal());
+        return page;
+    }
+
+    @Override
+    public Integer update(UserRequest request, String currentUser) {
+        LOGGER.debug("begin to update user info={} by {}", request, currentUser);
+        Preconditions.checkNotNull(request, "Userinfo cannot be null");
+        Preconditions.checkNotNull(request.getId(), "User id cannot be null");
 
         // Whether the current user is a manager
-        UserEntity currentUserEntity = getByUsername(currentUser);
+        UserEntity currentUserEntity = userMapper.selectByName(currentUser);
+        String updateName = request.getName();
         boolean isAdmin = Objects.equals(UserTypeEnum.ADMIN.getCode(), currentUserEntity.getAccountType());
-        Preconditions.checkTrue(isAdmin || Objects.equals(updateUser.getUsername(), currentUser),
+        Preconditions.checkTrue(isAdmin || Objects.equals(updateName, currentUser),
                 "You are not a manager and do not have permission to update other users");
 
         // manager cannot set himself as an ordinary
         boolean managerToOrdinary = isAdmin
-                && Objects.equals(UserTypeEnum.OPERATOR.getCode(), updateUser.getType())
-                && Objects.equals(currentUser, updateUser.getUsername());
+                && Objects.equals(UserTypeEnum.OPERATOR.getCode(), request.getAccountType())
+                && Objects.equals(currentUser, updateName);
         Preconditions.checkFalse(managerToOrdinary, "You are a manager and you cannot change to an ordinary user");
 
         // target username must not exist
-        UserEntity updateUserEntity = userMapper.selectByPrimaryKey(updateUser.getId());
-        Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + updateUser.getId());
-        UserEntity targetUserEntity = getByUsername(updateUser.getUsername());
-        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
-                        || Objects.equals(targetUserEntity.getId(), updateUserEntity.getId()),
-                "Username [" + updateUser.getUsername() + "] already exists");
+        UserEntity updateUserEntity = userMapper.selectById(request.getId());
+        Preconditions.checkNotNull(updateUserEntity, "User not exists with id=" + request.getId());
         String errMsg = String.format("user has already updated with username=%s, curVersion=%s",
-                updateUser.getUsername(), updateUser.getVersion());
-        if (!Objects.equals(updateUserEntity.getVersion(), updateUser.getVersion())) {
+                updateName, request.getVersion());
+        if (!Objects.equals(updateUserEntity.getVersion(), request.getVersion())) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
 
+        UserEntity targetUserEntity = userMapper.selectByName(updateName);
+        Preconditions.checkTrue(Objects.isNull(targetUserEntity)
+                        || Objects.equals(targetUserEntity.getName(), updateUserEntity.getName()),
+                "Username [" + updateName + "] already exists");
+
         // if the current user is not a manager, needs to check the password before updating user info
         if (!isAdmin) {
-            String oldPassword = updateUser.getPassword();
+            String oldPassword = request.getPassword();
             String oldPasswordMd = MD5Utils.encrypt(oldPassword);
             Preconditions.checkTrue(oldPasswordMd.equals(updateUserEntity.getPassword()), "Old password is wrong");
             Integer validDays = DateUtils.getValidDays(updateUserEntity.getCreateTime(), updateUserEntity.getDueDate());
-            Preconditions.checkTrue((updateUser.getValidDays() <= validDays),
+            Preconditions.checkTrue((request.getValidDays() <= validDays),
                     "Ordinary users are not allowed to add valid days");
-            Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), updateUser.getType()),
+            Preconditions.checkTrue(Objects.equals(updateUserEntity.getAccountType(), request.getAccountType()),
                     "Ordinary users are not allowed to update account type");
         }
 
         // update password
-        if (!StringUtils.isBlank(updateUser.getNewPassword())) {
-            String newPasswordMd5 = MD5Utils.encrypt(updateUser.getNewPassword());
+        if (!StringUtils.isBlank(request.getNewPassword())) {
+            String newPasswordMd5 = MD5Utils.encrypt(request.getNewPassword());
             updateUserEntity.setPassword(newPasswordMd5);
         }
-        updateUserEntity.setDueDate(DateUtils.getExpirationDate(updateUser.getValidDays()));
-        updateUserEntity.setAccountType(updateUser.getType());
-        updateUserEntity.setName(updateUser.getUsername());
+        updateUserEntity.setDueDate(DateUtils.getExpirationDate(request.getValidDays()));
+        updateUserEntity.setAccountType(request.getAccountType());
+        updateUserEntity.setName(updateName);
 
-        int rowCount = userMapper.updateByPrimaryKeySelective(updateUserEntity);
+        int rowCount = userMapper.updateById(updateUserEntity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
             LOGGER.error(errMsg);
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
-        LOGGER.debug("success to update user info={} by {}", updateUser, currentUser);
+        LOGGER.debug("success to update user info={} by {}", request, currentUser);
         return updateUserEntity.getId();
     }
 
@@ -215,36 +228,16 @@ public class UserServiceImpl implements UserService {
         Preconditions.checkNotNull(userId, "User id should not be empty");
 
         // Whether the current user is an administrator
-        UserEntity curUser = getByUsername(currentUser);
-        UserEntity entity = userMapper.selectByPrimaryKey(userId);
+        UserEntity curUser = userMapper.selectByName(currentUser);
+        UserEntity entity = userMapper.selectById(userId);
         Preconditions.checkTrue(curUser.getAccountType().equals(UserTypeEnum.ADMIN.getCode()),
                 "Current user is not a manager and does not have permission to delete users");
         Preconditions.checkTrue(!Objects.equals(entity.getName(), currentUser),
                 "Current user does not have permission to delete himself");
-        userMapper.deleteByPrimaryKey(userId);
+        userMapper.deleteById(userId);
 
         LOGGER.debug("success to delete user by id={}, current user={}", userId, currentUser);
         return true;
-    }
-
-    @Override
-    public PageInfo<UserDetailListVO> list(UserDetailPageRequest request) {
-        PageHelper.startPage(request.getPageNum(), request.getPageSize());
-        UserEntityExample example = new UserEntityExample();
-        Criteria criteria = example.createCriteria();
-        if (request.getUsername() != null) {
-            criteria.andNameLike(request.getUsername() + "%");
-        }
-
-        Page<UserEntity> entityPage = (Page<UserEntity>) userMapper.selectByExample(example);
-        List<UserDetailListVO> detailList = CommonBeanUtils.copyListProperties(entityPage, UserDetailListVO::new);
-        // Check whether the user account has expired
-        detailList.forEach(entity -> entity.setStatus(entity.getDueDate().after(new Date()) ? "valid" : "invalid"));
-        PageInfo<UserDetailListVO> page = new PageInfo<>(detailList);
-        page.setTotal(entityPage.getTotal());
-
-        LOGGER.debug("success to list users, result size={}", page.getTotal());
-        return page;
     }
 
 }

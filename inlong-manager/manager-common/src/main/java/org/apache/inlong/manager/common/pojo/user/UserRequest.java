@@ -17,31 +17,47 @@
 
 package org.apache.inlong.manager.common.pojo.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.beans.PageRequest;
+import org.apache.inlong.manager.common.enums.UserTypeEnum;
+import org.apache.inlong.manager.common.validation.InEnumInt;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.Set;
 
 /**
- * User info
+ * User info request
  */
 @Data
-@ApiModel("User info")
-public class UserInfo {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
+@ApiModel("User info request")
+public class UserRequest extends PageRequest {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty(value = "Username")
+    @NotBlank(message = "User name cannot be blank")
+    @ApiModelProperty(value = "User name", required = true)
     private String name;
+
+    @ApiModelProperty(value = "Keyword, can be user name")
+    private String keyword;
 
     @ApiModelProperty(value = "User password")
     private String password;
+
+    @ApiModelProperty(value = "New password, is required if needs updated")
+    private String newPassword;
 
     @ApiModelProperty("Secret key")
     private String secretKey;
@@ -55,6 +71,8 @@ public class UserInfo {
     @ApiModelProperty("Encryption key version")
     private Integer encryptVersion;
 
+    @NotNull(message = "accountType cannot be null")
+    @InEnumInt(UserTypeEnum.class)
     @ApiModelProperty(value = "Account type: 0 - manager, 1 - operator", required = true)
     private Integer accountType;
 
@@ -62,27 +80,6 @@ public class UserInfo {
     @NotNull(message = "validDays cannot be null")
     @ApiModelProperty(value = "Valid days", required = true)
     private Integer validDays;
-
-    @ApiModelProperty(value = "Name of creator")
-    private String creator;
-
-    @ApiModelProperty(value = "Name of modifier")
-    private String modifier;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date modifyTime;
-
-    @ApiModelProperty(value = "User status, valid or not")
-    private String status;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date dueDate;
-
-    @ApiModelProperty(value = "User roles")
-    private Set<String> roles;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;

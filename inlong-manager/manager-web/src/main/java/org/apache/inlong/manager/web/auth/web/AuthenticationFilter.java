@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.web.auth.web;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
+import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.shiro.SecurityUtils;
@@ -61,8 +61,8 @@ public class AuthenticationFilter implements Filter {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            UserDetail loginUserDetail = (UserDetail) subject.getPrincipal();
-            doFilter(servletRequest, servletResponse, filterChain, loginUserDetail);
+            UserInfo loginuserInfo = (UserInfo) subject.getPrincipal();
+            doFilter(servletRequest, servletResponse, filterChain, loginuserInfo);
             return;
         }
 
@@ -81,12 +81,12 @@ public class AuthenticationFilter implements Filter {
             ((HttpServletResponse) servletResponse).sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        doFilter(servletRequest, servletResponse, filterChain, (UserDetail) subject.getPrincipal());
+        doFilter(servletRequest, servletResponse, filterChain, (UserInfo) subject.getPrincipal());
     }
 
     private void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain,
-            UserDetail userDetail) throws IOException, ServletException {
-        LoginUserUtils.setUserLoginInfo(userDetail);
+            UserInfo userInfo) throws IOException, ServletException {
+        LoginUserUtils.setUserLoginInfo(userInfo);
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {

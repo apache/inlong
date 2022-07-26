@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.LoginUser;
+import org.apache.inlong.manager.common.pojo.user.UserLoginRequest;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.test.BaseTest;
 import org.apache.shiro.SecurityUtils;
@@ -84,7 +84,7 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     protected void adminLogin() throws Exception {
-        LoginUser loginUser = new LoginUser();
+        UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("admin");
         loginUser.setPassword("inlong");
 
@@ -138,7 +138,7 @@ public abstract class WebBaseTest extends BaseTest {
     }
 
     protected void operatorLogin() throws Exception {
-        LoginUser loginUser = new LoginUser();
+        UserLoginRequest loginUser = new UserLoginRequest();
         loginUser.setUsername("operator");
         loginUser.setPassword("inlong");
 
