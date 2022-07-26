@@ -689,16 +689,6 @@ public class FlinkSqlParser implements Parser {
         return sb.toString();
     }
 
-    private Map<String, List<FieldInfo>> genColumnFamilyMapFieldRelations(List<FieldInfo> fields) {
-        Map<String, List<FieldInfo>> columnFamilyMapFields = new HashMap<>(16);
-        for (FieldInfo field : fields) {
-            String columnFamily = field.getName().split(":")[0];
-            columnFamilyMapFields.computeIfAbsent(columnFamily, v -> new ArrayList<>())
-                    .add(field);
-        }
-        return columnFamilyMapFields;
-    }
-
     private Map<String, List<FieldRelation>> genColumnFamilyMapFieldRelations(
             Collection<FieldRelation> fieldRelations) {
         Map<String, List<FieldRelation>> columnFamilyMapFields = new LinkedHashMap<>(16);
