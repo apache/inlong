@@ -27,6 +27,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
@@ -277,13 +278,13 @@ public class ConfigManager {
                 httpPost.addHeader(HttpHeaders.CONNECTION, "close");
                 httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
 
-                // http body
-                Map<String, String> params = new HashMap<>();
-                params.put("clusterName", clusterName);
-                httpPost.setEntity(HttpUtils.getEntity(params));
+                // request body
+                DataProxyConfigRequest request = new DataProxyConfigRequest();
+                request.setClusterName(clusterName);
+                httpPost.setEntity(HttpUtils.getEntity(request));
 
                 // request with post
-                LOG.info("start to request {} to get config info with params {}", url, params);
+                LOG.info("start to request {} to get config info with params {}", url, request);
                 CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
 

@@ -17,23 +17,19 @@
 
 package org.apache.inlong.dataproxy.utils;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.http.entity.StringEntity;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class HttpUtils {
 
     public static final String APPLICATION_JSON = "application/json";
+    private static final Gson GSON = new GsonBuilder().create();
 
-    public static StringEntity getEntity(Map<String, String> params) throws UnsupportedEncodingException {
-        JsonObject jsonObject = new JsonObject();
-        for (Entry<String, String> pair : params.entrySet()) {
-            jsonObject.addProperty(pair.getKey(), pair.getValue());
-        }
-        StringEntity se = new StringEntity(jsonObject.toString());
+    public static StringEntity getEntity(Object obj) throws UnsupportedEncodingException {
+        StringEntity se = new StringEntity(GSON.toJson(obj));
         se.setContentType(APPLICATION_JSON);
         return se;
     }

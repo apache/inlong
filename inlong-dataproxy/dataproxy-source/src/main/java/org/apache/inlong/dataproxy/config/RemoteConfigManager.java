@@ -31,6 +31,7 @@ import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheTopicObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
@@ -190,17 +191,17 @@ public class RemoteConfigManager implements IRepository {
             httpPost.addHeader(HttpHeaders.CONNECTION, "close");
             httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
 
-            // http body
-            Map<String, String> params = new HashMap<>();
-            params.put("clusterName", clusterName);
-            params.put("clusterTag", clusterTag);
-            if (StringUtils.isNotBlank(this.dataProxyConfigMd5)) {
-                params.put("md5", this.dataProxyConfigMd5);
+            // request body
+            DataProxyConfigRequest request = new DataProxyConfigRequest();
+            request.setClusterName(clusterName);
+            request.setClusterTag(clusterTag);
+            if (StringUtils.isNotBlank(dataProxyConfigMd5)) {
+                request.setMd5(dataProxyConfigMd5);
             }
-            httpPost.setEntity(HttpUtils.getEntity(params));
+            httpPost.setEntity(HttpUtils.getEntity(request));
 
             // request with post
-            LOGGER.info("start to request {} to get config info with params {}", url, params);
+            LOGGER.info("start to request {} to get config info with params {}", url, request);
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String returnStr = EntityUtils.toString(response.getEntity());
             LOGGER.info("end to request {} to get config info:{}", url, returnStr);

@@ -18,11 +18,13 @@
 package org.apache.inlong.common.pojo.dataproxy;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Data proxy config request info.
  */
 @Data
+@NoArgsConstructor
 public class DataProxyConfigRequest {
 
     /**
