@@ -20,6 +20,7 @@ package org.apache.inlong.sdk.sort.impl;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.inlong.sdk.sort.api.ClientContext;
@@ -53,6 +54,7 @@ public class InLongTopicManagerImplTest {
         inLongTopic.setTopic("testTopic");
         inLongTopic.setPartitionId(0);
         inLongTopic.setTopicType("pulsar");
+        inLongTopic.setProperties(new HashMap<>());
 
         CacheZoneCluster cacheZoneCluster = new CacheZoneCluster("clusterId", "bootstraps", "token");
         inLongTopic.setInLongCluster(cacheZoneCluster);
