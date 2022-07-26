@@ -430,7 +430,7 @@
         update stream_sink
         set status          = #{status,jdbcType=INTEGER},
             previous_status = status,
-            operate_log     = #{operateLog,jdbcType=VARCHAR},
+            operate_log     = #{operateLog,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <select id="selectAllTasks" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortTaskInfo">
