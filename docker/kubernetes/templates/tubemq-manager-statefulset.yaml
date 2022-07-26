@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqManager }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -125,3 +126,4 @@ spec:
             - name: tubemq-mgr-port
               containerPort: 8089
       restartPolicy: Always
+{{- end }}

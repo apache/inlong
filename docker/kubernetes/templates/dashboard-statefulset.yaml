@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.dashboard }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -90,3 +91,4 @@ spec:
             - name: {{ .Values.dashboard.component }}-port
               containerPort: 80
       restartPolicy: Always
+{{- end }}

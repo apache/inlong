@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqServer }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -51,3 +52,4 @@ data:
     # start master
     /opt/tubemq-server/bin/tubemq.sh master start
     tail -F /opt/tubemq-server/logs/master.log
+{{- end }}

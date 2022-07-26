@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqServer }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -51,3 +52,4 @@ data:
     repNodeName={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-REPLACE_BY_POD_ID
     repNodePort={{ .Values.tubemqMaster.ports.helpPort }}
     repHelperHost={{ template "inlong.fullname" . }}-{{ .Values.tubemqMaster.component }}-0.{{ template "inlong.tubemqMaster.hostname" . }}:{{ .Values.tubemqMaster.ports.helpPort }}
+{{- end }}
