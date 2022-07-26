@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Pulsar source information data transfer object
@@ -63,6 +64,9 @@ public class PulsarSourceDTO {
     @Builder.Default
     private String scanStartupMode = "earliest";
 
+    @ApiModelProperty("Properties for Pulsar")
+    private Map<String, Object> properties;
+
     /**
      * Get the dto instance from the request
      */
@@ -75,6 +79,7 @@ public class PulsarSourceDTO {
                 .topic(request.getTopic())
                 .primaryKey(request.getPrimaryKey())
                 .scanStartupMode(request.getScanStartupMode())
+                .properties(request.getProperties())
                 .build();
     }
 
@@ -83,7 +88,7 @@ public class PulsarSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, PulsarSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

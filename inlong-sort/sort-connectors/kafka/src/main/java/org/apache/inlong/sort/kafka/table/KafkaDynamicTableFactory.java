@@ -87,6 +87,7 @@ import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.get
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSinkOptions;
 import static org.apache.flink.streaming.connectors.kafka.table.KafkaOptions.validateTableSourceOptions;
 import static org.apache.flink.table.factories.FactoryUtil.SINK_PARALLELISM;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * Copy from org.apache.flink:flink-connector-kafka_2.11:1.13.5
@@ -205,6 +206,7 @@ public class KafkaDynamicTableFactory
         options.add(SINK_PARTITIONER);
         options.add(SINK_SEMANTIC);
         options.add(SINK_PARALLELISM);
+        options.add(KAFKA_IGNORE_ALL_CHANGELOG);
         return options;
     }
 
@@ -305,6 +307,7 @@ public class KafkaDynamicTableFactory
                 keyPrefix,
                 tableOptions.get(TOPIC).get(0),
                 getKafkaProperties(context.getCatalogTable().getOptions()),
+                context.getCatalogTable(),
                 getFlinkKafkaPartitioner(tableOptions, context.getClassLoader()).orElse(null),
                 getSinkSemantic(tableOptions),
                 parallelism);
@@ -350,6 +353,7 @@ public class KafkaDynamicTableFactory
             @Nullable String keyPrefix,
             String topic,
             Properties properties,
+            CatalogTable table,
             FlinkKafkaPartitioner<RowData> partitioner,
             KafkaSinkSemantic semantic,
             Integer parallelism) {
@@ -363,6 +367,7 @@ public class KafkaDynamicTableFactory
                 keyPrefix,
                 topic,
                 properties,
+                table,
                 partitioner,
                 semantic,
                 false,

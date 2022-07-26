@@ -30,10 +30,10 @@ import org.apache.inlong.manager.common.beans.PageRequest;
  * Inlong stream paging query conditions
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 @ApiModel("Inlong stream paging query request")
 public class InlongStreamPageRequest extends PageRequest {
 
@@ -42,12 +42,6 @@ public class InlongStreamPageRequest extends PageRequest {
 
     @ApiModelProperty(value = "Keyword, can be stream id or name")
     private String keyword;
-
-    @ApiModelProperty(value = "Sink type to be created (which has no inlong stream of this type)")
-    private String sinkType;
-
-    @ApiModelProperty(value = "Whether to get the sink type list, 0 (default): not get, 1: get")
-    private Integer needSinkList = 0;
 
     @ApiModelProperty(value = "status")
     private Integer status;

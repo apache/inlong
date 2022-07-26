@@ -28,7 +28,9 @@ public enum KafkaOffset {
 
     EARLIEST("earliest"),
     LATEST("latest"),
+    SPECIFIC("specific"),
     NONE("none");
+
 
     @Getter
     private final String name;

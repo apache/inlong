@@ -25,19 +25,27 @@ public class InlongConstants {
     /**
      * Group config
      */
-    public static final Integer UN_DELETED = 0;
+    public static final String COMMA = ",";
 
-    public static final Integer IS_DELETED = 1;
+    public static final Integer AFFECTED_ONE_ROW = 1;
+
+    public static final Integer INITIAL_VERSION = 1;
+
+    public static final Integer UN_DELETED = 0;
 
     public static final Integer DELETED_STATUS = 10;
 
-    public static final Integer DISABLE_CREATE_RESOURCE = 0;
+    public static final Integer NORMAL_MODE = 0;
+    public static final Integer LIGHTWEIGHT_MODE = 1;
 
+    public static final Integer DISABLE_ZK = 0;
+    public static final Integer ENABLE_ZK = 1;
+
+    public static final Integer DISABLE_CREATE_RESOURCE = 0;
     public static final Integer ENABLE_CREATE_RESOURCE = 1;
 
-    public static final Integer SYNC_SEND = 1;
-
     public static final Integer UN_SYNC_SEND = 0;
+    public static final Integer SYNC_SEND = 1;
 
     public static final String BATCH_TASK = "batch.task";
 
@@ -60,7 +68,7 @@ public class InlongConstants {
     /**
      * Sort config
      */
-    public static final String DATA_FLOW = "dataFlow";
+    public static final String DATAFLOW = "dataflow";
 
     public static final String STREAMS = "streams";
 

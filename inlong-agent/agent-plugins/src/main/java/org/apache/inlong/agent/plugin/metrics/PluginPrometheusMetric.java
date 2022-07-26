@@ -33,32 +33,32 @@ public class PluginPrometheusMetric implements PluginMetric {
     public static final String SEND_SUCCESS_NUM_COUNTER_NAME = "send_success_num_count";
 
     // agent-counters
-    private final Counter readNumCounter = Counter.build()
+    private static final Counter READ_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_NUM_COUNTER_NAME)
             .help("The total number of reads.")
             .labelNames("tag")
             .register();
-    private final Counter sendNumCounter = Counter.build()
+    private static final Counter SEND_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_NUM_COUNTER_NAME)
             .help("The total number of sends.")
             .labelNames("tag")
             .register();
-    private final Counter readFailedNumCounter = Counter.build()
+    private static final Counter READ_FAILED_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_FAILED_NUM_COUNTER_NAME)
             .help("The total number of failed reads.")
             .labelNames("tag")
             .register();
-    private final Counter sendFailedNumCounter = Counter.build()
+    private static final Counter SEND_FAILED_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_FAILED_NUM_COUNTER_NAME)
             .help("The total number of failed sends.")
             .labelNames("tag")
             .register();
-    private final Counter readSuccessNumCounter = Counter.build()
+    private static final Counter READ_SUCCESS_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + READ_SUCCESS_NUM_COUNTER_NAME)
             .help("The total number of successful reads.")
             .labelNames("tag")
             .register();
-    private final Counter sendSuccessNumCounter = Counter.build()
+    private static final Counter SEND_SUCCESS_NUM_COUNTER = Counter.build()
             .name(AGENT_PLUGIN_METRICS_PREFIX + SEND_SUCCESS_NUM_COUNTER_NAME)
             .help("The total number of successful sends.")
             .labelNames("tag")
@@ -77,66 +77,66 @@ public class PluginPrometheusMetric implements PluginMetric {
 
     @Override
     public void incReadNum() {
-        readNumCounter.labels(tagName).inc();
+        READ_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getReadNum() {
-        return (long) readNumCounter.labels(tagName).get();
+        return (long) READ_NUM_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incSendNum() {
-        sendNumCounter.labels(tagName).inc();
+        SEND_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSendNum() {
-        return (long) sendNumCounter.labels(tagName).get();
+        return (long) SEND_NUM_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incReadFailedNum() {
-        readFailedNumCounter.labels(tagName).inc();
+        READ_FAILED_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getReadFailedNum() {
-        return (long) readFailedNumCounter.labels(tagName).get();
+        return (long) READ_FAILED_NUM_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incSendFailedNum() {
-        sendFailedNumCounter.labels(tagName).inc();
+        SEND_FAILED_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getSendFailedNum() {
-        return (long) sendFailedNumCounter.labels(tagName).get();
+        return (long) SEND_FAILED_NUM_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incReadSuccessNum() {
-        readSuccessNumCounter.labels(tagName).inc();
+        READ_SUCCESS_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public long getReadSuccessNum() {
-        return (long) readSuccessNumCounter.labels(tagName).get();
+        return (long) READ_SUCCESS_NUM_COUNTER.labels(tagName).get();
     }
 
     @Override
     public void incSendSuccessNum() {
-        sendSuccessNumCounter.labels(tagName).inc();
+        SEND_SUCCESS_NUM_COUNTER.labels(tagName).inc();
     }
 
     @Override
     public void incSendSuccessNum(int delta) {
-        sendSuccessNumCounter.labels(tagName).inc(delta);
+        SEND_SUCCESS_NUM_COUNTER.labels(tagName).inc(delta);
     }
 
     @Override
     public long getSendSuccessNum() {
-        return (long) sendSuccessNumCounter.labels(tagName).get();
+        return (long) SEND_SUCCESS_NUM_COUNTER.labels(tagName).get();
     }
 }

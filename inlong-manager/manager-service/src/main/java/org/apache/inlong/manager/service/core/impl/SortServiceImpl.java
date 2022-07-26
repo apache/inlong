@@ -17,109 +17,38 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import com.google.gson.Gson;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.common.pojo.sdk.CacheZone;
-import org.apache.inlong.common.pojo.sdk.CacheZoneConfig;
-import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.manager.service.core.SortClusterService;
-import org.apache.inlong.manager.service.core.SortService;
 import org.apache.inlong.manager.service.core.SortSourceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.manager.service.core.SortService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 /**
  * Sort service implementation.
  */
+@Lazy
 @Service
 public class SortServiceImpl implements SortService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SortServiceImpl.class);
-    private static final Gson GSON = new Gson();
-
-    private static final int RESPONSE_CODE_SUCCESS = 0;
-    private static final int RESPONSE_CODE_NO_UPDATE = 1;
-    private static final int RESPONSE_CODE_FAIL = -1;
-    private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
-
+    @Lazy
     @Autowired
     private SortSourceService sortSourceService;
 
+    @Lazy
     @Autowired
     private SortClusterService sortClusterService;
 
     @Override
     public SortClusterResponse getClusterConfig(String clusterName, String md5) {
+
         return sortClusterService.getClusterConfig(clusterName, md5);
     }
 
     @Override
     public SortSourceConfigResponse getSourceConfig(String clusterName, String sortTaskId, String md5) {
-        // check if clusterName and sortTaskId are null.
-        if (StringUtils.isBlank(clusterName) || StringUtils.isBlank(sortTaskId)) {
-            String errMsg = "Blank cluster name or task id, return nothing";
-            return SortSourceConfigResponse.builder()
-                    .msg(errMsg)
-                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
-                    .build();
-        }
-
-        // get cacheZones
-        Map<String, CacheZone> cacheZones;
-        try {
-            cacheZones = sortSourceService.getCacheZones(clusterName, sortTaskId);
-        } catch (Exception e) {
-            String errMsg = "Get cache zones exception: " + e.getMessage();
-            LOGGER.error(errMsg, e);
-            return SortSourceConfigResponse.builder()
-                    .msg(errMsg)
-                    .code(RESPONSE_CODE_FAIL)
-                    .build();
-        }
-
-        // if there is not any cacheZones
-        if (cacheZones.isEmpty()) {
-            String errMsg = "There is not any cacheZones of cluster: " + clusterName
-                    + " , task: " + sortTaskId
-                    + " , please check the params";
-            LOGGER.error(errMsg);
-            return SortSourceConfigResponse.builder()
-                    .msg(errMsg)
-                    .code(RESPONSE_CODE_REQ_PARAMS_ERROR)
-                    .build();
-        }
-
-        CacheZoneConfig data = CacheZoneConfig.builder()
-                .sortClusterName(clusterName)
-                .sortTaskId(sortTaskId)
-                .cacheZones(cacheZones)
-                .build();
-
-        // no update
-        String json = GSON.toJson(data);
-        String localMd5 = DigestUtils.md5Hex(json);
-        if (md5.equals(localMd5)) {
-            String msg = "Same md5, no update";
-            return SortSourceConfigResponse.builder()
-                    .msg(msg)
-                    .code(RESPONSE_CODE_NO_UPDATE)
-                    .md5(md5)
-                    .build();
-        }
-
-        // normal response
-        return SortSourceConfigResponse.builder()
-                .msg("success")
-                .code(RESPONSE_CODE_SUCCESS)
-                .data(data)
-                .md5(localMd5)
-                .build();
+        return sortSourceService.getSourceConfig(clusterName, sortTaskId, md5);
     }
-
 }

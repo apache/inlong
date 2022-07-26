@@ -194,7 +194,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
               pageNum: 1,
               pageSize: 1000,
               inlongGroupId,
-              dataSourceType: options.sourceType,
             },
           },
           requestParams: {

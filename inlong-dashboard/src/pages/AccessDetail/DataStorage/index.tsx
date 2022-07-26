@@ -56,7 +56,7 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
     keyword: '',
     pageSize: defaultSize,
     pageNum: 1,
-    sinkType: 'HIVE',
+    sinkType: Storages[0].value,
   });
 
   const [curDataStreamIdentifier, setCurDataStreamIdentifier] = useState<string>();
@@ -86,7 +86,6 @@ const Comp = ({ inlongGroupId, readonly }: Props, ref) => {
         pageNum: 1,
         pageSize: 1000,
         inlongGroupId,
-        sinkType: options.sinkType,
       },
     },
     {

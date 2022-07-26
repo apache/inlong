@@ -92,7 +92,7 @@ public class CreateSortConfigListenerV0 implements SortOperateListener {
             // String dataFlows = OBJECT_MAPPER.writeValueAsString(dataFlowInfoMap);
             InlongGroupExtInfo extInfo = new InlongGroupExtInfo();
             extInfo.setInlongGroupId(groupId);
-            extInfo.setKeyName(InlongConstants.DATA_FLOW);
+            extInfo.setKeyName(InlongConstants.DATAFLOW);
             // extInfo.setKeyValue(dataFlows);
             if (groupInfo.getExtList() == null) {
                 groupInfo.setExtList(Lists.newArrayList());
@@ -106,7 +106,7 @@ public class CreateSortConfigListenerV0 implements SortOperateListener {
     }
 
     private void upsertDataFlow(InlongGroupInfo groupInfo, InlongGroupExtInfo extInfo) {
-        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATA_FLOW.equals(ext.getKeyName()));
+        groupInfo.getExtList().removeIf(ext -> InlongConstants.DATAFLOW.equals(ext.getKeyName()));
         groupInfo.getExtList().add(extInfo);
     }
 }

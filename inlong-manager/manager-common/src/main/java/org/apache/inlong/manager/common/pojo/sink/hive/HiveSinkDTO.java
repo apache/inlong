@@ -25,10 +25,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +46,13 @@ public class HiveSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Hive JDBC URL")
+    @ApiModelProperty("Hive JDBC URL, such as jdbc:hive2://${ip}:${port}")
     private String jdbcUrl;
 
-    @ApiModelProperty("Username for JDBC URL")
+    @ApiModelProperty("Username of the Hive server")
     private String username;
 
-    @ApiModelProperty("User password")
+    @ApiModelProperty("User password of the Hive server")
     private String password;
 
     @ApiModelProperty("Target database name")
@@ -70,32 +73,41 @@ public class HiveSinkDTO {
     @ApiModelProperty("Partition creation strategy, partition start, partition close")
     private String partitionCreationStrategy;
 
-    @ApiModelProperty("File format, support: TextFile, RCFile, SequenceFile, Avro")
+    @ApiModelProperty("File format, support: TextFile, ORCFile, RCFile, SequenceFile, Avro, Parquet, etc")
     private String fileFormat;
 
-    @ApiModelProperty("Data encoding type")
+    @ApiModelProperty("Data encoding format: UTF-8, GBK")
     private String dataEncoding;
 
-    @ApiModelProperty("Data field separator")
+    @ApiModelProperty("Data separator, stored as ASCII code")
     private String dataSeparator;
 
     @ApiModelProperty("Properties for hive")
     private Map<String, Object> properties;
 
-    @ApiModelProperty("Version for hive")
+    @ApiModelProperty("Version for Hive, such as: 3.2.1")
     private String hiveVersion;
 
-    @ApiModelProperty("Config directory of hive, needed by sort in light mode")
+    @ApiModelProperty("Password encrypt version")
+    private Integer encryptVersion;
+
+    @ApiModelProperty("Config directory of Hive on HDFS, needed by sort in light mode, must include hive-site.xml")
     private String hiveConfDir;
 
     /**
      * Get the dto instance from the request
      */
-    public static HiveSinkDTO getFromRequest(HiveSinkRequest request) {
+    public static HiveSinkDTO getFromRequest(HiveSinkRequest request) throws Exception {
+        Integer encryptVersion = AESUtils.getCurrentVersion(null);
+        String passwd = null;
+        if (StringUtils.isNotEmpty(request.getPassword())) {
+            passwd = AESUtils.encryptToString(request.getPassword().getBytes(StandardCharsets.UTF_8),
+                    encryptVersion);
+        }
         return HiveSinkDTO.builder()
                 .jdbcUrl(request.getJdbcUrl())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwd)
                 .dbName(request.getDbName())
                 .tableName(request.getTableName())
                 .dataPath(request.getDataPath())
@@ -107,6 +119,7 @@ public class HiveSinkDTO {
                 .dataSeparator(request.getDataSeparator())
                 .hiveVersion(request.getHiveVersion())
                 .hiveConfDir(request.getHiveConfDir())
+                .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
     }
@@ -117,9 +130,9 @@ public class HiveSinkDTO {
     public static HiveSinkDTO getFromJson(@NotNull String extParams) {
         try {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class);
+            return OBJECT_MAPPER.readValue(extParams, HiveSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
@@ -150,6 +163,14 @@ public class HiveSinkDTO {
         }
 
         return tableInfo;
+    }
+
+    private HiveSinkDTO decryptPassword() throws Exception {
+        if (StringUtils.isNotEmpty(this.password)) {
+            byte[] passwordBytes = AESUtils.decryptAsString(this.password, this.encryptVersion);
+            this.password = new String(passwordBytes, StandardCharsets.UTF_8);
+        }
+        return this;
     }
 
 }

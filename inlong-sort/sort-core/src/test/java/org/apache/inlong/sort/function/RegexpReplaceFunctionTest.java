@@ -31,7 +31,6 @@ import org.apache.flink.util.CloseableIterator;
 import org.apache.inlong.sort.formats.common.StringFormatInfo;
 import org.apache.inlong.sort.protocol.FieldInfo;
 import org.apache.inlong.sort.protocol.transformation.StringConstantParam;
-import org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -60,18 +59,21 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
         env.setParallelism(1);
         env.enableCheckpointing(10000);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env, settings);
+        tableEnv.createTemporaryFunction("REGEXP_REPLACE", RegexpReplaceFunction.class);
         // step 1. Generate test data and convert to DataStream
         List<Row> data = new ArrayList<>();
-        data.add(Row.of("inlong is a data integration tool and inlong has been used by many companies"));
+        data.add(Row.of("111222333,111222333,111222333"));
         TypeInformation<?>[] types = {
                 BasicTypeInfo.STRING_TYPE_INFO};
         String[] names = {"f1"};
         RowTypeInfo typeInfo = new RowTypeInfo(types, names);
         DataStream<Row> dataStream = env.fromCollection(data).returns(typeInfo);
         // step 2. Convert from DataStream to Table and execute the REGEXP_REPLACE function
-        RegexpReplaceFunction regexpReplaceFunction = new RegexpReplaceFunction(new FieldInfo("f1",
-                new StringFormatInfo()), new StringConstantParam("inlong*"),
-                new StringConstantParam("INLONG"));
+        org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction regexpReplaceFunction =
+                new org.apache.inlong.sort.protocol.transformation.function.RegexpReplaceFunction(
+                        new FieldInfo("f1", new StringFormatInfo()),
+                        new StringConstantParam("(\\d{3})\\d*(\\d{3})"),
+                        new StringConstantParam("$1***$2"));
         Table tempView = tableEnv.fromDataStream(dataStream).as("f1");
         tableEnv.createTemporaryView("temp_view", tempView);
         String sqlQuery = String.format("SELECT %s as f1 FROM temp_view", regexpReplaceFunction.format());
@@ -85,7 +87,7 @@ public class RegexpReplaceFunctionTest extends AbstractTestBase {
             result.add(next);
         }
         // step 4. Whether the comparison results are as expected
-        String expect = "INLONG is a data integration tool and INLONG has been used by many companies";
+        String expect = "111***333,111***333,111***333";
         Assert.assertEquals(expect, result.get(0));
     }
 

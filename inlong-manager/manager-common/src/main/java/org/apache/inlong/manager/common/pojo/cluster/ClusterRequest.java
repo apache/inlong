@@ -22,10 +22,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.pojo.cluster.agent.AgentClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterRequest;
@@ -38,7 +38,6 @@ import javax.validation.constraints.NotNull;
  * Inlong cluster request
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong cluster request")
@@ -47,8 +46,9 @@ import javax.validation.constraints.NotNull;
         @JsonSubTypes.Type(value = DataProxyClusterRequest.class, name = ClusterType.DATA_PROXY),
         @JsonSubTypes.Type(value = PulsarClusterRequest.class, name = ClusterType.PULSAR),
         @JsonSubTypes.Type(value = TubeClusterRequest.class, name = ClusterType.TUBE),
+        @JsonSubTypes.Type(value = AgentClusterRequest.class, name = ClusterType.AGENT),
 })
-public class ClusterRequest {
+public abstract class ClusterRequest {
 
     @NotNull(groups = UpdateValidation.class)
     @ApiModelProperty(value = "Primary key")
@@ -83,5 +83,8 @@ public class ClusterRequest {
 
     @ApiModelProperty(value = "Name of responsible person, separated by commas")
     private String inCharges;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
 }

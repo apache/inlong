@@ -35,7 +35,7 @@ const oracleFieldTypes = [
   'FLOAT',
   'FLOAT4',
   'FLOAT8',
-  'DOUBLE PRECISION',
+  'DOUBLE',
   'REAL',
   'NUMBER',
   'NUMERIC',
@@ -48,7 +48,6 @@ const oracleFieldTypes = [
   'CLOB',
   'RAW',
   'BLOB',
-  // 'interval',
 ].map(item => ({
   label: item,
   value: item,
@@ -65,7 +64,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'jdbcUrl',
       rules: [{ required: true }],
       props: {
-        placeholder: 'jdbc:oracle:thin://127.0.0.1:3306/write',
+        placeholder: 'jdbc:oracle:thin://127.0.0.1:1521/db_name',
         disabled: isEdit && [110, 130].includes(currentValues?.status),
         style: { width: 500 },
       },
@@ -89,6 +88,27 @@ const getForm: GetStorageFormFieldsType = (
         disabled: isEdit && [110, 130].includes(currentValues?.status),
       },
       _inTable: true,
+    },
+    {
+      type: 'radio',
+      label: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResource'),
+      name: 'enableCreateResource',
+      rules: [{ required: true }],
+      initialValue: 1,
+      tooltip: i18n.t('components.AccessHelper.StorageMetaData.EnableCreateResourceHelp'),
+      props: {
+        disabled: isEdit && [110, 130].includes(currentValues?.status),
+        options: [
+          {
+            label: i18n.t('basic.Yes'),
+            value: 1,
+          },
+          {
+            label: i18n.t('basic.No'),
+            value: 0,
+          },
+        ],
+      },
     },
     {
       type: 'input',
@@ -160,6 +180,7 @@ const getFieldListColumns: GetStorageColumnsType = (dataType, currentValues) => 
     },
     {
       title: i18n.t('components.AccessHelper.StorageMetaData.Oracle.IsMetaField'),
+      initialValue: 0,
       dataIndex: 'isMetaField',
       type: 'select',
       props: (text, record, idx, isNew) => ({

@@ -18,12 +18,14 @@
 package org.apache.inlong.manager.service.source;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service layer interface for stream source
@@ -57,6 +59,18 @@ public interface StreamSourceService {
     List<StreamSource> listSource(String groupId, String streamId);
 
     /**
+     * Get the StreamSource Map by the inlong group info and inlong stream info list.
+     * <p/>
+     * If the group mode is LIGHTWEIGHT, means not using any MQ as a cached source, then just get all related sources.
+     * Otherwise, if the group mode is NORMAL, need get the cached MQ sources.
+     *
+     * @param groupInfo inlong group info
+     * @param streamInfos inlong stream info list
+     * @return map of StreamSource list, key-inlongStreamId, value-StreamSourceList
+     */
+    Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
+
+    /**
      * Query the number of undeleted source info based on inlong group and inlong stream id.
      *
      * @param groupId Inlong group id.
@@ -68,10 +82,10 @@ public interface StreamSourceService {
     /**
      * Paging query source information based on conditions.
      *
-     * @param request Paging request.
-     * @return Source info list.
+     * @param request paging request.
+     * @return source list
      */
-    PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request);
+    PageInfo<? extends StreamSource> listByCondition(SourcePageRequest request);
 
     /**
      * Modify data source information
@@ -80,7 +94,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return whether succeed
      */
-    boolean update(SourceRequest sourceRequest, String operator);
+    Boolean update(SourceRequest sourceRequest, String operator);
 
     /**
      * Update source status by the given groupId and streamId
@@ -91,7 +105,7 @@ public interface StreamSourceService {
      * @param operator The operator name.
      * @return whether succeed
      */
-    boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator);
+    Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -100,7 +114,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean delete(Integer id, String operator);
+    Boolean delete(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -109,7 +123,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean restart(Integer id, String operator);
+    Boolean restart(Integer id, String operator);
 
     /**
      * Delete the stream source by the given id and source type.
@@ -118,7 +132,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed
      */
-    boolean stop(Integer id, String operator);
+    Boolean stop(Integer id, String operator);
 
     /**
      * Logically delete stream source with the given conditions.
@@ -128,7 +142,7 @@ public interface StreamSourceService {
      * @param operator Operator's name
      * @return Whether succeed.
      */
-    boolean logicDeleteAll(String groupId, String streamId, String operator);
+    Boolean logicDeleteAll(String groupId, String streamId, String operator);
 
     /**
      * Physically delete stream source meta data with the given conditions.

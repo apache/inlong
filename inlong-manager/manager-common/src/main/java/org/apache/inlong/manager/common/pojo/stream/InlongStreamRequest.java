@@ -98,4 +98,8 @@ public class InlongStreamRequest {
 
     @ApiModelProperty(value = "Inlong stream Extension properties")
     private List<InlongStreamExtInfo> extList;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

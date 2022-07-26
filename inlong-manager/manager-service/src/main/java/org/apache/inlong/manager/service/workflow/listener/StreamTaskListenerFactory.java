@@ -28,8 +28,8 @@ import org.apache.inlong.manager.service.mq.DeletePulsarTopicTaskListener;
 import org.apache.inlong.manager.service.mq.PulsarTopicCreateSelector;
 import org.apache.inlong.manager.service.mq.PulsarTopicDeleteSelector;
 import org.apache.inlong.manager.service.resource.StreamSinkResourceListener;
-import org.apache.inlong.manager.service.sort.CreateStreamSortConfigListener;
-import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
+import org.apache.inlong.manager.service.sort.StreamSortConfigListener;
+import org.apache.inlong.manager.service.sort.ZookeeperEnabledSelector;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
@@ -69,7 +69,7 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
     @Autowired
     private DeletePulsarTopicTaskListener deletePulsarTopicTaskListener;
     @Autowired
-    private CreateStreamSortConfigListener createSortConfigListener;
+    private StreamSortConfigListener streamSortConfigListener;
     @Autowired
     private StreamSinkResourceListener sinkResourceListener;
 
@@ -81,7 +81,7 @@ public class StreamTaskListenerFactory implements PluginBinder, ServiceTaskListe
         queueOperateListeners.put(createPulsarSubscriptionTaskListener, new PulsarTopicCreateSelector());
         queueOperateListeners.put(deletePulsarTopicTaskListener, new PulsarTopicDeleteSelector());
         sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(createSortConfigListener, new ZookeeperDisabledSelector());
+        sortOperateListeners.put(streamSortConfigListener, new ZookeeperEnabledSelector());
         sinkOperateListeners = new LinkedHashMap<>();
         sinkOperateListeners.put(sinkResourceListener, context -> {
             ProcessForm processForm = context.getProcessForm();

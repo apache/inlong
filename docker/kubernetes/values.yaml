@@ -50,10 +50,6 @@ images:
     tag: latest
   pullPolicy: "IfNotPresent"
 
-volumes:
-  persistence: false
-  storageClassName: "local-storage"
-
 ingress:
   enabled: false
   hosts:
@@ -95,6 +91,11 @@ agent:
       memory: "512Mi"
   # The agent service port
   port: 8008
+  volumes:
+    name: rocksdb
+    size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   env:
     AGENT_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -207,6 +208,11 @@ dataproxy:
     externalName:
     # externalIPs is a list of IP addresses for which nodes in the cluster will also accept traffic for this service
     externalIPs:
+  volumes:
+    name: data
+    size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   env:
     DATAPROXY_JVM_HEAP_OPTS: >-
       -XX:+UseContainerSupport
@@ -318,6 +324,7 @@ manager:
       -XX:-UseAdaptiveSizePolicy
     ACTIVE_PROFILE: "prod"
     PLUGINS_URL: "default"
+    FLINK_PARALLELISM: 1
 
 audit:
   component: "audit"
@@ -406,6 +413,8 @@ mysql:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
 
 zookeeper:
   component: "zookeeper"
@@ -464,6 +473,8 @@ zookeeper:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -526,6 +537,8 @@ tubemqMaster:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
@@ -606,6 +619,8 @@ tubemqBroker:
   volumes:
     name: data
     size: "10Gi"
+    persistence: false
+    storageClassName: "local-storage"
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"

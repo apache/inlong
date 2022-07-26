@@ -24,26 +24,29 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.apache.inlong.manager.common.enums.SourceType;
+import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
 import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSourceRequest;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSourceRequest;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSourceRequest;
-import org.apache.inlong.manager.common.pojo.common.UpdateValidation;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSourceRequest;
+import org.apache.inlong.manager.common.pojo.source.tubemq.TubeMQSourceRequest;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Request info of source
+ * Stream source request
  */
 @Data
 @ApiModel("Request of source")
@@ -55,9 +58,10 @@ import java.util.List;
         @JsonSubTypes.Type(value = MongoDBSourceRequest.class, name = SourceType.SOURCE_MONGODB),
         @JsonSubTypes.Type(value = MySQLBinlogSourceRequest.class, name = SourceType.SOURCE_BINLOG),
         @JsonSubTypes.Type(value = OracleSourceRequest.class, name = SourceType.SOURCE_ORACLE),
-        @JsonSubTypes.Type(value = PostgresSourceRequest.class, name = SourceType.SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PostgreSQLSourceRequest.class, name = SourceType.SOURCE_POSTGRES),
         @JsonSubTypes.Type(value = PulsarSourceRequest.class, name = SourceType.SOURCE_PULSAR),
-        @JsonSubTypes.Type(value = SqlServerSourceRequest.class, name = SourceType.SOURCE_SQL),
+        @JsonSubTypes.Type(value = SQLServerSourceRequest.class, name = SourceType.SOURCE_SQL),
+        @JsonSubTypes.Type(value = TubeMQSourceRequest.class, name = SourceType.SOURCE_TUBEMQ),
 })
 public class SourceRequest {
 
@@ -111,5 +115,8 @@ public class SourceRequest {
 
     @ApiModelProperty("Field list, only support when inlong group in light weight mode")
     private List<StreamField> fieldList;
+
+    @ApiModelProperty("Other properties if needed")
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
 }

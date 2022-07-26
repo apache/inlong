@@ -61,7 +61,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
 
   const { data = realTimeValues, run: getList, mutate } = useRequest(
     {
-      url: '/stream/listAll',
+      url: '/stream/list',
       method: 'POST',
       data: {
         ...options,
@@ -119,7 +119,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       await request({
         url: '/stream/update',
         method: 'POST',
-        data: data?.[0]?.streamInfo,
+        data: data?.[0],
       });
     } else {
       // create
@@ -129,7 +129,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
       await request({
         url: '/stream/save',
         method: 'POST',
-        data: data?.[0]?.streamInfo,
+        data: data?.[0],
       });
     }
     await getList();

@@ -127,4 +127,6 @@ public class ConfigConstants {
     public static final String MANAGER_GET_ALL_CONFIG_PATH = "/dataproxy/getAllConfig";
     public static final String MANAGER_HEARTBEAT_REPORT = "/heartbeat/report";
 
+    public static final String MANAGER_AUTH_SECRET_ID = "manager.auth.secretId";
+    public static final String MANAGER_AUTH_SECRET_KEY = "manager.auth.secretKey";
 }

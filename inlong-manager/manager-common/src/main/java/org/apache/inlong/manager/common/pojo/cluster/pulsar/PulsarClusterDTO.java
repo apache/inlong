@@ -47,6 +47,7 @@ public class PulsarClusterDTO {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    @Builder.Default
     private String tenant = "public";
 
     /**
@@ -67,7 +68,7 @@ public class PulsarClusterDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, PulsarClusterDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.GROUP_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

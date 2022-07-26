@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.iceberg;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -42,10 +43,14 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @JsonTypeDefine(value = SinkType.SINK_ICEBERG)
 public class IcebergSink extends StreamSink {
 
-    @ApiModelProperty("Catalog URI")
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
+    private String catalogType = "HIVE";
+
+    @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
     private String catalogUri;
 
-    @ApiModelProperty("Data warehouse")
+    @ApiModelProperty("Iceberg data warehouse dir")
     private String warehouse;
 
     @ApiModelProperty("Target database name")
@@ -60,8 +65,8 @@ public class IcebergSink extends StreamSink {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
-    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
-    private String catalogType = "HIVE";
+    @ApiModelProperty("Partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
+    private String partitionType;
 
     @ApiModelProperty("Primary key")
     private String primaryKey;

@@ -54,9 +54,11 @@ public class UserInfo {
     @ApiModelProperty(value = "username", required = true)
     private String username;
 
-    @NotBlank(message = "password cannot be blank")
-    @ApiModelProperty(value = "password", required = true)
+    @ApiModelProperty(value = "password")
     private String password;
+
+    @ApiModelProperty(value = "newPassword")
+    private String newPassword;
 
     @ApiModelProperty("secret key")
     private String secretKey;
@@ -71,5 +73,8 @@ public class UserInfo {
     @NotNull(message = "validDays cannot be null")
     @ApiModelProperty(value = "valid days", required = true)
     private Integer validDays;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
 }

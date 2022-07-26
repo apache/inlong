@@ -21,7 +21,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.PasswordChangeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserDetail;
 import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
 import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
@@ -67,7 +66,8 @@ public class UserController {
     @GetMapping("/user/get/{id}")
     @ApiOperation(value = "Get user info")
     public Response<UserInfo> getById(@PathVariable Integer id) {
-        return Response.success(userService.getById(id));
+        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        return Response.success(userService.getById(id, currentUser));
     }
 
     @PostMapping("/user/update")
@@ -75,12 +75,6 @@ public class UserController {
     public Response<Integer> update(@Validated @RequestBody UserInfo userInfo) {
         String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
         return Response.success(userService.update(userInfo, currentUser));
-    }
-
-    @PostMapping("/user/updatePassword")
-    @ApiOperation(value = "Update user password")
-    public Response<Integer> updatePassword(@RequestBody PasswordChangeRequest request) {
-        return Response.success(userService.updatePassword(request));
     }
 
     @GetMapping("/user/listAllUsers")

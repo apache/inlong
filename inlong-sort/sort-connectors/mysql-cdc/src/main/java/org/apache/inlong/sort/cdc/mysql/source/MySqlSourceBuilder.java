@@ -252,6 +252,11 @@ public class MySqlSourceBuilder<T> {
         return this;
     }
 
+    public MySqlSourceBuilder<T> inlongMetric(String inlongMetric) {
+        this.configFactory.inlongMetric(inlongMetric);
+        return this;
+    }
+
     /**
      * Build the {@link MySqlSource}.
      *

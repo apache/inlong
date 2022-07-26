@@ -117,7 +117,7 @@ const getForm: GetStorageFormFieldsType = (
       name: 'port',
       type: 'inputnumber',
       label: i18n.t('components.AccessHelper.StorageMetaData.Es.Port'),
-      initialValue: 1,
+      initialValue: 9200,
       props: {
         min: 1,
         max: 65535,
@@ -162,7 +162,7 @@ const getForm: GetStorageFormFieldsType = (
       suffix: i18n.t('components.AccessHelper.StorageMetaData.Es.RetryTimesUnit'),
     },
     {
-      name: 'fieldList',
+      name: 'sinkFieldList',
       type: EditableTable,
       props: {
         size: 'small',

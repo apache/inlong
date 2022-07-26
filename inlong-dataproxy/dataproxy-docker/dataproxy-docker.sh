@@ -26,10 +26,10 @@ sed -i "s/audit.proxys=.*$/audit.proxys=${AUDIT_PROXY_URL}/g" "${common_conf_fil
 sed -i "s/proxy.local.host=.*$/proxy.local.host=${local_ip}/g" "${common_conf_file}"
 
 # start
-if [ $MQ_TYPE == "pulsar" ]; then
+if [ "${MQ_TYPE}" = "pulsar" ]; then
   bash +x ./bin/dataproxy-start.sh pulsar
 fi
-if [ $MQ_TYPE == "tubemq" ]; then
+if [ "${MQ_TYPE}" = "tubemq" ]; then
   bash +x ./bin/dataproxy-start.sh tube
 fi
 

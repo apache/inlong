@@ -41,6 +41,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_ID;
+import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_AUTH_SECRET_KEY;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_HOST;
 import static org.apache.inlong.agent.constant.FetcherConstants.AGENT_MANAGER_VIP_HTTP_PORT;
 
@@ -82,6 +84,8 @@ public class SenderManager {
     private int ioThreadNum;
     private boolean enableBusyWait;
     private Semaphore semaphore;
+    private String authSecretId;
+    private String authSecretKey;
 
     public SenderManager(JobProfile jobConf, String inlongGroupId, String sourcePath) {
         AgentConfiguration conf = AgentConfiguration.getAgentConf();
@@ -117,6 +121,8 @@ public class SenderManager {
                 CommonConstants.DEFAULT_PROXY_CLIENT_IO_THREAD_NUM);
         enableBusyWait = jobConf.getBoolean(CommonConstants.PROXY_CLIENT_ENABLE_BUSY_WAIT,
                 CommonConstants.DEFAULT_PROXY_CLIENT_ENABLE_BUSY_WAIT);
+        authSecretId = conf.get(AGENT_MANAGER_AUTH_SECRET_ID);
+        authSecretKey = conf.get(AGENT_MANAGER_AUTH_SECRET_KEY);
 
         this.sourcePath = sourcePath;
         this.inlongGroupId = inlongGroupId;
@@ -151,7 +157,7 @@ public class SenderManager {
     private DefaultMessageSender createMessageSender(String tagName) throws Exception {
 
         ProxyClientConfig proxyClientConfig = new ProxyClientConfig(
-                localhost, isLocalVisit, managerHost, managerPort, tagName, netTag);
+                localhost, isLocalVisit, managerHost, managerPort, tagName, netTag, authSecretId, authSecretKey);
         proxyClientConfig.setTotalAsyncCallbackSize(totalAsyncBufSize);
         proxyClientConfig.setFile(isFile);
         proxyClientConfig.setAliveConnections(aliveConnectionNum);

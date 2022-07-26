@@ -36,11 +36,13 @@ import org.slf4j.LoggerFactory;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -66,18 +68,15 @@ public class TestFileAgent {
     private static AgentBaseTestsHelper helper;
 
     @BeforeClass
-    public static void setup() throws Exception {
+    public static void setup() {
         try {
-            helper = new AgentBaseTestsHelper(
-                    TestFileAgent.class.getName()).setupAgentHome();
+            helper = new AgentBaseTestsHelper(TestFileAgent.class.getName()).setupAgentHome();
             agent = new MiniAgent();
             agent.start();
             testRootDir = helper.getTestRootDir();
         } catch (Exception e) {
             LOGGER.error("setup failure");
-
         }
-
     }
 
     @AfterClass
@@ -160,20 +159,22 @@ public class TestFileAgent {
 
     @Test
     public void testOneJobFullPath() throws Exception {
-        String jsonString = TestUtils.getTestTriggerProfile();
-        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
-        String path = Paths.get(getClass().getClassLoader().getResource("test").toURI()).toString();
+        URI uri = Objects.requireNonNull(getClass().getClassLoader().getResource("test")).toURI();
+        String path = Paths.get(uri).toString();
         String fileName = path + "/increment_test.txt";
         TestUtils.deleteFile(fileName);
+
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);
         triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
         triggerProfile.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
         TriggerManager triggerManager = agent.getManager().getTriggerManager();
         triggerManager.submitTrigger(triggerProfile);
-        Thread.currentThread().sleep(2000);
+        Thread.sleep(2000);
         Assert.assertEquals(3L, checkFullPathReadJob().longValue());
         TestUtils.createFile(fileName);
-        Thread.currentThread().sleep(10000);
+        Thread.sleep(10000);
         TestUtils.deleteFile(fileName);
     }
 
@@ -181,10 +182,9 @@ public class TestFileAgent {
         Map<String, JobWrapper> jobs = agent.getManager().getJobManager().getJobs();
         AtomicBoolean result = new AtomicBoolean(false);
         if (jobs.size() == 1) {
-            jobs.forEach(
-                    (s, jobWrapper) -> result.set(jobWrapper.getJob().getJobConf()
-                            .get(JOB_DIR_FILTER_PATTERN).equals(testRootDir
-                                    + FileSystems.getDefault().getSeparator() + "test0.dat"))
+            jobs.forEach((s, jobWrapper) ->
+                    result.set(jobWrapper.getJob().getJobConf().get(JOB_DIR_FILTER_PATTERN)
+                            .equals(testRootDir + FileSystems.getDefault().getSeparator() + "test0.dat"))
             );
         }
         return result.get();
@@ -192,9 +192,7 @@ public class TestFileAgent {
 
     @Test
     public void testCycleUnit() throws Exception {
-
         String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
-
         try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
@@ -211,9 +209,7 @@ public class TestFileAgent {
 
     @Test
     public void testGroupIdFilter() throws Exception {
-
         String nowDate = AgentUtils.formatCurrentTimeWithoutOffset("yyyyMMdd");
-
         try (InputStream stream = LOADER.getResourceAsStream("fileAgentJob.json")) {
             if (stream != null) {
                 String jobJson = IOUtils.toString(stream, StandardCharsets.UTF_8);
@@ -249,8 +245,7 @@ public class TestFileAgent {
     }
 
     private void assertJobSuccess() {
-        JobProfile jobConf = agent.getManager().getJobManager()
-                .getJobConfDb().getJob(StateSearchKey.SUCCESS);
+        JobProfile jobConf = agent.getManager().getJobManager().getJobConfDb().getJob(StateSearchKey.SUCCESS);
         if (jobConf != null) {
             Assert.assertEquals(1, jobConf.getInt("job.id"));
         }

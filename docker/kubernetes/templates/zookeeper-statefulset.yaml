@@ -127,11 +127,11 @@ spec:
             name:
               {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}
             defaultMode: 0755
-        {{- if not .Values.volumes.persistence }}
+        {{- if not .Values.zookeeper.volumes.persistence }}
         - name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.name }}
           emptyDir: {}
         {{- end }}
-  {{- if .Values.volumes.persistence }}
+  {{- if .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
     - metadata:
         name: {{ template "inlong.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.name }}
@@ -140,7 +140,7 @@ spec:
         resources:
           requests:
             storage: {{ .Values.zookeeper.volumes.size }}
-        {{- if .Values.volumes.storageClassName }}
-        storageClassName: "{{ .Values.volumes.storageClassName }}"
+        {{- if .Values.zookeeper.volumes.storageClassName }}
+        storageClassName: "{{ .Values.zookeeper.volumes.storageClassName }}"
         {{- end }}
   {{- end }}

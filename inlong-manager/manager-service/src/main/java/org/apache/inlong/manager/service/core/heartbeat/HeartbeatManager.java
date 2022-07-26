@@ -33,11 +33,12 @@ import org.apache.inlong.manager.common.enums.NodeStatus;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity;
 import org.apache.inlong.manager.dao.mapper.InlongClusterEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongClusterNodeEntityMapper;
+import org.apache.inlong.manager.service.cluster.InlongClusterOperator;
+import org.apache.inlong.manager.service.cluster.InlongClusterOperatorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,9 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
 
     @Getter
     private LoadingCache<ComponentHeartbeat, ClusterInfo> clusterInfos;
+
+    @Autowired
+    private InlongClusterOperatorFactory clusterOperatorFactory;
 
     @Autowired
     private InlongClusterEntityMapper clusterMapper;
@@ -154,7 +158,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         List<InlongClusterEntity> entities = clusterMapper.selectByKey(clusterTag, clusterName, type);
         if (CollectionUtils.isNotEmpty(entities)) {
             InlongClusterEntity cluster = entities.get(0);
-            ClusterInfo clusterInfo = CommonBeanUtils.copyProperties(cluster, ClusterInfo::new);
+            InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
+            ClusterInfo clusterInfo = operator.getFromEntity(cluster);
             return clusterInfo;
         }
         InlongClusterEntity cluster = new InlongClusterEntity();
@@ -167,7 +172,8 @@ public class HeartbeatManager implements AbstractHeartbeatManager {
         cluster.setModifier(UserRoleCode.ADMIN);
         cluster.setIsDeleted(InlongConstants.UN_DELETED);
         int index = clusterMapper.insertOnDuplicateKeyUpdate(cluster);
-        ClusterInfo clusterInfo = CommonBeanUtils.copyProperties(cluster, ClusterInfo::new);
+        InlongClusterOperator operator = clusterOperatorFactory.getInstance(cluster.getType());
+        ClusterInfo clusterInfo = operator.getFromEntity(cluster);
         clusterInfo.setId(index);
         return clusterInfo;
     }

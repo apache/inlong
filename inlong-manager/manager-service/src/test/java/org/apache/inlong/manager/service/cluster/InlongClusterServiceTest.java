@@ -18,15 +18,18 @@
 package org.apache.inlong.manager.service.cluster;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.pojo.dataproxy.DataProxyNodeInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -82,13 +85,14 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * Update cluster info.
      */
-    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl) {
+    public Boolean updatePulsarCluster(Integer id, String name, String clusterTag, String adminUrl, Integer version) {
         PulsarClusterRequest request = new PulsarClusterRequest();
         request.setId(id);
         request.setName(name);
         request.setClusterTags(clusterTag);
         request.setAdminUrl(adminUrl);
         request.setInCharges(GLOBAL_OPERATOR);
+        request.setVersion(version);
         return clusterService.update(request, GLOBAL_OPERATOR);
     }
 
@@ -114,22 +118,24 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
     /**
      * List cluster nodes by page.
      */
-    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword) {
+    public PageInfo<ClusterNodeResponse> listClusterNode(String type, String keyword, Integer parentId) {
         ClusterPageRequest request = new ClusterPageRequest();
         request.setType(type);
         request.setKeyword(keyword);
-        return clusterService.listNode(request);
+        request.setParentId(parentId);
+        return clusterService.listNode(request, "admin");
     }
 
     /**
      * Update cluster node info.
      */
-    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port) {
+    public Boolean updateClusterNode(Integer id, Integer parentId, String ip, Integer port, Integer version) {
         ClusterNodeRequest request = new ClusterNodeRequest();
         request.setId(id);
         request.setParentId(parentId);
         request.setIp(ip);
         request.setPort(port);
+        request.setVersion(version);
         return clusterService.updateNode(request, GLOBAL_OPERATOR);
     }
 
@@ -163,7 +169,8 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         String clusterNameUpdate = "default_pulsar_2";
         String clusterTagUpdate = "default_cluster_2";
         String adminUrlUpdate = "http://127.0.0.1:8088";
-        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate);
+        Boolean updateSuccess = this.updatePulsarCluster(id, clusterNameUpdate, clusterTagUpdate, adminUrlUpdate,
+                pulsarCluster.getVersion());
         Assertions.assertTrue(updateSuccess);
 
         // save cluster node
@@ -174,13 +181,14 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Assertions.assertNotNull(nodeId);
 
         // list cluster node
-        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip);
+        PageInfo<ClusterNodeResponse> listNode = this.listClusterNode(ClusterType.PULSAR, ip, id);
         Assertions.assertEquals(listNode.getTotal(), 1);
 
         // update cluster node
         String ipUpdate = "localhost";
         Integer portUpdate = 8083;
-        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate);
+        Integer version = listNode.getList().get(0).getVersion();
+        Boolean updateNodeSuccess = this.updateClusterNode(nodeId, parentId, ipUpdate, portUpdate, version);
         Assertions.assertTrue(updateNodeSuccess);
 
         // delete cluster node
@@ -212,12 +220,16 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port2);
         Assertions.assertNotNull(nodeId2);
 
-        // Get the data proxy cluster ip list, the first port should is p1, second port is p2
-        ClusterPageRequest request = new ClusterPageRequest();
-        request.setName(clusterName);
-        request.setClusterTag(clusterTag);
-        request.setExtTag(extTag);
-        List<DataProxyNodeInfo> ipList = clusterService.getDataProxyNodeList(request);
+        // create an inlong group which use the clusterTag
+        String inlongGroupId = "test_cluster_tag_group";
+        InlongGroupInfo inlongGroup = super.createInlongGroup(inlongGroupId, MQType.MQ_PULSAR);
+        InlongGroupInfo updateGroupInfo = groupService.get(inlongGroupId);
+        updateGroupInfo.setInlongClusterTag(clusterTag);
+        groupService.update(updateGroupInfo.genRequest(), GLOBAL_OPERATOR);
+
+        // get the data proxy nodes, the first port should is p1, second port is p2
+        DataProxyNodeResponse nodeResponse = clusterService.getDataProxyNodes(inlongGroupId);
+        List<DataProxyNodeInfo> ipList = nodeResponse.getNodeList();
         Assertions.assertEquals(ipList.size(), 2);
         Assertions.assertEquals(port1, ipList.get(0).getPort());
         Assertions.assertEquals(port2, ipList.get(1).getPort());

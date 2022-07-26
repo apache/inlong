@@ -22,10 +22,10 @@ import lombok.Data;
 import org.apache.inlong.common.heartbeat.HeartbeatMsg;
 
 /**
- * Request of heartbeat report
+ * Heartbeat report request
  */
 @Data
-@ApiModel("Request of heartbeat report")
+@ApiModel("Heartbeat report request")
 public class HeartbeatReportRequest extends HeartbeatMsg {
 
 }

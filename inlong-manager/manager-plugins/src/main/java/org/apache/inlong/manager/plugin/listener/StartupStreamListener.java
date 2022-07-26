@@ -88,8 +88,8 @@ public class StartupStreamListener implements SortOperateListener {
             kvConf.putAll(result);
         }
 
-        String dataFlows = kvConf.get(InlongConstants.DATA_FLOW);
-        if (StringUtils.isEmpty(dataFlows)) {
+        String dataflow = kvConf.get(InlongConstants.DATAFLOW);
+        if (StringUtils.isEmpty(dataflow)) {
             String message = String.format("dataflow is empty for groupId [%s] and streamId [%s]", groupId, streamId);
             log.error(message);
             return ListenerResult.fail(message);
@@ -105,7 +105,7 @@ public class StartupStreamListener implements SortOperateListener {
         FlinkOperation flinkOperation = new FlinkOperation(flinkService);
 
         try {
-            flinkOperation.genPath(flinkInfo, dataFlows);
+            flinkOperation.genPath(flinkInfo, dataflow);
             flinkOperation.start(flinkInfo);
             log.info("job submit success, jobId is [{}]", flinkInfo.getJobId());
         } catch (Exception e) {

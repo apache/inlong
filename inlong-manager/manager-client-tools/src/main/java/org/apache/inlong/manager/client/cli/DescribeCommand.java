@@ -20,18 +20,19 @@ package org.apache.inlong.manager.client.cli;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.client.api.impl.InlongClientImpl;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongGroupClient;
+import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
 import org.apache.inlong.manager.client.cli.pojo.GroupInfo;
 import org.apache.inlong.manager.client.cli.util.ClientUtils;
 import org.apache.inlong.manager.client.cli.util.PrintUtils;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -45,26 +46,15 @@ public class DescribeCommand extends AbstractCommand {
 
     public DescribeCommand() {
         super("describe");
-        InlongClientImpl inlongClient;
-        try {
-            inlongClient = ClientUtils.getClient();
-        } catch (IOException e) {
-            System.err.println("get inlong client error");
-            System.err.println(e.getMessage());
-            return;
-        }
-        InnerInlongManagerClient managerClient = new InnerInlongManagerClient(inlongClient.getConfiguration());
 
-        jcommander.addCommand("stream", new DescribeStream(managerClient));
-        jcommander.addCommand("group", new DescribeGroup(managerClient));
-        jcommander.addCommand("sink", new DescribeSink(managerClient));
-        jcommander.addCommand("source", new DescribeSource(managerClient));
+        jcommander.addCommand("stream", new DescribeStream());
+        jcommander.addCommand("group", new DescribeGroup());
+        jcommander.addCommand("sink", new DescribeSink());
+        jcommander.addCommand("source", new DescribeSource());
     }
 
     @Parameters(commandDescription = "Get stream details")
     private static class DescribeStream extends AbstractCommandRunner {
-
-        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -72,14 +62,12 @@ public class DescribeCommand extends AbstractCommand {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String groupId;
 
-        DescribeStream(InnerInlongManagerClient managerClient) {
-            this.managerClient = managerClient;
-        }
-
         @Override
         void run() {
             try {
-                List<InlongStreamInfo> streamInfos = managerClient.listStreamInfo(groupId);
+                ClientUtils.initClientFactory();
+                InlongStreamClient streamClient = ClientUtils.clientFactory.getStreamClient();
+                List<InlongStreamInfo> streamInfos = streamClient.listStreamInfo(groupId);
                 streamInfos.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -89,8 +77,6 @@ public class DescribeCommand extends AbstractCommand {
 
     @Parameters(commandDescription = "Get group details")
     private static class DescribeGroup extends AbstractCommandRunner {
-
-        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -104,16 +90,14 @@ public class DescribeCommand extends AbstractCommand {
         @Parameter(names = {"-n", "--num"}, description = "the number displayed")
         private int pageSize;
 
-        DescribeGroup(InnerInlongManagerClient managerClient) {
-            this.managerClient = managerClient;
-        }
-
         @Override
         void run() {
             try {
+                ClientUtils.initClientFactory();
+                InlongGroupClient groupClient = ClientUtils.clientFactory.getGroupClient();
                 InlongGroupPageRequest pageRequest = new InlongGroupPageRequest();
                 pageRequest.setKeyword(group);
-                PageInfo<InlongGroupListResponse> pageInfo = managerClient.listGroups(pageRequest);
+                PageInfo<InlongGroupBriefInfo> pageInfo = groupClient.listGroups(pageRequest);
                 PrintUtils.print(pageInfo.getList(), GroupInfo.class);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -124,8 +108,6 @@ public class DescribeCommand extends AbstractCommand {
     @Parameters(commandDescription = "Get sink details")
     private static class DescribeSink extends AbstractCommandRunner {
 
-        private final InnerInlongManagerClient managerClient;
-
         @Parameter()
         private java.util.List<String> params;
 
@@ -135,15 +117,13 @@ public class DescribeCommand extends AbstractCommand {
         @Parameter(names = {"-g", "--group"}, required = true, description = "inlong group id")
         private String group;
 
-        DescribeSink(InnerInlongManagerClient managerClient) {
-            this.managerClient = managerClient;
-        }
-
         @Override
         void run() {
             try {
-                List<SinkListResponse> sinkListResponses = managerClient.listSinks(group, stream);
-                sinkListResponses.forEach(PrintUtils::printJson);
+                ClientUtils.initClientFactory();
+                StreamSinkClient sinkClient = ClientUtils.clientFactory.getSinkClient();
+                List<StreamSink> streamSinks = sinkClient.listSinks(group, stream);
+                streamSinks.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -152,8 +132,6 @@ public class DescribeCommand extends AbstractCommand {
 
     @Parameters(commandDescription = "Get source details")
     private static class DescribeSource extends AbstractCommandRunner {
-
-        private final InnerInlongManagerClient managerClient;
 
         @Parameter()
         private java.util.List<String> params;
@@ -167,15 +145,13 @@ public class DescribeCommand extends AbstractCommand {
         @Parameter(names = {"-t", "--type"}, description = "sink type")
         private String type;
 
-        DescribeSource(InnerInlongManagerClient managerClient) {
-            this.managerClient = managerClient;
-        }
-
         @Override
         void run() {
             try {
-                List<SourceListResponse> sourceListResponses = managerClient.listSources(group, stream, type);
-                sourceListResponses.forEach(PrintUtils::printJson);
+                ClientUtils.initClientFactory();
+                StreamSourceClient sourceClient = ClientUtils.clientFactory.getSourceClient();
+                List<StreamSource> sources = sourceClient.listSources(group, stream, type);
+                sources.forEach(PrintUtils::printJson);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }

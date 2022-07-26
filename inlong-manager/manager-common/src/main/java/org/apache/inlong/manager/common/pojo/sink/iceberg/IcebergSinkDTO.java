@@ -42,6 +42,10 @@ public class IcebergSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
+    private String catalogType = "HIVE";
+
     @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")
     private String catalogUri;
 
@@ -60,8 +64,8 @@ public class IcebergSinkDTO {
     @ApiModelProperty("File format, support: Parquet, Orc, Avro")
     private String fileFormat;
 
-    @ApiModelProperty("Catalog type, like: hive, hadoop, default is hive")
-    private String catalogType;
+    @ApiModelProperty("Partition type, like: H-hour, D-day, W-week, M-month, O-once, R-regulation")
+    private String partitionType;
 
     @ApiModelProperty("Primary key")
     private String primaryKey;
@@ -91,7 +95,7 @@ public class IcebergSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, IcebergSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

@@ -20,6 +20,7 @@ package org.apache.inlong.manager.workflow.core.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
@@ -37,6 +38,7 @@ import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowBriefDTO;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
@@ -62,7 +64,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -170,15 +171,9 @@ public class WorkflowQueryServiceImpl implements WorkflowQueryService {
                 WorkflowApproverQuery query = new WorkflowApproverQuery();
                 query.setProcessName(processEntity.getName());
                 List<WorkflowApproverEntity> approverList = approverMapper.selectByQuery(query);
-                boolean match = approverList.stream().anyMatch(approverEntity -> {
-                    String[] approverArr = approverEntity.getApprovers().split(",");
-                    for (String approver : approverArr) {
-                        if (Objects.equals(approver, operator)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
+                boolean match = approverList.stream().anyMatch(approverEntity ->
+                        Preconditions.inSeparatedString(operator, approverEntity.getApprovers(),
+                                InlongConstants.COMMA));
                 if (!match) {
                     throw new WorkflowException("current user is not the approver of the process");
                 }

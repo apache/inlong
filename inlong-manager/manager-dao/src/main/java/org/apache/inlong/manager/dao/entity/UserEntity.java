@@ -42,4 +42,5 @@ public class UserEntity implements Serializable {
     private Date updateTime;
     private String createBy;
     private String updateBy;
+    private Integer version;
 }

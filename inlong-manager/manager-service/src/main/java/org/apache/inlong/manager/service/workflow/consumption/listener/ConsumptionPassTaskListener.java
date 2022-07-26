@@ -24,7 +24,7 @@ import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
@@ -50,7 +50,7 @@ public class ConsumptionPassTaskListener implements TaskEventListener {
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionProcessForm form = (NewConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
         ConsumptionApproveForm approveForm = (ConsumptionApproveForm) context.getActionContext().getForm();
         ConsumptionInfo info = form.getConsumptionInfo();
         if (StringUtils.equals(approveForm.getConsumerGroup(), info.getConsumerGroup())) {

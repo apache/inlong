@@ -18,30 +18,25 @@
 package org.apache.inlong.manager.service.source.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceDTO;
-import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSourceRequest;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
-import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.service.source.AbstractSourceOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.function.Supplier;
+import java.util.List;
 
 /**
- * kafka stream source operator.
+ * kafka stream source operator
  */
 @Service
 public class KafkaSourceOperator extends AbstractSourceOperator {
@@ -60,19 +55,6 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
     }
 
     @Override
-    protected StreamSource getSource() {
-        return new KafkaSource();
-    }
-
-    @Override
-    public PageInfo<? extends SourceListResponse> getPageInfo(Page<StreamSourceEntity> entityPage) {
-        if (CollectionUtils.isEmpty(entityPage)) {
-            return new PageInfo<>();
-        }
-        return entityPage.toPageInfo(entity -> this.getFromEntity(entity, KafkaSourceListResponse::new));
-    }
-
-    @Override
     protected void setTargetEntity(SourceRequest request, StreamSourceEntity targetEntity) {
         KafkaSourceRequest sourceRequest = (KafkaSourceRequest) request;
         CommonBeanUtils.copyProperties(sourceRequest, targetEntity, true);
@@ -80,22 +62,24 @@ public class KafkaSourceOperator extends AbstractSourceOperator {
             KafkaSourceDTO dto = KafkaSourceDTO.getFromRequest(sourceRequest);
             targetEntity.setExtParams(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 
     @Override
-    public <T> T getFromEntity(StreamSourceEntity entity, Supplier<T> target) {
-        T result = target.get();
+    public StreamSource getFromEntity(StreamSourceEntity entity) {
+        KafkaSource source = new KafkaSource();
         if (entity == null) {
-            return result;
+            return source;
         }
-        String existType = entity.getSourceType();
-        Preconditions.checkTrue(getSourceType().equals(existType),
-                String.format(ErrorCodeEnum.SOURCE_TYPE_NOT_SAME.getMessage(), getSourceType(), existType));
+
         KafkaSourceDTO dto = KafkaSourceDTO.getFromJson(entity.getExtParams());
-        CommonBeanUtils.copyProperties(entity, result, true);
-        CommonBeanUtils.copyProperties(dto, result, true);
-        return result;
+        CommonBeanUtils.copyProperties(entity, source, true);
+        CommonBeanUtils.copyProperties(dto, source, true);
+
+        List<StreamField> sourceFields = super.getSourceFields(entity.getId());
+        source.setFieldList(sourceFields);
+        return source;
     }
+
 }

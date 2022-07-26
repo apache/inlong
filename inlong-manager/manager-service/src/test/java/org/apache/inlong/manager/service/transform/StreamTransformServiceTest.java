@@ -60,7 +60,7 @@ public class StreamTransformServiceTest extends ServiceBaseTest {
         Date now = new Date();
         entity.setCreateTime(now);
         entity.setModifyTime(now);
-        entity.setVersion(1);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         entity.setIsDeleted(InlongConstants.UN_DELETED);
         int index = transformEntityMapper.insert(entity);
         Assertions.assertEquals(1, index);

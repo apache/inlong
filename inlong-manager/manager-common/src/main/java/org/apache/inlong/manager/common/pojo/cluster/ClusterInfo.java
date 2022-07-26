@@ -25,11 +25,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.pojo.cluster.agent.AgentClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.dataproxy.DataProxyClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
-import org.apache.inlong.manager.common.util.CommonBeanUtils;
 
 import java.util.Date;
 
@@ -37,6 +38,7 @@ import java.util.Date;
  * Inlong cluster info
  */
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong cluster info")
@@ -45,8 +47,9 @@ import java.util.Date;
         @JsonSubTypes.Type(value = DataProxyClusterInfo.class, name = ClusterType.DATA_PROXY),
         @JsonSubTypes.Type(value = PulsarClusterInfo.class, name = ClusterType.PULSAR),
         @JsonSubTypes.Type(value = TubeClusterInfo.class, name = ClusterType.TUBE),
+        @JsonSubTypes.Type(value = AgentClusterInfo.class, name = ClusterType.AGENT),
 })
-public class ClusterInfo {
+public abstract class ClusterInfo {
 
     @ApiModelProperty(value = "Primary key")
     private Integer id;
@@ -93,8 +96,9 @@ public class ClusterInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
-    public ClusterRequest genRequest() {
-        return CommonBeanUtils.copyProperties(this, ClusterRequest::new);
-    }
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
+    public abstract ClusterRequest genRequest();
 
 }

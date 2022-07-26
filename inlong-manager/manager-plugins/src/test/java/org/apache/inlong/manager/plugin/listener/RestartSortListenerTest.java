@@ -64,7 +64,7 @@ public class RestartSortListenerTest {
         inlongGroupExtInfoList.add(inlongGroupExtInfo5);
 
         InlongGroupExtInfo inlongGroupExtInfo6 = new InlongGroupExtInfo();
-        inlongGroupExtInfo6.setKeyName(InlongConstants.DATA_FLOW);
+        inlongGroupExtInfo6.setKeyName(InlongConstants.DATAFLOW);
         inlongGroupExtInfo6.setKeyValue("{\"streamId\":{\n"
                 + "    \"id\":1,\n"
                 + "    \"source_info\":{\n"

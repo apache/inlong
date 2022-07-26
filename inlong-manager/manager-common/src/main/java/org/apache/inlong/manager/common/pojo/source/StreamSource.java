@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -35,12 +36,15 @@ import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
 import org.apache.inlong.manager.common.pojo.source.oracle.OracleSource;
-import org.apache.inlong.manager.common.pojo.source.postgres.PostgresSource;
+import org.apache.inlong.manager.common.pojo.source.postgresql.PostgreSQLSource;
 import org.apache.inlong.manager.common.pojo.source.pulsar.PulsarSource;
-import org.apache.inlong.manager.common.pojo.source.sqlserver.SqlServerSource;
+import org.apache.inlong.manager.common.pojo.source.sqlserver.SQLServerSource;
+import org.apache.inlong.manager.common.pojo.source.tubemq.TubeMQSource;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Stream source info, including source name, agent ip, etc.
@@ -58,9 +62,10 @@ import java.util.Date;
         @JsonSubTypes.Type(value = MongoDBSource.class, name = SourceType.SOURCE_MONGODB),
         @JsonSubTypes.Type(value = MySQLBinlogSource.class, name = SourceType.SOURCE_BINLOG),
         @JsonSubTypes.Type(value = OracleSource.class, name = SourceType.SOURCE_ORACLE),
-        @JsonSubTypes.Type(value = PostgresSource.class, name = SourceType.SOURCE_POSTGRES),
+        @JsonSubTypes.Type(value = PostgreSQLSource.class, name = SourceType.SOURCE_POSTGRES),
         @JsonSubTypes.Type(value = PulsarSource.class, name = SourceType.SOURCE_PULSAR),
-        @JsonSubTypes.Type(value = SqlServerSource.class, name = SourceType.SOURCE_SQL),
+        @JsonSubTypes.Type(value = SQLServerSource.class, name = SourceType.SOURCE_SQL),
+        @JsonSubTypes.Type(value = TubeMQSource.class, name = SourceType.SOURCE_TUBEMQ),
 })
 @ApiModel("Stream source info")
 public abstract class StreamSource extends StreamNode {
@@ -122,6 +127,10 @@ public abstract class StreamSource extends StreamNode {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty("Properties for source")
+    @Builder.Default
+    private Map<String, Object> properties = new LinkedHashMap<>();
 
     public SourceRequest genSourceRequest() {
         return null;

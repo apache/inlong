@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.inlong.manager.common.enums.MQType;
@@ -41,7 +40,6 @@ import java.util.List;
  * Inlong group request
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong group create request")
@@ -52,7 +50,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = InlongTdmqPulsarRequest.class, name = MQType.MQ_TDMQ_PULSAR),
         @JsonSubTypes.Type(value = InlongTubeRequest.class, name = MQType.MQ_TUBE),
 })
-public class InlongGroupRequest {
+public abstract class InlongGroupRequest {
 
     @NotBlank(message = "inlongGroupId cannot be blank")
     @ApiModelProperty(value = "Inlong group id", required = true)
@@ -83,15 +81,12 @@ public class InlongGroupRequest {
     private String tubeMaster;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
-    @Builder.Default
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty(value = "Whether to use lightweight mode, 0: false, 1: true")
-    @Builder.Default
     private Integer lightweight = 0;
 
     @ApiModelProperty(value = "Inlong cluster tag, which links to inlong_cluster table")
@@ -121,5 +116,8 @@ public class InlongGroupRequest {
 
     @ApiModelProperty(value = "Inlong group Extension properties")
     private List<InlongGroupExtInfo> extList;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
 }

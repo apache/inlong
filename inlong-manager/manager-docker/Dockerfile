@@ -29,12 +29,22 @@ ENV PASSWORD=inlong
 ENV ZK_URL=127.0.0.1:2181
 # support download plugins from remote address.
 ENV PLUGINS_URL=default
+# for flink-sort-plugin.properties
+ENV FLINK_HOST=127.0.0.1
+ENV FLINK_PORT=8081
+ENV FLINK_PARALLELISM=1
+ENV AUDIT_PROXY_URL=127.0.0.1:10081
+# JVM env
 ENV MANAGER_JVM_HEAP_OPTS="-XX:+UseContainerSupport -XX:InitialRAMPercentage=40.0 -XX:MaxRAMPercentage=80.0 -XX:-UseAdaptiveSizePolicy"
 WORKDIR /opt/inlong-manager
-
-# add tarball from manager output
-ARG MANAGER_TARBALL
-ADD ${MANAGER_TARBALL} /opt/inlong-manager
+# add manager tarball
+ARG VERSION
+ADD target/manager-web-${VERSION}-bin.tar.gz /opt/inlong-manager
+# add sort resource
+ADD target/sort-dist-${VERSION}.jar /opt/inlong-sort/
+ADD target/sort-connector-pulsar-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-jdbc-${VERSION}.jar /opt/inlong-sort/connectors/
+ADD target/sort-connector-hive-${VERSION}.jar /opt/inlong-sort/connectors/
 # add mysql connector
 RUN wget -P lib/ https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.27/mysql-connector-java-8.0.27.jar
 ADD manager-docker.sh bin/

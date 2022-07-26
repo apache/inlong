@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Oracle source info
@@ -40,16 +41,16 @@ public class OracleSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Hostname of the DB server, for example: 127.0.0.1")
+    @ApiModelProperty("Hostname of the Oracle server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private Integer port = 1521;
+    @ApiModelProperty("Port of the Oracle server")
+    private Integer port;
 
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the Oracle server")
     private String username;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the Oracle server")
     private String password;
 
     @ApiModelProperty("Database name")
@@ -58,14 +59,17 @@ public class OracleSourceDTO {
     @ApiModelProperty("Schema name")
     private String schemaName;
 
-    @ApiModelProperty("table name")
+    @ApiModelProperty("Table name")
     private String tableName;
 
     @ApiModelProperty("Scan startup mode")
     private String scanStartupMode;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables")
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
+
+    @ApiModelProperty("Properties for Oracle")
+    private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
@@ -81,6 +85,7 @@ public class OracleSourceDTO {
                 .tableName(request.getTableName())
                 .primaryKey(request.getPrimaryKey())
                 .scanStartupMode(request.getScanStartupMode())
+                .properties(request.getProperties())
                 .build();
     }
 
@@ -89,7 +94,7 @@ public class OracleSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, OracleSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

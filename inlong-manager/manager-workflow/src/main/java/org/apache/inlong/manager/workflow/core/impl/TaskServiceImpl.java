@@ -23,6 +23,7 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.core.ProcessorExecutor;
 import org.apache.inlong.manager.workflow.core.TaskService;
 import org.apache.inlong.manager.workflow.core.WorkflowContextBuilder;
+import org.apache.inlong.manager.workflow.definition.ServiceTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +68,8 @@ public class TaskServiceImpl implements TaskService {
     public WorkflowContext complete(Integer taskId, String remark, String operator) {
         WorkflowContext context = workflowContextBuilder
                 .buildContextForTask(taskId, WorkflowAction.COMPLETE, remark, operator);
+        ServiceTask serviceTask = (ServiceTask) context.getActionContext().getTask();
+        serviceTask.initListeners(context);
         processorExecutor.executeComplete(context.getActionContext().getTask(), context);
         return context;
     }

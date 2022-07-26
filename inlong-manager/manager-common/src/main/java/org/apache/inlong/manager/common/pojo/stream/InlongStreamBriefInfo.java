@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
 
 import java.util.Date;
 import java.util.List;
@@ -48,10 +48,25 @@ public class InlongStreamBriefInfo {
     @ApiModelProperty(value = "MQ resource")
     private String mqResource;
 
+    @ApiModelProperty(value = "Status")
+    private Integer status;
+
+    @ApiModelProperty(value = "Name of creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
     @ApiModelProperty(value = "Sink brief list")
-    private List<SinkBriefResponse> sinkList;
+    private List<SinkBriefInfo> sinkList;
 
 }

@@ -26,6 +26,7 @@ import org.apache.flink.streaming.connectors.kafka.table.BufferedUpsertSinkFunct
 import org.apache.flink.streaming.connectors.kafka.table.KafkaSinkSemantic;
 import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode;
 import org.apache.flink.table.api.DataTypes;
+import org.apache.flink.table.catalog.CatalogTable;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.format.EncodingFormat;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -39,6 +40,8 @@ import org.apache.flink.table.types.logical.LogicalType;
 import org.apache.flink.table.types.utils.DataTypeUtils;
 import org.apache.inlong.sort.kafka.DynamicKafkaSerializationSchema.MetadataConverter;
 import org.apache.kafka.common.header.Header;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -53,12 +56,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.inlong.sort.kafka.table.KafkaOptions.KAFKA_IGNORE_ALL_CHANGELOG;
 
 /**
  * A version-agnostic Kafka {@link DynamicTableSink}.
  */
 @Internal
 public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetadata {
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaDynamicSink.class);
 
     // --------------------------------------------------------------------------------------------
     // Mutable attributes
@@ -100,6 +105,11 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
      * Properties for the Kafka producer.
      */
     protected final Properties properties;
+
+    /**
+     * CatalogTable for KAFKA_IGNORE_ALL_CHANGELOG
+     */
+    private final CatalogTable catalogTable;
 
     // --------------------------------------------------------------------------------------------
     // Kafka-specific attributes
@@ -147,6 +157,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
             @Nullable String keyPrefix,
             String topic,
             Properties properties,
+            CatalogTable table,
             @Nullable FlinkKafkaPartitioner<RowData> partitioner,
             KafkaSinkSemantic semantic,
             boolean upsertMode,
@@ -168,6 +179,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
         // Kafka-specific attributes
         this.topic = checkNotNull(topic, "Topic must not be null.");
         this.properties = checkNotNull(properties, "Properties must not be null.");
+        this.catalogTable = table;
         this.partitioner = partitioner;
         this.semantic = checkNotNull(semantic, "Semantic must not be null.");
         this.upsertMode = upsertMode;
@@ -181,6 +193,12 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
 
     @Override
     public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
+        if (org.apache.flink.configuration.Configuration.fromMap(catalogTable.getOptions())
+                .get(KAFKA_IGNORE_ALL_CHANGELOG)) {
+            LOG.warn("Kafka sink receive all changelog record. "
+                    + "Regard any other record as insert-only record.");
+            return ChangelogMode.all();
+        }
         return valueEncodingFormat.getChangelogMode();
     }
 
@@ -265,6 +283,7 @@ public class KafkaDynamicSink implements DynamicTableSink, SupportsWritingMetada
                         keyPrefix,
                         topic,
                         properties,
+                        catalogTable,
                         partitioner,
                         semantic,
                         upsertMode,

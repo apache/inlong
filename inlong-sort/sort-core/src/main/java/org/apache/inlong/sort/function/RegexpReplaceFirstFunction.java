@@ -20,7 +20,7 @@ package org.apache.inlong.sort.function;
 import org.apache.flink.table.functions.ScalarFunction;
 
 /**
- * RegexpReplaceFirstFunction class isIt is a custom function, used to replace the value in the string.
+ * RegexpReplaceFirstFunction class. It is a custom function, used to replace the value in the string.
  * Specifically, given a string to be replaced, a regular expression to be replaced, and the replaced target string,
  * the regular expression will be satisfied replace the first element of the formula with the target string.
  */
@@ -38,7 +38,7 @@ public class RegexpReplaceFirstFunction extends ScalarFunction {
         if (field != null) {
             return field.replaceFirst(regex, replacement);
         }
-        return field;
+        return null;
     }
 
 }

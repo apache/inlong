@@ -18,14 +18,16 @@
 package org.apache.inlong.manager.service.sink;
 
 import com.github.pagehelper.PageInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefResponse;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
+import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service layer interface for stream sink
@@ -65,7 +67,16 @@ public interface StreamSinkService {
      * @param streamId Inlong stream id.
      * @return Sink info list.
      */
-    List<SinkBriefResponse> listBrief(String groupId, String streamId);
+    List<SinkBriefInfo> listBrief(String groupId, String streamId);
+
+    /**
+     * Get the StreamSink Map by the inlong group info and inlong stream info list.
+     *
+     * @param groupInfo inlong group info
+     * @param streamInfos inlong stream info list
+     * @return map of StreamSink list, key-inlongStreamId, value-StreamSinkList
+     */
+    Map<String, List<StreamSink>> getSinksMap(InlongGroupInfo groupInfo, List<InlongStreamInfo> streamInfos);
 
     /**
      * Query the number of undeleted sink info based on inlong group and inlong stream id
@@ -79,10 +90,10 @@ public interface StreamSinkService {
     /**
      * Paging query sink information based on conditions.
      *
-     * @param request Paging request.
-     * @return Sink info list.
+     * @param request paging request.
+     * @return sink list
      */
-    PageInfo<? extends SinkListResponse> listByCondition(SinkPageRequest request);
+    PageInfo<? extends StreamSink> listByCondition(SinkPageRequest request);
 
     /**
      * Modify data sink information.

@@ -53,6 +53,8 @@ import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +76,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ConsumptionServiceImpl implements ConsumptionService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumptionServiceImpl.class);
 
     private static final String PREFIX_DLQ = "dlq"; // prefix of the Topic of the dead letter queue
 
@@ -249,13 +253,17 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         Preconditions.checkNotNull(exists, "consumption not exist with id " + consumptionId);
         Preconditions.checkTrue(exists.getInCharges().contains(operator),
                 "operator" + operator + " has no privilege for the consumption");
-
+        String errMsg = String.format("consumption information has already updated, id=%s, curVersion=%s",
+                exists.getId(), info.getVersion());
+        if (!Objects.equals(exists.getVersion(), info.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         ConsumptionEntity entity = new ConsumptionEntity();
         Date now = new Date();
         CommonBeanUtils.copyProperties(info, entity, true);
         entity.setModifier(operator);
         entity.setModifyTime(now);
-
         // Modify Pulsar consumption info
         MQType mqType = MQType.forType(info.getMqType());
         if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
@@ -305,11 +313,14 @@ public class ConsumptionServiceImpl implements ConsumptionService {
                     streamService.insertDlqOrRlq(groupId, topic, operator);
                 }
             }
-
             consumptionPulsarMapper.updateByConsumptionId(pulsarEntity);
         }
 
-        consumptionMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = consumptionMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         return true;
     }
 
@@ -345,9 +356,9 @@ public class ConsumptionServiceImpl implements ConsumptionService {
         entity.setFilterEnabled(0);
 
         entity.setStatus(ConsumptionStatus.APPROVED.getStatus());
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
-        entity.setCreator(groupInfo.getCreator());
-        entity.setCreateTime(new Date());
+        String operator = groupInfo.getCreator();
+        entity.setCreator(operator);
+        entity.setModifier(operator);
 
         consumptionMapper.insert(entity);
 
@@ -366,15 +377,16 @@ public class ConsumptionServiceImpl implements ConsumptionService {
     private ConsumptionEntity saveConsumption(ConsumptionInfo info, String operator) {
         ConsumptionEntity entity = CommonBeanUtils.copyProperties(info, ConsumptionEntity::new);
         entity.setStatus(ConsumptionStatus.WAIT_ASSIGN.getStatus());
-        entity.setIsDeleted(0);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
 
         if (info.getId() != null) {
-            consumptionMapper.updateByPrimaryKey(entity);
+            int rowCount = consumptionMapper.updateByPrimaryKey(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("consumption information has already updated, id={}, curVersion={}",
+                        entity.getId(), entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
         } else {
             consumptionMapper.insert(entity);
         }

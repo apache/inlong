@@ -28,6 +28,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 
 import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * Binlog source info
@@ -40,17 +41,17 @@ public class MySQLBinlogSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(); // thread safe
 
-    @ApiModelProperty("Username of the DB server")
+    @ApiModelProperty("Username of the MySQL server")
     private String user;
 
-    @ApiModelProperty("Password of the DB server")
+    @ApiModelProperty("Password of the MySQL server")
     private String password;
 
-    @ApiModelProperty("Hostname of the DB server")
+    @ApiModelProperty("Hostname of the MySQL server")
     private String hostname;
 
-    @ApiModelProperty("Exposed port of the DB server")
-    private int port;
+    @ApiModelProperty("Port of the MySQL server")
+    private Integer port;
 
     @ApiModelProperty("Id of physical node of MySQL Cluster, 0 if single node")
     @Builder.Default
@@ -109,14 +110,17 @@ public class MySQLBinlogSourceDTO {
     @ApiModelProperty("Whether to migrate all databases")
     private boolean allMigration;
 
-    @ApiModelProperty(value = "Primary key must be shared by all tables", required = false)
+    @ApiModelProperty("Primary key must be shared by all tables")
     private String primaryKey;
 
     @ApiModelProperty("Directly read binlog from the specified offset filename")
-    public String specificOffsetFile;
+    private String specificOffsetFile;
 
     @ApiModelProperty("Directly read binlog from the specified offset position")
-    public Integer specificOffsetPos;
+    private Integer specificOffsetPos;
+
+    @ApiModelProperty("Properties for MySQL")
+    private Map<String, Object> properties;
 
     /**
      * Get the dto instance from the request
@@ -141,6 +145,7 @@ public class MySQLBinlogSourceDTO {
                 .primaryKey(request.getPrimaryKey())
                 .specificOffsetFile(request.getSpecificOffsetFile())
                 .specificOffsetPos(request.getSpecificOffsetPos())
+                .properties(request.getProperties())
                 .build();
     }
 
@@ -149,7 +154,7 @@ public class MySQLBinlogSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, MySQLBinlogSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

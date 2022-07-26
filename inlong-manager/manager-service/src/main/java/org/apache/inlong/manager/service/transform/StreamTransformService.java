@@ -31,11 +31,11 @@ public interface StreamTransformService {
     /**
      * Save the transform information.
      *
-     * @param transformRequest the transform request
+     * @param request the transform request
      * @param operator name of the operator
      * @return transform id after saving
      */
-    Integer save(TransformRequest transformRequest, String operator);
+    Integer save(TransformRequest request, String operator);
 
     /**
      * Query transform information based on inlong group id and inlong stream id.
@@ -49,11 +49,11 @@ public interface StreamTransformService {
     /**
      * Modify data transform information.
      *
-     * @param transformRequest the transform request
+     * @param request the transform request
      * @param operator name of the operator
      * @return Whether succeed
      */
-    Boolean update(TransformRequest transformRequest, String operator);
+    Boolean update(TransformRequest request, String operator);
 
     /**
      * Delete the stream transform by the given id.

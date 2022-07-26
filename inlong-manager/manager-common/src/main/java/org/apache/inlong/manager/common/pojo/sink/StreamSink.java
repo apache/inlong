@@ -27,6 +27,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -36,17 +37,18 @@ import org.apache.inlong.manager.common.auth.DefaultAuthentication;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.common.pojo.sink.dlciceberg.DLCIcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.es.ElasticsearchSink;
 import org.apache.inlong.manager.common.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseSink;
-import org.apache.inlong.manager.common.pojo.sink.hdfs.HdfsSink;
+import org.apache.inlong.manager.common.pojo.sink.hdfs.HDFSSink;
 import org.apache.inlong.manager.common.pojo.sink.hive.HiveSink;
 import org.apache.inlong.manager.common.pojo.sink.iceberg.IcebergSink;
 import org.apache.inlong.manager.common.pojo.sink.kafka.KafkaSink;
 import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
 import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
-import org.apache.inlong.manager.common.pojo.sink.postgres.PostgresSink;
-import org.apache.inlong.manager.common.pojo.sink.sqlserver.SqlServerSink;
+import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.common.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
 import org.apache.inlong.manager.common.pojo.stream.StreamNode;
 
@@ -70,14 +72,15 @@ import java.util.Map;
         @JsonSubTypes.Type(value = ElasticsearchSink.class, name = SinkType.SINK_ELASTICSEARCH),
         @JsonSubTypes.Type(value = GreenplumSink.class, name = SinkType.SINK_GREENPLUM),
         @JsonSubTypes.Type(value = HBaseSink.class, name = SinkType.SINK_HBASE),
-        @JsonSubTypes.Type(value = HdfsSink.class, name = SinkType.SINK_HDFS),
+        @JsonSubTypes.Type(value = HDFSSink.class, name = SinkType.SINK_HDFS),
         @JsonSubTypes.Type(value = HiveSink.class, name = SinkType.SINK_HIVE),
+        @JsonSubTypes.Type(value = DLCIcebergSink.class, name = SinkType.SINK_DLCICEBERG),
         @JsonSubTypes.Type(value = IcebergSink.class, name = SinkType.SINK_ICEBERG),
         @JsonSubTypes.Type(value = KafkaSink.class, name = SinkType.SINK_KAFKA),
         @JsonSubTypes.Type(value = MySQLSink.class, name = SinkType.SINK_MYSQL),
         @JsonSubTypes.Type(value = OracleSink.class, name = SinkType.SINK_ORACLE),
-        @JsonSubTypes.Type(value = PostgresSink.class, name = SinkType.SINK_POSTGRES),
-        @JsonSubTypes.Type(value = SqlServerSink.class, name = SinkType.SINK_SQLSERVER),
+        @JsonSubTypes.Type(value = PostgreSQLSink.class, name = SinkType.SINK_POSTGRES),
+        @JsonSubTypes.Type(value = SQLServerSink.class, name = SinkType.SINK_SQLSERVER),
         @JsonSubTypes.Type(value = TDSQLPostgreSQLSink.class, name = SinkType.SINK_TDSQLPOSTGRESQL),
 })
 public abstract class StreamSink extends StreamNode {
@@ -114,6 +117,7 @@ public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
             notes = "Such as create Hive table")
+    @Builder.Default
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Backend operation log")
@@ -138,18 +142,24 @@ public abstract class StreamSink extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
+    @Builder.Default
     private List<SinkField> sinkFieldList = Lists.newArrayList();
 
     @ApiModelProperty("Properties for sink")
+    @Builder.Default
     private Map<String, Object> properties = Maps.newHashMap();
 
     @JsonIgnore
     @ApiModelProperty("Data format type for stream sink")
+    @Builder.Default
     private DataFormat dataFormat = DataFormat.NONE;
 
     @JsonIgnore
     @ApiModelProperty("Authentication info if needed")
     private DefaultAuthentication authentication;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
     public SinkRequest genSinkRequest() {
         return null;

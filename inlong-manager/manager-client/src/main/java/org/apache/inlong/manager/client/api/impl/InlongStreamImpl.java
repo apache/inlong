@@ -24,12 +24,16 @@ import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongStream;
-import org.apache.inlong.manager.client.api.inner.InnerInlongManagerClient;
+import org.apache.inlong.manager.client.api.inner.client.ClientFactory;
+import org.apache.inlong.manager.client.api.inner.client.InlongStreamClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSinkClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamSourceClient;
+import org.apache.inlong.manager.client.api.inner.client.StreamTransformClient;
+import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.StreamTransformTransfer;
-import org.apache.inlong.manager.common.pojo.sink.SinkListResponse;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -43,6 +47,7 @@ import org.apache.inlong.manager.common.util.Preconditions;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -52,7 +57,13 @@ import java.util.stream.Collectors;
 @Data
 public class InlongStreamImpl implements InlongStream {
 
-    private InnerInlongManagerClient managerClient;
+    private InlongStreamClient streamClient;
+
+    private StreamSourceClient sourceClient;
+
+    private StreamSinkClient sinkClient;
+
+    private StreamTransformClient transformClient;
 
     private String inlongGroupId;
 
@@ -69,10 +80,16 @@ public class InlongStreamImpl implements InlongStream {
     /**
      * Constructor of InlongStreamImpl.
      */
-    public InlongStreamImpl(InlongStreamInfo streamInfo, InnerInlongManagerClient managerClient) {
-        this.managerClient = managerClient;
+    public InlongStreamImpl(InlongStreamInfo streamInfo, ClientConfiguration configuration) {
         this.inlongGroupId = streamInfo.getInlongGroupId();
         this.inlongStreamId = streamInfo.getInlongStreamId();
+
+        ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
+        this.streamClient = clientFactory.getStreamClient();
+        this.sourceClient = clientFactory.getSourceClient();
+        this.sinkClient = clientFactory.getSinkClient();
+        this.transformClient = clientFactory.getTransformClient();
+
         List<StreamField> streamFields = streamInfo.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
             this.streamFields = streamFields.stream()
@@ -110,8 +127,14 @@ public class InlongStreamImpl implements InlongStream {
         }
     }
 
-    public InlongStreamImpl(String groupId, String streamId, InnerInlongManagerClient managerClient) {
-        this.managerClient = managerClient;
+    public InlongStreamImpl(String groupId, String streamId, ClientConfiguration configuration) {
+        if (Optional.ofNullable(configuration).isPresent()) {
+            ClientFactory clientFactory = ClientUtils.getClientFactory(configuration);
+            this.streamClient = clientFactory.getStreamClient();
+            this.sourceClient = clientFactory.getSourceClient();
+            this.sinkClient = clientFactory.getSinkClient();
+            this.transformClient = clientFactory.getTransformClient();
+        }
         this.inlongGroupId = groupId;
         this.inlongStreamId = streamId;
     }
@@ -282,7 +305,7 @@ public class InlongStreamImpl implements InlongStream {
 
     @Override
     public InlongStream update() {
-        InlongStreamInfo streamInfo = managerClient.getStreamInfo(inlongGroupId, inlongStreamId);
+        InlongStreamInfo streamInfo = streamClient.getStreamInfo(inlongGroupId, inlongStreamId);
         if (streamInfo == null) {
             throw new IllegalArgumentException(
                     String.format("Stream not exists for group=%s and stream=%s", inlongGroupId, inlongStreamId));
@@ -291,7 +314,7 @@ public class InlongStreamImpl implements InlongStream {
         streamInfo.setFieldList(this.streamFields);
         StreamPipeline streamPipeline = createPipeline();
         streamInfo.setExtParams(JsonUtils.toJsonString(streamPipeline));
-        Pair<Boolean, String> updateMsg = managerClient.updateStreamInfo(streamInfo);
+        Pair<Boolean, String> updateMsg = streamClient.updateStreamInfo(streamInfo);
         if (!updateMsg.getKey()) {
             throw new RuntimeException(String.format("Update data stream failed: %s", updateMsg.getValue()));
         }
@@ -302,7 +325,7 @@ public class InlongStreamImpl implements InlongStream {
     }
 
     private void initOrUpdateTransform(InlongStreamInfo streamInfo) {
-        List<TransformResponse> transformResponses = managerClient.listTransform(inlongGroupId, inlongStreamId);
+        List<TransformResponse> transformResponses = transformClient.listTransform(inlongGroupId, inlongStreamId);
         List<String> updateTransformNames = Lists.newArrayList();
         for (TransformResponse transformResponse : transformResponses) {
             StreamTransform transform = StreamTransformTransfer.parseStreamTransform(transformResponse);
@@ -311,7 +334,7 @@ public class InlongStreamImpl implements InlongStream {
             if (this.streamTransforms.get(transformName) == null) {
                 TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(transform,
                         streamInfo);
-                boolean isDelete = managerClient.deleteTransform(transformRequest);
+                boolean isDelete = transformClient.deleteTransform(transformRequest);
                 if (!isDelete) {
                     throw new RuntimeException(String.format("Delete transform=%s failed", transformRequest));
                 }
@@ -320,7 +343,7 @@ public class InlongStreamImpl implements InlongStream {
                 TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(newTransform,
                         streamInfo);
                 transformRequest.setId(id);
-                Pair<Boolean, String> updateState = managerClient.updateTransform(transformRequest);
+                Pair<Boolean, String> updateState = transformClient.updateTransform(transformRequest);
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update transform=%s failed with err=%s", transformRequest,
                             updateState.getValue()));
@@ -336,27 +359,27 @@ public class InlongStreamImpl implements InlongStream {
             StreamTransform transform = transformEntry.getValue();
             TransformRequest transformRequest = StreamTransformTransfer.createTransformRequest(transform,
                     streamInfo);
-            managerClient.createTransform(transformRequest);
+            transformClient.createTransform(transformRequest);
         }
     }
 
     private void initOrUpdateSource(InlongStreamInfo streamInfo) {
-        List<SourceListResponse> sourceListResponses = managerClient.listSources(inlongGroupId, inlongStreamId);
+        List<StreamSource> streamSources = sourceClient.listSources(inlongGroupId, inlongStreamId);
         List<String> updateSourceNames = Lists.newArrayList();
-        for (SourceListResponse sourceListResponse : sourceListResponses) {
-            final String sourceName = sourceListResponse.getSourceName();
-            final int id = sourceListResponse.getId();
+        for (StreamSource source : streamSources) {
+            final String sourceName = source.getSourceName();
+            final int id = source.getId();
             if (this.streamSources.get(sourceName) == null) {
-                boolean isDelete = managerClient.deleteSource(id);
+                boolean isDelete = sourceClient.deleteSource(id);
                 if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete source=%s failed", sourceListResponse));
+                    throw new RuntimeException(String.format("Delete source=%s failed", source));
                 }
             } else {
                 StreamSource streamSource = this.streamSources.get(sourceName);
                 streamSource.setId(id);
                 streamSource.setInlongGroupId(streamInfo.getInlongGroupId());
                 streamSource.setInlongStreamId(streamInfo.getInlongStreamId());
-                Pair<Boolean, String> updateState = managerClient.updateSource(streamSource.genSourceRequest());
+                Pair<Boolean, String> updateState = sourceClient.updateSource(streamSource.genSourceRequest());
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update source=%s failed with err=%s", streamSource,
                             updateState.getValue()));
@@ -364,7 +387,7 @@ public class InlongStreamImpl implements InlongStream {
                 updateSourceNames.add(sourceName);
             }
         }
-        for (Map.Entry<String, StreamSource> sourceEntry : streamSources.entrySet()) {
+        for (Map.Entry<String, StreamSource> sourceEntry : this.streamSources.entrySet()) {
             String sourceName = sourceEntry.getKey();
             if (updateSourceNames.contains(sourceName)) {
                 continue;
@@ -372,28 +395,28 @@ public class InlongStreamImpl implements InlongStream {
             StreamSource streamSource = sourceEntry.getValue();
             streamSource.setInlongGroupId(streamInfo.getInlongGroupId());
             streamSource.setInlongStreamId(streamInfo.getInlongStreamId());
-            managerClient.createSource(streamSource.genSourceRequest());
+            sourceClient.createSource(streamSource.genSourceRequest());
         }
     }
 
     private void initOrUpdateSink(InlongStreamInfo streamInfo) {
-        List<SinkListResponse> sinkListResponses = managerClient.listSinks(inlongGroupId, inlongStreamId);
+        List<StreamSink> streamSinks = sinkClient.listSinks(inlongGroupId, inlongStreamId);
         // delete or update the sink info
         List<String> updateSinkNames = Lists.newArrayList();
-        for (SinkListResponse sinkResponse : sinkListResponses) {
-            final String sinkName = sinkResponse.getSinkName();
-            final int id = sinkResponse.getId();
+        for (StreamSink sink : streamSinks) {
+            final String sinkName = sink.getSinkName();
+            final int id = sink.getId();
             if (this.streamSinks.get(sinkName) == null) {
-                boolean isDelete = managerClient.deleteSink(id);
+                boolean isDelete = sinkClient.deleteSink(id);
                 if (!isDelete) {
-                    throw new RuntimeException(String.format("Delete sink=%s failed", sinkResponse));
+                    throw new RuntimeException(String.format("Delete sink=%s failed", sink));
                 }
             } else {
                 StreamSink streamSink = this.streamSinks.get(sinkName);
                 streamSink.setId(id);
                 streamSink.setInlongGroupId(streamInfo.getInlongGroupId());
                 streamSink.setInlongStreamId(streamInfo.getInlongStreamId());
-                Pair<Boolean, String> updateState = managerClient.updateSink(streamSink.genSinkRequest());
+                Pair<Boolean, String> updateState = sinkClient.updateSink(streamSink.genSinkRequest());
                 if (!updateState.getKey()) {
                     throw new RuntimeException(String.format("Update sink=%s failed with err=%s", streamSink,
                             updateState.getValue()));
@@ -403,7 +426,7 @@ public class InlongStreamImpl implements InlongStream {
         }
 
         // create sink info after deleting or updating
-        for (Map.Entry<String, StreamSink> sinkEntry : streamSinks.entrySet()) {
+        for (Map.Entry<String, StreamSink> sinkEntry : this.streamSinks.entrySet()) {
             String sinkName = sinkEntry.getKey();
             if (updateSinkNames.contains(sinkName)) {
                 continue;
@@ -411,8 +434,26 @@ public class InlongStreamImpl implements InlongStream {
             StreamSink streamSink = sinkEntry.getValue();
             streamSink.setInlongGroupId(streamInfo.getInlongGroupId());
             streamSink.setInlongStreamId(streamInfo.getInlongStreamId());
-            managerClient.createSink(streamSink.genSinkRequest());
+            sinkClient.createSink(streamSink.genSinkRequest());
         }
+    }
+
+    @Override
+    public StreamSink getSinkInfoById(Integer sinkId) {
+        Preconditions.checkNotNull(sinkId, "sinkId cannot be null");
+        // Get from cache firstly
+        return this.streamSinks.values()
+                .stream()
+                .filter(streamSink -> streamSink.getId().equals(sinkId))
+                .findAny()
+                // Try to get from db, if it doesn't exist in cache
+                .orElseGet(() -> sinkClient.getSinkInfo(sinkId));
+    }
+
+    @Override
+    public StreamSink getSinkInfoByName(String sinkName) {
+        Preconditions.checkNotEmpty(sinkName, "sinkName cannot be empty");
+        return this.streamSinks.get(sinkName);
     }
 
 }

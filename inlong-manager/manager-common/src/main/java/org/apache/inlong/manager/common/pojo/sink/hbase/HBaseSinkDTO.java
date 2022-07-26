@@ -42,7 +42,7 @@ public class HBaseSinkDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @ApiModelProperty("Namespace")
+    @ApiModelProperty("Target namespace")
     private String namespace;
 
     @ApiModelProperty("Target table name")
@@ -94,7 +94,7 @@ public class HBaseSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, HBaseSinkDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 

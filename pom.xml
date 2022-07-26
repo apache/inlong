@@ -34,11 +34,9 @@
     <name>Apache InLong</name>
 
     <description>InLong is a one-stop integration framework for massive data donated by Tencent to
-        the Apache
-        community.
+        the Apache community.
         It provides automatic, safe, reliable, and high-performance data transmission capabilities
-        to
-        facilitate the construction of streaming-based data analysis, modeling, and applications.
+        to facilitate the construction of streaming-based data analysis, modeling, and applications.
     </description>
     <url>https://github.com/apache/inlong</url>
 
@@ -96,13 +94,12 @@
         <module>inlong-audit</module>
         <module>inlong-dataproxy</module>
         <module>inlong-agent</module>
-        <module>inlong-manager</module>
         <module>inlong-sort</module>
         <module>inlong-sort-standalone</module>
+        <module>inlong-manager</module>
         <module>inlong-dashboard</module>
         <module>inlong-distribution</module>
     </modules>
-
 
     <properties>
         <project.build.encoding>UTF-8</project.build.encoding>
@@ -257,7 +254,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--flume dependency -->
+            <!-- flume dependency -->
             <dependency>
                 <groupId>org.apache.flume</groupId>
                 <artifactId>flume-ng-core</artifactId>
@@ -400,7 +397,6 @@
                         <groupId>org.apache.calcite</groupId>
                         <artifactId>calcite-druid</artifactId>
                     </exclusion>
-
                     <exclusion>
                         <groupId>org.apache.avro</groupId>
                         <artifactId>*</artifactId>
@@ -1632,7 +1628,7 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <version>0.13</version>
+                <version>0.14</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>

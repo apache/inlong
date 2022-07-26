@@ -81,7 +81,6 @@ const Comp = ({ id }: Props, ref) => {
     await request({
       url: `/consumption/startProcess/${result}`,
       method: 'POST',
-      data,
     });
     return result;
   };

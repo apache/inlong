@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,6 +26,7 @@ import java.util.Map;
  * DataProxySource
  */
 public class ProxySource {
+
     private String name;
     private String type;
     private String selectorType;
@@ -34,7 +35,7 @@ public class ProxySource {
 
     /**
      * get name
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -43,7 +44,7 @@ public class ProxySource {
 
     /**
      * set name
-     * 
+     *
      * @param name the name to set
      */
     public void setName(String name) {
@@ -52,7 +53,7 @@ public class ProxySource {
 
     /**
      * get type
-     * 
+     *
      * @return the type
      */
     public String getType() {
@@ -61,7 +62,7 @@ public class ProxySource {
 
     /**
      * set type
-     * 
+     *
      * @param type the type to set
      */
     public void setType(String type) {
@@ -70,7 +71,7 @@ public class ProxySource {
 
     /**
      * get selectorType
-     * 
+     *
      * @return the selectorType
      */
     public String getSelectorType() {
@@ -79,7 +80,7 @@ public class ProxySource {
 
     /**
      * set selectorType
-     * 
+     *
      * @param selectorType the selectorType to set
      */
     public void setSelectorType(String selectorType) {
@@ -88,7 +89,7 @@ public class ProxySource {
 
     /**
      * get channels
-     * 
+     *
      * @return the channels
      */
     public List<String> getChannels() {
@@ -97,7 +98,7 @@ public class ProxySource {
 
     /**
      * set channels
-     * 
+     *
      * @param channels the channels to set
      */
     public void setChannels(List<String> channels) {
@@ -106,7 +107,7 @@ public class ProxySource {
 
     /**
      * get params
-     * 
+     *
      * @return the params
      */
     public Map<String, String> getParams() {
@@ -115,7 +116,7 @@ public class ProxySource {
 
     /**
      * set params
-     * 
+     *
      * @param params the params to set
      */
     public void setParams(Map<String, String> params) {

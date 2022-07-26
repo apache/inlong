@@ -24,15 +24,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.source.SourceListResponse;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.source.SourcePageRequest;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -51,9 +53,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Implementation of source service interface
@@ -64,7 +67,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StreamSourceServiceImpl.class);
 
     @Autowired
-    private SourceOperatorFactory operationFactory;
+    private SourceOperatorFactory operatorFactory;
     @Autowired
     private StreamSourceEntityMapper sourceMapper;
     @Autowired
@@ -82,15 +85,23 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         String groupId = request.getInlongGroupId();
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
+        String streamId = request.getInlongStreamId();
+        String sourceName = request.getSourceName();
+        List<StreamSourceEntity> existList = sourceMapper.selectByRelatedId(groupId, streamId, sourceName);
+        if (CollectionUtils.isNotEmpty(existList)) {
+            String err = "source name=%s already exists with groupId=%s streamId=%s";
+            throw new BusinessException(String.format(err, sourceName, groupId, streamId));
+        }
+
         // According to the source type, save source information
         String sourceType = request.getSourceType();
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(sourceType));
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
             streamFields.forEach(streamField -> streamField.setId(null));
         }
-        int id = operation.saveOpt(request, groupEntity.getStatus(), operator);
+        int id = sourceOperator.saveOpt(request, groupEntity.getStatus(), operator);
 
         LOGGER.info("success to save source info: {}", request);
         return id;
@@ -104,8 +115,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             LOGGER.error("source not found by id={}", id);
             throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_NOT_FOUND);
         }
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
-        StreamSource streamSource = operation.getByEntity(entity);
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSource streamSource = sourceOperator.getFromEntity(entity);
         LOGGER.debug("success to get source by id={}", id);
         return streamSource;
     }
@@ -132,7 +143,31 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     }
 
     @Override
-    public PageInfo<? extends SourceListResponse> listByCondition(SourcePageRequest request) {
+    public Map<String, List<StreamSource>> getSourcesMap(InlongGroupInfo groupInfo,
+            List<InlongStreamInfo> streamInfos) {
+        String groupId = groupInfo.getInlongGroupId();
+        LOGGER.debug("begin to get source map for groupId={}", groupId);
+        Map<String, List<StreamSource>> result;
+
+        // if the group mode is LIGHTWEIGHT, just get all related stream sources
+        List<StreamSource> streamSources = this.listSource(groupInfo.getInlongGroupId(), null);
+        if (InlongConstants.LIGHTWEIGHT_MODE.equals(groupInfo.getLightweight())) {
+            result = streamSources.stream()
+                    .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
+                            Collectors.toCollection(ArrayList::new)));
+        } else {
+            // if the group mode is NORMAL, needs to get the cached MQ sources
+            String sourceType = groupInfo.getMqType();
+            StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(sourceType));
+            result = sourceOperator.getSourcesMap(groupInfo, streamInfos, streamSources);
+        }
+
+        LOGGER.debug("success to get source map, size={}, groupInfo={}", result.size(), groupInfo);
+        return result;
+    }
+
+    @Override
+    public PageInfo<? extends StreamSource> listByCondition(SourcePageRequest request) {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
@@ -144,16 +179,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             SourceType sourceType = SourceType.forType(entity.getSourceType());
             sourceMap.computeIfAbsent(sourceType, k -> new Page<>()).add(entity);
         }
-        List<SourceListResponse> responseList = Lists.newArrayList();
+        List<StreamSource> responseList = Lists.newArrayList();
         for (Map.Entry<SourceType, Page<StreamSourceEntity>> entry : sourceMap.entrySet()) {
             SourceType sourceType = entry.getKey();
-            StreamSourceOperator operation = operationFactory.getInstance(sourceType);
-            PageInfo<? extends SourceListResponse> pageInfo = operation.getPageInfo(entry.getValue());
+            StreamSourceOperator sourceOperator = operatorFactory.getInstance(sourceType);
+            PageInfo<? extends StreamSource> pageInfo = sourceOperator.getPageInfo(entry.getValue());
             if (null != pageInfo && CollectionUtils.isNotEmpty(pageInfo.getList())) {
                 responseList.addAll(pageInfo.getList());
             }
         }
-        PageInfo<? extends SourceListResponse> pageInfo = PageInfo.of(responseList);
+        PageInfo<? extends StreamSource> pageInfo = PageInfo.of(responseList);
 
         LOGGER.debug("success to list source page, result size {}", pageInfo.getSize());
         return pageInfo;
@@ -162,7 +197,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean update(SourceRequest request, String operator) {
+    public Boolean update(SourceRequest request, String operator) {
         LOGGER.info("begin to update source info: {}", request);
         this.checkParams(request);
         Preconditions.checkNotNull(request.getId(), ErrorCodeEnum.ID_IS_EMPTY.getMessage());
@@ -172,13 +207,13 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         InlongGroupEntity groupEntity = groupCheckService.checkGroupStatus(groupId, operator);
 
         String sourceType = request.getSourceType();
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(sourceType));
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(sourceType));
         // Remove id in sourceField when save
         List<StreamField> streamFields = request.getFieldList();
         if (CollectionUtils.isNotEmpty(streamFields)) {
-            streamFields.stream().forEach(streamField -> streamField.setId(null));
+            streamFields.forEach(streamField -> streamField.setId(null));
         }
-        operation.updateOpt(request, groupEntity.getStatus(), operator);
+        sourceOperator.updateOpt(request, groupEntity.getStatus(), operator);
 
         LOGGER.info("success to update source info: {}", request);
         return true;
@@ -187,7 +222,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
+    public Boolean updateStatus(String groupId, String streamId, Integer targetStatus, String operator) {
         sourceMapper.updateStatusByRelatedId(groupId, streamId, targetStatus);
         LOGGER.info("success to update source status={} for groupId={}, streamId={} by {}",
                 targetStatus, groupId, streamId, operator);
@@ -197,7 +232,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean delete(Integer id, String operator) {
+    public Boolean delete(Integer id, String operator) {
         LOGGER.info("begin to delete source for id={} by user={}", id, operator);
         Preconditions.checkNotNull(id, ErrorCodeEnum.ID_IS_EMPTY.getMessage());
 
@@ -216,12 +251,15 @@ public class StreamSourceServiceImpl implements StreamSourceService {
             throw new BusinessException(String.format("Source=%s is not allowed to delete", entity));
         }
 
-        entity.setVersion(entity.getVersion() + 1);
         entity.setPreviousStatus(curStatus.getCode());
         entity.setStatus(nextStatus.getCode());
         entity.setIsDeleted(id);
-        entity.setModifyTime(new Date());
-        sourceMapper.updateByPrimaryKeySelective(entity);
+        int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSourceName(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         sourceFieldMapper.deleteAll(id);
 
         LOGGER.info("success to delete source for id={} by user={}", id, operator);
@@ -231,16 +269,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean restart(Integer id, String operator) {
+    public Boolean restart(Integer id, String operator) {
         LOGGER.info("begin to restart source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(entity.getSourceType()));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
-        operation.restartOpt(sourceRequest, operator);
+        sourceOperator.restartOpt(sourceRequest, operator);
 
         LOGGER.info("success to restart source info: {}", entity);
         return true;
@@ -249,16 +287,16 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean stop(Integer id, String operator) {
+    public Boolean stop(Integer id, String operator) {
         LOGGER.info("begin to stop source by id={}", id);
         StreamSourceEntity entity = sourceMapper.selectByIdForUpdate(id);
         Preconditions.checkNotNull(entity, ErrorCodeEnum.SOURCE_INFO_NOT_FOUND.getMessage());
         groupCheckService.checkGroupStatus(entity.getInlongGroupId(), operator);
 
-        StreamSourceOperator operation = operationFactory.getInstance(SourceType.forType(entity.getSourceType()));
+        StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(entity.getSourceType()));
         SourceRequest sourceRequest = new SourceRequest();
         CommonBeanUtils.copyProperties(entity, sourceRequest, true);
-        operation.stopOpt(sourceRequest, operator);
+        sourceOperator.stopOpt(sourceRequest, operator);
 
         LOGGER.info("success to stop source info: {}", entity);
         return true;
@@ -267,7 +305,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW,
             isolation = Isolation.READ_COMMITTED)
-    public boolean logicDeleteAll(String groupId, String streamId, String operator) {
+    public Boolean logicDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to logic delete all source info by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
@@ -279,18 +317,21 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         } else {
             nextStatus = SourceStatus.SOURCE_DISABLE.getCode();
         }
-        Date now = new Date();
         List<StreamSourceEntity> entityList = sourceMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             for (StreamSourceEntity entity : entityList) {
                 Integer id = entity.getId();
-                entity.setVersion(entity.getVersion() + 1);
                 entity.setPreviousStatus(entity.getStatus());
                 entity.setStatus(nextStatus);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
-                entity.setModifyTime(now);
-                sourceMapper.updateByPrimaryKeySelective(entity);
+                int rowCount = sourceMapper.updateByPrimaryKeySelective(entity);
+                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                    LOGGER.error("source has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSourceName(),
+                            entity.getVersion());
+                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                }
             }
         }
 
@@ -304,7 +345,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
     public boolean metaDeleteAll(String groupId, String streamId, String operator) {
         LOGGER.info("begin to delete all source by groupId={}, streamId={}", groupId, streamId);
         Preconditions.checkNotNull(groupId, ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
-
         sourceMapper.deleteByRelatedId(groupId, streamId);
         sourceFieldMapper.deleteByRelatedId(groupId, streamId);
         LOGGER.info("success to delete all source by groupId={}, streamId={}", groupId, streamId);
@@ -317,7 +357,6 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         if (StringUtils.isEmpty(streamId)) {
             return Collections.emptyList();
         }
-
         List<String> resultList = sourceMapper.selectSourceType(groupId, streamId);
         LOGGER.debug("success to get source type list, result sourceType={}", resultList);
         return resultList;

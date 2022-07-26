@@ -1,10 +1,10 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -21,6 +21,7 @@ package org.apache.inlong.common.pojo.dataproxy;
  * DataProxyConfigResponse
  */
 public class DataProxyConfigResponse {
+
     public static final int SUCC = 0; // success
     public static final int NOUPDATE = 1; // no update, for same md5
     public static final int FAIL = -1; // general error
@@ -33,7 +34,7 @@ public class DataProxyConfigResponse {
 
     /**
      * get result
-     * 
+     *
      * @return the result
      */
     public Boolean isResult() {
@@ -42,7 +43,7 @@ public class DataProxyConfigResponse {
 
     /**
      * set result
-     * 
+     *
      * @param result the result to set
      */
     public void setResult(Boolean result) {
@@ -51,7 +52,7 @@ public class DataProxyConfigResponse {
 
     /**
      * get errCode
-     * 
+     *
      * @return the errCode
      */
     public Integer getErrCode() {
@@ -60,7 +61,7 @@ public class DataProxyConfigResponse {
 
     /**
      * set errCode
-     * 
+     *
      * @param errCode the errCode to set
      */
     public void setErrCode(Integer errCode) {
@@ -69,7 +70,7 @@ public class DataProxyConfigResponse {
 
     /**
      * get md5
-     * 
+     *
      * @return the md5
      */
     public String getMd5() {
@@ -78,7 +79,7 @@ public class DataProxyConfigResponse {
 
     /**
      * set md5
-     * 
+     *
      * @param md5 the md5 to set
      */
     public void setMd5(String md5) {
@@ -87,7 +88,7 @@ public class DataProxyConfigResponse {
 
     /**
      * get data
-     * 
+     *
      * @return the data
      */
     public DataProxyCluster getData() {
@@ -96,7 +97,7 @@ public class DataProxyConfigResponse {
 
     /**
      * set data
-     * 
+     *
      * @param data the data to set
      */
     public void setData(DataProxyCluster data) {
