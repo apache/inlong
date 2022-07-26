@@ -372,20 +372,19 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
         }
 
-        // update other info for inlong group after approve
+        // bind cluster tag and update status to [GROUP_APPROVE_PASSED]
         if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
-            entity.setInlongGroupId(approveRequest.getInlongGroupId());
+            entity.setInlongGroupId(groupId);
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
-            entity.setModifier(operator);
             entity.setStatus(GroupStatus.APPROVE_PASSED.getCode());
+            entity.setModifier(operator);
             int rowCount = groupMapper.updateByIdentifierSelective(entity);
             if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
                 LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
-                        entity.getInlongGroupId(), entity.getVersion());
+                        groupId, entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }
         } else {
-            // update status to [GROUP_APPROVE_PASSED]
             this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
         }
 
