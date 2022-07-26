@@ -25,29 +25,30 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * MD5 encryption and decryption utils.
+ * SHA encryption and decryption utils.
  */
 @Slf4j
 @UtilityClass
-public class MD5Utils {
+public class SHAUtils {
 
+    public static final String ALGORITHM_NAME = "SHA-256";
     private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     /**
-     * Get MD5 from the given string.
+     * Get SHA from the given string.
      *
      * @param source string to be encrypted
-     * @return MD5 string after encrypt
+     * @return SHA string after encrypt
      */
-    public static String getMD5String(String source) {
+    public static String getSHAString(String source) {
         if (source == null) {
             return null;
         }
 
         String retString = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
+            MessageDigest md = MessageDigest.getInstance(ALGORITHM_NAME);
             md.update(source.getBytes(), 0, source.length());
             byte[] retBytes = md.digest();
 
@@ -66,13 +67,13 @@ public class MD5Utils {
     }
 
     /**
-     * Encrypt the given string by MD5 encryption algorithm.
+     * Encrypt the given string by SHA-256 encryption algorithm.
      *
      * @param source string to be encrypted
-     * @return MD5 string after encrypt
+     * @return SHA string after encrypt
      */
     public static String encrypt(String source) {
-        return new SimpleHash("MD5", source, null, 1024).toHex();
+        return new SimpleHash(ALGORITHM_NAME, source, null, 1024).toHex();
     }
 
 }

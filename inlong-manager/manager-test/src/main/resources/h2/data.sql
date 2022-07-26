@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 INSERT INTO `user` (`id`, `name`, `password`, `account_type`, `due_date`, `creator`, `modifier`)
-VALUES (1, 'admin', '628ed559bff5ae36bd2184d4216973cf', 0, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
+VALUES (1, 'admin', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109', 0, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
 
 INSERT INTO `user` (`id`, `name`, `password`, `account_type`, `due_date`, `creator`, `modifier`)
-VALUES (2, 'operator', '628ed559bff5ae36bd2184d4216973cf', 1, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
+VALUES (2, 'operator', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109', 1, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');

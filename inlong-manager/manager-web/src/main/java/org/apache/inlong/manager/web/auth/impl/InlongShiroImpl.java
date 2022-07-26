@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.web.auth.impl;
 
 import org.apache.inlong.manager.common.auth.InlongShiro;
+import org.apache.inlong.manager.common.util.SHAUtils;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIAuthenticatingRealm;
 import org.apache.inlong.manager.web.auth.openapi.OpenAPIFilter;
@@ -80,7 +81,7 @@ public class InlongShiroImpl implements InlongShiro {
     @Override
     public CredentialsMatcher getCredentialsMatcher() {
         HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        hashedCredentialsMatcher.setHashAlgorithmName(SHAUtils.ALGORITHM_NAME);
         hashedCredentialsMatcher.setHashIterations(1024);
         return hashedCredentialsMatcher;
     }
