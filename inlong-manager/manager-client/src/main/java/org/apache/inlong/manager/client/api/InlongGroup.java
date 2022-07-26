@@ -17,7 +17,9 @@
 
 package org.apache.inlong.manager.client.api;
 
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -138,4 +140,19 @@ public interface InlongGroup {
      * @throws Exception
      */
     InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception;
+
+    /**
+     * Get InLong group count info by user.
+     *
+     * @return {@link InlongGroupCountResponse}
+     */
+    InlongGroupCountResponse countGroupByUser() throws Exception;
+
+    /**
+     * Get InLong group topic info by topic id.
+     *
+     * @param id topic id
+     * @return {@link InlongGroupTopicInfo}
+     */
+    InlongGroupTopicInfo getTopic(String id)throws Exception;
 }

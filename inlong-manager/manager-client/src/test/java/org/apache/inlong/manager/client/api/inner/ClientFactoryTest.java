@@ -37,10 +37,12 @@ import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarRequest;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
@@ -57,6 +59,7 @@ import org.apache.inlong.manager.common.pojo.source.autopush.AutoPushSource;
 import org.apache.inlong.manager.common.pojo.source.file.FileSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.source.mysql.MySQLBinlogSource;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamResponse;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
@@ -75,6 +78,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -416,6 +420,58 @@ class ClientFactoryTest {
     }
 
     @Test
+    void testCountGroupByUser() {
+        InlongGroupCountResponse expected = new InlongGroupCountResponse();
+        expected.setRejectCount(102400l);
+        expected.setTotalCount(834781232l);
+        expected.setWaitApproveCount(34524l);
+        expected.setWaitAssignCount(45678l);
+        stubFor(
+                get(urlMatching("/api/inlong/manager/group/countByStatus.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(expected))
+                                ))
+        );
+        InlongGroupCountResponse actual = groupClient.countGroupByUser();
+        Assertions.assertEquals(expected.getRejectCount(),actual.getRejectCount());
+        Assertions.assertEquals(expected.getTotalCount(),actual.getTotalCount());
+        Assertions.assertEquals(expected.getWaitApproveCount(),actual.getWaitApproveCount());
+        Assertions.assertEquals(expected.getWaitAssignCount(),actual.getWaitAssignCount());
+    }
+
+    @Test
+    void getTopic() {
+        InlongGroupTopicInfo expected = new InlongGroupTopicInfo();
+        expected.setInlongGroupId("1");
+        expected.setMqResource("testTopic");
+        expected.setMqType("TUBE");
+        expected.setPulsarAdminUrl("http://127.0.0.1:8080");
+        expected.setPulsarServiceUrl("http://127.0.0.1:8081");
+        expected.setTubeMasterUrl("http://127.0.0.1:8082");
+        List<InlongStreamBriefInfo> list = new ArrayList<>();
+        expected.setStreamTopics(list);
+        InlongStreamBriefInfo briefInfo = new InlongStreamBriefInfo();
+        briefInfo.setId(1);
+        briefInfo.setInlongGroupId("testgroup");
+        briefInfo.setModifyTime(new Date());
+        stubFor(
+                get(urlMatching("/api/inlong/manager/group/getTopic/1.*"))
+                        .willReturn(
+                                okJson(JsonUtils.toJsonString(
+                                        Response.success(expected))
+                                ))
+        );
+        InlongGroupTopicInfo actual = groupClient.getTopic("1");
+        Assertions.assertEquals(expected.getInlongGroupId(),actual.getInlongGroupId());
+        Assertions.assertEquals(expected.getMqType(),actual.getMqType());
+        Assertions.assertEquals(expected.getTubeMasterUrl(),actual.getTubeMasterUrl());
+        Assertions.assertEquals(expected.getPulsarAdminUrl(),actual.getPulsarAdminUrl());
+        Assertions.assertEquals(expected.getPulsarServiceUrl(),actual.getPulsarServiceUrl());
+        Assertions.assertEquals(expected.getStreamTopics(),actual.getStreamTopics());
+    }
+
+    @Test
     void testCreateStream() {
         stubFor(
                 post(urlMatching("/api/inlong/manager/stream/save.*"))
@@ -729,4 +785,4 @@ class ClientFactoryTest {
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
 
-}
+ }

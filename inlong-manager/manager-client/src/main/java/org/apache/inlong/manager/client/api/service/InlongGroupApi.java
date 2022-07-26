@@ -71,4 +71,10 @@ public interface InlongGroupApi {
 
     @POST("group/reset")
     Call<Response<Boolean>> resetGroup(@Body InlongGroupResetRequest request);
+
+    @GET("group/countByStatus")
+    Call<Response<Object>> countGroupByUser();
+
+    @GET("group/getTopic/{id}")
+    Call<Response<Object>> getTopic(@Path("id") String id);
 }
