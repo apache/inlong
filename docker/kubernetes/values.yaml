@@ -17,6 +17,17 @@
 
 timezone: "Asia/Shanghai"
 
+components:
+  agent: true
+  dashboard: true
+  dataproxy: true
+  tubemqManager: true
+  tubemqServer: true
+  manager: true
+  audit: true
+  mysql: true
+  zookeeper: true
+
 images:
   agent:
     repository: inlong/agent

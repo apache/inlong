@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.zookeeper }}
 {{- if .Values.zookeeper.pdb.usePolicy }}
 {{- if .Capabilities.APIVersions.Has "policy/v1" }}
 apiVersion: policy/v1
@@ -34,4 +35,5 @@ spec:
       {{- include "inlong.matchLabels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}
   maxUnavailable: {{ .Values.zookeeper.pdb.maxUnavailable }}
+{{- end }}
 {{- end }}

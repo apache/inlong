@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.manager }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -113,3 +114,4 @@ spec:
             - name: {{ .Values.manager.component }}-port
               containerPort: 8083
       restartPolicy: Always
+{{- end }}

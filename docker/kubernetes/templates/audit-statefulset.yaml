@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.audit }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -137,3 +138,4 @@ spec:
         - name: data
           emptyDir: {}
       restartPolicy: Always
+{{- end }}
