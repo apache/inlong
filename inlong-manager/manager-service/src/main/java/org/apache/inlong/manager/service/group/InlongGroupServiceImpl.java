@@ -29,6 +29,7 @@ import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
@@ -362,16 +363,29 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to update inlong group after approve={}", approveRequest);
         String groupId = approveRequest.getInlongGroupId();
 
+        // only the [TO_BE_APPROVAL] status allowed the passing operation
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
+        }
+        if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
+        }
+
         // update status to [GROUP_APPROVE_PASSED]
         this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
 
         // update other info for inlong group after approve
         if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
-            InlongGroupEntity entity = new InlongGroupEntity();
             entity.setInlongGroupId(approveRequest.getInlongGroupId());
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
             entity.setModifier(operator);
-            groupMapper.updateByIdentifierSelective(entity);
+            int rowCount = groupMapper.updateByIdentifierSelective(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                        entity.getInlongGroupId(), entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
         }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);

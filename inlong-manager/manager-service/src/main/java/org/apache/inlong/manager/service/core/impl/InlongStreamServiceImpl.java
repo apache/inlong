@@ -384,8 +384,13 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         for (InlongStreamEntity entity : entityList) {
             entity.setIsDeleted(1);
             entity.setModifier(operator);
-            streamMapper.updateByIdentifierSelective(entity);
 
+            int rowCount = streamMapper.updateByIdentifierSelective(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("stream has already updated with group id={}, stream id={}, curVersion={}",
+                        entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
             String streamId = entity.getInlongStreamId();
             // Logically delete the associated field, source and sink info
             streamFieldMapper.logicDeleteAllByIdentifier(groupId, streamId);
@@ -431,14 +436,17 @@ public class InlongStreamServiceImpl implements InlongStreamService {
 
         String groupId = null;
         for (InlongStreamApproveRequest info : streamApproveList) {
-            // Modify the inlong stream info after approve
-            InlongStreamEntity streamEntity = new InlongStreamEntity();
             groupId = info.getInlongGroupId(); // these groupIds are all the same
-            streamEntity.setInlongGroupId(groupId);
-            streamEntity.setInlongStreamId(info.getInlongStreamId());
+            // Modify the inlong stream info after approve
+            InlongStreamEntity streamEntity = streamMapper.selectByIdentifier(groupId, info.getInlongStreamId());
             streamEntity.setStatus(StreamStatus.CONFIG_ING.getCode());
-            streamMapper.updateByIdentifierSelective(streamEntity);
 
+            int rowCount = streamMapper.updateByIdentifierSelective(streamEntity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("stream has already updated with group id={}, stream id={}, curVersion={}",
+                        streamEntity.getInlongGroupId(), streamEntity.getInlongStreamId(), streamEntity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
             // Modify the sink info after approve, such as update cluster info
             sinkService.updateAfterApprove(info.getSinkList(), operator);
         }

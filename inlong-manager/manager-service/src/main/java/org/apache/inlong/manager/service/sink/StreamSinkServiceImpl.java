@@ -276,7 +276,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         entity.setModifyTime(new Date());
         int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
         if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
-            LOGGER.error("sink information has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+            LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
                     entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(), entity.getVersion());
             throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
         }
@@ -296,7 +296,6 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         // Check if it can be deleted
         groupCheckService.checkGroupStatus(groupId, operator);
 
-        Date now = new Date();
         List<StreamSinkEntity> entityList = sinkMapper.selectByRelatedId(groupId, streamId, null);
         if (CollectionUtils.isNotEmpty(entityList)) {
             entityList.forEach(entity -> {
@@ -305,8 +304,13 @@ public class StreamSinkServiceImpl implements StreamSinkService {
                 entity.setStatus(InlongConstants.DELETED_STATUS);
                 entity.setIsDeleted(id);
                 entity.setModifier(operator);
-                entity.setModifyTime(now);
-                sinkMapper.updateByPrimaryKeySelective(entity);
+                int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+                if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                    LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                            entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
+                            entity.getVersion());
+                    throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+                }
                 sinkFieldMapper.logicDeleteAll(id);
             });
         }
@@ -367,21 +371,24 @@ public class StreamSinkServiceImpl implements StreamSinkService {
             return true;
         }
 
-        Date now = new Date();
         for (SinkApproveDTO dto : approveList) {
             // According to the sink type, save sink information
             String sinkType = dto.getSinkType();
             Preconditions.checkNotNull(sinkType, ErrorCodeEnum.SINK_TYPE_IS_NULL.getMessage());
 
-            StreamSinkEntity entity = new StreamSinkEntity();
-            entity.setId(dto.getId());
+            StreamSinkEntity entity = sinkMapper.selectByPrimaryKey(dto.getId());
 
             int status = (dto.getStatus() == null) ? SinkStatus.CONFIG_ING.getCode() : dto.getStatus();
             entity.setPreviousStatus(entity.getStatus());
             entity.setStatus(status);
             entity.setModifier(operator);
-            entity.setModifyTime(now);
-            sinkMapper.updateByPrimaryKeySelective(entity);
+            int rowCount = sinkMapper.updateByPrimaryKeySelective(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("sink has already updated with groupId={}, streamId={}, name={}, curVersion={}",
+                        entity.getInlongGroupId(), entity.getInlongStreamId(), entity.getSinkName(),
+                        entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
         }
 
         LOGGER.info("success to update sink after approve: {}", approveList);
