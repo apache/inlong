@@ -133,7 +133,8 @@ final class Elasticsearch7DynamicSink implements DynamicTableSink {
                             REQUEST_FACTORY,
                             KeyExtractor.createKeyExtractor(schema, config.getKeyDelimiter()),
                             RoutingExtractor.createRoutingExtractor(
-                                    schema, config.getRoutingField().orElse(null)));
+                                    schema, config.getRoutingField().orElse(null)),
+                            null);
 
             final ElasticsearchSink.Builder<RowData> builder =
                     builderProvider.createBuilder(config.getHosts(), upsertFunction);

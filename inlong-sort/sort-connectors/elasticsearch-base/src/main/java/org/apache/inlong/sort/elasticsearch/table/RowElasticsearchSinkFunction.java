@@ -20,12 +20,13 @@ package org.apache.inlong.sort.elasticsearch.table;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.SerializationSchema;
-import org.apache.flink.streaming.connectors.elasticsearch.ElasticsearchSinkFunction;
+import org.apache.inlong.sort.elasticsearch.ElasticsearchSinkFunction;
 import org.apache.flink.streaming.connectors.elasticsearch.RequestIndexer;
 import org.apache.flink.table.api.TableException;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.util.Preconditions;
 
+import org.apache.inlong.sort.elasticsearch.metric.MetricData;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -49,8 +50,15 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
     private final XContentType contentType;
     private final RequestFactory requestFactory;
     private final Function<RowData, String> createKey;
+    private final String inLongMetric;
 
     private final Function<RowData, String> createRouting;
+
+    private transient  RuntimeContext runtimeContext;
+
+    private MetricData metricData;
+    private Long dataSize = 0L;
+    private Long rowSize = 0L;
 
     public RowElasticsearchSinkFunction(
             IndexGenerator indexGenerator,
@@ -59,7 +67,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
             XContentType contentType,
             RequestFactory requestFactory,
             Function<RowData, String> createKey,
-            @Nullable Function<RowData, String> createRouting) {
+            @Nullable Function<RowData, String> createRouting,
+            String inLongMetric) {
         this.indexGenerator = Preconditions.checkNotNull(indexGenerator);
         this.docType = docType;
         this.serializationSchema = Preconditions.checkNotNull(serializationSchema);
@@ -67,11 +76,27 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
         this.requestFactory = Preconditions.checkNotNull(requestFactory);
         this.createKey = Preconditions.checkNotNull(createKey);
         this.createRouting = createRouting;
+        this.inLongMetric = inLongMetric;
     }
 
     @Override
-    public void open() {
+    public void open(RuntimeContext ctx) {
         indexGenerator.open();
+        this.runtimeContext = ctx;
+        metricData = new MetricData(runtimeContext.getMetricGroup());
+        if (inLongMetric != null && !inLongMetric.isEmpty()) {
+            String[] inLongMetricArray = inLongMetric.split("_");
+            String groupId = inLongMetricArray[0];
+            String streamId = inLongMetricArray[1];
+            String nodeId = inLongMetricArray[2];
+            metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
+            metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
+            metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
+            metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+            metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId, "numBytesOutPerSecond");
+            metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+                    "numRecordsOutPerSecond");
+        }
     }
 
     @Override
@@ -137,7 +162,8 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 && Objects.equals(serializationSchema, that.serializationSchema)
                 && contentType == that.contentType
                 && Objects.equals(requestFactory, that.requestFactory)
-                && Objects.equals(createKey, that.createKey);
+                && Objects.equals(createKey, that.createKey)
+                && Objects.equals(inLongMetric, that.inLongMetric);
     }
 
     @Override
@@ -148,6 +174,7 @@ public class RowElasticsearchSinkFunction implements ElasticsearchSinkFunction<R
                 serializationSchema,
                 contentType,
                 requestFactory,
-                createKey);
+                createKey,
+                inLongMetric);
     }
 }

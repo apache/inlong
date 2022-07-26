@@ -53,6 +53,7 @@ import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FL
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.FORMAT_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.HOSTS_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.INDEX_OPTION;
+import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.INLONG_METRIC;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.KEY_DELIMITER_OPTION;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.ROUTING_FIELD_NAME;
 import static org.apache.inlong.sort.elasticsearch.table.ElasticsearchOptions.PASSWORD_OPTION;
@@ -79,7 +80,8 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
                     CONNECTION_PATH_PREFIX,
                     FORMAT_OPTION,
                     PASSWORD_OPTION,
-                    USERNAME_OPTION)
+                    USERNAME_OPTION,
+                    INLONG_METRIC)
                     .collect(Collectors.toSet());
 
     @Override
@@ -100,8 +102,10 @@ public class Elasticsearch6DynamicSinkFactory implements DynamicTableSinkFactory
 
         validate(config, configuration);
 
+        String inLongMetric = helper.getOptions().get(INLONG_METRIC);
+
         return new Elasticsearch6DynamicSink(
-                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema));
+                format, config, TableSchemaUtils.getPhysicalSchema(tableSchema), inLongMetric);
     }
 
     private void validate(Elasticsearch6Configuration config, Configuration originalConfiguration) {
