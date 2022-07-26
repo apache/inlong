@@ -300,35 +300,47 @@ public class FlinkSqlParser implements Parser {
         Map<String, Map<String, FieldRelation>> fieldRelationMap = new HashMap<>(unionRelation.getInputs().size());
         // Generate mapping for output field to FieldRelation
         fieldRelations.forEach(s -> {
-            Preconditions.checkNotNull(s.getOutputField().getNodeId(),
-                    "The node id of output field is not allowed to be null when union");
+            // All field relations of input nodes will be the same if the node id of output field is blank.
+            // Currently, the node id in the output file is used to distinguish which field of the node in the upstream
+            // of the union the field comes from. A better way is through the upstream input field,
+            // but this abstraction does not yet have the ability to set node ids for all upstream input fields.
+            // todo optimize the implementation of this block in the future
+            String nodeId = s.getOutputField().getNodeId();
+            if (StringUtils.isBlank(nodeId)) {
+                nodeId = unionRelation.getInputs().get(0);
+            }
             Map<String, FieldRelation> subRelationMap = fieldRelationMap
-                    .computeIfAbsent(s.getOutputField().getNodeId(), k -> new HashMap<>());
+                    .computeIfAbsent(nodeId, k -> new HashMap<>());
             subRelationMap.put(s.getOutputField().getName(), s);
         });
         StringBuilder sb = new StringBuilder();
         sb.append(genUnionSingleSelectSql(unionRelation.getInputs().get(0),
                 nodeMap.get(unionRelation.getInputs().get(0)).genTableName(), node.getFields(),
-                fieldRelationMap, node));
+                fieldRelationMap, fieldRelationMap.get(unionRelation.getInputs().get(0)), node));
         String relationFormat = unionRelation.format();
         for (int i = 1; i < unionRelation.getInputs().size(); i++) {
             String inputId = unionRelation.getInputs().get(i);
             sb.append("\n").append(relationFormat).append("\n")
-                    .append(genUnionSingleSelectSql(inputId, nodeMap.get(inputId).genTableName(),
-                            node.getFields(), fieldRelationMap, node));
+                    .append(genUnionSingleSelectSql(inputId, nodeMap.get(inputId).genTableName(), node.getFields(),
+                            fieldRelationMap, fieldRelationMap.get(unionRelation.getInputs().get(0)), node));
         }
         return sb.toString();
     }
 
     private String genUnionSingleSelectSql(String inputId, String tableName, List<FieldInfo> fields,
-            Map<String, Map<String, FieldRelation>> fieldRelationMap, Node node) {
+            Map<String, Map<String, FieldRelation>> fieldRelationMap,
+            Map<String, FieldRelation> defaultFieldRelationMap, Node node) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ");
+        Map<String, FieldRelation> fieldRelations = fieldRelationMap.get(inputId);
+        if (fieldRelations == null) {
+            fieldRelations = defaultFieldRelationMap;
+        }
         if (node instanceof HbaseLoadNode) {
             HbaseLoadNode hbaseLoadNode = (HbaseLoadNode) node;
-            parseHbaseLoadFieldRelation(hbaseLoadNode.getRowKey(), fieldRelationMap.get(inputId).values(), sb);
+            parseHbaseLoadFieldRelation(hbaseLoadNode.getRowKey(), fieldRelations.values(), sb);
         } else {
-            parseFieldRelations(fields, fieldRelationMap.get(inputId), sb);
+            parseFieldRelations(fields, fieldRelations, sb);
         }
         sb.append(" FROM `").append(tableName).append("` ");
         return sb.toString();
