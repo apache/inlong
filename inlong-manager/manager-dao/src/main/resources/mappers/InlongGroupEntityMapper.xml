@@ -213,14 +213,13 @@
             ext_params             = #{extParams,jdbcType=LONGVARCHAR},
             in_charges             = #{inCharges,jdbcType=VARCHAR},
             followers              = #{followers,jdbcType=VARCHAR},
+            previous_status        = status,
             status                 = #{status,jdbcType=INTEGER},
-            previous_status        = #{previous_status,jdbcType=INTEGER},
             is_deleted             = #{isDeleted,jdbcType=INTEGER},
-            creator                = #{creator,jdbcType=VARCHAR},
             modifier               = #{modifier,jdbcType=VARCHAR},
             version                = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
-        and version = #{version,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdentifierSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongGroupEntity">
         update inlong_group
@@ -271,16 +270,13 @@
                 followers = #{followers,jdbcType=VARCHAR},
             </if>
             <if test="status != null">
-                status = #{status,jdbcType=INTEGER},
+                previous_status = status,
             </if>
-            <if test="previousStatus != null">
-                previous_status = #{previousStatus,jdbcType=INTEGER},
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
             </if>
             <if test="isDeleted != null">
                 is_deleted = #{isDeleted,jdbcType=INTEGER},
-            </if>
-            <if test="creator != null">
-                creator = #{creator,jdbcType=VARCHAR},
             </if>
             <if test="modifier != null">
                 modifier = #{modifier,jdbcType=VARCHAR},
@@ -307,11 +303,11 @@
     </delete>
 
     <select id="selectAllGroups" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceGroupInfo">
-        select inlong_group_id as groupId,
+        select inlong_group_id    as groupId,
                inlong_cluster_tag as clusterTag,
-               mq_resource as topic,
-               ext_params as extParams,
-               mq_type as mqType
+               mq_resource        as topic,
+               ext_params         as extParams,
+               mq_type            as mqType
         from inlong_group
         where is_deleted = 0
     </select>
