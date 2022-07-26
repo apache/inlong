@@ -29,9 +29,12 @@ import org.apache.inlong.common.pojo.agent.DataConfig;
 import org.apache.inlong.common.pojo.agent.TaskRequest;
 import org.apache.inlong.common.pojo.agent.TaskResult;
 import org.apache.inlong.common.pojo.agent.TaskSnapshotRequest;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.consts.SourceType;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
+import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
@@ -151,36 +154,24 @@ public class AgentServiceImpl implements AgentService {
         if (request == null || StringUtils.isBlank(request.getAgentIp())) {
             throw new BusinessException("agent request or agent ip was empty, just return");
         }
-        final String agentIp = request.getAgentIp();
-        final String uuid = request.getUuid();
 
-        List<StreamSourceEntity> tasks = Lists.newArrayList();
+        List<DataConfig> tasks = Lists.newArrayList();
         // Query the tasks that needed to add or active - without agentIp and uuid
-        List<StreamSourceEntity> nonFileTasks = fetchNonFileTasks(request);
+        List<DataConfig> nonFileTasks = fetchNonFileTasks(request);
         tasks.addAll(nonFileTasks);
-
-        List<StreamSourceEntity> fileTasks = fetchFileTasks(request);
+        // Query file collecting tasks
+        List<DataConfig> fileTasks = fetchFileTasks(request);
         tasks.addAll(fileTasks);
-
         // Query other tasks by agentIp and uuid - not included status with TO_BE_ISSUED_ADD and TO_BE_ISSUED_ACTIVE
-        List<StreamSourceEntity> needIssuedTasks = fetchIssuedTasks(request);
+        List<DataConfig> needIssuedTasks = fetchIssuedTasks(request);
         tasks.addAll(needIssuedTasks);
 
         // Query pending special commands
         List<CmdConfig> cmdConfigs = getAgentCmdConfigs(request);
-
-        // Update agentIp and uuid for the added and active tasks
-        for (StreamSourceEntity entity : tasks) {
-            if (StringUtils.isEmpty(entity.getAgentIp())) {
-                sourceMapper.updateIpAndUuid(entity.getId(), agentIp, uuid, false);
-                LOGGER.info("update stream source ip to [{}], uuid to [{}] for id [{}]", agentIp, uuid, entity.getId());
-            }
-        }
-
-        return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
+        return TaskResult.builder().dataConfigs(tasks).cmdConfigs(cmdConfigs).build();
     }
 
-    private List<StreamSourceEntity> fetchNonFileTasks(TaskRequest taskRequest) {
+    private List<DataConfig> fetchNonFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
@@ -189,12 +180,25 @@ public class AgentServiceImpl implements AgentService {
             needAddStatusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_ADD.getCode(),
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
-        List<String> sourceTypes = Lists.newArrayList(SourceType.MYSQL_BINLOG, SourceType.KAFKA,
-                SourceType.MYSQL_SQL);
-        return sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes, TASK_FETCH_SIZE);
+        List<String> sourceTypes = Lists.newArrayList(SourceType.MYSQL_SQL, SourceType.KAFKA,
+                SourceType.MYSQL_BINLOG);
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList, sourceTypes,
+                TASK_FETCH_SIZE);
+        List<DataConfig> nonFileTasks = Lists.newArrayList();
+        for (StreamSourceEntity sourceEntity : sourceEntities) {
+            int op = getOp(sourceEntity.getStatus());
+            int nextStatus = getNextStatus(sourceEntity.getStatus());
+            sourceEntity.setStatus(nextStatus);
+            sourceEntity.setAgentIp(taskRequest.getAgentIp());
+            sourceEntity.setUuid(taskRequest.getUuid());
+            if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                nonFileTasks.add(getDataConfig(sourceEntity, op));
+            }
+        }
+        return nonFileTasks;
     }
 
-    private List<StreamSourceEntity> fetchFileTasks(TaskRequest taskRequest) {
+    private List<DataConfig> fetchFileTasks(TaskRequest taskRequest) {
         List<Integer> needAddStatusList;
         if (PullJobTypeEnum.NEVER == PullJobTypeEnum.getPullJobType(taskRequest.getPullJobType())) {
             LOGGER.warn("agent pull job type is [NEVER], just pull to be active tasks");
@@ -204,34 +208,91 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         final String agentIp = taskRequest.getAgentIp();
-        final String agentClusterName = taskRequest.getClusterTag();
-        List<StreamSourceEntity> fileEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
-                Lists.newArrayList(SourceType.FILE), TASK_FETCH_SIZE * 2);
-        List<StreamSourceEntity> attachedFileEntities = Lists.newArrayList();
-        for (StreamSourceEntity fileEntity : fileEntities) {
-            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
+        final String agentClusterTag = taskRequest.getClusterTag();
+        final String uuid = taskRequest.getUuid();
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
+                Lists.newArrayList(SourceType.FILE), TASK_FETCH_SIZE * 10);
+        List<DataConfig> fileTasks = Lists.newArrayList();
+        for (StreamSourceEntity sourceEntity : sourceEntities) {
+            FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(sourceEntity.getExtParams());
             final String ip = fileSourceDTO.getIp();
             final String clusterTag = fileSourceDTO.getClusterTag();
-            if (StringUtils.isNotBlank(agentIp) && agentIp.equals(ip)) {
-                attachedFileEntities.add(fileEntity);
+            // ClusterTag is blank
+            if (StringUtils.isNotBlank(ip) && StringUtils.isBlank(clusterTag)) {
+                if (ip.equals(agentIp)) {
+                    int op = getOp(sourceEntity.getStatus());
+                    int nextStatus = getNextStatus(sourceEntity.getStatus());
+                    sourceEntity.setAgentIp(agentIp);
+                    sourceEntity.setUuid(uuid);
+                    sourceEntity.setStatus(nextStatus);
+                    if (sourceMapper.updateByPrimaryKeySelective(sourceEntity) == 1) {
+                        fileTasks.add(getDataConfig(sourceEntity, op));
+                    }
+                }
                 continue;
             }
-            //todo problems
-            if (StringUtils.isNotBlank(agentClusterName) && agentClusterName.equals(clusterTag)) {
-                attachedFileEntities.add(fileEntity);
+            // ClusterTag is not blank
+            if (StringUtils.isNotBlank(clusterTag) && clusterTag.equals(agentClusterTag)) {
+                String clusterIps = sourceEntity.getAgentIp() == null ? "" : sourceEntity.getAgentIp();
+                if (clusterIps.contains(agentIp)) {
+                    LOGGER.debug("Task={} has already be fetch by agentIP={}", sourceEntity.getExtParams(), agentIp);
+                    continue;
+                }
+                clusterIps += InlongConstants.COMMA + agentIp;
+                sourceEntity.setAgentIp(clusterIps);
+                // Update until success
+                while (sourceMapper.updateByPrimaryKeySelective(sourceEntity) != 1) {
+                    sourceEntity = sourceMapper.selectById(sourceEntity.getId());
+                    sourceEntity.setAgentIp(clusterIps);
+                }
+                StreamSourceEntity fileEntity = CommonBeanUtils.copyProperties(sourceEntity, StreamSourceEntity::new);
+                FileSourceDTO childFileSourceDTO = CommonBeanUtils.copyProperties(fileSourceDTO, FileSourceDTO::new);
+                childFileSourceDTO.setIp(agentIp);
+                fileEntity.setExtParams(JsonUtils.toJsonString(childFileSourceDTO));
+                fileEntity.setAgentIp(agentIp);
+                fileEntity.setUuid(uuid);
+                int op = getOp(fileEntity.getStatus());
+                int nextStatus = getNextStatus(fileEntity.getStatus());
+                fileEntity.setStatus(nextStatus);
+                if (sourceMapper.insert(fileEntity) > 0) {
+                    fileTasks.add(getDataConfig(fileEntity, op));
+                }
+            }
+            if (fileTasks.size() >= TASK_FETCH_SIZE) {
+                break;
             }
         }
-        return attachedFileEntities;
+        return fileTasks;
     }
 
-    private List<StreamSourceEntity> fetchIssuedTasks(TaskRequest taskRequest) {
+    private List<DataConfig> fetchIssuedTasks(TaskRequest taskRequest) {
         final String agentIp = taskRequest.getAgentIp();
         final String uuid = taskRequest.getUuid();
         List<Integer> statusList = Arrays.asList(SourceStatus.TO_BE_ISSUED_DELETE.getCode(),
                 SourceStatus.TO_BE_ISSUED_RETRY.getCode(), SourceStatus.TO_BE_ISSUED_BACKTRACK.getCode(),
                 SourceStatus.TO_BE_ISSUED_FROZEN.getCode(), SourceStatus.TO_BE_ISSUED_CHECK.getCode(),
                 SourceStatus.TO_BE_ISSUED_REDO_METRIC.getCode(), SourceStatus.TO_BE_ISSUED_MAKEUP.getCode());
-        return sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+        List<StreamSourceEntity> sourceEntities = sourceMapper.selectByStatusAndIp(statusList, agentIp, uuid);
+        List<DataConfig> issuedTasks = Lists.newArrayList();
+        for (StreamSourceEntity issuedTask : sourceEntities) {
+            int op = getOp(issuedTask.getStatus());
+            int nextStatus = getNextStatus(issuedTask.getStatus());
+            issuedTask.setStatus(nextStatus);
+            if (sourceMapper.updateByPrimaryKeySelective(issuedTask) == 1) {
+                issuedTasks.add(getDataConfig(issuedTask, op));
+            }
+        }
+        return issuedTasks;
+    }
+
+    private int getOp(int status) {
+        return status % MODULUS_100;
+    }
+
+    private int getNextStatus(int status) {
+        int op = status % MODULUS_100;
+        int nextStatus = ISSUED_STATUS * MODULUS_100 + op;
+        return nextStatus;
     }
 
     /**
