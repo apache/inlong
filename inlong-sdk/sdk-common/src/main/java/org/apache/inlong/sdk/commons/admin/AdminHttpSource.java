@@ -222,8 +222,8 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
         /**
          * doPost
          *
-         * @param  request
-         * @param  response
+         * @param request
+         * @param response
          * @throws IOException
          */
         @Override
@@ -278,8 +278,8 @@ public class AdminHttpSource extends SslContextAwareAbstractSource implements
         /**
          * doGet
          *
-         * @param  request
-         * @param  response
+         * @param request
+         * @param response
          * @throws IOException
          */
         @Override
