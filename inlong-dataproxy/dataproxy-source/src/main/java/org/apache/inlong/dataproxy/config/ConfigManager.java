@@ -23,10 +23,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyTopicInfo;
 import org.apache.inlong.common.pojo.dataproxy.MQClusterInfo;
 import org.apache.inlong.dataproxy.config.holder.FileConfigHolder;
@@ -37,6 +38,7 @@ import org.apache.inlong.dataproxy.config.holder.PropertiesConfigHolder;
 import org.apache.inlong.dataproxy.config.pojo.MQClusterConfig;
 import org.apache.inlong.dataproxy.consts.AttributeConstants;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -269,18 +271,23 @@ public class ConfigManager {
                 return false;
             }
 
-            HttpGet httpGet = null;
+            HttpPost httpPost = null;
             try {
-                String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH
-                        + "?clusterName=" + clusterName;
-                LOG.info("start to request {} to get config info", url);
-                httpGet = new HttpGet(url);
-                httpGet.addHeader(HttpHeaders.CONNECTION, "close");
-                httpGet.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
+                String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_CONFIG_PATH;
+                httpPost = new HttpPost(url);
+                httpPost.addHeader(HttpHeaders.CONNECTION, "close");
+                httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
+
+                // request body
+                DataProxyConfigRequest request = new DataProxyConfigRequest();
+                request.setClusterName(clusterName);
+                httpPost.setEntity(HttpUtils.getEntity(request));
 
                 // request with post
-                CloseableHttpResponse response = httpClient.execute(httpGet);
+                LOG.info("start to request {} to get config info with params {}", url, request);
+                CloseableHttpResponse response = httpClient.execute(httpPost);
                 String returnStr = EntityUtils.toString(response.getEntity());
+
                 // get groupId <-> topic and m value.
                 RemoteConfigJson configJson = gson.fromJson(returnStr, RemoteConfigJson.class);
                 Map<String, String> groupIdToTopic = new HashMap<>();
@@ -335,8 +342,8 @@ public class ConfigManager {
                 LOG.error("exception caught", ex);
                 return false;
             } finally {
-                if (httpGet != null) {
-                    httpGet.releaseConnection();
+                if (httpPost != null) {
+                    httpPost.releaseConnection();
                 }
             }
             return true;
