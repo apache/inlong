@@ -41,6 +41,9 @@ public class FileSourceDTO {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+    @ApiModelProperty("Agent Cluster tag")
+    private String clusterTag;
+
     @ApiModelProperty("Agent IP address")
     private String ip;
 
@@ -59,6 +62,7 @@ public class FileSourceDTO {
 
     public static FileSourceDTO getFromRequest(@NotNull FileSourceRequest fileSourceRequest) {
         return FileSourceDTO.builder()
+                .clusterTag(fileSourceRequest.getClusterName())
                 .ip(fileSourceRequest.getIp())
                 .pattern(fileSourceRequest.getPattern())
                 .timeOffset(fileSourceRequest.getTimeOffset())

@@ -29,6 +29,8 @@ import java.util.List;
 @Data
 public class TaskRequest {
 
+    private String clusterTag;
+
     private String agentIp;
 
     private String uuid;

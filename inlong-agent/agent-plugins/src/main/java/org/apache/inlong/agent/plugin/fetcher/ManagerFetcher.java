@@ -115,6 +115,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private List<String> managerList;
     private String localIp;
     private String uuid;
+    private String clusterTag;
 
     private CommandDb commandDb;
 
@@ -130,6 +131,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             managerDbCollectorTaskUrl = buildDbCollectorGetTaskUrl(baseManagerUrl);
             localFileCache = getLocalFileCache();
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
+            clusterTag = conf.get(AGENT_CLUSTER_TAG);
             this.commandDb = agentManager.getCommandDb();
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -302,6 +304,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
+        request.setClusterTag(clusterTag);
         // when job size is over limit, require no new job
         if (agentManager.getJobManager().isJobOverLimit()) {
             request.setPullJobType(PullJobTypeEnum.NEVER.getType());
