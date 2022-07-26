@@ -45,8 +45,8 @@ import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterRequest;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
@@ -86,7 +86,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -430,10 +429,10 @@ class ClientFactoryTest {
     @Test
     void testCountGroupByUser() {
         InlongGroupCountResponse expected = new InlongGroupCountResponse();
-        expected.setRejectCount(102400l);
-        expected.setTotalCount(834781232l);
-        expected.setWaitApproveCount(34524l);
-        expected.setWaitAssignCount(45678l);
+        expected.setRejectCount(102400L);
+        expected.setTotalCount(834781232L);
+        expected.setWaitApproveCount(34524L);
+        expected.setWaitAssignCount(45678L);
         stubFor(
                 get(urlMatching("/api/inlong/manager/group/countByStatus.*"))
                         .willReturn(
@@ -442,10 +441,10 @@ class ClientFactoryTest {
                                 ))
         );
         InlongGroupCountResponse actual = groupClient.countGroupByUser();
-        Assertions.assertEquals(expected.getRejectCount(),actual.getRejectCount());
-        Assertions.assertEquals(expected.getTotalCount(),actual.getTotalCount());
-        Assertions.assertEquals(expected.getWaitApproveCount(),actual.getWaitApproveCount());
-        Assertions.assertEquals(expected.getWaitAssignCount(),actual.getWaitAssignCount());
+        Assertions.assertEquals(expected.getRejectCount(), actual.getRejectCount());
+        Assertions.assertEquals(expected.getTotalCount(), actual.getTotalCount());
+        Assertions.assertEquals(expected.getWaitApproveCount(), actual.getWaitApproveCount());
+        Assertions.assertEquals(expected.getWaitAssignCount(), actual.getWaitAssignCount());
     }
 
     @Test
@@ -471,12 +470,12 @@ class ClientFactoryTest {
                                 ))
         );
         InlongGroupTopicInfo actual = groupClient.getTopic("1");
-        Assertions.assertEquals(expected.getInlongGroupId(),actual.getInlongGroupId());
-        Assertions.assertEquals(expected.getMqType(),actual.getMqType());
-        Assertions.assertEquals(expected.getTubeMasterUrl(),actual.getTubeMasterUrl());
-        Assertions.assertEquals(expected.getPulsarAdminUrl(),actual.getPulsarAdminUrl());
-        Assertions.assertEquals(expected.getPulsarServiceUrl(),actual.getPulsarServiceUrl());
-        Assertions.assertEquals(expected.getStreamTopics(),actual.getStreamTopics());
+        Assertions.assertEquals(expected.getInlongGroupId(), actual.getInlongGroupId());
+        Assertions.assertEquals(expected.getMqType(), actual.getMqType());
+        Assertions.assertEquals(expected.getTubeMasterUrl(), actual.getTubeMasterUrl());
+        Assertions.assertEquals(expected.getPulsarAdminUrl(), actual.getPulsarAdminUrl());
+        Assertions.assertEquals(expected.getPulsarServiceUrl(), actual.getPulsarServiceUrl());
+        Assertions.assertEquals(expected.getStreamTopics(), actual.getStreamTopics());
     }
 
     @Test
@@ -818,7 +817,6 @@ class ClientFactoryTest {
         Assertions.assertEquals(1, sinkInfo.getId());
         Assertions.assertTrue(sinkInfo instanceof MySQLSink);
     }
-
 
     @Test
     void testSaveClusterTag() {
