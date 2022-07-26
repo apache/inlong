@@ -38,11 +38,11 @@ public class SuspendSortListenerTest {
     @Test
     public void testListener() throws Exception {
         WorkflowContext context = new WorkflowContext();
-        GroupResourceProcessForm groupResourceProcessForm = new GroupResourceProcessForm();
-        context.setProcessForm(groupResourceProcessForm);
+        GroupResourceProcessForm groupResourceForm = new GroupResourceProcessForm();
+        context.setProcessForm(groupResourceForm);
         InlongPulsarInfo pulsarInfo = new InlongPulsarInfo();
         pulsarInfo.setInlongGroupId("1");
-        groupResourceProcessForm.setGroupInfo(pulsarInfo);
+        groupResourceForm.setGroupInfo(pulsarInfo);
 
         InlongGroupExtInfo inlongGroupExtInfo1 = new InlongGroupExtInfo();
         inlongGroupExtInfo1.setKeyName(InlongConstants.SORT_URL);

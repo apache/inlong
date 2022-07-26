@@ -18,14 +18,19 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
@@ -61,6 +66,38 @@ public class CreatePulsarSubscriptionTaskListener implements QueueOperateListene
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            return false;
+        }
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        GroupOperateType operateType = streamResourceProcessForm.getGroupOperateType();
+        if (operateType != GroupOperateType.INIT) {
+            return false;
+        }
+
+        InlongGroupInfo groupInfo = streamResourceProcessForm.getGroupInfo();
+        MQType mqType = MQType.forType(groupInfo.getMqType());
+        String groupId = groupInfo.getInlongGroupId();
+        String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+            boolean enable = InlongConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
+            if (enable) {
+                log.info("need to create pulsar topic as the createResource was true for groupId [{}] streamId [{}]",
+                        groupId, streamId);
+                return true;
+            } else {
+                log.info("skip to create pulsar topic as the createResource was false for groupId [{}] streamId [{}]",
+                        groupId, streamId);
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -21,13 +21,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -56,6 +57,29 @@ public class DeleteStreamListener implements SortOperateListener {
     }
 
     @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add deleteStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
+                    groupId);
+            return false;
+        }
+
+        StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
+        String streamId = streamResourceProcessForm.getStreamInfo().getInlongStreamId();
+        boolean flag = streamResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
+        if (!flag) {
+            log.info("not add deleteStream listener, as the operate was not DELETE for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
+            return false;
+        }
+
+        log.info("add deleteStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
+        return true;
+    }
+
+    @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         ProcessForm processForm = context.getProcessForm();
         StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
@@ -69,7 +93,7 @@ public class DeleteStreamListener implements SortOperateListener {
         final String streamId = streamInfo.getInlongStreamId();
         Map<String, String> kvConf = groupExtList.stream().collect(
                 Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
-        streamExtList.stream().forEach(extInfo -> {
+        streamExtList.forEach(extInfo -> {
             kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
         });
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);

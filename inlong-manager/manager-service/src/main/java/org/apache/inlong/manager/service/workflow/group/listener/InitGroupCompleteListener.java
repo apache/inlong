@@ -24,7 +24,10 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
@@ -48,6 +51,8 @@ public class InitGroupCompleteListener implements ProcessEventListener {
     private InlongStreamService streamService;
     @Autowired
     private StreamSourceService sourceService;
+    @Autowired
+    private InlongGroupEntityMapper groupMapper;
 
     @Override
     public ProcessEvent event() {
@@ -70,7 +75,10 @@ public class InitGroupCompleteListener implements ProcessEventListener {
         InlongGroupInfo groupInfo = form.getGroupInfo();
         String operator = context.getOperator();
         groupService.updateStatus(groupId, GroupStatus.CONFIG_SUCCESSFUL.getCode(), operator);
-        groupService.update(groupInfo.genRequest(), operator);
+        InlongGroupEntity existGroup = groupMapper.selectByGroupId(groupId);
+        InlongGroupRequest updateGroupRequest = groupInfo.genRequest();
+        updateGroupRequest.setVersion(existGroup.getVersion());
+        groupService.update(updateGroupRequest, operator);
 
         // update status of other related configs
         streamService.updateStatus(groupId, null, StreamStatus.CONFIG_SUCCESSFUL.getCode(), operator);

@@ -19,8 +19,12 @@ package org.apache.inlong.manager.workflow.definition;
 
 import java.util.Locale;
 
+/**
+ * Enum of
+ */
 public enum ServiceTaskType {
 
+    // INIT_SOURCE("InitSource"),
     INIT_SOURCE,
     INIT_MQ,
     INIT_SORT,
@@ -35,6 +39,9 @@ public enum ServiceTaskType {
     DELETE_SOURCE,
     DELETE_MQ,
     DELETE_SORT;
+
+    // @Getter
+    // private final String mode;
 
     @Override
     public String toString() {

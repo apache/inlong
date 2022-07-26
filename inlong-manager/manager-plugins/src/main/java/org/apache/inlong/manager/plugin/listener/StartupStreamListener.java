@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
@@ -58,6 +59,27 @@ public class StartupStreamListener implements SortOperateListener {
     }
 
     @Override
+    public boolean accept(WorkflowContext workflowContext) {
+        ProcessForm processForm = workflowContext.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add startupStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
+                    groupId);
+            return false;
+        }
+        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
+        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.INIT;
+        String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
+        if (!flag) {
+            log.info("not add startupStream listener, as the operate was not INIT for groupId [{}] and streamId [{}]",
+                    groupId, streamId);
+            return false;
+        }
+        log.info("add startupStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
+        return true;
+    }
+
+    @Override
     public ListenerResult listen(WorkflowContext context) throws Exception {
         ProcessForm processForm = context.getProcessForm();
         StreamResourceProcessForm streamResourceProcessForm = (StreamResourceProcessForm) processForm;
@@ -77,7 +99,7 @@ public class StartupStreamListener implements SortOperateListener {
 
         Map<String, String> kvConf = groupExtList.stream().collect(
                 Collectors.toMap(InlongGroupExtInfo::getKeyName, InlongGroupExtInfo::getKeyValue));
-        streamExtList.stream().forEach(extInfo -> {
+        streamExtList.forEach(extInfo -> {
             kvConf.put(extInfo.getKeyName(), extInfo.getKeyValue());
         });
         String sortExt = kvConf.get(InlongConstants.SORT_PROPERTIES);

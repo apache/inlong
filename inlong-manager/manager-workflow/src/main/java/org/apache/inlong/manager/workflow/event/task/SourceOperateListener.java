@@ -15,17 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.workflow.event.task;
 
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.ListenerResult;
 
 /**
- * a selector allowing to decide which event is selected
+ * Listener of operate Source.
  */
-public interface EventSelector {
+public interface SourceOperateListener extends TaskEventListener {
 
-    EventSelector SELECT_ANY = context -> true;
+    SourceOperateListener DEFAULT_SOURCE_OPERATE_LISTENER = new SourceOperateListener() {
 
-    boolean accept(WorkflowContext context);
+        @Override
+        public TaskEvent event() {
+            return TaskEvent.COMPLETE;
+        }
+
+        @Override
+        public ListenerResult listen(WorkflowContext context) {
+            return ListenerResult.success();
+        }
+
+    };
 
 }

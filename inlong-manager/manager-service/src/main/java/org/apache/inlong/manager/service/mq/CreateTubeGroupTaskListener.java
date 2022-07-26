@@ -19,9 +19,11 @@ package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
@@ -50,6 +52,24 @@ public class CreateTubeGroupTaskListener implements QueueOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            return false;
+        }
+        GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        String groupId = form.getInlongGroupId();
+        MQType mqType = MQType.forType(form.getGroupInfo().getMqType());
+        if (mqType == MQType.TUBE) {
+            log.info("need to create tube resource for groupId [{}]", groupId);
+            return true;
+        }
+
+        log.warn("skip to to create tube resource as the mq type is {} for groupId [{}]", mqType, groupId);
+        return false;
     }
 
     @Override

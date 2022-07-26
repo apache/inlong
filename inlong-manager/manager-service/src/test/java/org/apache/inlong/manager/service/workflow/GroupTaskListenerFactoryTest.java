@@ -41,7 +41,7 @@ import java.util.List;
 public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
 
     @Autowired
-    GroupTaskListenerFactory groupTaskListenerFactory;
+    private GroupTaskListenerFactory groupTaskListenerFactory;
 
     @Test
     public void testGetQueueOperateListener() {

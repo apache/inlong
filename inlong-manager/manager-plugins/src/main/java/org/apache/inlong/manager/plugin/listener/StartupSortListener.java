@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -53,6 +54,26 @@ public class StartupSortListener implements SortOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext workflowContext) {
+        ProcessForm processForm = workflowContext.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("not add startupProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
+                    groupId);
+            return false;
+        }
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        boolean flag = groupProcessForm.getGroupOperateType() == GroupOperateType.INIT;
+        if (!flag) {
+            log.info("not add startupProcess listener, as the operate was not INIT for groupId [{}]", groupId);
+            return false;
+        }
+
+        log.info("add startupProcess listener for groupId [{}]", groupId);
+        return true;
     }
 
     @Override

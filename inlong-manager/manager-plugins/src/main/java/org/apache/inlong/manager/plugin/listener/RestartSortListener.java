@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -52,6 +53,27 @@ public class RestartSortListener implements SortOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext workflowContext) {
+        ProcessForm processForm = workflowContext.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("not add restartProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
+                    groupId);
+            return false;
+        }
+
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        boolean flag = groupProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
+        if (!flag) {
+            log.info("\"not add restartProcess listener, as the operate was not RESTART for groupId [{}]", groupId);
+            return false;
+        }
+
+        log.info("add restartProcess listener for groupId [{}]", groupId);
+        return true;
     }
 
     @Override

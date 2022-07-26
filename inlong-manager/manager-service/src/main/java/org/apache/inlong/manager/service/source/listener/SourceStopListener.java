@@ -17,7 +17,11 @@
 
 package org.apache.inlong.manager.service.source.listener;
 
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.source.SourceRequest;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,6 +33,16 @@ public class SourceStopListener extends AbstractSourceOperateListener {
     @Override
     public String name() {
         return getClass().getSimpleName();
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            return false;
+        }
+        GroupResourceProcessForm groupResourceForm = (GroupResourceProcessForm) processForm;
+        return groupResourceForm.getGroupOperateType() == GroupOperateType.SUSPEND;
     }
 
     @Override
