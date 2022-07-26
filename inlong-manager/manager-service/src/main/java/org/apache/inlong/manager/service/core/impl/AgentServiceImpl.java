@@ -222,20 +222,20 @@ public class AgentServiceImpl implements AgentService {
                     SourceStatus.TO_BE_ISSUED_ACTIVE.getCode());
         }
         final String agentIp = taskRequest.getAgentIp();
-        final String agentClusterName = taskRequest.getClusterName();
+        final String agentClusterName = taskRequest.getClusterTag();
         List<StreamSourceEntity> fileEntities = sourceMapper.selectByStatusAndType(needAddStatusList,
                 Lists.newArrayList(SourceType.FILE.getType()), TASK_FETCH_SIZE * 2);
         List<StreamSourceEntity> attachedFileEntities = Lists.newArrayList();
         for (StreamSourceEntity fileEntity : fileEntities) {
             FileSourceDTO fileSourceDTO = FileSourceDTO.getFromJson(fileEntity.getExtParams());
             final String ip = fileSourceDTO.getIp();
-            final String clusterName = fileSourceDTO.getClusterName();
+            final String clusterTag = fileSourceDTO.getClusterTag();
             if (StringUtils.isNotBlank(agentIp) && agentIp.equals(ip)) {
                 attachedFileEntities.add(fileEntity);
                 continue;
             }
             //todo problems
-            if (StringUtils.isNotBlank(agentClusterName) && agentClusterName.equals(clusterName)) {
+            if (StringUtils.isNotBlank(agentClusterName) && agentClusterName.equals(clusterTag)) {
                 attachedFileEntities.add(fileEntity);
             }
         }

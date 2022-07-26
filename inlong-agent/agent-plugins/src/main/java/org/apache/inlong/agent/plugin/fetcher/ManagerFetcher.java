@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
+import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE_TIMEOUT;
@@ -116,7 +117,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     private List<String> managerList;
     private String localIp;
     private String uuid;
-    private String clusterName;
+    private String clusterTag;
 
     private CommandDb commandDb;
 
@@ -132,7 +133,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
             managerDbCollectorTaskUrl = buildDbCollectorGetTaskUrl(baseManagerUrl);
             localFileCache = getLocalFileCache();
             uniqId = conf.get(AGENT_UNIQ_ID, DEFAULT_AGENT_UNIQ_ID);
-            clusterName = conf.get(AGENT_CLUSTER_NAME);
+            clusterTag = conf.get(AGENT_CLUSTER_TAG);
             this.commandDb = agentManager.getCommandDb();
         } else {
             throw new RuntimeException("init manager error, cannot find required key");
@@ -305,7 +306,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         TaskRequest request = new TaskRequest();
         request.setAgentIp(localIp);
         request.setUuid(uuid);
-        request.setClusterName(clusterName);
+        request.setClusterTag(clusterTag);
         // when job size is over limit, require no new job
         if (agentManager.getJobManager().isJobOverLimit()) {
             request.setPullJobType(PullJobTypeEnum.NEVER.getType());
