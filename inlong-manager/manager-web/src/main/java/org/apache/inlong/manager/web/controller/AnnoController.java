@@ -44,16 +44,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnnoController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping("/anno/login")
-    public Response<String> login(@Validated @RequestBody UserLoginRequest loginRequest) {
+    public Response<Boolean> login(@Validated @RequestBody UserLoginRequest loginRequest) {
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken token = new UsernamePasswordToken(loginRequest.getUsername(), loginRequest.getPassword());
         subject.login(token);
         LoginUserUtils.setUserLoginInfo((UserInfo) subject.getPrincipal());
 
-        return Response.success("success");
+        return Response.success(true);
     }
 
     @PostMapping("/anno/register")
@@ -62,9 +62,9 @@ public class AnnoController {
     }
 
     @GetMapping("/anno/logout")
-    public Response<String> logout() {
+    public Response<Boolean> logout() {
         SecurityUtils.getSubject().logout();
-        return Response.success("success");
+        return Response.success(true);
     }
 
 }
