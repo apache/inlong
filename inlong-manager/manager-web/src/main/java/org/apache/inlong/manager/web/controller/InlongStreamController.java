@@ -58,7 +58,7 @@ public class InlongStreamController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Save inlong stream")
     public Response<Integer> save(@RequestBody InlongStreamRequest request) {
-        int result = streamService.save(request, LoginUserUtils.getLoginUserDetail().getUsername());
+        int result = streamService.save(request, LoginUserUtils.getLoginUser().getName());
         return Response.success(result);
     }
 
@@ -85,16 +85,16 @@ public class InlongStreamController {
     @RequestMapping(value = "/stream/list", method = RequestMethod.POST)
     @ApiOperation(value = "Get inlong stream brief info by paginating")
     public Response<PageInfo<InlongStreamBriefInfo>> listByCondition(@RequestBody InlongStreamPageRequest request) {
-        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUsername());
-        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listBrief(request));
     }
 
     @RequestMapping(value = "/stream/listAll", method = RequestMethod.POST)
     @ApiOperation(value = "Get inlong stream with all sources and sinks by paginating")
     public Response<PageInfo<InlongStreamInfo>> listAllWithGroupId(@RequestBody InlongStreamPageRequest request) {
-        request.setCurrentUser(LoginUserUtils.getLoginUserDetail().getUsername());
-        request.setIsAdminRole(LoginUserUtils.getLoginUserDetail().getRoles().contains(UserRoleCode.ADMIN));
+        request.setCurrentUser(LoginUserUtils.getLoginUser().getName());
+        request.setIsAdminRole(LoginUserUtils.getLoginUser().getRoles().contains(UserRoleCode.ADMIN));
         return Response.success(streamService.listAll(request));
     }
 
@@ -102,7 +102,7 @@ public class InlongStreamController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update inlong stream")
     public Response<Boolean> update(@RequestBody InlongStreamRequest request) {
-        String username = LoginUserUtils.getLoginUserDetail().getUsername();
+        String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamService.update(request, username));
     }
 
@@ -114,7 +114,7 @@ public class InlongStreamController {
     })
     public Response<Boolean> startProcess(@PathVariable String groupId, @PathVariable String streamId,
             @RequestParam boolean sync) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.startProcess(groupId, streamId, operator, sync));
     }
 
@@ -126,7 +126,7 @@ public class InlongStreamController {
     })
     public Response<Boolean> suspendProcess(@PathVariable String groupId, @PathVariable String streamId,
             @RequestParam boolean sync) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.suspendProcess(groupId, streamId, operator, sync));
     }
 
@@ -138,7 +138,7 @@ public class InlongStreamController {
     })
     public Response<Boolean> restartProcess(@PathVariable String groupId, @PathVariable String streamId,
             @RequestParam boolean sync) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.restartProcess(groupId, streamId, operator, sync));
     }
 
@@ -150,7 +150,7 @@ public class InlongStreamController {
     })
     public Response<Boolean> deleteProcess(@PathVariable String groupId, @PathVariable String streamId,
             @RequestParam boolean sync) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamProcessOperation.deleteProcess(groupId, streamId, operator, sync));
     }
 
@@ -163,7 +163,7 @@ public class InlongStreamController {
             @ApiImplicitParam(name = "streamId", dataTypeClass = String.class, required = true)
     })
     public Response<Boolean> delete(@RequestParam String groupId, @RequestParam String streamId) {
-        String username = LoginUserUtils.getLoginUserDetail().getUsername();
+        String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(streamService.delete(groupId, streamId, username));
     }
 

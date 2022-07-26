@@ -19,9 +19,8 @@ package org.apache.inlong.manager.web.auth.web;
 
 import com.google.common.collect.Sets;
 import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
+import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.UserEntity;
 import org.apache.inlong.manager.service.core.UserService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -50,18 +49,15 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
      * Login authentication
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken)
-            throws AuthenticationException {
-        UsernamePasswordToken upToken = (UsernamePasswordToken) authenticationToken;
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        UsernamePasswordToken upToken = (UsernamePasswordToken) token;
         String username = upToken.getUsername();
-        UserEntity userEntity = userService.getByUsername(username);
-        Preconditions.checkNotNull(userEntity, "User doesn't exist");
-        Preconditions.checkTrue(userEntity.getDueDate().after(new Date()), "user has expired");
-        UserDetail userDetail = new UserDetail();
-        userDetail.setUsername(username);
-        userDetail.setRoles(Sets.newHashSet(userEntity.getAccountType() == 0
+        UserInfo userInfo = userService.getByName(username);
+        Preconditions.checkNotNull(userInfo, "User not exist with name=" + username);
+        Preconditions.checkTrue(userInfo.getDueDate().after(new Date()), "User " + username + " was expired");
+        userInfo.setRoles(Sets.newHashSet(userInfo.getAccountType() == 0
                 ? UserTypeEnum.ADMIN.name() : UserTypeEnum.OPERATOR.name()));
-        return new SimpleAuthenticationInfo(userDetail, userEntity.getPassword(), getName());
+        return new SimpleAuthenticationInfo(userInfo, userInfo.getPassword(), getName());
     }
 
     /**
@@ -70,9 +66,9 @@ public class WebAuthorizingRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        UserDetail userDetail = (UserDetail) getAvailablePrincipal(principalCollection);
-        if (userDetail != null) {
-            simpleAuthorizationInfo.setRoles(userDetail.getRoles());
+        UserInfo userInfo = (UserInfo) getAvailablePrincipal(principalCollection);
+        if (userInfo != null) {
+            simpleAuthorizationInfo.setRoles(userInfo.getRoles());
         }
         return simpleAuthorizationInfo;
     }

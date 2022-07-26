@@ -18,10 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.user.UserDetailListVO;
-import org.apache.inlong.manager.common.pojo.user.UserDetailPageRequest;
+import org.apache.inlong.manager.common.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
-import org.apache.inlong.manager.dao.entity.UserEntity;
 
 /**
  * User service interface
@@ -29,46 +27,28 @@ import org.apache.inlong.manager.dao.entity.UserEntity;
 public interface UserService {
 
     /**
-     * Get user info by user name
+     * Save user info
      *
-     * @param username username
-     * @return user info
+     * @param request user info request
+     * @return user id after saving
      */
-    UserEntity getByUsername(String username);
+    Integer save(UserRequest request);
 
     /**
      * Get user info by user id
      *
-     * @param userId user id
+     * @param id user id
      * @return user info
      */
-    UserInfo getById(Integer userId, String currentUser);
+    UserInfo getById(Integer id, String currentUser);
 
     /**
-     * Create user
+     * Get user by name
      *
-     * @param userInfo user info
-     * @return whether succeed
+     * @param name username
+     * @return user info
      */
-    boolean create(UserInfo userInfo);
-
-    /**
-     * Update user info
-     *
-     * @param userInfo user info
-     * @param currentUser current user name
-     * @return rows updated
-     */
-    int update(UserInfo userInfo, String currentUser);
-
-    /**
-     * Delete user by user id
-     *
-     * @param userId user id
-     * @param currentUser current user name
-     * @return whether succeed
-     */
-    Boolean delete(Integer userId, String currentUser);
+    UserInfo getByName(String name);
 
     /**
      * List all users basic info by request condition
@@ -76,6 +56,24 @@ public interface UserService {
      * @param request request
      * @return user info list
      */
-    PageInfo<UserDetailListVO> list(UserDetailPageRequest request);
+    PageInfo<UserInfo> list(UserRequest request);
+
+    /**
+     * Update user info
+     *
+     * @param request user info request
+     * @param currentUser current user name
+     * @return user id
+     */
+    Integer update(UserRequest request, String currentUser);
+
+    /**
+     * Delete user by id
+     *
+     * @param userId user id
+     * @param currentUser current user name
+     * @return whether succeed
+     */
+    Boolean delete(Integer userId, String currentUser);
 
 }

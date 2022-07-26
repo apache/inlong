@@ -586,11 +586,13 @@ CREATE TABLE IF NOT EXISTS `user`
     `private_key`     text                  DEFAULT NULL COMMENT 'Private key for asymmetric data encryption',
     `encrypt_version` int(11)               DEFAULT NULL COMMENT 'Encryption key version',
     `account_type`    int(11)      NOT NULL DEFAULT '1' COMMENT 'Account type, 0-manager 1-normal',
-    `due_date`        datetime              DEFAULT NULL COMMENT 'Due date for account',
-    `create_by`       varchar(256) NOT NULL COMMENT 'Creator name',
-    `update_by`       varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
+    `due_date`        datetime              DEFAULT NULL COMMENT 'Due date for user',
+    `status`          int(11)               DEFAULT '100' COMMENT 'Status',
+    `is_deleted`      int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `creator`         varchar(256) NOT NULL COMMENT 'Creator name',
+    `modifier`        varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
     `create_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `update_time`     datetime              DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `modify_time`     datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
     `version`         int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_user_name` (`name`)
@@ -598,9 +600,10 @@ CREATE TABLE IF NOT EXISTS `user`
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
 
 -- create default admin user, username is 'admin', password is 'inlong'
-INSERT INTO `user` (name, password, secret_key, account_type, due_date, create_time, update_time, create_by, update_by, encrypt_version)
-VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0', 0, '2099-12-31 23:59:59',
-        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'inlong_init', 'inlong_init', 1);
+INSERT INTO `user` (name, password, secret_key, account_type, encrypt_version,
+                    due_date, creator, modifier)
+VALUES ('admin', '628ed559bff5ae36bd2184d4216973cf', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0',
+        0, 1, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for user_role

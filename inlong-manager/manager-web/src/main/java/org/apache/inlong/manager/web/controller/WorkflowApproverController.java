@@ -58,7 +58,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Add approver configuration")
     public Response<Object> add(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.add(config, LoginUserUtils.getLoginUserDetail().getUsername());
+        this.workflowApproverService.add(config, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
@@ -66,7 +66,7 @@ public class WorkflowApproverController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Update approver configuration")
     public Response<Object> update(@RequestBody WorkflowApprover config) {
-        this.workflowApproverService.update(config, LoginUserUtils.getLoginUserDetail().getUsername());
+        this.workflowApproverService.update(config, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
@@ -75,7 +75,7 @@ public class WorkflowApproverController {
     @ApiOperation(value = "Delete approver configuration")
     @ApiParam(value = "Configuration item ID", required = true)
     public Response<Object> delete(@PathVariable Integer id) {
-        this.workflowApproverService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
+        this.workflowApproverService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 

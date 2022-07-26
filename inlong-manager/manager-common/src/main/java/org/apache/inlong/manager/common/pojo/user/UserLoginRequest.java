@@ -28,7 +28,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 @ApiModel("Login user and password")
-public class LoginUser {
+public class UserLoginRequest {
 
     @NotBlank
     @ApiModelProperty(value = "username", required = true)
