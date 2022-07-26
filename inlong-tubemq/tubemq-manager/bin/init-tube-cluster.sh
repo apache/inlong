@@ -19,7 +19,9 @@
 # the parameters for init cluster
 TUBE_MANAGER_IP=127.0.0.1
 TUBE_MANAGER_PORT=8089
+TUBE_MASTER_ID=1
 TUBE_MASTER_IP=127.0.0.1
+TUBE_MASTER_STANDBY=fasle
 TUBE_MASTER_PORT=8715
 TUBE_MASTER_WEB_PORT=8080
 TUBE_MASTER_TOKEN=abc
@@ -27,5 +29,5 @@ TUBE_MASTER_TOKEN=abc
 
 # execute curl to add cluster, note that this command only need to execute once
 curl --header "Content-Type: application/json" --request POST --data \
-'{"masterIp":"'"$TUBE_MASTER_IP"'","clusterName":"inlong","masterPort":"'"$TUBE_MASTER_PORT"'","masterWebPort":"'"$TUBE_MASTER_WEB_PORT"'","createUser":"manager","token":"'"$TUBE_MASTER_TOKEN"'"}' \
+'{"id":0,"masterEntries":[{"id":1,"ip":"'"$TUBE_MASTER_IP"'","port":"'"$TUBE_MASTER_PORT"'","webPort":"'"$TUBE_MASTER_WEB_PORT"'","standby":"'"$TUBE_MASTER_STANDBY"'","token":"'"$TUBE_MASTER_TOKEN"'","clusterId":0}],"clusterName":"inlong","createUser":"manager","token":"'"$TUBE_MASTER_TOKEN"'","reloadBrokerSize":1}' \
 http://"$TUBE_MANAGER_IP":"$TUBE_MANAGER_PORT"/v1/cluster?method=add
