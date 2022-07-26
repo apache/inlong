@@ -48,6 +48,9 @@ import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.types.Comparators;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.PropertyUtil;
+import org.apache.inlong.sort.iceberg.flink.CompactTableProperties;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +61,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.SortedMap;
+
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_ENABLED_DEFAULT;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL_DEFAULT;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_RESOUCE_POOL;
+import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_RESOUCE_POOL_DEFAULT;
 
 class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     implements OneInputStreamOperator<WriteResult, Void>, BoundedOneInput {
@@ -110,9 +120,17 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
   private static final ListStateDescriptor<SortedMap<Long, byte[]>> STATE_DESCRIPTOR = buildStateDescriptor();
   private transient ListState<SortedMap<Long, byte[]>> checkpointsState;
 
-  IcebergFilesCommitter(TableLoader tableLoader, boolean replacePartitions) {
+  // compact file action
+  private SyncRewriteDataFilesActionOption compactOption;
+  private transient SyncRewriteDataFilesAction compactAction;
+
+  IcebergFilesCommitter(
+          TableLoader tableLoader,
+          boolean replacePartitions,
+          SyncRewriteDataFilesActionOption compactOption) {
     this.tableLoader = tableLoader;
     this.replacePartitions = replacePartitions;
+    this.compactOption = compactOption;
   }
 
   @Override
@@ -123,6 +141,18 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     // Open the table loader and load the table.
     this.tableLoader.open();
     this.table = tableLoader.loadTable();
+
+    // compact file
+    if (PropertyUtil.propertyAsBoolean(table.properties(), COMPACT_ENABLED, COMPACT_ENABLED_DEFAULT)) {
+      compactAction = SyncRewriteDataFilesAction.instance(compactOption);
+      compactAction = compactAction.option(
+              COMPACT_INTERVAL,
+              table.properties().getOrDefault(COMPACT_INTERVAL, String.valueOf(COMPACT_INTERVAL_DEFAULT)));
+      compactAction = compactAction.option(
+              COMPACT_RESOUCE_POOL,
+              table.properties().getOrDefault(COMPACT_RESOUCE_POOL, COMPACT_RESOUCE_POOL_DEFAULT));
+    }
+
 
     maxContinuousEmptyCommits = PropertyUtil.propertyAsInt(table.properties(), MAX_CONTINUOUS_EMPTY_COMMITS, 10);
     Preconditions.checkArgument(maxContinuousEmptyCommits > 0,
@@ -190,6 +220,10 @@ class IcebergFilesCommitter extends AbstractStreamOperator<Void>
     if (checkpointId > maxCommittedCheckpointId) {
       commitUpToCheckpoint(dataFilesPerCheckpoint, flinkJobId, checkpointId);
       this.maxCommittedCheckpointId = checkpointId;
+      // every interval checkpoint do a small file compact
+      if (compactAction != null ) {
+        compactAction.execute();
+      }
     }
   }
 

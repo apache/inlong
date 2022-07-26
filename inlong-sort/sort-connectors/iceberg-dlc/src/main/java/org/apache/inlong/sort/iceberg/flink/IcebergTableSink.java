@@ -30,6 +30,8 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
 
 import java.util.List;
@@ -38,18 +40,24 @@ import java.util.Map;
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
   private final TableLoader tableLoader;
   private final TableSchema tableSchema;
+  private final SyncRewriteDataFilesActionOption compactAction;
 
   private boolean overwrite = false;
 
   private IcebergTableSink(IcebergTableSink toCopy) {
     this.tableLoader = toCopy.tableLoader;
     this.tableSchema = toCopy.tableSchema;
+    this.compactAction = toCopy.compactAction;
     this.overwrite = toCopy.overwrite;
   }
 
-  public IcebergTableSink(TableLoader tableLoader, TableSchema tableSchema) {
+  public IcebergTableSink(
+          TableLoader tableLoader,
+          TableSchema tableSchema,
+          SyncRewriteDataFilesActionOption compactAction) {
     this.tableLoader = tableLoader;
     this.tableSchema = tableSchema;
+    this.compactAction = compactAction;
   }
 
   @Override
@@ -66,6 +74,7 @@ public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning,
         .tableSchema(tableSchema)
         .equalityFieldColumns(equalityColumns)
         .overwrite(overwrite)
+        .compact(compactAction)
         .append();
   }
 

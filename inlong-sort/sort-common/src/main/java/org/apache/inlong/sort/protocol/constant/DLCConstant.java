@@ -27,45 +27,56 @@ public class DLCConstant {
      * DLC internet access domain name.
      */
     public static final String DLC_ENDPOINT = "dlc.tencentcloudapi.com";
-
+    // ============================== DLC AUTH PARAMS(Required) =====================================
+    /**
+     * dlc endpoint
+     */
+    public static final String DLC_ENDPOINT_KEY = "qcloud.dlc.endpoint";
     /**
      * dlc account region
      */
-    public static final String DLC_REGION  = "qcloud.dlc.region";
+    public static final String DLC_REGION = "qcloud.dlc.region";
     /**
      * dlc account secret id
      */
-    public static final String DLC_SECRET_ID  = "qcloud.dlc.secret-id";
+    public static final String DLC_SECRET_ID = "qcloud.dlc.secret-id";
     /**
      * dlc account secret key
      */
-    public static final String DLC_SECRET_KEY  = "qcloud.dlc.secret-key";
+    public static final String DLC_SECRET_KEY = "qcloud.dlc.secret-key";
+    /**
+     * Current user appid.
+     */
+    public static final String DLC_USER_APPID = "qcloud.dlc.user.appid";
+    /**
+     * Managed account uid.
+     */
+    public static final String DLC_MANAGED_ACCOUNT_UID = "qcloud.dlc.managed.account.uid";
 
-    /**
-     * dlc cos region
-     */
-    public static final String FS_COS_REGION  = "fs.cosn.userinfo.region";
-    /**
-     * dlc main account cos secret id
-     */
-    public static final String FS_COS_SECRET_ID  = "fs.cosn.userinfo.secretId";
-    /**
-     * dlc main account cos secret key
-     */
-    public static final String FS_COS_SECRET_KEY  = "fs.cosn.userinfo.secretKey";
-
+    // ============================== FS CREDENTIALS AUTH PARAMS =====================================
     public static final String FS_LAKEFS_IMPL  = "fs.lakefs.impl";
     public static final String FS_COS_IMPL  = "fs.cosn.impl";
     public static final String FS_COS_AUTH_PROVIDER  = "fs.cosn.credentials.provider";
+    public static final String FS_COS_REGION  = "fs.cosn.userinfo.region";
+    public static final String FS_COS_SECRET_ID  = "fs.cosn.userinfo.secretId";
+    public static final String FS_COS_SECRET_KEY  = "fs.cosn.userinfo.secretKey";
+
+    public static final String FS_AUTH_DLC_ENDPOINT_KEY  = "service.endpoint";
+    public static final String FS_AUTH_DLC_SECRET_ID = "service.secret.id";
+    public static final String FS_AUTH_DLC_SECRET_KEY = "service.secret.key";
+    public static final String FS_AUTH_DLC_REGION  = "service.region";
+    public static final String FS_AUTH_DLC_ACCOUNT_APPID  = "user.appid";
+    public static final String FS_AUTH_DLC_MANAGED_ACCOUNT_UID  = "request.identity.token";
 
     public static final String DLC_CATALOG_IMPL_CLASS =
             "org.apache.inlong.sort.iceberg.catalog.hybris.DlcWrappedHybrisCatalog";
     public static final Map<String, String> DLC_DEFAULT_IMPL =
             Collections.unmodifiableMap(new HashMap<String, String>() {
                 {
+                    put(DLC_ENDPOINT_KEY, DLC_ENDPOINT);
                     put(FS_LAKEFS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
                     put(FS_COS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
-                    put(FS_COS_AUTH_PROVIDER, "org.apache.hadoop.fs.auth.SimpleCredentialProvider");
+                    put(FS_COS_AUTH_PROVIDER, "org.apache.hadoop.fs.auth.DlcCloudCredentialsProvider");
                 }
             });
 }

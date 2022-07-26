@@ -19,15 +19,21 @@
 
 package org.apache.inlong.sort.iceberg.catalog.hybris;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.qcloud.dlc.common.Constants;
 import com.qcloud.dlc.metastore.DLCDataCatalogMetastoreClient;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CosNConfigKeys;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.auth.DlcCloudCredentialsProvider;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.metastore.IMetaStoreClient;
@@ -71,10 +77,25 @@ import org.slf4j.LoggerFactory;
 public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements SupportsNamespaces, Configurable {
     public static final String LIST_ALL_TABLES = "list-all-tables";
     public static final String LIST_ALL_TABLES_DEFAULT = "false";
-
-    // dlc auth
-    public static final String DLC_ENDPOINT = "qcloud.dlc.endpoint";
-
+    public static final Set<String> DLC_WHITELIST_PARAMS = Stream.of(
+            Constants.DLC_REGION_CONF,
+            Constants.DLC_ENDPOINT,
+            Constants.DLC_REGION_CONF,
+            Constants.DLC_SECRET_ID_CONF,
+            Constants.DLC_SECRET_KEY_CONF,
+            DlcCloudCredentialsProvider.END_POINT,
+            DlcCloudCredentialsProvider.SECRET_ID,
+            DlcCloudCredentialsProvider.SECRET_KEY,
+            DlcCloudCredentialsProvider.REGION,
+            DlcCloudCredentialsProvider.USER_APPID,
+            DlcCloudCredentialsProvider.REQUEST_IDENTITY_TOKEN,
+            CosNConfigKeys.COSN_USERINFO_SECRET_ID_KEY,
+            CosNConfigKeys.COSN_USERINFO_SECRET_KEY_KEY,
+            CosNConfigKeys.COSN_REGION_PREV_KEY,
+            CosNConfigKeys.COSN_CREDENTIALS_PROVIDER,
+            "fs.lakefs.impl",
+            "fs.cosn.impl"
+        ).collect(Collectors.toSet());
 
     private static final Logger LOG = LoggerFactory.getLogger(DlcWrappedHybrisCatalog.class);
 
@@ -96,7 +117,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
         }
 
         if (properties.containsKey(CatalogProperties.URI)) {
-            this.conf.set(DLC_ENDPOINT, properties.get(CatalogProperties.URI));
+            this.conf.set(HiveConf.ConfVars.METASTOREURIS.varname, properties.get(CatalogProperties.URI));
         }
 
         if (properties.containsKey(CatalogProperties.WAREHOUSE_LOCATION)) {
@@ -106,12 +127,7 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
 
         // dlc auth
         properties.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith("qcloud.dlc"))
-                .forEach(entry -> this.conf.set(entry.getKey(), entry.getValue()));
-
-        // lakefs auth
-        properties.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith("fs"))
+                .filter(entry -> DLC_WHITELIST_PARAMS.contains(entry.getKey()))
                 .forEach(entry -> this.conf.set(entry.getKey(), entry.getValue()));
 
         this.listAllTables = Boolean.parseBoolean(properties.getOrDefault(LIST_ALL_TABLES, LIST_ALL_TABLES_DEFAULT));

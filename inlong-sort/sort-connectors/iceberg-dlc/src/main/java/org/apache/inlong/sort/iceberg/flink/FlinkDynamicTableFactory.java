@@ -1,3 +1,22 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.apache.inlong.sort.iceberg.flink;
 
 import org.apache.flink.configuration.ConfigOption;
@@ -20,11 +39,12 @@ import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.catalog.TableIdentifier;
 import org.apache.iceberg.common.DynMethods;
 import org.apache.iceberg.exceptions.AlreadyExistsException;
-import org.apache.iceberg.flink.IcebergTableSink;
 import org.apache.iceberg.flink.IcebergTableSource;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
+import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,25 +52,25 @@ import java.util.Set;
 public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, DynamicTableSourceFactory {
     static final String FACTORY_IDENTIFIER = "dlc-inlong";
 
-    private static final ConfigOption<String> CATALOG_NAME =
+    public static final ConfigOption<String> CATALOG_NAME =
             ConfigOptions.key("catalog-name")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Catalog name");
 
-    private static final ConfigOption<String> CATALOG_TYPE =
+    public static final ConfigOption<String> CATALOG_TYPE =
             ConfigOptions.key(FlinkCatalogFactory.ICEBERG_CATALOG_TYPE)
                     .stringType()
                     .noDefaultValue()
                     .withDescription("Catalog type, the optional types are: custom, hadoop, hive.");
 
-    private static final ConfigOption<String> CATALOG_DATABASE =
+    public static final ConfigOption<String> CATALOG_DATABASE =
             ConfigOptions.key("catalog-database")
                     .stringType()
                     .defaultValue(FlinkCatalogFactory.DEFAULT_DATABASE_NAME)
                     .withDescription("Database name managed in the iceberg catalog.");
 
-    private static final ConfigOption<String> CATALOG_TABLE =
+    public static final ConfigOption<String> CATALOG_TABLE =
             ConfigOptions.key("catalog-table")
                     .stringType()
                     .noDefaultValue()
@@ -102,6 +122,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         CatalogTable catalogTable = loadCatalogTable(context);
         Map<String, String> tableProps = catalogTable.getOptions();
         TableSchema tableSchema = TableSchemaUtils.getPhysicalSchema(catalogTable.getSchema());
+        SyncRewriteDataFilesActionOption compactOption = new SyncRewriteDataFilesActionOption(tableProps);
 
         TableLoader tableLoader;
         if (catalog != null) {
@@ -111,7 +132,7 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
                     objectPath.getObjectName());
         }
 
-        return new IcebergTableSink(tableLoader, tableSchema);
+        return new IcebergTableSink(tableLoader, tableSchema, compactOption);
     }
 
     @Override

@@ -36,6 +36,18 @@
     </description>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.qcloud.cos</groupId>
+            <artifactId>lakefs-cloud-plugin</artifactId>
+            <version>1.0</version> <!--cos provider插件-->
+        </dependency>
+        <dependency>
+            <groupId>com.tencent.cloud.dlc</groupId>
+            <artifactId>dlc-jdbc</artifactId>
+            <version>2.2.2-bi-test2</version><!--jdbc-->
+        </dependency>
+
         <dependency>
             <groupId>com.qcloud.cos</groupId>
             <artifactId>hadoop-cos</artifactId>
@@ -47,10 +59,12 @@
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>tencentcloud-sdk-java</artifactId>
+            <version>3.1.558-SNAPSHOT</version><!--适配jdbc的临时sdk版本-->
         </dependency>
         <dependency>
             <groupId>com.qcloud</groupId>
             <artifactId>dlc-data-catalog-metastore-client</artifactId>
+            <version>1.1.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hive</groupId>
@@ -141,12 +155,15 @@
                                     <include>com.qcloud.cos:*</include>
                                     <include>com.qcloud:*</include>
                                     <include>com.tencentcloudapi:*</include>
+                                    <include>com.tencent.cloud.dlc:*</include>
                                     <include>commons-logging:commons-logging</include>
+                                    <include>commons-codec:commons-codec</include> <!--加密用到-->
                                     <include>com.squareup.okio:okio</include>
                                     <include>com.squareup.okhttp:okhttp</include>
                                     <include>com.squareup.okhttp:logging-interceptor</include>
                                     <include>org.ini4j:ini4j</include>
                                     <include>com.google.code.gson:gson</include>
+                                    <include>javax.xml.bind:jaxb-api</include>
                                 </includes>
                             </artifactSet>
                             <filters>
@@ -170,4 +187,30 @@
             </plugin>
         </plugins>
     </build>
+
+
+    <repositories>
+        <repository>
+            <id>dlc-snapshot</id>
+            <name>dlc_snapshot_mirror</name>
+            <url>https://mirrors.tencent.com/repository/maven/dlc-snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>dlc</id>
+            <name>dlc_mirror</name>
+            <url>https://mirrors.tencent.com/repository/maven/dlc</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
