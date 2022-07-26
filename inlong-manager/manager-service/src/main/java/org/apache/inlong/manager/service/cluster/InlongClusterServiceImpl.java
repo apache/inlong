@@ -402,8 +402,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
                 Set<String> tagSet = Sets.newHashSet(entity.getClusterTags().split(InlongConstants.COMMA));
                 tagSet.add(clusterTag);
                 String updateTags = Joiner.on(",").join(tagSet);
-                InlongClusterEntity updateEntity = new InlongClusterEntity();
-                updateEntity.setId(id);
+                InlongClusterEntity updateEntity = clusterMapper.selectById(id);
                 updateEntity.setClusterTags(updateTags);
                 updateEntity.setModifier(operator);
                 int rowCount = clusterMapper.updateByIdSelective(updateEntity);
