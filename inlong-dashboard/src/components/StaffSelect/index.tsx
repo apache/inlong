@@ -105,10 +105,10 @@ const StaffSelect: React.FC<StaffSelectProps> = ({
   };
 
   const { data: staffList, loading, run: getStaffList } = useRequest(
-    (userName = '') => ({
+    (username = '') => ({
       url: '/user/listAll',
       params: {
-        userName,
+        username,
       },
     }),
     {
