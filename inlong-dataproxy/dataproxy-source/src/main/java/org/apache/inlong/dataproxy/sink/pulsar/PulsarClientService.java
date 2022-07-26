@@ -132,6 +132,7 @@ public class PulsarClientService {
     }
 
     public void initCreateConnection(CreatePulsarClientCallBack callBack) {
+        pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         if (pulsarUrl2token == null || pulsarUrl2token.isEmpty()) {
             logger.warn("failed to get Pulsar Cluster, make sure register pulsar to manager successfully.");
             return;
@@ -285,7 +286,6 @@ public class PulsarClientService {
         if (!pulsarClients.isEmpty()) {
             return;
         }
-        pulsarUrl2token = ConfigManager.getInstance().getMqClusterUrl2Token();
         logger.debug("number of pulsar cluster is {}", pulsarUrl2token.size());
         for (Map.Entry<String, String> info : pulsarUrl2token.entrySet()) {
             try {

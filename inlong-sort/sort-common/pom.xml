@@ -50,7 +50,6 @@
             <artifactId>sort-format-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -71,7 +70,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

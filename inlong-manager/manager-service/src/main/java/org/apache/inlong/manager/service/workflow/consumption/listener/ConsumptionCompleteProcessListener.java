@@ -22,13 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.enums.ConsumptionStatus;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewConsumptionProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.ConsumptionEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -47,7 +49,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -75,7 +76,7 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
 
     @Override
     public ListenerResult listen(WorkflowContext context) throws WorkflowListenerException {
-        NewConsumptionProcessForm consumptionForm = (NewConsumptionProcessForm) context.getProcessForm();
+        ApplyConsumptionProcessForm consumptionForm = (ApplyConsumptionProcessForm) context.getProcessForm();
 
         // Real-time query of consumption information
         Integer consumptionId = consumptionForm.getConsumptionInfo().getId();
@@ -102,12 +103,15 @@ public class ConsumptionCompleteProcessListener implements ProcessEventListener 
      * Update consumption after approve
      */
     private void updateConsumerInfo(Integer consumptionId, String consumerGroup) {
-        ConsumptionEntity update = new ConsumptionEntity();
-        update.setId(consumptionId);
+        ConsumptionEntity update = consumptionMapper.selectByPrimaryKey(consumptionId);
         update.setStatus(ConsumptionStatus.APPROVED.getStatus());
         update.setConsumerGroup(consumerGroup);
-        update.setModifyTime(new Date());
-        consumptionMapper.updateByPrimaryKeySelective(update);
+        int rowCount = consumptionMapper.updateByPrimaryKeySelective(update);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            log.error("consumption information has already updated, id={}, curVersion={}",
+                    update.getId(), update.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
     }
 
     /**

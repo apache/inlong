@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.source.pulsar;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Pulsar tenant")
+    @Builder.Default
     private String tenant = "public";
 
     @ApiModelProperty("Pulsar namespace")
@@ -62,8 +64,10 @@ public class PulsarSource extends StreamSource {
 
     @ApiModelProperty("Configure the Source's startup mode. "
             + "Available options are earliest, latest, external-subscription, and specific-offsets.")
+    @Builder.Default
     private String scanStartupMode = "earliest";
 
+    @Builder.Default
     private boolean isInlongComponent = false;
 
     public PulsarSource() {

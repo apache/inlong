@@ -60,7 +60,7 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
         sinkInfo.setDocumentType("public");
         sinkInfo.setIndexName("index");
         sinkInfo.setPrimaryKey("name,age");
-        sinkInfo.setVersion(7);
+        sinkInfo.setEsVersion(7);
 
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);

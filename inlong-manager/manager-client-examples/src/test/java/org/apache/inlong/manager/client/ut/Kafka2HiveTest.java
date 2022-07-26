@@ -25,6 +25,7 @@ import org.apache.inlong.manager.client.api.InlongStreamBuilder;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.DataFormat;
 import org.apache.inlong.manager.common.enums.FieldType;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
@@ -112,14 +113,14 @@ class Kafka2HiveTest extends BaseTest {
         initWorkflowResult.setProcessInfo(
                 ProcessResponse.builder()
                         .id(12)
-                        .name("NEW_GROUP_PROCESS")
-                        .displayName("New-Group")
-                        .type("New-Group")
+                        .name("APPLY_GROUP_PROCESS")
+                        .displayName("Apply-Group")
+                        .type("Apply-Group")
                         .applicant("admin")
                         .status(PROCESSING)
                         .startTime(new Date())
                         .formData(JsonUtils.parseTree(
-                                "{\"formName\":\"NewGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
+                                "{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\",\"id\":6,"
                                         + "\"inlongGroupId\":\"test_group009\",\"name\":null,\"description\":null,"
                                         + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,"
                                         + "\"enableCreateResource\":1,\"lightweight\":1,"
@@ -148,8 +149,8 @@ class Kafka2HiveTest extends BaseTest {
                                 .id(12)
                                 .type("UserTask")
                                 .processId(12)
-                                .processName("NEW_GROUP_PROCESS")
-                                .processDisplayName("New-Group")
+                                .processName("APPLY_GROUP_PROCESS")
+                                .processDisplayName("Apply-Group")
                                 .name("ut_admin")
                                 .displayName("SystemAdmin")
                                 .applicant("admin")
@@ -170,14 +171,14 @@ class Kafka2HiveTest extends BaseTest {
         startWorkflowResult.setProcessInfo(
                 ProcessResponse.builder()
                         .id(12)
-                        .name("NEW_GROUP_PROCESS")
-                        .displayName("New-Group")
-                        .type("New-Group")
+                        .name("APPLY_GROUP_PROCESS")
+                        .displayName("Apply-Group")
+                        .type("Apply-Group")
                         .applicant("admin")
                         .status(ProcessStatus.COMPLETED)
                         .startTime(new Date())
                         .endTime(new Date())
-                        .formData("{\"formName\":\"NewGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
+                        .formData("{\"formName\":\"ApplyGroupProcessForm\",\"groupInfo\":{\"mqType\":\"PULSAR\","
                                 + "\"id\":8,\"inlongGroupId\":\"test_group011\",\"name\":null,\"description\":null,"
                                 + "\"mqResource\":\"test_namespace\",\"enableZookeeper\":0,\"enableCreateResource\":1,"
                                 + "\"lightweight\":1,\"inlongClusterTag\":\"default_cluster\","
@@ -336,41 +337,40 @@ class Kafka2HiveTest extends BaseTest {
                         )
         );
 
+        EventLogView eventLogView1 = EventLogView.builder()
+                .id(38)
+                .processId(12)
+                .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
+                .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
+                .inlongGroupId(GROUP_ID)
+                .taskId(12)
+                .elementName("InitSort")
+                .elementDisplayName("Group-InitSort")
+                .eventType("ProcessEvent")
+                .event("FAIL")
+                .listener("InitGroupFailedListener")
+                .status(-1)
+                .ip("127.0.0.1")
+                .build();
+        EventLogView eventLogView2 = EventLogView.builder()
+                .id(39)
+                .processId(12)
+                .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
+                .processDisplayName(ProcessName.CREATE_GROUP_RESOURCE.getDisplayName())
+                .inlongGroupId(GROUP_ID)
+                .taskId(12)
+                .elementName("InitSort")
+                .elementDisplayName("Group-InitSort")
+                .eventType("TaskEvent")
+                .event("COMPLETE")
+                .listener("InitGroupListener")
+                .ip("127.0.0.1")
+                .build();
         stubFor(
                 get(urlMatching(MANAGER_URL_PREFIX + "/workflow/event/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(
-                                        Lists.newArrayList(
-                                                EventLogView.builder()
-                                                        .id(39)
-                                                        .processId(12)
-                                                        .processName("CREATE_LIGHT_GROUP_PROCESS")
-                                                        .processDisplayName("Create-Light-Group")
-                                                        .inlongGroupId(GROUP_ID)
-                                                        .taskId(12)
-                                                        .elementName("initSort")
-                                                        .elementDisplayName("Group-InitSort")
-                                                        .eventType("ProcessEvent")
-                                                        .event("FAIL")
-                                                        .listener("LightGroupFailedListener")
-                                                        .status(-1)
-                                                        .ip("127.0.0.1")
-                                                        .build(),
-                                                EventLogView.builder()
-                                                        .id(38)
-                                                        .processId(12)
-                                                        .processName("CREATE_LIGHT_GROUP_PROCESS")
-                                                        .processDisplayName("Create-Light-Group")
-                                                        .inlongGroupId(GROUP_ID)
-                                                        .taskId(12)
-                                                        .elementName("initSort")
-                                                        .elementDisplayName("Group-InitSort")
-                                                        .eventType("TaskEvent")
-                                                        .event("COMPLETE")
-                                                        .listener("LightGroupSortListener")
-                                                        .ip("127.0.0.1")
-                                                        .build()
-                                        )
+                                        Lists.newArrayList(eventLogView1, eventLogView2)
                                 ))))
                         )
         );

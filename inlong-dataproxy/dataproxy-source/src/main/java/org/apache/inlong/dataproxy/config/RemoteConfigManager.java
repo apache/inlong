@@ -23,7 +23,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -31,6 +31,7 @@ import org.apache.inlong.common.pojo.dataproxy.CacheClusterObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheClusterSetObject;
 import org.apache.inlong.common.pojo.dataproxy.CacheTopicObject;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyCluster;
+import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigRequest;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfigResponse;
 import org.apache.inlong.common.pojo.dataproxy.IRepository;
 import org.apache.inlong.common.pojo.dataproxy.InLongIdObject;
@@ -41,6 +42,7 @@ import org.apache.inlong.common.pojo.dataproxy.ProxySource;
 import org.apache.inlong.common.pojo.dataproxy.RepositoryTimerTask;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
+import org.apache.inlong.dataproxy.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,19 +184,25 @@ public class RemoteConfigManager implements IRepository {
      * reloadDataProxyConfig
      */
     private boolean reloadDataProxyConfig(String clusterName, String clusterTag, String host) {
-        HttpGet httpGet = null;
+        HttpPost httpPost = null;
         try {
-            String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH
-                    + "?clusterName=" + clusterName + "&clusterTag=" + clusterTag;
-            if (StringUtils.isNotBlank(this.dataProxyConfigMd5)) {
-                url += "&md5=" + this.dataProxyConfigMd5;
-            }
-            LOGGER.info("start to request {} to get config info", url);
-            httpGet = new HttpGet(url);
-            httpGet.addHeader(HttpHeaders.CONNECTION, "close");
+            String url = "http://" + host + ConfigConstants.MANAGER_PATH + ConfigConstants.MANAGER_GET_ALL_CONFIG_PATH;
+            httpPost = new HttpPost(url);
+            httpPost.addHeader(HttpHeaders.CONNECTION, "close");
+            httpPost.addHeader(HttpHeaders.AUTHORIZATION, AuthUtils.genBasicAuth());
 
-            // request with get
-            CloseableHttpResponse response = httpClient.execute(httpGet);
+            // request body
+            DataProxyConfigRequest request = new DataProxyConfigRequest();
+            request.setClusterName(clusterName);
+            request.setClusterTag(clusterTag);
+            if (StringUtils.isNotBlank(dataProxyConfigMd5)) {
+                request.setMd5(dataProxyConfigMd5);
+            }
+            httpPost.setEntity(HttpUtils.getEntity(request));
+
+            // request with post
+            LOGGER.info("start to request {} to get config info with params {}", url, request);
+            CloseableHttpResponse response = httpClient.execute(httpPost);
             String returnStr = EntityUtils.toString(response.getEntity());
             LOGGER.info("end to request {} to get config info:{}", url, returnStr);
             // get groupId <-> topic and m value.
@@ -220,8 +228,8 @@ public class RemoteConfigManager implements IRepository {
             LOGGER.error("exception caught", ex);
             return false;
         } finally {
-            if (httpGet != null) {
-                httpGet.releaseConnection();
+            if (httpPost != null) {
+                httpPost.releaseConnection();
             }
         }
         return true;

@@ -69,7 +69,7 @@ public class ElasticsearchSinkRequest extends SinkRequest {
     @ApiModelProperty("Primary Key")
     private String primaryKey;
 
-    @ApiModelProperty("version")
-    private Integer version;
+    @ApiModelProperty("Elasticsearch version")
+    private Integer esVersion;
 
 }

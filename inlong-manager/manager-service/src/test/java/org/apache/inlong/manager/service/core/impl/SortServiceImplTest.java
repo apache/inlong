@@ -19,6 +19,7 @@ package org.apache.inlong.manager.service.core.impl;
 
 import org.apache.inlong.common.pojo.sdk.SortSourceConfigResponse;
 import org.apache.inlong.common.pojo.sortstandalone.SortClusterResponse;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.dao.entity.DataNodeEntity;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
@@ -111,7 +112,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     public void testSourceErrorClusterName() {
         SortSourceConfigResponse response = sortService.getSourceConfig("errCluster", "errTask", "");
         System.out.println(response.toString());
-        Assertions.assertEquals(-101, response.getCode());
+        Assertions.assertEquals(0, response.getCode());
         Assertions.assertNull(response.getMd5());
         Assertions.assertNull(response.getData());
         Assertions.assertNotNull(response.getMsg());
@@ -163,7 +164,7 @@ public class SortServiceImplTest extends ServiceBaseTest {
     public void testClusterErrorClusterName() {
         SortClusterResponse response = sortService.getClusterConfig("errCluster", "");
         System.out.println(response.toString());
-        Assertions.assertEquals(-101, response.getCode());
+        Assertions.assertEquals(0, response.getCode());
         Assertions.assertNull(response.getMd5());
         Assertions.assertNull(response.getData());
         Assertions.assertNotNull(response.getMsg());
@@ -185,9 +186,11 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setExtParams("{\"paramKey1\":\"paramValue1\"}");
         entity.setCreator(TEST_CREATOR);
         entity.setInCharges(TEST_CREATOR);
-        entity.setCreateTime(new Date());
-        entity.setModifyTime(new Date());
-        entity.setIsDeleted(0);
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         dataNodeEntityMapper.insert(entity);
     }
 
@@ -203,20 +206,23 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setInCharges(TEST_CREATOR);
         entity.setCreateTime(new Date());
         entity.setModifyTime(new Date());
-        entity.setIsDeleted(0);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         inlongGroupEntityMapper.insert(entity);
     }
 
     private void prepareCluster(String clusterName) {
         InlongClusterEntity entity = new InlongClusterEntity();
-        entity.setName(TEST_CLUSTER);
+        entity.setName(clusterName);
         entity.setType(TEST_SINK_TYPE);
         entity.setExtParams("{}");
         entity.setCreator(TEST_CREATOR);
         entity.setInCharges(TEST_CREATOR);
-        entity.setCreateTime(new Date());
-        entity.setModifyTime(new Date());
-        entity.setIsDeleted(0);
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         clusterEntityMapper.insert(entity);
     }
 
@@ -227,14 +233,15 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setClusterTags(TEST_TAG);
         entity.setCreator(TEST_CREATOR);
         entity.setInCharges(TEST_CREATOR);
-        entity.setCreateTime(new Date());
-        entity.setModifyTime(new Date());
-        entity.setIsDeleted(0);
-        StringBuilder extTag = new StringBuilder();
-        extTag.append("zone=").append(TEST_TAG)
-                .append("&producer=true")
-                .append("&consumer=").append(isConsumable ? "true" : "false");
-        entity.setExtTag(extTag.toString());
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
+        String extTag = "zone=" + TEST_TAG
+                + "&producer=true"
+                + "&consumer=" + (isConsumable ? "true" : "false");
+        entity.setExtTag(extTag);
         entity.setExtParams("{\"tenant\":\"testTenant\",\"namespace\":\"testNS\",\"serviceUrl\":\"testServiceUrl\","
                 + "\"authentication\":\"testAuth\",\"adminUrl\":\"testAdmin\"}");
         clusterEntityMapper.insert(entity);
@@ -250,9 +257,11 @@ public class SortServiceImplTest extends ServiceBaseTest {
         entity.setDataNodeName(taskName);
         entity.setSortTaskName(taskName);
         entity.setCreator(TEST_CREATOR);
-        entity.setCreateTime(new Date());
-        entity.setModifyTime(new Date());
-        entity.setIsDeleted(0);
+        Date now = new Date();
+        entity.setCreateTime(now);
+        entity.setModifyTime(now);
+        entity.setIsDeleted(InlongConstants.UN_DELETED);
+        entity.setVersion(InlongConstants.INITIAL_VERSION);
         entity.setExtParams("{\"delimiter\":\"|\",\"dataType\":\"text\"}");
         streamSinkEntityMapper.insert(entity);
     }

@@ -59,8 +59,9 @@ public class KafkaSourceDTO {
     private String byteSpeedLimit;
 
     @ApiModelProperty(value = "Topic partition offset",
-            notes = "For example, '0#100_1#10' means the offset of partition 0 is 100, the offset of partition 1 is 10")
-    private String topicPartitionOffset;
+            notes = "For example,'partition:0,offset:42;partition:1,offset:300' "
+                    + "indicates offset 42 for partition 0 and offset 300 for partition 1.")
+    private String partitionOffsets;
 
     /**
      * The strategy of auto offset reset.
@@ -102,7 +103,7 @@ public class KafkaSourceDTO {
                 .bootstrapServers(request.getBootstrapServers())
                 .recordSpeedLimit(request.getRecordSpeedLimit())
                 .byteSpeedLimit(request.getByteSpeedLimit())
-                .topicPartitionOffset(request.getTopicPartitionOffset())
+                .partitionOffsets(request.getPartitionOffsets())
                 .autoOffsetReset(request.getAutoOffsetReset())
                 .serializationType(request.getSerializationType())
                 .databasePattern(request.getDatabasePattern())
@@ -119,7 +120,7 @@ public class KafkaSourceDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, KafkaSourceDTO.class);
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SOURCE_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
     }
 }

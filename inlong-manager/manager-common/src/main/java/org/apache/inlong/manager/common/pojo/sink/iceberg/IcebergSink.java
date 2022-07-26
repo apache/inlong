@@ -20,6 +20,7 @@ package org.apache.inlong.manager.common.pojo.sink.iceberg;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -43,6 +44,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 public class IcebergSink extends StreamSink {
 
     @ApiModelProperty("Catalog type, like: HIVE, HADOOP, default is HIVE")
+    @Builder.Default
     private String catalogType = "HIVE";
 
     @ApiModelProperty("Catalog uri, such as hive metastore thrift://ip:port")

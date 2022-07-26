@@ -46,6 +46,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -111,13 +116,6 @@
                                 </excludes>
                             </artifactSet>
                             <filters>
-                                <filter>
-                                    <artifact>org.apache.inlong:sort-connector-*</artifact>
-                                    <includes>
-                                        <include>org/apache/inlong/**</include>
-                                        <include>META-INF/services/org.apache.flink.table.factories.Factory</include>
-                                    </includes>
-                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

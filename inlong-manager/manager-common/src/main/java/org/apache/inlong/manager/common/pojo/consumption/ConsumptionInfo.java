@@ -86,6 +86,9 @@ public class ConsumptionInfo {
     @ApiModelProperty(value = "Extended information for MQ")
     private ConsumptionMqExtBase mqExtInfo;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
     @JsonIgnore
     @AssertTrue(message = "when filter enabled, inlong stream id cannot be null")
     public boolean isValidateFilter() {

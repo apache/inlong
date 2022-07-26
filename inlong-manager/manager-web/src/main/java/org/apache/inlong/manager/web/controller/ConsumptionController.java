@@ -56,14 +56,14 @@ public class ConsumptionController {
     @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")
     public Response<ConsumptionSummary> getSummary(ConsumptionQuery query) {
-        query.setUsername(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setUsername(LoginUserUtils.getLoginUser().getName());
         return Response.success(consumptionService.getSummary(query));
     }
 
     @GetMapping("/consumption/list")
     @ApiOperation(value = "List data consumptions")
     public Response<PageInfo<ConsumptionListVo>> list(ConsumptionQuery query) {
-        query.setUsername(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setUsername(LoginUserUtils.getLoginUser().getName());
         return Response.success(consumptionService.list(query));
     }
 
@@ -79,7 +79,7 @@ public class ConsumptionController {
     @ApiOperation(value = "Delete data consumption")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<Object> delete(@PathVariable(name = "id") Integer id) {
-        this.consumptionService.delete(id, LoginUserUtils.getLoginUserDetail().getUsername());
+        this.consumptionService.delete(id, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
@@ -87,7 +87,7 @@ public class ConsumptionController {
     @OperationLog(operation = OperationType.UPDATE)
     @ApiOperation(value = "Save data consumption", notes = "Full coverage")
     public Response<Integer> save(@Validated @RequestBody ConsumptionInfo consumptionInfo) {
-        String currentUser = LoginUserUtils.getLoginUserDetail().getUsername();
+        String currentUser = LoginUserUtils.getLoginUser().getName();
         return Response.success(consumptionService.save(consumptionInfo, currentUser));
     }
 
@@ -97,7 +97,7 @@ public class ConsumptionController {
     public Response<String> update(@PathVariable(name = "id") Integer id,
             @Validated @RequestBody ConsumptionInfo consumptionInfo) {
         consumptionInfo.setId(id);
-        consumptionService.update(consumptionInfo, LoginUserUtils.getLoginUserDetail().getUsername());
+        consumptionService.update(consumptionInfo, LoginUserUtils.getLoginUser().getName());
         return Response.success();
     }
 
@@ -106,7 +106,7 @@ public class ConsumptionController {
     @ApiOperation(value = "Start approval process")
     @ApiImplicitParam(name = "id", value = "Consumption ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> startProcess(@PathVariable(name = "id") Integer id) {
-        String username = LoginUserUtils.getLoginUserDetail().getUsername();
+        String username = LoginUserUtils.getLoginUser().getName();
         return Response.success(processOperation.startProcess(id, username));
     }
 

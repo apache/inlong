@@ -27,6 +27,7 @@ import org.apache.inlong.manager.common.pojo.sink.StreamSink;
 import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.apache.inlong.manager.service.sort.util.ExtractNodeUtils;
@@ -103,10 +104,9 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         // get source info
         Map<String, List<StreamSource>> sourceMap = sourceService.getSourcesMap(groupInfo, streamInfoList);
         // get sink info
-        String groupId = groupInfo.getInlongGroupId();
         Map<String, List<StreamSink>> sinkMap = sinkService.getSinksMap(groupInfo, streamInfoList);
 
-        List<TransformResponse> transformResponses = transformService.listTransform(groupId, null);
+        List<TransformResponse> transformResponses = transformService.listTransform(groupInfo.getInlongGroupId(), null);
         Map<String, List<TransformResponse>> transformMap = transformResponses.stream()
                 .collect(Collectors.groupingBy(TransformResponse::getInlongStreamId, HashMap::new,
                         Collectors.toCollection(ArrayList::new)));
@@ -114,12 +114,20 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         List<StreamInfo> sortStreamInfos = new ArrayList<>();
         for (InlongStreamInfo inlongStream : streamInfoList) {
             String streamId = inlongStream.getInlongStreamId();
-
+            Map<String, StreamField> fieldMap = new HashMap<>();
+            inlongStream.getSourceList().forEach(
+                    source -> parseConstantFieldMap(source.getSourceName(), source.getFieldList(), fieldMap));
             List<TransformResponse> transformResponseList = transformMap.get(streamId);
-            List<Node> nodes = this.createNodesForStream(sourceMap.get(streamId),
-                    transformResponseList, sinkMap.get(streamId));
-            StreamInfo streamInfo = new StreamInfo(streamId, nodes,
-                    NodeRelationUtils.createNodeRelationsForStream(inlongStream));
+            if (CollectionUtils.isNotEmpty(transformResponseList)) {
+                transformResponseList.forEach(
+                        trans -> parseConstantFieldMap(trans.getTransformName(), trans.getFieldList(), fieldMap));
+            }
+
+            // build a stream info from the nodes and relations
+            List<Node> nodes = this.createNodesWithTransform(sourceMap.get(streamId),
+                    transformResponseList, sinkMap.get(streamId), fieldMap);
+            List<NodeRelation> relations = NodeRelationUtils.createNodeRelations(inlongStream);
+            StreamInfo streamInfo = new StreamInfo(streamId, nodes, relations);
             sortStreamInfos.add(streamInfo);
 
             // rebuild joinerNode relation
@@ -144,40 +152,56 @@ public class DefaultSortConfigOperator implements SortConfigOperator {
         List<StreamInfo> sortStreamInfos = new ArrayList<>();
         for (InlongStreamInfo inlongStream : streamInfoList) {
             String streamId = inlongStream.getInlongStreamId();
+
+            Map<String, StreamField> fieldMap = new HashMap<>();
+            inlongStream.getSourceList().forEach(
+                    source -> parseConstantFieldMap(source.getSourceName(), source.getFieldList(), fieldMap));
+
             List<StreamSource> sources = sourceMap.get(streamId);
             List<StreamSink> sinks = sinkMap.get(streamId);
             StreamInfo sortStream = new StreamInfo(streamId,
-                    this.createNodesForStream(sources, sinks),
-                    this.createNodeRelationsForStream(sources, sinks));
+                    this.createNodesWithoutTransform(sources, sinks, fieldMap),
+                    NodeRelationUtils.createNodeRelations(sources, sinks));
             sortStreamInfos.add(sortStream);
         }
 
         return new GroupInfo(groupInfo.getInlongGroupId(), sortStreamInfos);
     }
 
-    private List<Node> createNodesForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
+    private List<Node> createNodesWithoutTransform(List<StreamSource> sources, List<StreamSink> sinks,
+            Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = Lists.newArrayList();
         nodes.addAll(ExtractNodeUtils.createExtractNodes(sources));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
 
-    private List<Node> createNodesForStream(List<StreamSource> sourceInfos,
-            List<TransformResponse> transformResponses, List<StreamSink> streamSinks) {
+    private List<Node> createNodesWithTransform(List<StreamSource> sources, List<TransformResponse> transformResponses,
+            List<StreamSink> sinks, Map<String, StreamField> constantFieldMap) {
         List<Node> nodes = Lists.newArrayList();
-        nodes.addAll(ExtractNodeUtils.createExtractNodes(sourceInfos));
-        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses));
-        nodes.addAll(LoadNodeUtils.createLoadNodes(streamSinks));
+        nodes.addAll(ExtractNodeUtils.createExtractNodes(sources));
+        nodes.addAll(TransformNodeUtils.createTransformNodes(transformResponses, constantFieldMap));
+        nodes.addAll(LoadNodeUtils.createLoadNodes(sinks, constantFieldMap));
         return nodes;
     }
 
-    private List<NodeRelation> createNodeRelationsForStream(List<StreamSource> sources, List<StreamSink> streamSinks) {
-        NodeRelation relation = new NodeRelation();
-        List<String> inputs = sources.stream().map(StreamSource::getSourceName).collect(Collectors.toList());
-        List<String> outputs = streamSinks.stream().map(StreamSink::getSinkName).collect(Collectors.toList());
-        relation.setInputs(inputs);
-        relation.setOutputs(outputs);
-        return Lists.newArrayList(relation);
+    /**
+     * Get constant field from stream fields
+     *
+     * @param nodeId node id
+     * @param fields stream fields
+     * @param constantFieldMap constant field map
+     */
+    private void parseConstantFieldMap(String nodeId, List<StreamField> fields,
+            Map<String, StreamField> constantFieldMap) {
+        if (CollectionUtils.isEmpty(fields)) {
+            return;
+        }
+        for (StreamField field : fields) {
+            if (field.getFieldValue() != null) {
+                constantFieldMap.put(String.format("%s-%s", nodeId, field.getFieldName()), field);
+            }
+        }
     }
 
     /**

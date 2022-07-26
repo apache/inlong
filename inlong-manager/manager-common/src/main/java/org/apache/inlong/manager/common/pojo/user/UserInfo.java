@@ -17,59 +17,74 @@
 
 package org.apache.inlong.manager.common.pojo.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.enums.UserTypeEnum;
-import org.apache.inlong.manager.common.validation.InEnumInt;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.Set;
 
 /**
- * User info, including username, password, etc.
+ * User info
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @ApiModel("User info")
 public class UserInfo {
 
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    /**
-     * User type {@link UserTypeEnum}
-     */
-    @NotNull(message = "type cannot be null")
-    @InEnumInt(UserTypeEnum.class)
-    @ApiModelProperty(value = "type: 0 - manager, 1 - operator", required = true)
-    private Integer type;
+    @ApiModelProperty(value = "Username")
+    private String name;
 
-    @NotBlank(message = "username cannot be blank")
-    @ApiModelProperty(value = "username", required = true)
-    private String username;
-
-    @NotBlank(message = "password cannot be blank")
-    @ApiModelProperty(value = "password", required = true)
+    @ApiModelProperty(value = "User password")
     private String password;
 
-    @ApiModelProperty("secret key")
+    @ApiModelProperty("Secret key")
     private String secretKey;
 
-    @ApiModelProperty("public key")
+    @ApiModelProperty("Public key")
     private String publicKey;
 
-    @ApiModelProperty("private key")
+    @ApiModelProperty("Private key")
     private String privateKey;
+
+    @ApiModelProperty("Encryption key version")
+    private Integer encryptVersion;
+
+    @ApiModelProperty(value = "Account type: 0 - manager, 1 - operator", required = true)
+    private Integer accountType;
 
     @Min(1)
     @NotNull(message = "validDays cannot be null")
-    @ApiModelProperty(value = "valid days", required = true)
+    @ApiModelProperty(value = "Valid days", required = true)
     private Integer validDays;
+
+    @ApiModelProperty(value = "Name of creator")
+    private String creator;
+
+    @ApiModelProperty(value = "Name of modifier")
+    private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date modifyTime;
+
+    @ApiModelProperty(value = "User status, valid or not")
+    private String status;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date dueDate;
+
+    @ApiModelProperty(value = "User roles")
+    private Set<String> roles;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
 }

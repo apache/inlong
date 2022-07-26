@@ -55,4 +55,7 @@ public class ClusterNodeRequest {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

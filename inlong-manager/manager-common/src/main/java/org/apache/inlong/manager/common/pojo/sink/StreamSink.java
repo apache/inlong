@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -83,6 +84,7 @@ public abstract class StreamSink extends StreamNode {
 
     @ApiModelProperty(value = "Whether to enable create sink resource? 0: disable, 1: enable. default is 1",
             notes = "Such as create Hive table")
+    @Builder.Default
     private Integer enableCreateResource = 1;
 
     @ApiModelProperty("Backend operation log")
@@ -107,18 +109,24 @@ public abstract class StreamSink extends StreamNode {
     private Date modifyTime;
 
     @ApiModelProperty("Sink field list")
+    @Builder.Default
     private List<SinkField> sinkFieldList = Lists.newArrayList();
 
     @ApiModelProperty("Properties for sink")
+    @Builder.Default
     private Map<String, Object> properties = Maps.newHashMap();
 
     @JsonIgnore
     @ApiModelProperty("Data format type for stream sink")
+    @Builder.Default
     private DataFormat dataFormat = DataFormat.NONE;
 
     @JsonIgnore
     @ApiModelProperty("Authentication info if needed")
     private DefaultAuthentication authentication;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
     public SinkRequest genSinkRequest() {
         return null;

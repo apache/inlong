@@ -86,4 +86,7 @@ public abstract class SinkRequest {
     @ApiModelProperty("Other properties if needed")
     private Map<String, Object> properties = Maps.newHashMap();
 
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
+
 }

@@ -46,6 +46,7 @@ import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.DATABASE_NAME;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.HEARTBEAT_INTERVAL;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.HOSTNAME;
+import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.INLONG_METRIC;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.MIGRATE_ALL;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PASSWORD;
 import static org.apache.inlong.sort.cdc.mysql.source.config.MySqlSourceOptions.PORT;
@@ -119,6 +120,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 DebeziumOptions.DEBEZIUM_OPTIONS_PREFIX, JdbcUrlUtils.PROPERTIES_PREFIX);
 
         final ReadableConfig config = helper.getOptions();
+        final String inlongMetric = config.get(INLONG_METRIC);
         final String hostname = config.get(HOSTNAME);
         final String username = config.get(USERNAME);
         final String password = config.get(PASSWORD);
@@ -183,7 +185,8 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
                 scanNewlyAddedTableEnabled,
                 JdbcUrlUtils.getJdbcProperties(context.getCatalogTable().getOptions()),
                 heartbeatInterval,
-                migrateAll);
+                migrateAll,
+                inlongMetric);
     }
 
     @Override
@@ -225,6 +228,7 @@ public class MySqlTableInlongSourceFactory implements DynamicTableSourceFactory 
         options.add(MIGRATE_ALL);
         options.add(SCAN_NEWLY_ADDED_TABLE_ENABLED);
         options.add(HEARTBEAT_INTERVAL);
+        options.add(INLONG_METRIC);
         return options;
     }
 

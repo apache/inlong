@@ -31,7 +31,6 @@ import org.apache.inlong.manager.common.util.AESUtils;
 
 import javax.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,8 +77,8 @@ public class ElasticsearchSinkDTO {
     @ApiModelProperty("Primary Key")
     private String primaryKey;
 
-    @ApiModelProperty("version")
-    private Integer version;
+    @ApiModelProperty("Elasticsearch version")
+    private Integer esVersion;
 
     @ApiModelProperty("Password encrypt version")
     private Integer encryptVersion;
@@ -107,7 +106,7 @@ public class ElasticsearchSinkDTO {
                 .retryTimes(request.getRetryTimes())
                 .documentType(request.getDocumentType())
                 .primaryKey(request.getPrimaryKey())
-                .version(request.getVersion())
+                .esVersion(request.getEsVersion())
                 .encryptVersion(encryptVersion)
                 .properties(request.getProperties())
                 .build();
@@ -121,13 +120,8 @@ public class ElasticsearchSinkDTO {
             OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             return OBJECT_MAPPER.readValue(extParams, ElasticsearchSinkDTO.class).decryptPassword();
         } catch (Exception e) {
-            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage());
+            throw new BusinessException(ErrorCodeEnum.SINK_INFO_INCORRECT.getMessage() + ": " + e.getMessage());
         }
-    }
-
-    public static String getElasticSearchIndexName(ElasticsearchSinkDTO esInfo,
-            List<ElasticsearchFieldInfo> fieldList) {
-        return esInfo.getIndexName();
     }
 
     private ElasticsearchSinkDTO decryptPassword() throws Exception {

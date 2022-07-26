@@ -19,9 +19,11 @@ package org.apache.inlong.manager.common.pojo.cluster.pulsar;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.apache.inlong.manager.common.enums.ClusterType;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -31,6 +33,7 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
  * Inlong cluster info for Pulsar
  */
 @Data
+@SuperBuilder
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @JsonTypeDefine(value = ClusterType.PULSAR)
@@ -42,6 +45,7 @@ public class PulsarClusterInfo extends ClusterInfo {
     private String adminUrl;
 
     @ApiModelProperty(value = "Pulsar tenant, default is 'public'")
+    @Builder.Default
     private String tenant = "public";
 
     public PulsarClusterInfo() {

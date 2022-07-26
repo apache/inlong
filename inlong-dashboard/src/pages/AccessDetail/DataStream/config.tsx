@@ -17,10 +17,8 @@
  * under the License.
  */
 
-import React from 'react';
-import { Divider } from 'antd';
 import i18n from '@/i18n';
-import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import { genDataFields } from '@/components/AccessHelper';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
@@ -78,13 +76,13 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
   return [
     ...genDataFields(
       [
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
-            </Divider>
-          ),
-        },
+        // {
+        //   type: (
+        //     <Divider orientation="left">
+        //       {i18n.t('pages.AccessCreate.DataStream.config.Basic')}
+        //     </Divider>
+        //   ),
+        // },
         'inlongStreamId',
         {
           label: 'Topic Name',
@@ -94,35 +92,35 @@ export const genFormContent = (editingId, currentValues, inlongGroupId, readonly
         },
         'name',
         'description',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
-            </Divider>
-          ),
-        },
-        'dataType',
-        'dataEncoding',
-        'dataSeparator',
-        'rowTypeFields',
-        {
-          type: (
-            <Divider orientation="left">
-              {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
-            </Divider>
-          ),
-          visible: mqType === 'PULSAR',
-        },
+        // {
+        //   type: (
+        //     <Divider orientation="left">
+        //       {i18n.t('pages.AccessCreate.DataStream.config.DataInfo')}
+        //     </Divider>
+        //   ),
+        // },
+        // 'dataType',
+        // 'dataEncoding',
+        // 'dataSeparator',
+        // 'rowTypeFields',
+        // {
+        //   type: (
+        //     <Divider orientation="left">
+        //       {i18n.t('pages.AccessCreate.Business.config.AccessScale')}
+        //     </Divider>
+        //   ),
+        //   visible: mqType === 'PULSAR',
+        // },
       ],
       currentValues,
       extraParams,
     ),
-    ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
-      item => ({
-        ...item,
-        visible: mqType === 'PULSAR',
-      }),
-    ),
+    // ...genBusinessFields(['dailyRecords', 'dailyStorage', 'peakRecords', 'maxLength']).map(
+    //   item => ({
+    //     ...item,
+    //     visible: mqType === 'PULSAR',
+    //   }),
+    // ),
     // ...genDataFields(
     //   [
     //     {

@@ -71,9 +71,8 @@ public class SinkResourceListener implements SinkOperateListener {
                 .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(needCreateList)) {
-            String result = "sink resources have been created for group [" + groupId + "] and stream " + streamIdList;
-            log.info(result);
-            return ListenerResult.success(result);
+            log.info("all sink resources have been created for group [" + groupId + "] and stream " + streamIdList);
+            return ListenerResult.success();
         }
 
         for (SinkInfo sinkConfig : needCreateList) {
@@ -81,9 +80,8 @@ public class SinkResourceListener implements SinkOperateListener {
             SinkResourceOperator resourceOperator = resourceOperatorFactory.getInstance(SinkType.forType(sinkType));
             resourceOperator.createSinkResource(sinkConfig);
         }
-        String result = "success to create sink resources for group [" + groupId + "] and stream " + streamIdList;
-        log.info(result);
-        return ListenerResult.success(result);
+        log.info("success to create sink resources for group [" + groupId + "] and stream " + streamIdList);
+        return ListenerResult.success();
     }
 
 }

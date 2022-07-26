@@ -74,6 +74,13 @@ public class MySqlSourceConfigFactory implements Serializable {
     private Duration heartbeatInterval = HEARTBEAT_INTERVAL.defaultValue();
     private Properties dbzProperties;
 
+    private String inlongMetric;
+
+    public MySqlSourceConfigFactory inlongMetric(String inlongMetric) {
+        this.inlongMetric = inlongMetric;
+        return this;
+    }
+
     public MySqlSourceConfigFactory hostname(String hostname) {
         this.hostname = hostname;
         return this;
@@ -334,6 +341,10 @@ public class MySqlSourceConfigFactory implements Serializable {
             jdbcProperties = new Properties();
         }
 
+        if (inlongMetric == null) {
+            inlongMetric = "";
+        }
+
         return new MySqlSourceConfig(
                 hostname,
                 port,
@@ -355,6 +366,7 @@ public class MySqlSourceConfigFactory implements Serializable {
                 includeSchemaChanges,
                 scanNewlyAddedTableEnabled,
                 props,
-                jdbcProperties);
+                jdbcProperties,
+                inlongMetric);
     }
 }

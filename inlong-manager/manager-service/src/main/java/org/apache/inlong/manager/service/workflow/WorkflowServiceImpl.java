@@ -22,6 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;

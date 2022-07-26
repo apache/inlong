@@ -39,6 +39,28 @@
             <type>tar.gz</type>
             <scope>provided</scope>
         </dependency>
+        <!-- copy sort-dist.jar to the manager-docker/target path -->
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-dist</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- copy sort-connectors to the manager-docker/target path -->
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-pulsar</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-jdbc</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.inlong</groupId>
+            <artifactId>sort-connector-hive</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -74,7 +96,7 @@
                             <pullNewerImage>false</pullNewerImage>
                             <tag>${project.version}</tag>
                             <buildArgs>
-                                <MANAGER_TARBALL>target/manager-web-${project.version}-bin.tar.gz</MANAGER_TARBALL>
+                                <VERSION>${project.version}</VERSION>
                             </buildArgs>
                         </configuration>
                     </plugin>
@@ -90,8 +112,10 @@
                                 </goals>
                                 <phase>generate-resources</phase>
                                 <configuration>
-                                    <outputDirectory>${project.build.directory}/</outputDirectory>
-                                    <includeArtifactIds>manager-web</includeArtifactIds>
+                                    <outputDirectory>target/</outputDirectory>
+                                    <includeArtifactIds>manager-web,
+                                        sort-dist,sort-connector-pulsar,
+                                        sort-connector-jdbc,sort-connector-hive</includeArtifactIds>
                                     <excludeTransitive>true</excludeTransitive>
                                 </configuration>
                             </execution>

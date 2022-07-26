@@ -40,5 +40,6 @@ public class WorkflowApproverEntity implements Serializable {
     private Date createTime;
     private Date modifyTime;
     private Integer isDeleted;
+    private Integer version;
 
 }

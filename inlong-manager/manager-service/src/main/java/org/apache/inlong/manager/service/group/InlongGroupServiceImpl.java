@@ -24,15 +24,17 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupListResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
@@ -61,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -167,7 +170,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
     }
 
     @Override
-    public PageInfo<InlongGroupListResponse> listByPage(InlongGroupPageRequest request) {
+    public PageInfo<InlongGroupBriefInfo> listBrief(InlongGroupPageRequest request) {
         if (request.getPageSize() > MAX_PAGE_SIZE) {
             LOGGER.warn("list group info, but page size is {}, change to {}", request.getPageSize(), MAX_PAGE_SIZE);
             request.setPageSize(MAX_PAGE_SIZE);
@@ -175,12 +178,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
-        List<InlongGroupListResponse> groupResponseList = CommonBeanUtils.copyListProperties(entityPage,
-                InlongGroupListResponse::new);
+        List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
+                InlongGroupBriefInfo::new);
 
-        // need to list all related sources
-        if (request.isListSources() && CollectionUtils.isNotEmpty(groupResponseList)) {
-            Set<String> groupIds = groupResponseList.stream().map(InlongGroupListResponse::getInlongGroupId)
+        // list all related sources
+        if (request.isListSources() && CollectionUtils.isNotEmpty(briefInfos)) {
+            Set<String> groupIds = briefInfos.stream().map(InlongGroupBriefInfo::getInlongGroupId)
                     .collect(Collectors.toSet());
             List<StreamSourceEntity> sourceEntities = streamSourceMapper.selectByGroupIds(new ArrayList<>(groupIds));
             Map<String, List<StreamSource>> sourceMap = Maps.newHashMap();
@@ -190,12 +193,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                 StreamSource source = operation.getFromEntity(sourceEntity);
                 sourceMap.computeIfAbsent(sourceEntity.getInlongGroupId(), k -> Lists.newArrayList()).add(source);
             });
-            groupResponseList.forEach(group -> {
+            briefInfos.forEach(group -> {
                 List<StreamSource> sources = sourceMap.getOrDefault(group.getInlongGroupId(), Lists.newArrayList());
                 group.setStreamSources(sources);
             });
         }
-        PageInfo<InlongGroupListResponse> page = new PageInfo<>(groupResponseList);
+        PageInfo<InlongGroupBriefInfo> page = new PageInfo<>(briefInfos);
         page.setTotal(entityPage.getTotal());
         LOGGER.debug("success to list inlong group for {}", request);
         return page;
@@ -213,7 +216,11 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             LOGGER.error("inlong group not found by groupId={}", groupId);
             throw new BusinessException(ErrorCodeEnum.GROUP_NOT_FOUND);
         }
-
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error("inlong group has already updated with groupId={}, curVersion={}",
+                    groupId, request.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         // check whether the current status can be modified
         checkGroupCanUpdate(entity, request, operator);
 
@@ -293,7 +300,12 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         entity.setIsDeleted(entity.getId());
         entity.setStatus(GroupStatus.DELETED.getCode());
         entity.setModifier(operator);
-        groupMapper.updateByIdentifierSelective(entity);
+        int rowCount = groupMapper.updateByIdentifierSelective(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                    entity.getInlongGroupId(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
 
         // logically delete the associated extension info
         groupExtMapper.logicDeleteAllByGroupId(groupId);
@@ -351,16 +363,29 @@ public class InlongGroupServiceImpl implements InlongGroupService {
         LOGGER.debug("begin to update inlong group after approve={}", approveRequest);
         String groupId = approveRequest.getInlongGroupId();
 
-        // update status to [GROUP_APPROVE_PASSED]
-        this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
+        // only the [TO_BE_APPROVAL] status allowed the passing operation
+        InlongGroupEntity entity = groupMapper.selectByGroupId(groupId);
+        if (entity == null) {
+            throw new WorkflowListenerException("inlong group not found with group id=" + groupId);
+        }
+        if (!Objects.equals(GroupStatus.TO_BE_APPROVAL.getCode(), entity.getStatus())) {
+            throw new WorkflowListenerException("inlong group status is [wait_approval], not allowed to approve again");
+        }
 
-        // update other info for inlong group after approve
+        // bind cluster tag and update status to [GROUP_APPROVE_PASSED]
         if (StringUtils.isNotBlank(approveRequest.getInlongClusterTag())) {
-            InlongGroupEntity entity = new InlongGroupEntity();
-            entity.setInlongGroupId(approveRequest.getInlongGroupId());
+            entity.setInlongGroupId(groupId);
             entity.setInlongClusterTag(approveRequest.getInlongClusterTag());
+            entity.setStatus(GroupStatus.APPROVE_PASSED.getCode());
             entity.setModifier(operator);
-            groupMapper.updateByIdentifierSelective(entity);
+            int rowCount = groupMapper.updateByIdentifierSelective(entity);
+            if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+                LOGGER.error("inlong group has already updated with group id={}, curVersion={}",
+                        groupId, entity.getVersion());
+                throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+            }
+        } else {
+            this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
         }
 
         LOGGER.info("success to update inlong group status after approve for groupId={}", groupId);

@@ -22,7 +22,7 @@ import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.user.UserDetail;
+import org.apache.inlong.manager.common.pojo.user.UserInfo;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.common.util.NetworkUtils;
 import org.apache.inlong.manager.dao.entity.OperationLogEntity;
@@ -54,10 +54,8 @@ public class OperationLogRecorder {
         }
 
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-
-        UserDetail userDetail = Optional.ofNullable(LoginUserUtils.getLoginUserDetail())
-                .orElseGet(UserDetail::new);
-        String operator = userDetail.getUsername();
+        UserInfo userInfo = Optional.ofNullable(LoginUserUtils.getLoginUser()).orElseGet(UserInfo::new);
+        String operator = userInfo.getName();
         operator = StringUtils.isBlank(operator) ? ANONYMOUS_USER : operator;
 
         String requestUrl = request.getRequestURI();
@@ -65,8 +63,6 @@ public class OperationLogRecorder {
         String remoteAddress = NetworkUtils.getClientIpAddress(request);
         String param = GSON.toJson(request.getParameterMap());
         String body = GSON.toJson(joinPoint.getArgs());
-
-        OperationType operationType = operationLog.operation();
 
         long start = System.currentTimeMillis();
         boolean success = true;
@@ -79,6 +75,7 @@ public class OperationLogRecorder {
             throw throwable;
         } finally {
             long costTime = System.currentTimeMillis() - start;
+            OperationType operationType = operationLog.operation();
             OperationLogEntity operationLogEntity = new OperationLogEntity();
             operationLogEntity.setOperationType(operationType.name());
             operationLogEntity.setHttpMethod(httpMethod);

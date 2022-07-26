@@ -17,11 +17,16 @@
 
 package org.apache.inlong.manager.common.enums;
 
+/**
+ * The error code enumeration.
+ */
 public enum ErrorCodeEnum {
+
     AUTHORIZATION_FAILED(2001, "Authentication failed"),
     INVALID_PARAMETER(2002, "The parameter is invalid"),
     PERMISSION_REQUIRED(2003, "The current user does not have operation authority"),
     AUTHENTICATION_REQUIRED(2004, "Authentication failed"),
+    CONFIG_EXPIRED(2005, "The config has expired, please refresh the page or re-fetch the data and try again"),
 
     ID_IS_EMPTY(101, "Primary key is empty"),
     GROUP_ID_IS_EMPTY(102, "Inlong group id is empty"),
@@ -34,8 +39,8 @@ public enum ErrorCodeEnum {
     GROUP_NOT_FOUND(1001, "Inlong group does not exist/no operation authority"),
     GROUP_DUPLICATE(1002, "Inlong group already exists"),
     GROUP_INFO_INCORRECT(1003, "Group info was incorrect"),
-    GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group information"),
-    GROUP_PERMISSION_DENIED(1004, "No access to this inlong group"),
+    GROUP_SAVE_FAILED(1003, "Failed to save/update inlong group"),
+    GROUP_PERMISSION_DENIED(1004, "No permission to access this inlong group"),
     GROUP_HAS_STREAM(1005, "There are some valid inlong stream for this inlong group"),
     GROUP_UPDATE_NOT_ALLOWED(1006, "The current inlong group status does not support modification"),
     GROUP_DELETE_NOT_ALLOWED(1007, "The current inlong group status does not support deletion"),
@@ -46,8 +51,7 @@ public enum ErrorCodeEnum {
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
     GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
 
-    OPT_NOT_ALLOWED_BY_STATUS(1021,
-            "The current inlong group status does not allow adding/modifying/deleting related info"),
+    OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
     MQ_TYPE_NOT_SUPPORTED(1022, "MQ type '%s' not supported"),
     MQ_TYPE_NOT_SAME(1023, "Expected MQ type is '%s', but found '%s'"),
@@ -100,6 +104,7 @@ public enum ErrorCodeEnum {
 
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
+    TRANSFORM_NOT_FOUND(1502, "Transform does not exist"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

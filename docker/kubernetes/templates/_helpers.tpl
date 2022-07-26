@@ -149,6 +149,17 @@ Define the mysql username
 {{- end -}}
 
 {{/*
+Define the mysql count
+*/}}
+{{- define "inlong.mysql.count" -}}
+{{- if .Values.external.mysql.enabled -}}
+1
+{{- else -}}
+{{ .Values.mysql.replicas }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Define the zookeeper hostname
 */}}
 {{- define "inlong.zookeeper.hostname" -}}

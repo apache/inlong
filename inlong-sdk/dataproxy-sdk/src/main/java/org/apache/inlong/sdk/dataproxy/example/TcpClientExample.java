@@ -82,7 +82,7 @@ public class TcpClientExample {
         DefaultMessageSender messageSender = null;
         try {
             dataProxyConfig = new ProxyClientConfig(localIP, isLocalVisit, inLongManagerAddr,
-                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag);
+                    Integer.valueOf(inLongManagerPort), dataProxyGroup, netTag, "test", "123456");
             if (StringUtils.isNotEmpty(configBasePath)) {
                 dataProxyConfig.setConfStoreBasePath(configBasePath);
             }
@@ -99,7 +99,7 @@ public class TcpClientExample {
             String inlongStreamId, String messageBody, long dt) {
         SendResult result = null;
         try {
-            result = sender.sendMessage(messageBody.getBytes("utf8"),inlongGroupId, inlongStreamId,
+            result = sender.sendMessage(messageBody.getBytes("utf8"), inlongGroupId, inlongStreamId,
                     0, String.valueOf(dt), 20, TimeUnit.SECONDS);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

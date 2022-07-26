@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+{{- if .Values.components.tubemqManager }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -63,15 +64,19 @@ spec:
           command: [ "/bin/sh", "-c" ]
           args:
             - |
-              count={{ .Values.mysql.replicas }}
+              count={{ template "inlong.mysql.count" . }}
               for i in $(seq 0 $(expr $count - 1))
               do
+                {{- if .Values.external.mysql.enabled }}
+                host="{{ template "inlong.mysql.hostname" . }}"
+                {{- else }}
                 replica="{{ template "inlong.fullname" . }}-{{ .Values.mysql.component }}-$i"
                 host="$replica.{{ template "inlong.mysql.hostname" . }}"
-                port={{ .Values.mysql.port }}
+                {{- end }}
+                port={{ template "inlong.mysql.port" . }}
                 until nc -z $host $port 2>/dev/null
                 do
-                  echo "waiting for $replica to be ready"
+                  echo "waiting for host:$host port:$port to be ready"
                   sleep 3
                 done
               done
@@ -121,3 +126,4 @@ spec:
             - name: tubemq-mgr-port
               containerPort: 8089
       restartPolicy: Always
+{{- end }}

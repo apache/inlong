@@ -75,8 +75,8 @@ public class ElasticsearchSink extends StreamSink {
     @ApiModelProperty("Primary Key")
     private String primaryKey;
 
-    @ApiModelProperty("version")
-    private Integer version;
+    @ApiModelProperty("Elasticsearch version")
+    private Integer esVersion;
 
     public ElasticsearchSink() {
         this.setSinkType(SinkType.SINK_ELASTICSEARCH);

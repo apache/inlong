@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -67,6 +68,7 @@ public abstract class InlongGroupInfo {
     private String mqResource;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
+    @Builder.Default
     private Integer enableZookeeper = 0;
 
     @ApiModelProperty(value = "Whether to enable zookeeper? 0: disable, 1: enable")
@@ -96,10 +98,13 @@ public abstract class InlongGroupInfo {
     @ApiModelProperty(value = "Name of followers, separated by commas")
     private String followers;
 
+    @ApiModelProperty(value = "Status")
     private Integer status;
 
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
 
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -117,6 +122,9 @@ public abstract class InlongGroupInfo {
 
     @ApiModelProperty("Sort configuration, will transfer into extList")
     private BaseSortConf sortConf;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
     public abstract InlongGroupRequest genRequest();
 

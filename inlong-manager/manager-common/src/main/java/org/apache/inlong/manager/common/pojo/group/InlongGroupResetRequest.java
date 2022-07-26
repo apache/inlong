@@ -45,8 +45,10 @@ public class InlongGroupResetRequest {
     private String inlongGroupId;
 
     @ApiModelProperty(value = "If rerun process when group is in operating, 0: false 1: true")
+    @Builder.Default
     private Integer rerunProcess = 0;
 
     @ApiModelProperty(value = "This params will work when rerunProcess = 0, 0: reset to fail, 1: reset to success")
+    @Builder.Default
     private Integer resetFinalStatus = 1;
 }

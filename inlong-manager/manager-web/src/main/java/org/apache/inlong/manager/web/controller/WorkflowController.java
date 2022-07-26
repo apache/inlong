@@ -65,7 +65,7 @@ public class WorkflowController {
     @OperationLog(operation = OperationType.CREATE)
     @ApiOperation(value = "Initiation process")
     public Response<WorkflowResult> start(@RequestBody WorkflowOperation operation) {
-        String applicant = LoginUserUtils.getLoginUserDetail().getUsername();
+        String applicant = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.start(operation.getName(), applicant, operation.getForm()));
     }
 
@@ -74,7 +74,7 @@ public class WorkflowController {
     @ApiOperation(value = "Cancellation process")
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> cancel(@PathVariable Integer id, @RequestBody WorkflowOperation operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.cancel(id, operator, operation.getRemark()));
     }
 
@@ -84,7 +84,7 @@ public class WorkflowController {
     @ApiImplicitParam(name = "id", value = "Process ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> continueProcess(@PathVariable Integer id,
             @RequestBody WorkflowOperation operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.continueProcess(id, operator, operation.getRemark()));
     }
 
@@ -93,7 +93,7 @@ public class WorkflowController {
     @ApiOperation(value = "Approval and consent")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> approve(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.approve(id, operation.getRemark(), operation.getForm(), operator));
     }
 
@@ -102,7 +102,7 @@ public class WorkflowController {
     @ApiOperation(value = "Approval rejected")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> reject(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.reject(id, operation.getRemark(), operator));
     }
 
@@ -111,7 +111,7 @@ public class WorkflowController {
     @ApiOperation(value = "Turn to another approver", notes = "Change approver")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> transfer(@PathVariable Integer id, @RequestBody WorkflowTaskRequest operation) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.transfer(id, operation.getRemark(),
                 operation.getTransferTo(), operator));
     }
@@ -121,7 +121,7 @@ public class WorkflowController {
     @ApiOperation(value = "Complete task by ID")
     @ApiImplicitParam(name = "id", value = "Task ID", dataTypeClass = Integer.class, required = true)
     public Response<WorkflowResult> complete(@PathVariable Integer id, @RequestBody WorkflowTaskRequest request) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.complete(id, request.getRemark(), operator));
     }
 
@@ -133,35 +133,35 @@ public class WorkflowController {
     })
     public Response<ProcessDetailResponse> detail(@PathVariable(name = "id") Integer id,
             @RequestParam(required = false) Integer taskId) {
-        String operator = LoginUserUtils.getLoginUserDetail().getUsername();
+        String operator = LoginUserUtils.getLoginUser().getName();
         return Response.success(workflowService.detail(id, taskId, operator));
     }
 
     @GetMapping("/workflow/listProcess")
     @ApiOperation(value = "Get process list by paginating")
     public Response<PageInfo<ProcessResponse>> listProcess(ProcessQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setApplicant(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.listProcess(query));
     }
 
     @GetMapping("/workflow/listTask")
     @ApiOperation(value = "Get task list by paginating")
     public Response<PageInfo<TaskResponse>> listTask(TaskQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setApprover(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.listTask(query));
     }
 
     @GetMapping("/workflow/processSummary")
     @ApiOperation(value = "Get process statistics")
     public Response<ProcessCountResponse> processSummary(ProcessCountQuery query) {
-        query.setApplicant(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setApplicant(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.countProcess(query));
     }
 
     @GetMapping("/workflow/taskSummary")
     @ApiOperation(value = "Get task statistics")
     public Response<TaskCountResponse> taskSummary(TaskCountQuery query) {
-        query.setApprover(LoginUserUtils.getLoginUserDetail().getUsername());
+        query.setApprover(LoginUserUtils.getLoginUser().getName());
         return Response.success(workflowService.countTask(query));
     }
 

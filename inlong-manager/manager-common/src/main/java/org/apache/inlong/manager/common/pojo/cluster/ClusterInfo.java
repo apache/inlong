@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
@@ -31,6 +32,7 @@ import java.util.Date;
  * Inlong cluster info
  */
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel("Inlong cluster info")
@@ -81,6 +83,9 @@ public abstract class ClusterInfo {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
     public abstract ClusterRequest genRequest();
 

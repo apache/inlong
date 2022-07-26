@@ -21,11 +21,11 @@ import React from 'react';
 import { Divider, Modal, message } from 'antd';
 import { ModalProps } from 'antd/es/modal';
 import FormGenerator, { useForm } from '@/components/FormGenerator';
-import { useUpdateEffect } from '@/hooks';
+import { useUpdateEffect, useRequest } from '@/hooks';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
 import request from '@/utils/request';
-import { valuesToData } from './helper';
+import { dataToValues, valuesToData } from './helper';
 import { pickObject } from '@/utils';
 
 export interface Props extends ModalProps {
@@ -60,6 +60,8 @@ export const genFormContent = (currentValues, inlongGroupId, mqType) => {
           ),
         },
         'dataType',
+        'dataEncoding',
+        'dataSeparator',
         'rowTypeFields',
         {
           type: (
@@ -92,6 +94,21 @@ export const genFormContent = (currentValues, inlongGroupId, mqType) => {
 
 const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps }) => {
   const [form] = useForm();
+
+  const { run: getStreamData } = useRequest(
+    {
+      url: '/stream/get',
+      params: {
+        groupId: inlongGroupId,
+        streamId: record.inlongStreamId,
+      },
+    },
+    {
+      manual: true,
+      onSuccess: result => form.setFieldsValue(dataToValues([result])?.[0]),
+    },
+  );
+
   const onOk = async () => {
     const values = {
       ...pickObject(['id', 'inlongGroupId', 'inlongStreamId', 'version'], record),
@@ -112,9 +129,9 @@ const Comp: React.FC<Props> = ({ inlongGroupId, record, mqType, ...modalProps })
     if (modalProps.visible) {
       // open
       form.resetFields(); // Note that it will cause the form to remount to initiate a select request
-    }
-    if (Object.keys(record || {})?.length) {
-      form.setFieldsValue(record);
+      if (Object.keys(record || {})?.length) {
+        getStreamData();
+      }
     }
   }, [modalProps.visible]);
 

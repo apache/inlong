@@ -61,7 +61,7 @@ const Comp = ({ inlongGroupId, readonly, mqType }: Props, ref) => {
 
   const { data = realTimeValues, run: getList, mutate } = useRequest(
     {
-      url: '/stream/listAll',
+      url: '/stream/list',
       method: 'POST',
       data: {
         ...options,

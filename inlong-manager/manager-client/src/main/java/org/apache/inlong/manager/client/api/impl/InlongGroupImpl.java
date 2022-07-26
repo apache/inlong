@@ -49,7 +49,7 @@ import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.NewGroupProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -118,7 +118,7 @@ public class InlongGroupImpl implements InlongGroup {
         Preconditions.checkTrue(ProcessStatus.PROCESSING == processView.getStatus(),
                 String.format("process status %s is not corrected, should be PROCESSING", processView.getStatus()));
 
-        // init must be NewGroupProcessForm
+        // init must be ApplyGroupProcessForm
         // compile with old cluster
         JSONObject formDataJson = JsonUtils.parseObject(
                 JsonUtils.toJsonString(JsonUtils.toJsonString(processView.getFormData())),
@@ -131,11 +131,12 @@ public class InlongGroupImpl implements InlongGroup {
             }
         }
         String formDataNew = formDataJson.toString();
-        NewGroupProcessForm newGroupProcessForm = JsonUtils.parseObject(
-                formDataNew, NewGroupProcessForm.class);
-        Preconditions.checkNotNull(newGroupProcessForm, "NewGroupProcessForm cannot be null");
-        groupContext.setInitMsg(newGroupProcessForm);
-        WorkflowResult startWorkflowResult = workFlowClient.startInlongGroup(taskId, newGroupProcessForm);
+        ApplyGroupProcessForm groupProcessForm = JsonUtils.parseObject(
+                formDataNew, ApplyGroupProcessForm.class);
+        Preconditions.checkNotNull(groupProcessForm, "ApplyGroupProcessForm cannot be null");
+        groupContext.setInitMsg(groupProcessForm);
+        assert groupProcessForm != null;
+        WorkflowResult startWorkflowResult = workFlowClient.startInlongGroup(taskId, groupProcessForm);
         processView = startWorkflowResult.getProcessInfo();
         Preconditions.checkTrue(ProcessStatus.COMPLETED == processView.getStatus(),
                 String.format("inlong group status %s is incorrect, should be COMPLETED", processView.getStatus()));

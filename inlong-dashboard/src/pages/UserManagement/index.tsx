@@ -43,7 +43,7 @@ const Comp: React.FC = () => {
 
   const { data, loading, run: getList } = useRequest(
     {
-      url: '/user/listAllUsers',
+      url: '/user/listAll',
       params: options,
     },
     {

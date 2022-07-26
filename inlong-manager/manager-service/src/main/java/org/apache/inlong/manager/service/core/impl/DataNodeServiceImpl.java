@@ -22,6 +22,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.DataNodeType;
+import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
 import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
@@ -38,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,10 +68,6 @@ public class DataNodeServiceImpl implements DataNodeService {
         DataNodeEntity entity = CommonBeanUtils.copyProperties(request, DataNodeEntity::new);
         entity.setCreator(operator);
         entity.setModifier(operator);
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setModifyTime(now);
-        entity.setIsDeleted(InlongConstants.UN_DELETED);
         dataNodeMapper.insert(entity);
 
         LOGGER.debug("success to save data node={}", request);
@@ -119,10 +115,19 @@ public class DataNodeServiceImpl implements DataNodeService {
             LOGGER.error("data node not found by id={}", id);
             throw new BusinessException(String.format("data node not found by id=%s", id));
         }
+        String errMsg = String.format("data node has already updated with name=%s, type=%s, curVersion=%s",
+                entity.getName(), entity.getType(), request.getVersion());
+        if (!Objects.equals(entity.getVersion(), request.getVersion())) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         CommonBeanUtils.copyProperties(request, entity, true);
         entity.setModifier(operator);
-        dataNodeMapper.updateById(entity);
-
+        int rowCount = dataNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error(errMsg);
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         LOGGER.info("success to update data node={}", request);
         return true;
     }
@@ -137,7 +142,12 @@ public class DataNodeServiceImpl implements DataNodeService {
 
         entity.setIsDeleted(entity.getId());
         entity.setModifier(operator);
-        dataNodeMapper.updateById(entity);
+        int rowCount = dataNodeMapper.updateById(entity);
+        if (rowCount != InlongConstants.AFFECTED_ONE_ROW) {
+            LOGGER.error("data node has already updated, data node name={}, type={}, current version ={}",
+                    entity.getName(), entity.getType(), entity.getVersion());
+            throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
+        }
         LOGGER.info("success to delete data node by id={}", id);
         return true;
     }
