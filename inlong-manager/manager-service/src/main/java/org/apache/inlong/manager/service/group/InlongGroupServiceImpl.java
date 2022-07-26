@@ -384,7 +384,7 @@ public class InlongGroupServiceImpl implements InlongGroupService {
                         entity.getInlongGroupId(), entity.getVersion());
                 throw new BusinessException(ErrorCodeEnum.CONFIG_EXPIRED);
             }
-        }else {
+        } else {
             // update status to [GROUP_APPROVE_PASSED]
             this.updateStatus(groupId, GroupStatus.APPROVE_PASSED.getCode(), operator);
         }
