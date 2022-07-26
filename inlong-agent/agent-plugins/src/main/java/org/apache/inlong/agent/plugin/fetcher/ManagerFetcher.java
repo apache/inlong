@@ -59,7 +59,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
-import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_NAME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_CLUSTER_TAG;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_HOME;
 import static org.apache.inlong.agent.constant.AgentConstants.AGENT_LOCAL_CACHE;
