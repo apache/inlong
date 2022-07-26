@@ -50,7 +50,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Service task listener factory.
+ * The TaskEventListener factory for InlongGroup.
  */
 @Data
 @Component

@@ -23,7 +23,7 @@ import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import java.util.List;
 
 /**
- * An object capable of providing instances of TaskEventListener
+ * The factory interface of TaskEventListener.
  */
 public interface TaskListenerFactory {
 

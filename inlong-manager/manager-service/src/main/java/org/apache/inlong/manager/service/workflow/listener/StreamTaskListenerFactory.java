@@ -43,6 +43,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The TaskEventListener factory for InlongStream.
+ */
 @Component
 public class StreamTaskListenerFactory implements PluginBinder, TaskListenerFactory {
 
