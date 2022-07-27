@@ -43,7 +43,6 @@ public class MasterStatusCheckFilter implements Filter {
         this.defMetaDataService =
                 this.master.getMetaDataService();
 
-        this.redirectWhiteList = new StringBuilder(512).append("http://").toString();
     }
 
     @Override
@@ -70,7 +69,8 @@ public class MasterStatusCheckFilter implements Filter {
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }
-            if (sBuilder.toString().startsWith(redirectWhiteList)) {
+            this.redirectWhiteList = sBuilder.toString();
+            if (redirectWhiteList.equals(sBuilder.toString())) {
                 resp.sendRedirect(sBuilder.toString());
             }
             return;

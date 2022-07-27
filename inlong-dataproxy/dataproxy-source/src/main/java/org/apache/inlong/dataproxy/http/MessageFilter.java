@@ -107,7 +107,7 @@ public class MessageFilter implements Filter {
         String callback = req.getParameter("callback");
         resp.setCharacterEncoding(req.getCharacterEncoding());
         resp.setStatus(HttpServletResponse.SC_OK);
-        resp.getWriter().write(getResultContent(code, message, callback));
+        resp.getWriter().write(getResultContent(code, message));
         resp.flushBuffer();
     }
 
@@ -115,19 +115,13 @@ public class MessageFilter implements Filter {
     public void destroy() {
     }
 
-    private String getResultContent(int code, String message, String callback) {
+    private String getResultContent(int code, String message) {
         StringBuilder builder = new StringBuilder();
-        if (StringUtils.isNotEmpty(callback)) {
-            builder.append(callback).append("(");
-        }
         builder.append("{\"code\":\"");
         builder.append(code);
         builder.append("\",\"msg\":\"");
         builder.append(message);
         builder.append("\"}");
-        if (StringUtils.isNotEmpty(callback)) {
-            builder.append(")");
-        }
 
         return builder.toString();
     }
