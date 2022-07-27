@@ -172,7 +172,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
@@ -241,7 +241,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
