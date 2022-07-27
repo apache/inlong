@@ -18,25 +18,21 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.dao.entity.UserRoleEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
-import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRoleEntityMapper {
 
-    int deleteByPrimaryKey(Integer id);
-
     int insert(UserRoleEntity record);
 
-    int insertSelective(UserRoleEntity record);
-
-    UserRoleEntity selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(UserRoleEntity record);
-
-    int updateByPrimaryKey(UserRoleEntity record);
+    UserRoleEntity selectById(Integer id);
 
     List<UserRoleEntity> listByUsername(String username);
+
+    int updateById(UserRoleEntity record);
+
+    int deleteById(Integer id);
+
 }

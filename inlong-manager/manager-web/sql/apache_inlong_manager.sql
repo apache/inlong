@@ -335,25 +335,6 @@ CREATE TABLE IF NOT EXISTS `operation_log`
   DEFAULT CHARSET = utf8mb4;
 
 -- ----------------------------
--- Table structure for role
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `role`
-(
-    `id`          int(11)      NOT NULL AUTO_INCREMENT,
-    `role_code`   varchar(100) NOT NULL COMMENT 'Role code',
-    `role_name`   varchar(256) NOT NULL COMMENT 'Role Chinese name',
-    `create_time` datetime     NOT NULL,
-    `update_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `create_by`   varchar(256) NOT NULL,
-    `update_by`   varchar(256) NOT NULL,
-    `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled?',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_role_code` (`role_code`),
-    UNIQUE KEY `unique_role_name` (`role_name`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='Role Table';
-
--- ----------------------------
 -- Table structure for source_file_basic
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `source_file_basic`
@@ -600,10 +581,33 @@ CREATE TABLE IF NOT EXISTS `user`
   DEFAULT CHARSET = utf8mb4 COMMENT ='User table';
 
 -- create default admin user, username is 'admin', password is 'inlong'
-INSERT INTO `user` (name, password, secret_key, account_type, encrypt_version,
+INSERT INTO `user` (name, password,
+                    secret_key, account_type, encrypt_version,
                     due_date, creator, modifier)
-VALUES ('admin', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109', '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0',
-        0, 1, '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
+VALUES ('admin', '1976e096b31cfda81269d0df2775466aac6dd809e3ada1d5ba7831d85e80f109',
+        '9B5DCE950F284141D5493A2DAFEBD1BFEECE075FC5F426E8B67F33F14876E2D0', 0, 1,
+        '2099-12-31 23:59:59', 'inlong_init', 'inlong_init');
+
+-- ----------------------------
+-- Table structure for role
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `role`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `role_code`   varchar(100) NOT NULL COMMENT 'Role code',
+    `role_name`   varchar(256) NOT NULL COMMENT 'Role Chinese name',
+    `disabled`    tinyint(11)  NOT NULL DEFAULT '0' COMMENT 'Whether to disabled, 0: enabled, 1: disabled',
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `creator`     varchar(256) NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_role_code` (`role_code`),
+    UNIQUE KEY `unique_role_name` (`role_name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Role Table';
 
 -- ----------------------------
 -- Table structure for user_role
@@ -613,11 +617,13 @@ CREATE TABLE IF NOT EXISTS `user_role`
     `id`          int(11)      NOT NULL AUTO_INCREMENT,
     `user_name`   varchar(256) NOT NULL COMMENT 'Username',
     `role_code`   varchar(256) NOT NULL COMMENT 'User role code',
-    `create_time` datetime     NOT NULL,
-    `update_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `create_by`   varchar(256) NOT NULL,
-    `update_by`   varchar(256) NOT NULL,
-    `disabled`    tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Is it disabled, 0-enabled, 1-disabled',
+    `disabled`    tinyint(11)  NOT NULL DEFAULT '0' COMMENT 'Whether to disabled, 0: enabled, 1: disabled',
+    `is_deleted`  int(11)               DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `creator`     varchar(256) NOT NULL COMMENT 'Creator name',
+    `modifier`    varchar(256)          DEFAULT NULL COMMENT 'Modifier name',
+    `create_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time` datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `version`     int(11)      NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='User Role Table';
