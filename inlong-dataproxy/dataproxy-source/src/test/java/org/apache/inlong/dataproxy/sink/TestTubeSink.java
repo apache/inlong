@@ -31,8 +31,7 @@ public class TestTubeSink {
     private MemoryChannel channel;
 
     @Before
-    public void setUp() throws Exception {
-
+    public void setUp() {
         TubeSink sink = new TubeSink();
         channel = new MemoryChannel();
         Context context = new Context();
@@ -43,8 +42,7 @@ public class TestTubeSink {
     }
 
     @Test
-    public void testProcess() throws Exception {
-
+    public void testProcess() {
         Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
 
         Transaction transaction = channel.getTransaction();
