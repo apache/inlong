@@ -21,7 +21,9 @@ import org.apache.inlong.manager.client.api.InlongGroup;
 import org.apache.inlong.manager.client.api.InlongGroupContext;
 import org.apache.inlong.manager.client.api.InlongStream;
 import org.apache.inlong.manager.client.api.InlongStreamBuilder;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 
@@ -99,6 +101,16 @@ public class BlankInlongGroup implements InlongGroup {
 
     @Override
     public InlongGroupContext reset(int rerun, int resetFinalStatus) throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupCountResponse countGroupByUser() throws Exception {
+        throw new UnsupportedOperationException("Inlong group is not exists");
+    }
+
+    @Override
+    public InlongGroupTopicInfo getTopic(String id) throws Exception {
         throw new UnsupportedOperationException("Inlong group is not exists");
     }
 }

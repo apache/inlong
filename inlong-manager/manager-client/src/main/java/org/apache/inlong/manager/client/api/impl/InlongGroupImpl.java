@@ -37,9 +37,11 @@ import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.client.api.util.InlongGroupTransfer;
 import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.ProcessStatus;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
@@ -259,6 +261,16 @@ public class InlongGroupImpl implements InlongGroup {
                 rerun, resetFinalStatus);
         groupClient.resetGroup(request);
         return generateSnapshot();
+    }
+
+    @Override
+    public InlongGroupCountResponse countGroupByUser() {
+        return groupClient.countGroupByUser();
+    }
+
+    @Override
+    public InlongGroupTopicInfo getTopic(String id) {
+        return groupClient.getTopic(id);
     }
 
     private InlongGroupContext generateSnapshot() {

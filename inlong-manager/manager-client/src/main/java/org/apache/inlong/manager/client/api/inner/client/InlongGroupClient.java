@@ -25,11 +25,13 @@ import org.apache.inlong.manager.client.api.enums.SimpleGroupStatus;
 import org.apache.inlong.manager.client.api.service.InlongGroupApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.beans.Response;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.util.JsonUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
@@ -214,6 +216,30 @@ public class InlongGroupClient {
             Response<Boolean> response = ClientUtils.executeHttpCall(inlongGroupApi.deleteGroup(groupId));
             ClientUtils.assertRespSuccess(response);
             return response.getData();
+        }
+    }
+
+    public InlongGroupCountResponse countGroupByUser() {
+        Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.countGroupByUser());
+        if (response.isSuccess()) {
+            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
+                    InlongGroupCountResponse.class);
+        } else if (response.getErrMsg().contains("not exist")) {
+            return null;
+        } else {
+            throw new RuntimeException(response.getErrMsg());
+        }
+    }
+
+    public InlongGroupTopicInfo getTopic(String id) {
+        Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.getTopic(id));
+        if (response.isSuccess()) {
+            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
+                    InlongGroupTopicInfo.class);
+        } else if (response.getErrMsg().contains("not exist")) {
+            return null;
+        } else {
+            throw new RuntimeException(response.getErrMsg());
         }
     }
 }
