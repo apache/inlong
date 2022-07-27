@@ -31,9 +31,9 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("Task execution log request")
-public class TaskExecuteLogQuery extends PageRequest {
+public class TaskLogRequest extends PageRequest {
 
-    @ApiModelProperty("InLong group id")
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
     @ApiModelProperty("Process name list")

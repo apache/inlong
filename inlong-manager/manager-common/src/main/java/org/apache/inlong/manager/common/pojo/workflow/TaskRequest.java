@@ -22,20 +22,28 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.inlong.manager.common.beans.PageRequest;
+import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
- * Task count query
+ * Workflow-Task query request
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Task count query")
-public class TaskCountQuery {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel("Workflow-Task query request")
+public class TaskRequest extends PageRequest {
+
+    @ApiModelProperty("Task ID")
+    private Integer id;
 
     @ApiModelProperty("Process ID")
     private Integer processId;
@@ -52,8 +60,14 @@ public class TaskCountQuery {
     @ApiModelProperty("Applicant name")
     private String applicant;
 
-    @ApiModelProperty("Approver name")
+    @ApiModelProperty("Approver names")
     private String approver;
+
+    @ApiModelProperty("Actual operator")
+    private String operator;
+
+    @ApiModelProperty("Status set")
+    private Set<TaskStatus> statusSet;
 
     @ApiModelProperty("Start time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

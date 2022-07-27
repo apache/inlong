@@ -25,8 +25,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.service.core.WorkflowEventService;
 import org.apache.inlong.manager.service.core.operationlog.OperationLog;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
@@ -51,13 +51,13 @@ public class WorkflowEventController {
     @GetMapping("/workflow/event/detail/{id}")
     @ApiOperation(value = "Get event details")
     @ApiImplicitParam(name = "id", value = "Event ID", dataTypeClass = Integer.class, required = true)
-    public Response<EventLogView> get(@PathVariable Integer id) {
+    public Response<EventLogResponse> get(@PathVariable Integer id) {
         return Response.success(workflowEventService.get(id));
     }
 
     @GetMapping("/workflow/event/list")
     @ApiOperation(value = "Get event list by paginating")
-    public Response<PageInfo<EventLogView>> list(EventLogQuery query) {
+    public Response<PageInfo<EventLogResponse>> list(EventLogRequest query) {
         return Response.success(workflowEventService.list(query));
     }
 

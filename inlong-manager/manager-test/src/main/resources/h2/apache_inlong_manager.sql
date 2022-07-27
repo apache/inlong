@@ -595,30 +595,24 @@ CREATE TABLE IF NOT EXISTS `user_role`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `workflow_approver`
 (
-    `id`                int(11)       NOT NULL AUTO_INCREMENT,
-    `process_name`      varchar(256)  NOT NULL COMMENT 'Process name',
-    `task_name`         varchar(256)  NOT NULL COMMENT 'Approval task name',
-    `filter_key`        varchar(64)   NOT NULL COMMENT 'Filter condition KEY',
-    `filter_value`      varchar(256)           DEFAULT NULL COMMENT 'Filter matching value',
-    `filter_value_desc` varchar(256)           DEFAULT NULL COMMENT 'Filter value description',
-    `approvers`         varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
-    `creator`           varchar(64)   NOT NULL COMMENT 'Creator name',
-    `modifier`          varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
-    `version`           int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    `id`           int(11)       NOT NULL AUTO_INCREMENT,
+    `process_name` varchar(256)  NOT NULL COMMENT 'Process name',
+    `task_name`    varchar(256)  NOT NULL COMMENT 'Approval task name',
+    `approvers`    varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
+    `creator`      varchar(64)   NOT NULL COMMENT 'Creator name',
+    `modifier`     varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`  timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`  timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`   int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`      int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
 -- create default approver for new consumption and new inlong group
-INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
-                                `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
-VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
-        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
-       ('APPLY_GROUP_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
-        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `creator`, `modifier`)
+VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
+       ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for workflow_event_log

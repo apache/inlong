@@ -25,11 +25,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 /**
- * Process count query
+ * Process count request
  */
 @Data
-@ApiModel("Process count query")
-public class ProcessCountQuery {
+@ApiModel("Process count request")
+public class ProcessCountRequest {
 
     @ApiModelProperty("Process name")
     private String name;
@@ -40,7 +40,7 @@ public class ProcessCountQuery {
     @ApiModelProperty("Applicant")
     private String applicant;
 
-    @ApiModelProperty("InLong group id")
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
     @ApiModelProperty("Start time-lower limit")

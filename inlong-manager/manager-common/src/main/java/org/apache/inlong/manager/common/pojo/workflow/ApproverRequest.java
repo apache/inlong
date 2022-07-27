@@ -19,26 +19,34 @@ package org.apache.inlong.manager.common.pojo.workflow;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.BaseTaskForm;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 /**
- * Workflow task request
+ * Workflow approver request
  */
 @Data
-@ApiModel("Workflow task request")
-public class WorkflowTaskRequest {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@ApiModel("Workflow approver request")
+public class ApproverRequest {
 
-    @ApiModelProperty(value = "Transferor persons",
-            notes = "When transferring the task, specify who needs to be transferred to")
-    public List<String> transferTo;
+    @ApiModelProperty(value = "Primary key")
+    private Integer id;
 
-    @ApiModelProperty(value = "Remarks info")
-    public String remark;
+    @ApiModelProperty("Workflow process name")
+    private String processName;
 
-    @ApiModelProperty(value = "Form information")
-    public BaseTaskForm form;
+    @ApiModelProperty("Workflow task name")
+    private String taskName;
+
+    @ApiModelProperty("Workflow approvers, separate with commas(,)")
+    private String approvers;
+
+    @ApiModelProperty(value = "Version number")
+    private Integer version;
 
 }

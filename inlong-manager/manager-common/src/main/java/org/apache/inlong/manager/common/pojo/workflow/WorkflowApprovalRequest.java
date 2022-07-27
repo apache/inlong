@@ -20,24 +20,25 @@ package org.apache.inlong.manager.common.pojo.workflow;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.inlong.manager.common.pojo.workflow.form.task.BaseTaskForm;
+
+import java.util.List;
 
 /**
- * Workflow brief info
+ * Workflow approval request
  */
 @Data
-@ApiModel("Workflow brief info")
-public class WorkflowBriefDTO {
+@ApiModel("Workflow approval request")
+public class WorkflowApprovalRequest {
 
-    @ApiModelProperty(value = "Process name")
-    private String name;
+    @ApiModelProperty(value = "Transferor persons",
+            notes = "When transferring the task, specify who needs to be transferred to")
+    public List<String> transferTo;
 
-    @ApiModelProperty(value = "Process display name")
-    private String displayName;
+    @ApiModelProperty(value = "Remarks info")
+    public String remark;
 
-    @ApiModelProperty(value = "Process type")
-    private String type;
-
-    @ApiModelProperty(value = "approval process-start node")
-    private ElementDTO startEvent;
+    @ApiModelProperty(value = "Form information")
+    public BaseTaskForm form;
 
 }

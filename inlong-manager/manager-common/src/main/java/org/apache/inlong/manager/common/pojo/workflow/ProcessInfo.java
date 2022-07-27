@@ -17,22 +17,27 @@
 
 package org.apache.inlong.manager.common.pojo.workflow;
 
-import java.util.HashMap;
-import java.util.Map;
-import lombok.Builder;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * Context of workflow approver filter
- *
+ * Workflow brief info
  */
 @Data
-@Builder
-@NoArgsConstructor
-public class WorkflowApproverFilterContext {
+@ApiModel("Workflow brief info")
+public class ProcessInfo {
 
-    public Map<FilterKey, String> toFilterKeyMap() {
-        return new HashMap<>();
-    }
+    @ApiModelProperty(value = "Process name")
+    private String name;
+
+    @ApiModelProperty(value = "Process display name")
+    private String displayName;
+
+    @ApiModelProperty(value = "Process type")
+    private String type;
+
+    @ApiModelProperty(value = "Process start node")
+    private ElementInfo startEvent;
+
 }

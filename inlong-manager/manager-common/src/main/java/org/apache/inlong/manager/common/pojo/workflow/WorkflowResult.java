@@ -24,10 +24,10 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Workflow results
+ * Workflow result info
  */
 @Data
-@ApiModel("Workflow interface response")
+@ApiModel("Workflow result info")
 public class WorkflowResult {
 
     @ApiModelProperty(value = "Application form information")

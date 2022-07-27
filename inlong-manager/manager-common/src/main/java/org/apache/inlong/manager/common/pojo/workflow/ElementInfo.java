@@ -26,11 +26,11 @@ import org.apache.inlong.manager.common.enums.TaskStatus;
 import java.util.List;
 
 /**
- * Workflow element DTO
+ * Workflow element info
  */
 @Data
 @ApiModel("Workflow element info")
-public class ElementDTO {
+public class ElementInfo {
 
     @ApiModelProperty(value = "Node name")
     private String name;
@@ -45,6 +45,6 @@ public class ElementDTO {
     private TaskStatus status;
 
     @ApiModelProperty(value = "Next approval node")
-    private List<ElementDTO> next = Lists.newArrayList();
+    private List<ElementInfo> next = Lists.newArrayList();
 
 }

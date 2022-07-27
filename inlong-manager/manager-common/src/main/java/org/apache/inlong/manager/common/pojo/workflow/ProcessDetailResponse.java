@@ -40,6 +40,6 @@ public class ProcessDetailResponse {
     private List<TaskResponse> taskHistory;
 
     @ApiModelProperty(value = "Workflow view")
-    private WorkflowBriefDTO workflow;
+    private ProcessInfo workflow;
 
 }

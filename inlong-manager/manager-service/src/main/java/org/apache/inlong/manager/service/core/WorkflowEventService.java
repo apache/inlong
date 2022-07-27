@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogQuery;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
@@ -34,7 +34,7 @@ public interface WorkflowEventService {
      * @param id ID of the event log
      * @return Event log view
      */
-    EventLogView get(Integer id);
+    EventLogResponse get(Integer id);
 
     /**
      * Query event logs based on conditions
@@ -42,7 +42,7 @@ public interface WorkflowEventService {
      * @param query Query conditions
      * @return Log list
      */
-    PageInfo<EventLogView> list(EventLogQuery query);
+    PageInfo<EventLogResponse> list(EventLogRequest query);
 
     /**
      * Execute the listener based on the log ID

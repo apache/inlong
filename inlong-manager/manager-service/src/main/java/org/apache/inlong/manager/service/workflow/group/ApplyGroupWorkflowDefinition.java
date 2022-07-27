@@ -17,11 +17,10 @@
 
 package org.apache.inlong.manager.service.workflow.group;
 
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.group.listener.apply.AfterApprovedTaskListener;
 import org.apache.inlong.manager.service.workflow.group.listener.apply.ApproveApplyProcessListener;
@@ -83,7 +82,9 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.setName("ut_admin");
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
-        adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
+
+        List<String> approvers = workflowApproverService.getApprovers(getProcessName().name(), adminUserTask.getName());
+        adminUserTask.setApproverAssign(context -> approvers);
         adminUserTask.addListener(afterApprovedTaskListener);
         process.addTask(adminUserTask);
 
@@ -99,15 +100,6 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
     @Override
     public ProcessName getProcessName() {
         return ProcessName.APPLY_GROUP_PROCESS;
-    }
-
-    /**
-     * Get task approvers by task name
-     */
-    private List<String> getTaskApprovers(String taskName) {
-        String processName = this.getProcessName().name();
-        WorkflowApproverFilterContext context = new WorkflowApproverFilterContext();
-        return workflowApproverService.getApprovers(processName, taskName, context);
     }
 
 }

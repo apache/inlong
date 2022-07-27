@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.common.pojo.workflow;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -27,45 +28,37 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * Workflow approver config
+ * Workflow approver response
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Workflow approver")
-public class WorkflowApprover {
+@ApiModel("Workflow Approver response")
+public class ApproverResponse {
 
-    @ApiModelProperty("id")
+    @ApiModelProperty(value = "Primary key")
     private Integer id;
 
-    @ApiModelProperty("process name")
+    @ApiModelProperty("Workflow process name")
     private String processName;
 
-    @ApiModelProperty("process display name")
-    private String processDisplayName;
-
-    @ApiModelProperty("task name")
+    @ApiModelProperty("Workflow task name")
     private String taskName;
 
-    @ApiModelProperty("task display name")
-    private String taskDisplayName;
+    @ApiModelProperty("Workflow approvers, separate with commas(,)")
+    private String approver;
 
-    @ApiModelProperty("filter key")
-    private FilterKey filterKey;
-
-    @ApiModelProperty("filter value")
-    private String filterValue;
-
-    @ApiModelProperty("filter value desc")
-    private String filterValueDesc;
-
-    @ApiModelProperty("approver list, separate with commas(\",\") when multiple")
-    private String approvers;
-
+    @ApiModelProperty(value = "Name of creator")
     private String creator;
+
+    @ApiModelProperty(value = "Name of modifier")
     private String modifier;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date modifyTime;
 
     @ApiModelProperty(value = "Version number")

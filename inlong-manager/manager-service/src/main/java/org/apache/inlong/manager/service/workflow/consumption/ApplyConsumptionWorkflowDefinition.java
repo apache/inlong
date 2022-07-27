@@ -17,13 +17,13 @@
 
 package org.apache.inlong.manager.service.workflow.consumption;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
-import org.apache.inlong.manager.common.enums.ProcessName;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCancelProcessListener;
 import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;
@@ -102,7 +102,9 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         adminUserTask.setName(UT_ADMINT_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(ConsumptionApproveForm.class);
-        adminUserTask.setApproverAssign(this::adminUserTaskApprover);
+
+        List<String> approvers = workflowApproverService.getApprovers(getProcessName().name(), UT_ADMINT_NAME);
+        adminUserTask.setApproverAssign(context -> approvers);
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
@@ -119,11 +121,6 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         return process;
     }
 
-    private List<String> adminUserTaskApprover(WorkflowContext context) {
-        return workflowApproverService.getApprovers(getProcessName().name(), UT_ADMINT_NAME,
-                new WorkflowApproverFilterContext());
-    }
-
     private List<String> groupOwnerUserTaskApprover(WorkflowContext context) {
         ApplyConsumptionProcessForm form = (ApplyConsumptionProcessForm) context.getProcessForm();
         InlongGroupInfo groupInfo = groupService.get(form.getConsumptionInfo().getInlongGroupId());
@@ -131,7 +128,7 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
             return Collections.emptyList();
         }
 
-        return Arrays.asList(groupInfo.getInCharges().split(","));
+        return Arrays.asList(groupInfo.getInCharges().split(InlongConstants.COMMA));
     }
 
     @Override
