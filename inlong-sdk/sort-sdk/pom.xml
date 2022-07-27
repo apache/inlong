@@ -27,7 +27,7 @@
         <version>1.3.0-SNAPSHOT</version>
     </parent>
     <artifactId>sort-sdk</artifactId>
-    <version>${project.version}</version>
+    <version>1.3.0-SNAPSHOT</version>
 
     <name>Apache InLong - Sort SDK</name>
 
