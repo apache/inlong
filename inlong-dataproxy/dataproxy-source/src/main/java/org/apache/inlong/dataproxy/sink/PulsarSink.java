@@ -82,11 +82,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p/>
  * <code>type</code> (*): value must be 'org.apache.inlong.dataproxy.sink.PulsarSink'
  * <p/>
- * pulsar_server_url_list</code> (*): value is pulsar broker url, like this 'pulsar://127.0.0.1:6650'
+ * <code>pulsar_server_url_list</code> (*): value is pulsar broker url, like 'pulsar://127.0.0.1:6650'
  * <p/>
  * <code>send_timeout_MILL</code>: send message timeout, unit is millisecond, default is 30000 (mean 30s)
  * <p/>
- * <code>stat_interval_sec</code>: stat info will be made period time , unit is second, default is 60s
+ * <code>stat_interval_sec</code>: stat info will be made period time, unit is second, default is 60s
  * <p/>
  * <code>thread-num</code>: sink thread num, default is 8
  * <p/>
