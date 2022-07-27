@@ -158,7 +158,7 @@ public class BinlogReader extends AbstractReader {
         String offset = jobConf.get(JOB_DATABASE_OFFSETS, "");
         binlogSnapshot.save(offset);
 
-        metricTagName = BINLOG_READER_TAG_NAME + "_" + inlongGroupId + "_" + inlongStreamId;
+        metricTagName = String.join("_", BINLOG_READER_TAG_NAME, inlongGroupId, inlongStreamId);
 
         Properties props = getEngineProps();
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(io.debezium.engine.format.Json.class)
