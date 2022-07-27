@@ -61,6 +61,7 @@ import org.apache.flink.util.FlinkRuntimeException;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -231,7 +232,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongMetric;
 
-    private MetricData metricData;
+    private SourceMetricData sourceMetricData;
 
     // ---------------------------------------------------------------------------------------
 
@@ -423,11 +424,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             String groupId = inlongMetricArray[0];
             String streamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            metricData = new MetricData(metricGroup);
-            metricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, "numRecordsIn");
-            metricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, "numBytesIn");
-            metricData.registerMetricsForNumBytesInPerSecond(groupId, streamId, nodeId, "numBytesInPerSecond");
-            metricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId, nodeId, "numRecordsInPerSecond");
+            sourceMetricData = new SourceMetricData(metricGroup);
+            sourceMetricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, "numRecordsIn");
+            sourceMetricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, "numBytesIn");
+            sourceMetricData.registerMetricsForNumBytesInPerSecond(groupId, streamId,
+                    nodeId, "numBytesInPerSecond");
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId,
+                    nodeId, "numRecordsInPerSecond");
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
@@ -466,9 +469,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (metricData != null) {
-                                    metricData.getNumRecordsIn().inc(1L);
-                                    metricData.getNumBytesIn()
+                                if (sourceMetricData != null) {
+                                    sourceMetricData.getNumRecordsIn().inc(1L);
+                                    sourceMetricData.getNumBytesIn()
                                             .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
                                 }
                                 deserializer.deserialize(record, out);
@@ -641,7 +644,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         return engineInstanceName;
     }
 
-    public MetricData getMetricData() {
-        return metricData;
+    public SourceMetricData getMetricData() {
+        return sourceMetricData;
     }
 }

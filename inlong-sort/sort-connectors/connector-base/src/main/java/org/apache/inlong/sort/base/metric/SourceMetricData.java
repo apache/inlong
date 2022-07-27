@@ -16,7 +16,7 @@
  *   limitations under the License.
  */
 
-package org.apache.inlong.sort.cdc.postgres;
+package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
@@ -26,20 +26,19 @@ import org.apache.flink.metrics.MetricGroup;
 /**
  * A collection class for handling metrics
  */
-public class MetricData {
+public class SourceMetricData {
 
-    private final MetricGroup metricGroup;
-
-    private Counter numRecordsIn;
-    private Counter numBytesIn;
-    private Meter numRecordsInPerSecond;
-    private Meter numBytesInPerSecond;
     private static Integer TIME_SPAN_IN_SECONDS = 60;
     private static String STREAM_ID = "streamId";
     private static String GROUP_ID = "groupId";
     private static String NODE_ID = "nodeId";
+    private final MetricGroup metricGroup;
+    private Counter numRecordsIn;
+    private Counter numBytesIn;
+    private Meter numRecordsInPerSecond;
+    private Meter numBytesInPerSecond;
 
-    public MetricData(MetricGroup metricGroup) {
+    public SourceMetricData(MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
     }
 

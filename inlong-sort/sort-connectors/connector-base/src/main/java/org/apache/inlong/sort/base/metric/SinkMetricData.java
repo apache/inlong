@@ -26,7 +26,7 @@ import org.apache.flink.metrics.MetricGroup;
 /**
  * A collection class for handling metrics
  */
-public class MetricData {
+public class SinkMetricData {
 
     private final MetricGroup metricGroup;
 
@@ -41,7 +41,7 @@ public class MetricData {
     private static String GROUP_ID = "groupId";
     private static String NODE_ID = "nodeId";
 
-    public MetricData(MetricGroup metricGroup) {
+    public SinkMetricData(MetricGroup metricGroup) {
         this.metricGroup = metricGroup;
     }
 

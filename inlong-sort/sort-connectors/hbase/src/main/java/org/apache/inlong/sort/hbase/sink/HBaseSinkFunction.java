@@ -37,7 +37,7 @@ import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.apache.inlong.sort.base.metric.MetricData;
+import org.apache.inlong.sort.base.metric.SinkMetricData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,21 +73,6 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
     private final long bufferFlushIntervalMillis;
     private final HBaseMutationConverter<T> mutationConverter;
     private final String inLongMetric;
-
-    private transient Connection connection;
-    private transient BufferedMutator mutator;
-
-    private transient ScheduledExecutorService executor;
-    private transient ScheduledFuture scheduledFuture;
-    private transient AtomicLong numPendingRequests;
-    private transient RuntimeContext runtimeContext;
-
-    private transient volatile boolean closed = false;
-
-    private MetricData metricData;
-    private Long dataSize = 0L;
-    private Long rowSize = 0L;
-
     /**
      * This is set from inside the {@link BufferedMutator.ExceptionListener} if a {@link Throwable}
      * was thrown.
@@ -96,6 +81,16 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
      * sink is closed.
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
+    private transient Connection connection;
+    private transient BufferedMutator mutator;
+    private transient ScheduledExecutorService executor;
+    private transient ScheduledFuture scheduledFuture;
+    private transient AtomicLong numPendingRequests;
+    private transient RuntimeContext runtimeContext;
+    private transient volatile boolean closed = false;
+    private SinkMetricData sinkMetricData;
+    private Long dataSize = 0L;
+    private Long rowSize = 0L;
 
     public HBaseSinkFunction(
             String hTableName,
@@ -121,18 +116,19 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
         org.apache.hadoop.conf.Configuration config = prepareRuntimeConfiguration();
         try {
             this.runtimeContext = getRuntimeContext();
-            metricData = new MetricData(runtimeContext.getMetricGroup());
+            sinkMetricData = new SinkMetricData(runtimeContext.getMetricGroup());
             if (inLongMetric != null && !inLongMetric.isEmpty()) {
                 String[] inLongMetricArray = inLongMetric.split("_");
                 String groupId = inLongMetricArray[0];
                 String streamId = inLongMetricArray[1];
                 String nodeId = inLongMetricArray[2];
-                metricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-                metricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-                metricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-                metricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
-                metricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId, "numBytesOutPerSecond");
-                metricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
+                sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
+                sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
+                sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
+                sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+                sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
+                        "numBytesOutPerSecond");
+                sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
                         "numRecordsOutPerSecond");
             }
             this.mutationConverter.open();
@@ -161,20 +157,20 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                                     }
                                     try {
                                         flush();
-                                        if (metricData.getNumRecordsOut() != null) {
-                                            metricData.getNumRecordsOut().inc(rowSize);
+                                        if (sinkMetricData.getNumRecordsOut() != null) {
+                                            sinkMetricData.getNumRecordsOut().inc(rowSize);
                                         }
-                                        if (metricData.getNumRecordsOut() != null) {
-                                            metricData.getNumBytesOut()
+                                        if (sinkMetricData.getNumRecordsOut() != null) {
+                                            sinkMetricData.getNumBytesOut()
                                                     .inc(dataSize);
                                         }
                                         resetStateAfterFlush();
                                     } catch (Exception e) {
-                                        if (metricData.getDirtyRecords() != null) {
-                                            metricData.getDirtyRecords().inc(rowSize);
+                                        if (sinkMetricData.getDirtyRecords() != null) {
+                                            sinkMetricData.getDirtyRecords().inc(rowSize);
                                         }
-                                        if (metricData.getDirtyBytes() != null) {
-                                            metricData.getDirtyBytes().inc(dataSize);
+                                        if (sinkMetricData.getDirtyBytes() != null) {
+                                            sinkMetricData.getDirtyBytes().inc(dataSize);
                                         }
                                         resetStateAfterFlush();
                                         // fail the sink and skip the rest of the items
@@ -240,20 +236,20 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 && numPendingRequests.incrementAndGet() >= bufferFlushMaxMutations) {
             try {
                 flush();
-                if (metricData.getNumRecordsOut() != null) {
-                    metricData.getNumRecordsOut().inc(rowSize);
+                if (sinkMetricData.getNumRecordsOut() != null) {
+                    sinkMetricData.getNumRecordsOut().inc(rowSize);
                 }
-                if (metricData.getNumRecordsOut() != null) {
-                    metricData.getNumBytesOut()
+                if (sinkMetricData.getNumRecordsOut() != null) {
+                    sinkMetricData.getNumBytesOut()
                             .inc(dataSize);
                 }
                 resetStateAfterFlush();
             } catch (Exception e) {
-                if (metricData.getDirtyRecords() != null) {
-                    metricData.getDirtyRecords().inc(rowSize);
+                if (sinkMetricData.getDirtyRecords() != null) {
+                    sinkMetricData.getDirtyRecords().inc(rowSize);
                 }
-                if (metricData.getDirtyBytes() != null) {
-                    metricData.getDirtyBytes().inc(dataSize);
+                if (sinkMetricData.getDirtyBytes() != null) {
+                    sinkMetricData.getDirtyBytes().inc(dataSize);
                 }
                 resetStateAfterFlush();
                 throw e;
