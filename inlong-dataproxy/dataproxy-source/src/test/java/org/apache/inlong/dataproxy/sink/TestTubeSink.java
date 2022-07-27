@@ -1,10 +1,10 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
+ * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License. You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -26,16 +26,16 @@ import org.apache.flume.event.EventBuilder;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestPulsarSink {
+public class TestTubeSink {
 
     private MemoryChannel channel;
 
     @Before
     public void setUp() {
-        PulsarSink sink = new PulsarSink();
+        TubeSink sink = new TubeSink();
         channel = new MemoryChannel();
         Context context = new Context();
-        context.put("type", "org.apache.inlong.dataproxy.sink.PulsarSink");
+        context.put("type", "org.apache.inlong.dataproxy.sink.TubeSink");
         sink.setChannel(channel);
 
         this.channel.configure(context);
@@ -53,4 +53,5 @@ public class TestPulsarSink {
         transaction.commit();
         transaction.close();
     }
+
 }
