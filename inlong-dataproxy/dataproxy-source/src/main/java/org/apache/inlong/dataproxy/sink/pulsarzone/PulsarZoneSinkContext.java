@@ -192,7 +192,7 @@ public class PulsarZoneSinkContext extends SinkContext {
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
