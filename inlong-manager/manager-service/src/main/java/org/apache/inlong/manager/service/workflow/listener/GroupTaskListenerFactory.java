@@ -19,31 +19,23 @@ package org.apache.inlong.manager.service.workflow.listener;
 
 import com.google.common.collect.Lists;
 import lombok.Data;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
 import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
 import org.apache.inlong.manager.service.mq.DeletePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.mq.PulsarResourceCreateSelector;
-import org.apache.inlong.manager.service.mq.PulsarResourceDeleteSelector;
-import org.apache.inlong.manager.service.mq.TubeEventSelector;
 import org.apache.inlong.manager.service.resource.SinkResourceListener;
 import org.apache.inlong.manager.service.sort.SortConfigListener;
-import org.apache.inlong.manager.service.sort.ZookeeperDisabledSelector;
-import org.apache.inlong.manager.service.source.listener.SourceDeleteEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceDeleteListener;
-import org.apache.inlong.manager.service.source.listener.SourceRestartEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceRestartListener;
-import org.apache.inlong.manager.service.source.listener.SourceStopEventSelector;
 import org.apache.inlong.manager.service.source.listener.SourceStopListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.workflow.definition.ServiceTaskListenerProvider;
 import org.apache.inlong.manager.workflow.definition.ServiceTaskType;
-import org.apache.inlong.manager.workflow.event.EventSelector;
-import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.definition.TaskListenerFactory;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.apache.inlong.manager.workflow.event.task.SortOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
 import org.apache.inlong.manager.workflow.plugin.Plugin;
 import org.apache.inlong.manager.workflow.plugin.PluginBinder;
@@ -54,22 +46,19 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Service task listener factory.
+ * The TaskEventListener factory for InlongGroup.
  */
 @Data
 @Component
-public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListenerProvider {
+public class GroupTaskListenerFactory implements PluginBinder, TaskListenerFactory {
 
-    private Map<DataSourceOperateListener, EventSelector> sourceOperateListeners;
-
-    private Map<QueueOperateListener, EventSelector> queueOperateListeners;
-
-    private Map<SortOperateListener, EventSelector> sortOperateListeners;
+    private List<SourceOperateListener> sourceOperateListeners;
+    private List<QueueOperateListener> queueOperateListeners;
+    private List<SortOperateListener> sortOperateListeners;
 
     @Autowired
     private SourceStopListener sourceStopListener;
@@ -77,7 +66,6 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     private SourceRestartListener sourceRestartListener;
     @Autowired
     private SourceDeleteListener sourceDeleteListener;
-
     @Autowired
     private CreateTubeTopicTaskListener createTubeTopicTaskListener;
     @Autowired
@@ -88,7 +76,6 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
     private CreatePulsarGroupTaskListener createPulsarGroupTaskListener;
     @Autowired
     private DeletePulsarResourceTaskListener deletePulsarResourceTaskListener;
-
     @Autowired
     private SinkResourceListener sinkResourceListener;
     @Autowired
@@ -96,29 +83,43 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
 
     @PostConstruct
     public void init() {
-        sourceOperateListeners = new LinkedHashMap<>();
-        sourceOperateListeners.put(sourceStopListener, new SourceStopEventSelector());
-        sourceOperateListeners.put(sourceDeleteListener, new SourceDeleteEventSelector());
-        sourceOperateListeners.put(sourceRestartListener, new SourceRestartEventSelector());
-        queueOperateListeners = new LinkedHashMap<>();
-        queueOperateListeners.put(createTubeTopicTaskListener, new TubeEventSelector());
-        queueOperateListeners.put(createTubeGroupTaskListener, new TubeEventSelector());
-        queueOperateListeners.put(createPulsarResourceTaskListener, new PulsarResourceCreateSelector());
-        queueOperateListeners.put(createPulsarGroupTaskListener, new PulsarResourceCreateSelector());
-        queueOperateListeners.put(deletePulsarResourceTaskListener, new PulsarResourceDeleteSelector());
-        sortOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners.put(sortConfigListener, new ZookeeperDisabledSelector());
-    }
-
-    public void clearListeners() {
-        sourceOperateListeners = new LinkedHashMap<>();
-        queueOperateListeners = new LinkedHashMap<>();
-        sortOperateListeners = new LinkedHashMap<>();
+        sourceOperateListeners = new LinkedList<>();
+        sourceOperateListeners.add(sourceStopListener);
+        sourceOperateListeners.add(sourceDeleteListener);
+        sourceOperateListeners.add(sourceRestartListener);
+        queueOperateListeners = new LinkedList<>();
+        queueOperateListeners.add(createTubeTopicTaskListener);
+        queueOperateListeners.add(createTubeGroupTaskListener);
+        queueOperateListeners.add(createPulsarResourceTaskListener);
+        queueOperateListeners.add(createPulsarGroupTaskListener);
+        queueOperateListeners.add(deletePulsarResourceTaskListener);
+        sortOperateListeners = new LinkedList<>();
+        sortOperateListeners.add(sortConfigListener);
     }
 
     @Override
-    public List<TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType serviceTaskType) {
-        switch (serviceTaskType) {
+    public void acceptPlugin(Plugin plugin) {
+        if (!(plugin instanceof ProcessPlugin)) {
+            return;
+        }
+        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
+        List<SourceOperateListener> pluginSourceOperateListeners = processPlugin.createSourceOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginSourceOperateListeners)) {
+            sourceOperateListeners.addAll(processPlugin.createSourceOperateListeners());
+        }
+        List<QueueOperateListener> pluginQueueOperateListeners = processPlugin.createQueueOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginQueueOperateListeners)) {
+            queueOperateListeners.addAll(pluginQueueOperateListeners);
+        }
+        List<SortOperateListener> pluginSortOperateListeners = processPlugin.createSortOperateListeners();
+        if (CollectionUtils.isNotEmpty(pluginSortOperateListeners)) {
+            sortOperateListeners.addAll(pluginSortOperateListeners);
+        }
+    }
+
+    @Override
+    public List<? extends TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType taskType) {
+        switch (taskType) {
             case INIT_MQ:
             case DELETE_MQ:
                 List<QueueOperateListener> queueOperateListeners = getQueueOperateListener(workflowContext);
@@ -133,24 +134,32 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
             case STOP_SOURCE:
             case RESTART_SOURCE:
             case DELETE_SOURCE:
-                List<DataSourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
+                List<SourceOperateListener> sourceOperateListeners = getSourceOperateListener(workflowContext);
                 return Lists.newArrayList(sourceOperateListeners);
             case INIT_SINK:
                 return Collections.singletonList(sinkResourceListener);
             default:
-                throw new IllegalArgumentException(String.format("UnSupport ServiceTaskType %s", serviceTaskType));
+                throw new IllegalArgumentException(String.format("Unsupported ServiceTaskType %s", taskType));
         }
     }
 
     /**
-     * Get data source operate listener list.
+     * Clear the list of listeners.
      */
-    public List<DataSourceOperateListener> getSourceOperateListener(WorkflowContext context) {
-        List<DataSourceOperateListener> listeners = new ArrayList<>();
-        for (Map.Entry<DataSourceOperateListener, EventSelector> entry : sourceOperateListeners.entrySet()) {
-            EventSelector selector = entry.getValue();
-            if (selector != null && selector.accept(context)) {
-                listeners.add(entry.getKey());
+    public void clearListeners() {
+        sourceOperateListeners = new LinkedList<>();
+        queueOperateListeners = new LinkedList<>();
+        sortOperateListeners = new LinkedList<>();
+    }
+
+    /**
+     * Get stream source operate listener list.
+     */
+    public List<SourceOperateListener> getSourceOperateListener(WorkflowContext context) {
+        List<SourceOperateListener> listeners = new ArrayList<>();
+        for (SourceOperateListener listener : sourceOperateListeners) {
+            if (listener != null && listener.accept(context)) {
+                listeners.add(listener);
             }
         }
         return listeners;
@@ -161,10 +170,9 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
      */
     public List<QueueOperateListener> getQueueOperateListener(WorkflowContext context) {
         List<QueueOperateListener> listeners = new ArrayList<>();
-        for (Map.Entry<QueueOperateListener, EventSelector> entry : queueOperateListeners.entrySet()) {
-            EventSelector selector = entry.getValue();
-            if (selector != null && selector.accept(context)) {
-                listeners.add(entry.getKey());
+        for (QueueOperateListener listener : queueOperateListeners) {
+            if (listener != null && listener.accept(context)) {
+                listeners.add(listener);
             }
         }
         return listeners;
@@ -175,36 +183,12 @@ public class GroupTaskListenerFactory implements PluginBinder, ServiceTaskListen
      */
     public List<SortOperateListener> getSortOperateListener(WorkflowContext context) {
         List<SortOperateListener> listeners = new ArrayList<>();
-        for (Map.Entry<SortOperateListener, EventSelector> entry : sortOperateListeners.entrySet()) {
-            EventSelector selector = entry.getValue();
-            if (selector != null && selector.accept(context)) {
-                listeners.add(entry.getKey());
+        for (SortOperateListener listener : sortOperateListeners) {
+            if (listener != null && listener.accept(context)) {
+                listeners.add(listener);
             }
         }
         return listeners;
-    }
-
-    @Override
-    public void acceptPlugin(Plugin plugin) {
-        if (!(plugin instanceof ProcessPlugin)) {
-            return;
-        }
-        ProcessPlugin processPlugin = (ProcessPlugin) plugin;
-        Map<DataSourceOperateListener, EventSelector> pluginDsOperateListeners =
-                processPlugin.createSourceOperateListeners();
-        if (MapUtils.isNotEmpty(pluginDsOperateListeners)) {
-            sourceOperateListeners.putAll(processPlugin.createSourceOperateListeners());
-        }
-        Map<QueueOperateListener, EventSelector> pluginQueueOperateListeners =
-                processPlugin.createQueueOperateListeners();
-        if (MapUtils.isNotEmpty(pluginQueueOperateListeners)) {
-            queueOperateListeners.putAll(pluginQueueOperateListeners);
-        }
-        Map<SortOperateListener, EventSelector> pluginSortOperateListeners =
-                processPlugin.createSortOperateListeners();
-        if (MapUtils.isNotEmpty(pluginSortOperateListeners)) {
-            sortOperateListeners.putAll(pluginSortOperateListeners);
-        }
     }
 
 }

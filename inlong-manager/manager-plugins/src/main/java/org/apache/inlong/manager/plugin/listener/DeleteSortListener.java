@@ -21,11 +21,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.plugin.flink.FlinkOperation;
 import org.apache.inlong.manager.plugin.flink.FlinkService;
 import org.apache.inlong.manager.plugin.flink.dto.FlinkInfo;
@@ -51,6 +52,25 @@ public class DeleteSortListener implements SortOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            log.info("not add delete group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
+            return false;
+        }
+
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        if (groupProcessForm.getGroupOperateType() != GroupOperateType.DELETE) {
+            log.info("not add delete group listener, as the operate was not DELETE for groupId [{}]", groupId);
+            return false;
+        }
+
+        log.info("add delete group listener for groupId [{}]", groupId);
+        return true;
     }
 
     @Override

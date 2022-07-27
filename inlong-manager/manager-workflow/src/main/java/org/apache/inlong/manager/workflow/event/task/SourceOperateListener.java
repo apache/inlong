@@ -21,11 +21,12 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
 /**
- * Listener of operate data source.
+ * Listener of operate Source.
  */
-public interface DataSourceOperateListener extends TaskEventListener {
+public interface SourceOperateListener extends TaskEventListener {
 
-    DataSourceOperateListener DEFAULT_SOURCE_OPERATE_LISTENER = new DataSourceOperateListener() {
+    SourceOperateListener DEFAULT_SOURCE_OPERATE_LISTENER = new SourceOperateListener() {
+
         @Override
         public TaskEvent event() {
             return TaskEvent.COMPLETE;

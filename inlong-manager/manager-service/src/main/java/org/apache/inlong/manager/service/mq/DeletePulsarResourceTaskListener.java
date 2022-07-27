@@ -18,7 +18,10 @@
 package org.apache.inlong.manager.service.mq;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.pojo.cluster.pulsar.PulsarClusterInfo;
@@ -27,6 +30,7 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.pulsar.PulsarTopicBean;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.InlongStreamService;
@@ -62,6 +66,36 @@ public class DeletePulsarResourceTaskListener implements QueueOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            return false;
+        }
+        GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        GroupOperateType operateType = form.getGroupOperateType();
+        if (operateType != GroupOperateType.DELETE) {
+            return false;
+        }
+        String groupId = form.getInlongGroupId();
+        InlongGroupInfo groupInfo = form.getGroupInfo();
+        MQType mqType = MQType.forType(groupInfo.getMqType());
+        if (mqType == MQType.PULSAR || mqType == MQType.TDMQ_PULSAR) {
+            InlongPulsarInfo pulsarInfo = (InlongPulsarInfo) groupInfo;
+            boolean enable = InlongConstants.ENABLE_CREATE_RESOURCE.equals(pulsarInfo.getEnableCreateResource());
+            if (enable) {
+                log.info("need to delete pulsar resource as the createResource was true for groupId [{}]", groupId);
+                return true;
+            } else {
+                log.info("skip to delete pulsar resource as the createResource was false for groupId [{}]", groupId);
+                return false;
+            }
+        }
+
+        log.warn("skip to delete pulsar subscription as the mq type is {} for groupId [{}]", mqType, groupId);
+        return false;
     }
 
     @Override

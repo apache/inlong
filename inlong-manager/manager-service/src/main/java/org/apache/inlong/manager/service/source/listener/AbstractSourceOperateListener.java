@@ -40,7 +40,7 @@ import org.apache.inlong.manager.service.core.InlongStreamService;
 import org.apache.inlong.manager.service.source.StreamSourceService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-public abstract class AbstractSourceOperateListener implements DataSourceOperateListener {
+public abstract class AbstractSourceOperateListener implements SourceOperateListener {
 
     @Autowired
     protected InlongStreamService streamService;
@@ -146,7 +146,7 @@ public abstract class AbstractSourceOperateListener implements DataSourceOperate
                 return CommonBeanUtils.copyProperties((KafkaSource) streamSource, KafkaSourceRequest::new);
             default:
                 throw new IllegalArgumentException(
-                        String.format("Unsupported type=%s for DataSourceOperateListener", type));
+                        String.format("Unsupported type=%s for SourceOperateListener", type));
         }
     }
 

@@ -17,19 +17,32 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import org.apache.inlong.manager.common.enums.GroupOperateType;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
+import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
-import org.apache.inlong.manager.workflow.event.task.DataSourceOperateListener;
+import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 
 /**
  * Test class for listen restart source event.
  */
-public class MockRestartSourceListener implements DataSourceOperateListener {
+public class MockRestartSourceListener implements SourceOperateListener {
 
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext context) {
+        ProcessForm processForm = context.getProcessForm();
+        if (!(processForm instanceof GroupResourceProcessForm)) {
+            return false;
+        }
+        GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
+        return form.getGroupOperateType() == GroupOperateType.RESTART;
     }
 
     @Override

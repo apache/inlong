@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
+import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupExtInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamExtInfo;
@@ -53,6 +54,27 @@ public class SuspendStreamListener implements SortOperateListener {
     @Override
     public TaskEvent event() {
         return TaskEvent.COMPLETE;
+    }
+
+    @Override
+    public boolean accept(WorkflowContext workflowContext) {
+        ProcessForm processForm = workflowContext.getProcessForm();
+        String groupId = processForm.getInlongGroupId();
+        if (!(processForm instanceof StreamResourceProcessForm)) {
+            log.info("not add suspend stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
+            return false;
+        }
+
+        StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
+        String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
+        if (streamProcessForm.getGroupOperateType() != GroupOperateType.SUSPEND) {
+            log.info("not add suspend stream listener as the operate SUSPEND for groupId [{}] streamId [{}]",
+                    groupId, streamId);
+            return false;
+        }
+
+        log.info("add suspend stream listener for groupId [{}] streamId [{}]", groupId, streamId);
+        return true;
     }
 
     @Override

@@ -18,6 +18,7 @@
 package org.apache.inlong.manager.workflow.event.task;
 
 import com.google.common.collect.Lists;
+import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.EventListener;
 
 import java.util.List;
@@ -27,6 +28,19 @@ import java.util.List;
  */
 public interface TaskEventListener extends EventListener<TaskEvent> {
 
-    List<TaskEventListener> EMPTY_LIST = Lists.newArrayList();
+    /**
+     * Empty event listeners.
+     */
+    List<TaskEventListener> EMPTY_LISTENERS = Lists.newArrayList();
+
+    /**
+     * Whether the current listener needs to operate the workflow.
+     *
+     * @param context workflow context
+     * @return true if the current listener needs to operate the workflow, false if not
+     */
+    default boolean accept(WorkflowContext context) {
+        return true;
+    }
 
 }

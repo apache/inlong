@@ -21,11 +21,12 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
 /**
- * Listener of operate queue.
+ * Listener of operate Message Queue.
  */
 public interface QueueOperateListener extends TaskEventListener {
 
     QueueOperateListener DEFAULT_QUEUE_OPERATE_LISTENER = new QueueOperateListener() {
+
         @Override
         public TaskEvent event() {
             return TaskEvent.COMPLETE;

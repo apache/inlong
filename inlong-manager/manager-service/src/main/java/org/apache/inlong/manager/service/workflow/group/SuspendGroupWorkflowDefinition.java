@@ -73,16 +73,16 @@ public class SuspendGroupWorkflowDefinition implements WorkflowDefinition {
         ServiceTask stopSourceTask = new ServiceTask();
         stopSourceTask.setName("StopSource");
         stopSourceTask.setDisplayName("Group-StopSource");
-        stopSourceTask.addServiceTaskType(ServiceTaskType.STOP_SOURCE);
-        stopSourceTask.addListenerProvider(groupTaskListenerFactory);
+        stopSourceTask.setServiceTaskType(ServiceTaskType.STOP_SOURCE);
+        stopSourceTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(stopSourceTask);
 
         // Stop Sort
         ServiceTask stopSortTask = new ServiceTask();
         stopSortTask.setName("StopSort");
         stopSortTask.setDisplayName("Group-StopSort");
-        stopSortTask.addServiceTaskType(ServiceTaskType.STOP_SORT);
-        stopSortTask.addListenerProvider(groupTaskListenerFactory);
+        stopSortTask.setServiceTaskType(ServiceTaskType.STOP_SORT);
+        stopSortTask.setListenerFactory(groupTaskListenerFactory);
         process.addTask(stopSortTask);
 
         // End node

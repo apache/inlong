@@ -21,11 +21,12 @@ import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
 /**
- * Listener of operate sort.
+ * Listener of operate Sort.
  */
 public interface SortOperateListener extends TaskEventListener {
 
     SortOperateListener DEFAULT_SORT_OPERATE_LISTENER = new SortOperateListener() {
+
         @Override
         public TaskEvent event() {
             return TaskEvent.COMPLETE;

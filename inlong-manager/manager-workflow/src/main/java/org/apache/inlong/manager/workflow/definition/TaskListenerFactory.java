@@ -15,17 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.workflow.event;
+package org.apache.inlong.manager.workflow.definition;
 
 import org.apache.inlong.manager.workflow.WorkflowContext;
+import org.apache.inlong.manager.workflow.event.task.TaskEventListener;
+
+import java.util.List;
 
 /**
- * a selector allowing to decide which event is selected
+ * The factory interface of TaskEventListener.
  */
-public interface EventSelector {
+public interface TaskListenerFactory {
 
-    EventSelector SELECT_ANY = context -> true;
-
-    boolean accept(WorkflowContext context);
+    /**
+     * Get the task event listeners from the given workflow context and the specified task type.
+     *
+     * @param workflowContext the workflow context
+     * @param taskType the task type
+     * @return list of the task event listeners
+     */
+    List<? extends TaskEventListener> get(WorkflowContext workflowContext, ServiceTaskType taskType);
 
 }

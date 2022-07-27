@@ -25,8 +25,8 @@ import org.apache.inlong.manager.workflow.plugin.ProcessPlugin;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Test class for load plugin.
@@ -36,7 +36,7 @@ public class PluginClassLoaderTest {
     @Test
     public void testLoadPlugin() {
 
-        String path = this.getClass().getClassLoader().getResource("").getPath();
+        String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("")).getPath();
         PluginClassLoader pluginClassLoader = PluginClassLoader.getFromPluginUrl(path + "plugins",
                 Thread.currentThread().getContextClassLoader());
         Map<String, PluginDefinition> pluginDefinitionMap = pluginClassLoader.getPluginDefinitions();
@@ -49,11 +49,7 @@ public class PluginClassLoaderTest {
             Class cls = pluginClassLoader.loadClass(pluginClass);
             Plugin plugin = (Plugin) cls.getDeclaredConstructor().newInstance();
             Assertions.assertTrue(plugin instanceof ProcessPlugin);
-        } catch (ClassNotFoundException
-                | NoSuchMethodException
-                | InstantiationException
-                | IllegalAccessException
-                | InvocationTargetException e) {
+        } catch (Exception e) {
             Assertions.assertTrue(e instanceof ClassNotFoundException);
             Assertions.fail();
         }

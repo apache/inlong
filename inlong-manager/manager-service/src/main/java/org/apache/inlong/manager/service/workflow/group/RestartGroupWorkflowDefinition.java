@@ -73,16 +73,16 @@ public class RestartGroupWorkflowDefinition implements WorkflowDefinition {
         ServiceTask restartSortTask = new ServiceTask();
         restartSortTask.setName("RestartSort");
         restartSortTask.setDisplayName("Group-RestartSort");
-        restartSortTask.addServiceTaskType(ServiceTaskType.RESTART_SORT);
-        restartSortTask.addListenerProvider(taskListenerFactory);
+        restartSortTask.setServiceTaskType(ServiceTaskType.RESTART_SORT);
+        restartSortTask.setListenerFactory(taskListenerFactory);
         process.addTask(restartSortTask);
 
         // Restart Source
         ServiceTask restartSourceTask = new ServiceTask();
         restartSourceTask.setName("RestartSource");
         restartSourceTask.setDisplayName("Group-RestartSource");
-        restartSourceTask.addServiceTaskType(ServiceTaskType.RESTART_SOURCE);
-        restartSourceTask.addListenerProvider(taskListenerFactory);
+        restartSourceTask.setServiceTaskType(ServiceTaskType.RESTART_SOURCE);
+        restartSourceTask.setListenerFactory(taskListenerFactory);
         process.addTask(restartSourceTask);
 
         // End node
