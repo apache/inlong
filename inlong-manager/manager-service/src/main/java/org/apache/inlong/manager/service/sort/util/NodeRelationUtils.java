@@ -49,6 +49,7 @@ import org.apache.inlong.sort.protocol.transformation.relation.InnerJoinNodeRela
 import org.apache.inlong.sort.protocol.transformation.relation.LeftOuterJoinNodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.NodeRelation;
 import org.apache.inlong.sort.protocol.transformation.relation.RightOuterJoinNodeRelation;
+import org.apache.inlong.sort.protocol.transformation.relation.UnionNodeRelation;
 
 import java.util.Iterator;
 import java.util.List;
@@ -72,10 +73,17 @@ public class NodeRelationUtils {
         StreamPipeline pipeline = StreamParseUtils.parseStreamPipeline(streamInfo.getExtParams(),
                 streamInfo.getInlongStreamId());
         return pipeline.getPipeline().stream()
-                .map(nodeRelation -> new NodeRelation(
-                        Lists.newArrayList(nodeRelation.getInputNodes()),
-                        Lists.newArrayList(nodeRelation.getOutputNodes())))
-                .collect(Collectors.toList());
+                .map(nodeRelation -> {
+                    if (nodeRelation.getInputNodes().size() > 1) {
+                        return new UnionNodeRelation(
+                                Lists.newArrayList(nodeRelation.getInputNodes()),
+                                Lists.newArrayList(nodeRelation.getOutputNodes()));
+                    } else {
+                        return new NodeRelation(
+                                Lists.newArrayList(nodeRelation.getInputNodes()),
+                                Lists.newArrayList(nodeRelation.getOutputNodes()));
+                    }
+                }).collect(Collectors.toList());
     }
 
     /**
