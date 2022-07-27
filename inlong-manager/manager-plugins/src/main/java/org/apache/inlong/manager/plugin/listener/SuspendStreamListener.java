@@ -61,19 +61,19 @@ public class SuspendStreamListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add suspendStream listener as StreamResourceProcessForm for groupId [{}]", groupId);
+            log.info("not add suspend stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
+
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
-        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
-        if (!flag) {
-            log.info("not add suspendStream listener as the operate SUSPEND for groupId [{}] and streamId [{}]",
+        if (streamProcessForm.getGroupOperateType() != GroupOperateType.SUSPEND) {
+            log.info("not add suspend stream listener as the operate SUSPEND for groupId [{}] streamId [{}]",
                     groupId, streamId);
             return false;
         }
 
-        log.info("add suspendStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
+        log.info("add suspend stream listener for groupId [{}] streamId [{}]", groupId, streamId);
         return true;
     }
 

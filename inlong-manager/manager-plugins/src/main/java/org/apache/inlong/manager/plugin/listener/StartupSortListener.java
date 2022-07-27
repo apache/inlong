@@ -61,18 +61,16 @@ public class StartupSortListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add startupProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
-                    groupId);
+            log.info("not add startup group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
         GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupProcessForm.getGroupOperateType() == GroupOperateType.INIT;
-        if (!flag) {
-            log.info("not add startupProcess listener, as the operate was not INIT for groupId [{}]", groupId);
+        if (groupProcessForm.getGroupOperateType() != GroupOperateType.INIT) {
+            log.info("not add startup group listener, as the operate was not INIT for groupId [{}]", groupId);
             return false;
         }
 
-        log.info("add startupProcess listener for groupId [{}]", groupId);
+        log.info("add startup group listener for groupId [{}]", groupId);
         return true;
     }
 

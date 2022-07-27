@@ -59,19 +59,17 @@ public class SuspendSortListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add suspendProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
-                    groupId);
+            log.info("not add suspend group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
 
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.SUSPEND;
-        if (!flag) {
-            log.info("not add suspendProcess listener, as the operate was not SUSPEND for groupId [{}]", groupId);
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        if (groupProcessForm.getGroupOperateType() != GroupOperateType.SUSPEND) {
+            log.info("not add suspend group listener, as the operate was not SUSPEND for groupId [{}]", groupId);
             return false;
         }
 
-        log.info("add suspendProcess listener for groupId [{}]", groupId);
+        log.info("add suspend group listener for groupId [{}]", groupId);
         return true;
     }
 

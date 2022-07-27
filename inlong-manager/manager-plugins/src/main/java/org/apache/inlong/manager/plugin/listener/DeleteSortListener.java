@@ -59,19 +59,17 @@ public class DeleteSortListener implements SortOperateListener {
         ProcessForm processForm = context.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof GroupResourceProcessForm)) {
-            log.info("not add deleteProcess listener, as the form was not GroupResourceProcessForm for groupId [{}]",
-                    groupId);
+            log.info("not add delete group listener, not GroupResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
 
-        GroupResourceProcessForm groupResourceProcessForm = (GroupResourceProcessForm) processForm;
-        boolean flag = groupResourceProcessForm.getGroupOperateType() == GroupOperateType.DELETE;
-        if (!flag) {
-            log.info("not add deleteProcess listener, as the operate was not DELETE for groupId [{}]", groupId);
+        GroupResourceProcessForm groupProcessForm = (GroupResourceProcessForm) processForm;
+        if (groupProcessForm.getGroupOperateType() != GroupOperateType.DELETE) {
+            log.info("not add delete group listener, as the operate was not DELETE for groupId [{}]", groupId);
             return false;
         }
 
-        log.info("add deleteProcess listener for groupId [{}]", groupId);
+        log.info("add delete group listener for groupId [{}]", groupId);
         return true;
     }
 

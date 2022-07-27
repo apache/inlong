@@ -62,21 +62,19 @@ public class RestartStreamListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add restartStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
-                    groupId);
+            log.info("not add restart stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
 
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
-        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.RESTART;
-        if (!flag) {
-            log.info("not add restartStream listener, as the operate was not RESTART for groupId [{}] streamId [{}]",
+        if (streamProcessForm.getGroupOperateType() != GroupOperateType.RESTART) {
+            log.info("not add restart stream listener, as the operate was not RESTART for groupId [{}] streamId [{}]",
                     groupId, streamId);
             return false;
         }
 
-        log.info("add restartStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
+        log.info("add restart stream listener for groupId [{}] streamId [{}]", groupId, streamId);
         return true;
     }
 

@@ -63,19 +63,19 @@ public class StartupStreamListener implements SortOperateListener {
         ProcessForm processForm = workflowContext.getProcessForm();
         String groupId = processForm.getInlongGroupId();
         if (!(processForm instanceof StreamResourceProcessForm)) {
-            log.info("not add startupStream listener, as the form was not StreamResourceProcessForm for groupId [{}]",
-                    groupId);
+            log.info("not add startup stream listener, not StreamResourceProcessForm for groupId [{}]", groupId);
             return false;
         }
+
         StreamResourceProcessForm streamProcessForm = (StreamResourceProcessForm) processForm;
-        boolean flag = streamProcessForm.getGroupOperateType() == GroupOperateType.INIT;
         String streamId = streamProcessForm.getStreamInfo().getInlongStreamId();
-        if (!flag) {
-            log.info("not add startupStream listener, as the operate was not INIT for groupId [{}] and streamId [{}]",
+        if (streamProcessForm.getGroupOperateType() != GroupOperateType.INIT) {
+            log.info("not add startup stream listener, as the operate was not INIT for groupId [{}] streamId [{}]",
                     groupId, streamId);
             return false;
         }
-        log.info("add startupStream listener for groupId [{}] and streamId [{}]", groupId, streamId);
+
+        log.info("add startup stream listener for groupId [{}] streamId [{}]", groupId, streamId);
         return true;
     }
 
