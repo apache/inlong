@@ -32,12 +32,10 @@ import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFact
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 /**
  * Inlong group process operation service test.
  */
-@EnableAutoConfiguration
 public class InlongGroupProcessOperationTest extends ServiceBaseTest {
 
     private static final String GROUP_ID = "test_group_process";

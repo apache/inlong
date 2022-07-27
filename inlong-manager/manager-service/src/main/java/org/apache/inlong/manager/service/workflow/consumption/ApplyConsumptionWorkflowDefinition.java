@@ -47,9 +47,6 @@ import java.util.List;
 @Component
 public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
 
-    public static final String UT_ADMINT_NAME = "ut_admin";
-    public static final String UT_GROUP_OWNER_NAME = "ut_biz_owner";
-
     @Autowired
     private ConsumptionCompleteProcessListener consumptionCompleteProcessListener;
 
@@ -93,18 +90,16 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
         // Group approval tasks
         UserTask groupOwnerUserTask = new UserTask();
         groupOwnerUserTask.setName(UT_GROUP_OWNER_NAME);
-        groupOwnerUserTask.setDisplayName("Group Approval");
+        groupOwnerUserTask.setDisplayName("GroupApproval");
         groupOwnerUserTask.setApproverAssign(this::groupOwnerUserTaskApprover);
         process.addTask(groupOwnerUserTask);
 
         // System administrator approval
         UserTask adminUserTask = new UserTask();
-        adminUserTask.setName(UT_ADMINT_NAME);
+        adminUserTask.setName(UT_ADMIN_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(ConsumptionApproveForm.class);
-
-        List<String> approvers = workflowApproverService.getApprovers(getProcessName().name(), UT_ADMINT_NAME);
-        adminUserTask.setApproverAssign(context -> approvers);
+        adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
         adminUserTask.addListener(consumptionPassTaskListener);
         process.addTask(adminUserTask);
 
@@ -134,6 +129,16 @@ public class ApplyConsumptionWorkflowDefinition implements WorkflowDefinition {
     @Override
     public ProcessName getProcessName() {
         return ProcessName.APPLY_CONSUMPTION_PROCESS;
+    }
+
+    /**
+     * Get task approvers by process name and task name
+     *
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
+     *         structure in time.
+     */
+    private List<String> getTaskApprovers(String taskName) {
+        return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);
     }
 
 }

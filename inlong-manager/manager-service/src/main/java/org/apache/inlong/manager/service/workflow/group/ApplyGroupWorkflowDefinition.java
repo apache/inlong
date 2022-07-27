@@ -79,12 +79,10 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
 
         // System administrator approval
         UserTask adminUserTask = new UserTask();
-        adminUserTask.setName("ut_admin");
+        adminUserTask.setName(UT_ADMIN_NAME);
         adminUserTask.setDisplayName("SystemAdmin");
         adminUserTask.setFormClass(InlongGroupApproveForm.class);
-
-        List<String> approvers = workflowApproverService.getApprovers(getProcessName().name(), adminUserTask.getName());
-        adminUserTask.setApproverAssign(context -> approvers);
+        adminUserTask.setApproverAssign(context -> getTaskApprovers(adminUserTask.getName()));
         adminUserTask.addListener(afterApprovedTaskListener);
         process.addTask(adminUserTask);
 
@@ -100,6 +98,16 @@ public class ApplyGroupWorkflowDefinition implements WorkflowDefinition {
     @Override
     public ProcessName getProcessName() {
         return ProcessName.APPLY_GROUP_PROCESS;
+    }
+
+    /**
+     * Get task approvers by process name and task name
+     *
+     * @apiNote Do not delete this method, otherwise the unit tests will fail due to not loading the table
+     *         structure in time.
+     */
+    private List<String> getTaskApprovers(String taskName) {
+        return workflowApproverService.getApprovers(this.getProcessName().name(), taskName);
     }
 
 }

@@ -25,6 +25,9 @@ import org.apache.inlong.manager.workflow.definition.WorkflowProcess;
  */
 public interface WorkflowDefinition {
 
+    String UT_ADMIN_NAME = "ut_admin";
+    String UT_GROUP_OWNER_NAME = "ut_group_owner";
+
     /**
      * Define the process
      *

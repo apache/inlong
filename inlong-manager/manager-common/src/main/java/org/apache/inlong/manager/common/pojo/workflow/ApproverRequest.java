@@ -43,6 +43,9 @@ public class ApproverRequest {
     @ApiModelProperty("Workflow task name")
     private String taskName;
 
+    @ApiModelProperty("Specified workflow approver")
+    private String approver;
+
     @ApiModelProperty("Workflow approvers, separate with commas(,)")
     private String approvers;
 

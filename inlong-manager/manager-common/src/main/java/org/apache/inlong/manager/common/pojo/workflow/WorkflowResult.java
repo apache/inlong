@@ -30,7 +30,7 @@ import java.util.List;
 @ApiModel("Workflow result info")
 public class WorkflowResult {
 
-    @ApiModelProperty(value = "Application form information")
+    @ApiModelProperty(value = "Process info")
     private ProcessResponse processInfo;
 
     @ApiModelProperty(value = "Newly generated tasks")

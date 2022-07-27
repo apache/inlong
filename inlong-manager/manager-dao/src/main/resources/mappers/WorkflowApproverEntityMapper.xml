@@ -55,56 +55,21 @@
         select
         <include refid="Base_Column_List"/>
         from workflow_approver
-        where is_deleted =0
-        <if test="processName != null and processName!=''">
-            and process_name = #{processName, jdbcType=VARCHAR}
-        </if>
-        <if test="taskName != null and taskName!=''">
-            and task_name = #{taskName, jdbcType=VARCHAR}
-        </if>
-        <if test="approver != null and approver!=''">
-            and FIND_IN_SET(#{approver, jdbcType=VARCHAR}, approvers)
-        </if>
+        <where>
+            is_deleted = 0
+            <if test="processName != null and processName!=''">
+                and process_name = #{processName, jdbcType=VARCHAR}
+            </if>
+            <if test="taskName != null and taskName!=''">
+                and task_name = #{taskName, jdbcType=VARCHAR}
+            </if>
+            <if test="approver != null and approver!=''">
+                and find_in_set(#{approver, jdbcType=VARCHAR}, approvers)
+            </if>
+        </where>
     </select>
-    <update id="updateByPrimaryKeySelective"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
-        update workflow_approver
-        <set>
-            <if test="processName != null">
-                process_name = #{processName, jdbcType=VARCHAR},
-            </if>
-            <if test="taskName != null">
-                task_name = #{taskName, jdbcType=VARCHAR},
-            </if>
-            <if test="filterKey != null">
-                filter_key = #{filterKey, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValue != null">
-                filter_value = #{filterValue, jdbcType=VARCHAR},
-            </if>
-            <if test="filterValueDesc != null">
-                filter_value_desc = #{filterValueDesc, jdbcType=VARCHAR},
-            </if>
-            <if test="approvers != null">
-                approvers = #{approvers, jdbcType=VARCHAR},
-            </if>
-            <if test="creator != null">
-                creator = #{creator, jdbcType=VARCHAR},
-            </if>
-            <if test="modifier != null">
-                modifier = #{modifier, jdbcType=VARCHAR},
-            </if>
-            <if test="isDeleted != null">
-                is_deleted = #{isDeleted, jdbcType=INTEGER},
-            </if>
-            version = #{version, jdbcType=INTEGER} + 1
-        </set>
-        where id = #{id, jdbcType=INTEGER}
-        and is_deleted = 0
-        and version = #{version, jdbcType=INTEGER}
-    </update>
-    <update id="updateById"
-            parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
+
+    <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.WorkflowApproverEntity">
         update workflow_approver
         set process_name = #{processName, jdbcType=VARCHAR},
             task_name    = #{taskName, jdbcType=VARCHAR},
