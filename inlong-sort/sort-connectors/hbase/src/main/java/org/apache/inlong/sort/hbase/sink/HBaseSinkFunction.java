@@ -37,7 +37,7 @@ import org.apache.hadoop.hbase.client.BufferedMutatorParams;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
-import org.apache.inlong.sort.hbase.metric.MetricData;
+import org.apache.inlong.sort.base.metric.MetricData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

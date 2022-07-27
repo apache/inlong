@@ -16,7 +16,7 @@
  *   limitations under the License.
  */
 
-package org.apache.inlong.sort.hbase.metric;
+package org.apache.inlong.sort.base.metric;
 
 import org.apache.flink.metrics.Counter;
 import org.apache.flink.metrics.Meter;
