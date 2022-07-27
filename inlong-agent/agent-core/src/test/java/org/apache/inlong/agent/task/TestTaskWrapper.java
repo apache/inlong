@@ -138,7 +138,7 @@ public class TestTaskWrapper {
         }
 
         @Override
-        public void setWaitMillisecs(long millis) {
+        public void setWaitMillisecond(long millis) {
 
         }
 
