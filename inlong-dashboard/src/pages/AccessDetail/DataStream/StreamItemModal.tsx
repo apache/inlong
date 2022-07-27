@@ -84,7 +84,7 @@ export const genFormContent = (currentValues, inlongGroupId, mqType) => {
   ].map(item => {
     const obj = { ...item };
 
-    if (obj.name === 'inlongStreamId' || obj.name === 'dataSourceType' || obj.name === 'dataType') {
+    if (obj.name === 'inlongStreamId' || obj.name === 'dataType') {
       obj.type = 'text';
     }
 
