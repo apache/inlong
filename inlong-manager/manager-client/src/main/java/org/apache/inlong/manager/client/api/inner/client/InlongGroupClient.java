@@ -222,13 +222,9 @@ public class InlongGroupClient {
     public InlongGroupCountResponse countGroupByUser() {
         Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.countGroupByUser());
         if (response.isSuccess()) {
-            JSONObject groupInfoJson = JsonUtils.parseObject(
-                    JsonUtils.toJsonString(JsonUtils.toJsonString(response.getData())),
-                    JSONObject.class);
-            return JsonUtils.parseObject(groupInfoJson.toString(), InlongGroupCountResponse.class);
-        }
-
-        if (response.getErrMsg().contains("not exist")) {
+            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
+                    InlongGroupCountResponse.class);
+        } else if (response.getErrMsg().contains("not exist")) {
             return null;
         } else {
             throw new RuntimeException(response.getErrMsg());
@@ -238,13 +234,9 @@ public class InlongGroupClient {
     public InlongGroupTopicInfo getTopic(String id) {
         Response<Object> response = ClientUtils.executeHttpCall(inlongGroupApi.getTopic(id));
         if (response.isSuccess()) {
-            JSONObject groupInfoJson = JsonUtils.parseObject(
-                    JsonUtils.toJsonString(JsonUtils.toJsonString(response.getData())),
-                    JSONObject.class);
-            return JsonUtils.parseObject(groupInfoJson.toString(), InlongGroupTopicInfo.class);
-        }
-
-        if (response.getErrMsg().contains("not exist")) {
+            return JsonUtils.parseObject(JsonUtils.toJsonString(response.getData()),
+                    InlongGroupTopicInfo.class);
+        } else if (response.getErrMsg().contains("not exist")) {
             return null;
         } else {
             throw new RuntimeException(response.getErrMsg());
