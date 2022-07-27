@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.apache.inlong</groupId>
             <artifactId>sort-connector-iceberg</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
