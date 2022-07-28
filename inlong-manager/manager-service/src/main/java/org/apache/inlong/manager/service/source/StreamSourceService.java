@@ -137,8 +137,8 @@ public interface StreamSourceService {
     /**
      * Logically delete stream source with the given conditions.
      *
-     * @param groupId InLong group id to which the data source belongs.
-     * @param streamId InLong stream id to which the data source belongs.
+     * @param groupId Inlong group id to which the data source belongs.
+     * @param streamId Inlong stream id to which the data source belongs.
      * @param operator Operator's name
      * @return Whether succeed.
      */
@@ -147,8 +147,8 @@ public interface StreamSourceService {
     /**
      * Physically delete stream source with the given conditions.
      *
-     * @param groupId InLong group id.
-     * @param streamId InLong stream id.
+     * @param groupId Inlong group id.
+     * @param streamId Inlong stream id.
      * @param operator Operator's name
      * @return Whether succeed.
      */

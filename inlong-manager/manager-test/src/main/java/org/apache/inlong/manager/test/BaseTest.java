@@ -37,7 +37,7 @@ import javax.sql.DataSource;
 public class BaseTest {
 
     @Autowired
-    DataSource dataSource;
+    private DataSource dataSource;
 
     @PostConstruct
     public void initH2Function() {

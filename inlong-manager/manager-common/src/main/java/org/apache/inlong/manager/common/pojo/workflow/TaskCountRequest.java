@@ -22,46 +22,38 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.beans.PageRequest;
-import org.apache.inlong.manager.common.enums.ProcessStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-import java.util.List;
 
 /**
- * Apply process request
+ * Task count request
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Apply process request")
-public class ProcessQuery extends PageRequest {
+@ApiModel("Task count request")
+public class TaskCountRequest {
 
     @ApiModelProperty("Process ID")
-    private Integer id;
+    private Integer processId;
 
-    @ApiModelProperty("Process id list")
-    private List<Integer> idList;
+    @ApiModelProperty("Task type")
+    private String type;
 
-    @ApiModelProperty("Process name list")
-    private List<String> nameList;
+    @ApiModelProperty("Task name")
+    private String name;
 
-    @ApiModelProperty("Process display name")
+    @ApiModelProperty("Task display name")
     private String displayName;
 
-    @ApiModelProperty("Applicant")
+    @ApiModelProperty("Applicant name")
     private String applicant;
 
-    @ApiModelProperty("Status")
-    private ProcessStatus status;
-
-    @ApiModelProperty("InLong group id")
-    private String inlongGroupId;
+    @ApiModelProperty("Approver name")
+    private String approver;
 
     @ApiModelProperty("Start time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -71,24 +63,12 @@ public class ProcessQuery extends PageRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTimeEnd;
 
-    @ApiModelProperty("End time-lower limit")
+    @ApiModelProperty("End time-upper limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeBegin;
 
-    @ApiModelProperty("End time-upper limit")
+    @ApiModelProperty("End time-lower limit")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTimeEnd;
-
-    @ApiModelProperty("Whether to hide, 0: not hidden, 1: hidden")
-    @Builder.Default
-    private Integer hidden = 0;
-
-    @ApiModelProperty("Whether to include the current to-do task")
-    @Builder.Default
-    private Boolean includeCurrentTask = false;
-
-    @ApiModelProperty("Whether to include the form info displayed in the list")
-    @Builder.Default
-    private Boolean includeShowInList = true;
 
 }

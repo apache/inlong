@@ -72,7 +72,7 @@
         and status = #{status,jdbcType=VARCHAR}
     </select>
     <select id="selectByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.workflow.TaskQuery"
+            parameterType="org.apache.inlong.manager.common.pojo.workflow.TaskRequest"
             resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -95,9 +95,8 @@
             </if>
             <if test="approver != null and approver !=''">
                 and (
-                (FIND_IN_SET(#{approver,jdbcType=VARCHAR},approvers) and status='PENDING')
-                or
-                operator = #{approver,jdbcType=VARCHAR}
+                (find_in_set(#{approver,jdbcType=VARCHAR},approvers) and status='PENDING')
+                or operator = #{approver,jdbcType=VARCHAR}
                 )
             </if>
             <if test="operator != null and operator !=''">
@@ -135,7 +134,7 @@
           and status = #{status, jdbcType=VARCHAR}
     </select>
     <select id="countByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.workflow.TaskCountQuery"
+            parameterType="org.apache.inlong.manager.common.pojo.workflow.TaskCountRequest"
             resultType="org.apache.inlong.manager.common.pojo.common.CountInfo">
         select status as `key`, count(1) as value
         from workflow_task
@@ -154,9 +153,8 @@
             </if>
             <if test="approver != null and approver !=''">
                 and (
-                (FIND_IN_SET(#{approver,jdbcType=VARCHAR},approvers) and status='PENDING')
-                or
-                operator = #{approver,jdbcType=VARCHAR}
+                (find_in_set(#{approver,jdbcType=VARCHAR},approvers) and status='PENDING')
+                or operator = #{approver,jdbcType=VARCHAR}
                 )
             </if>
             <if test="applicant != null and applicant !=''">

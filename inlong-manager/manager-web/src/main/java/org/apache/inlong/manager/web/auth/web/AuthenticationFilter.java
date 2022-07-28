@@ -61,8 +61,8 @@ public class AuthenticationFilter implements Filter {
 
         Subject subject = SecurityUtils.getSubject();
         if (subject.isAuthenticated()) {
-            UserInfo loginuserInfo = (UserInfo) subject.getPrincipal();
-            doFilter(servletRequest, servletResponse, filterChain, loginuserInfo);
+            UserInfo loginUserInfo = (UserInfo) subject.getPrincipal();
+            doFilter(servletRequest, servletResponse, filterChain, loginUserInfo);
             return;
         }
 

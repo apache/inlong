@@ -27,7 +27,7 @@ import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
@@ -74,8 +74,8 @@ public class WorkflowClient {
     /**
      * get inlong group error messages
      */
-    public List<EventLogView> getInlongGroupError(String inlongGroupId) {
-        Response<PageInfo<EventLogView>> response = ClientUtils.executeHttpCall(
+    public List<EventLogResponse> getInlongGroupError(String inlongGroupId) {
+        Response<PageInfo<EventLogResponse>> response = ClientUtils.executeHttpCall(
                 workflowApi.getInlongGroupError(inlongGroupId, -1));
         ClientUtils.assertRespSuccess(response);
         return response.getData().getList();

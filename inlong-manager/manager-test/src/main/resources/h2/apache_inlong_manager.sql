@@ -595,30 +595,24 @@ CREATE TABLE IF NOT EXISTS `user_role`
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `workflow_approver`
 (
-    `id`                int(11)       NOT NULL AUTO_INCREMENT,
-    `process_name`      varchar(256)  NOT NULL COMMENT 'Process name',
-    `task_name`         varchar(256)  NOT NULL COMMENT 'Approval task name',
-    `filter_key`        varchar(64)   NOT NULL COMMENT 'Filter condition KEY',
-    `filter_value`      varchar(256)           DEFAULT NULL COMMENT 'Filter matching value',
-    `filter_value_desc` varchar(256)           DEFAULT NULL COMMENT 'Filter value description',
-    `approvers`         varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
-    `creator`           varchar(64)   NOT NULL COMMENT 'Creator name',
-    `modifier`          varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
-    `create_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
-    `modify_time`       timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    `is_deleted`        int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
-    `version`           int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
+    `id`           int(11)       NOT NULL AUTO_INCREMENT,
+    `process_name` varchar(256)  NOT NULL COMMENT 'Process name',
+    `task_name`    varchar(256)  NOT NULL COMMENT 'Approval task name',
+    `approvers`    varchar(1024) NOT NULL COMMENT 'Approvers, separated by commas',
+    `creator`      varchar(64)   NOT NULL COMMENT 'Creator name',
+    `modifier`     varchar(64)            DEFAULT NULL COMMENT 'Modifier name',
+    `create_time`  timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Create time',
+    `modify_time`  timestamp     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
+    `is_deleted`   int(11)                DEFAULT '0' COMMENT 'Whether to delete, 0 is not deleted, if greater than 0, delete',
+    `version`      int(11)       NOT NULL DEFAULT '1' COMMENT 'Version number, which will be incremented by 1 after modification',
     PRIMARY KEY (`id`),
     KEY `process_name_task_name_index` (`process_name`, `task_name`)
 );
 
 -- create default approver for new consumption and new inlong group
-INSERT INTO `workflow_approver`(`process_name`, `task_name`, `filter_key`, `filter_value`, `approvers`,
-                                `creator`, `modifier`, `create_time`, `modify_time`, `is_deleted`)
-VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
-        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
-       ('APPLY_GROUP_PROCESS', 'ut_admin', 'DEFAULT', NULL, 'admin',
-        'inlong_init', 'inlong_init', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+INSERT INTO `workflow_approver`(`process_name`, `task_name`, `approvers`, `creator`, `modifier`)
+VALUES ('APPLY_CONSUMPTION_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init'),
+       ('APPLY_GROUP_PROCESS', 'ut_admin', 'admin', 'inlong_init', 'inlong_init');
 
 -- ----------------------------
 -- Table structure for workflow_event_log
@@ -653,17 +647,17 @@ CREATE TABLE IF NOT EXISTS `workflow_event_log`
 CREATE TABLE IF NOT EXISTS `workflow_process`
 (
     `id`              int(11)      NOT NULL AUTO_INCREMENT,
-    `name`            varchar(256) NOT NULL COMMENT 'process name',
-    `display_name`    varchar(256) NOT NULL COMMENT 'WorkflowProcess display name',
-    `type`            varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess classification',
-    `title`           varchar(256)          DEFAULT NULL COMMENT 'WorkflowProcess title',
+    `name`            varchar(256) NOT NULL COMMENT 'Process name',
+    `display_name`    varchar(256) NOT NULL COMMENT 'Process display name',
+    `type`            varchar(256)          DEFAULT NULL COMMENT 'Process classification',
+    `title`           varchar(256)          DEFAULT NULL COMMENT 'Process title',
     `inlong_group_id` varchar(256)          DEFAULT NULL COMMENT 'Inlong group id: to facilitate related inlong group',
-    `applicant`       varchar(256) NOT NULL COMMENT 'applicant',
-    `status`          varchar(64)  NOT NULL COMMENT 'status',
-    `form_data`       text COMMENT 'form information',
-    `start_time`      datetime     NOT NULL COMMENT 'start time',
-    `end_time`        datetime              DEFAULT NULL COMMENT 'End event',
-    `ext_params`      text COMMENT 'Extended information-json',
+    `applicant`       varchar(256) NOT NULL COMMENT 'Applicant',
+    `status`          varchar(64)  NOT NULL COMMENT 'Status',
+    `form_data`       text COMMENT 'Form information',
+    `start_time`      datetime     NOT NULL COMMENT 'Start time',
+    `end_time`        datetime              DEFAULT NULL COMMENT 'End time',
+    `ext_params`      text         NULL COMMENT 'Another fields, will be saved as JSON type',
     `hidden`          tinyint(1)   NOT NULL DEFAULT '0' COMMENT 'Whether to hidden, 0: not hidden, 1: hidden',
     PRIMARY KEY (`id`),
     INDEX process_group_status_index (`inlong_group_id`, `status`)

@@ -17,9 +17,8 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApprover;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverFilterContext;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowApproverQuery;
+import org.apache.inlong.manager.common.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.common.pojo.workflow.ApproverResponse;
 
 import java.util.List;
 
@@ -29,44 +28,43 @@ import java.util.List;
 public interface WorkflowApproverService {
 
     /**
-     * Get process approver
+     * Save workflow approver
      *
-     * @param processName WorkflowProcess name
-     * @param taskName WorkflowTask name
-     * @param context Context
-     * @return Approver
+     * @param request approver request
+     * @param operator operator name
      */
-    List<String> getApprovers(String processName, String taskName, WorkflowApproverFilterContext context);
+    Integer save(ApproverRequest request, String operator);
 
     /**
-     * Obtain the approver configuration list according to the query conditions
+     * Get process approver by the process name and task name.
      *
-     * @param query Query conditions
-     * @return Approver list
+     * @param processName workflow process name
+     * @param taskName workflow task name
+     * @return approver list
      */
-    List<WorkflowApprover> list(WorkflowApproverQuery query);
+    List<String> getApprovers(String processName, String taskName);
 
     /**
-     * Add approver configuration
+     * List the workflow approvers according to the query request
      *
-     * @param config Configuration details
-     * @param operator Operator
+     * @param request query request
+     * @return approver list
      */
-    void add(WorkflowApprover config, String operator);
+    List<ApproverResponse> listByCondition(ApproverRequest request);
 
     /**
-     * Update approver configuration
+     * Update workflow approve.
      *
-     * @param approver Approver info
-     * @param operator Operator
+     * @param request approver request
+     * @param operator operator name
      */
-    void update(WorkflowApprover approver, String operator);
+    Integer update(ApproverRequest request, String operator);
 
     /**
-     * Delete approver configuration
+     * Delete workflow approver by ID
      *
-     * @param id Approver id
-     * @param operator Operator
+     * @param id approver id
+     * @param operator operator name
      */
     void delete(Integer id, String operator);
 

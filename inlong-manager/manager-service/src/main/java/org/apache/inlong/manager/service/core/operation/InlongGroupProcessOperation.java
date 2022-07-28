@@ -25,7 +25,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamBriefInfo;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
@@ -251,7 +251,7 @@ public class InlongGroupProcessOperation {
             int rerunProcess, int resetFinalStatus) {
         final String groupId = groupInfo.getInlongGroupId();
         if (rerunProcess == 1) {
-            ProcessQuery processQuery = new ProcessQuery();
+            ProcessRequest processQuery = new ProcessRequest();
             processQuery.setInlongGroupId(groupId);
             List<WorkflowProcessEntity> entities = workflowQueryService.listProcessEntity(processQuery);
             entities.sort(Comparator.comparingInt(WorkflowProcessEntity::getId));

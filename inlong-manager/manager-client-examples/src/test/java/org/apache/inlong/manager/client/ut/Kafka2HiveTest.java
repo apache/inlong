@@ -36,7 +36,7 @@ import org.apache.inlong.manager.common.pojo.source.StreamSource;
 import org.apache.inlong.manager.common.pojo.source.kafka.KafkaSource;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.pojo.stream.StreamField;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -337,7 +337,7 @@ class Kafka2HiveTest extends BaseTest {
                         )
         );
 
-        EventLogView eventLogView1 = EventLogView.builder()
+        EventLogResponse eventLogView1 = EventLogResponse.builder()
                 .id(38)
                 .processId(12)
                 .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())
@@ -352,7 +352,7 @@ class Kafka2HiveTest extends BaseTest {
                 .status(-1)
                 .ip("127.0.0.1")
                 .build();
-        EventLogView eventLogView2 = EventLogView.builder()
+        EventLogResponse eventLogView2 = EventLogResponse.builder()
                 .id(39)
                 .processId(12)
                 .processName(ProcessName.CREATE_GROUP_RESOURCE.toString())

@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.inlong.manager.common.pojo.common.CountInfo;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountQuery;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessQuery;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.common.pojo.workflow.ProcessRequest;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.springframework.stereotype.Repository;
 
@@ -35,9 +35,9 @@ public interface WorkflowProcessEntityMapper {
 
     WorkflowProcessEntity selectById(Integer id);
 
-    List<WorkflowProcessEntity> selectByCondition(ProcessQuery query);
+    List<WorkflowProcessEntity> selectByCondition(ProcessRequest query);
 
-    List<CountInfo> countByQuery(ProcessCountQuery query);
+    List<CountInfo> countByQuery(ProcessCountRequest query);
 
     void update(WorkflowProcessEntity workflowProcessEntity);
 

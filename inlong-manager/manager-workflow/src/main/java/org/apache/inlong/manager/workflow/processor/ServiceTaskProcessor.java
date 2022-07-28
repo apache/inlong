@@ -25,7 +25,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
-import org.apache.inlong.manager.common.pojo.workflow.TaskQuery;
+import org.apache.inlong.manager.common.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.StreamResourceProcessForm;
 import org.apache.inlong.manager.common.pojo.workflow.form.task.ServiceTaskForm;
@@ -135,7 +135,7 @@ public class ServiceTaskProcessor extends AbstractTaskProcessor<ServiceTask> {
         ServiceTask serviceTask = (ServiceTask) context.getCurrentElement();
         final int processId = processEntity.getId();
         final String serviceName = serviceTask.getName();
-        TaskQuery taskQuery = new TaskQuery();
+        TaskRequest taskQuery = new TaskRequest();
         taskQuery.setProcessId(processId);
         taskQuery.setName(serviceName);
         List<WorkflowTaskEntity> taskEntities = taskEntityMapper.selectByQuery(taskQuery);

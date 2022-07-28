@@ -22,33 +22,33 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.inlong.manager.common.beans.PageRequest;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
 /**
- * Workflow event log query request
+ * Event log response
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel("Workflow event log query request")
-public class EventLogQuery extends PageRequest {
+@ApiModel("Workflow event log response")
+public class EventLogResponse {
 
+    @ApiModelProperty("id")
     private Integer id;
 
-    @ApiModelProperty("Process ID")
+    @ApiModelProperty("Process id")
     private Integer processId;
 
-    @ApiModelProperty("Process name")
+    @ApiModelProperty("Process name ")
     private String processName;
 
-    @ApiModelProperty("InLong group id")
+    @ApiModelProperty("Process display name")
+    private String processDisplayName;
+
+    @ApiModelProperty("Inlong group id")
     private String inlongGroupId;
 
     @ApiModelProperty("Task id")
@@ -57,10 +57,13 @@ public class EventLogQuery extends PageRequest {
     @ApiModelProperty("Element name")
     private String elementName;
 
+    @ApiModelProperty("Element display name")
+    private String elementDisplayName;
+
     @ApiModelProperty("Event type")
     private String eventType;
 
-    @ApiModelProperty("Event")
+    @ApiModelProperty("Event name")
     private String event;
 
     @ApiModelProperty("Listener name")
@@ -69,23 +72,22 @@ public class EventLogQuery extends PageRequest {
     @ApiModelProperty("Status")
     private Integer status;
 
+    @ApiModelProperty("Is it synchronized")
+    private Integer async;
+
     @ApiModelProperty("Execute IP")
     private String ip;
 
-    @ApiModelProperty("Start time-lower limit")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date startTimeBegin;
+    @ApiModelProperty("Start time ")
+    private Date startTime;
 
-    @ApiModelProperty("Start time-upper limit")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date startTimeEnd;
+    @ApiModelProperty("End time")
+    private Date endTime;
 
-    @ApiModelProperty("End time-upper limit")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date endTimeBegin;
+    @ApiModelProperty("Remark")
+    private String remark;
 
-    @ApiModelProperty("End time-lower limit")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date endTimeEnd;
+    @ApiModelProperty("Exception message")
+    private String exception;
 
 }

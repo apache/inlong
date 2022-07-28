@@ -86,10 +86,10 @@ public interface StreamSinkEntityMapper {
     /**
      * Filter stream ids with the specified groupId and sinkType from the given stream id list.
      *
-     * @param groupId InLong group id.
+     * @param groupId Inlong group id.
      * @param sinkType Sink type.
-     * @param streamIdList InLong stream id list.
-     * @return List of InLong stream id with the given sink type
+     * @param streamIdList Inlong stream id list.
+     * @return List of Inlong stream id with the given sink type
      */
     List<String> selectExistsStreamId(@Param("groupId") String groupId, @Param("sinkType") String sinkType,
             @Param("streamIdList") List<String> streamIdList);

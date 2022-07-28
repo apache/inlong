@@ -45,7 +45,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogView;
+import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -287,7 +287,7 @@ public class InlongGroupImpl implements InlongGroup {
         // create group context
         InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext);
         // fetch group logs
-        List<EventLogView> logViews = workFlowClient.getInlongGroupError(inlongGroupId);
+        List<EventLogResponse> logViews = workFlowClient.getInlongGroupError(inlongGroupId);
         if (CollectionUtils.isNotEmpty(logViews)) {
             Map<String, List<String>> errMsgMap = Maps.newHashMap();
             Map<String, List<String>> groupLogMap = Maps.newHashMap();
