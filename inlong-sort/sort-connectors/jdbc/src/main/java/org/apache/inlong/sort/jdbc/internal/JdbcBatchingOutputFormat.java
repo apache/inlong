@@ -54,6 +54,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
 
 /**
  * A JDBC outputFormat that supports batching records before writing records to database.
+ * add metrics reporter
  */
 public class JdbcBatchingOutputFormat<
         In, JdbcIn, JdbcExec extends JdbcBatchStatementExecutor<JdbcIn>>
@@ -148,7 +149,7 @@ public class JdbcBatchingOutputFormat<
                                             if (metricData.getNumRecordsOut() != null) {
                                                 metricData.getNumRecordsOut().inc(rowSize);
                                             }
-                                            if (metricData.getNumRecordsOut() != null) {
+                                            if (metricData.getNumBytesOut() != null) {
                                                 metricData.getNumBytesOut()
                                                         .inc(dataSize);
                                             }
@@ -204,7 +205,7 @@ public class JdbcBatchingOutputFormat<
                 if (metricData.getNumRecordsOut() != null) {
                     metricData.getNumRecordsOut().inc(rowSize);
                 }
-                if (metricData.getNumRecordsOut() != null) {
+                if (metricData.getNumBytesOut() != null) {
                     metricData.getNumBytesOut()
                             .inc(dataSize);
                 }

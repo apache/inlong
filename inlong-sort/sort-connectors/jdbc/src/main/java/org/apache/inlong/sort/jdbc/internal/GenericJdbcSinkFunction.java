@@ -33,6 +33,7 @@ import java.io.IOException;
 
 /**
  * A generic SinkFunction for JDBC.
+ * add metrics reporter in JdbcBatchingOutputFormat
  */
 @Internal
 public class GenericJdbcSinkFunction<T> extends RichSinkFunction<T>
