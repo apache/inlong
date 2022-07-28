@@ -114,19 +114,20 @@ public class DlcWrappedHybrisCatalog extends BaseMetastoreCatalog implements Sup
             this.conf = new Configuration();
         }
 
+        // dlc auth
+        properties.entrySet().stream()
+                .filter(entry -> DLC_WHITELIST_PARAMS.contains(entry.getKey()))
+                .forEach(entry -> this.conf.set(entry.getKey(), entry.getValue()));
+
         if (properties.containsKey(CatalogProperties.URI)) {
-            this.conf.set(HiveConf.ConfVars.METASTOREURIS.varname, properties.get(CatalogProperties.URI));
+            this.conf.set(Constants.DLC_ENDPOINT, properties.get(CatalogProperties.URI));
+            this.conf.set(DlcCloudCredentialsProvider.END_POINT, properties.get(CatalogProperties.URI));
         }
 
         if (properties.containsKey(CatalogProperties.WAREHOUSE_LOCATION)) {
             this.conf.set(HiveConf.ConfVars.METASTOREWAREHOUSE.varname,
                     properties.get(CatalogProperties.WAREHOUSE_LOCATION));
         }
-
-        // dlc auth
-        properties.entrySet().stream()
-                .filter(entry -> DLC_WHITELIST_PARAMS.contains(entry.getKey()))
-                .forEach(entry -> this.conf.set(entry.getKey(), entry.getValue()));
 
         this.listAllTables = Boolean.parseBoolean(properties.getOrDefault(LIST_ALL_TABLES, LIST_ALL_TABLES_DEFAULT));
 

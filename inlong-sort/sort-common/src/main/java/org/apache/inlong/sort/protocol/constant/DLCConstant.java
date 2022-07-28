@@ -29,10 +29,6 @@ public class DLCConstant {
     public static final String DLC_ENDPOINT = "dlc.tencentcloudapi.com";
     // ============================== DLC AUTH PARAMS(Required) =====================================
     /**
-     * dlc endpoint
-     */
-    public static final String DLC_ENDPOINT_KEY = "qcloud.dlc.endpoint";
-    /**
      * dlc account region
      */
     public static final String DLC_REGION = "qcloud.dlc.region";
@@ -52,6 +48,10 @@ public class DLCConstant {
      * Managed account uid.
      */
     public static final String DLC_MANAGED_ACCOUNT_UID = "qcloud.dlc.managed.account.uid";
+    /**
+     * dlc jdbc url(optional)
+     */
+    public static final String DLC_JDBC_URL = "qcloud.dlc.jdbc.url";
 
     // ============================== FS CREDENTIALS AUTH PARAMS =====================================
     public static final String FS_LAKEFS_IMPL  = "fs.lakefs.impl";
@@ -61,7 +61,6 @@ public class DLCConstant {
     public static final String FS_COS_SECRET_ID  = "fs.cosn.userinfo.secretId";
     public static final String FS_COS_SECRET_KEY  = "fs.cosn.userinfo.secretKey";
 
-    public static final String FS_AUTH_DLC_ENDPOINT_KEY  = "service.endpoint";
     public static final String FS_AUTH_DLC_SECRET_ID = "service.secret.id";
     public static final String FS_AUTH_DLC_SECRET_KEY = "service.secret.key";
     public static final String FS_AUTH_DLC_REGION  = "service.region";
@@ -73,7 +72,6 @@ public class DLCConstant {
     public static final Map<String, String> DLC_DEFAULT_IMPL =
             Collections.unmodifiableMap(new HashMap<String, String>() {
                 {
-                    put(DLC_ENDPOINT_KEY, DLC_ENDPOINT);
                     put(FS_LAKEFS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
                     put(FS_COS_IMPL, "org.apache.hadoop.fs.CosFileSystem");
                     put(FS_COS_AUTH_PROVIDER, "org.apache.hadoop.fs.auth.DlcCloudCredentialsProvider");

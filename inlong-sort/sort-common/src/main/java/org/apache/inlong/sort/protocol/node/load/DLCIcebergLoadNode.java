@@ -109,7 +109,6 @@ public class DLCIcebergLoadNode extends LoadNode implements InlongMetric, Serial
         options.put(DLCConstant.FS_COS_SECRET_ID, options.get(DLCConstant.DLC_SECRET_ID));
         options.put(DLCConstant.FS_COS_SECRET_KEY, options.get(DLCConstant.DLC_SECRET_KEY));
 
-        options.put(DLCConstant.FS_AUTH_DLC_ENDPOINT_KEY, DLCConstant.DLC_ENDPOINT);
         options.put(DLCConstant.FS_AUTH_DLC_SECRET_ID, options.get(DLCConstant.DLC_SECRET_ID));
         options.put(DLCConstant.FS_AUTH_DLC_SECRET_KEY, options.get(DLCConstant.DLC_SECRET_KEY));
         options.put(DLCConstant.FS_AUTH_DLC_REGION, options.get(DLCConstant.DLC_REGION));

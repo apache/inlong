@@ -20,8 +20,6 @@
 package org.apache.inlong.sort.iceberg.flink.actions;
 
 import org.apache.iceberg.actions.Action;
-import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,28 +30,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL;
-import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_INTERVAL_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_RESOUCE_POOL;
-import static org.apache.inlong.sort.iceberg.flink.CompactTableProperties.COMPACT_RESOUCE_POOL_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.AUTH_SECRET_ID;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.AUTH_SECRET_KEY;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.REWRITE_DB_NAME;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.REWRITE_TABLE_NAME;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_DATA_SOURCE;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_DATA_SOURCE_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_DEFAULT_DATABASE;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_DEFAULT_DATABASE_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_ENDPOINT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_ENDPOINT_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_REGION;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_REGION_DEFAULT;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_TASK_TYPE;
-import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_TASK_TYPE_DEFAULT;
 
 /**
  * Do rewrite action with dlc Spark SQL.
@@ -64,23 +42,23 @@ public class SyncRewriteDataFilesAction implements
     private static final Logger LOG = LoggerFactory.getLogger(SyncRewriteDataFilesAction.class);
     private static final String DLC_JDBC_CLASS = "com.tencent.cloud.dlc.jdbc.DlcDriver";
 
-    private Map<String, String> options;
+    private SyncRewriteDataFilesActionOption options;
     private AtomicInteger snapshotCounter;
 
-    private SyncRewriteDataFilesAction() {
-        this.options = new HashMap<>();
+    public SyncRewriteDataFilesAction(SyncRewriteDataFilesActionOption option) {
         this.snapshotCounter = new AtomicInteger();
+        this.options = option;
     }
 
     @Override
     public SyncRewriteDataFilesAction option(String name, String value) {
-        this.options.put(name, value);
+        this.options.option(name, value);
         return this;
     }
 
     @Override
     public SyncRewriteDataFilesAction options(Map<String, String> options) {
-        this.options.putAll(options);
+        this.options.options(options);
         return this;
     }
 
@@ -96,18 +74,10 @@ public class SyncRewriteDataFilesAction implements
             return new RewriteResult("fail.");
         }
 
-        String dbName = options.get(REWRITE_DB_NAME);
-        String tableName = options.get(REWRITE_TABLE_NAME);
-        Preconditions.checkNotNull(dbName);
-        Preconditions.checkNotNull(tableName);
-        String wholeTableName = String.format("%s.%s", dbName, tableName);
-        String rewriteTableSql =
-                String.format(
-                        "CALL `DataLakeCatalog`.`system`.rewrite_data_files"
-                                + "(`table` => '%s')",
-                        wholeTableName);
+        String rewriteTableSql = options.rewriteSql();
         try {
             Statement statement = connection.createStatement();
+            LOG.info("Do compact: {}", rewriteTableSql);
             boolean firstIsResultSet = statement.execute(rewriteTableSql);
             if (firstIsResultSet) {
                 ResultSet rs = statement.getResultSet();
@@ -129,44 +99,31 @@ public class SyncRewriteDataFilesAction implements
             statement.close();
             connection.close();
         } catch (SQLException e) {
-            LOG.warn("[Result:]Execute rewrite sql err.", e);
+            LOG.warn("[Result:]Execute rewrite sql({}) err.", rewriteTableSql, e);
             return new RewriteResult("fail.");
         }
         return new RewriteResult("success.");
     }
 
-    public static SyncRewriteDataFilesAction instance(SyncRewriteDataFilesActionOption option) {
-        return new SyncRewriteDataFilesAction().options(option.getProperties());
-    }
-
     private boolean shouldExecute() {
-        return snapshotCounter.incrementAndGet()
-                % PropertyUtil.propertyAsInt(options, COMPACT_INTERVAL, COMPACT_INTERVAL_DEFAULT) == 0;
+        return snapshotCounter.incrementAndGet() % options.interval() == 0;
     }
 
     private Connection buildConnection() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("jdbc:dlc:" + options.getOrDefault(URL_ENDPOINT, URL_ENDPOINT_DEFAULT));
-        builder.append("?task_type=" + options.getOrDefault(URL_TASK_TYPE, URL_TASK_TYPE_DEFAULT));
-        builder.append("&database_name=" + options.getOrDefault(URL_DEFAULT_DATABASE, URL_DEFAULT_DATABASE_DEFAULT));
-        builder.append("&datasource_connection_name="
-                + options.getOrDefault(URL_DATA_SOURCE, URL_DATA_SOURCE_DEFAULT));
-        builder.append("&region=" + options.getOrDefault(URL_REGION, URL_REGION_DEFAULT));
-        builder.append("&data_engine_name="
-                + options.getOrDefault(COMPACT_RESOUCE_POOL, COMPACT_RESOUCE_POOL_DEFAULT));
         Connection connection = null;
+        String url = options.url();
         try {
             Class.forName(DLC_JDBC_CLASS);
             connection = DriverManager.getConnection(
-                    builder.toString(),
-                    options.get(AUTH_SECRET_ID),
-                    options.get(AUTH_SECRET_KEY));
+                    url,
+                    options.secretId(),
+                    options.secretKey());
             // get meta data
             DatabaseMetaData metaData = connection.getMetaData();
-            LOG.info("DLC product = {}.", metaData.getDatabaseProductName());
-            LOG.info("DLC jdbc version = {}, ", metaData.getDriverMajorVersion(), metaData.getDriverMinorVersion());
+            LOG.info("DLC product = {}, DLC jdbc version = {}, DLC jdbc = '{}'",
+                    metaData.getDatabaseProductName(), metaData.getDriverMajorVersion(), url);
         } catch (SQLException e) {
-            LOG.error("Create connection err.Please check configuration. Request URL: {}.", builder);
+            LOG.error("Create connection err.Please check configuration. Request URL: {}.", url, e);
         } catch (ClassNotFoundException e) {
             LOG.error("DLC JDBC Driver class not found.Please check classpath({}).",
                     System.getProperty("java.class.path"), e);
