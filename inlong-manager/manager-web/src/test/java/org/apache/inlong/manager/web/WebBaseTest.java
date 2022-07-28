@@ -58,7 +58,7 @@ public abstract class WebBaseTest extends BaseTest {
 
     public MockMvc mockMvc;
     @Resource
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     @Resource
     private WebApplicationContext context;
 
