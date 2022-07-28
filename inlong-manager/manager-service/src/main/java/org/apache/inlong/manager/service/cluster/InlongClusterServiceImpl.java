@@ -634,7 +634,6 @@ public class InlongClusterServiceImpl implements InlongClusterService {
 
         // if more than one data proxy cluster, currently takes first
         // TODO consider the data proxy load and re-balance
-        InlongClusterEntity clusterEntity = clusterList.get(0);
         List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
         for (InlongClusterEntity entity : clusterList) {
             List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId());
@@ -648,7 +647,7 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         }
 
         DataProxyNodeResponse response = new DataProxyNodeResponse();
-        response.setClusterId(clusterEntity.getId());
+        response.setClusterId(clusterList.get(0).getId());
         response.setNodeList(nodeInfos);
 
         if (LOGGER.isDebugEnabled()) {
