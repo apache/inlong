@@ -20,15 +20,23 @@ package org.apache.inlong.manager.service.core.sink;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerColumnInfo;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerSink;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerSinkRequest;
+import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
+import org.apache.inlong.manager.service.resource.sqlserver.SQLServerJdbcUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SQLServer sink service test
@@ -96,6 +104,72 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         Assertions.assertTrue(result);
 
         deleteSink(sinkId);
+    }
+
+    /**
+     * Just using in local test.
+     */
+    @Disabled
+    public void testDbResource() {
+        String url = "jdbc:sqlserver://127.0.0.1:1434;databaseName=inlong;";
+        String username = "sa";
+        String password = "123456";
+        String tableName = "test01";
+        String schemaName = "dbo";
+
+        try {
+            Connection connection = SQLServerJdbcUtils.getConnection(url, username, password);
+            SQLServerTableInfo tableInfo = bulidTableInfo(schemaName, tableName);
+            SQLServerJdbcUtils.createSchema(connection, schemaName);
+            SQLServerJdbcUtils.createTable(connection, tableInfo);
+            List<SQLServerColumnInfo> addColumns = buildAddColumns();
+            SQLServerJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
+            List<SQLServerColumnInfo> columns = SQLServerJdbcUtils.getColumns(connection, schemaName, tableName);
+            Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
+            connection.close();
+        } catch (Exception e) {
+            // print to local console
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Build add SqlServer column info.
+     *
+     * @return {@link List}
+     */
+    private final List<SQLServerColumnInfo> buildAddColumns() {
+        List<SQLServerColumnInfo> addCloums = new ArrayList<>();
+        SQLServerColumnInfo test1 = new SQLServerColumnInfo("test1", "varchar(40)", "test1");
+        addCloums.add(test1);
+        SQLServerColumnInfo test2 = new SQLServerColumnInfo("test2", "varchar(40)", "test2");
+        addCloums.add(test2);
+        return addCloums;
+    }
+
+    /**
+     * Build test SqlServer table info.
+     *
+     * @param schemaName SqlServer schema name
+     * @param tableName SqlServer table name
+     * @return {@link SQLServerTableInfo}
+     */
+    private final SQLServerTableInfo bulidTableInfo(String schemaName, String tableName) {
+        SQLServerTableInfo tableInfo = new SQLServerTableInfo();
+        tableInfo.setTableName(tableName);
+        tableInfo.setComment("test01 ");
+        tableInfo.setPrimaryKey("id");
+        tableInfo.setSchemaName(schemaName);
+        List<SQLServerColumnInfo> columnInfos = new ArrayList<>();
+        tableInfo.setColumns(columnInfos);
+        SQLServerColumnInfo id = new SQLServerColumnInfo("id", "int", "id");
+        columnInfos.add(id);
+        SQLServerColumnInfo cell = new SQLServerColumnInfo("cell", "varchar(20)", "cell");
+        columnInfos.add(cell);
+        SQLServerColumnInfo name = new SQLServerColumnInfo("name", "varchar(40)", "name");
+        columnInfos.add(name);
+        tableInfo.setPrimaryKey("id");
+        return tableInfo;
     }
 
 }
