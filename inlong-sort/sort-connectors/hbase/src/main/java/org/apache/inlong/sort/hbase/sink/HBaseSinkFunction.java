@@ -50,6 +50,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.apache.inlong.sort.base.Constants.DIRTY_BYTES;
+import static org.apache.inlong.sort.base.Constants.DIRTY_RECORDS;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_OUT_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_OUT_PER_SECOND;
+
 /**
  * The sink function for HBase.
  *
@@ -77,8 +84,10 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
      * This is set from inside the {@link BufferedMutator.ExceptionListener} if a {@link Throwable}
      * was thrown.
      *
-     * <p>Errors will be checked and rethrown before processing each input element, and when the
+     * <p>
+     * Errors will be checked and rethrown before processing each input element, and when the
      * sink is closed.
+     * </p>
      */
     private final AtomicReference<Throwable> failureThrowable = new AtomicReference<>();
     private transient Connection connection;
@@ -122,14 +131,14 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 String groupId = inLongMetricArray[0];
                 String streamId = inLongMetricArray[1];
                 String nodeId = inLongMetricArray[2];
-                sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, "dirtyBytes");
-                sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, "dirtyRecords");
-                sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, "numBytesOut");
-                sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, "numRecordsOut");
+                sinkMetricData.registerMetricsForDirtyBytes(groupId, streamId, nodeId, DIRTY_BYTES);
+                sinkMetricData.registerMetricsForDirtyRecords(groupId, streamId, nodeId, DIRTY_RECORDS);
+                sinkMetricData.registerMetricsForNumBytesOut(groupId, streamId, nodeId, NUM_BYTES_OUT);
+                sinkMetricData.registerMetricsForNumRecordsOut(groupId, streamId, nodeId, NUM_RECORDS_OUT);
                 sinkMetricData.registerMetricsForNumBytesOutPerSecond(groupId, streamId, nodeId,
-                        "numBytesOutPerSecond");
+                        NUM_BYTES_OUT_PER_SECOND);
                 sinkMetricData.registerMetricsForNumRecordsOutPerSecond(groupId, streamId, nodeId,
-                        "numRecordsOutPerSecond");
+                        NUM_RECORDS_OUT_PER_SECOND);
             }
             this.mutationConverter.open();
             this.numPendingRequests = new AtomicLong(0);
@@ -160,7 +169,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                                         if (sinkMetricData.getNumRecordsOut() != null) {
                                             sinkMetricData.getNumRecordsOut().inc(rowSize);
                                         }
-                                        if (sinkMetricData.getNumRecordsOut() != null) {
+                                        if (sinkMetricData.getNumBytesOut() != null) {
                                             sinkMetricData.getNumBytesOut()
                                                     .inc(dataSize);
                                         }
@@ -239,7 +248,7 @@ public class HBaseSinkFunction<T> extends RichSinkFunction<T>
                 if (sinkMetricData.getNumRecordsOut() != null) {
                     sinkMetricData.getNumRecordsOut().inc(rowSize);
                 }
-                if (sinkMetricData.getNumRecordsOut() != null) {
+                if (sinkMetricData.getNumBytesOut() != null) {
                     sinkMetricData.getNumBytesOut()
                             .inc(dataSize);
                 }
