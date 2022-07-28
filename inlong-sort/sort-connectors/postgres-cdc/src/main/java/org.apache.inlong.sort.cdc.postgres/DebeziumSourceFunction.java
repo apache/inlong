@@ -58,6 +58,7 @@ import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.ExceptionUtils;
 import org.apache.flink.util.FlinkRuntimeException;
+import org.apache.inlong.sort.base.metric.SourceMetricData;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +78,10 @@ import java.util.concurrent.TimeUnit;
 
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.registerHistory;
 import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHistory;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_BYTES_IN_PER_SECOND;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN;
+import static org.apache.inlong.sort.base.Constants.NUM_RECORDS_IN_PER_SECOND;
 
 /**
  * The {@link DebeziumSourceFunction} is a streaming data source that pulls captured change data
@@ -110,40 +115,33 @@ import static com.ververica.cdc.debezium.utils.DatabaseHistoryUtil.retrieveHisto
 public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         implements CheckpointedFunction, CheckpointListener, ResultTypeQueryable<T> {
 
-    private static final long serialVersionUID = -5808108641062931623L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
-
     /**
      * State name of the consumer's partition offset states.
      */
     public static final String OFFSETS_STATE_NAME = "offset-states";
-
     /**
      * State name of the consumer's history records state.
      */
     public static final String HISTORY_RECORDS_STATE_NAME = "history-records-states";
-
     /**
      * The maximum number of pending non-committed checkpoints to track, to avoid memory leaks.
      */
     public static final int MAX_NUM_PENDING_CHECKPOINTS = 100;
-
     /**
      * The configuration represents the Debezium MySQL Connector uses the legacy implementation or
      * not.
      */
     public static final String LEGACY_IMPLEMENTATION_KEY = "internal.implementation";
-
     /**
      * The configuration value represents legacy implementation.
      */
     public static final String LEGACY_IMPLEMENTATION_VALUE = "legacy";
+    protected static final Logger LOG = LoggerFactory.getLogger(DebeziumSourceFunction.class);
+    private static final long serialVersionUID = -5808108641062931623L;
 
     // ---------------------------------------------------------------------------------------
     // Properties
     // ---------------------------------------------------------------------------------------
-
     /**
      * The schema to convert from Debezium's messages into Flink's objects.
      */
@@ -164,21 +162,18 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
      * Data for pending but uncommitted offsets.
      */
     private final LinkedMap pendingOffsetsToCommit = new LinkedMap();
-
+    /**
+     * Validator to validate the connected database satisfies the cdc connector's requirements.
+     */
+    private final Validator validator;
     /**
      * Flag indicating whether the Debezium Engine is started.
      */
     private volatile boolean debeziumStarted = false;
 
-    /**
-     * Validator to validate the connected database satisfies the cdc connector's requirements.
-     */
-    private final Validator validator;
-
     // ---------------------------------------------------------------------------------------
     // State
     // ---------------------------------------------------------------------------------------
-
     /**
      * The offsets to restore to, if the consumer restores state from a checkpoint.
      *
@@ -231,7 +226,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
 
     private String inlongMetric;
 
-    private MetricData metricData;
+    private SourceMetricData sourceMetricData;
 
     // ---------------------------------------------------------------------------------------
 
@@ -423,11 +418,13 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
             String groupId = inlongMetricArray[0];
             String streamId = inlongMetricArray[1];
             String nodeId = inlongMetricArray[2];
-            metricData = new MetricData(metricGroup);
-            metricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, "numRecordsIn");
-            metricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, "numBytesIn");
-            metricData.registerMetricsForNumBytesInPerSecond(groupId, streamId, nodeId, "numBytesInPerSecond");
-            metricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId, nodeId, "numRecordsInPerSecond");
+            sourceMetricData = new SourceMetricData(metricGroup);
+            sourceMetricData.registerMetricsForNumRecordsIn(groupId, streamId, nodeId, NUM_RECORDS_IN);
+            sourceMetricData.registerMetricsForNumBytesIn(groupId, streamId, nodeId, NUM_BYTES_IN);
+            sourceMetricData.registerMetricsForNumBytesInPerSecond(groupId, streamId,
+                    nodeId, NUM_BYTES_IN_PER_SECOND);
+            sourceMetricData.registerMetricsForNumRecordsInPerSecond(groupId, streamId,
+                    nodeId, NUM_RECORDS_IN_PER_SECOND);
         }
         properties.setProperty("name", "engine");
         properties.setProperty("offset.storage", FlinkOffsetBackingStore.class.getCanonicalName());
@@ -466,9 +463,9 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
                         new DebeziumDeserializationSchema<T>() {
                             @Override
                             public void deserialize(SourceRecord record, Collector<T> out) throws Exception {
-                                if (metricData != null) {
-                                    metricData.getNumRecordsIn().inc(1L);
-                                    metricData.getNumBytesIn()
+                                if (sourceMetricData != null) {
+                                    sourceMetricData.getNumRecordsIn().inc(1L);
+                                    sourceMetricData.getNumBytesIn()
                                             .inc(record.value().toString().getBytes(StandardCharsets.UTF_8).length);
                                 }
                                 deserializer.deserialize(record, out);
@@ -641,7 +638,7 @@ public class DebeziumSourceFunction<T> extends RichSourceFunction<T>
         return engineInstanceName;
     }
 
-    public MetricData getMetricData() {
-        return metricData;
+    public SourceMetricData getMetricData() {
+        return sourceMetricData;
     }
 }
