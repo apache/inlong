@@ -57,11 +57,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public abstract class WebBaseTest extends BaseTest {
 
     public MockMvc mockMvc;
-
-    @Resource
-    private WebApplicationContext context;
     @Resource
     ObjectMapper objectMapper;
+    @Resource
+    private WebApplicationContext context;
 
     @BeforeAll
     void baseSetup() {
@@ -89,7 +88,7 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)
@@ -143,7 +142,7 @@ public abstract class WebBaseTest extends BaseTest {
         loginUser.setPassword("inlong");
 
         MvcResult mvcResult = mockMvc.perform(
-                        post("/anno/login")
+                        post("/api/anno/login")
                                 .content(JsonUtils.toJsonString(loginUser))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON)

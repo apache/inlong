@@ -46,6 +46,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong stream control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Inlong-Stream-API")
 public class InlongStreamController {
 

@@ -33,7 +33,7 @@ export interface RequestOptions extends FetchOptions {
   noGlobalError?: boolean;
 }
 
-export const apiPrefix = '/api/inlong/manager';
+export const apiPrefix = '/manager';
 
 const extendRequest = extend({
   prefix: apiPrefix,

@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream source control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Source-API")
 public class StreamSourceController {
 
