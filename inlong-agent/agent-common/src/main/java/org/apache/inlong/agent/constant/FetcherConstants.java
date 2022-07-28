@@ -36,7 +36,7 @@ public class FetcherConstants {
     public static final String AGENT_MANAGER_VIP_HTTP_PORT = "agent.manager.vip.http.port";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PATH = "agent.manager.vip.http.managerIp.path";
-    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getInLongManagerIp";
+    public static final String DEFAULT_AGENT_TDM_VIP_HTTP_PATH = "/agent/getManagerIpList";
 
     public static final String AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "agent.manager.vip.http.prefix.path";
     public static final String DEFAULT_AGENT_MANAGER_VIP_HTTP_PREFIX_PATH = "/manager/openapi";

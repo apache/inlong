@@ -154,7 +154,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build vip url for manager according to config
      *
-     * example - http://127.0.0.1:8080/manager/openapi/agent/getInLongManagerIp
+     * example - http://127.0.0.1:8080/manager/openapi/agent/getManagerIpList
      */
     private String buildVipUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH, DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
