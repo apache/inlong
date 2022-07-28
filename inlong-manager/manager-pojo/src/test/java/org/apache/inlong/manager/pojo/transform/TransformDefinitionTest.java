@@ -32,6 +32,20 @@ import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.FilterSt
 import org.apache.inlong.manager.pojo.transform.filter.FilterDefinition.TargetValue;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition;
 import org.apache.inlong.manager.pojo.transform.joiner.JoinerDefinition.JoinMode;
+import org.apache.inlong.manager.common.pojo.stream.StreamField;
+import org.apache.inlong.manager.common.pojo.stream.StreamNode;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition.OperationType;
+import org.apache.inlong.manager.common.pojo.transform.TransformDefinition.RuleRelation;
+import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition;
+import org.apache.inlong.manager.common.pojo.transform.deduplication.DeDuplicationDefinition.DeDuplicationStrategy;
+import org.apache.inlong.manager.common.pojo.transform.encrypt.EncryptDefinition;
+import org.apache.inlong.manager.common.pojo.transform.encrypt.EncryptDefinition.EncryptRule;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.FilterRule;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.FilterStrategy;
+import org.apache.inlong.manager.common.pojo.transform.filter.FilterDefinition.TargetValue;
+import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition;
+import org.apache.inlong.manager.common.pojo.transform.joiner.JoinerDefinition.JoinMode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -100,6 +114,24 @@ public class TransformDefinitionTest {
 
     public static class BlankStreamNode extends StreamNode {
 
+    }
+
+    @Test
+    public void testEncryptDefinition() {
+        List<EncryptRule> encryptRules = createEncryptRule();
+        EncryptDefinition encryptDefinition = new EncryptDefinition(encryptRules);
+        String definitionJson = gson.toJson(encryptDefinition);
+        EncryptDefinition parsedDefinition = gson.fromJson(definitionJson, EncryptDefinition.class);
+        Assertions.assertEquals(encryptDefinition.getEncryptRules().size(), parsedDefinition.getEncryptRules().size());
+    }
+
+    private List<EncryptRule> createEncryptRule() {
+        List<EncryptRule> encryptRules = Lists.newArrayList();
+        encryptRules.add(new EncryptRule(new StreamField(0, FieldType.STRING.toString(), "name", null, null),
+                "1", "1"));
+        encryptRules.add(new EncryptRule(new StreamField(1, FieldType.INT.toString(), "age", null, null),
+                "2", "1"));
+        return encryptRules;
     }
 
 }
