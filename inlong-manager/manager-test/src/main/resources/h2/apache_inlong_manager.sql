@@ -733,25 +733,6 @@ CREATE TABLE IF NOT EXISTS `sort_source_config`
     KEY `sort_source_config_index` (`cluster_name`, `task_name`)
 );
 
-
--- ----------------------------
--- Table structure for config log report
--- ----------------------------
-CREATE TABLE IF NOT EXISTS `stream_config_log`
-(
-    `ip`               varchar(24)  NOT NULL COMMENT 'client host ip',
-    `version`          varchar(64)           DEFAULT NULL COMMENT 'client version',
-    `inlong_stream_id` varchar(256) NOT NULL DEFAULT '' COMMENT 'Inlong stream ID for consumption',
-    `inlong_group_id`  varchar(256) NOT NULL DEFAULT '' COMMENT 'Inlong group id',
-    `component_name`   varchar(64)  NOT NULL DEFAULT '' COMMENT 'current report info component name',
-    `config_name`      varchar(64)  NOT NULL DEFAULT '' COMMENT 'massage in heartbeat request',
-    `log_type`         int(1)                DEFAULT 0 COMMENT '0 normal, 1 error',
-    `log_info`         text                  DEFAULT NULL COMMENT 'massage in heartbeat request',
-    `report_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'report time',
-    `modify_time`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Modify time',
-    PRIMARY KEY (`ip`, `config_name`, `component_name`, `log_type`, `inlong_stream_id`, `inlong_group_id`)
-);
-
 -- ----------------------------
 -- Table structure for inlong component heartbeat
 -- ----------------------------
