@@ -42,6 +42,11 @@ public class JobConstants extends CommonConstants {
     public static final String DEFAULT_JOB_DESCRIPTION = "default job description";
     public static final String DEFAULT_JOB_LINE_FILTER = "";
 
+    //agent,kubernetes
+    public static final String JOB_META_INFO_LIST = "job.meta.info.list";
+    public static final String META_KUBERNETES = "kubernetes";
+    public static final String META_AGENT = "agent";
+
     //File job
     public static final String JOB_TRIGGER = "job.fileJob.trigger";
     public static final String JOB_DIR_FILTER_PATTERN = "job.fileJob.dir.pattern";
@@ -49,6 +54,8 @@ public class JobConstants extends CommonConstants {
     public static final String JOB_FILE_MAX_WAIT = "job.fileJob.file.max.wait";
     public static final String JOB_CYCLE_UNIT = "job.fileJob.cycleUnit";
     public static final String JOB_FILE_COLLECT_TYPE = "job.fileJob.collectType";
+    public static final String JOB_FILE_LINE_END_PATTERN = "job.fileJob.line.end.pattern";
+    public static final String JOB_FILE_DB_OFFSETS = "job.fileJob.db.offsets";
 
     //Binlog job
     public static final String JOB_DATABASE_USER = "job.binlogJob.user";
@@ -122,6 +129,11 @@ public class JobConstants extends CommonConstants {
      * delimiter to split offset for different task
      */
     public static final String JOB_OFFSET_DELIMITER = "_";
+
+    /**
+     * connect task and offset
+     */
+    public static final String JOB_OFFSET_DELIMITER_TASK = "||";
 
     /**
      * delimiter to split all partition offset for all kafka tasks

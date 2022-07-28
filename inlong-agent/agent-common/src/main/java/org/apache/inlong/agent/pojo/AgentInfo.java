@@ -13,22 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.agent.plugin.sources.snapshot;
+package org.apache.inlong.agent.pojo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
 
 /**
- * binlog snapshot
+ * AgentInfo
  */
-public class BinlogSnapshotBase extends LocalSnapshot {
+@Data
+public class AgentInfo {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
-
-    public BinlogSnapshotBase(String filePath) {
-        super(filePath);
-        log.info("binlog offset file path: {}", filePath);
-    }
+    private String name;
+    private String ip;
+    private String version;
+    private String type = "InLong-Agent";
 }

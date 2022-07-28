@@ -13,22 +13,30 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.agent.plugin.sources.snapshot;
+package org.apache.inlong.agent.plugin.metadata;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.agent.plugin.SourceMeta;
+
+import static org.apache.inlong.agent.constant.JobConstants.META_AGENT;
+import static org.apache.inlong.agent.constant.JobConstants.META_KUBERNETES;
 
 /**
- * binlog snapshot
+ * metadata factory
  */
-public class BinlogSnapshotBase extends LocalSnapshot {
+public class MetadataFactory {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
-
-    public BinlogSnapshotBase(String filePath) {
-        super(filePath);
-        log.info("binlog offset file path: {}", filePath);
+    public static SourceMeta getInstance(String metaType) {
+        switch (metaType) {
+            case META_KUBERNETES:
+                return new KubernetesMetadata();
+            case META_AGENT:
+                return new AgentMetadata();
+            default:
+                return null;
+        }
     }
+
 }

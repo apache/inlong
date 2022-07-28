@@ -13,22 +13,29 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.agent.plugin.sources.snapshot;
+package org.apache.inlong.agent.plugin.metadata;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.plugin.SourceMeta;
+import org.apache.inlong.agent.pojo.AgentInfo;
 
 /**
- * binlog snapshot
+ * agent information
  */
-public class BinlogSnapshotBase extends LocalSnapshot {
+public class AgentMetadata implements SourceMeta {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
+    @Override
+    public void init(JobProfile jobConf) {
 
-    public BinlogSnapshotBase(String filePath) {
-        super(filePath);
-        log.info("binlog offset file path: {}", filePath);
+    }
+
+    /**
+     * get agent information
+     */
+    public AgentInfo getAgentInfo() {
+        return new AgentInfo();
     }
 }

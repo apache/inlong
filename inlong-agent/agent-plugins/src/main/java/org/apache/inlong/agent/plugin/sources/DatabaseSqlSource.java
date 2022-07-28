@@ -20,7 +20,9 @@ package org.apache.inlong.agent.plugin.sources;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.SourceMeta;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ public class DatabaseSqlSource implements Source {
     private static final String DATABASE_SOURCE_TAG_NAME = "AgentDatabaseSourceMetric";
 
     private static AtomicLong metricsIndex = new AtomicLong(0);
+    private List<SourceMeta> sourceMetas;
 
     public DatabaseSqlSource() {
     }
@@ -94,4 +97,10 @@ public class DatabaseSqlSource implements Source {
         }
         return readerList;
     }
+
+    @Override
+    public void initSourceMeta(JobProfile jobProfile) {
+        this.sourceMetas = MetaDataUtils.getSourceMeta(jobProfile);
+    }
+
 }

@@ -53,8 +53,10 @@ import static org.apache.inlong.agent.constant.CommonConstants.PROXY_INLONG_STRE
 import static org.apache.inlong.agent.constant.JobConstants.JOB_CYCLE_UNIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_DIR_FILTER_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_COLLECT_TYPE;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_LINE_END_PATTERN;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_MAX_WAIT;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_FILE_TIME_OFFSET;
+import static org.apache.inlong.agent.constant.JobConstants.JOB_META_INFO_LIST;
 import static org.apache.inlong.agent.constant.JobConstants.JOB_READ_WAIT_TIMEOUT;
 import static org.awaitility.Awaitility.await;
 
@@ -241,6 +243,44 @@ public class TestFileAgent {
             }
         }
         createFiles(theDateBefore);
+        assertJobSuccess();
+    }
+
+    /**
+     * Custom line end character.
+     */
+    @Test
+    public void testLineEnd() throws Exception {
+        URI uri = Objects.requireNonNull(getClass().getClassLoader().getResource("test")).toURI();
+        String path = Paths.get(uri).toString();
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
+        triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);
+        triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
+        triggerProfile.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        triggerProfile.set(JOB_FILE_LINE_END_PATTERN, "bb");
+        TriggerManager triggerManager = agent.getManager().getTriggerManager();
+        triggerManager.submitTrigger(triggerProfile);
+        Thread.sleep(10000);
+        assertJobSuccess();
+    }
+
+    /**
+     * meta data init
+     */
+    @Test
+    public void testLineAddMeta() throws Exception {
+        URI uri = Objects.requireNonNull(getClass().getClassLoader().getResource("test")).toURI();
+        String path = Paths.get(uri).toString();
+        String jsonString = TestUtils.getTestTriggerProfile();
+        TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
+        triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);
+        triggerProfile.set(JOB_FILE_MAX_WAIT, "-1");
+        triggerProfile.set(JOB_FILE_COLLECT_TYPE, FileCollectType.FULL);
+        triggerProfile.set(JOB_META_INFO_LIST, "kubernetes");
+        TriggerManager triggerManager = agent.getManager().getTriggerManager();
+        triggerManager.submitTrigger(triggerProfile);
+        Thread.sleep(10000);
         assertJobSuccess();
     }
 

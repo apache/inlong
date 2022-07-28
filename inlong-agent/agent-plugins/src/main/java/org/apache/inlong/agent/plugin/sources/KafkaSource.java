@@ -23,7 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
+import org.apache.inlong.agent.plugin.SourceMeta;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
+import org.apache.inlong.agent.plugin.utils.MetaDataUtils;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
@@ -71,6 +73,7 @@ public class KafkaSource implements Source {
     private static final String KAFKA_SESSION_TIMEOUT = "session.timeout.ms";
     private static final Gson gson = new Gson();
     private static AtomicLong metricsIndex = new AtomicLong(0);
+    private List<SourceMeta> sourceMetas;
 
     public KafkaSource() {
     }
@@ -140,6 +143,11 @@ public class KafkaSource implements Source {
             GLOBAL_METRICS.incSourceFailCount(metricTagName);
         }
         return result;
+    }
+
+    @Override
+    public void initSourceMeta(JobProfile jobProfile) {
+        this.sourceMetas = MetaDataUtils.getSourceMeta(jobProfile);
     }
 
     private void addValidator(String filterPattern, KafkaReader kafkaReader) {

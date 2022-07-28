@@ -13,22 +13,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.inlong.agent.plugin.sources.snapshot;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.apache.inlong.agent.constant;
 
 /**
- * binlog snapshot
+ * file constants
  */
-public class BinlogSnapshotBase extends LocalSnapshot {
+public enum FileConstants {
 
-    private static final Logger log = LoggerFactory.getLogger(BinlogSnapshotBase.class);
+    //file collect type
+    INCREMENT,
+    FULL,
 
-    public BinlogSnapshotBase(String filePath) {
-        super(filePath);
-        log.info("binlog offset file path: {}", filePath);
-    }
+    //file content type
+    JSON,
+    SYMBOL,
+    ;
 }
