@@ -164,7 +164,7 @@ public class KafkaReader<K, V> extends AbstractReader {
     }
 
     @Override
-    public void setWaitMillisecs(long millis) {
+    public void setWaitMillisecond(long millis) {
         waitTimeout = millis;
     }
 
