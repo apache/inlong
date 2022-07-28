@@ -635,19 +635,20 @@ public class InlongClusterServiceImpl implements InlongClusterService {
         // if more than one data proxy cluster, currently takes first
         // TODO consider the data proxy load and re-balance
         InlongClusterEntity clusterEntity = clusterList.get(0);
-        Integer clusterId = clusterEntity.getId();
-        List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(clusterId);
         List<DataProxyNodeInfo> nodeInfos = new ArrayList<>();
-        for (InlongClusterNodeEntity nodeEntity : nodeList) {
-            DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
-            nodeInfo.setId(nodeEntity.getId());
-            nodeInfo.setIp(nodeEntity.getIp());
-            nodeInfo.setPort(nodeEntity.getPort());
-            nodeInfos.add(nodeInfo);
+        for (InlongClusterEntity entity : clusterList) {
+            List<InlongClusterNodeEntity> nodeList = clusterNodeMapper.selectByParentId(entity.getId());
+            for (InlongClusterNodeEntity nodeEntity : nodeList) {
+                DataProxyNodeInfo nodeInfo = new DataProxyNodeInfo();
+                nodeInfo.setId(nodeEntity.getId());
+                nodeInfo.setIp(nodeEntity.getIp());
+                nodeInfo.setPort(nodeEntity.getPort());
+                nodeInfos.add(nodeInfo);
+            }
         }
 
         DataProxyNodeResponse response = new DataProxyNodeResponse();
-        response.setClusterId(clusterId);
+        response.setClusterId(clusterEntity.getId());
         response.setNodeList(nodeInfos);
 
         if (LOGGER.isDebugEnabled()) {
