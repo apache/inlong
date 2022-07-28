@@ -115,8 +115,8 @@ public class TestTextFileReader {
             if (message == null) {
                 break;
             }
-            Assert.assertTrue("hello".equals(message.toString())
-                    || "world".equals(message.toString()));
+            Assert.assertTrue(message.toString().contains("hello")
+                    || message.toString().contains("world"));
             LOGGER.info("message is {}", message.toString());
         }
     }
