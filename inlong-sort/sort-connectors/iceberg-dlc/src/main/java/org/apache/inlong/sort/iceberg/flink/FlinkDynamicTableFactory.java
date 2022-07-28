@@ -43,7 +43,6 @@ import org.apache.iceberg.flink.IcebergTableSource;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
-import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
 import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 
 import java.util.Map;
@@ -180,10 +179,11 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
         // Create database if not exists in the external catalog.
         if (!flinkCatalog.databaseExists(catalogDatabase)) {
             try {
-                flinkCatalog.createDatabase(catalogDatabase, new CatalogDatabaseImpl(Maps.newHashMap(), null), true);
+                flinkCatalog.createDatabase(catalogDatabase,
+                        new CatalogDatabaseImpl(Maps.newHashMap(), null), true);
             } catch (DatabaseAlreadyExistException e) {
-                throw new AlreadyExistsException(e, "Database %s already exists in the iceberg catalog %s.", catalogName,
-                        catalogDatabase);
+                throw new AlreadyExistsException(
+                        e, "Database %s already exists in the iceberg catalog %s.", catalogName, catalogDatabase);
             }
         }
 
@@ -197,7 +197,8 @@ public class FlinkDynamicTableFactory implements DynamicTableSinkFactory, Dynami
             }
         }
 
-        return TableLoader.fromCatalog(flinkCatalog.getCatalogLoader(), TableIdentifier.of(catalogDatabase, catalogTable));
+        return TableLoader.fromCatalog(
+                flinkCatalog.getCatalogLoader(), TableIdentifier.of(catalogDatabase, catalogTable));
     }
 
     private static TableLoader createTableLoader(FlinkCatalog catalog, ObjectPath objectPath) {

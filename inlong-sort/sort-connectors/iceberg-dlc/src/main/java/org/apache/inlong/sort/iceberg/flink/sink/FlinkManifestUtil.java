@@ -39,83 +39,83 @@ import java.util.List;
 import java.util.function.Supplier;
 
 class FlinkManifestUtil {
-  private static final int FORMAT_V2 = 2;
-  private static final Long DUMMY_SNAPSHOT_ID = 0L;
+    private static final int FORMAT_V2 = 2;
+    private static final Long DUMMY_SNAPSHOT_ID = 0L;
 
-  private FlinkManifestUtil() {
-  }
-
-  static ManifestFile writeDataFiles(OutputFile outputFile, PartitionSpec spec, List<DataFile> dataFiles)
-      throws IOException {
-    ManifestWriter<DataFile> writer = ManifestFiles.write(FORMAT_V2, spec, outputFile, DUMMY_SNAPSHOT_ID);
-
-    try (ManifestWriter<DataFile> closeableWriter = writer) {
-      closeableWriter.addAll(dataFiles);
+    private FlinkManifestUtil() {
     }
 
-    return writer.toManifestFile();
-  }
+    static ManifestFile writeDataFiles(OutputFile outputFile, PartitionSpec spec, List<DataFile> dataFiles)
+            throws IOException {
+        ManifestWriter<DataFile> writer = ManifestFiles.write(FORMAT_V2, spec, outputFile, DUMMY_SNAPSHOT_ID);
 
-  static List<DataFile> readDataFiles(ManifestFile manifestFile, FileIO io) throws IOException {
-    try (CloseableIterable<DataFile> dataFiles = ManifestFiles.read(manifestFile, io)) {
-      return Lists.newArrayList(dataFiles);
-    }
-  }
-
-  static ManifestOutputFileFactory createOutputFileFactory(Table table, String flinkJobId, String operatorUniqueId,
-                                                           int subTaskId, long attemptNumber) {
-    TableOperations ops = ((HasTableOperations) table).operations();
-    return new ManifestOutputFileFactory(ops, table.io(), table.properties(), flinkJobId, operatorUniqueId,
-        subTaskId, attemptNumber);
-  }
-
-  static DeltaManifests writeCompletedFiles(WriteResult result,
-                                            Supplier<OutputFile> outputFileSupplier,
-                                            PartitionSpec spec) throws IOException {
-
-    ManifestFile dataManifest = null;
-    ManifestFile deleteManifest = null;
-
-    // Write the completed data files into a newly created data manifest file.
-    if (result.dataFiles() != null && result.dataFiles().length > 0) {
-      dataManifest = writeDataFiles(outputFileSupplier.get(), spec, Lists.newArrayList(result.dataFiles()));
-    }
-
-    // Write the completed delete files into a newly created delete manifest file.
-    if (result.deleteFiles() != null && result.deleteFiles().length > 0) {
-      OutputFile deleteManifestFile = outputFileSupplier.get();
-
-      ManifestWriter<DeleteFile> deleteManifestWriter = ManifestFiles.writeDeleteManifest(FORMAT_V2, spec,
-          deleteManifestFile, DUMMY_SNAPSHOT_ID);
-      try (ManifestWriter<DeleteFile> writer = deleteManifestWriter) {
-        for (DeleteFile deleteFile : result.deleteFiles()) {
-          writer.add(deleteFile);
+        try (ManifestWriter<DataFile> closeableWriter = writer) {
+            closeableWriter.addAll(dataFiles);
         }
-      }
 
-      deleteManifest = deleteManifestWriter.toManifestFile();
+        return writer.toManifestFile();
     }
 
-    return new DeltaManifests(dataManifest, deleteManifest, result.referencedDataFiles());
-  }
-
-  static WriteResult readCompletedFiles(DeltaManifests deltaManifests, FileIO io) throws IOException {
-    WriteResult.Builder builder = WriteResult.builder();
-
-    // Read the completed data files from persisted data manifest file.
-    if (deltaManifests.dataManifest() != null) {
-      builder.addDataFiles(readDataFiles(deltaManifests.dataManifest(), io));
+    static List<DataFile> readDataFiles(ManifestFile manifestFile, FileIO io) throws IOException {
+        try (CloseableIterable<DataFile> dataFiles = ManifestFiles.read(manifestFile, io)) {
+            return Lists.newArrayList(dataFiles);
+        }
     }
 
-    // Read the completed delete files from persisted delete manifests file.
-    if (deltaManifests.deleteManifest() != null) {
-      try (CloseableIterable<DeleteFile> deleteFiles = ManifestFiles
-          .readDeleteManifest(deltaManifests.deleteManifest(), io, null)) {
-        builder.addDeleteFiles(deleteFiles);
-      }
+    static ManifestOutputFileFactory createOutputFileFactory(Table table, String flinkJobId, String operatorUniqueId,
+            int subTaskId, long attemptNumber) {
+        TableOperations ops = ((HasTableOperations) table).operations();
+        return new ManifestOutputFileFactory(ops, table.io(), table.properties(), flinkJobId, operatorUniqueId,
+                subTaskId, attemptNumber);
     }
 
-    return builder.addReferencedDataFiles(deltaManifests.referencedDataFiles())
-        .build();
-  }
+    static DeltaManifests writeCompletedFiles(WriteResult result,
+            Supplier<OutputFile> outputFileSupplier,
+            PartitionSpec spec) throws IOException {
+
+        ManifestFile dataManifest = null;
+        ManifestFile deleteManifest = null;
+
+        // Write the completed data files into a newly created data manifest file.
+        if (result.dataFiles() != null && result.dataFiles().length > 0) {
+            dataManifest = writeDataFiles(outputFileSupplier.get(), spec, Lists.newArrayList(result.dataFiles()));
+        }
+
+        // Write the completed delete files into a newly created delete manifest file.
+        if (result.deleteFiles() != null && result.deleteFiles().length > 0) {
+            OutputFile deleteManifestFile = outputFileSupplier.get();
+
+            ManifestWriter<DeleteFile> deleteManifestWriter = ManifestFiles.writeDeleteManifest(FORMAT_V2, spec,
+                    deleteManifestFile, DUMMY_SNAPSHOT_ID);
+            try (ManifestWriter<DeleteFile> writer = deleteManifestWriter) {
+                for (DeleteFile deleteFile : result.deleteFiles()) {
+                    writer.add(deleteFile);
+                }
+            }
+
+            deleteManifest = deleteManifestWriter.toManifestFile();
+        }
+
+        return new DeltaManifests(dataManifest, deleteManifest, result.referencedDataFiles());
+    }
+
+    static WriteResult readCompletedFiles(DeltaManifests deltaManifests, FileIO io) throws IOException {
+        WriteResult.Builder builder = WriteResult.builder();
+
+        // Read the completed data files from persisted data manifest file.
+        if (deltaManifests.dataManifest() != null) {
+            builder.addDataFiles(readDataFiles(deltaManifests.dataManifest(), io));
+        }
+
+        // Read the completed delete files from persisted delete manifests file.
+        if (deltaManifests.deleteManifest() != null) {
+            try (CloseableIterable<DeleteFile> deleteFiles = ManifestFiles
+                    .readDeleteManifest(deltaManifests.deleteManifest(), io, null)) {
+                builder.addDeleteFiles(deleteFiles);
+            }
+        }
+
+        return builder.addReferencedDataFiles(deltaManifests.referencedDataFiles())
+                .build();
+    }
 }

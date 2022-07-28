@@ -32,74 +32,74 @@ import org.apache.iceberg.relocated.com.google.common.base.MoreObjects;
 import java.io.IOException;
 
 class IcebergStreamWriter<T> extends AbstractStreamOperator<WriteResult>
-    implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
+        implements OneInputStreamOperator<T, WriteResult>, BoundedOneInput {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final String fullTableName;
-  private final TaskWriterFactory<T> taskWriterFactory;
+    private final String fullTableName;
+    private final TaskWriterFactory<T> taskWriterFactory;
 
-  private transient TaskWriter<T> writer;
-  private transient int subTaskId;
-  private transient int attemptId;
+    private transient TaskWriter<T> writer;
+    private transient int subTaskId;
+    private transient int attemptId;
 
-  IcebergStreamWriter(String fullTableName, TaskWriterFactory<T> taskWriterFactory) {
-    this.fullTableName = fullTableName;
-    this.taskWriterFactory = taskWriterFactory;
-    setChainingStrategy(ChainingStrategy.ALWAYS);
-  }
-
-  @Override
-  public void open() {
-    this.subTaskId = getRuntimeContext().getIndexOfThisSubtask();
-    this.attemptId = getRuntimeContext().getAttemptNumber();
-
-    // Initialize the task writer factory.
-    this.taskWriterFactory.initialize(subTaskId, attemptId);
-
-    // Initialize the task writer.
-    this.writer = taskWriterFactory.create();
-  }
-
-  @Override
-  public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
-    // close all open files and emit files to downstream committer operator
-    emit(writer.complete());
-
-    this.writer = taskWriterFactory.create();
-  }
-
-  @Override
-  public void processElement(StreamRecord<T> element) throws Exception {
-    writer.write(element.getValue());
-  }
-
-  @Override
-  public void close() throws Exception {
-    super.close();
-    if (writer != null) {
-      writer.close();
-      writer = null;
+    IcebergStreamWriter(String fullTableName, TaskWriterFactory<T> taskWriterFactory) {
+        this.fullTableName = fullTableName;
+        this.taskWriterFactory = taskWriterFactory;
+        setChainingStrategy(ChainingStrategy.ALWAYS);
     }
-  }
 
-  @Override
-  public void endInput() throws IOException {
-    // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit the remaining
-    // completed files to downstream before closing the writer so that we won't miss any of them.
-    emit(writer.complete());
-  }
+    @Override
+    public void open() {
+        this.subTaskId = getRuntimeContext().getIndexOfThisSubtask();
+        this.attemptId = getRuntimeContext().getAttemptNumber();
 
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("table_name", fullTableName)
-        .add("subtask_id", subTaskId)
-        .add("attempt_id", attemptId)
-        .toString();
-  }
+        // Initialize the task writer factory.
+        this.taskWriterFactory.initialize(subTaskId, attemptId);
 
-  private void emit(WriteResult result) {
-    output.collect(new StreamRecord<>(result));
-  }
+        // Initialize the task writer.
+        this.writer = taskWriterFactory.create();
+    }
+
+    @Override
+    public void prepareSnapshotPreBarrier(long checkpointId) throws Exception {
+        // close all open files and emit files to downstream committer operator
+        emit(writer.complete());
+
+        this.writer = taskWriterFactory.create();
+    }
+
+    @Override
+    public void processElement(StreamRecord<T> element) throws Exception {
+        writer.write(element.getValue());
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        if (writer != null) {
+            writer.close();
+            writer = null;
+        }
+    }
+
+    @Override
+    public void endInput() throws IOException {
+        // For bounded stream, it may don't enable the checkpoint mechanism so we'd better to emit the remaining
+        // completed files to downstream before closing the writer so that we won't miss any of them.
+        emit(writer.complete());
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("table_name", fullTableName)
+                .add("subtask_id", subTaskId)
+                .add("attempt_id", attemptId)
+                .toString();
+    }
+
+    private void emit(WriteResult result) {
+        output.collect(new StreamRecord<>(result));
+    }
 }

@@ -87,7 +87,8 @@ public class FlinkCatalogFactory implements CatalogFactory {
         if (catalogImpl != null) {
             String catalogType = properties.get(ICEBERG_CATALOG_TYPE);
             Preconditions.checkArgument(catalogType == null,
-                    "Cannot create catalog %s, both catalog-type and catalog-impl are set: catalog-type=%s, catalog-impl=%s",
+                    "Cannot create catalog %s, both catalog-type and catalog-impl are set: "
+                            + "catalog-type=%s, catalog-impl=%s",
                     name, catalogType, catalogImpl);
             return CatalogLoader.custom(name, properties, hadoopConf, catalogImpl);
         }
@@ -95,8 +96,8 @@ public class FlinkCatalogFactory implements CatalogFactory {
         String catalogType = properties.getOrDefault(ICEBERG_CATALOG_TYPE, ICEBERG_CATALOG_TYPE_HIVE);
         switch (catalogType.toLowerCase(Locale.ENGLISH)) {
             case ICEBERG_CATALOG_TYPE_HIVE:
-                // The values of properties 'uri', 'warehouse', 'hive-conf-dir' are allowed to be null, in that case it will
-                // fallback to parse those values from hadoop configuration which is loaded from classpath.
+                // The values of properties 'uri', 'warehouse', 'hive-conf-dir' are allowed to be null, in that case
+                // it will fallback to parse those values from hadoop configuration which is loaded from classpath.
                 String hiveConfDir = properties.get(HIVE_CONF_DIR);
                 Configuration newHadoopConf = mergeHiveConf(hadoopConf, hiveConfDir);
                 return CatalogLoader.hive(name, newHadoopConf, properties);
@@ -105,8 +106,8 @@ public class FlinkCatalogFactory implements CatalogFactory {
                 return CatalogLoader.hadoop(name, hadoopConf, properties);
 
             default:
-                throw new UnsupportedOperationException("Unknown catalog-type: " + catalogType +
-                        " (Must be 'hive' or 'hadoop')");
+                throw new UnsupportedOperationException("Unknown catalog-type: " + catalogType
+                        + " (Must be 'hive' or 'hadoop')");
         }
     }
 

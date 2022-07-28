@@ -27,46 +27,46 @@ import java.util.List;
 
 class DeltaManifests {
 
-  private static final CharSequence[] EMPTY_REF_DATA_FILES = new CharSequence[0];
+    private static final CharSequence[] EMPTY_REF_DATA_FILES = new CharSequence[0];
 
-  private final ManifestFile dataManifest;
-  private final ManifestFile deleteManifest;
-  private final CharSequence[] referencedDataFiles;
+    private final ManifestFile dataManifest;
+    private final ManifestFile deleteManifest;
+    private final CharSequence[] referencedDataFiles;
 
-  DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest) {
-    this(dataManifest, deleteManifest, EMPTY_REF_DATA_FILES);
-  }
-
-  DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest, CharSequence[] referencedDataFiles) {
-    Preconditions.checkNotNull(referencedDataFiles, "Referenced data files shouldn't be null.");
-
-    this.dataManifest = dataManifest;
-    this.deleteManifest = deleteManifest;
-    this.referencedDataFiles = referencedDataFiles;
-  }
-
-  ManifestFile dataManifest() {
-    return dataManifest;
-  }
-
-  ManifestFile deleteManifest() {
-    return deleteManifest;
-  }
-
-  CharSequence[] referencedDataFiles() {
-    return referencedDataFiles;
-  }
-
-  List<ManifestFile> manifests() {
-    List<ManifestFile> manifests = Lists.newArrayListWithCapacity(2);
-    if (dataManifest != null) {
-      manifests.add(dataManifest);
+    DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest) {
+        this(dataManifest, deleteManifest, EMPTY_REF_DATA_FILES);
     }
 
-    if (deleteManifest != null) {
-      manifests.add(deleteManifest);
+    DeltaManifests(ManifestFile dataManifest, ManifestFile deleteManifest, CharSequence[] referencedDataFiles) {
+        Preconditions.checkNotNull(referencedDataFiles, "Referenced data files shouldn't be null.");
+
+        this.dataManifest = dataManifest;
+        this.deleteManifest = deleteManifest;
+        this.referencedDataFiles = referencedDataFiles;
     }
 
-    return manifests;
-  }
+    ManifestFile dataManifest() {
+        return dataManifest;
+    }
+
+    ManifestFile deleteManifest() {
+        return deleteManifest;
+    }
+
+    CharSequence[] referencedDataFiles() {
+        return referencedDataFiles;
+    }
+
+    List<ManifestFile> manifests() {
+        List<ManifestFile> manifests = Lists.newArrayListWithCapacity(2);
+        if (dataManifest != null) {
+            manifests.add(dataManifest);
+        }
+
+        if (deleteManifest != null) {
+            manifests.add(deleteManifest);
+        }
+
+        return manifests;
+    }
 }

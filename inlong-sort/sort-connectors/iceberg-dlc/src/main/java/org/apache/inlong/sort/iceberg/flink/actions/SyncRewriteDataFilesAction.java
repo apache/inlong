@@ -19,14 +19,12 @@
 
 package org.apache.inlong.sort.iceberg.flink.actions;
 
-import com.qcloud.dlc.common.Constants;
 import org.apache.iceberg.actions.Action;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -56,7 +54,6 @@ import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesA
 import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_REGION_DEFAULT;
 import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_TASK_TYPE;
 import static org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption.URL_TASK_TYPE_DEFAULT;
-
 
 /**
  * Do rewrite action with dlc Spark SQL.
@@ -96,7 +93,7 @@ public class SyncRewriteDataFilesAction implements
         Connection connection = buildConnection();
         if (connection == null) {
             LOG.error("Can't get DLC JDBC Connection");
-            return null;
+            return new RewriteResult("fail.");
         }
 
         String dbName = options.get(REWRITE_DB_NAME);
@@ -119,7 +116,9 @@ public class SyncRewriteDataFilesAction implements
                 while (rs.next()) {
                     StringBuilder lineResult = new StringBuilder();
                     for (int i = 1; i <= columnsNumber; i++) {
-                        if (i > 1) lineResult.append(",  ");
+                        if (i > 1) {
+                            lineResult.append(",  ");
+                        }
                         lineResult.append(rsmd.getColumnName(i) + ":" + rs.getString(i));
                     }
                     LOG.info("[Result:]{}", lineResult);
@@ -130,7 +129,8 @@ public class SyncRewriteDataFilesAction implements
             statement.close();
             connection.close();
         } catch (SQLException e) {
-            LOG.warn("");
+            LOG.warn("[Result:]Execute rewrite sql err.", e);
+            return new RewriteResult("fail.");
         }
         return new RewriteResult("success.");
     }

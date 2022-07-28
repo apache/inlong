@@ -30,7 +30,6 @@ import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 import org.apache.iceberg.flink.TableLoader;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesAction;
 import org.apache.inlong.sort.iceberg.flink.actions.SyncRewriteDataFilesActionOption;
 import org.apache.inlong.sort.iceberg.flink.sink.FlinkSink;
 
@@ -38,72 +37,72 @@ import java.util.List;
 import java.util.Map;
 
 public class IcebergTableSink implements DynamicTableSink, SupportsPartitioning, SupportsOverwrite {
-  private final TableLoader tableLoader;
-  private final TableSchema tableSchema;
-  private final SyncRewriteDataFilesActionOption compactAction;
+    private final TableLoader tableLoader;
+    private final TableSchema tableSchema;
+    private final SyncRewriteDataFilesActionOption compactAction;
 
-  private boolean overwrite = false;
+    private boolean overwrite = false;
 
-  private IcebergTableSink(IcebergTableSink toCopy) {
-    this.tableLoader = toCopy.tableLoader;
-    this.tableSchema = toCopy.tableSchema;
-    this.compactAction = toCopy.compactAction;
-    this.overwrite = toCopy.overwrite;
-  }
-
-  public IcebergTableSink(
-          TableLoader tableLoader,
-          TableSchema tableSchema,
-          SyncRewriteDataFilesActionOption compactAction) {
-    this.tableLoader = tableLoader;
-    this.tableSchema = tableSchema;
-    this.compactAction = compactAction;
-  }
-
-  @Override
-  public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
-    Preconditions.checkState(!overwrite || context.isBounded(),
-        "Unbounded data stream doesn't support overwrite operation.");
-
-    List<String> equalityColumns = tableSchema.getPrimaryKey()
-        .map(UniqueConstraint::getColumns)
-        .orElseGet(ImmutableList::of);
-
-    return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
-        .tableLoader(tableLoader)
-        .tableSchema(tableSchema)
-        .equalityFieldColumns(equalityColumns)
-        .overwrite(overwrite)
-        .compact(compactAction)
-        .append();
-  }
-
-  @Override
-  public void applyStaticPartition(Map<String, String> partition) {
-    // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
-  }
-
-  @Override
-  public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
-    ChangelogMode.Builder builder = ChangelogMode.newBuilder();
-    for (RowKind kind : requestedMode.getContainedKinds()) {
-      builder.addContainedKind(kind);
+    private IcebergTableSink(IcebergTableSink toCopy) {
+        this.tableLoader = toCopy.tableLoader;
+        this.tableSchema = toCopy.tableSchema;
+        this.compactAction = toCopy.compactAction;
+        this.overwrite = toCopy.overwrite;
     }
-    return builder.build();
-  }
 
-  @Override
-  public DynamicTableSink copy() {
-    return new IcebergTableSink(this);
-  }
+    public IcebergTableSink(
+            TableLoader tableLoader,
+            TableSchema tableSchema,
+            SyncRewriteDataFilesActionOption compactAction) {
+        this.tableLoader = tableLoader;
+        this.tableSchema = tableSchema;
+        this.compactAction = compactAction;
+    }
 
-  @Override
-  public String asSummaryString() {
-    return "Iceberg table sink";
-  }
+    @Override
+    public SinkRuntimeProvider getSinkRuntimeProvider(Context context) {
+        Preconditions.checkState(!overwrite || context.isBounded(),
+                "Unbounded data stream doesn't support overwrite operation.");
 
-  @Override
-  public void applyOverwrite(boolean newOverwrite) {
-    this.overwrite = newOverwrite;
-  }
+        List<String> equalityColumns = tableSchema.getPrimaryKey()
+                .map(UniqueConstraint::getColumns)
+                .orElseGet(ImmutableList::of);
+
+        return (DataStreamSinkProvider) dataStream -> FlinkSink.forRowData(dataStream)
+                .tableLoader(tableLoader)
+                .tableSchema(tableSchema)
+                .equalityFieldColumns(equalityColumns)
+                .overwrite(overwrite)
+                .compact(compactAction)
+                .append();
+    }
+
+    @Override
+    public void applyStaticPartition(Map<String, String> partition) {
+        // The flink's PartitionFanoutWriter will handle the static partition write policy automatically.
+    }
+
+    @Override
+    public ChangelogMode getChangelogMode(ChangelogMode requestedMode) {
+        ChangelogMode.Builder builder = ChangelogMode.newBuilder();
+        for (RowKind kind : requestedMode.getContainedKinds()) {
+            builder.addContainedKind(kind);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public DynamicTableSink copy() {
+        return new IcebergTableSink(this);
+    }
+
+    @Override
+    public String asSummaryString() {
+        return "Iceberg table sink";
+    }
+
+    @Override
+    public void applyOverwrite(boolean newOverwrite) {
+        this.overwrite = newOverwrite;
+    }
 }

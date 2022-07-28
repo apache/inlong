@@ -112,7 +112,8 @@ public class FlinkCatalog extends AbstractCatalog {
 
         Catalog originalCatalog = catalogLoader.loadCatalog();
         icebergCatalog = cacheEnabled ? CachingCatalog.wrap(originalCatalog) : originalCatalog;
-        asNamespaceCatalog = originalCatalog instanceof SupportsNamespaces ? (SupportsNamespaces) originalCatalog : null;
+        asNamespaceCatalog = originalCatalog instanceof SupportsNamespaces
+                ? (SupportsNamespaces) originalCatalog : null;
         closeable = originalCatalog instanceof Closeable ? (Closeable) originalCatalog : null;
     }
 
@@ -364,9 +365,9 @@ public class FlinkCatalog extends AbstractCatalog {
     public void createTable(ObjectPath tablePath, CatalogBaseTable table, boolean ignoreIfExists)
             throws CatalogException, TableAlreadyExistException {
         if (Objects.equals(table.getOptions().get("connector"), FlinkDynamicTableFactory.FACTORY_IDENTIFIER)) {
-            throw new IllegalArgumentException("Cannot create the table with 'connector'='iceberg' table property in " +
-                    "an iceberg catalog, Please create table with 'connector'='iceberg' property in a non-iceberg catalog or " +
-                    "create table without 'connector'='iceberg' related properties in an iceberg table.");
+            throw new IllegalArgumentException("Cannot create the table with 'connector'='iceberg' table property in "
+                    + "an iceberg catalog, Please create table with 'connector'='iceberg' property in a non-iceberg "
+                    + "catalog or create table without 'connector'='iceberg' related properties in an iceberg table.");
         }
 
         createIcebergTable(tablePath, table, ignoreIfExists);
@@ -506,8 +507,8 @@ public class FlinkCatalog extends AbstractCatalog {
 
     private static void commitChanges(Table table, String setLocation, String setSnapshotId,
             String pickSnapshotId, Map<String, String> setProperties) {
-        // don't allow setting the snapshot and picking a commit at the same time because order is ambiguous and choosing
-        // one order leads to different results
+        // don't allow setting the snapshot and picking a commit at the same time because order is ambiguous and
+        // choosing one order leads to different results
         Preconditions.checkArgument(setSnapshotId == null || pickSnapshotId == null,
                 "Cannot set the current snapshot ID and cherry-pick snapshot changes");
 
@@ -720,7 +721,8 @@ public class FlinkCatalog extends AbstractCatalog {
     }
 
     @Override
-    public CatalogColumnStatistics getPartitionColumnStatistics(ObjectPath tablePath, CatalogPartitionSpec partitionSpec)
+    public CatalogColumnStatistics getPartitionColumnStatistics(
+            ObjectPath tablePath, CatalogPartitionSpec partitionSpec)
             throws CatalogException {
         return CatalogColumnStatistics.UNKNOWN;
     }
