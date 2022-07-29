@@ -165,7 +165,6 @@ public class TestFileAgent {
         String path = Paths.get(uri).toString();
         String fileName = path + "/increment_test.txt";
         TestUtils.deleteFile(fileName);
-
         String jsonString = TestUtils.getTestTriggerProfile();
         TriggerProfile triggerProfile = TriggerProfile.parseJsonStr(jsonString);
         triggerProfile.set(JOB_DIR_FILTER_PATTERN, path);

@@ -249,7 +249,7 @@ public class TextFileReader extends AbstractReader {
                             lineStringBuffer.put(file, splitLines[i]);
                             break;
                         }
-                        resultLines.add(splitLines[i]);
+                        resultLines.add(splitLines[i].trim());
                     }
                     if (0 == length - 1) {
                         lineStringBuffer.remove(file);
