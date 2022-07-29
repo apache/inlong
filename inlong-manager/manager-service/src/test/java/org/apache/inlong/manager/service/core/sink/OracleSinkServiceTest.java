@@ -118,7 +118,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     /**
      * Just using in local test.
      */
-    @Test
+    @Disabled
     public void testDbResource() {
         String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
         String username = "c###inlong_test";
