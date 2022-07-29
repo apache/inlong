@@ -214,7 +214,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
      * request manager to get manager vipUrl list, and store it to local file
      */
     public void requestTdmList() {
-        JsonObject result = getResultData(httpManager.doSendGet(managerVipUrl));
+        JsonObject result = getResultData(httpManager.doSendPost(managerVipUrl));
         JsonArray data = result.get(AGENT_MANAGER_RETURN_PARAM_DATA).getAsJsonArray();
         List<String> managerIpList = new ArrayList<>();
         for (JsonElement datum : data) {
