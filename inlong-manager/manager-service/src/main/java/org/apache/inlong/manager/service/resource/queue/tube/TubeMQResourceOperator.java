@@ -1,0 +1,96 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.inlong.manager.service.resource.queue.tube;
+
+import com.google.common.base.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.inlong.manager.common.enums.ClusterType;
+import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.MQType;
+import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
+import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
+import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.service.cluster.InlongClusterService;
+import org.apache.inlong.manager.service.core.ConsumptionService;
+import org.apache.inlong.manager.service.resource.queue.QueueResourceOperator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Operator for create TubeMQ Topic and ConsumerGroup
+ */
+@Slf4j
+@Service
+public class TubeMQResourceOperator implements QueueResourceOperator {
+
+    @Autowired
+    private InlongClusterService clusterService;
+    @Autowired
+    private ConsumptionService consumptionService;
+    @Autowired
+    private TubeMQOperator tubeMQOperator;
+
+    @Override
+    public boolean accept(MQType mqType) {
+        return MQType.TUBE == mqType;
+    }
+
+    @Override
+    public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
+        Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+        Preconditions.checkNotNull(operator, "operator cannot be null");
+
+        String groupId = groupInfo.getInlongGroupId();
+        log.info("begin to create pulsar resource for groupId={}", groupId);
+
+        // if the group was successful, no need re-create topic and consumer group
+        if (Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
+            log.info("skip to create tube resource as the status of groupId={} was successful", groupId);
+        }
+
+        try {
+            // 1. create tube topic
+            String clusterTag = groupInfo.getInlongClusterTag();
+            TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
+            String topicName = groupInfo.getMqResource();
+            tubeMQOperator.createTopic(tubeCluster, topicName, operator);
+            log.info("success to create tube topic for groupId={}", groupId);
+
+            // 2. create tube consumer group
+            // consumer naming rules: clusterTag_topicName_consumer_group
+            String consumeGroup = clusterTag + "_" + topicName + "_consumer_group";
+            tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, operator);
+            log.info("success to create tube consumer group for groupId={}", groupId);
+
+            // insert the consumer group info into the consumption table
+            consumptionService.saveSortConsumption(groupInfo, topicName, consumeGroup);
+            log.info("success to save consume for groupId={}, topic={}, consumer={}", groupId, topicName, consumeGroup);
+
+            log.info("success to create tube resource for groupId={}, cluster={}", groupId, tubeCluster);
+        } catch (Exception e) {
+            log.error("failed to create tube resource for groupId=" + groupId, e);
+            throw new WorkflowListenerException("failed to create tube resource: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
+        // currently, not support delete tube topic
+    }
+}

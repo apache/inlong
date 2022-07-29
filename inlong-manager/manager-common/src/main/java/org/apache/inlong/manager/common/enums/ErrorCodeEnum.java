@@ -49,7 +49,7 @@ public enum ErrorCodeEnum {
             "The current inlong group status does not support modifying the MQ type"),
     GROUP_NAME_UPDATE_NOT_ALLOWED(1012, "The current inlong group status does not support modifying the name"),
     GROUP_INFO_INCONSISTENT(1013, "The inlong group info is inconsistent, please contact the administrator"),
-    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support light, normal"),
+    GROUP_MODE_UNSUPPORTED(1014, "The current inlong group mode only support lightweight, standard"),
 
     OPT_NOT_ALLOWED_BY_STATUS(1021, "InlongGroup status %s was not allowed to add/update/delete related info"),
 
@@ -105,6 +105,9 @@ public enum ErrorCodeEnum {
     TRANSFORM_TYPE_IS_NULL(1500, "Transform type is null"),
     TRANSFORM_NAME_IS_NULL(1501, "Transform name is null"),
     TRANSFORM_NOT_FOUND(1502, "Transform does not exist"),
+
+    MQ_TYPE_IS_NULL(1600, "MQ type is null"),
+    MQ_TYPE_NOT_SUPPORT(1601, "MQ type '%s' not support"),
 
     WORKFLOW_EXE_FAILED(4000, "Workflow execution exception"),
 

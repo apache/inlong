@@ -156,7 +156,7 @@ public class StreamSourceServiceImpl implements StreamSourceService {
                     .collect(Collectors.groupingBy(StreamSource::getInlongStreamId, HashMap::new,
                             Collectors.toCollection(ArrayList::new)));
         } else {
-            // if the group mode is NORMAL, needs to get the cached MQ sources
+            // if the group mode is STANDARD, needs to get the cached MQ sources
             String sourceType = groupInfo.getMqType();
             StreamSourceOperator sourceOperator = operatorFactory.getInstance(SourceType.forType(sourceType));
             result = sourceOperator.getSourcesMap(groupInfo, streamInfos, streamSources);
