@@ -101,8 +101,8 @@ public class OracleSqlBuilder {
         List<String> resultList = new ArrayList<>();
 
         for (OracleColumnInfo columnInfo : columnList) {
-            resultList.add(new StringBuilder().
-                    append("ALTER TABLE \"")
+            resultList.add(new StringBuilder()
+                    .append("ALTER TABLE \"")
                     .append(tableName)
                     .append("\" ADD \"")
                     .append(columnInfo.getName())
