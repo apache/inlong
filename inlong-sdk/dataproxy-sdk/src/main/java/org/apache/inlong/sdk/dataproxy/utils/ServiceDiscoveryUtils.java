@@ -61,7 +61,7 @@ public class ServiceDiscoveryUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceDiscoveryUtils.class);
 
-    private static final String GET_MANAGER_IP_LIST_API = "/manager/openapi/agent/getManagerIpList";
+    private static final String GET_MANAGER_IP_LIST_API = "/inlong/manager/openapi/agent/getManagerIpList";
     private static String latestManagerIPList = "";
     private static String arraySed = ",";
 

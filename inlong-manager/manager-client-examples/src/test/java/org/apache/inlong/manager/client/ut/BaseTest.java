@@ -62,7 +62,7 @@ public class BaseTest {
     // Pulsar topic
     public static final String TOPIC = "test_topic";
     public static final String IN_CHARGES = "test_inCharges,admin";
-    public static final String MANAGER_URL_PREFIX = "/manager/api";
+    public static final String MANAGER_URL_PREFIX = "/inlong/manager/api";
     private static final int SERVICE_PORT = 8184;
     // Manager web url
     public static final String SERVICE_URL = "127.0.0.1:" + SERVICE_PORT;

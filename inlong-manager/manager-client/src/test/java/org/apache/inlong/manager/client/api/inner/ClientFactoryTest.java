@@ -128,7 +128,7 @@ class ClientFactoryTest {
     @Test
     void testGroupExist() {
         stubFor(
-                get(urlMatching("/manager/api/group/exist/123.*"))
+                get(urlMatching("/inlong/manager/api/group/exist/123.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(true)))
                         )
@@ -155,7 +155,7 @@ class ClientFactoryTest {
                 ).build();
 
         stubFor(
-                get(urlMatching("/manager/api/group/get/1.*"))
+                get(urlMatching("/inlong/manager/api/group/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(inlongGroupResponse)))
                         )
@@ -187,7 +187,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
@@ -223,7 +223,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
@@ -261,7 +261,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
@@ -301,7 +301,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos))))
                         )
@@ -372,7 +372,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(new PageInfo<>(groupBriefInfos)))
                                 )
@@ -387,7 +387,7 @@ class ClientFactoryTest {
     @Test
     void testListGroup4NotExist() {
         stubFor(
-                post(urlMatching("/manager/api/group/list.*"))
+                post(urlMatching("/inlong/manager/api/group/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("Inlong group does not exist/no operation authority"))
@@ -402,7 +402,7 @@ class ClientFactoryTest {
     @Test
     void testCreateGroup() {
         stubFor(
-                post(urlMatching("/manager/api/group/save.*"))
+                post(urlMatching("/inlong/manager/api/group/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success("1111")))
                         )
@@ -415,7 +415,7 @@ class ClientFactoryTest {
     @Test
     void testUpdateGroup() {
         stubFor(
-                post(urlMatching("/manager/api/group/update.*"))
+                post(urlMatching("/inlong/manager/api/group/update.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success("1111")))
                         )
@@ -434,7 +434,7 @@ class ClientFactoryTest {
         expected.setWaitApproveCount(34524L);
         expected.setWaitAssignCount(45678L);
         stubFor(
-                get(urlMatching("/manager/api/group/countByStatus.*"))
+                get(urlMatching("/inlong/manager/api/group/countByStatus.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(expected))
@@ -463,7 +463,7 @@ class ClientFactoryTest {
         briefInfo.setInlongGroupId("testgroup");
         briefInfo.setModifyTime(new Date());
         stubFor(
-                get(urlMatching("/manager/api/group/getTopic/1.*"))
+                get(urlMatching("/inlong/manager/api/group/getTopic/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(expected))
@@ -481,7 +481,7 @@ class ClientFactoryTest {
     @Test
     void testCreateStream() {
         stubFor(
-                post(urlMatching("/manager/api/stream/save.*"))
+                post(urlMatching("/inlong/manager/api/stream/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(11)))
                         )
@@ -494,7 +494,7 @@ class ClientFactoryTest {
     @Test
     void testStreamExist() {
         stubFor(
-                get(urlMatching("/manager/api/stream/exist/123/11.*"))
+                get(urlMatching("/inlong/manager/api/stream/exist/123/11.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(true)))
                         )
@@ -532,7 +532,7 @@ class ClientFactoryTest {
                 ).build();
 
         stubFor(
-                get(urlMatching("/manager/api/stream/get.*"))
+                get(urlMatching("/inlong/manager/api/stream/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(Response.success(streamResponse)))
                         )
@@ -545,7 +545,7 @@ class ClientFactoryTest {
     @Test
     void testGetStream4NotExist() {
         stubFor(
-                get(urlMatching("/manager/api/stream/get.*"))
+                get(urlMatching("/inlong/manager/api/stream/get.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("Inlong stream does not exist/no operation permission")))
@@ -634,7 +634,7 @@ class ClientFactoryTest {
         streamInfo.setSinkList(sinkList);
 
         stubFor(
-                post(urlMatching("/manager/api/stream/listAll.*"))
+                post(urlMatching("/inlong/manager/api/stream/listAll.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageInfo<>(Lists.newArrayList(streamInfo))))
@@ -693,7 +693,7 @@ class ClientFactoryTest {
         );
 
         stubFor(
-                get(urlMatching("/manager/api/sink/list.*"))
+                get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(new PageInfo<>(Lists.newArrayList(sinkList))))
@@ -708,7 +708,7 @@ class ClientFactoryTest {
     @Test
     void testListSink4AllTypeShouldThrowException() {
         stubFor(
-                get(urlMatching("/manager/api/sink/list.*"))
+                get(urlMatching("/inlong/manager/api/sink/list.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.fail("groupId should not empty"))
@@ -724,7 +724,7 @@ class ClientFactoryTest {
     @Test
     void testResetGroup() {
         stubFor(
-                post(urlMatching("/manager/api/group/reset.*"))
+                post(urlMatching("/inlong/manager/api/group/reset.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(true))
@@ -739,7 +739,7 @@ class ClientFactoryTest {
     @Test
     void testSaveCluster() {
         stubFor(
-                post(urlMatching("/manager/api/cluster/save.*"))
+                post(urlMatching("/inlong/manager/api/cluster/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(1))
@@ -766,7 +766,7 @@ class ClientFactoryTest {
                 .build();
 
         stubFor(
-                get(urlMatching("/manager/api/cluster/get/1.*"))
+                get(urlMatching("/inlong/manager/api/cluster/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(cluster))
@@ -806,7 +806,7 @@ class ClientFactoryTest {
                 .build();
 
         stubFor(
-                get(urlMatching("/manager/api/sink/get/1.*"))
+                get(urlMatching("/inlong/manager/api/sink/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(streamSink))
@@ -821,7 +821,7 @@ class ClientFactoryTest {
     @Test
     void testSaveClusterTag() {
         stubFor(
-                post(urlMatching("/manager/api/cluster/tag/save.*"))
+                post(urlMatching("/inlong/manager/api/cluster/tag/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(1))
@@ -843,7 +843,7 @@ class ClientFactoryTest {
                 .inCharges("admin")
                 .build();
         stubFor(
-                get(urlMatching("/manager/api/cluster/tag/get/1.*"))
+                get(urlMatching("/inlong/manager/api/cluster/tag/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(tagResponse))
@@ -857,7 +857,7 @@ class ClientFactoryTest {
     @Test
     void testBindTag() {
         stubFor(
-                post(urlMatching("/manager/api/cluster/bindTag.*"))
+                post(urlMatching("/inlong/manager/api/cluster/bindTag.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(true))
@@ -873,7 +873,7 @@ class ClientFactoryTest {
     @Test
     void testSaveNode() {
         stubFor(
-                post(urlMatching("/manager/api/cluster/node/save.*"))
+                post(urlMatching("/inlong/manager/api/cluster/node/save.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(1))
@@ -895,7 +895,7 @@ class ClientFactoryTest {
                 .port(46801)
                 .build();
         stubFor(
-                get(urlMatching("/manager/api/cluster/node/get/1.*"))
+                get(urlMatching("/inlong/manager/api/cluster/node/get/1.*"))
                         .willReturn(
                                 okJson(JsonUtils.toJsonString(
                                         Response.success(response))

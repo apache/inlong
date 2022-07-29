@@ -118,7 +118,7 @@ public class ConfigConstants {
     public static final String NETTY_WRITE_BUFFER_HIGH_WATER_MARK = "netty_write_buffer_high_water_mark";
     public static final String RECOVER_THREAD_COUNT = "recover_thread_count";
 
-    public static final String MANAGER_PATH = "/manager/openapi";
+    public static final String MANAGER_PATH = "/inlong/manager/openapi";
     public static final String MANAGER_GET_CONFIG_PATH = "/dataproxy/getConfig";
     public static final String MANAGER_GET_ALL_CONFIG_PATH = "/dataproxy/getAllConfig";
 

@@ -189,10 +189,10 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String hostUrl) {
+        private boolean checkWithManager(String host) {
             HttpGet httpGet = null;
             try {
-                String url = "http://" + hostUrl + "/manager/openapi/audit/getConfig";
+                String url = "http://" + host + "/inlong/manager/openapi/audit/getConfig";
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");
