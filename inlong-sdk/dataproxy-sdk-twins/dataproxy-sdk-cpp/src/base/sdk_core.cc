@@ -138,12 +138,12 @@ namespace dataproxy_sdk
         }
 
         LOG_INFO("read cache proxylist for disaster tolerance");
-        g_clusters->readCacheBuslist(); //在添加bid之前操作
+        g_clusters->readCacheBuslist();
 
         if (!g_config->inlong_group_ids_.empty())
         {
             int32_t ret = g_clusters->initBuslistAndCreateConns();
-            // FIXME:ret结果处理,需要对doUpdate设置返回值
+            // FIXME: improve, return ret to user?
         }
 
         // packqueue flush thread

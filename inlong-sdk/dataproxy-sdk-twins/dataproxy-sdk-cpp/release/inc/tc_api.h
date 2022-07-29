@@ -69,7 +69,7 @@ int32_t tc_api_init_ext(const char* config_file, int32_t use_def);
  * @param {UserCallBack} call_back
  */
 /*
- * UserCallBack function format:
+ * UserCallBack function signature:
  *  return: int32_t
  *  parameters: (const char* inlong_group_id, const char* inlong_stream_id, const char* msg, int32_t msg_len, const int64_t report_time, const char* client_ip)
  */
@@ -77,9 +77,10 @@ int32_t tc_api_send(const char* inlong_group_id, const char* inlong_stream_id, c
 
 int32_t tc_api_send_batch(const char* inlong_group_id, const char* inlong_stream_id, const char** msg_list, int32_t msg_cnt, UserCallBack call_back = NULL);
 
-/*
- * API发送数据，正常的返回值为TC_OK。异常值参考上述返回的枚举
- * 相对于tc_api_send接口，此接口增加了消息时间属性，即消息产生的真实时间
+
+/**
+ * @description: send data, add msg_time based on tc_api_send
+ * @return 0 if success
  */
 int32_t tc_api_send_ext(const char* inlong_group_id,
                         const char* inlong_stream_id,
@@ -96,10 +97,10 @@ int32_t tc_api_send_base(const char* inlong_group_id,
                          const char* client_ip,
                          UserCallBack call_back = NULL);
 
-/*
- * 外部释放接口，当进程退出的时候，需要调用此接口释放资源。
- * max_waitms：需要等待最大毫秒数，单位：毫秒
- * 等待的时间用于保证缓存的数据成功发送到BUS端
+/**
+ * @description: close sdk; if sdk is closed, you can't send data any more
+ * @return 0 if success
+ * @param {int32_t} max_waitms, millisecond, waiting data in memory to be sent
  */
 int32_t tc_api_close(int32_t max_waitms);
 
