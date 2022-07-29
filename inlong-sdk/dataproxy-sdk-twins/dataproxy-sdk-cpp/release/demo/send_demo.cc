@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
         cout << "init error" << endl;
         return 0;
     }
-    cout << "---->start capi successfully" << endl;
+    cout << "---->start sdk successfully" << endl;
 
     int count = 1000;
     string inlong_group_id = "test_20220727_86";
@@ -69,8 +69,8 @@ int main(int argc, char const *argv[])
         }
     }
 
-    string badbid="b_wrong_bid";
-    int32_t bad_res=tc_api_send(badbid.c_str(), inlong_stream_id.c_str(), msg.c_str(), msg.length(), call_back_func);
+    string bad_groupid="test_wrong_groupid";
+    int32_t bad_res=tc_api_send(bad_groupid.c_str(), inlong_stream_id.c_str(), msg.c_str(), msg.length(), call_back_func);
     cout << endl << "send bad inlong_group_id res:"<<bad_res;
 
     cout << endl
@@ -106,11 +106,11 @@ int main(int argc, char const *argv[])
     // step3. close
     if (tc_api_close(1000))
     {
-        cout << "close capi error" << endl;
+        cout << "close sdk error" << endl;
     }
     else
     {
-        cout << "---->close capi successfully" << endl;
+        cout << "---->close sdk successfully" << endl;
     }
 
     return 0;
