@@ -31,6 +31,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utils for SqlServer JDBC.
+ */
 public class SQLServerJdbcUtils {
 
     private static final String SQLSERVER_JDBC_PREFIX = "jdbc:sqlserver";

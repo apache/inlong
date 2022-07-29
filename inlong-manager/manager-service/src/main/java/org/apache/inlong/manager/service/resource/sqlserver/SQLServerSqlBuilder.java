@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Builder the SQL string for SqlServer.
+ */
 public class SQLServerSqlBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SQLServerSqlBuilder.class);
