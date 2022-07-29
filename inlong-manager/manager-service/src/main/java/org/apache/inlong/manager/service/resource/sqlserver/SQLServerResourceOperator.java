@@ -97,10 +97,10 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
 
         String dbName = tableInfo.getDbName();
         String tableName = tableInfo.getTableName();
-        Connection conn = null;
-        try {
-            conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
-                    sink.getUsername(), sink.getPassword());
+
+        try (Connection conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
+                sink.getUsername(), sink.getPassword())) {
+
             // 1. create scheam if not exists
             SQLServerJdbcUtils.createSchema(conn, tableInfo.getSchemaName());
             // 2. if table not exists, create it
@@ -118,16 +118,6 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
-        } finally {
-            try {
-                if (null != conn) {
-                    conn.close();
-                    conn = null;
-                }
-            } catch (Throwable e) {
-                String errMsg = "close SqlServer connection failed: " + e.getMessage();
-                throw new WorkflowException(errMsg);
-            }
         }
         LOG.info("success create SqlServer table for data sink [" + sinkInfo.getId() + "]");
     }

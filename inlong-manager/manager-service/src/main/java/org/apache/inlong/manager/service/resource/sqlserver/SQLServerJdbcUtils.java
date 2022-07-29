@@ -30,6 +30,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utils for SqlServer JDBC.
@@ -178,7 +179,9 @@ public class SQLServerJdbcUtils {
             }
         }
         LOG.info("check table exist for schema={} table={}, result={}", schemaName, tableName, result);
-        resultSet.close();
+        if (Objects.nonNull(resultSet)) {
+            resultSet.close();
+        }
         return result;
     }
 
@@ -201,7 +204,9 @@ public class SQLServerJdbcUtils {
             }
         }
         LOG.info("check schema exist for schemaName={}, result={}", schemaName, result);
-        resultSet.close();
+        if (Objects.nonNull(resultSet)) {
+            resultSet.close();
+        }
         return result;
     }
 
@@ -228,7 +233,9 @@ public class SQLServerJdbcUtils {
         }
         LOG.info("check column exist for schema={} table={}, result={} column={}",
                 schemaName, tableName, result, column);
-        resultSet.close();
+        if (Objects.nonNull(resultSet)) {
+            resultSet.close();
+        }
         return result;
     }
 
