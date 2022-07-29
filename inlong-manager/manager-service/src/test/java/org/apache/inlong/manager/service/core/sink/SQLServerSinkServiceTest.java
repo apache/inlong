@@ -117,8 +117,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
         String tableName = "test01";
         String schemaName = "dbo";
 
-        try {
-            Connection connection = SQLServerJdbcUtils.getConnection(url, username, password);
+        try (Connection connection = SQLServerJdbcUtils.getConnection(url, username, password);) {
             SQLServerTableInfo tableInfo = bulidTableInfo(schemaName, tableName);
             SQLServerJdbcUtils.createSchema(connection, schemaName);
             SQLServerJdbcUtils.createTable(connection, tableInfo);
@@ -126,7 +125,6 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
             SQLServerJdbcUtils.addColumns(connection, schemaName, tableName, addColumns);
             List<SQLServerColumnInfo> columns = SQLServerJdbcUtils.getColumns(connection, schemaName, tableName);
             Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
-            connection.close();
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();

@@ -111,8 +111,6 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             String info = "success to create SqlServer resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
-            // 5. close connection.
-            conn.close();
         } catch (Throwable e) {
             String errMsg = "create SqlServer table failed: " + e.getMessage();
             LOG.error(errMsg, e);
