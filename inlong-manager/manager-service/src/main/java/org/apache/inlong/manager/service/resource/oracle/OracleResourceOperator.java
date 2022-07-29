@@ -81,49 +81,31 @@ public class OracleResourceOperator implements SinkResourceOperator {
         // set columns
         List<OracleColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            OracleColumnInfo columnInfo = new OracleColumnInfo();
-            columnInfo.setName(field.getFieldName());
-            columnInfo.setType(field.getFieldType());
-            columnInfo.setComment(field.getFieldComment());
+            OracleColumnInfo columnInfo = new OracleColumnInfo(field.getFieldName(), field.getFieldType(),
+                    field.getFieldComment());
             columnList.add(columnInfo);
         }
 
         OracleSinkDTO oracleSink = OracleSinkDTO.getFromJson(sinkInfo.getExtParams());
         OracleTableInfo tableInfo = OracleSinkDTO.getTableInfo(oracleSink, columnList);
-        String url = oracleSink.getJdbcUrl();
-        String user = oracleSink.getUsername();
-        String password = oracleSink.getPassword();
-        String tableName = tableInfo.getTableName();
-        Connection conn = null;
-        try {
-            conn = OracleJdbcUtils.getConnection(url, user, password);
+
+        try (Connection conn = OracleJdbcUtils.getConnection(oracleSink.getJdbcUrl(),
+                oracleSink.getUsername(), oracleSink.getPassword())) {
 
             // In Oracle, there is no need to consider whether the database exists
             // 1.If table not exists, create it
             OracleJdbcUtils.createTable(conn, tableInfo);
             // 2. table exists, add columns - skip the exists columns
-            OracleJdbcUtils.addColumns(conn, tableName, columnList);
+            OracleJdbcUtils.addColumns(conn, tableInfo.getTableName(), columnList);
             // 3. update the sink status to success
             String info = "success to create Oracle resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
-            // 4. close connection.
-            conn.close();
         } catch (Throwable e) {
             String errMsg = "create Oracle table failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
-        } finally {
-            try {
-                if (null != conn) {
-                    conn.close();
-                    conn = null;
-                }
-            } catch (Throwable e) {
-                String errMsg = "close Oracle connection failed: " + e.getMessage();
-                throw new WorkflowException(errMsg);
-            }
         }
         LOG.info("success create Oracle table for data sink [" + sinkInfo.getId() + "]");
     }

@@ -101,15 +101,15 @@ public class OracleSqlBuilder {
         List<String> resultList = new ArrayList<>();
 
         for (OracleColumnInfo columnInfo : columnList) {
-            StringBuilder sqlBuilder = new StringBuilder();
-            sqlBuilder.append("ALTER TABLE \"")
+            resultList.add(new StringBuilder().
+                    append("ALTER TABLE \"")
                     .append(tableName)
                     .append("\" ADD \"")
                     .append(columnInfo.getName())
                     .append("\" ")
                     .append(columnInfo.getType())
-                    .append(" ");
-            resultList.add(sqlBuilder.toString());
+                    .append(" ")
+                    .toString());
         }
         resultList.addAll(getColumnsComment(tableName, columnList));
         LOGGER.info("add columns sql={}", resultList);
@@ -142,12 +142,12 @@ public class OracleSqlBuilder {
         List<String> columnList = new ArrayList<>();
         for (OracleColumnInfo columnInfo : columns) {
             // Construct columns and partition columns
-            StringBuilder columnBuilder = new StringBuilder();
-            columnBuilder.append("\"")
+            columnList.add(new StringBuilder()
+                    .append("\"")
                     .append(columnInfo.getName())
                     .append("\" ")
-                    .append(columnInfo.getType());
-            columnList.add(columnBuilder.toString());
+                    .append(columnInfo.getType())
+                    .toString());
         }
         return columnList;
     }

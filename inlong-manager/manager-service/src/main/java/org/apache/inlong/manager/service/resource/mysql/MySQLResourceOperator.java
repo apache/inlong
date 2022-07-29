@@ -85,51 +85,31 @@ public class MySQLResourceOperator implements SinkResourceOperator {
         // set columns
         List<MySQLColumnInfo> columnList = new ArrayList<>();
         for (StreamSinkFieldEntity field : fieldList) {
-            MySQLColumnInfo columnInfo = new MySQLColumnInfo();
-            columnInfo.setName(field.getFieldName());
-            columnInfo.setType(field.getFieldType());
-            columnInfo.setComment(field.getFieldComment());
+            MySQLColumnInfo columnInfo = new MySQLColumnInfo(field.getFieldName(), field.getFieldType(),
+                    field.getFieldComment());
             columnList.add(columnInfo);
         }
 
         MySQLSinkDTO mySQLSink = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
         MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(mySQLSink, columnList);
-        String url = mySQLSink.getJdbcUrl();
-        String user = mySQLSink.getUsername();
-        String password = mySQLSink.getPassword();
 
-        String dbName = tableInfo.getDbName();
-        String tableName = tableInfo.getTableName();
-        Connection conn = null;
-        try {
-            conn = MySQLJdbcUtils.getConnection(url, user, password);
+        try (Connection conn = MySQLJdbcUtils.getConnection(mySQLSink.getJdbcUrl(), mySQLSink.getUsername(),
+                mySQLSink.getPassword())) {
             // 1. create database if not exists
-            MySQLJdbcUtils.createDb(conn, dbName);
+            MySQLJdbcUtils.createDb(conn, tableInfo.getDbName());
             // 2. table not exists, create it
             MySQLJdbcUtils.createTable(conn, tableInfo);
             // 3. table exists, add columns - skip the exists columns
-            MySQLJdbcUtils.addColumns(conn, dbName, tableName, columnList);
+            MySQLJdbcUtils.addColumns(conn, tableInfo.getDbName(), tableInfo.getTableName(), columnList);
             // 4. update the sink status to success
             String info = "success to create MySQL resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
-            // 5. close connection.
-            conn.close();
         } catch (Throwable e) {
             String errMsg = "create MySQL table failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
-        } finally {
-            try {
-                if (null != conn) {
-                    conn.close();
-                    conn = null;
-                }
-            } catch (Throwable e) {
-                String errMsg = "close MySQL connection failed: " + e.getMessage();
-                throw new WorkflowException(errMsg);
-            }
         }
         LOG.info("success create MySQL table for data sink [" + sinkInfo.getId() + "]");
     }

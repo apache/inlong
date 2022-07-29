@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Utils for Oracle JDBC.
@@ -80,8 +81,8 @@ public class OracleJdbcUtils {
      */
     public static void executeSql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
-        LOG.info("execute sql [{}] success !", sql);
         stmt.execute(sql);
+        LOG.info("execute sql [{}] success !", sql);
         stmt.close();
     }
 
@@ -110,12 +111,15 @@ public class OracleJdbcUtils {
      */
     public static void executeSqlBatch(Connection conn, List<String> sqls)
             throws Exception {
+        conn.setAutoCommit(false);
         Statement stmt = conn.createStatement();
         for (String entry : sqls) {
             stmt.execute(entry);
         }
+        conn.commit();
+        conn.setAutoCommit(true);
+        LOG.info("execute batch sql [{}] success! ", sqls);
         stmt.close();
-        LOG.info("execute sql [{}] success! ", sqls);
     }
 
     /**
@@ -153,11 +157,13 @@ public class OracleJdbcUtils {
         if (null != resultSet && resultSet.next()) {
             int size = resultSet.getInt(1);
             if (size > 0) {
-                LOG.info("check table exist for username={} table={}, result={}", userName, tableName, result);
-                return true;
+                result = true;
             }
         }
-        resultSet.close();
+        LOG.info("check table exist for username={} table={}, result={}", userName, tableName, result);
+        if (Objects.nonNull(resultSet)) {
+            resultSet.close();
+        }
         return result;
     }
 
@@ -181,7 +187,9 @@ public class OracleJdbcUtils {
                 result = true;
             }
         }
-        resultSet.close();
+        if (Objects.nonNull(resultSet)) {
+            resultSet.close();
+        }
         LOG.info("check column exist for table={}, column={}, result={} ", tableName, column, result);
         return result;
     }
@@ -208,6 +216,7 @@ public class OracleJdbcUtils {
             columnList.add(columnInfo);
         }
         rs.close();
+        stmt.close();
         return columnList;
     }
 

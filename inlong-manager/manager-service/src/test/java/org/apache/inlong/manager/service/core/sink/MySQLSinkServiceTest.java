@@ -115,8 +115,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
         String dbName = "test01";
         String tableName = "test_table02";
 
-        try {
-            Connection connection = MySQLJdbcUtils.getConnection(url, user, password);
+        try (Connection connection = MySQLJdbcUtils.getConnection(url, user, password)) {
             MySQLJdbcUtils.createDb(connection, dbName);
             MySQLTableInfo tableInfo = bulidTestMySQLTableInfo(dbName, tableName);
             MySQLJdbcUtils.createTable(connection, tableInfo);
@@ -124,7 +123,6 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
             MySQLJdbcUtils.addColumns(connection, dbName, tableName, addColumns);
             List<MySQLColumnInfo> columns = MySQLJdbcUtils.getColumns(connection, dbName, tableName);
             Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
-            connection.close();
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -138,13 +136,9 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      */
     private List<MySQLColumnInfo> buildAddColumns() {
         List<MySQLColumnInfo> list = new ArrayList<>();
-        MySQLColumnInfo addColumn1 = new MySQLColumnInfo();
-        addColumn1.setType("int(12)");
-        addColumn1.setName("addColumn1");
+        MySQLColumnInfo addColumn1 = new MySQLColumnInfo("add_column1", "int(12)", "");
         list.add(addColumn1);
-        MySQLColumnInfo addColumn2 = new MySQLColumnInfo();
-        addColumn2.setType("varchar(22)");
-        addColumn2.setName("addColumn2");
+        MySQLColumnInfo addColumn2 = new MySQLColumnInfo("add_column2", "varchar(22)", "");
         list.add(addColumn2);
         return list;
     }
@@ -158,25 +152,15 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      */
     private MySQLTableInfo bulidTestMySQLTableInfo(String dbName, String tableName) {
         List<MySQLColumnInfo> columnInfoList = new ArrayList<>();
-        MySQLColumnInfo id = new MySQLColumnInfo();
-        id.setType("int(12)");
-        id.setName("id");
+        MySQLColumnInfo id = new MySQLColumnInfo("id", "int(12)", "id");
         columnInfoList.add(id);
-        MySQLColumnInfo age = new MySQLColumnInfo();
-        age.setType("int(12)");
-        age.setName("age");
+        MySQLColumnInfo age = new MySQLColumnInfo("age", "int(12)", "age");
         columnInfoList.add(age);
-        MySQLColumnInfo cell = new MySQLColumnInfo();
-        cell.setType("varchar(20)");
-        cell.setName("cell");
+        MySQLColumnInfo cell = new MySQLColumnInfo("cell", "varchar(20)", "cell");
         columnInfoList.add(cell);
-        MySQLColumnInfo name = new MySQLColumnInfo();
-        name.setType("varchar(40)");
-        name.setName("name");
+        MySQLColumnInfo name = new MySQLColumnInfo("name", "varchar(40)", "name");
         columnInfoList.add(name);
-        MySQLColumnInfo createTime = new MySQLColumnInfo();
-        createTime.setType("datetime");
-        createTime.setName("createTime");
+        MySQLColumnInfo createTime = new MySQLColumnInfo("create_time", "datetime", "create time");
         columnInfoList.add(createTime);
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();

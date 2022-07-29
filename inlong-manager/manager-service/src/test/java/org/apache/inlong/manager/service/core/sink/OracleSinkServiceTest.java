@@ -118,22 +118,20 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
     /**
      * Just using in local test.
      */
-    @Disabled
+    @Test
     public void testDbResource() {
         String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
         String username = "c###inlong_test";
         String password = "123456";
         String tableName = "test02";
 
-        try {
-            Connection connection = OracleJdbcUtils.getConnection(url, username, password);
+        try (Connection connection = OracleJdbcUtils.getConnection(url, username, password)) {
             OracleTableInfo tableInfo = bulidTestOracleTableInfo(username, tableName);
             OracleJdbcUtils.createTable(connection, tableInfo);
             List<OracleColumnInfo> addColumns = buildAddColumns();
             OracleJdbcUtils.addColumns(connection, tableName, addColumns);
             List<OracleColumnInfo> columns = OracleJdbcUtils.getColumns(connection, tableName);
             Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
-            connection.close();
         } catch (Exception e) {
             // print to local console
             e.printStackTrace();
@@ -147,16 +145,10 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      */
     private List<OracleColumnInfo> buildAddColumns() {
         List<OracleColumnInfo> addColum = new ArrayList<>();
-        OracleColumnInfo test1 = new OracleColumnInfo();
+        OracleColumnInfo test1 = new OracleColumnInfo("test1", "NUMBER(16)", "test1");
         addColum.add(test1);
-        test1.setName("test1");
-        test1.setType("NUMBER(16)");
-        test1.setComment("test1");
-        OracleColumnInfo test2 = new OracleColumnInfo();
+        OracleColumnInfo test2 = new OracleColumnInfo("test2", "VARCHAR2(10)", "test2");
         addColum.add(test2);
-        test2.setName("test2");
-        test2.setType("VARCHAR2(10)");
-        test2.setComment("test2");
         return addColum;
     }
 
@@ -171,21 +163,12 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
         OracleTableInfo oracleTableInfo = new OracleTableInfo();
         oracleTableInfo.setTableName(tableName);
         List<OracleColumnInfo> columnInfos = new ArrayList<>();
-        OracleColumnInfo id = new OracleColumnInfo();
+        OracleColumnInfo id = new OracleColumnInfo("id", "NUMBER(6)", "id");
         columnInfos.add(id);
-        id.setName("id");
-        id.setType("NUMBER(6)");
-        id.setComment("id");
-        OracleColumnInfo cell = new OracleColumnInfo();
+        OracleColumnInfo cell = new OracleColumnInfo("cell", "VARCHAR2(10)", "cell");
         columnInfos.add(cell);
-        cell.setName("cell");
-        cell.setType("VARCHAR2(10)");
-        cell.setComment("cell");
-        OracleColumnInfo name = new OracleColumnInfo();
+        OracleColumnInfo name = new OracleColumnInfo("name", "VARCHAR2(20)", "name");
         columnInfos.add(name);
-        name.setName("name");
-        name.setType("VARCHAR2(20)");
-        name.setComment("name");
         oracleTableInfo.setColumns(columnInfos);
         oracleTableInfo.setUserName(userName);
         return oracleTableInfo;
