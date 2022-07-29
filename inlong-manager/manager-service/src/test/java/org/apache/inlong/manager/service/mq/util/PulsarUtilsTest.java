@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.mq.util;
 
+import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;
 import org.apache.pulsar.client.admin.internal.PulsarAdminImpl;
 import org.apache.pulsar.client.api.Authentication;

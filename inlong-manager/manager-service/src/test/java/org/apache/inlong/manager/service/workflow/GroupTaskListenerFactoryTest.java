@@ -22,11 +22,7 @@ import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.group.tube.InlongTubeInfo;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.service.ServiceBaseTest;
-import org.apache.inlong.manager.service.mq.CreatePulsarGroupTaskListener;
-import org.apache.inlong.manager.service.mq.CreatePulsarResourceTaskListener;
-import org.apache.inlong.manager.service.mq.CreateTubeGroupTaskListener;
-import org.apache.inlong.manager.service.mq.CreateTubeTopicTaskListener;
-import org.apache.inlong.manager.service.workflow.listener.GroupTaskListenerFactory;
+import org.apache.inlong.manager.service.listener.GroupTaskListenerFactory;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.task.QueueOperateListener;
 import org.junit.jupiter.api.Assertions;
@@ -52,21 +48,17 @@ public class GroupTaskListenerFactoryTest extends ServiceBaseTest {
         processForm.setGroupInfo(pulsarInfo);
         WorkflowContext context = new WorkflowContext();
         context.setProcessForm(processForm);
-        List<QueueOperateListener> queueOperateListeners = groupTaskListenerFactory.getQueueOperateListener(context);
+        List<QueueOperateListener> queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
         if (queueOperateListeners.size() == 0) {
             return;
         }
-        Assertions.assertEquals(2, queueOperateListeners.size());
-        Assertions.assertTrue(queueOperateListeners.get(0) instanceof CreatePulsarResourceTaskListener);
-        Assertions.assertTrue(queueOperateListeners.get(1) instanceof CreatePulsarGroupTaskListener);
+        Assertions.assertEquals(1, queueOperateListeners.size());
 
         // check tube listener
         InlongTubeInfo tubeInfo = new InlongTubeInfo();
         tubeInfo.setMqType(MQType.TUBE.getType());
-        queueOperateListeners = groupTaskListenerFactory.getQueueOperateListener(context);
+        queueOperateListeners = groupTaskListenerFactory.getQueueResourceListener(context);
         Assertions.assertEquals(2, queueOperateListeners.size());
-        Assertions.assertTrue(queueOperateListeners.get(0) instanceof CreateTubeTopicTaskListener);
-        Assertions.assertTrue(queueOperateListeners.get(1) instanceof CreateTubeGroupTaskListener);
     }
 
 }

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.workflow.event.task;
 
+import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 
@@ -38,5 +39,18 @@ public interface QueueOperateListener extends TaskEventListener {
         }
 
     };
+
+    /**
+     * Check whether the process form from the workflow context is {@link GroupResourceProcessForm}
+     *
+     * @param context workflow context
+     * @return true if the process form is instanceof GroupResourceProcessForm
+     */
+    default boolean isGroupProcessForm(WorkflowContext context) {
+        if (context == null) {
+            return false;
+        }
+        return context.getProcessForm() instanceof GroupResourceProcessForm;
+    }
 
 }

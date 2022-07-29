@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.mocks;
 
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.GroupOperateType;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.GroupResourceProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;
 import org.apache.inlong.manager.workflow.event.task.SourceOperateListener;
@@ -37,12 +37,12 @@ public class MockDeleteSourceListener implements SourceOperateListener {
 
     @Override
     public boolean accept(WorkflowContext context) {
-        ProcessForm processForm = context.getProcessForm();
-        if (!(processForm instanceof GroupResourceProcessForm)) {
+        if (!isGroupProcessForm(context)) {
             return false;
         }
-        GroupResourceProcessForm form = (GroupResourceProcessForm) processForm;
-        return form.getGroupOperateType() == GroupOperateType.DELETE;
+        GroupResourceProcessForm processForm = (GroupResourceProcessForm) context.getProcessForm();
+        return InlongConstants.STANDARD_MODE.equals(processForm.getGroupInfo().getLightweight())
+                && processForm.getGroupOperateType() == GroupOperateType.DELETE;
     }
 
     @Override
