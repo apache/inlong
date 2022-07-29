@@ -20,7 +20,6 @@ package org.apache.inlong.dataproxy.sink.pulsarzone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
@@ -46,7 +45,6 @@ public class PulsarZoneSinkContext extends SinkContext {
 
     private final LinkedBlockingQueue<DispatchProfile> dispatchQueue;
 
-    private final String proxyClusterId;
     private final String nodeId;
     private final Context producerContext;
     //
@@ -63,8 +61,6 @@ public class PulsarZoneSinkContext extends SinkContext {
             LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.dispatchQueue = dispatchQueue;
-        // proxyClusterId
-        this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         // nodeId
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, "127.0.0.1");
         // compressionType
@@ -99,15 +95,6 @@ public class PulsarZoneSinkContext extends SinkContext {
         super.close();
         this.idTopicHolder.close();
         this.cacheHolder.close();
-    }
-
-    /**
-     * get proxyClusterId
-     * 
-     * @return the proxyClusterId
-     */
-    public String getProxyClusterId() {
-        return proxyClusterId;
     }
 
     /**
