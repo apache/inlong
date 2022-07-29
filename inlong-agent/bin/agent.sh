@@ -18,8 +18,9 @@
 
 BASE_DIR=$(dirname $0)/..
 
-source $BASE_DIR/bin/agent-env.sh
-CONSOLE_OUTPUT_FILE="$LOG_DIR/agent-out.log"
+source "${BASE_DIR}"/bin/agent-env.sh
+CONSOLE_OUTPUT_FILE="${LOG_DIR}/agent-out.log"
+CONFIG_FILE="${BASE_DIR}/conf/agent.properties"
 
 function help() {
     echo "Usage: agent.sh {status|start|stop|restart}" >&2
@@ -30,13 +31,22 @@ function help() {
     echo "       help:       get help from inlong agent"
 }
 
-function running(){
+function running() {
 	process=$("$JPS" | grep "AgentMain" | grep -v grep)
-	if [ "$process" == "" ]; then
+	if [ "${process}" = "" ]; then
 	  	return 1;
 	else
 		return 0;
 	fi
+}
+
+# update agent.local.ip in agent.properties
+function update_local_ip() {
+  local_ip=$(netstat -ntu | grep -v "127.0.0.1" | awk '{print $4}' | cut -d: -f1 | awk '/^[0-9]/ {print $0}' | sort | uniq -c | awk '{print $2}')
+  if [ "${local_ip}" = "" ]; then
+    local_ip="127.0.0.1"
+  fi
+  sed -i "s/agent.local.ip=127.0.0.1/agent.local.ip=${local_ip}/g" "${CONFIG_FILE}"
 }
 
 # start agent
@@ -45,7 +55,8 @@ function start_agent() {
 		echo "agent is running."
 		exit 1
 	fi
-	nohup $JAVA $AGENT_ARGS org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
+	update_local_ip
+	nohup ${JAVA} ${AGENT_ARGS} org.apache.inlong.agent.core.AgentMain > /dev/null 2>&1 &
 }
 
 # stop agent
@@ -58,13 +69,13 @@ function stop_agent() {
 	pid=$("$JPS" | grep "AgentMain" | grep -v grep | awk '{print $1}')
 	while running;
 	do
-	  let count=$count+1
+	  (( count++ ))
 	  echo "Stopping agent $count times"
-	  if [ $count -gt 10 ]; then
+	  if [ "${count}" -gt 10 ]; then
 	  	  echo "kill -9 $pid"
-	      kill -9 $pid
+	      kill -9 "${pid}"
 	  else
-	      kill $pid
+	      kill "${pid}"
 	  fi
 	  sleep 6;
 	done
@@ -83,7 +94,7 @@ function status_agent() {
 }
 
 function help_agent() {
-    $JAVA $AGENT_ARGS  org.apache.inlong.agent.core.AgentMain -h
+    "${JAVA}" "${AGENT_ARGS}"  org.apache.inlong.agent.core.AgentMain -h
 }
 
 command=$1
