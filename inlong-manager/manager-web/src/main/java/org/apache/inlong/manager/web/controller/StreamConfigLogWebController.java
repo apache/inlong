@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream config log controller.
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Config-Log-API")
 public class StreamConfigLogWebController {
 

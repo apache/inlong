@@ -52,7 +52,7 @@ class DataNodeControllerTest extends WebBaseTest {
         logout();
         operatorLogin();
 
-        MvcResult mvcResult = postForSuccessMvcResult("/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
 
         Response<Integer> response = getResBody(mvcResult, Integer.class);
         Assertions.assertEquals("Current user [operator] has no permission to access URL", response.getErrMsg());
@@ -61,20 +61,20 @@ class DataNodeControllerTest extends WebBaseTest {
     @Test
     void testSaveAndGetAndDelete() throws Exception {
         // save
-        MvcResult mvcResult = postForSuccessMvcResult("/node/save", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/save", getDataNodeRequest());
 
         Integer dataNodeId = getResBodyObj(mvcResult, Integer.class);
         Assertions.assertNotNull(dataNodeId);
 
         // get
-        MvcResult getResult = getForSuccessMvcResult("/node/get/{id}", dataNodeId);
+        MvcResult getResult = getForSuccessMvcResult("/api/node/get/{id}", dataNodeId);
 
         DataNodeResponse dataNode = getResBodyObj(getResult, DataNodeResponse.class);
         Assertions.assertNotNull(dataNode);
         Assertions.assertEquals(getDataNodeRequest().getName(), dataNode.getName());
 
         // delete
-        MvcResult deleteResult = deleteForSuccessMvcResult("/node/delete/{id}", dataNodeId);
+        MvcResult deleteResult = deleteForSuccessMvcResult("/api/node/delete/{id}", dataNodeId);
 
         Boolean success = getResBodyObj(deleteResult, Boolean.class);
         Assertions.assertTrue(success);
@@ -103,7 +103,7 @@ class DataNodeControllerTest extends WebBaseTest {
         request.setId(nodeEntity.getId());
         request.setName("test447777");
         request.setVersion(nodeEntity.getVersion());
-        MvcResult mvcResult = postForSuccessMvcResult("/node/update", request);
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", request);
 
         Boolean success = getResBodyObj(mvcResult, Boolean.class);
         Assertions.assertTrue(success);
@@ -114,7 +114,7 @@ class DataNodeControllerTest extends WebBaseTest {
 
     @Test
     void testUpdateFailByNoId() throws Exception {
-        MvcResult mvcResult = postForSuccessMvcResult("/node/update", getDataNodeRequest());
+        MvcResult mvcResult = postForSuccessMvcResult("/api/node/update", getDataNodeRequest());
 
         Response<Boolean> response = getResBody(mvcResult, Boolean.class);
         Assertions.assertFalse(response.isSuccess());

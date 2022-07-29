@@ -143,7 +143,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build base url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     * example - http://127.0.0.1:8080/inlong/manager/openapi
      */
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)
@@ -154,7 +154,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build vip url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/agent/getInLongManagerIp
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/agent/getManagerIpList
      */
     private String buildVipUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_VIP_HTTP_PATH, DEFAULT_AGENT_TDM_VIP_HTTP_PATH);
@@ -163,7 +163,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build file collect task url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/getTaskConf
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/getTaskConf
      */
     private String buildFileCollectTaskUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_TASK_HTTP_PATH, DEFAULT_AGENT_MANAGER_TASK_HTTP_PATH);
@@ -172,7 +172,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build ip check url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/fileAgent/confirmAgentIp
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/fileAgent/confirmAgentIp
      */
     private String buildIpCheckUrl(String baseUrl) {
         return baseUrl + conf.get(AGENT_MANAGER_IP_CHECK_HTTP_PATH, DEFAULT_AGENT_TDM_IP_CHECK_HTTP_PATH);
@@ -181,7 +181,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
     /**
      * build db collector get task url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi/dbcollector/getTask
+     * example - http://127.0.0.1:8080/inlong/manager/openapi/dbcollector/getTask
      */
     private String buildDbCollectorGetTaskUrl(String baseUrl) {
         return baseUrl + conf
@@ -381,7 +381,7 @@ public class ManagerFetcher extends AbstractDaemon implements ProfileFetcher {
         Collection<File> suitFiles = PluginUtils.findSuitFiles(triggerProfile);
         // filter files exited before
         List<File> pendingFiles = suitFiles.stream().filter(file ->
-                !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
+                        !agentManager.getJobManager().checkJobExsit(file.getAbsolutePath()))
                 .collect(Collectors.toList());
         for (File pendingFile : pendingFiles) {
             JobProfile copiedProfile = copyJobProfile(triggerProfile, dataTime,

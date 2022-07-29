@@ -42,6 +42,7 @@ import java.util.List;
  * Stream transform control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Transform-API")
 public class StreamTransformController {
 
