@@ -35,6 +35,7 @@ public enum SinkType {
     ORACLE,
     TDSQLPOSTGRESQL,
     DLCICEBERG,
+    DORIS,
 
     ;
 
@@ -52,6 +53,7 @@ public enum SinkType {
     public static final String SINK_ORACLE = "ORACLE";
     public static final String SINK_TDSQLPOSTGRESQL = "TDSQLPOSTGRESQL";
     public static final String SINK_DLCICEBERG = "DLCICEBERG";
+    public static final String SINK_DORIS = "DORIS";
 
     /**
      * Get the SinkType enum via the given sinkType string
