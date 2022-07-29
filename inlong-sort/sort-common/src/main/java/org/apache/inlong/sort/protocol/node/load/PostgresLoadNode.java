@@ -95,7 +95,7 @@ public class PostgresLoadNode extends LoadNode implements Serializable {
     public Map<String, String> tableOptions() {
         Map<String, String> options = super.tableOptions();
         options.put(PostgresConstant.CONNECTOR, PostgresConstant.JDBC_INLONG);
-        options.put("dialect-impl", "org.apache.flink.connector.jdbc.dialect.PostgresDialect");
+        options.put("dialect-impl", "org.apache.inlong.sort.jdbc.dialect.PostgresDialect");
         options.put(PostgresConstant.URL, url);
         options.put(PostgresConstant.USERNAME, username);
         options.put(PostgresConstant.PASSWORD, password);
