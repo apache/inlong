@@ -36,8 +36,8 @@ namespace dataproxy_sdk
   public:
     //new parameters
     int32_t thread_nums_;           //network thread nums
-    int32_t shared_buf_nums_; //bufpool nums in shared method // TODO: 取消给参数，用buffer_num_per_groupId替换
-    std::vector<std::string> inlong_group_ids_; // groupId set //TODO: 使用set替代vector
+    int32_t shared_buf_nums_; //bufpool nums in shared method // TODO: cancel this, using buffer_num_per_groupId
+    std::vector<std::string> inlong_group_ids_; // groupId set //TODO: using set instead of vector?
     bool enable_groupId_isolation_;     // different groupId data are dispatched to different bufpool
     int32_t buffer_num_per_groupId_;    // bufpool num of each groupId
     std::string net_tag_;

@@ -101,13 +101,6 @@ namespace dataproxy_sdk
         return createConnSet();
     }
 
-    // int32_t ClusterProxyList::resetConn()
-    // {
-    //     unique_write_lock<read_write_mutex> rdlck(rwmutex_);
-    //     closeConnSet();
-    //     return createConnSet();
-    // }
-
     int32_t ClusterProxyList::createConnSet()
     {
         int err_count = 0;
@@ -545,7 +538,7 @@ namespace dataproxy_sdk
         LOG_INFO("proxylist update thread exit");
     }
 
-    //向全局bid2cluster_map中添加bid的proxylist配置信息（已存在则不添加），如果有新增bid，触发bid2cluster_map和cluster_set的update操作
+    // add inlong_group_id's proxylist into groupid2cluster_map_, if it is new, trigger updating groupid2cluster_map and cluster_set
     int32_t GlobalCluster::addBuslist(const std::string &inlong_group_id)
     {
         {
@@ -556,13 +549,13 @@ namespace dataproxy_sdk
                 return 0;
             }
         }
-        //不存在，添加
+        //not exist, add
         {
             unique_write_lock<read_write_mutex> wtlck(groupid2cluster_rwmutex_);
             groupid2cluster_map_.emplace(inlong_group_id, -1);
         }
 
-        //设置proxy更新通知
+        //set proxy update notification
         std::unique_lock<std::mutex> con_lck(cond_mutex_);
         update_flag_ = true;
         con_lck.unlock();
@@ -572,7 +565,6 @@ namespace dataproxy_sdk
         return 0;
     }
 
-    //实际更新操作
     void GlobalCluster::doUpdate()
     {
         if (groupid2cluster_map_.empty())
@@ -583,7 +575,7 @@ namespace dataproxy_sdk
 
         std::ofstream outfile;
         outfile.open(".proxy_list.ini.tmp", std::ios::out | std::ios::trunc);
-        int32_t groupId_count = 0; //写入文件时，记录bid index和count
+        int32_t groupId_count = 0; //flush to file, record index and count
 
         {
             unique_write_lock<read_write_mutex> wtlck(groupid2cluster_rwmutex_);
@@ -602,7 +594,7 @@ namespace dataproxy_sdk
                 std::string post_data = "ip=" + g_config->ser_ip_ + "&version=" + constants::kTDBusCAPIVersion;
                 LOG_WARN("get inlong_group_id:%s proxy cfg url:%s, post_data:%s", bid2cluster.first.c_str(), url.c_str(), post_data.c_str());
 
-                //从tdm得到proxylist元数据,连续多次失败，将从本地缓存读取
+                // request proxylist from mananer, if failed multi-times, read from local cache file
                 std::string meta_data;
                 int32_t ret;
                 for (int i = 0; i < constants::kMaxRequestTDMTimes; i++)
