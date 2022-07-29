@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.queue.tube;
+package org.apache.inlong.manager.service.resource.queue.tubemq;
 
 import com.google.common.base.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.enums.MQType;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
 import org.apache.inlong.manager.common.pojo.cluster.tube.TubeClusterInfo;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.service.cluster.InlongClusterService;
 import org.apache.inlong.manager.service.core.ConsumptionService;
@@ -61,36 +62,47 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
 
         // if the group was successful, no need re-create topic and consumer group
         if (Objects.equal(GroupStatus.CONFIG_SUCCESSFUL.getCode(), groupInfo.getStatus())) {
-            log.info("skip to create tube resource as the status of groupId={} was successful", groupId);
+            log.info("skip to create tubemq resource as the status of groupId={} was successful", groupId);
         }
 
         try {
-            // 1. create tube topic
+            // 1. create tubemq topic
             String clusterTag = groupInfo.getInlongClusterTag();
             TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
             String topicName = groupInfo.getMqResource();
             tubeMQOperator.createTopic(tubeCluster, topicName, operator);
-            log.info("success to create tube topic for groupId={}", groupId);
+            log.info("success to create tubemq topic for groupId={}", groupId);
 
-            // 2. create tube consumer group
+            // 2. create tubemq consumer group
             // consumer naming rules: clusterTag_topicName_consumer_group
             String consumeGroup = clusterTag + "_" + topicName + "_consumer_group";
             tubeMQOperator.createConsumerGroup(tubeCluster, topicName, consumeGroup, operator);
-            log.info("success to create tube consumer group for groupId={}", groupId);
+            log.info("success to create tubemq consumer group for groupId={}", groupId);
 
             // insert the consumer group info into the consumption table
             consumptionService.saveSortConsumption(groupInfo, topicName, consumeGroup);
             log.info("success to save consume for groupId={}, topic={}, consumer={}", groupId, topicName, consumeGroup);
 
-            log.info("success to create tube resource for groupId={}, cluster={}", groupId, tubeCluster);
+            log.info("success to create tubemq resource for groupId={}, cluster={}", groupId, tubeCluster);
         } catch (Exception e) {
-            log.error("failed to create tube resource for groupId=" + groupId, e);
-            throw new WorkflowListenerException("failed to create tube resource: " + e.getMessage());
+            log.error("failed to create tubemq resource for groupId=" + groupId, e);
+            throw new WorkflowListenerException("failed to create tubemq resource: " + e.getMessage());
         }
     }
 
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
-        // currently, not support delete tube topic
+        // currently, not support delete tubemq resource for group
     }
+
+    @Override
+    public void createQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
+        // currently, not support create tubemq resource for stream
+    }
+
+    @Override
+    public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
+        // currently, not support delete tubemq resource for stream
+    }
+
 }

@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory for {@link QueueResourceOperator}.
@@ -39,14 +38,11 @@ public class QueueResourceOperatorFactory {
      * Get a message queue resource operator instance via the given mqType
      */
     public QueueResourceOperator getInstance(MQType mqType) {
-        Optional<QueueResourceOperator> instance = operatorList.stream()
+        return operatorList.stream()
                 .filter(inst -> inst.accept(mqType))
-                .findFirst();
-        if (!instance.isPresent()) {
-            throw new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT,
-                    String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT.getMessage(), mqType));
-        }
-        return instance.get();
+                .findFirst()
+                .orElseThrow(() -> new BusinessException(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT,
+                        String.format(ErrorCodeEnum.MQ_TYPE_NOT_SUPPORT.getMessage(), mqType)));
     }
 
 }

@@ -68,6 +68,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     public void createQueueForGroup(InlongGroupInfo groupInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(operator, "operator cannot be null");
+
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to create pulsar resource for groupId={}", groupId);
 
@@ -112,6 +113,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     @Override
     public void deleteQueueForGroup(InlongGroupInfo groupInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
+
         String groupId = groupInfo.getInlongGroupId();
         log.info("begin to delete pulsar resource for groupId={}", groupId);
 
@@ -138,6 +140,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
         Preconditions.checkNotNull(operator, "operator cannot be null");
+
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
         log.info("begin to create pulsar resource for groupId={}, streamId={}", groupId, streamId);
@@ -161,6 +164,7 @@ public class PulsarResourceOperator implements QueueResourceOperator {
     public void deleteQueueForStream(InlongGroupInfo groupInfo, InlongStreamInfo streamInfo, String operator) {
         Preconditions.checkNotNull(groupInfo, "inlong group info cannot be null");
         Preconditions.checkNotNull(streamInfo, "inlong stream info cannot be null");
+
         String groupId = streamInfo.getInlongGroupId();
         String streamId = streamInfo.getInlongStreamId();
         log.info("begin to delete pulsar resource for groupId={} streamId={}", groupId, streamId);
