@@ -17,10 +17,7 @@
 
 package org.apache.inlong.manager.client.api.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongGroup;
@@ -43,9 +40,7 @@ import org.apache.inlong.manager.common.pojo.group.InlongGroupRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupResetRequest;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
 import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogListResponse;
 import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.pojo.workflow.ProcessResponse;
 import org.apache.inlong.manager.common.pojo.workflow.TaskResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
@@ -55,7 +50,6 @@ import org.apache.inlong.manager.common.util.Preconditions;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -68,11 +62,11 @@ public class InlongGroupImpl implements InlongGroup {
     public static final String MQ_FIELD = "mqType";
 
     private final InnerGroupContext groupContext;
-    private InlongGroupInfo groupInfo;
     private final InlongGroupClient groupClient;
     private final WorkflowClient workFlowClient;
     private final InlongStreamClient streamClient;
     private final ClientConfiguration configuration;
+    private InlongGroupInfo groupInfo;
 
     public InlongGroupImpl(InlongGroupInfo groupInfo, ClientConfiguration configuration) {
         this.groupInfo = groupInfo;
@@ -284,44 +278,7 @@ public class InlongGroupImpl implements InlongGroup {
             dataStreams.forEach(groupContext::setStream);
         }
 
-        // create group context
-        InlongGroupContext inlongGroupContext = new InlongGroupContext(groupContext);
-        // fetch group logs
-        List<EventLogResponse> logViews = workFlowClient.getInlongGroupError(inlongGroupId);
-        if (CollectionUtils.isNotEmpty(logViews)) {
-            Map<String, List<String>> errMsgMap = Maps.newHashMap();
-            Map<String, List<String>> groupLogMap = Maps.newHashMap();
-            logViews.stream()
-                    .filter(x -> StringUtils.isNotEmpty(x.getElementName()))
-                    .forEach(eventLogView -> {
-                        String taskName = eventLogView.getElementName();
-                        if (StringUtils.isNotEmpty(eventLogView.getException())) {
-                            errMsgMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getException());
-                        }
-                        if (StringUtils.isNotEmpty(eventLogView.getRemark())) {
-                            groupLogMap.computeIfAbsent(taskName, Lists::newArrayList).add(eventLogView.getRemark());
-                        }
-                    });
-            inlongGroupContext.setGroupErrLogs(errMsgMap);
-            inlongGroupContext.setGroupLogs(groupLogMap);
-        }
-
-        // fetch stream logs
-        Map<String, InlongStream> streams = inlongGroupContext.getInlongStreamMap();
-        streams.keySet().forEach(streamId -> {
-            List<InlongStreamConfigLogListResponse> logList = streamClient.getStreamLogs(inlongGroupId, streamId);
-            if (CollectionUtils.isNotEmpty(logList)) {
-                Map<String, List<String>> streamLogs = Maps.newHashMap();
-                logList.stream().filter(x -> StringUtils.isNotEmpty(x.getComponentName()))
-                        .forEach(streamLog -> {
-                            String componentName = streamLog.getComponentName();
-                            String log = JsonUtils.toJsonString(streamLog);
-                            streamLogs.computeIfAbsent(componentName, Lists::newArrayList).add(log);
-                        });
-                inlongGroupContext.getStreamErrLogs().put(streamId, streamLogs);
-            }
-        });
-        return inlongGroupContext;
+        return new InlongGroupContext(groupContext);
     }
 
     private List<InlongStream> fetchInlongStreams(String groupId) {
