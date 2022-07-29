@@ -21,12 +21,22 @@ import React from 'react';
 import { Divider } from 'antd';
 import i18n from '@/i18n';
 import { genBusinessFields, genDataFields } from '@/components/AccessHelper';
+import { statusList } from './status';
 
 export const getFilterFormContent = (defaultValues = {} as any) => [
   {
     type: 'inputsearch',
     name: 'keyword',
     initialValue: defaultValues.keyword,
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      options: statusList,
+    },
   },
 ];
 

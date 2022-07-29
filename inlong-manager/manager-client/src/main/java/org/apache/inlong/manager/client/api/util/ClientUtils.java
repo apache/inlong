@@ -83,7 +83,7 @@ public class ClientUtils {
                 .build();
 
         return new Retrofit.Builder()
-                .baseUrl("http://" + host + ":" + port + "/api/inlong/manager/")
+                .baseUrl("http://" + host + ":" + port + "/inlong/manager/api/")
                 .addConverterFactory(JacksonConverterFactory.create(JsonUtils.OBJECT_MAPPER))
                 .client(okHttpClient)
                 .build();

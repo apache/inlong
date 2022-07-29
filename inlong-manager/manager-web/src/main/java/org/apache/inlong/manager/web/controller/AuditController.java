@@ -25,6 +25,7 @@ import org.apache.inlong.manager.common.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -35,6 +36,7 @@ import java.util.List;
  * Audit controller.
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Audit-API")
 public class AuditController {
 

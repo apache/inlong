@@ -22,7 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.constant.Constants;
 import org.apache.inlong.common.db.CommandEntity;
-import org.apache.inlong.common.enums.ComponentTypeEnum;
 import org.apache.inlong.common.enums.PullJobTypeEnum;
 import org.apache.inlong.common.pojo.agent.CmdConfig;
 import org.apache.inlong.common.pojo.agent.DataConfig;
@@ -33,14 +32,12 @@ import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.pojo.source.file.FileSourceDTO;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamConfigLogRequest;
 import org.apache.inlong.manager.dao.entity.InlongStreamEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.DataSourceCmdConfigEntityMapper;
 import org.apache.inlong.manager.dao.mapper.InlongStreamEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.service.core.AgentService;
-import org.apache.inlong.manager.service.core.StreamConfigLogService;
 import org.apache.inlong.manager.service.source.SourceSnapshotOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -77,8 +73,6 @@ public class AgentServiceImpl implements AgentService {
     private DataSourceCmdConfigEntityMapper sourceCmdConfigMapper;
     @Autowired
     private InlongStreamEntityMapper streamMapper;
-    @Autowired
-    private StreamConfigLogService streamConfigLogService;
 
     @Override
     public Boolean reportSnapshot(TaskSnapshotRequest request) {
@@ -130,7 +124,6 @@ public class AgentServiceImpl implements AgentService {
         int nextStatus = SourceStatus.SOURCE_NORMAL.getCode();
 
         if (Constants.RESULT_FAIL == result) {
-            logFailedStreamSource(current);
             nextStatus = SourceStatus.SOURCE_FAILED.getCode();
         } else if (previousStatus / MODULUS_100 == ISSUED_STATUS) {
             // Change the status from 30x to normal / disable / frozen
@@ -221,24 +214,6 @@ public class AgentServiceImpl implements AgentService {
         }
 
         return TaskResult.builder().dataConfigs(dataConfigs).cmdConfigs(cmdConfigs).build();
-    }
-
-    /**
-     * If status of source is failed, record.
-     *
-     * @param entity
-     */
-    private void logFailedStreamSource(StreamSourceEntity entity) {
-        InlongStreamConfigLogRequest request = new InlongStreamConfigLogRequest();
-        request.setInlongGroupId(entity.getInlongGroupId());
-        request.setInlongStreamId(entity.getInlongStreamId());
-        request.setComponentName(ComponentTypeEnum.Agent.getName());
-        request.setIp(entity.getAgentIp());
-        request.setConfigName("DataSource:" + entity.getSourceName());
-        request.setLogType(1);
-        request.setLogInfo(String.format("StreamSource=%s init failed, please check!", entity));
-        request.setReportTime(new Date().getTime());
-        streamConfigLogService.reportConfigLog(request);
     }
 
     /**

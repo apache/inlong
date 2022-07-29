@@ -20,19 +20,16 @@ package org.apache.inlong.manager.client.api.inner.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.service.WorkflowApi;
 import org.apache.inlong.manager.client.api.util.ClientUtils;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
 import org.apache.inlong.manager.common.util.JsonUtils;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,13 +68,4 @@ public class WorkflowClient {
         return response.getData();
     }
 
-    /**
-     * get inlong group error messages
-     */
-    public List<EventLogResponse> getInlongGroupError(String inlongGroupId) {
-        Response<PageInfo<EventLogResponse>> response = ClientUtils.executeHttpCall(
-                workflowApi.getInlongGroupError(inlongGroupId, -1));
-        ClientUtils.assertRespSuccess(response);
-        return response.getData().getList();
-    }
 }

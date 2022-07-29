@@ -97,7 +97,7 @@ public class InlongShiroImpl implements InlongShiro {
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
         // login, register request
-        pathDefinitions.put("/anno/**/*", "anon");
+        pathDefinitions.put("/api/anno/**/*", "anon");
 
         // swagger api
         pathDefinitions.put("/doc.html", "anon");

@@ -122,11 +122,11 @@ public class HttpManager {
      *
      * @return response
      */
-    public String doSendGet(String url) {
+    public String doSendPost(String url) {
         try {
-            HttpGet get = getHttpGet(url);
-            get.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
-            CloseableHttpResponse response = httpClient.execute(get);
+            HttpPost post = getHttpPost(url);
+            post.addHeader(BasicAuth.BASIC_AUTH_HEADER, BasicAuth.genBasicAuthCredential(secretId, secretKey));
+            CloseableHttpResponse response = httpClient.execute(post);
             String returnStr = EntityUtils.toString(response.getEntity());
             if (returnStr != null && !returnStr.isEmpty()
                     && response.getStatusLine().getStatusCode() == AGENT_HTTP_SUCCESS_CODE) {
