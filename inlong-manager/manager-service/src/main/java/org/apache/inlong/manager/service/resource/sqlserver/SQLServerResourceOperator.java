@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerSinkDTO;
 import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.resource.SinkResourceOperator;
+import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
