@@ -83,7 +83,7 @@ public class MySQLJdbcUtils {
     public static void executeSql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
-        LOG.info("execute sql [{}] success !", sql);
+        LOG.info("execute sql [{}] success ", sql);
         stmt.close();
     }
 
@@ -95,11 +95,10 @@ public class MySQLJdbcUtils {
      * @return {@link ResultSet}
      * @throws Exception on execute query SQL error
      */
-    public static ResultSet executeQuerySql(Connection conn, String sql)
-            throws Exception {
+    public static ResultSet executeQuerySql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
         ResultSet resultSet = stmt.executeQuery(sql);
-        LOG.info("execute sql [{}] success !", sql);
+        LOG.info("execute sql [{}] success", sql);
         return resultSet;
     }
 
@@ -110,8 +109,7 @@ public class MySQLJdbcUtils {
      * @param sqls SQL string to be executed
      * @throws Exception on get execute SQL batch error
      */
-    public static void executeSqlBatch(Connection conn, List<String> sqls)
-            throws Exception {
+    public static void executeSqlBatch(Connection conn, List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
         Statement stmt = conn.createStatement();
         for (String entry : sqls) {
@@ -120,7 +118,7 @@ public class MySQLJdbcUtils {
         conn.commit();
         conn.setAutoCommit(true);
         stmt.close();
-        LOG.info("execute sql [{}] success! ", sqls);
+        LOG.info("execute sql [{}] success", sqls);
     }
 
     /**
@@ -137,9 +135,9 @@ public class MySQLJdbcUtils {
             if (!resultSet.next()) {
                 String createDbSql = MySQLSqlBuilder.buildCreateDbSql(dbName);
                 executeSql(conn, createDbSql);
-                LOG.info("execute sql [{}] success! ", createDbSql);
+                LOG.info("execute sql [{}] success", createDbSql);
             } else {
-                LOG.info("The database [{}] are exists !", dbName);
+                LOG.info("The database [{}] are exists", dbName);
             }
             resultSet.close();
         }
@@ -152,14 +150,13 @@ public class MySQLJdbcUtils {
      * @param tableInfo MySQL table info  {@link MySQLTableInfo}
      * @throws Exception on create table error
      */
-    public static void createTable(Connection conn, MySQLTableInfo tableInfo)
-            throws Exception {
+    public static void createTable(Connection conn, MySQLTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getDbName(), tableInfo.getTableName())) {
-            LOG.info("The table [{}] are exists !", tableInfo.getTableName());
+            LOG.info("The table [{}] are exists", tableInfo.getTableName());
         } else {
             String createTableSql = MySQLSqlBuilder.buildCreateTableSql(tableInfo);
             executeSql(conn, createTableSql);
-            LOG.info("execute sql [{}] success! ", createTableSql);
+            LOG.info("execute sql [{}] success", createTableSql);
         }
     }
 
@@ -172,8 +169,7 @@ public class MySQLJdbcUtils {
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
-    public static boolean checkTablesExist(Connection conn, String dbName, String tableName)
-            throws Exception {
+    public static boolean checkTablesExist(Connection conn, String dbName, String tableName) throws Exception {
         boolean result = false;
         String checkTableSql = MySQLSqlBuilder.getCheckTable(dbName, tableName);
         ResultSet resultSet = executeQuerySql(conn, checkTableSql);
@@ -226,8 +222,7 @@ public class MySQLJdbcUtils {
      * @return {@link List}
      * @throws Exception on get columns error
      */
-    public static List<MySQLColumnInfo> getColumns(Connection conn, String dbName, String tableName)
-            throws Exception {
+    public static List<MySQLColumnInfo> getColumns(Connection conn, String dbName, String tableName) throws Exception {
         String querySql = MySQLSqlBuilder.buildDescTableSql(dbName, tableName);
         Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(querySql);
