@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.resource.sqlserver;
+package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;

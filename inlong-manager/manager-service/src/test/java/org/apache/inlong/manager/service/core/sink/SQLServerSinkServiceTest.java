@@ -27,7 +27,7 @@ import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.resource.sqlserver.SQLServerJdbcUtils;
+import org.apache.inlong.manager.service.resource.sink.sqlserver.SQLServerJdbcUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
