@@ -97,7 +97,7 @@ public class OracleJdbcUtils {
     public static ResultSet executeQuerySql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
         ResultSet resultSet = stmt.executeQuery(sql);
-        LOG.info("execute sql [{}] success !", sql);
+        LOG.info("execute sql [{}] success", sql);
         return resultSet;
     }
 
@@ -185,7 +185,7 @@ public class OracleJdbcUtils {
         if (Objects.nonNull(resultSet)) {
             resultSet.close();
         }
-        LOG.info("check column exist for table={}, column={}, result={} ", tableName, column, result);
+        LOG.info("check column exist for table={}, column={}, result={}", tableName, column, result);
         return result;
     }
 

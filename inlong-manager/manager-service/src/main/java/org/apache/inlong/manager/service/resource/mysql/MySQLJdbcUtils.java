@@ -83,7 +83,7 @@ public class MySQLJdbcUtils {
     public static void executeSql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
-        LOG.info("execute sql [{}] success ", sql);
+        LOG.info("execute sql [{}] success", sql);
         stmt.close();
     }
 
