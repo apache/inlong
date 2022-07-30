@@ -156,10 +156,10 @@
         </where>
         <choose>
             <when test="orderField != null and orderField != '' and orderType = 'desc'">
-                order by #{orderField} desc
+                order by ${orderField} desc
             </when>
             <when test="orderField != null and orderField != '' and orderType = 'asc'">
-                order by #{orderField} asc
+                order by ${orderField} asc
             </when>
             <otherwise>
                 order by create_time desc
