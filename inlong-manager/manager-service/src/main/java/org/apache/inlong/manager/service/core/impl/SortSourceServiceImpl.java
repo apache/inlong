@@ -64,11 +64,13 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SortSourceServiceImpl.class);
 
     private static final Gson GSON = new Gson();
-    private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() { {
-        add("PULSAR");
-        add("KAFKA");
-        add("TUBE");
-    }};
+    private static final Set<String> SUPPORTED_MQ_TYPE = new HashSet<String>() {
+        {
+            add("PULSAR");
+            add("KAFKA");
+            add("TUBE");
+        }
+    };
     private static final String KEY_SERVICE_URL = "serviceUrl";
     private static final String KEY_AUTH = "authentication";
     private static final String KEY_TENANT = "tenant";
@@ -79,12 +81,14 @@ public class SortSourceServiceImpl implements SortSourceService {
     private static final int RESPONSE_CODE_FAIL = -1;
     private static final int RESPONSE_CODE_REQ_PARAMS_ERROR = -101;
 
-    /** key 1: cluster name, key 2: task name, value : md5 */
+    /**
+     * key 1: cluster name, key 2: task name, value : md5
+     */
     private Map<String, Map<String, String>> sortSourceMd5Map = new ConcurrentHashMap<>();
-    /** key 1: cluster name, key 2: task name, value : source config */
+    /**
+     * key 1: cluster name, key 2: task name, value : source config
+     */
     private Map<String, Map<String, CacheZoneConfig>> sortSourceConfigMap = new ConcurrentHashMap<>();
-
-    private long reloadInterval = 60000L;
 
     @Autowired
     private InlongClusterEntityMapper clusterEntityMapper;
@@ -180,12 +184,12 @@ public class SortSourceServiceImpl implements SortSourceService {
         // convert to Map<clusterName, Map<taskName, List<groupId>>> format.
         Map<String, Map<String, List<String>>> groupMap = new ConcurrentHashMap<>();
         allStreamInfos.forEach(stream -> {
-                    Map<String, List<String>> task2groupsMap =
-                            groupMap.computeIfAbsent(stream.getSortClusterName(), k -> new ConcurrentHashMap<>());
-                    List<String> groupIdList =
-                            task2groupsMap.computeIfAbsent(stream.getSortTaskName(), k -> new ArrayList<>());
-                    groupIdList.add(stream.getGroupId());
-                });
+            Map<String, List<String>> task2groupsMap =
+                    groupMap.computeIfAbsent(stream.getSortClusterName(), k -> new ConcurrentHashMap<>());
+            List<String> groupIdList =
+                    task2groupsMap.computeIfAbsent(stream.getSortTaskName(), k -> new ArrayList<>());
+            groupIdList.add(stream.getGroupId());
+        });
 
         // get all groups. group by group id.
         List<SortSourceGroupInfo> groupInfos = inlongGroupEntityMapper.selectAllGroups();
@@ -290,7 +294,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 this.getCacheZoneListByTag(backupTag2GroupInfos, allTag2ClusterInfos, group2topicProp, true);
 
         // combine two cache zone list, and group by cache zone name.
-        Map<String, CacheZone> cacheZones = Stream.of(firstTagCacheZoneList, backupTagCacheZoneList)
+        return Stream.of(firstTagCacheZoneList, backupTagCacheZoneList)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(
                         CacheZone::getZoneName,
@@ -300,7 +304,6 @@ public class SortSourceServiceImpl implements SortSourceService {
                             return zone1;
                         })
                 );
-        return cacheZones;
     }
 
     private List<CacheZone> getCacheZoneListByTag(
@@ -318,7 +321,7 @@ public class SortSourceServiceImpl implements SortSourceService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         // get CacheZone list
-        List<CacheZone> cacheZones = tags.stream()
+        return tags.stream()
                 .filter(tag2ClusterInfos::containsKey)
                 .flatMap(tag -> {
                     List<SortSourceGroupInfo> groups = tag2GroupInfos.get(tag);
@@ -336,7 +339,6 @@ public class SortSourceServiceImpl implements SortSourceService {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        return cacheZones;
     }
 
     private CacheZone getCacheZone(
@@ -348,8 +350,8 @@ public class SortSourceServiceImpl implements SortSourceService {
         // get basic Cache zone fields
         Map<String, String> param = cluster.getExtParamsMap();
         String serviceUrl = Optional.ofNullable(param.get(KEY_SERVICE_URL))
-                .orElseThrow(() ->
-                        new IllegalStateException(("there is no serviceUrl for cluster " + cluster.getName())));
+                .orElseThrow(
+                        () -> new IllegalStateException(("there is no serviceUrl for cluster " + cluster.getName())));
         String tenant = param.get(KEY_TENANT);
         String namespace = param.get(KEY_NAME_SPACE);
         String authentication = Optional.ofNullable(param.get(KEY_AUTH)).orElse("");
@@ -392,6 +394,7 @@ public class SortSourceServiceImpl implements SortSourceService {
      */
     private void setReloadTimer() {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        long reloadInterval = 60000L;
         executorService.scheduleAtFixedRate(this::reload, reloadInterval, reloadInterval, TimeUnit.MILLISECONDS);
     }
 }

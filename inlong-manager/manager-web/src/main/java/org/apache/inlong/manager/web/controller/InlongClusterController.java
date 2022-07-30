@@ -53,6 +53,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong cluster controller
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Inlong-Cluster-API")
 public class InlongClusterController {
 

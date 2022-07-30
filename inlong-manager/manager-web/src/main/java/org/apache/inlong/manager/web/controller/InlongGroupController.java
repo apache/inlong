@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Inlong group control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Inlong-Group-API")
 public class InlongGroupController {
 

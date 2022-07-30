@@ -22,10 +22,10 @@ import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupPro
 import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.AfterApprovedTaskListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.ApproveApplyProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.CancelApplyProcessListener;
-import org.apache.inlong.manager.service.workflow.group.listener.apply.RejectApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.AfterApprovedTaskListener;
+import org.apache.inlong.manager.service.listener.group.apply.ApproveApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.CancelApplyProcessListener;
+import org.apache.inlong.manager.service.listener.group.apply.RejectApplyProcessListener;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;
 import org.apache.inlong.manager.workflow.definition.UserTask;

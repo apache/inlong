@@ -20,7 +20,6 @@ package org.apache.inlong.dataproxy.sink.kafkazone;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flume.Channel;
 import org.apache.flume.Context;
-import org.apache.inlong.dataproxy.config.RemoteConfigManager;
 import org.apache.inlong.dataproxy.config.holder.CacheClusterConfigHolder;
 import org.apache.inlong.dataproxy.config.holder.CommonPropertiesHolder;
 import org.apache.inlong.dataproxy.config.holder.IdTopicConfigHolder;
@@ -46,7 +45,6 @@ public class KafkaZoneSinkContext extends SinkContext {
 
     private final LinkedBlockingQueue<DispatchProfile> dispatchQueue;
 
-    private final String proxyClusterId;
     private final String nodeId;
     private final Context producerContext;
     //
@@ -63,8 +61,6 @@ public class KafkaZoneSinkContext extends SinkContext {
             LinkedBlockingQueue<DispatchProfile> dispatchQueue) {
         super(sinkName, context, channel);
         this.dispatchQueue = dispatchQueue;
-        // proxyClusterId
-        this.proxyClusterId = CommonPropertiesHolder.getString(RemoteConfigManager.KEY_PROXY_CLUSTER_NAME);
         // nodeId
         this.nodeId = CommonPropertiesHolder.getString(KEY_NODE_ID, "127.0.0.1");
         // compressionType
@@ -99,15 +95,6 @@ public class KafkaZoneSinkContext extends SinkContext {
         super.close();
         this.idTopicHolder.close();
         this.cacheHolder.close();
-    }
-
-    /**
-     * get proxyClusterId
-     * 
-     * @return the proxyClusterId
-     */
-    public String getProxyClusterId() {
-        return proxyClusterId;
     }
 
     /**
@@ -172,7 +159,7 @@ public class KafkaZoneSinkContext extends SinkContext {
      */
     public void addSendingMetric(DispatchProfile currentRecord, String bid) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
@@ -192,7 +179,7 @@ public class KafkaZoneSinkContext extends SinkContext {
      */
     public void addSendFailMetric() {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());
         long msgTime = System.currentTimeMillis();
         long auditFormatTime = msgTime - msgTime % CommonPropertiesHolder.getAuditFormatInterval();
@@ -241,7 +228,7 @@ public class KafkaZoneSinkContext extends SinkContext {
      */
     public void addSendResultMetric(DispatchProfile currentRecord, String bid, boolean result, long sendTime) {
         Map<String, String> dimensions = new HashMap<>();
-        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getClusterId());
+        dimensions.put(DataProxyMetricItem.KEY_CLUSTER_ID, this.getProxyClusterId());
         // metric
         fillInlongId(currentRecord, dimensions);
         dimensions.put(DataProxyMetricItem.KEY_SINK_ID, this.getSinkName());

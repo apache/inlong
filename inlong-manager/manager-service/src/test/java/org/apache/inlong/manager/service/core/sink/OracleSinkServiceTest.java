@@ -28,7 +28,7 @@ import org.apache.inlong.manager.common.pojo.sink.oracle.OracleTableInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.resource.oracle.OracleJdbcUtils;
+import org.apache.inlong.manager.service.resource.sink.oracle.OracleJdbcUtils;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;

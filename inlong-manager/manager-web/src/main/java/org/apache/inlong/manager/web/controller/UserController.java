@@ -21,8 +21,8 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.pojo.user.UserInfo;
+import org.apache.inlong.manager.common.pojo.user.UserRequest;
 import org.apache.inlong.manager.common.pojo.user.UserRoleCode;
 import org.apache.inlong.manager.common.util.LoginUserUtils;
 import org.apache.inlong.manager.service.core.UserService;
@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated
 @RestController
+@RequestMapping("/api")
 @Api(tags = "User-Auth-API")
 public class UserController {
 

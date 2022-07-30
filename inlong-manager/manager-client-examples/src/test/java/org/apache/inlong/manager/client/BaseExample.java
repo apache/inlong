@@ -83,7 +83,7 @@ public class BaseExample {
         // set enable zk, create resource, lightweight mode, and cluster tag
         pulsarInfo.setEnableZookeeper(InlongConstants.DISABLE_ZK);
         pulsarInfo.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        pulsarInfo.setLightweight(InlongConstants.NORMAL_MODE);
+        pulsarInfo.setLightweight(InlongConstants.STANDARD_MODE);
         pulsarInfo.setInlongClusterTag("default_cluster");
 
         pulsarInfo.setDailyRecords(10000000);

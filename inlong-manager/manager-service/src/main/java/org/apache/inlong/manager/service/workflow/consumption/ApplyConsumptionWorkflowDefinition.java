@@ -25,10 +25,10 @@ import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionAppro
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCancelProcessListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionCompleteProcessListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionPassTaskListener;
-import org.apache.inlong.manager.service.workflow.consumption.listener.ConsumptionRejectProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionCancelProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionCompleteProcessListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionPassTaskListener;
+import org.apache.inlong.manager.service.listener.consumption.ConsumptionRejectProcessListener;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.definition.EndEvent;
 import org.apache.inlong.manager.workflow.definition.StartEvent;

@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Stream sink control layer
  */
 @RestController
+@RequestMapping("/api")
 @Api(tags = "Stream-Sink-API")
 public class StreamSinkController {
 
