@@ -22,7 +22,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * SqlServer table info.
+ * SQLServer table info.
  */
 @Data
 public class SQLServerTableInfo {

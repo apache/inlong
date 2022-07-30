@@ -132,7 +132,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Build add SqlServer column info.
+     * Build add SQLServer column info.
      *
      * @return {@link List}
      */
@@ -146,7 +146,7 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Build test SqlServer table info.
+     * Build test SQLServer table info.
      *
      * @param schemaName SqlServer schema name
      * @param tableName SqlServer table name

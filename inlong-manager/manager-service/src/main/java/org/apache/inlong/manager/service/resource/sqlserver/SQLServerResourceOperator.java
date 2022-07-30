@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SqlServer's resource operator.
+ * SQLServer's resource operator.
  */
 @Service
 public class SQLServerResourceOperator implements SinkResourceOperator {
@@ -60,9 +60,9 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
 
     @Override
     public void createSinkResource(SinkInfo sinkInfo) {
-        LOG.info("begin to create SqlServer resources sinkId={}", sinkInfo.getId());
+        LOG.info("begin to create SQLServer resources sinkId={}", sinkInfo.getId());
         if (SinkStatus.CONFIG_SUCCESSFUL.getCode().equals(sinkInfo.getStatus())) {
-            LOG.warn("SqlServer resource [" + sinkInfo.getId() + "] already success, skip to create");
+            LOG.warn("SQLServer resource [" + sinkInfo.getId() + "] already success, skip to create");
             return;
         } else if (InlongConstants.DISABLE_CREATE_RESOURCE.equals(sinkInfo.getEnableCreateResource())) {
             LOG.warn("create resource was disabled, skip to create for [" + sinkInfo.getId() + "]");
@@ -72,15 +72,15 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
     }
 
     /**
-     * Create SqlServer table by SinkInfo.
+     * Create SQLServer table by SinkInfo.
      *
      * @param sinkInfo {@link SinkInfo}
      */
     private void createTable(SinkInfo sinkInfo) {
-        LOG.info("begin to create SqlServer table for sinkId={}", sinkInfo.getId());
+        LOG.info("begin to create SQLServer table for sinkId={}", sinkInfo.getId());
         List<StreamSinkFieldEntity> fieldList = fieldEntityMapper.selectBySinkId(sinkInfo.getId());
         if (CollectionUtils.isEmpty(fieldList)) {
-            LOG.warn("no SqlServer fields found, skip to create table for sinkId={}", sinkInfo.getId());
+            LOG.warn("no SQLServer fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
         // set columns
         List<SQLServerColumnInfo> columnList = new ArrayList<>();
@@ -108,15 +108,15 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             // 3. if table exists, add columns - skip the exists columns
             SQLServerJdbcUtils.addColumns(conn, dbName, tableName, columnList);
             // 4. update the sink status to success
-            String info = "success to create SqlServer resource";
+            String info = "success to create SQLServer resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
-            String errMsg = "create SqlServer table failed: " + e.getMessage();
+            String errMsg = "create SQLServer table failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
         }
-        LOG.info("success create SqlServer table for data sink [" + sinkInfo.getId() + "]");
+        LOG.info("success create SQLServer table for data sink [" + sinkInfo.getId() + "]");
     }
 }

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builder the SQL string for SqlServer.
+ * Builder the SQL string for SQLServer.
  */
 public class SQLServerSqlBuilder {
 
@@ -37,8 +37,8 @@ public class SQLServerSqlBuilder {
     /**
      * Build SQL to check whether the table exists.
      *
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
      * @return the check table SQL string
      */
     public static String getCheckTable(String schemaName, String tableName) {
@@ -56,9 +56,9 @@ public class SQLServerSqlBuilder {
     /**
      * Build SQL to check whether the column exists.
      *
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
-     * @param columnName SqlServer column name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
+     * @param columnName SQLServer column name
      * @return the check column SQL string
      */
     public static String getCheckColumn(String schemaName, String tableName, String columnName) {
@@ -93,7 +93,7 @@ public class SQLServerSqlBuilder {
     /**
      * Build create schema SQL.
      *
-     * @param schemaName SqlServer schema name
+     * @param schemaName SQLServer schema name
      * @return
      */
     public static String buildCreateSchemaSql(String schemaName) {
@@ -107,7 +107,7 @@ public class SQLServerSqlBuilder {
     /**
      * Build create table SQL by SQLServerTableInfo.
      *
-     * @param table SqlServer table info {@link SQLServerTableInfo}
+     * @param table SQLServer table info {@link SQLServerTableInfo}
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(SQLServerTableInfo table) {
@@ -135,8 +135,8 @@ public class SQLServerSqlBuilder {
     /**
      * Build add columns SQL.
      *
-     * @param schemaName SqlServer schema name
-     * @param columnList SqlServer column list {@link List}
+     * @param schemaName SQLServer schema name
+     * @param columnList SQLServer column list {@link List}
      * @return add column SQL string list
      */
     public static List<String> buildAddColumnsSql(String schemaName, String tableName,
@@ -167,10 +167,10 @@ public class SQLServerSqlBuilder {
     /**
      * Build alter table add column comment SQL.
      *
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
-     * @param columnName SqlServer column name
-     * @param comment SqlServer column comment
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
+     * @param columnName SQLServer column name
+     * @param comment SQLServer column comment
      * @return SQL string
      */
     private static String buildAddColumnComment(String schemaName, String tableName, String columnName,
@@ -192,7 +192,7 @@ public class SQLServerSqlBuilder {
     /**
      * Build create column SQL.
      *
-     * @param table SqlServer table info {@link SQLServerTableInfo}
+     * @param table SQLServer table info {@link SQLServerTableInfo}
      * @return create column SQL string
      */
     private static String buildCreateColumnsSql(SQLServerTableInfo table) {
@@ -207,7 +207,7 @@ public class SQLServerSqlBuilder {
     /**
      * Build column info by SQLServerColumnInfo list.
      *
-     * @param columns SqlServer column info {@link SQLServerColumnInfo} list
+     * @param columns SQLServer column info {@link SQLServerColumnInfo} list
      * @return the SQL list
      */
     private static List<String> getColumnsInfo(List<SQLServerColumnInfo> columns, String primaryKey) {
@@ -232,8 +232,8 @@ public class SQLServerSqlBuilder {
     /**
      * Build query table SQL.
      *
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
      * @return desc table SQL string
      */
     public static String buildDescTableSql(String schemaName, String tableName) {

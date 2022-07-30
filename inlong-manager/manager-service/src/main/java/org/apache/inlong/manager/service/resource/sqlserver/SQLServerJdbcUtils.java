@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Utils for SqlServer JDBC.
+ * Utils for SQLServer JDBC.
  */
 public class SQLServerJdbcUtils {
 
@@ -44,7 +44,7 @@ public class SQLServerJdbcUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SQLServerJdbcUtils.class);
 
     /**
-     * Get SqlServer connection from the url and user.
+     * Get SQLServer connection from the url and user.
      *
      * @param url jdbc url, such as jdbc:sqlserver://host:port
      * @param user Username for JDBC URL
@@ -52,29 +52,28 @@ public class SQLServerJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(String url, String user, String password)
-            throws Exception {
+    public static Connection getConnection(String url, String user, String password) throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(SQLSERVER_JDBC_PREFIX)) {
-            throw new Exception("SqlServer server URL was invalid, it should start with jdbc:sqlserver");
+            throw new Exception("SQLServer server URL was invalid, it should start with jdbc:sqlserver");
         }
         Connection conn;
         try {
             Class.forName(SQLSERVER_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get SqlServer connection error, please check SqlServer JDBC url, username or password!";
+            String errorMsg = "get SQLServer connection error, please check SQLServer JDBC url, username or password!";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
         if (conn == null) {
-            throw new Exception("get SqlServer connection failed, please contact administrator.");
+            throw new Exception("get SQLServer connection failed, please contact administrator.");
         }
-        LOG.info("get SqlServer connection success, url={}", url);
+        LOG.info("get SQLServer connection success, url={}", url);
         return conn;
     }
 
     /**
-     * Execute SQL command on SqlServer.
+     * Execute SQL command on SQLServer.
      *
      * @param conn JDBC Connection  {@link Connection}
      * @param sql SQL string to be executed
@@ -83,35 +82,33 @@ public class SQLServerJdbcUtils {
     public static void executeSql(Connection conn, String sql) throws Exception {
         conn.setAutoCommit(true);
         Statement stmt = conn.createStatement();
-        LOG.info("execute sql [{}] success !", sql);
+        LOG.info("execute sql [{}] success", sql);
         stmt.execute(sql);
         stmt.close();
     }
 
     /**
-     * Execute query SQL on SqlServer.
+     * Execute query SQL on SQLServer.
      *
      * @param conn JDBC Connection  {@link Connection}
      * @param sql SQL string to be executed
      * @return {@link ResultSet}
      * @throws Exception on execute query SQL error
      */
-    public static ResultSet executeQuerySql(Connection conn, String sql)
-            throws Exception {
+    public static ResultSet executeQuerySql(Connection conn, String sql) throws Exception {
         Statement stmt = conn.createStatement();
-        LOG.info("execute sql [{}] success !", sql);
+        LOG.info("execute sql [{}] success", sql);
         return stmt.executeQuery(sql);
     }
 
     /**
-     * Execute batch query SQL on SqlServer.
+     * Execute batch query SQL on SQLServer.
      *
      * @param conn JDBC Connection  {@link Connection}
      * @param sqls SQL string to be executed
      * @throws Exception on get execute SQL batch error
      */
-    public static void executeSqlBatch(Connection conn, List<String> sqls)
-            throws Exception {
+    public static void executeSqlBatch(Connection conn, List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
         Statement stmt = conn.createStatement();
         for (String entry : sqls) {
@@ -120,55 +117,54 @@ public class SQLServerJdbcUtils {
         conn.commit();
         stmt.close();
         conn.setAutoCommit(true);
-        LOG.info("execute sql [{}] success! ", sqls);
+        LOG.info("execute sql [{}] success", sqls);
     }
 
     /**
-     * create SqlServer schema
+     * create SQLServer schema
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema name
+     * @param schemaName SQLServer schema name
      * @throws Exception on create schema error
      */
     public static void createSchema(Connection conn, String schemaName) throws Exception {
         if (!checkSchemaExist(conn, schemaName)) {
             String createSql = SQLServerSqlBuilder.buildCreateSchemaSql(schemaName);
             executeSql(conn, createSql);
-            LOG.info("execute sql [{}] success! ", createSql);
+            LOG.info("execute sql [{}] success", createSql);
         } else {
-            LOG.info("The schemaName [{}] are exists !", schemaName);
+            LOG.info("The schemaName [{}] are exists", schemaName);
         }
     }
 
     /**
-     * Create SqlServer table by SqlServerTableInfo
+     * Create SQLServer table by SQLServerTableInfo
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param tableInfo SqlServer table info  {@link SQLServerTableInfo}
+     * @param tableInfo SQLServer table info  {@link SQLServerTableInfo}
      * @throws Exception on create table error
      */
     public static void createTable(Connection conn, SQLServerTableInfo tableInfo)
             throws Exception {
         if (checkTablesExist(conn, tableInfo.getSchemaName(), tableInfo.getTableName())) {
-            LOG.info("The table [{}] are exists !", tableInfo.getTableName());
+            LOG.info("The table [{}] are exists", tableInfo.getTableName());
         } else {
             List<String> createTableSqls = SQLServerSqlBuilder.buildCreateTableSql(tableInfo);
             executeSqlBatch(conn, createTableSqls);
-            LOG.info("execute sql [{}] success! ", createTableSqls);
+            LOG.info("execute sql [{}] success", createTableSqls);
         }
     }
 
     /**
-     * Check tables from the SqlServer information_schema.
+     * Check tables from the SQLServer information_schema.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
-    public static boolean checkTablesExist(Connection conn, String schemaName, String tableName)
-            throws Exception {
+    public static boolean checkTablesExist(Connection conn, String schemaName, String tableName) throws Exception {
         boolean result = false;
         String checkTableSql = SQLServerSqlBuilder.getCheckTable(schemaName, tableName);
         ResultSet resultSet = executeQuerySql(conn, checkTableSql);
@@ -186,10 +182,10 @@ public class SQLServerJdbcUtils {
     }
 
     /**
-     * Check schema from the SqlServer information_schema.schemata.
+     * Check schema from the SQLServer information_schema.schemata.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema
+     * @param schemaName SQLServer schema
      * @return true if schema exist, otherwise false
      * @throws Exception on check schema exist error
      */
@@ -214,9 +210,9 @@ public class SQLServerJdbcUtils {
      * Check whether the column exists in the table.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
-     * @param column SqlServer table column name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
+     * @param column SQLServer table column name
      * @return true if column exist in the table, otherwise false
      * @throws Exception on check column exist error
      */
@@ -243,8 +239,8 @@ public class SQLServerJdbcUtils {
      * Query all columns of the tableName.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
      * @return {@link List}
      * @throws Exception on get columns error
      */
@@ -267,12 +263,12 @@ public class SQLServerJdbcUtils {
     }
 
     /**
-     * Add columns for SqlServer table.
+     * Add columns for SQLServer table.
      *
      * @param conn JDBC Connection  {@link Connection}
-     * @param schemaName SqlServer schema name
-     * @param tableName SqlServer table name
-     * @param columns SqlServer columns to be added
+     * @param schemaName SQLServer schema name
+     * @param tableName SQLServer table name
+     * @param columns SQLServer columns to be added
      * @throws Exception on add columns error
      */
     public static void addColumns(Connection conn, String schemaName, String tableName,

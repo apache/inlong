@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * SqlServer column info.
+ * SQLServer column info.
  */
 @Data
 @NoArgsConstructor
