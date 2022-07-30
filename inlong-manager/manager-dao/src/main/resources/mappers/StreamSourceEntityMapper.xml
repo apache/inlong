@@ -127,11 +127,8 @@
             </if>
         </where>
         <choose>
-            <when test="orderField != null and orderField != '' and orderType = 'desc'">
-                order by ${request.orderField} desc
-            </when>
-            <when test="orderField != null and orderField != '' and orderType = 'asc'">
-                order by ${request.orderField} asc
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by ${request.orderField} ${request.orderType}
             </when>
             <otherwise>
                 order by create_time desc

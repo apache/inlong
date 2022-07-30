@@ -263,11 +263,8 @@
             </if>
         </where>
         <choose>
-            <when test="request.orderField != null and request.orderField != '' and request.orderType = 'desc'">
-                order by stream.${request.orderField} desc
-            </when>
-            <when test="request.orderField != null and request.orderField != '' and request.orderType = 'asc'">
-                order by stream.${request.orderField} asc
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by stream.${request.orderField} ${request.orderType}
             </when>
             <otherwise>
                 order by stream.create_time desc
