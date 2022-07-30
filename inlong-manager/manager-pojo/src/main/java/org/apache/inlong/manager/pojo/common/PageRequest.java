@@ -32,6 +32,28 @@ public class PageRequest {
     @ApiModelProperty(value = "page size, default 10", required = true, example = "10")
     private int pageSize = 10;
 
+    @ApiModelProperty(value = "order field, default create_time", example = "create_time")
+    private String orderField = "create_time";
+
+    @ApiModelProperty(value = "order type, default desc", example = "desc")
+    private String orderType = "desc";
+
+    public String getOrderField() {
+        return orderField;
+    }
+
+    public void setOrderField(String orderField) {
+        this.orderField = orderField;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
     public int getPageNum() {
         return pageNum;
     }
