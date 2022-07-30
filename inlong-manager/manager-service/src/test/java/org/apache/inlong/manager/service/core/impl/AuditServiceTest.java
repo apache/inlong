@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.core.impl;
 
-import org.apache.inlong.manager.common.pojo.audit.AuditInfo;
-import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.common.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.AuditInfo;
+import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditVO;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.AuditService;
 import org.junit.jupiter.api.Assertions;

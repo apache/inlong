@@ -19,9 +19,9 @@ package org.apache.inlong.manager.service.workflow.consumption;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.ConsumptionApproveForm;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.ConsumptionApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;

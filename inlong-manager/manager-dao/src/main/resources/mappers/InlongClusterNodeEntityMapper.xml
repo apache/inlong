@@ -56,7 +56,7 @@
         from inlong_cluster_node
         where id = #{id,jdbcType=INTEGER}
     </select>
-    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterRequest"
+    <select id="selectByUniqueKey" parameterType="org.apache.inlong.manager.pojo.cluster.ClusterRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         select
         <include refid="Base_Column_List"/>
@@ -69,7 +69,7 @@
         and port = #{port, jdbcType=INTEGER}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterNodeEntity">
         select
         <include refid="Base_Column_List"/>

@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.consumption;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyConsumptionProcessForm;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyConsumptionProcessForm;
 import org.apache.inlong.manager.workflow.core.ProcessDefinitionService;
 import org.apache.inlong.manager.workflow.definition.ProcessDetailHandler;
 import org.apache.inlong.manager.workflow.definition.WorkflowProcess;

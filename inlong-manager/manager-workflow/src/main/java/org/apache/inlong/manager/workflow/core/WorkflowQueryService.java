@@ -17,14 +17,14 @@
 
 package org.apache.inlong.manager.workflow.core;
 
-import org.apache.inlong.manager.common.pojo.workflow.EventLogRequest;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountRequest;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
-import org.apache.inlong.manager.common.pojo.workflow.ProcessRequest;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountRequest;
-import org.apache.inlong.manager.common.pojo.workflow.TaskCountResponse;
-import org.apache.inlong.manager.common.pojo.workflow.TaskRequest;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountRequest;
+import org.apache.inlong.manager.pojo.workflow.ProcessCountResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountRequest;
+import org.apache.inlong.manager.pojo.workflow.TaskCountResponse;
+import org.apache.inlong.manager.pojo.workflow.TaskRequest;
 import org.apache.inlong.manager.dao.entity.WorkflowEventLogEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;

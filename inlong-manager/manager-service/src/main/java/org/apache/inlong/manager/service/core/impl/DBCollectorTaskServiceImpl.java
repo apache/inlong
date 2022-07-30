@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorReportTaskRequest;
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskInfo;
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskRequest;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorReportTaskRequest;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskInfo;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskRequest;
 import org.apache.inlong.manager.dao.entity.DBCollectorDetailTaskEntity;
 import org.apache.inlong.manager.dao.mapper.DBCollectorDetailTaskMapper;
 import org.apache.inlong.manager.service.core.DBCollectorTaskService;
