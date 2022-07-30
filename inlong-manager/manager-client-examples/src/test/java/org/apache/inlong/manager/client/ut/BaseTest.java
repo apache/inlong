@@ -23,10 +23,10 @@ import com.google.common.collect.Lists;
 import org.apache.inlong.manager.client.api.ClientConfiguration;
 import org.apache.inlong.manager.client.api.InlongClient;
 import org.apache.inlong.manager.common.auth.DefaultAuthentication;
+import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.DataSeparator;
 import org.apache.inlong.manager.common.enums.FieldType;
 import org.apache.inlong.manager.common.enums.FileFormat;
-import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.common.pojo.group.pulsar.InlongPulsarInfo;
 import org.apache.inlong.manager.common.pojo.sink.SinkField;
@@ -45,11 +45,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 public class BaseTest {
 
-    private static final int SERVICE_PORT = 8184;
-    // Manager web url
-    public static final String SERVICE_URL = "127.0.0.1:" + SERVICE_PORT;
-    // Inlong user && passwd
-    public static DefaultAuthentication inlongAuth = new DefaultAuthentication("admin", "inlong");
     // Inlong group ID
     public static final String GROUP_ID = "test_group009";
     // Inlong stream ID
@@ -67,10 +62,13 @@ public class BaseTest {
     // Pulsar topic
     public static final String TOPIC = "test_topic";
     public static final String IN_CHARGES = "test_inCharges,admin";
-
+    public static final String MANAGER_URL_PREFIX = "/inlong/manager/api";
+    private static final int SERVICE_PORT = 8184;
+    // Manager web url
+    public static final String SERVICE_URL = "127.0.0.1:" + SERVICE_PORT;
+    // Inlong user && passwd
+    public static DefaultAuthentication inlongAuth = new DefaultAuthentication("admin", "inlong");
     public static WireMockServer wireMockServer;
-    public static final String MANAGER_URL_PREFIX = "/api/inlong/manager";
-
     public static InlongGroupInfo groupInfo;
     public static InlongClient inlongClient;
 
@@ -133,21 +131,6 @@ public class BaseTest {
     }
 
     /**
-     * Create inlong stream info
-     */
-    protected InlongStreamInfo createStreamInfo() {
-        InlongStreamInfo streamInfo = new InlongStreamInfo();
-        streamInfo.setInlongStreamId(STREAM_ID);
-        streamInfo.setName(STREAM_ID);
-        streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
-        streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
-        // if you need strictly order for data, set to 1
-        streamInfo.setSyncSend(InlongConstants.SYNC_SEND);
-        streamInfo.setMqResource(TOPIC);
-        return streamInfo;
-    }
-
-    /**
      * Create hive sink
      */
     protected static HiveSink createHiveSink() {
@@ -167,5 +150,20 @@ public class BaseTest {
         hiveSink.setTableName("{table.name}");
         hiveSink.setSinkName("{hive.sink.name}");
         return hiveSink;
+    }
+
+    /**
+     * Create inlong stream info
+     */
+    protected InlongStreamInfo createStreamInfo() {
+        InlongStreamInfo streamInfo = new InlongStreamInfo();
+        streamInfo.setInlongStreamId(STREAM_ID);
+        streamInfo.setName(STREAM_ID);
+        streamInfo.setDataEncoding(StandardCharsets.UTF_8.toString());
+        streamInfo.setDataSeparator(DataSeparator.VERTICAL_BAR.getSeparator());
+        // if you need strictly order for data, set to 1
+        streamInfo.setSyncSend(InlongConstants.SYNC_SEND);
+        streamInfo.setMqResource(TOPIC);
+        return streamInfo;
     }
 }

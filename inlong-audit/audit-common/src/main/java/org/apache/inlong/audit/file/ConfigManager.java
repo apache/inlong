@@ -18,10 +18,6 @@
 package org.apache.inlong.audit.file;
 
 import com.google.gson.Gson;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.config.RequestConfig;
@@ -33,6 +29,11 @@ import org.apache.http.util.EntityUtils;
 import org.apache.inlong.audit.file.holder.PropertiesConfigHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ConfigManager {
 
@@ -58,6 +59,7 @@ public class ConfigManager {
 
     /**
      * get instance for manager
+     *
      * @return
      */
     public static ConfigManager getInstance(String fileName, boolean needToCheckChanged) {
@@ -96,13 +98,13 @@ public class ConfigManager {
     /**
      * update old maps, reload local files if changed.
      *
-     * @param result        - map pending to be added
-     * @param holder        - property holder
+     * @param result - map pending to be added
+     * @param holder - property holder
      * @param addElseRemove - if add(true) else remove(false)
      * @return true if changed else false.
      */
     private boolean updatePropertiesHolder(Map<String, String> result,
-                                           PropertiesConfigHolder holder, boolean addElseRemove) {
+            PropertiesConfigHolder holder, boolean addElseRemove) {
         Map<String, String> tmpHolder = holder.forkHolder();
         boolean changed = false;
         for (Entry<String, String> entry : result.entrySet()) {
@@ -187,10 +189,10 @@ public class ConfigManager {
             }
         }
 
-        private boolean checkWithManager(String hostUrl) {
+        private boolean checkWithManager(String host) {
             HttpGet httpGet = null;
             try {
-                String url = "http://" + hostUrl + "/api/inlong/manager/openapi/audit/getConfig";
+                String url = "http://" + host + "/inlong/manager/openapi/audit/getConfig";
                 LOG.info("start to request {} to get config info", url);
                 httpGet = new HttpGet(url);
                 httpGet.addHeader(HttpHeaders.CONNECTION, "close");

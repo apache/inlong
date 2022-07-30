@@ -109,7 +109,7 @@ public class HeartbeatManager extends AbstractDaemon {
     /**
      * build base url for manager according to config
      *
-     * example - http://127.0.0.1:8080/api/inlong/manager/openapi
+     * example - http://127.0.0.1:8080/inlong/manager/openapi
      */
     private String buildBaseUrl() {
         return "http://" + conf.get(AGENT_MANAGER_VIP_HTTP_HOST)

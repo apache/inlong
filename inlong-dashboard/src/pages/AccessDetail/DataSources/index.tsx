@@ -28,7 +28,7 @@ import { dataSourcesFileColumns } from '@/components/MetaData/DataSourcesFile';
 import i18n from '@/i18n';
 import request from '@/utils/request';
 import { CommonInterface } from '../common';
-import { genStatusTag } from './status';
+import { statusList, genStatusTag } from './status';
 
 type Props = CommonInterface;
 
@@ -54,6 +54,16 @@ const getFilterFormContent = defaultValues => [
           value: 'BINLOG',
         },
       ],
+    },
+  },
+  {
+    type: 'select',
+    name: 'status',
+    label: i18n.t('basic.Status'),
+    props: {
+      allowClear: true,
+      dropdownMatchSelectWidth: false,
+      options: statusList,
     },
   },
 ];

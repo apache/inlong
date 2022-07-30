@@ -17,7 +17,6 @@
 
 package org.apache.inlong.dataproxy.config;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.common.util.BasicAuth;
 import org.apache.inlong.dataproxy.consts.ConfigConstants;
 import org.slf4j.Logger;
@@ -36,10 +35,6 @@ public class AuthUtils {
         Map<String, String> properties = ConfigManager.getInstance().getCommonProperties();
         String secretId = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_ID);
         String secretKey = properties.get(ConfigConstants.MANAGER_AUTH_SECRET_KEY);
-        if (StringUtils.isBlank(secretId) || StringUtils.isBlank(secretKey)) {
-            LOG.error("secretId or secretKey missing");
-            return null;
-        }
         return BasicAuth.genBasicAuthCredential(secretId, secretKey);
     }
 
