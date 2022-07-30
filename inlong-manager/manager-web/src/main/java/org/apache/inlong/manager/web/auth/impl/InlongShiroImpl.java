@@ -36,6 +36,7 @@ import org.apache.shiro.web.mgt.WebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.apache.shiro.web.session.mgt.WebSessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -58,6 +59,9 @@ public class InlongShiroImpl implements InlongShiro {
 
     @Autowired
     private UserService userService;
+
+    @Value("${openapi.auth.enabled:false}")
+    private Boolean openAPIAuthEnabled;
 
     @Override
     public WebSecurityManager getWebSecurityManager() {
@@ -93,7 +97,6 @@ public class InlongShiroImpl implements InlongShiro {
         // anon: can be accessed by anyone, authc: only authentication is successful can be accessed
         Map<String, Filter> filters = new LinkedHashMap<>();
         filters.put(FILTER_NAME_WEB, new AuthenticationFilter());
-        filters.put(FILTER_NAME_API, new OpenAPIFilter());
         shiroFilterFactoryBean.setFilters(filters);
         Map<String, String> pathDefinitions = new LinkedHashMap<>();
         // login, register request
@@ -107,7 +110,12 @@ public class InlongShiroImpl implements InlongShiro {
         pathDefinitions.put("/swagger-resources", "anon");
 
         // openapi
-        pathDefinitions.put("/openapi/**/*", FILTER_NAME_API);
+        if (openAPIAuthEnabled) {
+            filters.put(FILTER_NAME_API, new OpenAPIFilter());
+            pathDefinitions.put("/openapi/**/*", FILTER_NAME_API);
+        } else {
+            pathDefinitions.put("/openapi/**/*", "anon");
+        }
 
         // other web
         pathDefinitions.put("/**", FILTER_NAME_WEB);
