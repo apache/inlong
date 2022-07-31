@@ -111,11 +111,11 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:sqlserver://127.0.0.1:1434;databaseName=inlong;";
-        String username = "sa";
-        String password = "123456";
-        String tableName = "test01";
-        String schemaName = "dbo";
+        final String url = "jdbc:sqlserver://127.0.0.1:1434;databaseName=inlong;";
+        final String username = "sa";
+        final String password = "123456";
+        final String tableName = "test01";
+        final String schemaName = "dbo";
 
         try (Connection connection = SQLServerJdbcUtils.getConnection(url, username, password);) {
             SQLServerTableInfo tableInfo = bulidTableInfo(schemaName, tableName);
