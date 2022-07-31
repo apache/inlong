@@ -76,17 +76,17 @@ public class OpenAPIFilter implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    private SecretToken parseBasicAuth(HttpServletRequest servletRequest) throws Exception {
+    private SecretToken parseBasicAuth(HttpServletRequest servletRequest) {
         String basicAuth = servletRequest.getHeader(BasicAuth.BASIC_AUTH_HEADER);
         if (StringUtils.isBlank(basicAuth)) {
-            log.error("basic auth is empty");
+            log.error("basic auth header is empty");
             return null;
         }
 
         // Basic auth string must be "Basic Base64(ID:Secret)"
         String[] parts = basicAuth.split(BasicAuth.BASIC_AUTH_SEPARATOR);
         if (parts.length != 2) {
-            log.error("parts size error: {}", parts);
+            log.error("the length parts size error: {}", parts.length);
             return null;
         }
         if (!parts[0].equals(BasicAuth.BASIC_AUTH_PREFIX)) {
@@ -97,7 +97,7 @@ public class OpenAPIFilter implements Filter {
         String joinedPair = new String(Base64.getDecoder().decode(parts[1]));
         String[] pair = joinedPair.split(BasicAuth.BASIC_AUTH_JOINER);
         if (pair.length != 2) {
-            log.error("pair format error: {}", pair);
+            log.error("pair format error: {}", pair.length);
             return null;
         }
 

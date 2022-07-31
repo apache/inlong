@@ -51,7 +51,6 @@ public class NettyProtocolEncoderTest {
             // read data.
             int i = buf.readInt();
             i = buf.readInt();
-            i = buf.readInt();
             Assert.assertEquals(123, i);
         } catch (Exception e) {
             e.printStackTrace();

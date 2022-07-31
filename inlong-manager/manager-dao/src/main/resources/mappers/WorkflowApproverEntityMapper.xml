@@ -51,7 +51,7 @@
         where id = #{id, jdbcType=INTEGER} and is_deleted=0
     </select>
     <select id="selectByQuery" resultMap="BaseResultMap"
-            parameterType="org.apache.inlong.manager.common.pojo.workflow.ApproverRequest">
+            parameterType="org.apache.inlong.manager.pojo.workflow.ApproverRequest">
         select
         <include refid="Base_Column_List"/>
         from workflow_approver

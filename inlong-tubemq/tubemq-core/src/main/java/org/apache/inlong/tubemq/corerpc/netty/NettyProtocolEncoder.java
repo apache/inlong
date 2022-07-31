@@ -24,6 +24,7 @@ import io.netty.handler.codec.MessageToMessageEncoder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.inlong.tubemq.corerpc.RpcConstants;
@@ -38,19 +39,17 @@ public class NettyProtocolEncoder extends MessageToMessageEncoder<RpcDataPack> {
     @Override
     protected void encode(ChannelHandlerContext chx, RpcDataPack msg, List<Object> out) {
         RpcDataPack dataPack = msg;
-        List<ByteBuffer> origs = dataPack.getDataLst();
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
             byteOut.write(getPackHeader(dataPack).array());
+            List<ByteBuffer> origs = dataPack.getDataLst();
             Iterator<ByteBuffer> iter = origs.iterator();
             while (iter.hasNext()) {
                 ByteBuffer entry = iter.next();
                 byteOut.write(getLengthHeader(entry).array());
-                byteOut.write(entry.array());
+                byteOut.write(getLengthBody(entry));
             }
             byte[] body = byteOut.toByteArray();
-            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(4 + body.length);
-            buf.writeInt(body.length);
+            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(body.length);
             buf.writeBytes(body);
             out.add(buf);
         } catch (IOException e) {
@@ -72,5 +71,9 @@ public class NettyProtocolEncoder extends MessageToMessageEncoder<RpcDataPack> {
         header.putInt(buf.limit());
         header.flip();
         return header;
+    }
+
+    private byte[] getLengthBody(ByteBuffer buf) {
+        return Arrays.copyOf(buf.array(), buf.limit());
     }
 }

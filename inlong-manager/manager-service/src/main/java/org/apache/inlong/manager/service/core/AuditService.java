@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.core;
 
 import java.io.IOException;
 import java.util.List;
-import org.apache.inlong.manager.common.pojo.audit.AuditRequest;
-import org.apache.inlong.manager.common.pojo.audit.AuditVO;
+import org.apache.inlong.manager.pojo.audit.AuditRequest;
+import org.apache.inlong.manager.pojo.audit.AuditVO;
 
 /**
  * The service interface for audit.

@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.workflow.definition;
 
-import org.apache.inlong.manager.common.pojo.workflow.ProcessDetailResponse;
+import org.apache.inlong.manager.pojo.workflow.ProcessDetailResponse;
 
 /**
  * WorkflowProcess detail processor

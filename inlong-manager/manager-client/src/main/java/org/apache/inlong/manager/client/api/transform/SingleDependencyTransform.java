@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.client.api.transform;
 
 import io.swagger.annotations.ApiModel;
-import org.apache.inlong.manager.common.pojo.stream.StreamTransform;
-import org.apache.inlong.manager.common.pojo.transform.TransformDefinition;
+import org.apache.inlong.manager.pojo.stream.StreamTransform;
+import org.apache.inlong.manager.pojo.transform.TransformDefinition;
 import org.apache.inlong.manager.common.util.Preconditions;
 
 /**

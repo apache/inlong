@@ -19,10 +19,10 @@ package org.apache.inlong.manager.service.listener.group.apply;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupApproveRequest;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.pojo.group.InlongGroupApproveRequest;
+import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.dao.mapper.InlongGroupEntityMapper;
-import org.apache.inlong.manager.service.core.InlongStreamService;
+import org.apache.inlong.manager.service.stream.InlongStreamService;
 import org.apache.inlong.manager.service.group.InlongGroupService;
 import org.apache.inlong.manager.workflow.WorkflowContext;
 import org.apache.inlong.manager.workflow.event.ListenerResult;

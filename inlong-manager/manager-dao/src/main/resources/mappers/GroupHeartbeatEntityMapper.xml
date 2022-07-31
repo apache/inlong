@@ -75,7 +75,7 @@
         and inlong_group_id = #{inlongGroupId,jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.GroupHeartbeatEntity">
         select
         <include refid="Base_Column_List"/>
