@@ -20,9 +20,9 @@ package org.apache.inlong.agent.plugin.channel;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.message.ProxyMessage;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Channel;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +54,12 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incReadNum(groupId);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(groupId);
                 queue.put(message);
-                GlobalMetrics.incReadSuccessNum(groupId);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadSuccessNum(groupId);
             }
         } catch (InterruptedException ex) {
-            GlobalMetrics.incReadFailedNum(groupId);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadFailedNum(groupId);
             Thread.currentThread().interrupt();
         }
     }
@@ -72,17 +72,17 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incReadNum(groupId);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(groupId);
                 boolean result = queue.offer(message, timeout, unit);
                 if (result) {
-                    GlobalMetrics.incReadSuccessNum(groupId);
+                    AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadSuccessNum(groupId);
                 } else {
-                    GlobalMetrics.incReadFailedNum(groupId);
+                    AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadFailedNum(groupId);
                 }
                 return result;
             }
         } catch (InterruptedException ex) {
-            GlobalMetrics.incReadFailedNum(groupId);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadFailedNum(groupId);
             Thread.currentThread().interrupt();
         }
         return false;
@@ -97,11 +97,11 @@ public class MemoryChannel implements Channel {
                 if (message instanceof ProxyMessage) {
                     groupId = ((ProxyMessage) message).getInlongGroupId();
                 }
-                GlobalMetrics.incSendSuccessNum(groupId);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSendSuccessNum(groupId);
             }
             return message;
         } catch (InterruptedException ex) {
-            GlobalMetrics.incSendFailedNum(groupId);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSendFailedNum(groupId);
             Thread.currentThread().interrupt();
             throw new IllegalStateException(ex);
         }
@@ -120,6 +120,6 @@ public class MemoryChannel implements Channel {
             queue.clear();
         }
         LOGGER.info("destroy channel, show memory channel metric:");
-        GlobalMetrics.showMemoryChannelStatics();
+        // GlobalMetrics.showMemoryChannelStatics();
     }
 }

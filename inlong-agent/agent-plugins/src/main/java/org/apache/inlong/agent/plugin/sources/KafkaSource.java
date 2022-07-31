@@ -21,9 +21,9 @@ import com.google.gson.Gson;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.KafkaReader;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -135,9 +135,9 @@ public class KafkaSource implements Source {
                 addValidator(filterPattern, kafkaReader);
                 result.add(kafkaReader);
             }
-            GlobalMetrics.incSourceSuccessCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
         } else {
-            GlobalMetrics.incSourceFailCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceFailCount(metricTagName);
         }
         return result;
     }

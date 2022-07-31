@@ -18,9 +18,9 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.TextFileReader;
 import org.apache.inlong.agent.plugin.utils.PluginUtils;
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class TextFileSource implements Source {
             result.add(textFileReader);
         }
         // increment the count of successful sources
-        GlobalMetrics.incSourceSuccessCount(metricTagName);
+        AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
         return result;
     }
 

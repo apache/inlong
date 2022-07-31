@@ -22,9 +22,9 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -118,14 +118,14 @@ public class SqlReader extends AbstractReader {
                 }
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GlobalMetrics.incReadNum(metricTagName);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(metricTagName);
                 return generateMessage(lineColumns);
             } else {
                 finished = true;
             }
         } catch (Exception ex) {
             LOGGER.error("error while reading data", ex);
-            GlobalMetrics.incReadFailedNum(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadFailedNum(metricTagName);
             throw new RuntimeException(ex);
         }
         return null;

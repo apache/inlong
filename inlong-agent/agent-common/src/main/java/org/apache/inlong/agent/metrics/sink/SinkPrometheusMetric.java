@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.inlong.agent.plugin.metrics;
+package org.apache.inlong.agent.metrics.sink;
 
 import io.prometheus.client.Counter;
 

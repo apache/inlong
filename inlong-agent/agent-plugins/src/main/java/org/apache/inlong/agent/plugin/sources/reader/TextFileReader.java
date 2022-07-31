@@ -20,11 +20,11 @@ package org.apache.inlong.agent.plugin.sources.reader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.metrics.audit.AuditUtils;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.Validator;
 import org.apache.inlong.agent.plugin.except.FileException;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.validator.PatternValidator;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
@@ -89,7 +89,7 @@ public class TextFileReader extends AbstractReader {
             if (validateMessage(message)) {
                 AuditUtils.add(AuditUtils.AUDIT_ID_AGENT_READ_SUCCESS,
                         inlongGroupId, inlongStreamId, System.currentTimeMillis());
-                GlobalMetrics.incReadNum(metricTagName);
+                AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(metricTagName);
                 return new DefaultMessage(message.getBytes(StandardCharsets.UTF_8));
             }
         }
@@ -195,6 +195,6 @@ public class TextFileReader extends AbstractReader {
         }
         AgentUtils.finallyClose(stream);
         LOGGER.info("destroy reader with read {} num {}",
-                metricTagName, GlobalMetrics.getReadNum(metricTagName));
+                metricTagName, AgentMetricSingleton.getAgentMetricHandler().globalMetrics.getReadNum(metricTagName));
     }
 }

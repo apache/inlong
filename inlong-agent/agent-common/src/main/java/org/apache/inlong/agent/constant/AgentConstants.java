@@ -194,4 +194,7 @@ public class AgentConstants {
     public static final String AGENT_ENABLE_OOM_EXIT = "agent.enable.oom.exit";
     public static final boolean DEFAULT_ENABLE_OOM_EXIT = false;
 
+    public static final String AGENT_METRIC_LISTENER_CLASS = "metricDomains.Agent.domainListeners";
+    public static final String AGENT_METRIC_LISTENER_CLASS_DEFAULT =
+            "org.apache.inlong.agent.metrics.AgentPrometheusMetricHandler";
 }

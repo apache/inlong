@@ -22,8 +22,8 @@ import org.apache.inlong.agent.conf.AgentConfiguration;
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.CommonConstants;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.message.SequentialID;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.apache.inlong.sdk.dataproxy.DefaultMessageSender;
 import org.apache.inlong.sdk.dataproxy.ProxyClientConfig;
@@ -286,7 +286,8 @@ public class SenderManager {
                 return;
             }
             semaphore.release(bodyList.size());
-            GlobalMetrics.incSendSuccessNum(groupId + "_" + streamId, bodyList.size());
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics
+                    .incSendSuccessNum(groupId + "_" + streamId, bodyList.size());
             if (sourcePath != null) {
                 taskPositionManager.updateSinkPosition(jobId, sourcePath, bodyList.size());
             }

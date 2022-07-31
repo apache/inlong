@@ -29,8 +29,8 @@ import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.constant.AgentConstants;
 import org.apache.inlong.agent.constant.SnapshotModeConstants;
 import org.apache.inlong.agent.message.DefaultMessage;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Message;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.snapshot.BinlogSnapshotBase;
 import org.apache.inlong.agent.plugin.utils.InLongDatabaseHistory;
 import org.apache.inlong.agent.plugin.utils.InLongFileOffsetBackingStore;
@@ -113,7 +113,7 @@ public class BinlogReader extends AbstractReader {
     @Override
     public Message read() {
         if (!binlogMessagesQueue.isEmpty()) {
-            GlobalMetrics.incReadNum(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incReadNum(metricTagName);
             return getBinlogMessage();
         } else {
             return null;

@@ -18,9 +18,9 @@
 package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 
 import java.nio.charset.StandardCharsets;
 
@@ -40,10 +40,10 @@ public class ConsoleSink extends AbstractSink {
         if (message != null) {
             System.out.println(new String(message.getBody(), StandardCharsets.UTF_8));
             // increment the count of successful sinks
-            GlobalMetrics.incSinkSuccessCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkSuccessCount(metricTagName);
         } else {
             // increment the count of failed sinks
-            GlobalMetrics.incSinkFailCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkFailCount(metricTagName);
         }
     }
 

@@ -15,28 +15,38 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.core;
+package org.apache.inlong.agent.metrics;
 
-import org.apache.inlong.agent.metrics.AgentJmxMetricHandler;
+import org.apache.inlong.agent.metrics.global.JmxGlobalMetrics;
+import org.apache.inlong.agent.metrics.job.JobJmxMetrics;
 import org.apache.inlong.agent.metrics.task.TaskJmxMetrics;
-import org.junit.Assert;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.inlong.common.metric.MetricItemValue;
 
-public class TestTaskJmxMetrics {
+import java.util.List;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentBaseTestsHelper.class);
+/**
+ * jmx metric handler
+ */
+public class AgentJmxMetricHandler extends AgentMetricBaseHandler {
 
-    @Test
-    public void testAgentMetrics() {
-        try {
-            TaskJmxMetrics taskJmxMetrics = (TaskJmxMetrics) new AgentJmxMetricHandler().taskMetrics;
-            taskJmxMetrics.incRetryingTaskCount();
-            Assert.assertEquals(taskJmxMetrics.module, "AgentTaskMetric");
-        } catch (Exception ex) {
-            LOGGER.error("error happens" + ex);
-        }
+    public AgentJmxMetricHandler() {
+        jobMetrics = JobJmxMetrics.create();
+        taskMetrics = TaskJmxMetrics.create();
+        globalMetrics = new JmxGlobalMetrics();
     }
 
+    @Override
+    public void snapshot(String domain, List<MetricItemValue> itemValues) {
+        // nothing
+    }
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
 }

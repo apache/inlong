@@ -19,10 +19,10 @@ package org.apache.inlong.agent.plugin.sinks;
 
 import org.apache.inlong.agent.conf.JobProfile;
 import org.apache.inlong.agent.core.task.TaskPositionManager;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Message;
 import org.apache.inlong.agent.plugin.MessageFilter;
 import org.apache.inlong.agent.plugin.Sink;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.utils.AgentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,10 +54,10 @@ public class MockSink implements Sink {
             number.incrementAndGet();
             taskPositionManager.updateSinkPosition(jobInstanceId, sourceFileName, 1);
             // increment the count of successful sinks
-            GlobalMetrics.incSinkSuccessCount(tagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkSuccessCount(tagName);
         } else {
             // increment the count of failed sinks
-            GlobalMetrics.incSinkFailCount(tagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSinkFailCount(tagName);
         }
     }
 

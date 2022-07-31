@@ -18,9 +18,9 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.BinlogReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class BinlogSource implements Source {
         Reader binlogReader = new BinlogReader();
         List<Reader> readerList = new ArrayList<>();
         readerList.add(binlogReader);
-        GlobalMetrics.incSourceSuccessCount(metricTagName);
+        AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
         return readerList;
     }
 

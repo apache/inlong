@@ -15,152 +15,130 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.agent.plugin.metrics;
+package org.apache.inlong.agent.metrics.global;
 
-import org.apache.inlong.agent.utils.ConfigUtil;
+import org.apache.inlong.agent.metrics.plugin.PluginMetric;
+import org.apache.inlong.agent.metrics.sink.SinkMetric;
+import org.apache.inlong.agent.metrics.source.SourceMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GlobalMetrics {
+/**
+ * Global Metrics
+ */
+public abstract class GlobalMetrics {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalMetrics.class);
 
     // key: groupId_streamId
-    private static final ConcurrentHashMap<String, PluginMetric> pluginMetrics = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, PluginMetric> pluginMetrics = new ConcurrentHashMap<>();
     // key: sourceType_groupId_streamId
-    private static final ConcurrentHashMap<String, SourceMetric> sourceMetrics = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, SourceMetric> sourceMetrics = new ConcurrentHashMap<>();
     // key: sinkType_groupId_streamId
-    private static final ConcurrentHashMap<String, SinkMetric> sinkMetrics = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, SinkMetric> sinkMetrics = new ConcurrentHashMap<>();
 
-    private static PluginMetric getPluginMetric(String tagName) {
+    private PluginMetric getPluginMetric(String tagName) {
         return pluginMetrics.computeIfAbsent(tagName, (key) -> addPluginMetric(tagName));
     }
 
-    private static PluginMetric addPluginMetric(String tagName) {
-        PluginMetric metric;
-        if (ConfigUtil.isPrometheusEnabled()) {
-            metric = new PluginPrometheusMetric(tagName);
-        } else {
-            metric = new PluginJmxMetric(tagName);
-        }
-        LOGGER.info("add {} pluginMetrics", tagName);
-        return metric;
-    }
+    protected abstract PluginMetric addPluginMetric(String tagName);
 
-    private static SourceMetric getSourceMetric(String tagName) {
+    private SourceMetric getSourceMetric(String tagName) {
         return sourceMetrics.computeIfAbsent(tagName, (key) -> addSourceMetric(tagName));
     }
 
-    private static SourceMetric addSourceMetric(String tagName) {
-        SourceMetric metric;
-        if (ConfigUtil.isPrometheusEnabled()) {
-            metric = new SourcePrometheusMetric(tagName);
-        } else {
-            metric = new SourceJmxMetric(tagName);
-        }
-        LOGGER.info("add {} sourceMetric", tagName);
-        return metric;
-    }
+    protected abstract SourceMetric addSourceMetric(String tagName);
 
-    private static SinkMetric getSinkMetric(String tagName) {
+    private SinkMetric getSinkMetric(String tagName) {
         return sinkMetrics.computeIfAbsent(tagName, (key) -> addSinkMetric(tagName));
     }
 
-    private static SinkMetric addSinkMetric(String tagName) {
-        SinkMetric metric;
-        if (ConfigUtil.isPrometheusEnabled()) {
-            metric = new SinkPrometheusMetric(tagName);
-        } else {
-            metric = new SinkJmxMetric(tagName);
-        }
-        LOGGER.info("add {} sinkMetric", tagName);
-        return metric;
-    }
+    protected abstract SinkMetric addSinkMetric(String tagName);
 
-    public static void incReadNum(String tagName) {
+    public void incReadNum(String tagName) {
         getPluginMetric(tagName).incReadNum();
     }
 
-    public static long getReadNum(String tagName) {
+    public long getReadNum(String tagName) {
         return getPluginMetric(tagName).getReadNum();
     }
 
-    public static void incSendNum(String tagName) {
+    public void incSendNum(String tagName) {
         getPluginMetric(tagName).incSendNum();
     }
 
-    public static long getSendNum(String tagName) {
+    public long getSendNum(String tagName) {
         return getPluginMetric(tagName).getReadNum();
     }
 
-    public static void incReadFailedNum(String tagName) {
+    public void incReadFailedNum(String tagName) {
         getPluginMetric(tagName).incReadFailedNum();
     }
 
-    public static long getReadFailedNum(String tagName) {
+    public long getReadFailedNum(String tagName) {
         return getPluginMetric(tagName).getReadFailedNum();
     }
 
-    public static void incSendFailedNum(String tagName) {
+    public void incSendFailedNum(String tagName) {
         getPluginMetric(tagName).incSendFailedNum();
     }
 
-    public static long getSendFailedNum(String tagName) {
+    public long getSendFailedNum(String tagName) {
         return getPluginMetric(tagName).getSendFailedNum();
     }
 
-    public static void incReadSuccessNum(String tagName) {
+    public void incReadSuccessNum(String tagName) {
         getPluginMetric(tagName).incReadSuccessNum();
     }
 
-    public static long getReadSuccessNum(String tagName) {
+    public long getReadSuccessNum(String tagName) {
         return getPluginMetric(tagName).getReadSuccessNum();
     }
 
-    public static void incSendSuccessNum(String tagName) {
+    public void incSendSuccessNum(String tagName) {
         getPluginMetric(tagName).incSendSuccessNum();
     }
 
-    public static void incSendSuccessNum(String tagName, int delta) {
+    public void incSendSuccessNum(String tagName, int delta) {
         getPluginMetric(tagName).incSendSuccessNum(delta);
     }
 
-    public static long getSendSuccessNum(String tagName) {
+    public long getSendSuccessNum(String tagName) {
         return getPluginMetric(tagName).getSendSuccessNum();
     }
 
-    public static void incSinkSuccessCount(String tagName) {
+    public void incSinkSuccessCount(String tagName) {
         getSinkMetric(tagName).incSinkSuccessCount();
     }
 
-    public static long getSinkSuccessCount(String tagName) {
+    public long getSinkSuccessCount(String tagName) {
         return getSinkMetric(tagName).getSinkSuccessCount();
     }
 
-    public static void incSinkFailCount(String tagName) {
+    public void incSinkFailCount(String tagName) {
         getSinkMetric(tagName).incSinkFailCount();
     }
 
-    public static long getSinkFailCount(String tagName) {
+    public long getSinkFailCount(String tagName) {
         return getSinkMetric(tagName).getSinkFailCount();
     }
 
-    public static void incSourceSuccessCount(String tagName) {
+    public void incSourceSuccessCount(String tagName) {
         getSourceMetric(tagName).incSourceSuccessCount();
     }
 
-    public static long getSourceSuccessCount(String tagName) {
+    public long getSourceSuccessCount(String tagName) {
         return getSourceMetric(tagName).getSourceSuccessCount();
     }
 
-    public static void incSourceFailCount(String tagName) {
+    public void incSourceFailCount(String tagName) {
         getSourceMetric(tagName).incSourceFailCount();
     }
 
-    public static void showMemoryChannelStatics() {
+    public void showMemoryChannes() {
         for (Entry<String, PluginMetric> entry : pluginMetrics.entrySet()) {
             LOGGER.info("tagName:{} ### readNum: {}, readSuccessNum: {}, readFailedNum: {}, sendSuccessNum: {}, "
                             + "sendFailedNum: {}", entry.getKey(), entry.getValue().getReadNum(),

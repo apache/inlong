@@ -18,9 +18,9 @@
 package org.apache.inlong.agent.plugin.sources;
 
 import org.apache.inlong.agent.conf.JobProfile;
+import org.apache.inlong.agent.metrics.AgentMetricSingleton;
 import org.apache.inlong.agent.plugin.Reader;
 import org.apache.inlong.agent.plugin.Source;
-import org.apache.inlong.agent.plugin.metrics.GlobalMetrics;
 import org.apache.inlong.agent.plugin.sources.reader.SqlReader;
 import org.apache.inlong.agent.utils.AgentDbUtils;
 import org.slf4j.Logger;
@@ -86,11 +86,11 @@ public class DatabaseSqlSource implements Source {
         }
         if (readerList != null) {
             // increment the count of successful sources
-            GlobalMetrics.incSourceSuccessCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceSuccessCount(metricTagName);
         } else {
             // database type or sql is incorrect
             // increment the count of failed sources
-            GlobalMetrics.incSourceFailCount(metricTagName);
+            AgentMetricSingleton.getAgentMetricHandler().globalMetrics.incSourceFailCount(metricTagName);
         }
         return readerList;
     }
