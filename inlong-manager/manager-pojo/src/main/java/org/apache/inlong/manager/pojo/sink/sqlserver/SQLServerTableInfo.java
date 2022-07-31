@@ -37,7 +37,5 @@ public class SQLServerTableInfo {
 
     private String schemaName;
 
-    private String dbName;
-
     private List<SQLServerColumnInfo> columns;
 }

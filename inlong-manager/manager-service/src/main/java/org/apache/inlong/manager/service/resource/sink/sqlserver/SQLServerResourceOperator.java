@@ -22,12 +22,12 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
+import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.pojo.sink.SinkInfo;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerColumnInfo;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerSinkDTO;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
-import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
 import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.slf4j.Logger;
@@ -92,23 +92,20 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             columnList.add(columnInfo);
         }
 
-        SQLServerSinkDTO sink = SQLServerSinkDTO.getFromJson(sinkInfo.getExtParams());
-        SQLServerTableInfo tableInfo = SQLServerSinkDTO.getTableInfo(sink, columnList);
-
-        String dbName = tableInfo.getDbName();
-        String tableName = tableInfo.getTableName();
+        final SQLServerSinkDTO sink = SQLServerSinkDTO.getFromJson(sinkInfo.getExtParams());
+        final SQLServerTableInfo tableInfo = SQLServerSinkDTO.getTableInfo(sink, columnList);
 
         try (Connection conn = SQLServerJdbcUtils.getConnection(sink.getJdbcUrl(),
                 sink.getUsername(), sink.getPassword())) {
 
-            // 1. create scheam if not exists
+            // 1. create schema if not exists
             SQLServerJdbcUtils.createSchema(conn, tableInfo.getSchemaName());
             // 2. if table not exists, create it
             SQLServerJdbcUtils.createTable(conn, tableInfo);
             // 3. if table exists, add columns - skip the exists columns
-            SQLServerJdbcUtils.addColumns(conn, dbName, tableName, columnList);
+            SQLServerJdbcUtils.addColumns(conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
             // 4. update the sink status to success
-            String info = "success to create SQLServer resource";
+            final String info = "success to create SQLServer resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {
