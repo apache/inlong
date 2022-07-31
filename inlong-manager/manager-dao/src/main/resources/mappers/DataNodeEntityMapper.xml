@@ -69,7 +69,7 @@
         and type = #{type, jdbcType=VARCHAR}
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.node.DataNodePageRequest"
+            parameterType="org.apache.inlong.manager.pojo.node.DataNodePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         select
         <include refid="Base_Column_List"/>
@@ -96,20 +96,20 @@
     </select>
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
-        set name        = #{name, jdbcType=VARCHAR},
-            type        = #{type, jdbcType=VARCHAR},
-            url         = #{url, jdbcType=VARCHAR},
-            username    = #{username, jdbcType=VARCHAR},
-            token       = #{token, jdbcType=VARCHAR},
-            ext_params  = #{extParams, jdbcType=LONGVARCHAR},
-            in_charges  = #{inCharges, jdbcType=VARCHAR},
-            status      = #{status, jdbcType=INTEGER},
-            is_deleted  = #{isDeleted, jdbcType=INTEGER},
-            creator     = #{creator, jdbcType=VARCHAR},
-            modifier    = #{modifier, jdbcType=VARCHAR},
-            version     = #{version, jdbcType=INTEGER} + 1
+        set name       = #{name, jdbcType=VARCHAR},
+            type       = #{type, jdbcType=VARCHAR},
+            url        = #{url, jdbcType=VARCHAR},
+            username   = #{username, jdbcType=VARCHAR},
+            token      = #{token, jdbcType=VARCHAR},
+            ext_params = #{extParams, jdbcType=LONGVARCHAR},
+            in_charges = #{inCharges, jdbcType=VARCHAR},
+            status     = #{status, jdbcType=INTEGER},
+            is_deleted = #{isDeleted, jdbcType=INTEGER},
+            creator    = #{creator, jdbcType=VARCHAR},
+            modifier   = #{modifier, jdbcType=VARCHAR},
+            version    = #{version, jdbcType=INTEGER} + 1
         where id = #{id, jdbcType=INTEGER}
-        and version = #{version, jdbcType=INTEGER}
+          and version = #{version, jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.DataNodeEntity">
         update data_node
@@ -159,13 +159,11 @@
         where id = #{id, jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSinkInfo">
+    <select id="selectAllSinkParams" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSinkInfo">
         select name,
                type,
                ext_params
         from data_node
-        <where>
-            is_deleted = 0
-        </where>
+        where is_deleted = 0
     </select>
 </mapper>

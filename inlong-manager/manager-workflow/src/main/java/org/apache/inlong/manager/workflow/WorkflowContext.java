@@ -19,8 +19,8 @@ package org.apache.inlong.manager.workflow;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;
 import org.apache.inlong.manager.workflow.definition.Element;

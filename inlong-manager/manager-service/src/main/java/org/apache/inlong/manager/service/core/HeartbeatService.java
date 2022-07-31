@@ -18,12 +18,12 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.heartbeat.ComponentHeartbeatResponse;
-import org.apache.inlong.manager.common.pojo.heartbeat.GroupHeartbeatResponse;
-import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatPageRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatReportRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.HeartbeatQueryRequest;
-import org.apache.inlong.manager.common.pojo.heartbeat.StreamHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.ComponentHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.GroupHeartbeatResponse;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatPageRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatReportRequest;
+import org.apache.inlong.manager.pojo.heartbeat.HeartbeatQueryRequest;
+import org.apache.inlong.manager.pojo.heartbeat.StreamHeartbeatResponse;
 
 /**
  * Heartbeat Service

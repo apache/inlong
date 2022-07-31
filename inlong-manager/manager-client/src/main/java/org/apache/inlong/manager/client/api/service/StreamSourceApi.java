@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.source.SourceRequest;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;

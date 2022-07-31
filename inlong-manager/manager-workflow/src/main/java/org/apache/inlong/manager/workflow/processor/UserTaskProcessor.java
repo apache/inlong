@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.enums.TaskStatus;
 import org.apache.inlong.manager.common.exceptions.JsonException;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.WorkflowProcessEntity;
 import org.apache.inlong.manager.dao.entity.WorkflowTaskEntity;

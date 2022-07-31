@@ -209,7 +209,7 @@
     </update>
 
     <select id="listByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
+            parameterType="org.apache.inlong.manager.pojo.consumption.ConsumptionQuery"
             resultMap="BaseResultMap">
         select
         c.*
@@ -262,8 +262,8 @@
     </select>
 
     <select id="countByQuery"
-            parameterType="org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery"
-            resultType="org.apache.inlong.manager.common.pojo.common.CountInfo">
+            parameterType="org.apache.inlong.manager.pojo.consumption.ConsumptionQuery"
+            resultType="org.apache.inlong.manager.pojo.common.CountInfo">
         select status as `key`, count(1) as value
         from consumption
         where is_deleted=0

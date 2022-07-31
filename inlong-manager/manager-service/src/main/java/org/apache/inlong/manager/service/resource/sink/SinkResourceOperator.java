@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.service.resource.sink;
 
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
 
 /**
  * Interface of the sink resource operator

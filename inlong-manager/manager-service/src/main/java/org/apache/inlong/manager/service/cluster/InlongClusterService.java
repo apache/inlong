@@ -20,15 +20,15 @@ package org.apache.inlong.manager.service.cluster;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyConfig;
 import org.apache.inlong.common.pojo.dataproxy.DataProxyNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.BindTagRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 
 import java.util.List;
 

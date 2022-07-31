@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.workflow.ApproverRequest;
 import org.apache.inlong.manager.dao.entity.WorkflowApproverEntity;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

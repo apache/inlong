@@ -30,20 +30,20 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkApproveDTO;
-import org.apache.inlong.manager.common.pojo.sink.SinkBriefInfo;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
+import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.core.operation.InlongStreamProcessOperation;
+import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
     private AutowireCapableBeanFactory autowireCapableBeanFactory;
 
     // To avoid circular dependencies, you cannot use @Autowired, it will be injected by AutowireCapableBeanFactory
-    private InlongStreamProcessOperation streamProcessOperation;
+    private InlongStreamProcessService streamProcessOperation;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -240,7 +240,7 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         if (GroupStatus.CONFIG_SUCCESSFUL.getCode().equals(groupEntity.getStatus())) {
             // To work around the circular reference check we manually instantiate and wire
             if (streamProcessOperation == null) {
-                streamProcessOperation = new InlongStreamProcessOperation();
+                streamProcessOperation = new InlongStreamProcessService();
                 autowireCapableBeanFactory.autowireBean(streamProcessOperation);
             }
             streamProcessOperation.startProcess(groupId, streamId, operator, true);

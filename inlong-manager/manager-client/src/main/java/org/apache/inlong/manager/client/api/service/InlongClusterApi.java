@@ -18,16 +18,16 @@
 package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.cluster.BindTagRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterNodeResponse;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagRequest;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterTagResponse;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.cluster.BindTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterNodeResponse;
+import org.apache.inlong.manager.pojo.cluster.ClusterPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterTagResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
