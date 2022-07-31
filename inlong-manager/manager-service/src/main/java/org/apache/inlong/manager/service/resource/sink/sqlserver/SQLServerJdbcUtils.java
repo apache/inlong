@@ -30,7 +30,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Utils for SQLServer JDBC.
@@ -52,7 +51,8 @@ public class SQLServerJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(String url, String user, String password) throws Exception {
+    public static Connection getConnection(final String url, final String user, final String password)
+            throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(SQLSERVER_JDBC_PREFIX)) {
             throw new Exception("SQLServer server URL was invalid, it should start with jdbc:sqlserver");
         }
@@ -79,26 +79,12 @@ public class SQLServerJdbcUtils {
      * @param sql SQL string to be executed
      * @throws Exception on execute SQL error
      */
-    public static void executeSql(Connection conn, String sql) throws Exception {
+    public static void executeSql(final Connection conn, final String sql) throws Exception {
         conn.setAutoCommit(true);
-        Statement stmt = conn.createStatement();
-        LOG.info("execute sql [{}] success", sql);
-        stmt.execute(sql);
-        stmt.close();
-    }
-
-    /**
-     * Execute query SQL on SQLServer.
-     *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sql SQL string to be executed
-     * @return {@link ResultSet}
-     * @throws Exception on execute query SQL error
-     */
-    public static ResultSet executeQuerySql(Connection conn, String sql) throws Exception {
-        Statement stmt = conn.createStatement();
-        LOG.info("execute sql [{}] success", sql);
-        return stmt.executeQuery(sql);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            LOG.info("execute sql [{}] success", sql);
+        }
     }
 
     /**
@@ -108,15 +94,16 @@ public class SQLServerJdbcUtils {
      * @param sqls SQL string to be executed
      * @throws Exception on get execute SQL batch error
      */
-    public static void executeSqlBatch(Connection conn, List<String> sqls) throws Exception {
+    public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
-        Statement stmt = conn.createStatement();
-        for (String entry : sqls) {
-            stmt.execute(entry);
+        try (Statement stmt = conn.createStatement()) {
+            for (String entry : sqls) {
+                stmt.execute(entry);
+            }
+            conn.commit();
+        } finally {
+            conn.setAutoCommit(true);
         }
-        conn.commit();
-        stmt.close();
-        conn.setAutoCommit(true);
         LOG.info("execute sql [{}] success", sqls);
     }
 
@@ -127,9 +114,9 @@ public class SQLServerJdbcUtils {
      * @param schemaName SQLServer schema name
      * @throws Exception on create schema error
      */
-    public static void createSchema(Connection conn, String schemaName) throws Exception {
+    public static void createSchema(final Connection conn, final String schemaName) throws Exception {
         if (!checkSchemaExist(conn, schemaName)) {
-            String createSql = SQLServerSqlBuilder.buildCreateSchemaSql(schemaName);
+            final String createSql = SQLServerSqlBuilder.buildCreateSchemaSql(schemaName);
             executeSql(conn, createSql);
             LOG.info("execute sql [{}] success", createSql);
         } else {
@@ -144,12 +131,12 @@ public class SQLServerJdbcUtils {
      * @param tableInfo SQLServer table info  {@link SQLServerTableInfo}
      * @throws Exception on create table error
      */
-    public static void createTable(Connection conn, SQLServerTableInfo tableInfo)
+    public static void createTable(final Connection conn, final SQLServerTableInfo tableInfo)
             throws Exception {
         if (checkTablesExist(conn, tableInfo.getSchemaName(), tableInfo.getTableName())) {
             LOG.info("The table [{}] are exists", tableInfo.getTableName());
         } else {
-            List<String> createTableSqls = SQLServerSqlBuilder.buildCreateTableSql(tableInfo);
+            final List<String> createTableSqls = SQLServerSqlBuilder.buildCreateTableSql(tableInfo);
             executeSqlBatch(conn, createTableSqls);
             LOG.info("execute sql [{}] success", createTableSqls);
         }
@@ -164,20 +151,20 @@ public class SQLServerJdbcUtils {
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
-    public static boolean checkTablesExist(Connection conn, String schemaName, String tableName) throws Exception {
+    public static boolean checkTablesExist(final Connection conn, final String schemaName, final String tableName)
+            throws Exception {
         boolean result = false;
-        String checkTableSql = SQLServerSqlBuilder.getCheckTable(schemaName, tableName);
-        ResultSet resultSet = executeQuerySql(conn, checkTableSql);
-        if (null != resultSet && resultSet.next()) {
-            int count = resultSet.getInt(1);
-            if (count > 0) {
-                result = true;
+        final String checkTableSql = SQLServerSqlBuilder.getCheckTable(schemaName, tableName);
+        try (Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(checkTableSql)) {
+            if (null != resultSet && resultSet.next()) {
+                int count = resultSet.getInt(1);
+                if (count > 0) {
+                    result = true;
+                }
             }
         }
         LOG.info("check table exist for schema={} table={}, result={}", schemaName, tableName, result);
-        if (Objects.nonNull(resultSet)) {
-            resultSet.close();
-        }
         return result;
     }
 
@@ -189,20 +176,19 @@ public class SQLServerJdbcUtils {
      * @return true if schema exist, otherwise false
      * @throws Exception on check schema exist error
      */
-    public static boolean checkSchemaExist(Connection conn, String schemaName) throws Exception {
+    public static boolean checkSchemaExist(final Connection conn, final String schemaName) throws Exception {
         boolean result = false;
-        String checkSchemaSql = SQLServerSqlBuilder.getCheckSchema(schemaName);
-        ResultSet resultSet = executeQuerySql(conn, checkSchemaSql);
-        if (null != resultSet && resultSet.next()) {
-            int count = resultSet.getInt(1);
-            if (count > 0) {
-                result = true;
+        final String checkSchemaSql = SQLServerSqlBuilder.getCheckSchema(schemaName);
+        try (Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(checkSchemaSql)) {
+            if (null != resultSet && resultSet.next()) {
+                int count = resultSet.getInt(1);
+                if (count > 0) {
+                    result = true;
+                }
             }
         }
         LOG.info("check schema exist for schemaName={}, result={}", schemaName, result);
-        if (Objects.nonNull(resultSet)) {
-            resultSet.close();
-        }
         return result;
     }
 
@@ -216,22 +202,21 @@ public class SQLServerJdbcUtils {
      * @return true if column exist in the table, otherwise false
      * @throws Exception on check column exist error
      */
-    public static boolean checkColumnExist(Connection conn, String schemaName, String tableName, String column)
-            throws Exception {
+    public static boolean checkColumnExist(final Connection conn, final String schemaName, final String tableName,
+            final String column) throws Exception {
         boolean result = false;
-        String checkTableSql = SQLServerSqlBuilder.getCheckColumn(schemaName, tableName, column);
-        ResultSet resultSet = executeQuerySql(conn, checkTableSql);
-        if (null != resultSet && resultSet.next()) {
-            int count = resultSet.getInt(1);
-            if (count > 0) {
-                result = true;
+        final String checkTableSql = SQLServerSqlBuilder.getCheckColumn(schemaName, tableName, column);
+        try (Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(checkTableSql)) {
+            if (null != resultSet && resultSet.next()) {
+                int count = resultSet.getInt(1);
+                if (count > 0) {
+                    result = true;
+                }
             }
         }
-        LOG.info("check column exist for schema={} table={}, result={} column={}",
-                schemaName, tableName, result, column);
-        if (Objects.nonNull(resultSet)) {
-            resultSet.close();
-        }
+        LOG.info("check column exist for schema={} table={}, result={} column={}", schemaName, tableName, result,
+                column);
         return result;
     }
 
@@ -244,21 +229,20 @@ public class SQLServerJdbcUtils {
      * @return {@link List}
      * @throws Exception on get columns error
      */
-    public static List<SQLServerColumnInfo> getColumns(Connection conn, String schemaName, String tableName)
-            throws Exception {
-        String querySql = SQLServerSqlBuilder.buildDescTableSql(schemaName, tableName);
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(querySql);
-        List<SQLServerColumnInfo> columnList = new ArrayList<>();
-        while (rs.next()) {
-            SQLServerColumnInfo columnInfo = new SQLServerColumnInfo();
-            columnInfo.setName(rs.getString(1));
-            columnInfo.setType(rs.getString(2));
-            columnInfo.setComment(rs.getString(3));
-            columnList.add(columnInfo);
+    public static List<SQLServerColumnInfo> getColumns(final Connection conn, final String schemaName,
+            final String tableName) throws Exception {
+        final String querySql = SQLServerSqlBuilder.buildDescTableSql(schemaName, tableName);
+        final List<SQLServerColumnInfo> columnList = new ArrayList<>();
+        try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(querySql)) {
+            while (rs.next()) {
+                SQLServerColumnInfo columnInfo = new SQLServerColumnInfo();
+                columnInfo.setName(rs.getString(1));
+                columnInfo.setType(rs.getString(2));
+                columnInfo.setComment(rs.getString(3));
+                columnList.add(columnInfo);
+            }
         }
-        rs.close();
-        stmt.close();
         return columnList;
     }
 
@@ -271,9 +255,9 @@ public class SQLServerJdbcUtils {
      * @param columns SQLServer columns to be added
      * @throws Exception on add columns error
      */
-    public static void addColumns(Connection conn, String schemaName, String tableName,
+    public static void addColumns(final Connection conn, final String schemaName, final String tableName,
             List<SQLServerColumnInfo> columns) throws Exception {
-        List<SQLServerColumnInfo> columnInfos = Lists.newArrayList();
+        final List<SQLServerColumnInfo> columnInfos = Lists.newArrayList();
 
         for (SQLServerColumnInfo columnInfo : columns) {
             if (!checkColumnExist(conn, schemaName, tableName, columnInfo.getName())) {

@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -137,11 +137,10 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private final List<SQLServerColumnInfo> buildAddColumns() {
-        List<SQLServerColumnInfo> addCloums = new ArrayList<>();
-        SQLServerColumnInfo test1 = new SQLServerColumnInfo("test1", "varchar(40)", "test1");
-        addCloums.add(test1);
-        SQLServerColumnInfo test2 = new SQLServerColumnInfo("test2", "varchar(40)", "test2");
-        addCloums.add(test2);
+        List<SQLServerColumnInfo> addCloums = Lists.newArrayList(
+                new SQLServerColumnInfo("test1", "varchar(40)", "test1"),
+                new SQLServerColumnInfo("test2", "varchar(40)", "test2")
+        );
         return addCloums;
     }
 
@@ -152,21 +151,20 @@ public class SQLServerSinkServiceTest extends ServiceBaseTest {
      * @param tableName SqlServer table name
      * @return {@link SQLServerTableInfo}
      */
-    private final SQLServerTableInfo bulidTableInfo(String schemaName, String tableName) {
+    private final SQLServerTableInfo bulidTableInfo(final String schemaName, final String tableName) {
         SQLServerTableInfo tableInfo = new SQLServerTableInfo();
         tableInfo.setTableName(tableName);
         tableInfo.setComment("test01 ");
         tableInfo.setPrimaryKey("id");
         tableInfo.setSchemaName(schemaName);
-        List<SQLServerColumnInfo> columnInfos = new ArrayList<>();
-        tableInfo.setColumns(columnInfos);
-        SQLServerColumnInfo id = new SQLServerColumnInfo("id", "int", "id");
-        columnInfos.add(id);
-        SQLServerColumnInfo cell = new SQLServerColumnInfo("cell", "varchar(20)", "cell");
-        columnInfos.add(cell);
-        SQLServerColumnInfo name = new SQLServerColumnInfo("name", "varchar(40)", "name");
-        columnInfos.add(name);
         tableInfo.setPrimaryKey("id");
+
+        List<SQLServerColumnInfo> columnInfos = Lists.newArrayList(
+                new SQLServerColumnInfo("id", "int", "id"),
+                new SQLServerColumnInfo("cell", "varchar(20)", "cell"),
+                new SQLServerColumnInfo("name", "varchar(40)", "name")
+        );
+        tableInfo.setColumns(columnInfos);
         return tableInfo;
     }
 

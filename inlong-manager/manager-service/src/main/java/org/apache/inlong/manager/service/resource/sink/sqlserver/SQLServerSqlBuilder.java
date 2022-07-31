@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerColumnInfo;
@@ -24,7 +25,6 @@ import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,9 +41,9 @@ public class SQLServerSqlBuilder {
      * @param tableName SQLServer table name
      * @return the check table SQL string
      */
-    public static String getCheckTable(String schemaName, String tableName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT COUNT(1) ")
+    public static String getCheckTable(final String schemaName, final String tableName) {
+        final StringBuilder sqlBuilder = new StringBuilder()
+                .append("SELECT COUNT(1) ")
                 .append(" FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '")
                 .append(schemaName)
                 .append("' AND TABLE_NAME = '")
@@ -61,9 +61,9 @@ public class SQLServerSqlBuilder {
      * @param columnName SQLServer column name
      * @return the check column SQL string
      */
-    public static String getCheckColumn(String schemaName, String tableName, String columnName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT COUNT(1) ")
+    public static String getCheckColumn(final String schemaName, final String tableName, final String columnName) {
+        final StringBuilder sqlBuilder = new StringBuilder()
+                .append("SELECT COUNT(1) ")
                 .append(" FROM  INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='")
                 .append(schemaName)
                 .append("' AND TABLE_NAME = '")
@@ -82,8 +82,8 @@ public class SQLServerSqlBuilder {
      * @return
      */
     public static String getCheckSchema(String schemaName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("SELECT COUNT(1) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME ='")
+        final StringBuilder sqlBuilder = new StringBuilder()
+                .append("SELECT COUNT(1) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME ='")
                 .append(schemaName)
                 .append("';");
         LOGGER.info("check schema sql: {}", sqlBuilder);
@@ -111,17 +111,15 @@ public class SQLServerSqlBuilder {
      * @return the create table SQL String
      */
     public static List<String> buildCreateTableSql(SQLServerTableInfo table) {
-        List<String> sqls = new ArrayList<>();
-        StringBuilder sql = new StringBuilder();
-        // Support _ beginning with underscore
-        sql.append("CREATE TABLE ").append(table.getSchemaName())
+        final List<String> sqls = Lists.newArrayList();
+        final StringBuilder sql = new StringBuilder()
+                .append("CREATE TABLE ").append(table.getSchemaName())
                 .append(".")
-                .append(table.getTableName());
-
-        // Construct columns and partition columns
-        sql.append(buildCreateColumnsSql(table));
+                .append(table.getTableName())
+                .append(buildCreateColumnsSql(table));
         sqls.add(sql.toString());
-        table.getColumns().stream().filter(column -> StringUtils.isNotEmpty(column.getComment()))
+        table.getColumns().stream()
+                .filter(column -> StringUtils.isNotEmpty(column.getComment()))
                 .forEach(column -> {
                     sqls.add(
                             buildAddColumnComment(table.getSchemaName(), table.getTableName(), column.getName(),
@@ -139,11 +137,11 @@ public class SQLServerSqlBuilder {
      * @param columnList SQLServer column list {@link List}
      * @return add column SQL string list
      */
-    public static List<String> buildAddColumnsSql(String schemaName, String tableName,
+    public static List<String> buildAddColumnsSql(final String schemaName, final String tableName,
             List<SQLServerColumnInfo> columnList) {
-        List<String> sqls = new ArrayList<>();
-        List<String> columnInfoList = getColumnsInfo(columnList, null);
-        StringBuilder sqlBuilder = new StringBuilder();
+        final List<String> sqls = Lists.newArrayList();
+        final List<String> columnInfoList = getColumnsInfo(columnList, null);
+        final StringBuilder sqlBuilder = new StringBuilder();
         if (CollectionUtils.isNotEmpty(columnList)) {
             sqlBuilder.append("ALTER TABLE ")
                     .append(schemaName)
@@ -154,7 +152,8 @@ public class SQLServerSqlBuilder {
                     .append(" ;");
         }
         sqls.add(sqlBuilder.toString());
-        columnList.stream().filter(column -> StringUtils.isNotEmpty(column.getComment()))
+        columnList.stream()
+                .filter(column -> StringUtils.isNotEmpty(column.getComment()))
                 .forEach(column -> {
                     sqls.add(
                             buildAddColumnComment(schemaName, tableName, column.getName(), column.getComment())
@@ -173,7 +172,8 @@ public class SQLServerSqlBuilder {
      * @param comment SQLServer column comment
      * @return SQL string
      */
-    private static String buildAddColumnComment(String schemaName, String tableName, String columnName,
+    private static String buildAddColumnComment(final String schemaName, final String tableName,
+            final String columnName,
             String comment) {
         return new StringBuilder()
                 .append("EXEC sys.sp_addextendedproperty @name=N'MS_Description',")
@@ -195,9 +195,9 @@ public class SQLServerSqlBuilder {
      * @param table SQLServer table info {@link SQLServerTableInfo}
      * @return create column SQL string
      */
-    private static String buildCreateColumnsSql(SQLServerTableInfo table) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" (")
+    private static String buildCreateColumnsSql(final SQLServerTableInfo table) {
+        final StringBuilder sqlBuilder = new StringBuilder()
+                .append(" (")
                 .append(String.join(",", getColumnsInfo(table.getColumns(), table.getPrimaryKey())))
                 .append(") ");
         LOGGER.info("create columns sql={}", sqlBuilder);
@@ -210,12 +210,11 @@ public class SQLServerSqlBuilder {
      * @param columns SQLServer column info {@link SQLServerColumnInfo} list
      * @return the SQL list
      */
-    private static List<String> getColumnsInfo(List<SQLServerColumnInfo> columns, String primaryKey) {
-        List<String> columnList = new ArrayList<>();
-        for (SQLServerColumnInfo columnInfo : columns) {
-            // Construct columns and partition columns
-            StringBuilder columnBuilder = new StringBuilder()
-                    .append("\"")
+    private static List<String> getColumnsInfo(final List<SQLServerColumnInfo> columns, final String primaryKey) {
+        final List<String> columnList = Lists.newArrayList();
+        final StringBuilder columnBuilder = new StringBuilder();
+        columns.forEach(columnInfo -> {
+            columnBuilder.append("\"")
                     .append(columnInfo.getName())
                     .append("\"")
                     .append(" ")
@@ -225,7 +224,8 @@ public class SQLServerSqlBuilder {
                 columnBuilder.append("PRIMARY KEY ");
             }
             columnList.add(columnBuilder.toString());
-        }
+            columnBuilder.delete(0, columnBuilder.length());
+        });
         return columnList;
     }
 
@@ -236,9 +236,9 @@ public class SQLServerSqlBuilder {
      * @param tableName SQLServer table name
      * @return desc table SQL string
      */
-    public static String buildDescTableSql(String schemaName, String tableName) {
-        StringBuilder sql = new StringBuilder();
-        sql.append(" SELECT C.COLUMN_NAME AS NAME,C.DATA_TYPE AS TYPE,CAST(D.VALUE AS VARCHAR) AS COMMENT FROM ")
+    public static String buildDescTableSql(final String schemaName, final String tableName) {
+        final StringBuilder sql = new StringBuilder()
+                .append(" SELECT C.COLUMN_NAME AS NAME,C.DATA_TYPE AS TYPE,CAST(D.VALUE AS VARCHAR) AS COMMENT FROM ")
                 .append("(SELECT B.OBJECT_ID,A.TABLE_NAME,A.COLUMN_NAME,A.DATA_TYPE,A.ORDINAL_POSITION")
                 .append(" FROM INFORMATION_SCHEMA.COLUMNS A LEFT JOIN SYS.TABLES B")
                 .append(" ON A.TABLE_NAME = B.NAME")

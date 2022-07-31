@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,14 +83,15 @@ public class SQLServerResourceOperator implements SinkResourceOperator {
             LOG.warn("no SQLServer fields found, skip to create table for sinkId={}", sinkInfo.getId());
         }
         // set columns
-        List<SQLServerColumnInfo> columnList = new ArrayList<>();
-        for (StreamSinkFieldEntity field : fieldList) {
-            SQLServerColumnInfo columnInfo = new SQLServerColumnInfo();
-            columnInfo.setName(field.getFieldName());
-            columnInfo.setType(field.getFieldType());
-            columnInfo.setComment(field.getFieldComment());
+        List<SQLServerColumnInfo> columnList = Lists.newArrayList();
+        fieldList.forEach(field -> {
+            SQLServerColumnInfo columnInfo = new SQLServerColumnInfo(
+                    field.getFieldName(),
+                    field.getFieldType(),
+                    field.getFieldComment()
+            );
             columnList.add(columnInfo);
-        }
+        });
 
         final SQLServerSinkDTO sink = SQLServerSinkDTO.getFromJson(sinkInfo.getExtParams());
         final SQLServerTableInfo tableInfo = SQLServerSinkDTO.getTableInfo(sink, columnList);
