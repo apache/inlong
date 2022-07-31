@@ -51,7 +51,7 @@ public class OracleJdbcUtils {
      * @return {@link Connection}
      * @throws Exception on get connection error
      */
-    public static Connection getConnection(String url, String user, String password)
+    public static Connection getConnection(final String url, final String user, final String password)
             throws Exception {
         if (StringUtils.isBlank(url) || !url.startsWith(ORACLE_JDBC_PREFIX)) {
             throw new Exception("Oracle server URL was invalid, it should start with jdbc:oracle");
@@ -79,26 +79,11 @@ public class OracleJdbcUtils {
      * @param sql SQL string to be executed
      * @throws Exception on execute SQL error
      */
-    public static void executeSql(Connection conn, String sql) throws Exception {
+    public static void executeSql(final Connection conn, final String sql) throws Exception {
         Statement stmt = conn.createStatement();
         stmt.execute(sql);
         LOG.info("execute sql [{}] success", sql);
         stmt.close();
-    }
-
-    /**
-     * Execute query SQL on Oracle.
-     *
-     * @param conn JDBC Connection  {@link Connection}
-     * @param sql SQL string to be executed
-     * @return {@link ResultSet}
-     * @throws Exception on execute query SQL error
-     */
-    public static ResultSet executeQuerySql(Connection conn, String sql) throws Exception {
-        Statement stmt = conn.createStatement();
-        ResultSet resultSet = stmt.executeQuery(sql);
-        LOG.info("execute sql [{}] success", sql);
-        return resultSet;
     }
 
     /**
@@ -108,16 +93,17 @@ public class OracleJdbcUtils {
      * @param sqls SQL string to be executed
      * @throws Exception on get execute SQL batch error
      */
-    public static void executeSqlBatch(Connection conn, List<String> sqls) throws Exception {
+    public static void executeSqlBatch(final Connection conn, final List<String> sqls) throws Exception {
         conn.setAutoCommit(false);
-        Statement stmt = conn.createStatement();
-        for (String entry : sqls) {
-            stmt.execute(entry);
+        try (Statement stmt = conn.createStatement()) {
+            for (String entry : sqls) {
+                stmt.execute(entry);
+            }
+            conn.commit();
+            LOG.info("execute batch sql [{}] success", sqls);
+        } finally {
+            conn.setAutoCommit(true);
         }
-        conn.commit();
-        conn.setAutoCommit(true);
-        LOG.info("execute batch sql [{}] success", sqls);
-        stmt.close();
     }
 
     /**
@@ -127,7 +113,7 @@ public class OracleJdbcUtils {
      * @param tableInfo Oracle table info  {@link OracleTableInfo}
      * @throws Exception on create table error
      */
-    public static void createTable(Connection conn, OracleTableInfo tableInfo) throws Exception {
+    public static void createTable(final Connection conn, final OracleTableInfo tableInfo) throws Exception {
         if (checkTablesExist(conn, tableInfo.getUserName(), tableInfo.getTableName())) {
             LOG.info("The table [{}] are exists", tableInfo.getTableName());
         } else {
@@ -146,20 +132,20 @@ public class OracleJdbcUtils {
      * @return true if table exist, otherwise false
      * @throws Exception on check table exist error
      */
-    public static boolean checkTablesExist(Connection conn, String userName, String tableName) throws Exception {
+    public static boolean checkTablesExist(final Connection conn, final String userName, final String tableName)
+            throws Exception {
         boolean result = false;
         String checkTableSql = OracleSqlBuilder.getCheckTable(userName, tableName);
-        ResultSet resultSet = executeQuerySql(conn, checkTableSql);
-        if (null != resultSet && resultSet.next()) {
-            int size = resultSet.getInt(1);
-            if (size > 0) {
-                result = true;
+        try (Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(checkTableSql)) {
+            if (null != resultSet && resultSet.next()) {
+                int size = resultSet.getInt(1);
+                if (size > 0) {
+                    result = true;
+                }
             }
         }
         LOG.info("check table exist for username={} table={}, result={}", userName, tableName, result);
-        if (Objects.nonNull(resultSet)) {
-            resultSet.close();
-        }
         return result;
     }
 
@@ -172,18 +158,18 @@ public class OracleJdbcUtils {
      * @return true if column exist in the table, otherwise false
      * @throws Exception on check column exist error
      */
-    public static boolean checkColumnExist(Connection conn, String tableName, String column) throws Exception {
+    public static boolean checkColumnExist(final Connection conn, final String tableName, final String column)
+            throws Exception {
         boolean result = false;
         String checkColumnSql = OracleSqlBuilder.getCheckColumn(tableName, column);
-        ResultSet resultSet = executeQuerySql(conn, checkColumnSql);
-        if (resultSet != null && resultSet.next()) {
-            int count = resultSet.getInt(1);
-            if (count > 0) {
-                result = true;
+        try (Statement statement = conn.createStatement();
+                ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
+            if (resultSet != null && resultSet.next()) {
+                int count = resultSet.getInt(1);
+                if (count > 0) {
+                    result = true;
+                }
             }
-        }
-        if (Objects.nonNull(resultSet)) {
-            resultSet.close();
         }
         LOG.info("check column exist for table={}, column={}, result={}", tableName, column, result);
         return result;
@@ -197,20 +183,17 @@ public class OracleJdbcUtils {
      * @return {@link List}
      * @throws Exception on get columns error
      */
-    public static List<OracleColumnInfo> getColumns(Connection conn, String tableName) throws Exception {
+    public static List<OracleColumnInfo> getColumns(final Connection conn, final String tableName) throws Exception {
         String querySql = OracleSqlBuilder.buildDescTableSql(tableName);
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(querySql);
         List<OracleColumnInfo> columnList = new ArrayList<>();
-        while (rs.next()) {
-            OracleColumnInfo columnInfo = new OracleColumnInfo();
-            columnInfo.setName(rs.getString(1));
-            columnInfo.setType(rs.getString(2));
-            columnInfo.setComment(rs.getString(3));
-            columnList.add(columnInfo);
+        try (Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(querySql)) {
+            while (rs.next()) {
+                OracleColumnInfo columnInfo = new OracleColumnInfo(rs.getString(1),
+                        rs.getString(2), rs.getString(3));
+                columnList.add(columnInfo);
+            }
         }
-        rs.close();
-        stmt.close();
         return columnList;
     }
 
@@ -222,7 +205,8 @@ public class OracleJdbcUtils {
      * @param columns Oracle columns to be added
      * @throws Exception on add columns error
      */
-    public static void addColumns(Connection conn, String tableName, List<OracleColumnInfo> columns) throws Exception {
+    public static void addColumns(final Connection conn, final String tableName, final List<OracleColumnInfo> columns)
+            throws Exception {
         List<OracleColumnInfo> columnInfos = new ArrayList<>();
 
         for (OracleColumnInfo columnInfo : columns) {

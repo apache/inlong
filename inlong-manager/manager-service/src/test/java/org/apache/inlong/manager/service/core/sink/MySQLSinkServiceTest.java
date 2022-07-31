@@ -17,6 +17,7 @@
 
 package org.apache.inlong.manager.service.core.sink;
 
+import com.google.common.collect.Lists;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
@@ -135,11 +136,10 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * @return {@link List}
      */
     private List<MySQLColumnInfo> buildAddColumns() {
-        List<MySQLColumnInfo> list = new ArrayList<>();
-        MySQLColumnInfo addColumn1 = new MySQLColumnInfo("add_column1", "int(12)", "");
-        list.add(addColumn1);
-        MySQLColumnInfo addColumn2 = new MySQLColumnInfo("add_column2", "varchar(22)", "");
-        list.add(addColumn2);
+        List<MySQLColumnInfo> list = Lists.newArrayList(
+                new MySQLColumnInfo("add_column1", "int(12)", ""),
+                new MySQLColumnInfo("add_column2", "varchar(22)", "")
+        );
         return list;
     }
 
@@ -151,17 +151,13 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * @return {@link MySQLTableInfo}
      */
     private MySQLTableInfo bulidTestMySQLTableInfo(String dbName, String tableName) {
-        List<MySQLColumnInfo> columnInfoList = new ArrayList<>();
-        MySQLColumnInfo id = new MySQLColumnInfo("id", "int(12)", "id");
-        columnInfoList.add(id);
-        MySQLColumnInfo age = new MySQLColumnInfo("age", "int(12)", "age");
-        columnInfoList.add(age);
-        MySQLColumnInfo cell = new MySQLColumnInfo("cell", "varchar(20)", "cell");
-        columnInfoList.add(cell);
-        MySQLColumnInfo name = new MySQLColumnInfo("name", "varchar(40)", "name");
-        columnInfoList.add(name);
-        MySQLColumnInfo createTime = new MySQLColumnInfo("create_time", "datetime", "create time");
-        columnInfoList.add(createTime);
+        List<MySQLColumnInfo> columnInfoList = Lists.newArrayList(
+                new MySQLColumnInfo("id", "int(12)", "id"),
+                new MySQLColumnInfo("age", "int(12)", "age"),
+                new MySQLColumnInfo("cell", "varchar(20)", "cell"),
+                new MySQLColumnInfo("name", "varchar(40)", "name"),
+                new MySQLColumnInfo("create_time", "datetime", "create time")
+        );
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();
         tableInfo.setDbName(dbName);
