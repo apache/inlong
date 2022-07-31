@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
-
-import org.apache.inlong.manager.common.beans.PageRequest;
+package org.apache.inlong.manager.pojo.common;
 
 /**
  * The order field enumeration.
