@@ -96,6 +96,8 @@ public class ClickHouseCase extends FlinkContainerTestEnv {
                     + "       description Nullable(String)\n"
                     + ")\n"
                     + "engine=MergeTree ORDER BY id;");
+            stat.close();
+            conn.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
