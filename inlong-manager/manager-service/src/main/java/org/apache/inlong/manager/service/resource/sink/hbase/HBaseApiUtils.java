@@ -28,8 +28,8 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.client.TableDescriptorBuilder;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseColumnFamilyInfo;
-import org.apache.inlong.manager.common.pojo.sink.hbase.HBaseTableInfo;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseColumnFamilyInfo;
+import org.apache.inlong.manager.pojo.sink.hbase.HBaseTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

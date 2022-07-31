@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.resource.sink.postgresql;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.postgresql.PostgreSQLTableInfo;
+import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLColumnInfo;
+import org.apache.inlong.manager.pojo.sink.postgresql.PostgreSQLTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

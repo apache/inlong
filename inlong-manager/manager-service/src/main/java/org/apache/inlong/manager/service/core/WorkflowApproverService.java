@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.workflow.ApproverRequest;
-import org.apache.inlong.manager.common.pojo.workflow.ApproverResponse;
+import org.apache.inlong.manager.pojo.workflow.ApproverRequest;
+import org.apache.inlong.manager.pojo.workflow.ApproverResponse;
 
 import java.util.List;
 

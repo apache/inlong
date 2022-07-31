@@ -18,10 +18,10 @@
 package org.apache.inlong.manager.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupBriefInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupPageRequest;
-import org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceGroupInfo;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupPageRequest;
+import org.apache.inlong.manager.pojo.sort.standalone.SortSourceGroupInfo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -46,6 +46,13 @@ public interface InlongGroupEntityMapper {
 
     List<InlongGroupEntity> selectByClusterTag(@Param(value = "inlongClusterTag") String inlongClusterTag);
 
+    /**
+     * Select all group info for sort sdk.
+     *
+     * @return All inlong group info.
+     */
+    List<SortSourceGroupInfo> selectAllGroups();
+
     int updateByPrimaryKey(InlongGroupEntity record);
 
     int updateByIdentifierSelective(InlongGroupEntity record);
@@ -54,12 +61,5 @@ public interface InlongGroupEntityMapper {
             @Param("modifier") String modifier);
 
     int deleteByPrimaryKey(Integer id);
-
-    /**
-     * Select all group info for sort sdk.
-     *
-     * @return All inlong group info.
-     */
-    List<SortSourceGroupInfo> selectAllGroups();
 
 }

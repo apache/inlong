@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.core;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogRequest;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
+import org.apache.inlong.manager.pojo.workflow.EventLogRequest;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
 import org.apache.inlong.manager.workflow.event.process.ProcessEvent;
 import org.apache.inlong.manager.workflow.event.task.TaskEvent;
 

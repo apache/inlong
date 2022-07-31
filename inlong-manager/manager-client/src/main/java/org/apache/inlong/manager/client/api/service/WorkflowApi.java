@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.client.api.service;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.beans.Response;
-import org.apache.inlong.manager.common.pojo.workflow.EventLogResponse;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.workflow.EventLogResponse;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;

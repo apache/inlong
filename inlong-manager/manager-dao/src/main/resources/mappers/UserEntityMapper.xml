@@ -68,7 +68,7 @@
         where is_deleted = 0
         and name = #{name, jdbcType=VARCHAR}
     </select>
-    <select id="selectByCondition" parameterType="org.apache.inlong.manager.common.pojo.user.UserRequest"
+    <select id="selectByCondition" parameterType="org.apache.inlong.manager.pojo.user.UserRequest"
             resultType="org.apache.inlong.manager.dao.entity.UserEntity">
         select
         <include refid="Base_Column_List"/>

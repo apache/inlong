@@ -20,9 +20,9 @@ package org.apache.inlong.manager.service.sink;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
 
 import javax.validation.constraints.NotNull;
