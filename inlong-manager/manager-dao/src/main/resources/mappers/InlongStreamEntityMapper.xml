@@ -262,7 +262,14 @@
                 and stream.status = #{request.status, jdbcType=INTEGER}
             </if>
         </where>
-        order by stream.modify_time desc
+        <choose>
+            <when test="request.orderField != null and request.orderField != '' and request.orderType != null and request.orderType != ''">
+                order by stream.${request.orderField} ${request.orderType}
+            </when>
+            <otherwise>
+                order by stream.create_time desc
+            </otherwise>
+        </choose>
     </select>
     <select id="selectBriefList" resultType="org.apache.inlong.manager.pojo.stream.InlongStreamBriefInfo">
         select id, inlong_group_id, inlong_stream_id, name, mq_resource, modify_time

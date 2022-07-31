@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.OrderFieldEnum;
+import org.apache.inlong.manager.common.enums.OrderTypeEnum;
 import org.apache.inlong.manager.common.enums.StreamStatus;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -201,6 +203,8 @@ public class InlongStreamServiceImpl implements InlongStreamService {
         LOGGER.debug("begin to list inlong stream page by {}", request);
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         Page<InlongStreamEntity> entityPage = (Page<InlongStreamEntity>) streamMapper.selectByCondition(request);
         List<InlongStreamBriefInfo> streamList = CommonBeanUtils.copyListProperties(entityPage,
                 InlongStreamBriefInfo::new);

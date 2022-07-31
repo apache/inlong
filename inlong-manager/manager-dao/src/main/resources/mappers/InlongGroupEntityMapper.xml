@@ -154,7 +154,14 @@
                 </foreach>
             </if>
         </where>
-        order by modify_time desc
+        <choose>
+            <when test="orderField != null and orderField != '' and orderType != null and orderType != ''">
+                order by ${orderField} ${orderType}
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
     </select>
     <select id="selectBriefList" parameterType="org.apache.inlong.manager.pojo.group.InlongGroupPageRequest"
             resultType="org.apache.inlong.manager.pojo.group.InlongGroupBriefInfo">
