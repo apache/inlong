@@ -20,9 +20,11 @@ package org.apache.inlong.tubemq.corerpc.netty;
 import static org.apache.inlong.tubemq.corebase.utils.AddressUtils.getRemoteAddressIP;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.util.ReferenceCountUtil;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,50 +45,83 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
             new ConcurrentHashMap<>();
     private static AtomicLong lastProtolTime = new AtomicLong(0);
     private static AtomicLong lastSizeTime = new AtomicLong(0);
+    private boolean packHeaderRead = false;
+    private int listSize;
+    private List<RpcDataPack> rpcDataPackList = new ArrayList<>();
+    private RpcDataPack dataPack;
+    private ByteBuf lastByteBuf;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf buffer, List<Object> out) throws Exception {
-        if (buffer.readableBytes() < 12) {
-            logger.warn("Decode buffer.readableBytes() < 12 !");
-            return;
-        }
-        int frameToken = buffer.readInt();
-        filterIllegalPkgToken(frameToken,
-                RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
-        int serialNo = buffer.readInt();
-        int tmpListSize = buffer.readInt();
-        filterIllegalPackageSize(true, tmpListSize,
-                RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
-        RpcDataPack dataPack = new RpcDataPack(serialNo, new ArrayList<ByteBuffer>());
-        // get PackBody
-        int i = 0;
-        while (i < tmpListSize) {
-            i++;
+        buffer = convertToNewBuf(buffer);
+        while (buffer.readableBytes() > 0) {
+            if (!packHeaderRead) {
+                if (buffer.readableBytes() < 12) {
+                    saveRemainedByteBuf(buffer);
+                    break;
+                }
+                int frameToken = buffer.readInt();
+                filterIllegalPkgToken(frameToken, RpcConstants.RPC_PROTOCOL_BEGIN_TOKEN, ctx.channel());
+                int serialNo = buffer.readInt();
+                int tmpListSize = buffer.readInt();
+                filterIllegalPackageSize(true, tmpListSize,
+                        RpcConstants.MAX_FRAME_MAX_LIST_SIZE, ctx.channel());
+                this.listSize = tmpListSize;
+                this.dataPack = new RpcDataPack(serialNo, new ArrayList<>(this.listSize));
+                this.packHeaderRead = true;
+            }
+            // get PackBody
             if (buffer.readableBytes() < 4) {
-                logger.warn("Decode buffer.readableBytes() < 4 !");
+                saveRemainedByteBuf(buffer);
                 break;
             }
             buffer.markReaderIndex();
             int length = buffer.readInt();
-            filterIllegalPackageSize(false, length,
-                    RpcConstants.RPC_MAX_BUFFER_SIZE, ctx.channel());
+            if (buffer.readableBytes() < length) {
+                buffer.resetReaderIndex();
+                saveRemainedByteBuf(buffer);
+                break;
+            }
             ByteBuffer bb = ByteBuffer.allocate(length);
             buffer.readBytes(bb);
             bb.flip();
             dataPack.getDataLst().add(bb);
+            if (dataPack.getDataLst().size() == listSize) {
+                packHeaderRead = false;
+                rpcDataPackList.add(dataPack);
+            }
         }
-
-        if (dataPack.getDataLst().size() == tmpListSize) {
-            out.add(dataPack);
-        } else {
-            logger.warn("Decode dataPack.getDataLst().size()[{}] != tmpListSize [{}] !",
-                    dataPack.getDataLst().size(), tmpListSize);
-            return;
+        if (rpcDataPackList.size() > 0) {
+            out.addAll(rpcDataPackList);
+            rpcDataPackList.clear();
         }
     }
 
-    private void filterIllegalPkgToken(int inParamValue,
-                                       int allowTokenVal, Channel channel) throws UnknownProtocolException {
+    private void saveRemainedByteBuf(ByteBuf byteBuf) {
+        if (byteBuf != null && byteBuf.readableBytes() > 0) {
+            lastByteBuf = Unpooled.copiedBuffer(byteBuf);
+        }
+    }
+
+    private ByteBuf convertToNewBuf(ByteBuf byteBuf) {
+        ByteBuf newByteBuf = byteBuf;
+        int totalReadBytes = byteBuf.readableBytes();
+        if (lastByteBuf != null) {
+            try {
+                totalReadBytes += lastByteBuf.readableBytes();
+                newByteBuf = Unpooled.buffer(totalReadBytes);
+                newByteBuf.writeBytes(lastByteBuf);
+                newByteBuf.writeBytes(byteBuf);
+            } finally {
+                ReferenceCountUtil.release(lastByteBuf);
+            }
+            lastByteBuf = null;
+        }
+        return newByteBuf;
+    }
+
+    private void filterIllegalPkgToken(int inParamValue, int allowTokenVal,
+            Channel channel) throws UnknownProtocolException {
         if (inParamValue != allowTokenVal) {
             String rmtaddrIp = getRemoteAddressIP(channel);
             if (rmtaddrIp != null) {
@@ -103,7 +138,11 @@ public class NettyProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
                 long curTime = System.currentTimeMillis();
                 if (curTime - befTime > 180000) {
                     if (lastProtolTime.compareAndSet(befTime, System.currentTimeMillis())) {
-                        logger.warn("[Abnormal Visit] OSS Tube visit list is :" + errProtolAddrMap.toString());
+                        logger.warn("[Abnormal Visit] OSS Tube  [inParamValue = {} vs "
+                                        + "allowTokenVal = {}] visit "
+                                        + "list is : {}",
+                                inParamValue, allowTokenVal,
+                                errProtolAddrMap.toString());
                         errProtolAddrMap.clear();
                     }
                 }
