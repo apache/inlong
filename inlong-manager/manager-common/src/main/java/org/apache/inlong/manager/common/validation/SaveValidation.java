@@ -15,27 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.common.enums;
+package org.apache.inlong.manager.common.validation;
 
-import org.apache.inlong.manager.common.beans.PageRequest;
+import javax.validation.groups.Default;
 
 /**
- * The order type enumeration.
+ * Used for validate add request fields group
+ *
+ * @see UpdateValidation
  */
-public enum OrderTypeEnum {
-
-    DESC,
-
-    ASC;
-
-    public static void checkOrderType(PageRequest pageRequest) {
-        for (OrderTypeEnum value : values()) {
-            if (value.name().equalsIgnoreCase(pageRequest.getOrderType())) {
-                pageRequest.setOrderType(value.name().toLowerCase());
-                return;
-            }
-        }
-        pageRequest.setOrderType(DESC.name().toLowerCase());
-    }
+public interface SaveValidation extends Default {
 
 }

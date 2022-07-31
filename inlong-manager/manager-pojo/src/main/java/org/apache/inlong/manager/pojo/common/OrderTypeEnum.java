@@ -17,31 +17,23 @@
 
 package org.apache.inlong.manager.pojo.common;
 
-import lombok.Data;
-import org.springframework.stereotype.Component;
-
 /**
- * Re try config bean, including max attempts, delay, max delay, multiplier.
+ * The order type enumeration.
  */
-@Data
-@Component
-public class ReTryConfigBean {
+public enum OrderTypeEnum {
 
-    /**
-     * Maximum number of attempts
-     */
-    private Integer maxAttempts = 3;
-    /**
-     * The first delay time, in milliseconds
-     */
-    private Long delay = 30000L;
-    /**
-     * The max delay time, in milliseconds
-     */
-    private Long maxDelay = 300000L;
-    /**
-     * Delay time increase factor
-     */
-    private Integer multiplier = 2;
+    DESC,
+
+    ASC;
+
+    public static void checkOrderType(PageRequest pageRequest) {
+        for (OrderTypeEnum value : values()) {
+            if (value.name().equalsIgnoreCase(pageRequest.getOrderType())) {
+                pageRequest.setOrderType(value.name().toLowerCase());
+                return;
+            }
+        }
+        pageRequest.setOrderType(DESC.name().toLowerCase());
+    }
 
 }
