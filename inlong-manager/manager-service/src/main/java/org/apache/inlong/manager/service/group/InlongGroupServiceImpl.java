@@ -27,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.ErrorCodeEnum;
 import org.apache.inlong.manager.common.enums.GroupStatus;
+import org.apache.inlong.manager.common.enums.OrderFieldEnum;
+import org.apache.inlong.manager.common.enums.OrderTypeEnum;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
 import org.apache.inlong.manager.common.exceptions.WorkflowListenerException;
@@ -176,6 +178,8 @@ public class InlongGroupServiceImpl implements InlongGroupService {
             request.setPageSize(MAX_PAGE_SIZE);
         }
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         Page<InlongGroupEntity> entityPage = (Page<InlongGroupEntity>) groupMapper.selectByCondition(request);
 
         List<InlongGroupBriefInfo> briefInfos = CommonBeanUtils.copyListProperties(entityPage,
