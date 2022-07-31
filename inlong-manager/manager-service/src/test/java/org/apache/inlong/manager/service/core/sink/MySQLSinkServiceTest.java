@@ -19,12 +19,12 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSink;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLTableInfo;
+import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSink;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkRequest;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.mysql.MySQLJdbcUtils;

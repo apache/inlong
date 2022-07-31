@@ -21,17 +21,17 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import org.apache.inlong.manager.common.beans.Response;
 import org.apache.inlong.manager.common.enums.OperationType;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionInfo;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionListVo;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionQuery;
-import org.apache.inlong.manager.common.pojo.consumption.ConsumptionSummary;
-import org.apache.inlong.manager.common.pojo.workflow.WorkflowResult;
-import org.apache.inlong.manager.common.util.LoginUserUtils;
+import org.apache.inlong.manager.pojo.common.Response;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionInfo;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionListVo;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionQuery;
+import org.apache.inlong.manager.pojo.consumption.ConsumptionSummary;
+import org.apache.inlong.manager.pojo.workflow.WorkflowResult;
 import org.apache.inlong.manager.service.core.ConsumptionService;
-import org.apache.inlong.manager.service.core.operation.ConsumptionProcessOperation;
-import org.apache.inlong.manager.service.core.operationlog.OperationLog;
+import org.apache.inlong.manager.service.core.impl.ConsumptionProcessService;
+import org.apache.inlong.manager.service.operationlog.OperationLog;
+import org.apache.inlong.manager.service.user.LoginUserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,7 +53,7 @@ public class ConsumptionController {
     @Autowired
     private ConsumptionService consumptionService;
     @Autowired
-    private ConsumptionProcessOperation processOperation;
+    private ConsumptionProcessService processOperation;
 
     @GetMapping("/consumption/summary")
     @ApiOperation(value = "Get data consumption summary")

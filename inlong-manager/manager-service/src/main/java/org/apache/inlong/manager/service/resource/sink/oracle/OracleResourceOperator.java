@@ -22,10 +22,10 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleTableInfo;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkDTO;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
@@ -86,8 +86,8 @@ public class OracleResourceOperator implements SinkResourceOperator {
             columnList.add(columnInfo);
         }
 
-        OracleSinkDTO oracleSink = OracleSinkDTO.getFromJson(sinkInfo.getExtParams());
-        OracleTableInfo tableInfo = OracleSinkDTO.getTableInfo(oracleSink, columnList);
+        final OracleSinkDTO oracleSink = OracleSinkDTO.getFromJson(sinkInfo.getExtParams());
+        final OracleTableInfo tableInfo = OracleSinkDTO.getTableInfo(oracleSink, columnList);
 
         try (Connection conn = OracleJdbcUtils.getConnection(oracleSink.getJdbcUrl(),
                 oracleSink.getUsername(), oracleSink.getPassword())) {
@@ -98,7 +98,7 @@ public class OracleResourceOperator implements SinkResourceOperator {
             // 2. table exists, add columns - skip the exists columns
             OracleJdbcUtils.addColumns(conn, tableInfo.getTableName(), columnList);
             // 3. update the sink status to success
-            String info = "success to create Oracle resource";
+            final String info = "success to create Oracle resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {

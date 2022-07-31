@@ -18,7 +18,7 @@
 package org.apache.inlong.manager.workflow.core;
 
 import org.apache.inlong.manager.workflow.WorkflowContext;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.TaskForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.TaskForm;
 
 import java.util.List;
 

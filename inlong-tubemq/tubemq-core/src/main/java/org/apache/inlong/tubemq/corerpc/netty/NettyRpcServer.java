@@ -28,7 +28,6 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import java.io.DataOutputStream;
@@ -82,7 +81,6 @@ public class NettyRpcServer implements ServiceRpcServer {
     private boolean needTwoWayAuthentic = false;
     private String trustStorePath = "";
     private String trustStorePassword = "";
-    private int maxMessageSize;
 
     /**
      * create a server with rpc config info
@@ -115,8 +113,6 @@ public class NettyRpcServer implements ServiceRpcServer {
             }
         }
         this.enableBusyWait = conf.getBoolean(RpcConstants.NETTY_TCP_ENABLEBUSYWAIT, false);
-        this.maxMessageSize = conf.getInt(RpcConstants.NETTY_TCP_MAX_MESSAGE_SIZE,
-                RpcConstants.CFG_DEFAULT_NETTY_TCP_MAX_MESSAGE_SIZE);
         int bossCount =
                 conf.getInt(RpcConstants.BOSS_COUNT,
                         RpcConstants.CFG_DEFAULT_BOSS_COUNT);
@@ -172,8 +168,6 @@ public class NettyRpcServer implements ServiceRpcServer {
                         System.exit(1);
                     }
                 }
-                socketChannel.pipeline().addLast("frameDecoder", new LengthFieldBasedFrameDecoder(
-                        maxMessageSize, 0, 4, 0, 4));
                 // Encode the data handler
                 socketChannel.pipeline().addLast("protocolEncoder", new NettyProtocolDecoder());
                 // Decode the bytes into a Rpc Data Pack

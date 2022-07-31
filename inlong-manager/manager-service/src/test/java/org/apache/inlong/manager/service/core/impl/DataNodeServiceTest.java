@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.core.impl;
 
 import com.github.pagehelper.PageInfo;
-import org.apache.inlong.manager.common.pojo.node.DataNodePageRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeRequest;
-import org.apache.inlong.manager.common.pojo.node.DataNodeResponse;
+import org.apache.inlong.manager.pojo.node.DataNodePageRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeRequest;
+import org.apache.inlong.manager.pojo.node.DataNodeResponse;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.DataNodeService;
 import org.junit.jupiter.api.Assertions;

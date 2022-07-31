@@ -19,12 +19,12 @@ package org.apache.inlong.manager.service.core.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.common.pojo.sink.SinkField;
-import org.apache.inlong.manager.common.pojo.sink.StreamSink;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSink;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleSinkRequest;
-import org.apache.inlong.manager.common.pojo.sink.oracle.OracleTableInfo;
+import org.apache.inlong.manager.pojo.sink.SinkField;
+import org.apache.inlong.manager.pojo.sink.StreamSink;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleColumnInfo;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleSink;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleSinkRequest;
+import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;

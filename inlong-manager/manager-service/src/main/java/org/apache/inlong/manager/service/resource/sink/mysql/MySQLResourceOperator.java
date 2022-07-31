@@ -22,10 +22,10 @@ import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.WorkflowException;
-import org.apache.inlong.manager.common.pojo.sink.SinkInfo;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLSinkDTO;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLTableInfo;
+import org.apache.inlong.manager.pojo.sink.SinkInfo;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLSinkDTO;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 import org.apache.inlong.manager.dao.entity.StreamSinkFieldEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
 import org.apache.inlong.manager.service.resource.sink.SinkResourceOperator;
@@ -90,8 +90,8 @@ public class MySQLResourceOperator implements SinkResourceOperator {
             columnList.add(columnInfo);
         }
 
-        MySQLSinkDTO mySQLSink = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
-        MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(mySQLSink, columnList);
+        final MySQLSinkDTO mySQLSink = MySQLSinkDTO.getFromJson(sinkInfo.getExtParams());
+        final MySQLTableInfo tableInfo = MySQLSinkDTO.getTableInfo(mySQLSink, columnList);
 
         try (Connection conn = MySQLJdbcUtils.getConnection(mySQLSink.getJdbcUrl(), mySQLSink.getUsername(),
                 mySQLSink.getPassword())) {
@@ -102,7 +102,7 @@ public class MySQLResourceOperator implements SinkResourceOperator {
             // 3. table exists, add columns - skip the exists columns
             MySQLJdbcUtils.addColumns(conn, tableInfo.getDbName(), tableInfo.getTableName(), columnList);
             // 4. update the sink status to success
-            String info = "success to create MySQL resource";
+            final String info = "success to create MySQL resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
         } catch (Throwable e) {

@@ -17,8 +17,8 @@
 
 package org.apache.inlong.manager.service.cluster;
 
-import org.apache.inlong.manager.common.pojo.cluster.ClusterInfo;
-import org.apache.inlong.manager.common.pojo.cluster.ClusterRequest;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
+import org.apache.inlong.manager.pojo.cluster.ClusterRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 
 /**

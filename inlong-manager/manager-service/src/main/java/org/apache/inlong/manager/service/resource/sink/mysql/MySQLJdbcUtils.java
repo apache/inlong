@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.resource.sink.mysql;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.mysql.MySQLTableInfo;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLColumnInfo;
+import org.apache.inlong.manager.pojo.sink.mysql.MySQLTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
