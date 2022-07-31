@@ -17,7 +17,7 @@
 
 package org.apache.inlong.manager.service.repository;
 
-import org.apache.inlong.manager.common.pojo.sink.SinkPageRequest;
+import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.dao.entity.InlongClusterEntity;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSinkEntity;

@@ -19,8 +19,8 @@ package org.apache.inlong.manager.service.resource.sink.sqlserver;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.sqlserver.SQLServerTableInfo;
+import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerColumnInfo;
+import org.apache.inlong.manager.pojo.sink.sqlserver.SQLServerTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

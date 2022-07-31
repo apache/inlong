@@ -101,7 +101,7 @@
         </where>
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.source.SourcePageRequest"
+            parameterType="org.apache.inlong.manager.pojo.source.SourcePageRequest"
             resultType="org.apache.inlong.manager.dao.entity.StreamSourceEntity">
         select
         <include refid="Base_Column_List"/>

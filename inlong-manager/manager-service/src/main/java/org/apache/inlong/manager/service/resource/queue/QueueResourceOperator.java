@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.resource.queue;
 
 import org.apache.inlong.manager.common.enums.MQType;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

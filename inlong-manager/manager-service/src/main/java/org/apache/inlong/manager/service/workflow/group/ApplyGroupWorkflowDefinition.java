@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.workflow.group;
 
 import org.apache.inlong.manager.common.enums.ProcessName;
-import org.apache.inlong.manager.common.pojo.workflow.form.process.ApplyGroupProcessForm;
-import org.apache.inlong.manager.common.pojo.workflow.form.task.InlongGroupApproveForm;
+import org.apache.inlong.manager.pojo.workflow.form.process.ApplyGroupProcessForm;
+import org.apache.inlong.manager.pojo.workflow.form.task.InlongGroupApproveForm;
 import org.apache.inlong.manager.service.core.WorkflowApproverService;
 import org.apache.inlong.manager.service.workflow.WorkflowDefinition;
 import org.apache.inlong.manager.service.listener.group.apply.AfterApprovedTaskListener;

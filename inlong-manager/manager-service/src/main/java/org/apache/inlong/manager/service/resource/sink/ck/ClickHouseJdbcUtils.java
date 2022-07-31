@@ -18,8 +18,8 @@
 package org.apache.inlong.manager.service.resource.sink.ck;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseColumnInfo;
-import org.apache.inlong.manager.common.pojo.sink.ck.ClickHouseTableInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseColumnInfo;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseTableInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.yandex.clickhouse.ClickHouseDatabaseMetadata;

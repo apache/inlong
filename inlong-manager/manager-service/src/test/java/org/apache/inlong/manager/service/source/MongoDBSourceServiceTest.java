@@ -18,9 +18,9 @@
 package org.apache.inlong.manager.service.source;
 
 import org.apache.inlong.manager.common.enums.SourceType;
-import org.apache.inlong.manager.common.pojo.source.StreamSource;
-import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSource;
-import org.apache.inlong.manager.common.pojo.source.mongodb.MongoDBSourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSource;
+import org.apache.inlong.manager.pojo.source.mongodb.MongoDBSourceRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;

@@ -83,7 +83,7 @@
         order by modify_time desc
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         select
         <include refid="Base_Column_List"/>
@@ -120,6 +120,15 @@
         </where>
         order by modify_time desc
     </select>
+    <select id="selectAllClusters" resultType="org.apache.inlong.manager.pojo.sort.standalone.SortSourceClusterInfo">
+        select name,
+               type,
+               cluster_tags,
+               ext_tag,
+               ext_params
+        from inlong_cluster
+        where is_deleted = 0
+    </select>
 
     <update id="updateById" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
@@ -138,7 +147,7 @@
             modifier     = #{modifier,jdbcType=VARCHAR},
             version      = #{version,jdbcType=INTEGER} + 1
         where id = #{id,jdbcType=INTEGER}
-        and version = #{version,jdbcType=INTEGER}
+          and version = #{version,jdbcType=INTEGER}
     </update>
     <update id="updateByIdSelective" parameterType="org.apache.inlong.manager.dao.entity.InlongClusterEntity">
         update inlong_cluster
@@ -194,14 +203,4 @@
         where id = #{id,jdbcType=INTEGER}
     </delete>
 
-    <select id="selectAllClusters"
-            resultType="org.apache.inlong.manager.common.pojo.sortstandalone.SortSourceClusterInfo">
-        select name,
-               type,
-               cluster_tags,
-               ext_tag,
-               ext_params
-        from inlong_cluster
-        where is_deleted = 0
-    </select>
 </mapper>

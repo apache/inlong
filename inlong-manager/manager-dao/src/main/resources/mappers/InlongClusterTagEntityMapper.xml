@@ -61,7 +61,7 @@
         and is_deleted = 0
     </select>
     <select id="selectByCondition"
-            parameterType="org.apache.inlong.manager.common.pojo.cluster.ClusterTagPageRequest"
+            parameterType="org.apache.inlong.manager.pojo.cluster.ClusterTagPageRequest"
             resultType="org.apache.inlong.manager.dao.entity.InlongClusterTagEntity">
         select
         <include refid="Base_Column_List"/>

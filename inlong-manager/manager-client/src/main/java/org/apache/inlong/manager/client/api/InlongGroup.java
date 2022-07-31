@@ -17,11 +17,11 @@
 
 package org.apache.inlong.manager.client.api;
 
-import org.apache.inlong.manager.common.pojo.group.InlongGroupCountResponse;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.common.pojo.group.InlongGroupTopicInfo;
-import org.apache.inlong.manager.common.pojo.sort.BaseSortConf;
-import org.apache.inlong.manager.common.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupCountResponse;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.group.InlongGroupTopicInfo;
+import org.apache.inlong.manager.pojo.sort.BaseSortConf;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
 
 import java.util.List;
 
@@ -154,5 +154,5 @@ public interface InlongGroup {
      * @param id topic id
      * @return {@link InlongGroupTopicInfo}
      */
-    InlongGroupTopicInfo getTopic(String id)throws Exception;
+    InlongGroupTopicInfo getTopic(String id) throws Exception;
 }

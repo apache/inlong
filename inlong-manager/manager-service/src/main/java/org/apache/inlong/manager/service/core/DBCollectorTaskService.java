@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.core;
 
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorReportTaskRequest;
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskInfo;
-import org.apache.inlong.manager.common.pojo.dbcollector.DBCollectorTaskRequest;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorReportTaskRequest;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskInfo;
+import org.apache.inlong.manager.pojo.dbcollector.DBCollectorTaskRequest;
 
 /**
  * Database collector task service layer interface for inlong group

@@ -17,9 +17,9 @@
 
 package org.apache.inlong.manager.service.transform;
 
-import org.apache.inlong.manager.common.pojo.transform.DeleteTransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformRequest;
-import org.apache.inlong.manager.common.pojo.transform.TransformResponse;
+import org.apache.inlong.manager.pojo.transform.DeleteTransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformRequest;
+import org.apache.inlong.manager.pojo.transform.TransformResponse;
 
 import java.util.List;
 
