@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -110,11 +109,11 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:mysql://localhost:3306/test01";
-        String user = "inlong";
-        String password = "mysql";
-        String dbName = "test01";
-        String tableName = "test_table02";
+        final String url = "jdbc:mysql://localhost:3306/test01";
+        final String user = "inlong";
+        final String password = "mysql";
+        final String dbName = "test01";
+        final String tableName = "test_table02";
 
         try (Connection connection = MySQLJdbcUtils.getConnection(url, user, password)) {
             MySQLJdbcUtils.createDb(connection, dbName);
@@ -125,7 +124,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
             List<MySQLColumnInfo> columns = MySQLJdbcUtils.getColumns(connection, dbName, tableName);
             Assertions.assertEquals(columns.size(), tableInfo.getColumns().size() + addColumns.size());
         } catch (Exception e) {
-            // print to local console
+            // print to local consoleS
             e.printStackTrace();
         }
     }
@@ -150,7 +149,7 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
      * @param tableName MySQL table name
      * @return {@link MySQLTableInfo}
      */
-    private MySQLTableInfo bulidTestMySQLTableInfo(String dbName, String tableName) {
+    private MySQLTableInfo bulidTestMySQLTableInfo(final String dbName, final String tableName) {
         List<MySQLColumnInfo> columnInfoList = Lists.newArrayList(
                 new MySQLColumnInfo("id", "int(12)", "id"),
                 new MySQLColumnInfo("age", "int(12)", "age"),
@@ -160,8 +159,8 @@ public class MySQLSinkServiceTest extends ServiceBaseTest {
         );
 
         MySQLTableInfo tableInfo = new MySQLTableInfo();
-        tableInfo.setDbName(dbName);
         tableInfo.setColumns(columnInfoList);
+        tableInfo.setDbName(dbName);
         tableInfo.setTableName(tableName);
         tableInfo.setPrimaryKey("id");
         return tableInfo;

@@ -121,10 +121,10 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      */
     @Disabled
     public void testDbResource() {
-        String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
-        String username = "c###inlong_test";
-        String password = "123456";
-        String tableName = "test02";
+        final String url = "jdbc:oracle:thin:@localhost:1521/ORCLCDB";
+        final String username = "c###inlong_test";
+        final String password = "123456";
+        final String tableName = "test02";
 
         try (Connection connection = OracleJdbcUtils.getConnection(url, username, password)) {
             OracleTableInfo tableInfo = bulidTestOracleTableInfo(username, tableName);
@@ -159,7 +159,7 @@ public class OracleSinkServiceTest extends ServiceBaseTest {
      * @param tableName Oracle table name
      * @return {@link OracleTableInfo}
      */
-    private OracleTableInfo bulidTestOracleTableInfo(String userName, String tableName) {
+    private OracleTableInfo bulidTestOracleTableInfo(final String userName, final String tableName) {
         OracleTableInfo oracleTableInfo = new OracleTableInfo();
         oracleTableInfo.setTableName(tableName);
         oracleTableInfo.setUserName(userName);

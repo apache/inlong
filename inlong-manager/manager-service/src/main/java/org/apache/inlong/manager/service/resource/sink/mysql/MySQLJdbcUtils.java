@@ -62,11 +62,11 @@ public class MySQLJdbcUtils {
             Class.forName(MYSQL_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
+            final String errorMsg = "get MySQL connection error, please check MySQL JDBC url, username or password!";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
-        if (conn == null) {
+        if (Objects.isNull(conn)) {
             throw new Exception("get MySQL connection failed, please contact administrator.");
         }
         LOG.info("get MySQL connection success, url={}", url);
@@ -137,13 +137,13 @@ public class MySQLJdbcUtils {
         final String checkDbSql = MySQLSqlBuilder.getCheckDatabase(dbName);
         try (Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkDbSql)) {
-            if (resultSet != null) {
+            if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
-                    LOG.info("check db exist for db={}, result={}", dbName, result);
                     return true;
                 }
             }
         }
+        LOG.info("check db exist for db={}, result={}", dbName, result);
         return result;
     }
 
@@ -179,13 +179,13 @@ public class MySQLJdbcUtils {
         final String checkTableSql = MySQLSqlBuilder.getCheckTable(dbName, tableName);
         try (Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
-            if (resultSet != null) {
+            if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
-                    LOG.info("check table exist for db={} table={}, result={}", dbName, tableName, result);
                 }
             }
         }
+        LOG.info("check table exist for db={} table={}, result={}", dbName, tableName, result);
         return result;
     }
 
@@ -206,14 +206,13 @@ public class MySQLJdbcUtils {
         final String checkTableSql = MySQLSqlBuilder.getCheckColumn(dbName, tableName, column);
         try (Statement stmt = conn.createStatement();
                 ResultSet resultSet = stmt.executeQuery(checkTableSql)) {
-            if (resultSet != null) {
+            if (Objects.nonNull(resultSet)) {
                 if (resultSet.next()) {
                     result = true;
-                    LOG.info("check column exist for db={} table={}, result={} column={}",
-                            dbName, tableName, result, column);
                 }
             }
         }
+        LOG.info("check column exist for db={} table={}, result={} column={}", dbName, tableName, result, column);
         return result;
     }
 
@@ -233,10 +232,12 @@ public class MySQLJdbcUtils {
 
         try (Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(querySql)) {
-            while (rs.next()) {
-                MySQLColumnInfo columnInfo = new MySQLColumnInfo(rs.getString(1),
-                        rs.getString(2), rs.getString(3));
-                columnList.add(columnInfo);
+            if (Objects.nonNull(rs)) {
+                while (rs.next()) {
+                    MySQLColumnInfo columnInfo = new MySQLColumnInfo(rs.getString(1),
+                            rs.getString(2), rs.getString(3));
+                    columnList.add(columnInfo);
+                }
             }
         }
         return columnList;

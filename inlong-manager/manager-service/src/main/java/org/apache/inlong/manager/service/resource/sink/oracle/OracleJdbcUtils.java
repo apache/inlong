@@ -61,11 +61,11 @@ public class OracleJdbcUtils {
             Class.forName(ORACLE_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            String errorMsg = "get Oracle connection error, please check Oracle JDBC url, username or password!";
+            final String errorMsg = "get Oracle connection error, please check Oracle JDBC url, username or password!";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
-        if (conn == null) {
+        if (Objects.isNull(conn)) {
             throw new Exception("get Oracle connection failed, please contact administrator.");
         }
         LOG.info("get Oracle connection success, url={}", url);
@@ -80,10 +80,10 @@ public class OracleJdbcUtils {
      * @throws Exception on execute SQL error
      */
     public static void executeSql(final Connection conn, final String sql) throws Exception {
-        Statement stmt = conn.createStatement();
-        stmt.execute(sql);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        }
         LOG.info("execute sql [{}] success", sql);
-        stmt.close();
     }
 
     /**
@@ -135,10 +135,10 @@ public class OracleJdbcUtils {
     public static boolean checkTablesExist(final Connection conn, final String userName, final String tableName)
             throws Exception {
         boolean result = false;
-        String checkTableSql = OracleSqlBuilder.getCheckTable(userName, tableName);
+        final String checkTableSql = OracleSqlBuilder.getCheckTable(userName, tableName);
         try (Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkTableSql)) {
-            if (null != resultSet && resultSet.next()) {
+            if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int size = resultSet.getInt(1);
                 if (size > 0) {
                     result = true;
@@ -161,10 +161,10 @@ public class OracleJdbcUtils {
     public static boolean checkColumnExist(final Connection conn, final String tableName, final String column)
             throws Exception {
         boolean result = false;
-        String checkColumnSql = OracleSqlBuilder.getCheckColumn(tableName, column);
+        final String checkColumnSql = OracleSqlBuilder.getCheckColumn(tableName, column);
         try (Statement statement = conn.createStatement();
                 ResultSet resultSet = statement.executeQuery(checkColumnSql)) {
-            if (resultSet != null && resultSet.next()) {
+            if (Objects.nonNull(resultSet) && resultSet.next()) {
                 int count = resultSet.getInt(1);
                 if (count > 0) {
                     result = true;
