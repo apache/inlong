@@ -41,7 +41,7 @@ public class ClusterNodeRequest {
     private Integer parentId;
 
     @NotBlank(message = "type cannot be blank")
-    @ApiModelProperty(value = "Cluster type, including TUBE, PULSAR, DATA_PROXY, etc.")
+    @ApiModelProperty(value = "Cluster type, including AGENT, DATAPROXY, etc.")
     private String type;
 
     @NotBlank(message = "ip cannot be blank")
@@ -54,6 +54,9 @@ public class ClusterNodeRequest {
 
     @ApiModelProperty(value = "Extended params")
     private String extParams;
+
+    @ApiModelProperty(value = "Description of the cluster node")
+    private String description;
 
     @ApiModelProperty(value = "Version number")
     private Integer version;

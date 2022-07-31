@@ -18,13 +18,14 @@
 package org.apache.inlong.manager.pojo.cluster.dataproxy;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.inlong.manager.common.enums.ClusterType;
-import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.JsonTypeDefine;
+import org.apache.inlong.manager.pojo.cluster.ClusterInfo;
 
 /**
  * Inlong cluster info for DataProxy
@@ -32,14 +33,21 @@ import org.apache.inlong.manager.common.util.JsonTypeDefine;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonTypeDefine(value = ClusterType.DATA_PROXY)
+@JsonTypeDefine(value = ClusterType.DATAPROXY)
 @ApiModel("Inlong cluster info for DataProxy")
 public class DataProxyClusterInfo extends ClusterInfo {
 
-    // no fields
+    @ApiModelProperty("Is the DataProxy cluster an intranet? 0: no, 1: yes")
+    private Integer isIntranet = 1;
+
+    @ApiModelProperty("Is the DataProxy cluster in a switch status? 0: no, 1: yes")
+    private Integer isSwitch = 0;
+
+    @ApiModelProperty("Load of the DataProxy cluster, default is 20")
+    private Integer load = 20;
 
     public DataProxyClusterInfo() {
-        this.setType(ClusterType.DATA_PROXY);
+        this.setType(ClusterType.DATAPROXY);
     }
 
     @Override
