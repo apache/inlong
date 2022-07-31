@@ -15,29 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkRequest;
+import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSink;
-import org.apache.inlong.manager.pojo.sink.es.ElasticsearchSinkRequest;
+import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
+import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
+import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Elasticsearch sink service test
- */
-public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1";
+/**
+ * TDSQLPostgreSQL sink service test
+ */
+class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
+
+    private static final String globalGroupId = "b_group1_tdsqlpostgresql";
+    private static final String globalStreamId = "stream1_tdsqlpostgresql";
     private static final String globalOperator = "admin";
+    private static final String fieldName = "tdsqlpostgresql_field";
+    private static final String fieldType = "tdsqlpostgresql_type";
+    private static final Integer fieldId = 1;
 
     @Autowired
     private StreamSinkService sinkService;
@@ -49,21 +55,27 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        ElasticsearchSinkRequest sinkInfo = new ElasticsearchSinkRequest();
+        TDSQLPostgreSQLSinkRequest sinkInfo = new TDSQLPostgreSQLSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_ELASTICSEARCH);
+        sinkInfo.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
 
-        sinkInfo.setHost("127.0.0.1");
-        sinkInfo.setUsername("elasticsearch");
+        sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/postgres");
+        sinkInfo.setUsername("TDSQLPostgreSQL");
         sinkInfo.setPassword("inlong");
-        sinkInfo.setDocumentType("public");
-        sinkInfo.setIndexName("index");
+        sinkInfo.setSchemaName("public");
+        sinkInfo.setTableName("user");
         sinkInfo.setPrimaryKey("name,age");
-        sinkInfo.setEsVersion(7);
 
         sinkInfo.setSinkName(sinkName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        SinkField sinkField = new SinkField();
+        sinkField.setFieldName(fieldName);
+        sinkField.setFieldType(fieldType);
+        sinkField.setId(fieldId);
+        List<SinkField> sinkFieldList = new ArrayList<>();
+        sinkFieldList.add(sinkField);
+        sinkInfo.setSinkFieldList(sinkFieldList);
         return sinkService.save(sinkInfo, globalOperator);
     }
 
@@ -76,22 +88,22 @@ public class ElasticsearchSinkServiceTest extends ServiceBaseTest {
     }
 
     @Test
-    public void testListByIdentifier() {
-        Integer sinkId = this.saveSink("Elasticsearch_default1");
+    void testListByIdentifier() {
+        Integer sinkId = this.saveSink("tdsqlpostgresql_default1");
         StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSink(sinkId);
     }
 
     @Test
-    public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("Elasticsearch_default2");
+    void testGetAndUpdate() {
+        Integer sinkId = this.saveSink("tdsqlpostgresql_default2");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        ElasticsearchSink sink = (ElasticsearchSink) streamSink;
+        TDSQLPostgreSQLSink sink = (TDSQLPostgreSQLSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        SinkRequest request = sink.genSinkRequest();
+        TDSQLPostgreSQLSinkRequest request = CommonBeanUtils.copyProperties(sink, TDSQLPostgreSQLSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
 

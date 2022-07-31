@@ -15,18 +15,17 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSink;
-import org.apache.inlong.manager.pojo.sink.tdsqlpostgresql.TDSQLPostgreSQLSinkRequest;
+import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSink;
+import org.apache.inlong.manager.pojo.sink.hdfs.HDFSSinkRequest;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,16 +33,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * TDSQLPostgreSQL sink service test
- */
-class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
+public class HDFSStreamSinkServiceTest extends ServiceBaseTest {
 
-    private static final String globalGroupId = "b_group1_tdsqlpostgresql";
-    private static final String globalStreamId = "stream1_tdsqlpostgresql";
+    private static final String globalGroupId = "b_group_hdfs";
+    private static final String globalStreamId = "stream1_hdfs";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "tdsqlpostgresql_field";
-    private static final String fieldType = "tdsqlpostgresql_type";
+    private static final String fileFormat = "TextFile";
+    private static final String dataPath = "hdfs://ip:port/usr/hive/warehouse/test.db";
+    private static final String serverTimeZone = "GMT%2b8";
+    private static final String fieldName = "hdfs_field";
+    private static final String fieldType = "hdfs_type";
     private static final Integer fieldId = 1;
 
     @Autowired
@@ -56,28 +55,24 @@ class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        TDSQLPostgreSQLSinkRequest sinkInfo = new TDSQLPostgreSQLSinkRequest();
-        sinkInfo.setInlongGroupId(globalGroupId);
-        sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_TDSQLPOSTGRESQL);
 
-        sinkInfo.setJdbcUrl("jdbc:tdsqlpostgresql://localhost:5432/postgres");
-        sinkInfo.setUsername("TDSQLPostgreSQL");
-        sinkInfo.setPassword("inlong");
-        sinkInfo.setSchemaName("public");
-        sinkInfo.setTableName("user");
-        sinkInfo.setPrimaryKey("name,age");
-
-        sinkInfo.setSinkName(sinkName);
-        sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        HDFSSinkRequest hdfsSinkRequest = new HDFSSinkRequest();
+        hdfsSinkRequest.setInlongGroupId(globalGroupId);
+        hdfsSinkRequest.setInlongStreamId(globalStreamId);
+        hdfsSinkRequest.setSinkType(SinkType.SINK_HDFS);
+        hdfsSinkRequest.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
+        hdfsSinkRequest.setSinkName(sinkName);
+        hdfsSinkRequest.setFileFormat(fileFormat);
+        hdfsSinkRequest.setDataPath(dataPath);
+        hdfsSinkRequest.setServerTimeZone(serverTimeZone);
         SinkField sinkField = new SinkField();
         sinkField.setFieldName(fieldName);
         sinkField.setFieldType(fieldType);
         sinkField.setId(fieldId);
         List<SinkField> sinkFieldList = new ArrayList<>();
         sinkFieldList.add(sinkField);
-        sinkInfo.setSinkFieldList(sinkFieldList);
-        return sinkService.save(sinkInfo, globalOperator);
+        hdfsSinkRequest.setSinkFieldList(sinkFieldList);
+        return sinkService.save(hdfsSinkRequest, globalOperator);
     }
 
     /**
@@ -85,29 +80,30 @@ class TDSQLPostgreSQLSinkServiceTest extends ServiceBaseTest {
      */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
+        // Verify that the deletion was successful
         Assertions.assertTrue(result);
     }
 
     @Test
-    void testListByIdentifier() {
-        Integer sinkId = this.saveSink("tdsqlpostgresql_default1");
+    public void testListByIdentifier() {
+        Integer sinkId = this.saveSink("default_hdfs");
         StreamSink sink = sinkService.get(sinkId);
+        // verify globalGroupId
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSink(sinkId);
     }
 
     @Test
-    void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("tdsqlpostgresql_default2");
+    public void testGetAndUpdate() {
+        Integer sinkId = this.saveSink("default_hdfs");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        TDSQLPostgreSQLSink sink = (TDSQLPostgreSQLSink) streamSink;
+        HDFSSink sink = (HDFSSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
-        TDSQLPostgreSQLSinkRequest request = CommonBeanUtils.copyProperties(sink, TDSQLPostgreSQLSinkRequest::new);
+        HDFSSinkRequest request = CommonBeanUtils.copyProperties(sink, HDFSSinkRequest::new);
         boolean result = sinkService.update(request, globalOperator);
         Assertions.assertTrue(result);
-
         deleteSink(sinkId);
     }
 

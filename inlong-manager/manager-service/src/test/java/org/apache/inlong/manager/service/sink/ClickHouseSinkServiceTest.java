@@ -15,37 +15,33 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.core.sink;
+package org.apache.inlong.manager.service.sink;
 
 import org.apache.inlong.manager.common.consts.InlongConstants;
 import org.apache.inlong.manager.common.enums.SinkType;
-import org.apache.inlong.manager.pojo.sink.SinkField;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
-import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
-import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSink;
+import org.apache.inlong.manager.pojo.sink.ck.ClickHouseSinkRequest;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
-import org.apache.inlong.manager.service.sink.StreamSinkService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Greenplum sink service test
+ * ClickHouse sink service test
  */
-public class GreenplumSinkServiceTest extends ServiceBaseTest {
+public class ClickHouseSinkServiceTest extends ServiceBaseTest {
 
+    // Partial test data
     private static final String globalGroupId = "b_group1";
-    private static final String globalStreamId = "stream1";
+    private static final String globalStreamId = "stream1_clickhouse";
     private static final String globalOperator = "admin";
-    private static final String fieldName = "greenplum_field";
-    private static final String fieldType = "greenplum_type";
-    private static final Integer fieldId = 1;
-
+    private static final String ckJdbcUrl = "jdbc:clickhouse://127.0.0.1:8123/default";
+    private static final String ckUsername = "ck_user";
+    private static final String ckDatabaseName = "ck_db";
+    private static final String ckTableName = "ck_tbl";
     @Autowired
     private StreamSinkService sinkService;
     @Autowired
@@ -56,31 +52,22 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
      */
     public Integer saveSink(String sinkName) {
         streamServiceTest.saveInlongStream(globalGroupId, globalStreamId, globalOperator);
-        GreenplumSinkRequest sinkInfo = new GreenplumSinkRequest();
+        ClickHouseSinkRequest sinkInfo = new ClickHouseSinkRequest();
         sinkInfo.setInlongGroupId(globalGroupId);
         sinkInfo.setInlongStreamId(globalStreamId);
-        sinkInfo.setSinkType(SinkType.SINK_GREENPLUM);
-
-        sinkInfo.setJdbcUrl("jdbc:postgresql://localhost:5432/greenplum");
-        sinkInfo.setUsername("greenplum");
-        sinkInfo.setPassword("inlong");
-        sinkInfo.setTableName("user");
-        sinkInfo.setPrimaryKey("name,age");
-
         sinkInfo.setSinkName(sinkName);
+        sinkInfo.setSinkType(SinkType.SINK_CLICKHOUSE);
+        sinkInfo.setJdbcUrl(ckJdbcUrl);
+        sinkInfo.setUsername(ckUsername);
+        sinkInfo.setDbName(ckDatabaseName);
+        sinkInfo.setTableName(ckTableName);
         sinkInfo.setEnableCreateResource(InlongConstants.DISABLE_CREATE_RESOURCE);
-        SinkField sinkField = new SinkField();
-        sinkField.setFieldName(fieldName);
-        sinkField.setFieldType(fieldType);
-        sinkField.setId(fieldId);
-        List<SinkField> sinkFieldList = new ArrayList<>();
-        sinkFieldList.add(sinkField);
-        sinkInfo.setSinkFieldList(sinkFieldList);
+        sinkInfo.setId((int) (Math.random() * 100000 + 1));
         return sinkService.save(sinkInfo, globalOperator);
     }
 
     /**
-     * Delete sink info by sink id.
+     * Delete sink by sink id.
      */
     public void deleteSink(Integer sinkId) {
         boolean result = sinkService.delete(sinkId, globalOperator);
@@ -89,7 +76,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testListByIdentifier() {
-        Integer sinkId = this.saveSink("greenplum_default1");
+        Integer sinkId = this.saveSink("default1");
         StreamSink sink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, sink.getInlongGroupId());
         deleteSink(sinkId);
@@ -97,11 +84,11 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
 
     @Test
     public void testGetAndUpdate() {
-        Integer sinkId = this.saveSink("greenplum_default2");
+        Integer sinkId = this.saveSink("default2");
         StreamSink streamSink = sinkService.get(sinkId);
         Assertions.assertEquals(globalGroupId, streamSink.getInlongGroupId());
 
-        GreenplumSink sink = (GreenplumSink) streamSink;
+        ClickHouseSink sink = (ClickHouseSink) streamSink;
         sink.setEnableCreateResource(InlongConstants.ENABLE_CREATE_RESOURCE);
         SinkRequest request = sink.genSinkRequest();
         boolean result = sinkService.update(request, globalOperator);

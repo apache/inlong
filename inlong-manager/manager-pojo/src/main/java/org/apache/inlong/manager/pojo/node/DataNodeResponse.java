@@ -52,6 +52,9 @@ public class DataNodeResponse {
     @ApiModelProperty(value = "Extended params")
     private String extParams;
 
+    @ApiModelProperty(value = "Description of the data node")
+    private String description;
+
     @ApiModelProperty(value = "Name of in charges, separated by commas")
     private String inCharges;
 

@@ -68,7 +68,7 @@ public class TubeMQResourceOperator implements QueueResourceOperator {
         try {
             // 1. create tubemq topic
             String clusterTag = groupInfo.getInlongClusterTag();
-            TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBE);
+            TubeClusterInfo tubeCluster = (TubeClusterInfo) clusterService.getOne(clusterTag, null, ClusterType.TUBEMQ);
             String topicName = groupInfo.getMqResource();
             tubeMQOperator.createTopic(tubeCluster, topicName, operator);
             log.info("success to create tubemq topic for groupId={}", groupId);

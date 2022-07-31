@@ -52,7 +52,7 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         DataProxyClusterRequest request = new DataProxyClusterRequest();
         request.setClusterTags(clusterTag);
         request.setName(clusterName);
-        request.setType(ClusterType.DATA_PROXY);
+        request.setType(ClusterType.DATAPROXY);
         request.setExtTag(extTag);
         request.setInCharges(GLOBAL_OPERATOR);
         return clusterService.save(request, GLOBAL_OPERATOR);
@@ -213,11 +213,11 @@ public class InlongClusterServiceTest extends ServiceBaseTest {
         // save cluster node
         String ip = "127.0.0.1";
         Integer port1 = 46800;
-        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port1);
+        Integer nodeId1 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port1);
         Assertions.assertNotNull(nodeId1);
 
         Integer port2 = 46801;
-        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATA_PROXY, ip, port2);
+        Integer nodeId2 = this.saveClusterNode(id, ClusterType.DATAPROXY, ip, port2);
         Assertions.assertNotNull(nodeId2);
 
         // create an inlong group which use the clusterTag

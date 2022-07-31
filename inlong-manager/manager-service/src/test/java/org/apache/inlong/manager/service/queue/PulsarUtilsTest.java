@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.service.mq.util;
+package org.apache.inlong.manager.service.queue;
 
 import org.apache.inlong.manager.service.resource.queue.pulsar.PulsarUtils;
 import org.apache.pulsar.client.admin.PulsarAdmin;

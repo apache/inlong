@@ -36,11 +36,12 @@ public interface DataNodeEntityMapper {
 
     List<DataNodeEntity> selectByCondition(DataNodePageRequest request);
 
+    List<SortSinkInfo> selectAllSinkParams();
+
     int updateById(DataNodeEntity record);
 
     int updateByIdSelective(DataNodeEntity record);
 
     int deleteById(Integer id);
 
-    List<SortSinkInfo> selectAllSinkParams();
 }
