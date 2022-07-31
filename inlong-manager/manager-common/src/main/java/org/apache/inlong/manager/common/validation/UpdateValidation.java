@@ -15,15 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.common;
+package org.apache.inlong.manager.common.validation;
 
 import javax.validation.groups.Default;
 
 /**
- * Used for validate add request fields group
+ * Used for validate update request fields group
  *
- * @see UpdateValidation
+ * <p/>
+ * In general, the request body of save and update can be shared,
+ * but we need to verify the parameters of the two requests separately
+ *
+ * <p/>
+ * For example, the request body save and update only have the difference in id,
+ * and this id must be carried when updating, we can use it like this
+ * <code>org.apache.inlong.manager.pojo.node.DataNodeRequest</code>
  */
-public interface SaveValidation extends Default {
+public interface UpdateValidation extends Default {
 
 }
