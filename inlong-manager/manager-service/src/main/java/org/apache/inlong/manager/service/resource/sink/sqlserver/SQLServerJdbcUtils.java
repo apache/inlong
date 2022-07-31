@@ -61,7 +61,8 @@ public class SQLServerJdbcUtils {
             Class.forName(SQLSERVER_DRIVER_CLASS);
             conn = DriverManager.getConnection(url, user, password);
         } catch (Exception e) {
-            final String errorMsg = "get SQLServer connection error, please check SQLServer JDBC url, username or password!";
+            final String errorMsg = "get SQLServer connection error, please check SQLServer JDBC url, "
+                    + "username or password!";
             LOG.error(errorMsg, e);
             throw new Exception(errorMsg + " other error msg: " + e.getMessage());
         }
