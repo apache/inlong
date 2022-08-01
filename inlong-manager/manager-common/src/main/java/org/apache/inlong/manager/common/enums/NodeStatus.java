@@ -38,7 +38,7 @@ public enum NodeStatus {
         return status;
     }
 
-    public NodeStatus fromStatus(int status) {
+    public static NodeStatus fromStatus(int status) {
         switch (status) {
             case 1:
                 return NORMAL;
