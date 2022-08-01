@@ -141,9 +141,9 @@ public class MsgFileStore implements Closeable {
         // Various parameters that trigger data refresh
         boolean isDataSegFlushed = false;
         boolean isIndexSegFlushed = false;
-        boolean isMsgCntFlushed = false;
-        boolean isMsgDataFlushed = false;
-        boolean isMsgTimeFlushed = false;
+        boolean pendingMsgCntExceed = false;
+        boolean pendingMsgSizeExceed = false;
+        boolean pendingMsgTimeExceed = false;
         boolean isForceMetadata = false;
         // flushed message message count and data size info
         long flushedMsgCnt = 0;
@@ -197,15 +197,14 @@ public class MsgFileStore implements Closeable {
             }
             // check whether need to flush to disk.
             currTime = System.currentTimeMillis();
-            isMsgDataFlushed = (messageStore.getUnflushDataHold() > 0)
+            pendingMsgSizeExceed = (messageStore.getUnflushDataHold() > 0)
                     && (curUnflushSize.get() >= messageStore.getUnflushDataHold());
-            if ((isMsgCntFlushed =
-                    (this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold()))
-                || (isMsgTimeFlushed =
-                    (currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval()))
-                || isMsgDataFlushed || isDataSegFlushed || isIndexSegFlushed) {
-                isForceMetadata = (isDataSegFlushed || isIndexSegFlushed
-                    || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR));
+            pendingMsgCntExceed = this.curUnflushed.addAndGet(msgCnt) >= messageStore.getUnflushThreshold();
+            pendingMsgTimeExceed = currTime - this.lastFlushTime.get() >= messageStore.getUnflushInterval();
+            boolean isSegmentRollOver =  isDataSegFlushed || isIndexSegFlushed;
+
+            if (pendingMsgCntExceed || pendingMsgTimeExceed || pendingMsgSizeExceed || isSegmentRollOver) {
+                isForceMetadata = isSegmentRollOver || (currTime - this.lastMetaFlushTime.get() > MAX_META_REFRESH_DUR);
                 if (!isDataSegFlushed) {
                     curDataSeg.flush(isForceMetadata);
                 }
@@ -246,7 +245,7 @@ public class MsgFileStore implements Closeable {
             // add statistics.
             msgStoreStatsHolder.addFileFlushStatsInfo(msgCnt, indexSize, dataSize,
                     flushedMsgCnt, flushedDataSize, isDataSegFlushed, isIndexSegFlushed,
-                    isMsgDataFlushed, isMsgCntFlushed, isMsgTimeFlushed, isForceMetadata);
+                    pendingMsgSizeExceed, pendingMsgCntExceed, pendingMsgTimeExceed, isForceMetadata);
             if (isDataSegFlushed) {
                 logger.info(sb.append("[File Store] Created data segment ")
                         .append(newDataFilePath).toString());
