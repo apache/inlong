@@ -39,6 +39,7 @@ import static org.apache.flink.util.Preconditions.checkState;
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
  * A {@link DynamicTableSink} for JDBC.
+ * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey. 
  */
 @Internal
 public class JdbcDynamicTableSink implements DynamicTableSink {

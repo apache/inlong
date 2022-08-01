@@ -52,6 +52,7 @@ import static org.apache.flink.util.Preconditions.checkNotNull;
  * Copy from org.apache.flink:flink-connector-jdbc_2.11:1.13.5
  *
  * Builder for {@link JdbcBatchingOutputFormat} for Table/SQL.
+ * Add an option `sink.ignore.changelog` to support insert-only mode without primaryKey.
  */
 public class JdbcDynamicOutputFormatBuilder implements Serializable {
 
