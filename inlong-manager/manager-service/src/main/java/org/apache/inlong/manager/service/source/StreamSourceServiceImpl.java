@@ -30,18 +30,20 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SourceStatus;
 import org.apache.inlong.manager.common.enums.SourceType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
-import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
-import org.apache.inlong.manager.pojo.source.SourcePageRequest;
-import org.apache.inlong.manager.pojo.source.SourceRequest;
-import org.apache.inlong.manager.pojo.source.StreamSource;
-import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.common.util.CommonBeanUtils;
 import org.apache.inlong.manager.common.util.Preconditions;
 import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
 import org.apache.inlong.manager.dao.entity.StreamSourceEntity;
 import org.apache.inlong.manager.dao.mapper.StreamSourceEntityMapper;
 import org.apache.inlong.manager.dao.mapper.StreamSourceFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
+import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
+import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
+import org.apache.inlong.manager.pojo.source.SourcePageRequest;
+import org.apache.inlong.manager.pojo.source.SourceRequest;
+import org.apache.inlong.manager.pojo.source.StreamSource;
+import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
+import org.apache.inlong.manager.pojo.stream.StreamField;
 import org.apache.inlong.manager.service.group.GroupCheckService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +173,8 @@ public class StreamSourceServiceImpl implements StreamSourceService {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         List<StreamSourceEntity> entityList = sourceMapper.selectByCondition(request);
 
         // Encapsulate the paging query results into the PageInfo object to obtain related paging information

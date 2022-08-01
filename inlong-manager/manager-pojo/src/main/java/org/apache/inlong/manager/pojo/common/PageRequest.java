@@ -26,11 +26,35 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "Pagination request")
 public class PageRequest {
 
-    @ApiModelProperty(value = "current page, default 1", required = true, example = "1")
+    @ApiModelProperty(value = "Current page number, default is 1")
     private int pageNum = 1;
 
-    @ApiModelProperty(value = "page size, default 10", required = true, example = "10")
+    @ApiModelProperty(value = "Page size, default is 10")
     private int pageSize = 10;
+
+    @ApiModelProperty(value = "Order field, support create_time and modify_time, default is create_time")
+    private String orderField = "create_time";
+
+    @ApiModelProperty(value = "Order type, only support asc and desc, default is desc")
+    private String orderType = "desc";
+
+    public String getOrderField() {
+        return orderField;
+    }
+
+    public PageRequest setOrderField(String orderField) {
+        this.orderField = orderField;
+        return this;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public PageRequest setOrderType(String orderType) {
+        this.orderType = orderType;
+        return this;
+    }
 
     public int getPageNum() {
         return pageNum;

@@ -30,6 +30,13 @@ import org.apache.inlong.manager.common.enums.GroupStatus;
 import org.apache.inlong.manager.common.enums.SinkStatus;
 import org.apache.inlong.manager.common.enums.SinkType;
 import org.apache.inlong.manager.common.exceptions.BusinessException;
+import org.apache.inlong.manager.common.util.Preconditions;
+import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
+import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
+import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
+import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
+import org.apache.inlong.manager.pojo.common.OrderFieldEnum;
+import org.apache.inlong.manager.pojo.common.OrderTypeEnum;
 import org.apache.inlong.manager.pojo.group.InlongGroupInfo;
 import org.apache.inlong.manager.pojo.sink.SinkApproveDTO;
 import org.apache.inlong.manager.pojo.sink.SinkBriefInfo;
@@ -38,13 +45,8 @@ import org.apache.inlong.manager.pojo.sink.SinkPageRequest;
 import org.apache.inlong.manager.pojo.sink.SinkRequest;
 import org.apache.inlong.manager.pojo.sink.StreamSink;
 import org.apache.inlong.manager.pojo.stream.InlongStreamInfo;
-import org.apache.inlong.manager.common.util.Preconditions;
-import org.apache.inlong.manager.dao.entity.InlongGroupEntity;
-import org.apache.inlong.manager.dao.entity.StreamSinkEntity;
-import org.apache.inlong.manager.dao.mapper.StreamSinkEntityMapper;
-import org.apache.inlong.manager.dao.mapper.StreamSinkFieldEntityMapper;
-import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.apache.inlong.manager.service.group.GroupCheckService;
+import org.apache.inlong.manager.service.stream.InlongStreamProcessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,6 +185,8 @@ public class StreamSinkServiceImpl implements StreamSinkService {
         Preconditions.checkNotNull(request.getInlongGroupId(), ErrorCodeEnum.GROUP_ID_IS_EMPTY.getMessage());
 
         PageHelper.startPage(request.getPageNum(), request.getPageSize());
+        OrderFieldEnum.checkOrderField(request);
+        OrderTypeEnum.checkOrderType(request);
         List<StreamSinkEntity> entityPage = sinkMapper.selectByCondition(request);
         Map<SinkType, Page<StreamSinkEntity>> sinkMap = Maps.newHashMap();
         for (StreamSinkEntity streamSink : entityPage) {

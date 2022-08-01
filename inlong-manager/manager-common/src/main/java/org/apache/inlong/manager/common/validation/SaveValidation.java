@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.inlong.manager.pojo.common;
+package org.apache.inlong.manager.common.validation;
 
 import javax.validation.groups.Default;
 

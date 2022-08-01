@@ -17,18 +17,23 @@
 
 package org.apache.inlong.manager.pojo.common;
 
-import javax.validation.groups.Default;
-
 /**
- * Used for validate update request fields group
- *
- * In general, the request body of save and update can be shared,
- * but we need to verify the parameters of the two requests separately
- *
- * For example, the request body save and update only have the difference in id,
- * and this id must be carried when updating, we can use it like this
- * {@link org.apache.inlong.manager.pojo.node.DataNodeRequest}
+ * The order field enumeration.
  */
-public interface UpdateValidation extends Default {
+public enum OrderFieldEnum {
+
+    CREATE_TIME,
+
+    MODIFY_TIME;
+
+    public static void checkOrderField(PageRequest pageRequest) {
+        for (OrderFieldEnum value : values()) {
+            if (value.name().equalsIgnoreCase(pageRequest.getOrderField())) {
+                pageRequest.setOrderField(value.name().toLowerCase());
+                return;
+            }
+        }
+        pageRequest.setOrderField(CREATE_TIME.name().toLowerCase());
+    }
 
 }
