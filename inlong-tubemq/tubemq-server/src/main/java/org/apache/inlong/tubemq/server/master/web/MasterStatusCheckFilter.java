@@ -70,7 +70,7 @@ public class MasterStatusCheckFilter implements Filter {
             if (TStringUtils.isNotBlank(req.getQueryString())) {
                 sBuilder.append("?").append(req.getQueryString());
             }
-            if (Pattern.matches(whiteListPattern, sBuilder.toString())){
+            if (Pattern.matches(whiteListPattern, sBuilder.toString())) {
                 resp.sendRedirect(sBuilder.toString());
             }
             return;
