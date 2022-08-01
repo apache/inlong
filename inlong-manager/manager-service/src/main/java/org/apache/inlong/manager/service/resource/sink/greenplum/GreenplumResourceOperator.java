@@ -100,16 +100,16 @@ public class GreenplumResourceOperator implements SinkResourceOperator {
             // 3.Table exists, add columns - skip the exists columns
             GreenplumJdbcUtils.addColumns(conn, tableInfo.getSchemaName(), tableInfo.getTableName(), columnList);
             // 4.Update the sink status to success
-            final String info = "success to create Oracle resource";
+            final String info = "success to create Greenplum resource";
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_SUCCESSFUL.getCode(), info);
             LOG.info(info + " for sinkInfo={}", sinkInfo);
             // 4. close connection.
         } catch (Throwable e) {
-            String errMsg = "create Oracle table failed: " + e.getMessage();
+            String errMsg = "create Greenplum table failed: " + e.getMessage();
             LOG.error(errMsg, e);
             sinkService.updateStatus(sinkInfo.getId(), SinkStatus.CONFIG_FAILED.getCode(), errMsg);
             throw new WorkflowException(errMsg);
         }
-        LOG.info("success create Oracle table for data sink [" + sinkInfo.getId() + "]");
+        LOG.info("success create Greenplum table for data sink [" + sinkInfo.getId() + "]");
     }
 }

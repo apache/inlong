@@ -87,10 +87,10 @@ public class GreenplumSinkDTO {
     }
 
     /**
-     * Get Oracle table info
+     * Get Greenplum table info
      *
-     * @param greenplumSink Oracle sink dto,{@link GreenplumSinkDTO}
-     * @param columnList Oracle column info list,{@link GreenplumColumnInfo}
+     * @param greenplumSink Greenplum sink dto,{@link GreenplumSinkDTO}
+     * @param columnList Greenplum column info list,{@link GreenplumColumnInfo}
      * @return {@link GreenplumTableInfo}
      */
     public static GreenplumTableInfo getTableInfo(GreenplumSinkDTO greenplumSink,

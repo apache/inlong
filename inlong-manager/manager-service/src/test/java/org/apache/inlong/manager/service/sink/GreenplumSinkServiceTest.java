@@ -27,7 +27,6 @@ import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumColumnInfo;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSink;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumSinkRequest;
 import org.apache.inlong.manager.pojo.sink.greenplum.GreenplumTableInfo;
-import org.apache.inlong.manager.pojo.sink.oracle.OracleTableInfo;
 import org.apache.inlong.manager.service.ServiceBaseTest;
 import org.apache.inlong.manager.service.core.impl.InlongStreamServiceTest;
 import org.apache.inlong.manager.service.resource.sink.greenplum.GreenplumJdbcUtils;
@@ -141,7 +140,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
     }
 
     /**
-     * Build add Oracle column info.
+     * Build add Greenplum column info.
      *
      * @return {@link List}
      */
@@ -159,7 +158,7 @@ public class GreenplumSinkServiceTest extends ServiceBaseTest {
      *
      * @param userName Greenplum database name
      * @param tableName Greenplum table name
-     * @return {@link OracleTableInfo}
+     * @return {@link GreenplumTableInfo}
      */
     private GreenplumTableInfo bulidTestGreenplumTableInfo(final String userName, final String schemaName,
             final String tableName) {
